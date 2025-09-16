@@ -13746,7 +13746,7 @@ async def extract_company_metadata_from_website(website_content: str, company_we
             "priorityOther": "To be determined from website analysis"
         }
 
-async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
+async def create_audit_onepager(duckduckgo_summary, example_text_path, payload, language="ru"):
     try:
         with open(example_text_path, encoding="utf-8") as f:
             example_text = f.read()
@@ -13757,45 +13757,88 @@ async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
         duck_info = "(DuckDuckGo не дал информации. Используй только анкету.)"
     else:
         duck_info = duckduckgo_summary
-    prompt = f"""
-    Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
+    # Language-specific prompts
+    if language == "en":
+        prompt = f"""
+        Generate an AI audit (one-pager) for the company using ALL information from the user questionnaire and internet research results (DuckDuckGo).
 
-    ТВОЯ ЗАДАЧА:
-    - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
-    - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
-    - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
-    - Если в примере 5 секций — в твоём ответе тоже должно быть 5 секций с теми же названиями и в том же порядке.
-    - ЗАМЕНИ только данные, относящиеся к компании, на новые из анкеты и поиска.
-    - НЕ сокращай, НЕ добавляй новых секций, НЕ меняй структуру, НЕ меняй форматирование, НЕ меняй количество строк, НЕ меняй количество столбцов в таблицах.
-    - Если не уверен — лучше скопируй больше из примера, чем меньше.
-    - Твой ответ должен быть на 90% буквальной копией примера, только с новыми данными.
-    - Если DuckDuckGo не дал информации, используй только анкету.
-    - Если в примере есть таблица, твоя таблица должна быть с тем же количеством строк и столбцов, только с новыми данными.
-    - Если в примере есть абзац, твой ответ должен содержать такой же абзац на том же месте.
-    - Если в примере есть список, твой ответ должен содержать такой же список с тем же количеством пунктов.
-    - Не меняй ни одну структуру, даже если кажется, что это не подходит — просто замени данные.
+        YOUR TASK:
+        - COPY THE EXAMPLE BELOW AS ACCURATELY AS POSSIBLE, WORD FOR WORD.
+        - Use the same sections, same order, same length, same headers, same tables, same lists, same paragraphs, same formatting.
+        - If the example has a table — your response should also have a table with the same number of rows and columns.
+        - If the example has 5 sections — your response should also have 5 sections with the same names and in the same order.
+        - REPLACE only data related to the company with new data from the questionnaire and search.
+        - DO NOT shorten, DO NOT add new sections, DO NOT change structure, DO NOT change formatting, DO NOT change number of rows, DO NOT change number of columns in tables.
+        - If unsure — better copy more from the example than less.
+        - Your response should be 90% a literal copy of the example, only with new data.
+        - If DuckDuckGo didn't provide information, use only the questionnaire.
+        - If the example has a table, your table should have the same number of rows and columns, only with new data.
+        - If the example has a paragraph, your response should contain the same paragraph in the same place.
+        - If the example has a list, your response should contain the same list with the same number of items.
+        - Don't change any structure, even if it seems inappropriate — just replace the data.
 
-    ---
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {payload.companyName}
-    - Описание компании: {payload.companyDesc}
-    - Сайт компании: {payload.companyWebsite}
-    - Количество сотрудников: {payload.employees}
-    - Франшиза: {payload.franchise}
-    - Проблемы онбординга: {payload.onboardingProblems}
-    - Документы: {', '.join(payload.documents)} {payload.documentsOther}
-    - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
+        ---
+        QUESTIONNAIRE DATA:
+        - Company name: {payload.companyName}
+        - Company description: {payload.companyDesc}
+        - Company website: {payload.companyWebsite}
+        - Number of employees: {payload.employees}
+        - Franchise: {payload.franchise}
+        - Onboarding problems: {payload.onboardingProblems}
+        - Documents: {', '.join(payload.documents)} {payload.documentsOther}
+        - Priorities: {', '.join(payload.priorities)} {payload.priorityOther}
 
-    ---
-    РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (DuckDuckGo):
-    {duck_info}
+        ---
+        INTERNET RESEARCH RESULTS (DuckDuckGo):
+        {duck_info}
 
-    ---
-    СКОПИРУЙ ПРИМЕР НИЖЕ, ЗАМЕНИВ ТОЛЬКО ДАННЫЕ О КОМПАНИИ:
-    {example_text}
+        ---
+        COPY THE EXAMPLE BELOW, REPLACING ONLY COMPANY DATA:
+        {example_text}
 
-    Ответь только текстом one-pager по этим правилам, без пояснений.
-    """
+        Respond only with the one-pager text following these rules, without explanations.
+        """
+    else:
+        # Russian (default)
+        prompt = f"""
+        Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
+
+        ТВОЯ ЗАДАЧА:
+        - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
+        - Используй те же секции, тот же порядок, ту же длину, те же заголовки, те же таблицы, те же списки, те же абзацы, то же форматирование.
+        - Если в примере есть таблица — в твоём ответе тоже должна быть таблица с тем же количеством строк и столбцов.
+        - Если в примере 5 секций — в твоём ответе тоже должно быть 5 секций с теми же названиями и в том же порядке.
+        - ЗАМЕНИ только данные, относящиеся к компании, на новые из анкеты и поиска.
+        - НЕ сокращай, НЕ добавляй новых секций, НЕ меняй структуру, НЕ меняй форматирование, НЕ меняй количество строк, НЕ меняй количество столбцов в таблицах.
+        - Если не уверен — лучше скопируй больше из примера, чем меньше.
+        - Твой ответ должен быть на 90% буквальной копией примера, только с новыми данными.
+        - Если DuckDuckGo не дал информации, используй только анкету.
+        - Если в примере есть таблица, твоя таблица должна быть с тем же количеством строк и столбцов, только с новыми данными.
+        - Если в примере есть абзац, твой ответ должен содержать такой же абзац на том же месте.
+        - Если в примере есть список, твой ответ должен содержать такой же список с тем же количеством пунктов.
+        - Не меняй ни одну структуру, даже если кажется, что это не подходит — просто замени данные.
+
+        ---
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {payload.companyName}
+        - Описание компании: {payload.companyDesc}
+        - Сайт компании: {payload.companyWebsite}
+        - Количество сотрудников: {payload.employees}
+        - Франшиза: {payload.franchise}
+        - Проблемы онбординга: {payload.onboardingProblems}
+        - Документы: {', '.join(payload.documents)} {payload.documentsOther}
+        - Приоритеты: {', '.join(payload.priorities)} {payload.priorityOther}
+
+        ---
+        РЕЗУЛЬТАТЫ ИНТЕРНЕТ-ИССЛЕДОВАНИЯ (DuckDuckGo):
+        {duck_info}
+
+        ---
+        СКОПИРУЙ ПРИМЕР НИЖЕ, ЗАМЕНИВ ТОЛЬКО ДАННЫЕ О КОМПАНИИ:
+        {example_text}
+
+        Ответь только текстом one-pager по этим правилам, без пояснений.
+        """
     logger.info(f"[AI-Audit] Final prompt (first 500 chars): {prompt[:500]}")
     client = get_openai_client()
     try:
@@ -14099,7 +14142,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
             'priorities': scraped_data.priorities,
             'priorityOther': scraped_data.priorityOther
         })()
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", combined_payload)
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", combined_payload, payload.language)
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -14107,7 +14150,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         project_id = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит: {scraped_data.companyName}",
+            project_name=f"AI-Audit: {scraped_data.companyName}" if payload.language == "en" else f"AI-Аудит: {scraped_data.companyName}",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
             chat_session_id=None
         )
@@ -14128,13 +14171,13 @@ async def _run_audit_generation(payload, request, pool, job_id):
         logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
 
         set_progress(job_id, "Generating closing one-pager...")
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", combined_payload)
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", combined_payload, payload.language)
 
         # After you get the parsed content from the AI parser:
         project_id_2 = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит: {scraped_data.companyName} (2)",
+            project_name=f"AI-Audit: {scraped_data.companyName} (2)" if payload.language == "en" else f"AI-Аудит: {scraped_data.companyName} (2)",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
             chat_session_id=None
         )
@@ -14155,7 +14198,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         return {
             "id": project_id,
             "id_2": project_id_2,
-            "name": f"AI-Аудит: {scraped_data.companyName}",
+            "name": f"AI-Audit: {scraped_data.companyName}" if payload.language == "en" else f"AI-Аудит: {scraped_data.companyName}",
             "folderId": folder_id
         }
     
@@ -14658,7 +14701,7 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
         return []
 
 
-async def generate_workforce_crisis_data(duckduckgo_summary: str, payload) -> dict:
+async def generate_workforce_crisis_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Generate workforce crisis data including industry, burnout, turnover, losses, search time, and chart data.
     Returns a dictionary with all the dynamic values for the "Кадровый кризис" section.
@@ -15446,7 +15489,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             'priorityOther': scraped_data.priorityOther
         })()
         # Generate job positions using the same logic as the old audit
-        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, combined_payload, company_name)
+        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, combined_payload, company_name, payload.language)
         
         # 📊 LOG: Job positions generated
         logger.info(f"💼 [AUDIT DATA FLOW] Generated {len(job_positions)} job positions")
@@ -15455,7 +15498,7 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
 
         set_progress(job_id, "Generating workforce crisis data...")
         # Generate workforce crisis data for the "Кадровый кризис" section
-        workforce_crisis_data = await generate_workforce_crisis_data(duckduckgo_summary, combined_payload)
+        workforce_crisis_data = await generate_workforce_crisis_data(duckduckgo_summary, combined_payload, payload.language)
         
         # 📊 LOG: Workforce crisis data generated
         logger.info(f"📊 [AUDIT DATA FLOW] Generated workforce crisis data: {workforce_crisis_data}")
@@ -15680,7 +15723,7 @@ async def extract_job_positions_from_website_content(website_content: str, compa
         logger.error(f"❌ [WEBSITE SCRAPING] Error extracting job positions: {e}")
         return []
 
-async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload, company_name: str) -> list:
+async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload, company_name: str, language: str = "ru") -> list:
     """
     Generates job positions directly from scraped website content using AI.
     More efficient than generating a full audit one-pager.
