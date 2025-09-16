@@ -24877,16 +24877,19 @@ async def get_smartdrive_login_credentials(
                     userid = f"sd_{sanitized[:24]}"
                     new_password = secrets.token_urlsafe(16)
 
-                    async with httpx.AsyncClient(timeout=30.0) as client:
+                    ocs_base = (base_url or "").rstrip("/")
+                    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                        create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
                         create_resp = await client.post(
-                            f"{base_url}/ocs/v1.php/cloud/users",
+                            create_url,
                             data={"userid": userid, "password": new_password},
                             headers={"OCS-APIRequest": "true", "Accept": "application/json"},
                             auth=(nc_admin_user, nc_admin_pass)
                         )
                         if create_resp.status_code == 409:
+                            update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
                             update_resp = await client.put(
-                                f"{base_url}/ocs/v1.php/cloud/users/{userid}",
+                                update_url,
                                 data={"key": "password", "value": new_password},
                                 headers={"OCS-APIRequest": "true", "Accept": "application/json"},
                                 auth=(nc_admin_user, nc_admin_pass)
