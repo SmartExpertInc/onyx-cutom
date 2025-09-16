@@ -14377,29 +14377,55 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
         logger.info(f"[COURSE OUTLINE] Generating course outline for position: {position_title}")
         
         # Build the prompt for course outline generation
-        wizard_request = {
-            "product": "Course Outline",
-            "prompt": (
-                f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
-                f"КОНТЕКСТ КОМПАНИИ:\n"
-                f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
-                f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
-                f"- Должность: {position_title}\n"
-                f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
-                f"ТРЕБОВАНИЯ К КУРСУ:\n"
-                f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
-                f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
-                f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
-                f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
-                f"- В каждом модуле должно быть ОТ 5 ДО 7 уроков\n"
-                f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
-                f"- Избегай повторяющихся формулировок\n"
-                f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
+        if language == "en":
+            wizard_request = {
+                "product": "Course Outline",
+                "prompt": (
+                    f"Create a detailed course outline 'Onboarding for {position_title}' for new employees in this position at '{getattr(payload, 'companyName', 'Company Name')}'. \n"
+                    f"COMPANY CONTEXT:\n"
+                    f"- Company Name: {getattr(payload, 'companyName', 'Company Name')}\n"
+                    f"- Company Description: {getattr(payload, 'companyDesc', 'Company Description')}\n"
+                    f"- Position: {position_title}\n"
+                    f"- Additional company information: {duckduckgo_summary}\n\n"
+                    f"COURSE REQUIREMENTS:\n"
+                    f"- The course should be specific to company {getattr(payload, 'companyName', 'Company Name')} and position {position_title}\n"
+                    f"- Content should reflect real tasks and responsibilities of this position in this company\n"
+                    f"- Consider industry specifics and corporate culture\n"
+                    f"- Create EXACTLY 4 modules with UNIQUE names\n"
+                    f"- Each module should have FROM 5 TO 7 lessons\n"
+                    f"- Module and lesson names should be CREATIVE and DIVERSE\n"
+                    f"- Avoid repetitive formulations\n"
+                    f"- Each lesson should be specific and practical for this position\n"
+                    f"- Generate ALL content EXCLUSIVELY in English\n"
             ),
             "modules": 4,
             "lessonsPerModule": "5-7",
-            "language": "ru"
+            "language": language
         }
+        else:
+            wizard_request = {
+                "product": "Course Outline",
+                "prompt": (
+                    f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
+                    f"КОНТЕКСТ КОМПАНИИ:\n"
+                    f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
+                    f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
+                    f"- Должность: {position_title}\n"
+                    f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
+                    f"ТРЕБОВАНИЯ К КУРСУ:\n"
+                    f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
+                    f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
+                    f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
+                    f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
+                    f"- В каждом модуле должно быть ОТ 5 ДО 7 уроков\n"
+                    f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
+                    f"- Избегай повторяющихся формулировок\n"
+                    f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
+                ),
+                "modules": 4,
+                "lessonsPerModule": "5-7",
+                "language": language
+            }
         
         # Convert to JSON string for the LLM
         prompt = json.dumps(wizard_request, ensure_ascii=False)
@@ -14442,24 +14468,44 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
     except Exception as e:
         logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
         # Return default modules as fallback
-        return [
-            {
-                "title": "Введение в компанию и корпоративную культуру",
-                "lessons": ["Знакомство с компанией", "Корпоративные ценности и стандарты", "Организационная структура", "Политики и процедуры", "Системы коммуникации"]
-            },
-            {
-                "title": "Основы работы и профессиональные навыки",
-                "lessons": ["Технические требования к должности", "Рабочие процессы и процедуры", "Инструменты и системы", "Качество работы и стандарты", "Безопасность и соответствие"]
-            },
-            {
-                "title": "Взаимодействие с командой и клиентами",
-                "lessons": ["Работа в команде", "Обслуживание клиентов", "Управление конфликтами", "Эффективная коммуникация", "Обратная связь и развитие"]
-            },
-            {
-                "title": "Развитие и карьерный рост",
-                "lessons": ["Постановка целей", "Планирование развития", "Оценка производительности", "Возможности роста", "Непрерывное обучение"]
-            }
-        ]
+        if language == "en":
+            return [
+                {
+                    "title": "Company Introduction and Corporate Culture",
+                    "lessons": ["Company Overview", "Corporate Values and Standards", "Organizational Structure", "Policies and Procedures", "Communication Systems"]
+                },
+                {
+                    "title": "Work Fundamentals and Professional Skills",
+                    "lessons": ["Technical Job Requirements", "Work Processes and Procedures", "Tools and Systems", "Work Quality and Standards", "Safety and Compliance"]
+                },
+                {
+                    "title": "Team and Customer Interaction",
+                    "lessons": ["Teamwork", "Customer Service", "Conflict Management", "Effective Communication", "Feedback and Development"]
+                },
+                {
+                    "title": "Development and Career Growth",
+                    "lessons": ["Goal Setting", "Development Planning", "Performance Evaluation", "Growth Opportunities", "Continuous Learning"]
+                }
+            ]
+        else:
+            return [
+                {
+                    "title": "Введение в компанию и корпоративную культуру",
+                    "lessons": ["Знакомство с компанией", "Корпоративные ценности и стандарты", "Организационная структура", "Политики и процедуры", "Системы коммуникации"]
+                },
+                {
+                    "title": "Основы работы и профессиональные навыки",
+                    "lessons": ["Технические требования к должности", "Рабочие процессы и процедуры", "Инструменты и системы", "Качество работы и стандарты", "Безопасность и соответствие"]
+                },
+                {
+                    "title": "Взаимодействие с командой и клиентами",
+                    "lessons": ["Работа в команде", "Обслуживание клиентов", "Управление конфликтами", "Эффективная коммуникация", "Обратная связь и развитие"]
+                },
+                {
+                    "title": "Развитие и карьерный рост",
+                    "lessons": ["Постановка целей", "Планирование развития", "Оценка производительности", "Возможности роста", "Непрерывное обучение"]
+                }
+            ]
 
 
 async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload, course_outline_modules: list = None, language: str = "ru") -> list:
@@ -14681,13 +14727,13 @@ async def generate_workforce_crisis_data(duckduckgo_summary: str, payload, langu
     """
     try:
         # Generate all workforce crisis data in parallel for efficiency
-        industry_task = extract_company_industry(duckduckgo_summary, payload)
-        burnout_task = extract_burnout_data(duckduckgo_summary, payload)
-        turnover_task = extract_turnover_data(duckduckgo_summary, payload)
-        losses_task = extract_losses_data(duckduckgo_summary, payload)
-        search_time_task = extract_search_time_data(duckduckgo_summary, payload)
-        chart_data_task = extract_personnel_shortage_chart_data(duckduckgo_summary, payload)
-        yearly_shortage_task = extract_yearly_shortage_data(duckduckgo_summary, payload)
+        industry_task = extract_company_industry(duckduckgo_summary, payload, language)
+        burnout_task = extract_burnout_data(duckduckgo_summary, payload, language)
+        turnover_task = extract_turnover_data(duckduckgo_summary, payload, language)
+        losses_task = extract_losses_data(duckduckgo_summary, payload, language)
+        search_time_task = extract_search_time_data(duckduckgo_summary, payload, language)
+        chart_data_task = extract_personnel_shortage_chart_data(duckduckgo_summary, payload, language)
+        yearly_shortage_task = extract_yearly_shortage_data(duckduckgo_summary, payload, language)
         
         # Wait for all tasks to complete
         industry, burnout, turnover, losses, search_time, chart_data, yearly_shortage = await asyncio.gather(
@@ -14849,38 +14895,69 @@ def get_industry_text_variants(industry_name: str) -> dict:
     return industry_forms.get(industry, default_forms)
 
 
-async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
+async def extract_company_industry(duckduckgo_summary: str, payload, language: str = "ru") -> str:
     """
     Extract the company's primary industry from scraped data.
     """
-    prompt = f"""
-    Определи основную отрасль/индустрию компании на основе предоставленных данных.
-    
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-    
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
-    
-    ИНСТРУКЦИИ:
-    - Определи основную отрасль деятельности компании
-    - Верни название отрасли в именительном падеже, строчными буквами
-    - Используй стандартные названия отраслей из списка:
-      * автомобильная промышленность
-      * информационные технологии (или IT)
-      * строительство
-      * медицина (или здравоохранение)
-      * образование
-      * производство
-      * торговля
-      * финансы
-      * HVAC
-    - Если не можешь определить, верни "общие услуги"
-    
-    ОТВЕТ (только название отрасли в именительном падеже, строчными буквами):
-    """
+    if language == "en":
+        prompt = f"""
+        Determine the company's primary industry based on the provided data.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Determine the company's primary industry
+        - Return the industry name in lowercase
+        - Use standard industry names from the list:
+          * automotive industry
+          * information technology (or IT)
+          * construction
+          * healthcare
+          * education
+          * manufacturing
+          * retail
+          * finance
+          * HVAC
+        - If you cannot determine, return "general services"
+        - Generate ALL content EXCLUSIVELY in English
+        
+        RESPONSE (only industry name in lowercase):
+        """
+    else:
+        prompt = f"""
+        Определи основную отрасль/индустрию компании на основе предоставленных данных.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Определи основную отрасль деятельности компании
+        - Верни название отрасли в именительном падеже, строчными буквами
+        - Используй стандартные названия отраслей из списка:
+          * автомобильная промышленность
+          * информационные технологии (или IT)
+          * строительство
+          * медицина (или здравоохранение)
+          * образование
+          * производство
+          * торговля
+          * финансы
+          * HVAC
+        - Если не можешь определить, верни "общие услуги"
+        
+        ОТВЕТ (только название отрасли в именительном падеже, строчными буквами):
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -14900,35 +14977,63 @@ async def extract_company_industry(duckduckgo_summary: str, payload) -> str:
         return "HVAC"
 
 
-async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
+async def extract_burnout_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Extract burnout statistics from scraped data.
     """
-    prompt = f"""
-    Проанализируй данные и определи статистику выгорания сотрудников в отрасли компании.
-    
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-    
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
-    
-    ИНСТРУКЦИИ:
-    - Определи отрасль компании на основе данных
-    - Найди информацию о средней продолжительности работы сотрудников в этой отрасли
-    - Если данных нет, используй типичные значения для отрасли
-    - Верни ТОЛЬКО валидный JSON без дополнительного текста
-    
-    ПРИМЕРЫ:
-    - Для IT-компании: {{"months": "18", "industryName": "IT-компаниях"}}
-    - Для маркетплейса: {{"months": "16", "industryName": "e-commerce-компаниях"}}
-    - Для строительства: {{"months": "12", "industryName": "строительных компаниях"}}
-    - Для HVAC: {{"months": "14", "industryName": "HVAC-компаниях"}}
-    
-    ВАЖНО: Отвечай ТОЛЬКО валидным JSON объектом, без дополнительного текста или объяснений.
-    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine employee burnout statistics in the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Determine the company's industry based on the data
+        - Find information about average employee tenure in this industry
+        - If no data is available, use typical values for the industry
+        - Return ONLY valid JSON without additional text
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - For IT companies: {{"months": "18", "industryName": "IT companies"}}
+        - For e-commerce: {{"months": "16", "industryName": "e-commerce companies"}}
+        - For construction: {{"months": "12", "industryName": "construction companies"}}
+        - For HVAC: {{"months": "14", "industryName": "HVAC companies"}}
+        
+        IMPORTANT: Respond ONLY with a valid JSON object, without additional text or explanations.
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи статистику выгорания сотрудников в отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Определи отрасль компании на основе данных
+        - Найди информацию о средней продолжительности работы сотрудников в этой отрасли
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни ТОЛЬКО валидный JSON без дополнительного текста
+        
+        ПРИМЕРЫ:
+        - Для IT-компании: {{"months": "18", "industryName": "IT-компаниях"}}
+        - Для маркетплейса: {{"months": "16", "industryName": "e-commerce-компаниях"}}
+        - Для строительства: {{"months": "12", "industryName": "строительных компаниях"}}
+        - Для HVAC: {{"months": "14", "industryName": "HVAC-компаниях"}}
+        
+        ВАЖНО: Отвечай ТОЛЬКО валидным JSON объектом, без дополнительного текста или объяснений.
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -14968,34 +15073,61 @@ async def extract_burnout_data(duckduckgo_summary: str, payload) -> dict:
         return {"months": "14", "industryName": "HVAC-компаниях"}
 
 
-async def extract_turnover_data(duckduckgo_summary: str, payload) -> dict:
+async def extract_turnover_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Extract turnover statistics from scraped data.
     """
-    prompt = f"""
-    Проанализируй данные и определи статистику текучести кадров в отрасли компании.
-    
-    ДАННЫЕ АНКЕТЫ:
-    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-    
-    ДАННЫЕ ИЗ ИНТЕРНЕТА:
-    {duckduckgo_summary}
-    
-    ИНСТРУКЦИИ:
-    - Найди информацию о текучести кадров в отрасли (% увольнений в год)
-    - Найди информацию о ранних увольнениях (% увольнений в первые месяцы)
-    - Если данных нет, используй типичные значения для отрасли
-    - Верни данные в формате JSON: {{"percentage": "процент в год", "earlyExit": {{"percentage": "процент", "months": "месяцы"}}}}
-    
-    ПРИМЕРЫ:
-    - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
-    - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
-    - Строительство: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
-    
-    ОТВЕТ (только JSON):
-    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine employee turnover statistics in the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Find information about employee turnover in the industry (% of employees leaving per year)
+        - Find information about early departures (% of employees leaving in the first months)
+        - If no data is available, use typical values for the industry
+        - Return data in JSON format: {{"percentage": "percentage per year", "earlyExit": {{"percentage": "percentage", "months": "months"}}}}
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Construction: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        RESPONSE (JSON only):
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи статистику текучести кадров в отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Найди информацию о текучести кадров в отрасли (% увольнений в год)
+        - Найди информацию о ранних увольнениях (% увольнений в первые месяцы)
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни данные в формате JSON: {{"percentage": "процент в год", "earlyExit": {{"percentage": "процент", "months": "месяцы"}}}}
+        
+        ПРИМЕРЫ:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Строительство: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        ОТВЕТ (только JSON):
+        """
     
     try:
         response_text = await stream_openai_response_direct(
@@ -15032,7 +15164,7 @@ async def extract_turnover_data(duckduckgo_summary: str, payload) -> dict:
         return {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}}
 
 
-async def extract_losses_data(duckduckgo_summary: str, payload) -> dict:
+async def extract_losses_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Extract financial losses data from scraped data.
     """
@@ -15097,7 +15229,7 @@ async def extract_losses_data(duckduckgo_summary: str, payload) -> dict:
         return {"amount": "$10К–$18К"}
 
 
-async def extract_search_time_data(duckduckgo_summary: str, payload) -> dict:
+async def extract_search_time_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Extract candidate search time data from scraped data.
     """
@@ -15161,7 +15293,7 @@ async def extract_search_time_data(duckduckgo_summary: str, payload) -> dict:
         return {"days": "30–60"}
 
 
-async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload) -> dict:
+async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Generate structured dataset for the "Shortage of qualified personnel" chart.
     Returns a dictionary with 12 months of personnel shortage data.
@@ -15313,7 +15445,7 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
         }
 
 
-async def extract_yearly_shortage_data(duckduckgo_summary: str, payload) -> dict:
+async def extract_yearly_shortage_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
     """
     Generate a single yearly shortage number for the company's specific industry.
     Returns a dictionary with the annual shortage count.
