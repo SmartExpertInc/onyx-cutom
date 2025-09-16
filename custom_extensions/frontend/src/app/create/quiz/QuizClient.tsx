@@ -270,13 +270,31 @@ export default function QuizClient() {
   const getQuestionPluralForm = (count: number) => {
     if (currentLanguage === 'ru') {
       // Russian pluralization rules
-      if (count === 1) return t('interface.generate.questionSingular', 'вопрос');
-      if (count >= 2 && count <= 4) return t('interface.generate.questionFew', 'вопроса');
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      
+      // Special case for 11-14 (always use "many" form)
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+        return t('interface.generate.questionMany', 'вопросов');
+      }
+      
+      // Regular rules based on last digit
+      if (lastDigit === 1) return t('interface.generate.questionSingular', 'вопрос');
+      if (lastDigit >= 2 && lastDigit <= 4) return t('interface.generate.questionFew', 'вопроса');
       return t('interface.generate.questionMany', 'вопросов');
     } else if (currentLanguage === 'uk') {
       // Ukrainian pluralization rules
-      if (count === 1) return t('interface.generate.questionSingular', 'питання');
-      if (count >= 2 && count <= 4) return t('interface.generate.questionFew', 'питання');
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      
+      // Special case for 11-14 (always use "many" form)
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+        return t('interface.generate.questionMany', 'питань');
+      }
+      
+      // Regular rules based on last digit
+      if (lastDigit === 1) return t('interface.generate.questionSingular', 'питання');
+      if (lastDigit >= 2 && lastDigit <= 4) return t('interface.generate.questionFew', 'питання');
       return t('interface.generate.questionMany', 'питань');
     } else {
       // English and Spanish use simple pluralization
