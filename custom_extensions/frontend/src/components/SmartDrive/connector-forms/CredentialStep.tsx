@@ -5,6 +5,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "../../ui/card";
 import { Input } from "@/components/ui/input";
+import { credentialTemplates, credentialDisplayNames } from "./OnyxCredentialTemplates";
 
 export interface Credential {
   id: number;
@@ -757,66 +758,32 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get credential fields based on connector type
+  // Build credential form fields dynamically based on templates
   const getCredentialFields = () => {
-    switch (connectorId) {
-      case 'notion':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'notion_integration_token', label: 'Integration Token', type: 'password', required: true }
-        ];
-      case 'slack':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'slack_bot_token', label: 'Bot Token', type: 'password', required: true }
-        ];
-      case 'github':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'github_access_token', label: 'Access Token', type: 'password', required: true }
-        ];
-      case 'google_drive':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'google_credentials', label: 'Service Account JSON', type: 'file', required: true }
-        ];
-      case 'confluence':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'confluence_url', label: 'Confluence URL', type: 'text', required: true },
-          { name: 'confluence_username', label: 'Username', type: 'text', required: true },
-          { name: 'confluence_api_token', label: 'API Token', type: 'password', required: true }
-        ];
-      case 'jira':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'jira_url', label: 'Jira URL', type: 'text', required: true },
-          { name: 'jira_username', label: 'Username', type: 'text', required: true },
-          { name: 'jira_api_token', label: 'API Token', type: 'password', required: true }
-        ];
-      case 'zendesk':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'zendesk_subdomain', label: 'Subdomain', type: 'text', required: true },
-          { name: 'zendesk_email', label: 'Email', type: 'email', required: true },
-          { name: 'zendesk_token', label: 'API Token', type: 'password', required: true }
-        ];
-      case 'asana':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'asana_api_token_secret', label: 'API Token', type: 'password', required: true }
-        ];
-      case 'airtable':
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'airtable_api_key', label: 'API Key', type: 'password', required: true }
-        ];
-      default:
-        return [
-          { name: 'name', label: 'Credential Name', type: 'text', required: true },
-          { name: 'api_key', label: 'API Key', type: 'password', required: true }
-        ];
+    const template = credentialTemplates[connectorId as any];
+    const baseFields: Array<{ name: string; label: string; type: string; required: boolean }> = [
+      { name: 'name', label: 'Credential Name', type: 'text', required: true },
+    ];
+    if (!template) return baseFields;
+    // S3-style multi-auth template
+    if (template && (template as any).authMethods) {
+      const tplt: any = template;
+      return [
+        ...baseFields,
+        { name: 'authentication_method', label: credentialDisplayNames['authentication_method'] || 'Authentication Method', type: 'select', required: true },
+        // We'll render dynamic fields based on selected method below
+      ];
     }
+    // Simple key/value template
+    return [
+      ...baseFields,
+      ...Object.keys(template).map((key) => ({
+        name: key,
+        label: credentialDisplayNames[key] || key,
+        type: key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('secret') ? 'password' : 'text',
+        required: true,
+      })),
+    ];
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -864,6 +831,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   };
 
   const fields = getCredentialFields();
+  const dynamicTemplate = credentialTemplates[connectorId as any];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -873,7 +841,20 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
             {field.label}
             {field.required && <span className="text-red-500 ml-1">*</span>}
           </label>
-          {field.type === 'password' ? (
+          {field.type === 'select' ? (
+            <select
+              name={field.name}
+              value={formData[field.name] || ''}
+              onChange={(e) => handleInputChange(field.name, e.target.value)}
+              required={field.required}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select an option</option>
+              {dynamicTemplate && (dynamicTemplate as any).authMethods && (dynamicTemplate as any).authMethods.map((m: any) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
+            </select>
+          ) : field.type === 'password' ? (
             <Input
               type="password"
               name={field.name}
@@ -891,8 +872,6 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    // For now, we'll store the file name
-                    // In a real implementation, you'd want to handle file upload
                     handleInputChange(field.name, file.name);
                   }
                 }}
@@ -923,6 +902,29 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
           )}
         </div>
       ))}
+
+      {/* Render dynamic auth method sub-fields for S3-like templates */}
+      {dynamicTemplate && (dynamicTemplate as any).authMethods && formData['authentication_method'] && (
+        <div className="space-y-2">
+          {((dynamicTemplate as any).authMethods.find((m: any) => m.value === formData['authentication_method'])?.fields || {} ) &&
+            Object.entries((dynamicTemplate as any).authMethods.find((m: any) => m.value === formData['authentication_method']).fields).map(([k]) => (
+              <div key={k} className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-900">
+                  {credentialDisplayNames[k] || k}
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <Input
+                  type={k.toLowerCase().includes('secret') ? 'password' : 'text'}
+                  name={k}
+                  value={formData[k] || ''}
+                  onChange={(e) => handleInputChange(k, e.target.value)}
+                  required
+                  className="w-full px-4 py-3"
+                />
+              </div>
+            ))}
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
