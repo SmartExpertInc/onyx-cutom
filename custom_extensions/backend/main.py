@@ -14383,35 +14383,87 @@ async def generate_ai_image_for_job_position(job_title: str, company_name: str) 
         # Return a fallback image path
         return f"/custom-projects-ui/images/audit-section-5-job-1-mobile.png"
 
-async def generate_course_description_for_position(job_title: str, company_name: str, duckduckgo_summary: str) -> str:
+async def generate_course_description_for_position(job_title: str, company_name: str, duckduckgo_summary: str, language: str = "ru") -> str:
     """
     Generate a concise course description for a specific job position.
     """
     try:
-        prompt = f"""
-        Создай краткое описание курса обучения для позиции "{job_title}" в компании {company_name}.
-        
-        ДАННЫЕ О КОМПАНИИ:
-        {duckduckgo_summary}
-        
-        ТРЕБОВАНИЯ:
-        - Описание должно быть кратким (1-2 предложения)
-        - Должно описывать, чему будет обучать курс для данной позиции
-        - Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
-        - Максимум 100 символов
-        
-        ПРИМЕРЫ:
-        - "Обучение установке, обслуживанию и ремонту систем HVAC оборудования."
-        - "Обучение основам маркетинга и продвижения товаров на маркетплейсе."
-        - "Обучение технической поддержке клиентов и решению проблем."
-        
-        ОТВЕТ (только описание курса):
-        """
+        if language == "en":
+            prompt = f"""Create a brief course description for the position "{job_title}" at {company_name}.
+
+COMPANY DATA:
+{duckduckgo_summary}
+
+REQUIREMENTS:
+- Description should be brief (1-2 sentences)
+- Should describe what the course will teach for this position
+- Use format: "Training in [key skills/processes] for [position]"
+- Maximum 100 characters
+
+EXAMPLES:
+- "Training in installation, maintenance and repair of HVAC equipment systems."
+- "Training in marketing fundamentals and product promotion on marketplaces."
+- "Training in technical customer support and problem solving."
+
+RESPONSE (course description only):"""
+        elif language == "es":
+            prompt = f"""Crea una breve descripción del curso para la posición "{job_title}" en {company_name}.
+
+DATOS DE LA EMPRESA:
+{duckduckgo_summary}
+
+REQUISITOS:
+- La descripción debe ser breve (1-2 oraciones)
+- Debe describir qué enseñará el curso para esta posición
+- Usa el formato: "Capacitación en [habilidades/procesos clave] para [posición]"
+- Máximo 100 caracteres
+
+EJEMPLOS:
+- "Capacitación en instalación, mantenimiento y reparación de sistemas de equipos HVAC."
+- "Capacitación en fundamentos de marketing y promoción de productos en marketplaces."
+- "Capacitación en soporte técnico al cliente y resolución de problemas."
+
+RESPUESTA (solo descripción del curso):"""
+        elif language == "ua":
+            prompt = f"""Створіть короткий опис курсу для посади "{job_title}" в компанії {company_name}.
+
+ДАНІ ПРО КОМПАНІЮ:
+{duckduckgo_summary}
+
+ВИМОГИ:
+- Опис має бути коротким (1-2 речення)
+- Має описувати, чому буде навчати курс для цієї посади
+- Використовуйте формат: "Навчання [ключовим навичкам/процесам] для [посади]"
+- Максимум 100 символів
+
+ПРИКЛАДИ:
+- "Навчання встановленню, обслуговуванню та ремонту систем обладнання HVAC."
+- "Навчання основам маркетингу та просування товарів на маркетплейсах."
+- "Навчання технічній підтримці клієнтів та вирішенню проблем."
+
+ВІДПОВІДЬ (тільки опис курсу):"""
+        else:  # Russian
+            prompt = f"""Создай краткое описание курса обучения для позиции "{job_title}" в компании {company_name}.
+
+ДАННЫЕ О КОМПАНИИ:
+{duckduckgo_summary}
+
+ТРЕБОВАНИЯ:
+- Описание должно быть кратким (1-2 предложения)
+- Должно описывать, чему будет обучать курс для данной позиции
+- Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
+- Максимум 100 символов
+
+ПРИМЕРЫ:
+- "Обучение установке, обслуживанию и ремонту систем HVAC оборудования."
+- "Обучение основам маркетинга и продвижения товаров на маркетплейсе."
+- "Обучение технической поддержке клиентов и решению проблем."
+
+ОТВЕТ (только описание курса):"""
         
         response_text = await stream_openai_response_direct(
             prompt=prompt,
-            model="gpt-4o-mini",
-            temperature=0.7
+            model=LLM_DEFAULT_MODEL
         )
         
         # Clean up the response
@@ -14423,7 +14475,14 @@ async def generate_course_description_for_position(job_title: str, company_name:
         
     except Exception as e:
         logger.error(f"❌ [COURSE DESCRIPTION] Error generating course description for {job_title}: {e}")
-        return f"Обучение ключевым навыкам для позиции {job_title}."
+        if language == "en":
+            return f"Training in key skills for {job_title} position."
+        elif language == "es":
+            return f"Capacitación en habilidades clave para la posición {job_title}."
+        elif language == "ua":
+            return f"Навчання ключовим навичкам для посади {job_title}."
+        else:  # Russian
+            return f"Обучение ключевым навыкам для позиции {job_title}."
 
 async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_positions: list, payload, language: str = "ru") -> list:
     """
@@ -14443,30 +14502,92 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
         
         # Build the prompt for course outline generation
         if language == "en":
-            wizard_request = {
-                "product": "Course Outline",
-                "prompt": (
-                    f"Create a detailed course outline 'Onboarding for {position_title}' for new employees in this position at '{getattr(payload, 'companyName', 'Company Name')}'. \n"
-                    f"COMPANY CONTEXT:\n"
-                    f"- Company Name: {getattr(payload, 'companyName', 'Company Name')}\n"
-                    f"- Company Description: {getattr(payload, 'companyDesc', 'Company Description')}\n"
-                    f"- Position: {position_title}\n"
-                    f"- Additional company information: {duckduckgo_summary}\n\n"
-                    f"COURSE REQUIREMENTS:\n"
-                    f"- The course should be specific to company {getattr(payload, 'companyName', 'Company Name')} and position {position_title}\n"
-                    f"- Content should reflect real tasks and responsibilities of this position in this company\n"
-                    f"- Consider industry specifics and corporate culture\n"
-                    f"- Create EXACTLY 4 modules with UNIQUE names\n"
-                    f"- Each module should have FROM 5 TO 7 lessons\n"
-                    f"- Module and lesson names should be CREATIVE and DIVERSE\n"
-                    f"- Avoid repetitive formulations\n"
-                    f"- Each lesson should be specific and practical for this position\n"
-                    f"- Generate ALL content EXCLUSIVELY in English\n"
-            ),
-            "modules": 4,
-            "lessonsPerModule": "5-7",
-            "language": language
-        }
+            prompt = f"""Create a detailed course outline 'Onboarding for {position_title}' for new employees in this position at '{getattr(payload, 'companyName', 'Company Name')}'.
+
+COMPANY CONTEXT:
+- Company Name: {getattr(payload, 'companyName', 'Company Name')}
+- Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+- Position: {position_title}
+- Additional company information: {duckduckgo_summary}
+
+COURSE REQUIREMENTS:
+- The course should be specific to company {getattr(payload, 'companyName', 'Company Name')} and position {position_title}
+- Content should reflect real tasks and responsibilities of this position in this company
+- Consider industry specifics and corporate culture
+- Create EXACTLY 4 modules with UNIQUE names
+- Each module should have FROM 5 TO 7 lessons
+- Module and lesson names should be CREATIVE and DIVERSE
+- Avoid repetitive formulations
+- Each lesson should be specific and practical for this position
+- Generate ALL content EXCLUSIVELY in English
+
+RESPONSE FORMAT (JSON only):
+[
+    {{"title": "Module 1 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module 2 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module 3 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module 4 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}}
+]
+
+RESPONSE (JSON only):"""
+        elif language == "es":
+            prompt = f"""Crea un esquema detallado del curso 'Incorporación para {position_title}' para nuevos empleados en esta posición en '{getattr(payload, 'companyName', 'Company Name')}'.
+
+CONTEXTO DE LA EMPRESA:
+- Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+- Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+- Posición: {position_title}
+- Información adicional de la empresa: {duckduckgo_summary}
+
+REQUISITOS DEL CURSO:
+- El curso debe ser específico para la empresa {getattr(payload, 'companyName', 'Company Name')} y la posición {position_title}
+- El contenido debe reflejar las tareas y responsabilidades reales de esta posición en esta empresa
+- Considera las especificidades de la industria y la cultura corporativa
+- Crea EXACTAMENTE 4 módulos con nombres ÚNICOS
+- Cada módulo debe tener DE 5 A 7 lecciones
+- Los nombres de módulos y lecciones deben ser CREATIVOS y DIVERSOS
+- Evita formulaciones repetitivas
+- Cada lección debe ser específica y práctica para esta posición
+- Genera TODO el contenido EXCLUSIVAMENTE en español
+
+FORMATO DE RESPUESTA (solo JSON):
+[
+    {{"title": "Título del Módulo 1", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo 2", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo 3", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo 4", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}}
+]
+
+RESPUESTA (solo JSON):"""
+        elif language == "ua":
+            prompt = f"""Створіть детальний план курсу 'Онбординг для посади {position_title}' для нових співробітників на цій посаді в компанії '{getattr(payload, 'companyName', 'Company Name')}'.
+
+КОНТЕКСТ КОМПАНІЇ:
+- Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+- Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+- Посада: {position_title}
+- Додаткова інформація про компанію: {duckduckgo_summary}
+
+ВИМОГИ ДО КУРСУ:
+- Курс повинен бути специфічним для компанії {getattr(payload, 'companyName', 'Company Name')} та посади {position_title}
+- Зміст повинен відображати реальні завдання та обов'язки цієї посади в цій компанії
+- Враховуйте специфіку галузі та корпоративну культуру
+- Створіть РІВНО 4 модулі з УНІКАЛЬНИМИ назвами
+- У кожному модулі має бути ВІД 5 ДО 7 уроків
+- Назви модулів та уроків мають бути КРЕАТИВНИМИ та РІЗНОМАНІТНИМИ
+- Уникайте повторюваних формулювань
+- Кожен урок має бути конкретним та практичним для цієї посади
+- Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+
+ФОРМАТ ВІДПОВІДІ (тільки JSON):
+[
+    {{"title": "Назва модуля 1", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля 2", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля 3", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля 4", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
+]
+
+ВІДПОВІДЬ (тільки JSON):"""
         else:
             wizard_request = {
                 "product": "Course Outline",
@@ -14492,20 +14613,29 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
                 "language": language
             }
         
-        # Convert to JSON string for the LLM
-        prompt = json.dumps(wizard_request, ensure_ascii=False)
-        
         # Generate the course outline
-        outline_text = ""
-        response_stream = await stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL)
-        async for chunk_data in response_stream:
-            if chunk_data.get("type") == "delta":
-                outline_text += chunk_data["text"]
-            elif chunk_data.get("type") == "error":
-                raise Exception(f"OpenAI error: {chunk_data['text']}")
+        outline_text = await stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL)
         
         # Parse the outline text to extract modules with lessons
-        parsed_outline = _parse_outline_markdown(outline_text)
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = outline_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            parsed_outline = json.loads(cleaned_response)
+            
+            if not isinstance(parsed_outline, list):
+                raise ValueError("Response is not a list")
+                
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"[COURSE OUTLINE] Failed to parse JSON response: {e}")
+            logger.warning(f"[COURSE OUTLINE] Raw response was: '{outline_text}'")
+            # Fall back to default modules
+            parsed_outline = []
         
         # Extract modules with lessons
         course_modules = []
@@ -14522,10 +14652,26 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
         
         # Ensure we have exactly 4 modules (pad with default modules if needed)
         while len(course_modules) < 4:
-            course_modules.append({
-                "title": f'Модуль {len(course_modules) + 1}',
-                "lessons": []
-            })
+            if language == "en":
+                course_modules.append({
+                    "title": f'Module {len(course_modules) + 1}',
+                    "lessons": []
+                })
+            elif language == "es":
+                course_modules.append({
+                    "title": f'Módulo {len(course_modules) + 1}',
+                    "lessons": []
+                })
+            elif language == "ua":
+                course_modules.append({
+                    "title": f'Модуль {len(course_modules) + 1}',
+                    "lessons": []
+                })
+            else:  # Russian
+                course_modules.append({
+                    "title": f'Модуль {len(course_modules) + 1}',
+                    "lessons": []
+                })
         
         logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons for landing page")
         return course_modules
@@ -14550,6 +14696,44 @@ async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_
                 {
                     "title": "Development and Career Growth",
                     "lessons": ["Goal Setting", "Development Planning", "Performance Evaluation", "Growth Opportunities", "Continuous Learning"]
+                }
+            ]
+        elif language == "es":
+            return [
+                {
+                    "title": "Introducción a la Empresa y Cultura Corporativa",
+                    "lessons": ["Visión General de la Empresa", "Valores y Estándares Corporativos", "Estructura Organizacional", "Políticas y Procedimientos", "Sistemas de Comunicación"]
+                },
+                {
+                    "title": "Fundamentos del Trabajo y Habilidades Profesionales",
+                    "lessons": ["Requisitos Técnicos del Puesto", "Procesos y Procedimientos de Trabajo", "Herramientas y Sistemas", "Calidad del Trabajo y Estándares", "Seguridad y Cumplimiento"]
+                },
+                {
+                    "title": "Interacción con el Equipo y Clientes",
+                    "lessons": ["Trabajo en Equipo", "Servicio al Cliente", "Gestión de Conflictos", "Comunicación Efectiva", "Retroalimentación y Desarrollo"]
+                },
+                {
+                    "title": "Desarrollo y Crecimiento Profesional",
+                    "lessons": ["Establecimiento de Objetivos", "Planificación del Desarrollo", "Evaluación del Rendimiento", "Oportunidades de Crecimiento", "Aprendizaje Continuo"]
+                }
+            ]
+        elif language == "ua":
+            return [
+                {
+                    "title": "Введення в компанію та корпоративну культуру",
+                    "lessons": ["Огляд компанії", "Корпоративні цінності та стандарти", "Організаційна структура", "Політики та процедури", "Системи комунікації"]
+                },
+                {
+                    "title": "Основи роботи та професійні навички",
+                    "lessons": ["Технічні вимоги до посади", "Робочі процеси та процедури", "Інструменти та системи", "Якість роботи та стандарти", "Безпека та відповідність"]
+                },
+                {
+                    "title": "Взаємодія з командою та клієнтами",
+                    "lessons": ["Робота в команді", "Обслуговування клієнтів", "Управління конфліктами", "Ефективна комунікація", "Зворотний зв'язок та розвиток"]
+                },
+                {
+                    "title": "Розвиток та кар'єрне зростання",
+                    "lessons": ["Постановка цілей", "Планування розвитку", "Оцінка продуктивності", "Можливості зростання", "Безперервне навчання"]
                 }
             ]
         else:
@@ -14601,7 +14785,8 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
             course_description = await generate_course_description_for_position(
                 job_title, 
                 getattr(payload, 'companyName', 'Company Name'), 
-                duckduckgo_summary
+                duckduckgo_summary,
+                language
             )
             
             # Generate AI image for the job position
