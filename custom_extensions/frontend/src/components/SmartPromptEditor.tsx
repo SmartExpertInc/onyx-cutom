@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, CheckCircle, RotateCcw } from "lucide-react";
+import { Plus, CheckCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
 
 interface SmartPromptEditorProps {
@@ -268,7 +268,8 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
             placeholder="Describe what you'd like to improve..."
-            className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+            style={{ background: 'rgba(255,255,255,0.95)' }}
             disabled={loadingEdit}
           />
 
@@ -280,7 +281,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 type="button"
                 onClick={() => toggleExample(ex)}
                 disabled={loadingEdit}
-                className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
+                className={`relative text-left rounded-md px-4 py-4 text-sm w-full cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                   selectedExamples.includes(ex.short)
                     ? 'bg-[#B8D4F0]'
                     : 'bg-[#D9ECFF] hover:shadow-lg'
@@ -297,12 +298,15 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             <button
               onClick={handleApplyEdit}
               disabled={!editPrompt.trim() || loadingEdit}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
             >
-              {loadingEdit && (
+              {loadingEdit ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              ) : (
+                <>
+                  {t('actions.applyEdit', 'Apply Edit')} <Sparkles size={14} />
+                </>
               )}
-              {loadingEdit ? t('actions.applying', 'Applying...') : t('actions.applyEdit', 'Apply Edit')}
             </button>
           </div>
         </div>
