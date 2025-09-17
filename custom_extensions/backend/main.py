@@ -13666,6 +13666,42 @@ async def extract_company_description_from_website_content(website_content: str,
 
             RESPONSE (company description only):
             """
+        elif language == "es":
+            prompt = f"""
+            Crea una breve descripción de la empresa basada en el contenido del sitio web.
+
+            SITIO WEB: {company_website}
+            CONTENIDO DEL SITIO WEB:
+            {website_content}
+
+            INSTRUCCIONES:
+            - Crea descripción en estilo: "Empresa que proporciona servicios en [servicios principales]"
+            - Usa solo información del sitio web
+            - La descripción debe ser máxima breve (SOLO 1 oración)
+            - NO agregues detalles adicionales o ejemplos
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            - Si no puedes determinar la descripción, devuelve "Descripción de la Empresa"
+
+            RESPUESTA (solo descripción de la empresa):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Створіть короткий опис компанії на основі вмісту веб-сайту.
+
+            ВЕБ-САЙТ: {company_website}
+            ВМІСТ ВЕБ-САЙТУ:
+            {website_content}
+
+            ІНСТРУКЦІЇ:
+            - Створіть опис у стилі: "Компанія, що надає послуги в галузі [основні послуги]"
+            - Використовуйте лише інформацію з веб-сайту
+            - Опис має бути максимально коротким (ЛИШЕ 1 речення)
+            - НЕ додавайте додаткові деталі або приклади
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            - Якщо не можете визначити опис, поверніть "Опис компанії"
+
+            ВІДПОВІДЬ (лише опис компанії):
+            """
         else:
             prompt = f"""
             Создай краткое описание компании на основе контента веб-сайта.
@@ -14995,6 +15031,66 @@ async def extract_company_industry(duckduckgo_summary: str, payload, language: s
         
         RESPONSE (only industry name in lowercase):
         """
+    elif language == "es":
+        prompt = f"""
+        Determina la industria principal de la empresa basándote en los datos proporcionados.
+        
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+        
+        INSTRUCCIONES:
+        - Determina la industria principal de la empresa
+        - Devuelve el nombre de la industria en minúsculas
+        - Usa nombres estándar de industrias de la lista:
+          * industria automotriz
+          * tecnología de la información (o TI)
+          * construcción
+          * salud
+          * educación
+          * manufactura
+          * retail
+          * finanzas
+          * HVAC
+        - Si no puedes determinar, devuelve "servicios generales"
+        - Genera TODO el contenido EXCLUSIVAMENTE en español
+        
+        RESPUESTA (solo nombre de la industria en minúsculas):
+        """
+    elif language == "ua":
+        prompt = f"""
+        Визначте основну галузь компанії на основі наданих даних.
+        
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+        
+        ІНСТРУКЦІЇ:
+        - Визначте основну галузь діяльності компанії
+        - Поверніть назву галузі в називному відмінку, малими літерами
+        - Використовуйте стандартні назви галузей зі списку:
+          * автомобільна промисловість
+          * інформаційні технології (або IT)
+          * будівництво
+          * охорона здоров'я
+          * освіта
+          * виробництво
+          * торгівля
+          * фінанси
+          * HVAC
+        - Якщо не можете визначити, поверніть "загальні послуги"
+        - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+        
+        ВІДПОВІДЬ (лише назва галузі в називному відмінку, малими літерами):
+        """
     else:
         prompt = f"""
         Определи основную отрасль/индустрию компании на основе предоставленных данных.
@@ -15073,6 +15169,60 @@ async def extract_burnout_data(duckduckgo_summary: str, payload, language: str =
         - For HVAC: {{"months": "14", "industryName": "HVAC companies"}}
         
         IMPORTANT: Respond ONLY with a valid JSON object, without additional text or explanations.
+        """
+    elif language == "es":
+        prompt = f"""
+        Analiza los datos y determina las estadísticas de agotamiento de empleados en la industria de la empresa.
+        
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+        
+        INSTRUCCIONES:
+        - Determina la industria de la empresa basándote en los datos
+        - Encuentra información sobre la duración promedio de empleados en esta industria
+        - Si no hay datos disponibles, usa valores típicos para la industria
+        - Devuelve SOLO JSON válido sin texto adicional
+        - Genera TODO el contenido EXCLUSIVAMENTE en español
+        
+        EJEMPLOS:
+        - Para empresas IT: {{"months": "18", "industryName": "empresas de TI"}}
+        - Para e-commerce: {{"months": "16", "industryName": "empresas de comercio electrónico"}}
+        - Para construcción: {{"months": "12", "industryName": "empresas de construcción"}}
+        - Para HVAC: {{"months": "14", "industryName": "empresas HVAC"}}
+        
+        IMPORTANTE: Responde SOLO con un objeto JSON válido, sin texto adicional o explicaciones.
+        """
+    elif language == "ua":
+        prompt = f"""
+        Проаналізуйте дані та визначте статистику вигорання співробітників у галузі компанії.
+        
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+        
+        ІНСТРУКЦІЇ:
+        - Визначте галузь компанії на основі даних
+        - Знайдіть інформацію про середню тривалість роботи співробітників у цій галузі
+        - Якщо даних немає, використовуйте типові значення для галузі
+        - Поверніть ЛИШЕ валідний JSON без додаткового тексту
+        - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+        
+        ПРИКЛАДИ:
+        - Для IT-компаній: {{"months": "18", "industryName": "IT-компаніях"}}
+        - Для e-commerce: {{"months": "16", "industryName": "e-commerce-компаніях"}}
+        - Для будівництва: {{"months": "12", "industryName": "будівельних компаніях"}}
+        - Для HVAC: {{"months": "14", "industryName": "HVAC-компаніях"}}
+        
+        ВАЖЛИВО: Відповідайте ЛИШЕ валідним JSON об'єктом, без додаткового тексту або пояснень.
         """
     else:
         prompt = f"""
@@ -15168,6 +15318,58 @@ async def extract_turnover_data(duckduckgo_summary: str, payload, language: str 
         - Construction: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
         
         RESPONSE (JSON only):
+        """
+    elif language == "es":
+        prompt = f"""
+        Analiza los datos y determina las estadísticas de rotación de empleados en la industria de la empresa.
+        
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+        
+        INSTRUCCIONES:
+        - Encuentra información sobre la rotación de empleados en la industria (% de empleados que se van por año)
+        - Encuentra información sobre salidas tempranas (% de empleados que se van en los primeros meses)
+        - Si no hay datos disponibles, usa valores típicos para la industria
+        - Devuelve datos en formato JSON: {{"percentage": "porcentaje por año", "earlyExit": {{"percentage": "porcentaje", "months": "meses"}}}}
+        - Genera TODO el contenido EXCLUSIVAMENTE en español
+        
+        EJEMPLOS:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Construcción: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        RESPUESTA (solo JSON):
+        """
+    elif language == "ua":
+        prompt = f"""
+        Проаналізуйте дані та визначте статистику плинності кадрів у галузі компанії.
+        
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+        
+        ІНСТРУКЦІЇ:
+        - Знайдіть інформацію про плинність кадрів у галузі (% звільнень на рік)
+        - Знайдіть інформацію про ранні звільнення (% звільнень у перші місяці)
+        - Якщо даних немає, використовуйте типові значення для галузі
+        - Поверніть дані у форматі JSON: {{"percentage": "відсоток на рік", "earlyExit": {{"percentage": "відсоток", "months": "місяці"}}}}
+        - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+        
+        ПРИКЛАДИ:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Будівництво: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        ВІДПОВІДЬ (лише JSON):
         """
     else:
         prompt = f"""

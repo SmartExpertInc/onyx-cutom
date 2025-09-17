@@ -23,7 +23,7 @@ const languageOptions = [
   { value: "en", label: "English" },
   { value: "es", label: "Spanish" },
   { value: "ru", label: "Russian" },
-  { value: "uk", label: "Ukrainian" },
+  { value: "ua", label: "Ukrainian" },
 ];
 
 export default function AiAuditQuestionnaire() {
