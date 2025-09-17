@@ -326,8 +326,8 @@ export default function CreateFromSpecificFilesPage() {
 
           {/* Content Creation Section */}
           <div className="mb-8">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-6">
-              <div className="flex items-center gap-4 mb-4">
+            <div className="bg-gradient-to-tr from-white-50 via-white to-purple-100 rounded-xl border border-purple-200 p-6">
+              <div className="flex items-center gap-4 mb-4 bg-gradient-to-tr from-white-50 via-white to-blue-100">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-purple-600" />
                 </div>
@@ -338,7 +338,7 @@ export default function CreateFromSpecificFilesPage() {
               </div>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-100">
+                <div className="flex items-center bg-gradient-to-tr from-white-50 via-white to-blue-100 justify-between p-4 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Settings className="w-4 h-4 text-blue-600" />
@@ -357,7 +357,7 @@ export default function CreateFromSpecificFilesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-100">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-tr from-white-50 via-white to-green-100 rounded-lg border border-green-200">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                       <FileText className="w-4 h-4 text-green-600" />
