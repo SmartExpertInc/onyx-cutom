@@ -601,11 +601,11 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 placeholder={t('interface.searchPlaceholder', 'Search members...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-8"
               />
             </div>
             <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>
-              <SelectTrigger variant="filter" className="whitespace-nowrap rounded-full border border-gray-300 bg-white/90 text-sm">
+              <SelectTrigger variant="filter" size="sm" className="whitespace-nowrap rounded-full border border-gray-300 bg-white/90 text-sm">
                 <SelectValue placeholder={t('interface.filters.allStatuses', 'All Statuses')} />
               </SelectTrigger>
               <SelectContent className="bg-white border border-gray-200 shadow-lg">

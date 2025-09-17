@@ -343,7 +343,7 @@ export default function ConnectorManagementPage({
               className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg'
               }`}
             >
               <RefreshCwIcon className="w-5 h-5" />
@@ -358,7 +358,7 @@ export default function ConnectorManagementPage({
               className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:from-orange-700 hover:to-red-700 shadow-md hover:shadow-lg'
+                  : 'bg-orange-600 text-white hover:bg-orange-700 shadow-md hover:shadow-lg'
               }`}
             >
               <RefreshCwIcon className="w-5 h-5" />
@@ -371,8 +371,8 @@ export default function ConnectorManagementPage({
               disabled={isDeleting || isIndexing}
               className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 isActive 
-                  ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700 shadow-md hover:shadow-lg' 
-                  : 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 shadow-md hover:shadow-lg'
+                  ? 'bg-yellow-600 text-white hover:bg-yellow-700 shadow-md hover:shadow-lg' 
+                  : 'bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg'
               }`}
             >
               {isActive ? <PauseIcon className="w-5 h-5" /> : <PlayIcon className="w-5 h-5" />}
@@ -387,7 +387,7 @@ export default function ConnectorManagementPage({
               className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 isDeleting || isIndexing || !isPaused
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-red-600 to-pink-600 text-white hover:from-red-700 hover:to-pink-700 shadow-md hover:shadow-lg'
+                  : 'bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg'
               }`}
             >
               <Trash2Icon className="w-5 h-5" />
