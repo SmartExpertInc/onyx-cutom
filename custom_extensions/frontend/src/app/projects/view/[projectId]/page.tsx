@@ -1876,49 +1876,49 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
               <DropdownMenu open={showTrainingPlanThemePicker} onOpenChange={setShowTrainingPlanThemePicker}>
                 <DropdownMenuTrigger asChild>
-                  <button
+                <button
                     className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
-                    title="Change theme"
-                  >
-                    <Palette size={16} className="mr-2" /> Theme
-                    <ChevronDown size={16} className="ml-1" />
-                  </button>
+                  title="Change theme"
+                >
+                  <Palette size={16} className="mr-2" /> Theme
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 p-2 border border-gray-200 rounded-lg shadow-lg z-20" style={{ backgroundColor: 'white' }}>
-                  <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                    Select Theme
-                  </div>
-                  {[
-                    { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
-                    { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
-                    { id: 'wine', label: 'Wine', color: '#0540AB' },
-                    { id: 'vanilla', label: 'Vanilla (Engenuity)', color: '#8776A0' },
-                    { id: 'terracotta', label: 'Terracotta (Deloitte)', color: '#2D7C21' },
-                    { id: 'zephyr', label: 'Zephyr', color: '#0540AB' }
-                  ].map((theme) => {
-                    const trainingPlanData = editableData as TrainingPlanData | null;
-                    const currentTheme = trainingPlanData?.theme || 'cherry';
-                    const isSelected = currentTheme === theme.id;
-
-                    return (
-                      <button
-                        key={theme.id}
-                        onClick={() => handleTrainingPlanThemeChange(theme.id)}
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                      Select Theme
+                    </div>
+                    {[
+                      { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
+                      { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
+                      { id: 'wine', label: 'Wine', color: '#0540AB' },
+                      { id: 'vanilla', label: 'Vanilla (Engenuity)', color: '#8776A0' },
+                      { id: 'terracotta', label: 'Terracotta (Deloitte)', color: '#2D7C21' },
+                      { id: 'zephyr', label: 'Zephyr', color: '#0540AB' }
+                    ].map((theme) => {
+                      const trainingPlanData = editableData as TrainingPlanData | null;
+                      const currentTheme = trainingPlanData?.theme || 'cherry';
+                      const isSelected = currentTheme === theme.id;
+                      
+                      return (
+                        <button
+                          key={theme.id}
+                          onClick={() => handleTrainingPlanThemeChange(theme.id)}
                         className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
-                      >
-                        <div
-                          className="w-4 h-4 rounded-full border border-gray-300"
-                          style={{ backgroundColor: theme.color }}
-                        />
-                        <span className="flex-1">{theme.label}</span>
-                        {isSelected && (
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full border border-gray-300"
+                            style={{ backgroundColor: theme.color }}
+                          />
+                          <span className="flex-1">{theme.label}</span>
+                          {isSelected && (
                           <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </button>
-                    );
-                  })}
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -2234,116 +2234,116 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && (
               <DropdownMenu open={showColumnDropdown} onOpenChange={setShowColumnDropdown}>
                 <DropdownMenuTrigger asChild>
-                  <button
+                <button
                     className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
-                    title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
-                  >
-                    <Info size={16} className="mr-2" />
-                    {t('interface.projectView.columns', 'Columns')}
-                    <ChevronDown size={16} className="ml-1" />
-                  </button>
+                  title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
+                >
+                  <Info size={16} className="mr-2" />
+                  {t('interface.projectView.columns', 'Columns')}
+                  <ChevronDown size={16} className="ml-1" />
+                </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg z-10" style={{ backgroundColor: 'white' }}>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
-                  <div className="space-y-2">
-                    {/* Training Plan specific columns */}
-                    {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-                      <>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.knowledgeCheck}
-                            onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.contentAvailability}
-                            onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.informationSource}
-                            onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{columnLabels.source}</span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.estCreationTime}
-                            onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.estCompletionTime}
-                            onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={columnVisibility.qualityTier}
-                            onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
-                          />
-                          <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
-                        </label>
-                      </>
-                    )}
+                <DropdownMenuContent align="end" className="w-48 p-2 border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
+                    <div className="space-y-2">
+                      {/* Training Plan specific columns */}
+                      {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+                        <>
+                        <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.knowledgeCheck}
+                              onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
+                            className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
+                          </label>
+                        <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.contentAvailability}
+                              onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
+                            className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
+                          </label>
+                        <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.informationSource}
+                              onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
+                            className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.source}</span>
+                          </label>
+                        <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.estCreationTime}
+                              onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
+                            className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
+                          </label>
+                        <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.estCompletionTime}
+                              onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
+                            className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
+                          </label>
+                        <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={columnVisibility.qualityTier}
+                              onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
+                            className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
+                          </label>
+                        </>
+                      )}
 
-                    {/* Common columns for all component types */}
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={columnVisibility.quiz}
-                        onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">Quiz</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={columnVisibility.onePager}
-                        onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">One-Pager</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={columnVisibility.videoPresentation}
-                        onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">Video Lesson</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={columnVisibility.lessonPresentation}
-                        onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">Presentation</span>
-                    </label>
-                  </div>
+                      {/* Common columns for all component types */}
+                    <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.quiz}
+                          onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
+                        className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Quiz</span>
+                      </label>
+                    <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.onePager}
+                          onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
+                        className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">One-Pager</span>
+                      </label>
+                    <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.videoPresentation}
+                          onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
+                        className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Video Lesson</span>
+                      </label>
+                    <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={columnVisibility.lessonPresentation}
+                          onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
+                        className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">Presentation</span>
+                      </label>
+                    </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
