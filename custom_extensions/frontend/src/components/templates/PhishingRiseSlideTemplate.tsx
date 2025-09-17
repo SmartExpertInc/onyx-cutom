@@ -345,7 +345,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 right: '0',
                 height: '1px',
                 backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                top: `${i * 103 - -33.5}px` // Center of each number (103px spacing / 2)
+                top: `${i * 103}px` // Center of each number (103px spacing / 2)
               }}
             />
           ))}
