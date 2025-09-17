@@ -1547,17 +1547,6 @@ export default function ProjectInstanceViewPage() {
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
           <div>
-            {/* Smart Prompt Editor - show when smart editing is enabled */}
-            {showSmartEditor && (
-              <SmartPromptEditor
-                projectId={projectInstanceData.project_id}
-                onContentUpdate={handleSmartEditContentUpdate}
-                onError={handleSmartEditError}
-                onRevert={handleSmartEditRevert}
-                currentLanguage={trainingPlanData?.detectedLanguage}
-                currentTheme={trainingPlanData?.theme}
-              />
-            )}
             <TrainingPlanTableComponent
               dataToDisplay={trainingPlanData}
               onTextChange={handleTextChange}
@@ -2364,6 +2353,18 @@ export default function ProjectInstanceViewPage() {
             <span>{saveError}</span>
           </div>
         }
+
+        {/* Smart Prompt Editor - render outside the white content container */}
+        {showSmartEditor && projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+          <SmartPromptEditor
+            projectId={projectInstanceData.project_id}
+            onContentUpdate={handleSmartEditContentUpdate}
+            onError={handleSmartEditError}
+            onRevert={handleSmartEditRevert}
+            currentLanguage={(editableData as TrainingPlanData | null)?.detectedLanguage}
+            currentTheme={(editableData as TrainingPlanData | null)?.theme}
+          />
+        )}
 
         <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl">
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
