@@ -132,7 +132,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                     <SelectTrigger className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white">
                       <SelectValue placeholder={t('interface.createAtTopLevel', 'Create at top level (no parent client)')} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-[10000]">
                       <SelectItem value="none">{t('interface.createAtTopLevel', 'Create at top level (no parent client)')}</SelectItem>
                       {existingFolders.map(folder => (
                         <SelectItem key={folder.id} value={folder.id.toString()}>

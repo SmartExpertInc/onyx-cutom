@@ -115,7 +115,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
         <Checkbox
           checked={isSelected}
           onCheckedChange={handleCheckboxChange}
-          className="w-5 h-5"
+          className="w-5 h-5 bg-white/50"
         />
       </div>
 
@@ -156,7 +156,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
                 className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
                 style={{ backgroundColor: avatarColor }}
               >
-                {(product.user_id || 'U').slice(0, 1).toUpperCase()}
+                {(product.user_id || 'Y').slice(0, 1).toUpperCase()}
               </div>
               
               {/* Creator info */}
