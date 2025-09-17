@@ -13986,12 +13986,6 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
 @app.post("/api/custom/ai-audit/landing-page/generate")
 async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
     job_id = str(uuid.uuid4())
-    
-    # 📊 DETAILED LOGGING: Language parameter received in backend
-    logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received payload: {payload.model_dump()}")
-    logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received language: {payload.language}")
-    logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received companyWebsite: {payload.companyWebsite}")
-    
     set_progress(job_id, "Starting AI-Audit landing page generation...")
     background_tasks.add_task(_run_landing_page_generation, payload, request, pool, job_id)
     return {"jobId": job_id}
@@ -14025,15 +14019,15 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         content = row["microproduct_content"]
         project_name = row["microproduct_name"]
         
+        # 📊 DETAILED LOGGING: Language preference in retrieved data
+        language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: '{language_from_db}'")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: {type(content)}")
+        
         # 📊 LOG: Raw data retrieved from database
         logger.info(f"💾 [AUDIT DATA FLOW] Retrieved project data from database:")
         logger.info(f"💾 [AUDIT DATA FLOW] - Project name: '{project_name}'")
         logger.info(f"💾 [AUDIT DATA FLOW] - Content keys: {list(content.keys()) if content else 'None'}")
-        
-        # 📊 DETAILED LOGGING: Language parameter in retrieved data
-        language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: '{language_from_db}'")
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: {type(content)}")
         
         # Extract the dynamic data
         company_name = content.get("companyName", "Unknown Company")
@@ -15748,13 +15742,14 @@ async def extract_yearly_shortage_data(duckduckgo_summary: str, payload, languag
 
 async def _run_landing_page_generation(payload, request, pool, job_id):
     try:
+        # 📊 DETAILED LOGGING: Language preference received in backend
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received payload: {payload.model_dump()}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received language: {payload.language}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received companyWebsite: {payload.companyWebsite}")
+        
         # 📊 LOG: Initial payload received
         logger.info(f"🔍 [AUDIT DATA FLOW] Starting landing page generation for job {job_id}")
         logger.info(f"📥 [AUDIT DATA FLOW] Initial payload: {payload.model_dump()}")
-        
-        # 📊 DETAILED LOGGING: Language parameter in landing page generation
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page generation - payload.language: {payload.language}")
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page generation - payload.companyWebsite: {payload.companyWebsite}")
         
         set_progress(job_id, "Scraping company website...")
         # Scrape company data from website
@@ -15843,15 +15838,15 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
             "originalPayload": payload.model_dump()
         }
         
+        # 📊 DETAILED LOGGING: Language preference in landing page data
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page data - language: '{landing_page_data['language']}'")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page data - payload.language: '{payload.language}'")
+        
         # 📊 LOG: Landing page data structure created
         logger.info(f"📦 [AUDIT DATA FLOW] Landing page data structure created:")
         logger.info(f"📦 [AUDIT DATA FLOW] - companyName: '{landing_page_data['companyName']}'")
         logger.info(f"📦 [AUDIT DATA FLOW] - companyDescription: '{landing_page_data['companyDescription']}'")
         logger.info(f"📦 [AUDIT DATA FLOW] - originalPayload keys: {list(landing_page_data['originalPayload'].keys())}")
-        
-        # 📊 DETAILED LOGGING: Language parameter in landing page data
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page data - language: '{landing_page_data['language']}'")
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page data - payload.language: '{payload.language}'")
 
         # Save as a product
         project_id = await insert_ai_audit_onepager_to_db(

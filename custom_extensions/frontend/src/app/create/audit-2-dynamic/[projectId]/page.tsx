@@ -194,6 +194,11 @@ export default function DynamicAuditLandingPage() {
         
         const data = await response.json()
         
+        // 📊 DETAILED LOGGING: Language preference received from API
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data - language: "${data.language}"`)
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data keys:`, Object.keys(data))
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data type:`, typeof data.language)
+        
         // 📊 LOG: Data received from API
         console.log(`📥 [FRONTEND DATA FLOW] Data received from API:`)
         console.log(`📥 [FRONTEND DATA FLOW] - Project ID: ${data.projectId}`)
@@ -201,11 +206,6 @@ export default function DynamicAuditLandingPage() {
         console.log(`📥 [FRONTEND DATA FLOW] - Company Name: "${data.companyName}"`)
         console.log(`📥 [FRONTEND DATA FLOW] - Company Description: "${data.companyDescription}"`)
         console.log(`📥 [FRONTEND DATA FLOW] - Job Positions Count: ${data.jobPositions?.length || 0}`)
-        
-        // 📊 DETAILED LOGGING: Language parameter received from API
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data - language: "${data.language}"`)
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data keys:`, Object.keys(data))
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Frontend received data type:`, typeof data.language)
         
         if (data.jobPositions && data.jobPositions.length > 0) {
           console.log(`📥 [FRONTEND DATA FLOW] Job Positions:`)
