@@ -38,6 +38,7 @@ import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
+import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -292,6 +293,44 @@ export default function ProjectInstanceViewPage() {
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
   const [productAccess, setProductAccess] = useState<ProductAccess[]>([]);
   const [accessLoading, setAccessLoading] = useState(false);
+
+  // Feature flags for column visibility options
+  const { isEnabled: colAssessmentTypeEnabled } = useFeaturePermission('col_assessment_type');
+  const { isEnabled: colContentVolumeEnabled } = useFeaturePermission('col_content_volume');
+  const { isEnabled: colSourceEnabled } = useFeaturePermission('col_source');
+  const { isEnabled: colEstCreationTimeEnabled } = useFeaturePermission('col_est_creation_time');
+  const { isEnabled: colEstCompletionTimeEnabled } = useFeaturePermission('col_est_completion_time');
+  const { isEnabled: colQualityTierEnabled } = useFeaturePermission('col_quality_tier');
+  const { isEnabled: colQuizEnabled } = useFeaturePermission('col_quiz');
+  const { isEnabled: colOnePagerEnabled } = useFeaturePermission('col_one_pager');
+  const { isEnabled: colVideoPresentationEnabled } = useFeaturePermission('col_video_presentation');
+  const { isEnabled: colLessonPresentationEnabled } = useFeaturePermission('col_lesson_presentation');
+
+  // Apply feature flags to compute effective visibility used for rendering and exporting
+  const effectiveColumnVisibility = useMemo(() => ({
+    knowledgeCheck: columnVisibility.knowledgeCheck && colAssessmentTypeEnabled,
+    contentAvailability: columnVisibility.contentAvailability && colContentVolumeEnabled,
+    informationSource: columnVisibility.informationSource && colSourceEnabled,
+    estCreationTime: columnVisibility.estCreationTime && colEstCreationTimeEnabled,
+    estCompletionTime: columnVisibility.estCompletionTime && colEstCompletionTimeEnabled,
+    qualityTier: columnVisibility.qualityTier && colQualityTierEnabled,
+    quiz: columnVisibility.quiz && colQuizEnabled,
+    onePager: columnVisibility.onePager && colOnePagerEnabled,
+    videoPresentation: columnVisibility.videoPresentation && colVideoPresentationEnabled,
+    lessonPresentation: columnVisibility.lessonPresentation && colLessonPresentationEnabled,
+  }), [
+    columnVisibility,
+    colAssessmentTypeEnabled,
+    colContentVolumeEnabled,
+    colSourceEnabled,
+    colEstCreationTimeEnabled,
+    colEstCompletionTimeEnabled,
+    colQualityTierEnabled,
+    colQuizEnabled,
+    colOnePagerEnabled,
+    colVideoPresentationEnabled,
+    colLessonPresentationEnabled,
+  ]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -1570,7 +1609,7 @@ export default function ProjectInstanceViewPage() {
               projectQualityTier={projectInstanceData.quality_tier}
               projectIsAdvanced={projectInstanceData.is_advanced}
               projectAdvancedRates={projectInstanceData.advanced_rates}
-              columnVisibility={columnVisibility}
+              columnVisibility={effectiveColumnVisibility}
             />
           </div>
         );
@@ -2254,100 +2293,120 @@ export default function ProjectInstanceViewPage() {
                       {/* Training Plan specific columns */}
                       {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
                         <>
-                          <label className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={columnVisibility.knowledgeCheck}
-                              onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                              className="mr-2 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={columnVisibility.contentAvailability}
-                              onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                              className="mr-2 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={columnVisibility.informationSource}
-                              onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                              className="mr-2 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{columnLabels.source}</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={columnVisibility.estCreationTime}
-                              onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                              className="mr-2 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={columnVisibility.estCompletionTime}
-                              onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                              className="mr-2 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={columnVisibility.qualityTier}
-                              onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                              className="mr-2 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
-                          </label>
+                          {colAssessmentTypeEnabled && (
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={columnVisibility.knowledgeCheck}
+                                onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
+                            </label>
+                          )}
+                          {colContentVolumeEnabled && (
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={columnVisibility.contentAvailability}
+                                onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
+                            </label>
+                          )}
+                          {colSourceEnabled && (
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={columnVisibility.informationSource}
+                                onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{columnLabels.source}</span>
+                            </label>
+                          )}
+                          {colEstCreationTimeEnabled && (
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={columnVisibility.estCreationTime}
+                                onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
+                            </label>
+                          )}
+                          {colEstCompletionTimeEnabled && (
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={columnVisibility.estCompletionTime}
+                                onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
+                            </label>
+                          )}
+                          {colQualityTierEnabled && (
+                            <label className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={columnVisibility.qualityTier}
+                                onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
+                            </label>
+                          )}
                         </>
                       )}
 
                       {/* Common columns for all component types */}
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.quiz}
-                          onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">Quiz</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.onePager}
-                          onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">One-Pager</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.videoPresentation}
-                          onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">Video Lesson</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={columnVisibility.lessonPresentation}
-                          onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
-                          className="mr-2 text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">Presentation</span>
-                      </label>
+                      {colQuizEnabled && (
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={columnVisibility.quiz}
+                            onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
+                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">Quiz</span>
+                        </label>
+                      )}
+                      {colOnePagerEnabled && (
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={columnVisibility.onePager}
+                            onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
+                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">One-Pager</span>
+                        </label>
+                      )}
+                      {colVideoPresentationEnabled && (
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={columnVisibility.videoPresentation}
+                            onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
+                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">Video Lesson</span>
+                        </label>
+                      )}
+                      {colLessonPresentationEnabled && (
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={columnVisibility.lessonPresentation}
+                            onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
+                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">Presentation</span>
+                        </label>
+                      )}
                     </div>
                   </div>
                 )}

@@ -7294,6 +7294,16 @@ async def startup_event():
                     ('offers_tab', 'Offers Tab', 'Access to Offers tab in Projects', 'Navigation'),
                     ('workspace_tab', 'Workspace Tab', 'Access to Workspace tab in Projects', 'Navigation'),
                     ('video_lesson', 'Video Lesson', 'Allow creating Video Lessons in Generate page', 'Creation'),
+                    ('col_assessment_type', 'Column: Assessment Type', 'Shows the Assessment Type column', 'Columns'),
+                    ('col_content_volume', 'Column: Content Volume', 'Shows the Content Volume column', 'Columns'),
+                    ('col_source', 'Column: Source', 'Shows the Source column', 'Columns'),
+                    ('col_est_creation_time', 'Column: Est. Creation Time', 'Shows the Est. Creation Time column', 'Columns'),
+                    ('col_est_completion_time', 'Column: Est. Completion Time', 'Shows the Est. Completion Time column', 'Columns'),
+                    ('col_quality_tier', 'Column: Quality Tier', 'Shows the Quality Tier column', 'Columns'),
+                    ('col_quiz', 'Column: Quiz', 'Shows the Quiz column', 'Columns'),
+                    ('col_one_pager', 'Column: One-Pager', 'Shows the One-Pager column', 'Columns'),
+                    ('col_video_presentation', 'Column: Video Lesson', 'Shows the Video Lesson column', 'Columns'),
+                    ('col_lesson_presentation', 'Column: Presentation', 'Shows the Presentation column', 'Columns'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
