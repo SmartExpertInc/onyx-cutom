@@ -154,7 +154,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
   };
 
   return (
-    <div className="connection-slide inter-theme" style={slide}>
+    <div className="connection-slide" style={slide}>
       {/* Top bar with logo */}
       <div style={topBar}>
         <YourLogo
