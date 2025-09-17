@@ -331,7 +331,7 @@ export default function DataSourceLanding() {
         />
 
         {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 w-full max-w-5xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-6xl">
           <OptionCard
             Icon={TextIcon}
             title={t('interface.pasteInText', 'Paste in text')}
