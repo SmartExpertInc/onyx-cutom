@@ -14,13 +14,9 @@ const nextConfig = {
   // which Nginx will catch.
 
   // Image Optimization:
-  // Since Nginx will proxy /static_design_images/ from the same domain your frontend is on,
-  // Next.js <Image> component should treat these as same-origin.
-  // Therefore, images.remotePatterns for your backend might NOT be needed.
-  // Try without it first. If Next.js <Image> still complains about unconfigured hostnames for optimization,
-  // you might need to add your main domain (the one Nginx serves on port 80) to remotePatterns,
-  // or even the 'custom_backend_server' hostname if Next.js optimization somehow sees through the proxy.
-  // For now, let's assume it works without remotePatterns due to Nginx making it same-origin.
+  images: {
+    unoptimized: true, // Disable Next.js image optimization to avoid basePath issues
+  },
 };
 
 module.exports = nextConfig;

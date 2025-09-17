@@ -31,7 +31,7 @@ export default function EventPoster({
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/create/event-poster/background.jpg"
+          src="/custom-projects-ui/create/event-poster/background.jpg"
           alt="Background"
           fill
           className="object-cover"
@@ -92,7 +92,7 @@ export default function EventPoster({
             {/* Right Side - Speaker Photo */}
             <div className="w-80 h-80 relative">
               <Image
-                src="/create/event-poster/person.png"
+                src="/custom-projects-ui/create/event-poster/person.png"
                 alt={mainSpeaker}
                 fill
                 className="object-cover rounded-lg"
