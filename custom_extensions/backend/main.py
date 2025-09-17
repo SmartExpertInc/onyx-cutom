@@ -14718,7 +14718,9 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
     try:
         # 📊 DETAILED LOGGING: Language parameter in additional positions generation
         logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language: '{language}'")
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - will use {'English' if language == 'en' else 'Russian'} prompts")
+        # Determine language for logging
+        language_name = "English" if language == "en" else "Spanish" if language == "es" else "Ukrainian" if language == "ua" else "Russian"
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - will use {language_name} prompts")
         
         if language == "en":
             prompt = f"""
@@ -14747,6 +14749,62 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
             - {{"title": "Logistics Coordinator", "description": "Training in supply chain management and logistics."}}
             
             RESPONSE (JSON only):
+            """
+        elif language == "es":
+            prompt = f"""
+            Analiza los datos de la empresa y genera {count} posiciones lógicas adicionales para cursos de capacitación.
+            
+            DATOS DEL CUESTIONARIO:
+            - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+            - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            DATOS DE INTERNET:
+            {duckduckgo_summary}
+            
+            INSTRUCCIONES:
+            - Genera {count} posiciones lógicas que se ajusten a esta empresa e industria
+            - Cada posición debe ser realista y adecuada para cursos de capacitación
+            - Las posiciones deben complementar las vacantes existentes
+            - La descripción del curso debe ser BREVE (máximo 100 caracteres)
+            - Usa el formato: "Capacitación en [habilidades/procesos clave] para [posición]"
+            - Devuelve los datos en formato JSON: [{{"title": "Título de la Posición", "description": "Breve descripción del curso de capacitación"}}]
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            
+            EJEMPLOS DE POSICIONES Y DESCRIPCIONES:
+            - {{"title": "Atención al Cliente", "description": "Capacitación en servicio al cliente y resolución de problemas."}}
+            - {{"title": "Especialista en Marketing", "description": "Capacitación en fundamentos de marketing y promoción de productos."}}
+            - {{"title": "Coordinador de Logística", "description": "Capacitación en gestión de cadena de suministro y logística."}}
+            
+            RESPUESTA (solo JSON):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Проаналізуйте дані компанії та згенеруйте {count} додаткових логічних позицій для курсів навчання.
+            
+            ДАНІ АНКЕТИ:
+            - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+            - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            ДАНІ З ІНТЕРНЕТУ:
+            {duckduckgo_summary}
+            
+            ІНСТРУКЦІЇ:
+            - Згенеруйте {count} логічних позицій, які підходять для цієї компанії та галузі
+            - Кожна позиція повинна бути реалістичною та підходящою для курсу навчання
+            - Позиції повинні доповнювати існуючі вакансії
+            - Опис курсу повинен бути КОРОТКИМ (максимум 100 символів)
+            - Використовуйте формат: "Навчання [ключовим навичкам/процесам] для [позиції]"
+            - Поверніть дані у форматі JSON: [{{"title": "Назва позиції", "description": "Короткий опис курсу навчання"}}]
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            
+            ПРИКЛАДИ ПОЗИЦІЙ ТА ОПИСІВ:
+            - {{"title": "Спеціаліст з обслуговування клієнтів", "description": "Навчання роботі з клієнтами та вирішенню проблем."}}
+            - {{"title": "Спеціаліст з маркетингу", "description": "Навчання основам маркетингу та просування товарів."}}
+            - {{"title": "Координатор логістики", "description": "Навчання управлінню постачанням та логістикою."}}
+            
+            ВІДПОВІДЬ (тільки JSON):
             """
         else:
             prompt = f"""
@@ -14786,7 +14844,7 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
         
         # 📊 DETAILED LOGGING: Language parameter in response
         logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - raw response length: {len(response_text)}")
-        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language used: {'English' if language == 'en' else 'Russian'}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language used: {language_name}")
         
         # Try to parse JSON response - handle markdown-wrapped JSON
         try:
@@ -14809,13 +14867,36 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
         except (json.JSONDecodeError, ValueError) as e:
             logger.error(f"[COURSE TEMPLATES] JSON parsing error: {e}")
             logger.error(f"[COURSE TEMPLATES] Raw response was: '{response_text}'")
-            # Fallback to default positions
-            return [
-                {"title": "Customer Support", "description": "Обучение работе с клиентами и решению их проблем."},
-                {"title": "Marketing Specialist", "description": "Обучение маркетинговым стратегиям и продвижению."},
-                {"title": "Logistics Coordinator", "description": "Обучение управлению логистическими процессами."},
-                {"title": "Quality Assurance", "description": "Обучение контролю качества и тестированию."}
-            ][:count]
+            # Fallback to default positions based on language
+            if language == "en":
+                fallback_positions = [
+                    {"title": "Customer Support", "description": "Training in customer service and problem solving."},
+                    {"title": "Marketing Specialist", "description": "Training in marketing strategies and promotion."},
+                    {"title": "Logistics Coordinator", "description": "Training in logistics and supply chain management."},
+                    {"title": "Quality Assurance", "description": "Training in quality control and testing."}
+                ]
+            elif language == "es":
+                fallback_positions = [
+                    {"title": "Atención al Cliente", "description": "Capacitación en servicio al cliente y resolución de problemas."},
+                    {"title": "Especialista en Marketing", "description": "Capacitación en estrategias de marketing y promoción."},
+                    {"title": "Coordinador de Logística", "description": "Capacitación en logística y gestión de cadena de suministro."},
+                    {"title": "Control de Calidad", "description": "Capacitación en control de calidad y pruebas."}
+                ]
+            elif language == "ua":
+                fallback_positions = [
+                    {"title": "Спеціаліст з обслуговування клієнтів", "description": "Навчання роботі з клієнтами та вирішенню проблем."},
+                    {"title": "Спеціаліст з маркетингу", "description": "Навчання маркетинговим стратегіям та просуванню."},
+                    {"title": "Координатор логістики", "description": "Навчання логістиці та управлінню постачанням."},
+                    {"title": "Контроль якості", "description": "Навчання контролю якості та тестуванню."}
+                ]
+            else:  # Russian
+                fallback_positions = [
+                    {"title": "Customer Support", "description": "Обучение работе с клиентами и решению их проблем."},
+                    {"title": "Marketing Specialist", "description": "Обучение маркетинговым стратегиям и продвижению."},
+                    {"title": "Logistics Coordinator", "description": "Обучение управлению логистическими процессами."},
+                    {"title": "Quality Assurance", "description": "Обучение контролю качества и тестированию."}
+                ]
+            return fallback_positions[:count]
             
     except Exception as e:
         logger.error(f"❌ [COURSE TEMPLATES] Error generating additional positions: {e}")
@@ -16172,51 +16253,141 @@ def extract_open_positions_from_table(parsed_json):
     return []
 
 
-async def generate_company_specific_fallback_positions(company_name: str) -> list:
+async def generate_company_specific_fallback_positions(company_name: str, language: str = "ru") -> list:
     """Generate company-specific fallback positions when no real positions are found."""
     try:
-        prompt = f"""
-        Создай список из 3-5 логичных должностей для компании {company_name}.
-        
-        ИНСТРУКЦИИ:
-        - Создай позиции, которые логично подходят для данной компании
-        - Используй реалистичные названия должностей
-        - Добавь краткое описание для каждой позиции
-        
-        ФОРМАТ ОТВЕТА (только JSON):
-        [
-            {{"Позиция": "название позиции 1", "Описание": "краткое описание"}},
-            {{"Позиция": "название позиции 2", "Описание": "краткое описание"}},
-            ...
-        ]
-        
-        ОТВЕТ (только JSON):
-        """
+        if language == "en":
+            prompt = f"""
+            Create a list of 3-5 logical positions for the company {company_name}.
+            
+            INSTRUCTIONS:
+            - Create positions that logically fit this company
+            - Use realistic job titles
+            - Add a brief description for each position
+            - Generate ALL content EXCLUSIVELY in English
+            
+            RESPONSE FORMAT (JSON only):
+            [
+                {{"Position": "position title 1", "Description": "brief description"}},
+                {{"Position": "position title 2", "Description": "brief description"}},
+                ...
+            ]
+            
+            RESPONSE (JSON only):
+            """
+        elif language == "es":
+            prompt = f"""
+            Crea una lista de 3-5 posiciones lógicas para la empresa {company_name}.
+            
+            INSTRUCCIONES:
+            - Crea posiciones que se ajusten lógicamente a esta empresa
+            - Usa títulos de trabajo realistas
+            - Agrega una descripción breve para cada posición
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            
+            FORMATO DE RESPUESTA (solo JSON):
+            [
+                {{"Position": "título de posición 1", "Description": "descripción breve"}},
+                {{"Position": "título de posición 2", "Description": "descripción breve"}},
+                ...
+            ]
+            
+            RESPUESTA (solo JSON):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Створіть список з 3-5 логічних позицій для компанії {company_name}.
+            
+            ІНСТРУКЦІЇ:
+            - Створіть позиції, які логічно підходять для цієї компанії
+            - Використовуйте реалістичні назви посад
+            - Додайте короткий опис для кожної позиції
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            
+            ФОРМАТ ВІДПОВІДІ (тільки JSON):
+            [
+                {{"Position": "назва позиції 1", "Description": "короткий опис"}},
+                {{"Position": "назва позиції 2", "Description": "короткий опис"}},
+                ...
+            ]
+            
+            ВІДПОВІДЬ (тільки JSON):
+            """
+        else:  # Russian
+            prompt = f"""
+            Создай список из 3-5 логичных должностей для компании {company_name}.
+            
+            ИНСТРУКЦИИ:
+            - Создай позиции, которые логично подходят для данной компании
+            - Используй реалистичные названия должностей
+            - Добавь краткое описание для каждой позиции
+            
+            ФОРМАТ ОТВЕТА (только JSON):
+            [
+                {{"Position": "название позиции 1", "Description": "краткое описание"}},
+                {{"Position": "название позиции 2", "Description": "краткое описание"}},
+                ...
+            ]
+            
+            ОТВЕТ (только JSON):
+            """
         
         response_text = await stream_openai_response_direct(
             prompt=prompt,
             model=LLM_DEFAULT_MODEL
         )
         
-        # Parse JSON response
+        # Parse JSON response - handle markdown-wrapped JSON
         try:
-            positions = json.loads(response_text.strip())
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            positions = json.loads(cleaned_response)
             formatted_positions = []
             for position in positions:
+                # Handle different field names based on language
+                title = position.get("Position", position.get("Позиция", "Position"))
+                description = position.get("Description", position.get("Описание", f"Open position at {company_name}"))
                 formatted_positions.append({
-                    "title": position.get("Позиция", "Position"),
-                    "description": position.get("Описание", f"Open position at {company_name}"),
+                    "title": title,
+                    "description": description,
                     "icon": "👷"
                 })
             logger.info(f"💼 [WEBSITE SCRAPING] Generated {len(formatted_positions)} company-specific fallback positions")
             return formatted_positions
-        except json.JSONDecodeError:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON, using generic fallback")
-            return [
-                {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
-                {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
-                {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"}
-            ]
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            # Language-specific generic fallback
+            if language == "en":
+                return [
+                    {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+                    {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+                    {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"}
+                ]
+            elif language == "es":
+                return [
+                    {"title": "Representante de Ventas", "description": f"Ventas y desarrollo comercial en {company_name}", "icon": "💼"},
+                    {"title": "Atención al Cliente", "description": f"Servicio al cliente y soporte en {company_name}", "icon": "🎧"},
+                    {"title": "Gerente de Operaciones", "description": f"Gestión de operaciones y procesos en {company_name}", "icon": "⚙️"}
+                ]
+            elif language == "ua":
+                return [
+                    {"title": "Представник з продажів", "description": f"Продажі та розвиток бізнесу в {company_name}", "icon": "💼"},
+                    {"title": "Служба підтримки клієнтів", "description": f"Обслуговування клієнтів та підтримка в {company_name}", "icon": "🎧"},
+                    {"title": "Менеджер операцій", "description": f"Управління операціями та процесами в {company_name}", "icon": "⚙️"}
+                ]
+            else:  # Russian
+                return [
+                    {"title": "Менеджер по продажам", "description": f"Продажи и развитие бизнеса в {company_name}", "icon": "💼"},
+                    {"title": "Служба поддержки", "description": f"Обслуживание клиентов и поддержка в {company_name}", "icon": "🎧"},
+                    {"title": "Менеджер операций", "description": f"Управление операциями и процессами в {company_name}", "icon": "⚙️"}
+                ]
         
     except Exception as e:
         logger.error(f"❌ [WEBSITE SCRAPING] Error generating fallback positions: {e}")
@@ -16253,6 +16424,54 @@ async def extract_job_positions_from_website_content(website_content: str, compa
             
             RESPONSE (JSON only):
             """
+        elif language == "es":
+            prompt = f"""
+            Analiza el contenido del sitio web y extrae una lista de puestos de trabajo abiertos para la empresa.
+            
+            EMPRESA: {company_name}
+            CONTENIDO DEL SITIO WEB:
+            {website_content}
+            
+            INSTRUCCIONES:
+            - Encuentra todas las menciones de ofertas de trabajo, posiciones, oportunidades de carrera
+            - Extrae títulos de posiciones específicas (ej: "Gerente de Ventas", "Ingeniero Mecánico", "Especialista en Marketing")
+            - Si no se encuentran vacantes específicas, crea posiciones lógicas para esta empresa
+            - Devuelve máximo 8 posiciones reales
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            
+            FORMATO DE RESPUESTA (solo JSON):
+            [
+                {{"Position": "título de posición 1", "Description": "descripción breve"}},
+                {{"Position": "título de posición 2", "Description": "descripción breve"}},
+                ...
+            ]
+            
+            RESPUESTA (solo JSON):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Проаналізуйте вміст веб-сайту та витягніть список відкритих вакансій для компанії.
+            
+            КОМПАНІЯ: {company_name}
+            ВМІСТ ВЕБ-САЙТУ:
+            {website_content}
+            
+            ІНСТРУКЦІЇ:
+            - Знайдіть усі згадки про вакансії, посади, кар'єрні можливості
+            - Витягніть назви конкретних посад (наприклад: "Менеджер з продажів", "Інженер-механік", "Спеціаліст з маркетингу")
+            - Якщо конкретних вакансій не знайдено, створіть логічні позиції для цієї компанії
+            - Поверніть максимум 8 реальних позицій
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            
+            ФОРМАТ ВІДПОВІДІ (тільки JSON):
+            [
+                {{"Position": "назва позиції 1", "Description": "короткий опис"}},
+                {{"Position": "назва позиції 2", "Description": "короткий опис"}},
+                ...
+            ]
+            
+            ВІДПОВІДЬ (тільки JSON):
+            """
         else:
             prompt = f"""
             Проанализируй контент веб-сайта и извлеки список открытых вакансий компании.
@@ -16282,13 +16501,26 @@ async def extract_job_positions_from_website_content(website_content: str, compa
             model=LLM_DEFAULT_MODEL
         )
         
-        # Parse JSON response
+        # Parse JSON response - handle markdown-wrapped JSON
         try:
-            job_positions = json.loads(response_text.strip())
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            job_positions = json.loads(cleaned_response)
+            
+            if not isinstance(job_positions, list):
+                raise ValueError("Response is not a list")
+            
             logger.info(f"💼 [WEBSITE SCRAPING] Extracted {len(job_positions)} job positions from website")
             return job_positions
-        except json.JSONDecodeError:
-            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON, using fallback")
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
             return []
         
     except Exception as e:
@@ -16312,9 +16544,9 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
         # Convert to the format expected by the frontend
         formatted_positions = []
         for position in job_positions:
-            # Get the position title and description
-            position_title = position.get("Позиция", "Position")
-            position_description = position.get("Описание", f"Open position at {company_name}")
+            # Get the position title and description - handle different field names based on language
+            position_title = position.get("Position", position.get("Позиция", "Position"))
+            position_description = position.get("Description", position.get("Описание", f"Open position at {company_name}"))
             formatted_positions.append({
                 "title": position_title,
                 "description": position_description,
@@ -16329,7 +16561,7 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
         if not formatted_positions:
             logger.info(f"🔍 [AUDIT DATA FLOW] No positions found, using company-specific fallback")
             # Generate company-specific fallback positions
-            fallback_positions = await generate_company_specific_fallback_positions(company_name)
+            fallback_positions = await generate_company_specific_fallback_positions(company_name, language)
             formatted_positions = fallback_positions
         
         # Ensure exactly 11 vacancies by generating additional ones if needed
@@ -16363,7 +16595,7 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
         logger.error(f"❌ [AUDIT DATA FLOW] Error generating job positions: {e}")
         # Return company-specific fallback positions
         try:
-            fallback_positions = await generate_company_specific_fallback_positions(company_name)
+            fallback_positions = await generate_company_specific_fallback_positions(company_name, language)
             # Ensure we have exactly 11 positions
             while len(fallback_positions) < 11:
                 fallback_positions.append({

@@ -645,7 +645,12 @@ export default function DynamicAuditLandingPage() {
                             {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
                           </div>
                           <div className="font-normal text-[14px] text-[#09090B]">
-                            специалистов
+                            {getLocalizedText(landingPageData?.language, {
+                              en: 'specialists',
+                              es: 'especialistas',
+                              ua: 'спеціалістів',
+                              ru: 'специалистов'
+                            })}
                           </div>
                         </div>
                       </div>
