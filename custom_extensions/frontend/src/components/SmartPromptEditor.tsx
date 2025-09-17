@@ -268,7 +268,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
             placeholder="Describe what you'd like to improve..."
-            className="w-full px-7 py-5 rounded-2xl bg-white text-sm text-black resize-none overflow-hidden min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+            className="w-full px-7 py-5 rounded-2xl bg-white text-sm text-black resize-none overflow-y-auto min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.95)' }}
             disabled={loadingEdit}
           />
