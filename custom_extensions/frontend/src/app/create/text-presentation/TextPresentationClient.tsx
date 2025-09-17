@@ -1470,8 +1470,8 @@ export default function TextPresentationClient() {
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
-                              <label key={option.value} className="flex items-center justify-between py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                <div className="flex items-center gap-2">
+                              <label key={option.value} className="flex items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <div className="flex items-center gap-2 flex-1">
                                   <input
                                     type="checkbox"
                                     checked={selectedStyles.includes(option.value)}
@@ -1486,9 +1486,11 @@ export default function TextPresentationClient() {
                                   />
                                   <span className="text-sm">{option.label}</span>
                                 </div>
-                                <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
-                                  <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
-                                </CustomTooltip>
+                                <div className="ml-6">
+                                  <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
+                                    <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
+                                  </CustomTooltip>
+                                </div>
                               </label>
                             ))}
                           </DropdownMenuContent>
@@ -1551,8 +1553,8 @@ export default function TextPresentationClient() {
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
-                          <label key={option.value} className="flex items-center justify-between py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <div className="flex items-center gap-2">
+                          <label key={option.value} className="flex gap-2 flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <div className="flex items-center">
                               <input
                                 type="checkbox"
                                 checked={selectedStyles.includes(option.value)}
@@ -1567,9 +1569,11 @@ export default function TextPresentationClient() {
                               />
                               <span className="text-sm">{option.label}</span>
                             </div>
-                            <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
-                              <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
-                            </CustomTooltip>
+                            <div className="ml-6">
+                              <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
+                                <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
+                              </CustomTooltip>
+                            </div>
                           </label>
                         ))}
                       </DropdownMenuContent>
