@@ -6,6 +6,7 @@ import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { CustomCard } from "@/components/ui/custom-card";
+import { HeadTextCustom } from "@/components/ui/head-text-custom";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -323,14 +324,11 @@ export default function DataSourceLanding() {
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
         {/* Headings */}
-        <div className="flex flex-col gap-4 text-center">
-          <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
-            {t('interface.createWithAI', 'Create with AI')}
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl leading-relaxed">
-            {t('interface.howToGetStarted', 'How would you like to get started?')}
-          </p>
-        </div>
+        <HeadTextCustom
+          text={t('interface.createWithAI', 'Create with AI')}
+          description={t('interface.howToGetStarted', 'How would you like to get started?')}
+          className="max-w-2xl"
+        />
 
         {/* Option cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 w-full max-w-5xl">
