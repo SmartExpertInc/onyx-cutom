@@ -171,7 +171,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, companyLogoPath: newLogoPath });
     }
   };
-  const positions = [-34.5, 93.5, 222.5, 352.5];
+  const positions = [-33.5, 93.5, 222.5, 352.5];
 
   return (
     <div className="phishing-rise-slide" style={slideStyles}>
@@ -337,7 +337,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
           pointerEvents: 'none'
         }}>
           {/* Horizontal grid lines - only for 20, 40, 60, 70 (not for 0) */}
-          {[1, 2, 3, 4].map((i) => (
+          {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
               style={{
