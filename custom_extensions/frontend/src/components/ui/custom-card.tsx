@@ -61,20 +61,21 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-16 -left-16 w-64 h-64 bg-blue-50/20 rounded-full border border-indigo-100/50 rounded-full" />
-        <div className="absolute -top-8 -left-8 w-48 h-48 bg-blue-100/15 rounded-full border border-indigo-100/50 rounded-full" />
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-50/20 rounded-full border border-indigo-100/50" />
+        <div className="absolute -top-16 -left-16 w-72 h-72 bg-blue-100/15 rounded-full border border-indigo-100/50" />
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (
             <div className="absolute top-4 right-4 z-10">
               <div 
                 className={cn(
+                  "inline-flex items-center px-2 py-1 text-xs font-medium",
                   useCSSVariables 
-                    ? "bg-white rounded-md border-none text-blue-600 gap-2"
-                    : cn(labelColor, "bg-white rounded-md border-none text-blue-600 gap-2")
+                    ? "bg-white rounded-md border border-blue-100 text-blue-600 gap-1"
+                    : cn(labelColor, "bg-white rounded-md border border-blue-100 text-blue-600 gap-1")
                 )}
               >
-                <SparklesIcon size={10} />
+                <SparklesIcon size={8} />
                 {pillLabel}
               </div>
             </div>
