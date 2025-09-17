@@ -196,32 +196,6 @@ const PdfExportLoadingModal: React.FC<{
 };
 
 
-// Simple fade/slide presence wrapper to animate mount/unmount
-function AnimatedPresence({ show, children }: { show: boolean; children: any }) {
-  const [shouldRender, setShouldRender] = useState(show);
-
-  useEffect(() => {
-    if (show) {
-      setShouldRender(true);
-    }
-  }, [show]);
-
-  if (!shouldRender) return null;
-
-  return (
-    <div
-      className={`transition-all duration-300 ease-out ${show ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
-      onTransitionEnd={(e) => {
-        if (!show && e.propertyName === 'opacity') {
-          setShouldRender(false);
-        }
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 export default function ProjectInstanceViewPage() {
   const params = useParams<ProjectViewParams>();
   const router = useRouter();
@@ -2380,19 +2354,17 @@ export default function ProjectInstanceViewPage() {
           </div>
         }
 
-        {/* Smart Prompt Editor - render outside the white content container with animation */}
-        <AnimatedPresence show={!!(showSmartEditor && projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN)}>
-          {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-            <SmartPromptEditor
-              projectId={projectInstanceData.project_id}
-              onContentUpdate={handleSmartEditContentUpdate}
-              onError={handleSmartEditError}
-              onRevert={handleSmartEditRevert}
-              currentLanguage={(editableData as TrainingPlanData | null)?.detectedLanguage}
-              currentTheme={(editableData as TrainingPlanData | null)?.theme}
-            />
-          )}
-        </AnimatedPresence>
+        {/* Smart Prompt Editor - render outside the white content container */}
+        {showSmartEditor && projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+          <SmartPromptEditor
+            projectId={projectInstanceData.project_id}
+            onContentUpdate={handleSmartEditContentUpdate}
+            onError={handleSmartEditError}
+            onRevert={handleSmartEditRevert}
+            currentLanguage={(editableData as TrainingPlanData | null)?.detectedLanguage}
+            currentTheme={(editableData as TrainingPlanData | null)?.theme}
+          />
+        )}
 
         <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl">
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>

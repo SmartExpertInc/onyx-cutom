@@ -280,10 +280,10 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 type="button"
                 onClick={() => toggleExample(ex)}
                 disabled={loadingEdit}
-                className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-black ${
+                className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                   selectedExamples.includes(ex.short)
-                    ? 'bg-white shadow border-blue-300'
-                    : 'bg-blue-50 hover:bg-white'
+                    ? 'bg-[#B8D4F0]'
+                    : 'bg-[#D9ECFF] hover:shadow-lg'
                 }`}
               >
                 {ex.short}
