@@ -45,7 +45,9 @@ export default function RootLayout({
         <LanguageProvider>
           <AvatarDisplayManager>
             <MixpanelProvider>
-              {children}
+              <UserbackProvider>
+                {children}
+              </UserbackProvider>
             </MixpanelProvider>
           </AvatarDisplayManager>
         </LanguageProvider>
