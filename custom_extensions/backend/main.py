@@ -7293,6 +7293,7 @@ async def startup_event():
                     ('deloitte_banner', 'Deloitte Banner', 'Show Deloitte banner on Projects page', 'Branding'),
                     ('offers_tab', 'Offers Tab', 'Access to Offers tab in Projects', 'Navigation'),
                     ('workspace_tab', 'Workspace Tab', 'Access to Workspace tab in Projects', 'Navigation'),
+                    ('video_lesson', 'Video Lesson', 'Allow creating Video Lessons in Generate page', 'Creation'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:

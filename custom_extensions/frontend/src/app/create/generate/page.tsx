@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { generatePromptId } from "../../../utils/promptUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -319,6 +320,15 @@ function GenerateProductPicker() {
   }, [prompt]);
 
   const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
+
+  // Feature flag for Video Lesson
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
+
+  useEffect(() => {
+    if (activeProduct === "Video Lesson" && !videoLessonEnabled) {
+      setActiveProduct("Course Outline");
+    }
+  }, [activeProduct, videoLessonEnabled]);
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -1309,13 +1319,15 @@ function GenerateProductPicker() {
             active={activeProduct === "Course Outline"}
             onClick={() => setActiveProduct("Course Outline")}
           />
-          <GenerateCard 
-            label={t('interface.generate.videoLesson', 'Video Lesson')} 
-            Icon={VideoScriptIcon}
-            gradientTo="#E8F0FE"
-            active={activeProduct === "Video Lesson"}
-            onClick={() => setActiveProduct("Video Lesson")}
-          />
+          {videoLessonEnabled && (
+            <GenerateCard 
+              label={t('interface.generate.videoLesson', 'Video Lesson')} 
+              Icon={VideoScriptIcon}
+              gradientTo="#E8F0FE"
+              active={activeProduct === "Video Lesson"}
+              onClick={() => setActiveProduct("Video Lesson")}
+            />
+          )}
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon}
@@ -2070,7 +2082,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Video Lesson Configuration */}
-        {activeProduct === "Video Lesson" && (
+        {activeProduct === "Video Lesson" && videoLessonEnabled && (
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
               <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
@@ -2162,7 +2174,7 @@ function GenerateProductPicker() {
 
         {/* Generate Button */}
         {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
-          (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+          (activeProduct === "Video Lesson" && videoLessonEnabled && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === true && selectedQuizOutlineId && selectedQuizLesson) ||
