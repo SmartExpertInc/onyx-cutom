@@ -236,466 +236,468 @@ const CredentialStep: FC<CredentialStepProps> = ({
                   <p className="text-gray-600 mt-1">Enter your credentials to connect to {connectorName}</p>
                 </div>
                 {/* Help tooltip button (persistent while hovering tooltip area) */}
-                <div
-                  className="relative flex items-center gap-2"
-                  onMouseEnter={() => setHelpOpen(true)}
-                  onMouseLeave={() => setHelpOpen(false)}
-                >
-                  <button
-                    type="button"
-                    className="w-8 h-8 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center justify-center text-sm font-bold border border-blue-200"
-                    aria-label="How to get these credentials"
-                    onClick={() => setHelpOpen((v) => !v)}
-                  >
-                    i
-                  </button>
+                <div className="relative flex items-center gap-2">
                   <div
-                    className="absolute right-0 top-full mt-2 w-[28rem] max-w-[90vw] z-50"
-                    role="tooltip"
-                    style={{ display: helpOpen ? 'block' : 'none' }}
+                    className="relative"
+                    onMouseEnter={() => setHelpOpen(true)}
+                    onMouseLeave={() => setHelpOpen(false)}
                   >
-                    <div className="rounded-lg shadow-xl border border-gray-200 bg-white p-4 text-sm leading-5 text-gray-800">
-                     {(() => {
-                       const Text = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => <p className={`mb-2 ${className}`}>{children}</p>;
-                       const Steps = ({ items }: { items: React.ReactNode[] }) => (
-                         <ol className="list-decimal pl-5 space-y-1">{items.map((it, i) => <li key={i}>{it}</li>)}</ol>
-                       );
-                       const Bullets = ({ items }: { items: React.ReactNode[] }) => (
-                         <ul className="list-disc pl-5 space-y-1">{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
-                       );
+                    <button
+                      type="button"
+                      className="w-8 h-8 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center justify-center text-sm font-bold border border-blue-200"
+                      aria-label={t('interface.credentialHelp.ariaLabel', 'How to get these credentials')}
+                      onClick={() => setHelpOpen((v) => !v)}
+                    >
+                      i
+                    </button>
+                    <div
+                      className="absolute right-0 top-full mt-2 w-[28rem] max-w-[90vw] z-50"
+                      role="tooltip"
+                      style={{ display: helpOpen ? 'block' : 'none' }}
+                    >
+                      <div className="rounded-lg shadow-xl border border-gray-200 bg-white p-4 text-sm leading-5 text-gray-800">
+                         {(() => {
+                           const Text = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => <p className={`mb-2 ${className}`}>{children}</p>;
+                           const Steps = ({ items }: { items: React.ReactNode[] }) => (
+                             <ol className="list-decimal pl-5 space-y-1">{items.map((it, i) => <li key={i}>{it}</li>)}</ol>
+                           );
+                           const Bullets = ({ items }: { items: React.ReactNode[] }) => (
+                             <ul className="list-disc pl-5 space-y-1">{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
+                           );
 
-                       switch (connectorId) {
-                         case 'notion':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Get a Notion Integration Token</span></Text>
-                               <Steps items={[
-                                 <>Go to notion.com/my-integrations and create a new integration.</>,
-                                 <>Name it (e.g., "contentbuilder") and enable Read content capability.</>,
-                                 <>Copy the Integration Token provided after creation.</>,
-                                 <>In Notion, open each page or database you want indexed → menu (•••) → Add connections → select your integration. Child pages/rows are included.</>,
-                                 <>Paste the token into the Integration Token field here and create the credential.</>,
-                               ]} />
-                               <Text className="mt-2 text-gray-600">Indexing runs periodically. To limit content, unshare the integration from specific pages or databases.</Text>
-                             </div>
-                           );
-                         case 'google_drive':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Provide Google Drive credentials</span></Text>
-                               <Bullets items={[
-                                 <><span className="font-semibold">Recommended:</span> Use a <span className="font-semibold">Service Account</span> (created in Google Cloud Console). Download the JSON key and paste the entire JSON into the Service Account JSON field.</>,
-                                 <>Alternatively, use OAuth for user-based access if configured by your admin.</>,
-                                 <>Supported files include Google Docs/Sheets/Slides, Microsoft Office formats, PDF, CSV, and TXT.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'slack':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Create a Slack Bot Token</span></Text>
-                               <Steps items={[
-                                 <>Create a Slack App in api.slack.com with a Bot token.</>,
-                                 <>Add scopes for reading channels and messages as required by your workspace policy.</>,
-                                 <>Install the app to your workspace to generate a Bot User OAuth Token.</>,
-                                 <>Paste the bot token here to create the credential.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'github':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Create a GitHub Access Token</span></Text>
-                               <Steps items={[
-                                 <>Generate a Personal Access Token (classic) with <span className="font-semibold">repo</span> read permissions.</>,
-                                 <>If using GitHub App, ensure it has read access to the repositories you want indexed.</>,
-                                 <>Paste the token here and save.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'gitlab':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Create a GitLab Access Token</span></Text>
-                               <Steps items={[
-                                 <>Create a Personal Access Token with <span className="font-semibold">read_api</span> scope.</>,
-                                 <>Ensure the token has access to the groups/projects to index.</>,
-                                 <>Paste the token here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'confluence':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Confluence API Token</span></Text>
-                               <Steps items={[
-                                 <>Use your Confluence site URL (cloud) or base URL (server).</>,
-                                 <>Create an API token (for cloud) or ensure a user with access (for server).</>,
-                                 <>Provide <span className="font-semibold">URL</span>, <span className="font-semibold">Username/Email</span>, and <span className="font-semibold">API Token</span> here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'jira':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Jira API Token</span></Text>
-                               <Steps items={[
-                                 <>Use your Jira site URL.</>,
-                                 <>Create an API token and use your account email/username.</>,
-                                 <>Provide <span className="font-semibold">URL</span>, <span className="font-semibold">Username/Email</span>, and <span className="font-semibold">API Token</span>.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'zendesk':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Zendesk API Token</span></Text>
-                               <Steps items={[
-                                 <>In Zendesk Admin, enable API token access and generate a token.</>,
-                                 <>Provide <span className="font-semibold">Subdomain</span>, <span className="font-semibold">Email</span>, and <span className="font-semibold">API Token</span>.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'asana':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Asana Personal Access Token</span></Text>
-                               <Steps items={[
-                                 <>Create an Asana Personal Access Token.</>,
-                                 <>Paste the token into the API Token field and save.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'airtable':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Airtable API Key</span></Text>
-                               <Steps items={[
-                                 <>Create an Airtable API key (or token) with read access to the bases you want to index.</>,
-                                 <>Paste the key here and save.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'dropbox':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Dropbox Access Token</span></Text>
-                               <Steps items={[
-                                 <>Create a Dropbox app with scoped access.</>,
-                                 <>Generate an access token and paste it here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 's3':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Amazon S3 Credentials</span></Text>
-                               <Steps items={[
-                                 <>Provide <span className="font-semibold">Access Key ID</span>, <span className="font-semibold">Secret Access Key</span>, and the target <span className="font-semibold">Bucket</span> (and region if needed).</>,
-                                 <>Ensure read permissions for the bucket and keys.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'r2':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Cloudflare R2 Credentials</span></Text>
-                               <Steps items={[
-                                 <>Provide R2 <span className="font-semibold">Access Key ID</span>, <span className="font-semibold">Secret Access Key</span>, and Bucket details.</>,
-                                 <>Ensure read access for the bucket.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'google_cloud_storage':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Google Cloud Storage</span></Text>
-                               <Steps items={[
-                                 <>Use a Service Account JSON with access to the target GCS buckets.</>,
-                                 <>Paste the JSON content here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'oci_storage':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Oracle Cloud Object Storage</span></Text>
-                               <Steps items={[
-                                 <>Provide required credentials (Tenancy OCID, User OCID, Key Fingerprint, Private Key) and bucket details.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'sharepoint':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">SharePoint Credentials</span></Text>
-                               <Steps items={[
-                                 <>Register an app in Azure AD (app registration).</>,
-                                 <>Provide <span className="font-semibold">Tenant ID</span>, <span className="font-semibold">Client ID</span>, and either <span className="font-semibold">Client Secret</span> or certificate details, plus target site info.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'gmail':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Gmail Access</span></Text>
-                               <Bullets items={[
-                                 <>Use a Google Workspace admin-provisioned OAuth or a Service Account with domain-wide delegation.</>,
-                                 <>Grant scopes to read messages/threads as required.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'teams':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Microsoft Teams Access</span></Text>
-                               <Bullets items={[
-                                 <>Register an app in Azure and grant Microsoft Graph read scopes for channels/messages as permitted by your org.</>,
-                                 <>Provide the app credentials accordingly.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'discord':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Discord Bot Token</span></Text>
-                               <Steps items={[
-                                 <>Create a Discord application and bot, invite it to your server with appropriate permissions.</>,
-                                 <>Copy the bot token and paste here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'zulip':
-                           return (
-                             <div>
-                               <Text><span className="font-semibold">Zulip API Key</span></Text>
-                               <Steps items={[
-                                 <>Create or view your Zulip API key from your Zulip account settings.</>,
-                                 <>Paste the email and API key here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'gitbook':
-                           return (
-                             <div>
-                               <Text className="font-semibold">GitBook Access Token</Text>
-                               <Steps items={[
-                                 <>Generate an access token with read permissions for your spaces.</>,
-                                 <>Paste the token here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'bookstack':
-                           return (
-                             <div>
-                               <Text className="font-semibold">BookStack API Token</Text>
-                               <Steps items={[
-                                 <>Create an API token in BookStack with read access.</>,
-                                 <>Provide the token here along with the instance URL if required.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'google_sites':
-                         case 'google_site':
-                           return (
-                             <div>
-                               <Text className="font-semibold">Google Sites</Text>
-                               <Bullets items={[
-                                 <>Use a Google credential (Service Account or OAuth) with access to the Sites you want to index.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'guru':
-                           return (
-                             <div>
-                               <Text className="font-semibold">Guru API Token</Text>
-                               <Steps items={[
-                                 <>Create an API token with read access to collections.</>,
-                                 <>Paste the token here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'slab':
-                           return (
-                             <div>
-                               <Text className="font-semibold">Slab API Token</Text>
-                               <Steps items={[
-                                 <>Generate an API token with read access.</>,
-                                 <>Paste the token here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'salesforce':
-                           return (
-                             <div>
-                               <Text className="font-semibold">Salesforce</Text>
-                               <Bullets items={[
-                                 <>Use a Connected App and provide OAuth credentials or a refresh token with read permissions to target objects.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'hubspot':
-                           return (
-                             <div>
-                               <Text className="font-semibold">HubSpot</Text>
-                               <Bullets items={[
-                                 <>Create a Private App and generate an access token with read scopes.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'gong':
-                         case 'fireflies':
-                           return (
-                             <div>
-                               <Text className="font-semibold">Voice/Call Platform Access</Text>
-                               <Bullets items={[
-                                 <>Generate an API token in your account with read access to transcripts/recordings.</>,
-                                 <>Paste the token here.</>,
-                               ]} />
-                             </div>
-                           );
-                         case 'egnyte':
-                           return (
-                             <div>
-                               <Text className="font-semibold">Egnyte</Text>
-                               <Bullets items={[
-                                 <>Provide your domain and an access token or OAuth credentials with read permissions.</>,
-                               ]} />
-                             </div>
-                           );
-                                                 case 'web':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Web Scraper</Text>
-                              <Bullets items={[
-                                <>Provide the start URL(s) and optional rules (depth, include/exclude patterns) depending on configuration.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'axero':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Axero</Text>
-                              <Bullets items={[
-                                <>Use an API key or OAuth app with read access to communities/spaces you wish to index.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'wikipedia':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Wikipedia</Text>
-                              <Bullets items={[
-                                <>No credential typically required. Configure the pages or categories to include and language(s) if applicable.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'mediawiki':
-                          return (
-                            <div>
-                              <Text className="font-semibold">MediaWiki</Text>
-                              <Bullets items={[
-                                <>Provide the MediaWiki base URL and a user API token or bot credentials with read access.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'document360':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Document360</Text>
-                              <Bullets items={[
-                                <>Generate an API token with read access to your knowledge base; paste the token here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'clickup':
-                          return (
-                            <div>
-                              <Text className="font-semibold">ClickUp</Text>
-                              <Bullets items={[
-                                <>Create a Personal API Token with read permissions for spaces/folders/lists you want to index; paste it here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'linear':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Linear</Text>
-                              <Bullets items={[
-                                <>Create a Personal API Key with read access; paste it here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'productboard':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Productboard</Text>
-                              <Bullets items={[
-                                <>Generate an API token with read access to products/notes; paste it here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'freshdesk':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Freshdesk</Text>
-                              <Bullets items={[
-                                <>Provide your Freshdesk domain and an API key from your profile settings; paste the API key here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'highspot':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Highspot</Text>
-                              <Bullets items={[
-                                <>Use an API token with read access to content; paste it here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'loopio':
-                          return (
-                            <div>
-                              <Text className="font-semibold">Loopio</Text>
-                              <Bullets items={[
-                                <>Generate an API token with read access to your library/projects; paste it here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'xenforo':
-                          return (
-                            <div>
-                              <Text className="font-semibold">XenForo</Text>
-                              <Bullets items={[
-                                <>Provide XenForo API base URL and an API key with read permissions; paste it here.</>,
-                              ]} />
-                            </div>
-                          );
-                        case 'gitbook':
-                          return (
-                            <div>
-                              <Text className="font-semibold">GitBook Access Token</Text>
-                              <Steps items={[
-                                <>Generate an access token with read permissions for your spaces.</>,
-                                <>Paste the token here.</>,
-                              ]} />
-                            </div>
-                          );
-                        default:
-                          return (
-                            <div>
-                              <Text className="font-semibold">How to obtain credentials</Text>
-                              <Text>Use your source system's admin panel to generate an API key/token or app credentials with read access, then paste them here to create a credential in contentbuilder.</Text>
-                            </div>
-                          );
-                       }
-                     })()}
+                           switch (connectorId) {
+                             case 'notion':
+                               return (
+                                 <div>
+                                   <Text><span className="font-semibold">{t('connectors.instructions.notion.title', 'Get a Notion Integration Token')}</span></Text>
+                                   <Steps items={[
+                                     <>{t('connectors.instructions.notion.step1', 'Open your Notion “My Integrations” and create a new integration.')}</>,
+                                     <>{t('connectors.instructions.notion.step2', 'Name it (for example, “contentbuilder”) and enable Read content capability.')}</>,
+                                     <>{t('connectors.instructions.notion.step3', 'Copy the Integration Token that is shown after creation.')}</>,
+                                     <>{t('connectors.instructions.notion.step4', 'In Notion, for each page or database to index: open the menu (•••) → “Add connections” → select your integration. Child pages/rows are included automatically.')}</>,
+                                     <>{t('connectors.instructions.notion.step5', 'Paste the Integration Token into the field here and create the credential.')}</>,
+                                  ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.notion.note', 'Indexing runs periodically. To limit content, remove the integration from specific pages or databases.')}</Text>
+                                </div>
+                              );
+                            case 'google_drive':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.google_drive.title', 'Provide Google Drive credentials')}</span></Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.google_drive.step1', 'Recommended: use a Service Account created in Google Cloud Console. Download the JSON key and paste the entire JSON into the “Service Account JSON” field.')}</>,
+                                    <>{t('connectors.instructions.google_drive.step2', 'Alternatively, use OAuth for user-based access if your admin permits it.')}</>,
+                                    <>{t('connectors.instructions.google_drive.step3', 'Supported files include Google Docs/Sheets/Slides, Microsoft Office formats, PDF, CSV, and TXT.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'slack':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.slack.title', 'Create a Slack Bot Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.slack.step1', 'Create a Slack App (Bot) in your Slack API dashboard.')}</>,
+                                    <>{t('connectors.instructions.slack.step2', 'Add the necessary read scopes for channels and messages as allowed by your workspace policy.')}</>,
+                                    <>{t('connectors.instructions.slack.step3', 'Install the app to your workspace to generate the Bot User OAuth token.')}</>,
+                                    <>{t('connectors.instructions.slack.step4', 'Paste the bot token here and create the credential.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'github':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.github.title', 'Create a GitHub Access Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.github.step1', 'Generate a Personal Access Token (classic) with “repo” read permissions.')}</>,
+                                    <>{t('connectors.instructions.github.step2', 'If using a GitHub App, ensure it has read access to the repositories you want to index.')}</>,
+                                    <>{t('connectors.instructions.github.step3', 'Paste the token here and save the credential.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'gitlab':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.gitlab.title', 'Create a GitLab Access Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.gitlab.step1', 'Create a Personal Access Token with the “read_api” scope.')}</>,
+                                    <>{t('connectors.instructions.gitlab.step2', 'Ensure the token has access to the groups/projects you want to index.')}</>,
+                                    <>{t('connectors.instructions.gitlab.step3', 'Paste the token here to create the credential.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'confluence':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.confluence.title', 'Confluence API Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.confluence.step1', 'Find your Confluence site URL (cloud) or base URL (server).')}</>,
+                                    <>{t('connectors.instructions.confluence.step2', 'Create an API token (cloud) or use user credentials with access (server).')}</>,
+                                    <>{t('connectors.instructions.confluence.step3', 'Provide the URL, your username/email, and the API token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'jira':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.jira.title', 'Jira API Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.jira.step1', 'Find your Jira site URL.')}</>,
+                                    <>{t('connectors.instructions.jira.step2', 'Create an API token and use it with your account email/username.')}</>,
+                                    <>{t('connectors.instructions.jira.step3', 'Provide the URL, your username/email, and the API token.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'zendesk':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.zendesk.title', 'Zendesk API Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.zendesk.step1', 'In Zendesk Admin, enable API token access and generate a token.')}</>,
+                                    <>{t('connectors.instructions.zendesk.step2', 'Provide your subdomain, account email, and the API token.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'asana':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.asana.title', 'Asana Personal Access Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.asana.step1', 'Create an Asana Personal Access Token in your Asana settings.')}</>,
+                                    <>{t('connectors.instructions.asana.step2', 'Paste the token into the API Token field and save the credential.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'airtable':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.airtable.title', 'Airtable API Key')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.airtable.step1', 'Create an Airtable API key (or token) with read access to the bases you want to index.')}</>,
+                                    <>{t('connectors.instructions.airtable.step2', 'Paste the key here and save the credential.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'dropbox':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.dropbox.title', 'Dropbox Access Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.dropbox.step1', 'Create a Dropbox app with scoped access.')}</>,
+                                    <>{t('connectors.instructions.dropbox.step2', 'Generate an access token and paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 's3':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.s3.title', 'Amazon S3 Credentials')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.s3.step1', 'Provide Access Key ID, Secret Access Key, and the target Bucket (and region if needed).')}</>,
+                                    <>{t('connectors.instructions.s3.step2', 'Ensure read permissions for the bucket and keys.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'r2':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.r2.title', 'Cloudflare R2 Credentials')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.r2.step1', 'Provide R2 Access Key ID, Secret Access Key, and Bucket details.')}</>,
+                                    <>{t('connectors.instructions.r2.step2', 'Ensure read access for the bucket.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'google_cloud_storage':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.gcs.title', 'Google Cloud Storage')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.gcs.step1', 'Use a Service Account JSON with access to the target GCS buckets.')}</>,
+                                    <>{t('connectors.instructions.gcs.step2', 'Paste the JSON content here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'oci_storage':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.oci.title', 'Oracle Cloud Object Storage')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.oci.step1', 'Provide required credentials (Tenancy OCID, User OCID, Key Fingerprint, Private Key) and bucket details.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'sharepoint':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.sharepoint.title', 'SharePoint Credentials')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.sharepoint.step1', 'Register an app in Azure Active Directory (app registration).')}</>,
+                                    <>{t('connectors.instructions.sharepoint.step2', 'Provide Tenant ID, Client ID, and either a Client Secret or certificate details, plus the target site information.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'gmail':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.gmail.title', 'Gmail Access')}</span></Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.gmail.step1', 'Use a Google Workspace admin-provisioned OAuth app or a Service Account with domain-wide delegation.')}</>,
+                                    <>{t('connectors.instructions.gmail.step2', 'Grant the necessary read scopes for messages/threads as required.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'teams':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.teams.title', 'Microsoft Teams Access')}</span></Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.teams.step1', 'Register an app in Azure and grant Microsoft Graph read scopes for channels/messages as permitted by your organization.')}</>,
+                                    <>{t('connectors.instructions.teams.step2', 'Provide the app credentials accordingly.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'discord':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.discord.title', 'Discord Bot Token')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.discord.step1', 'Create a Discord application and bot, then invite it to your server with the required permissions.')}</>,
+                                    <>{t('connectors.instructions.discord.step2', 'Copy the bot token and paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'zulip':
+                              return (
+                                <div>
+                                  <Text><span className="font-semibold">{t('connectors.instructions.zulip.title', 'Zulip API Key')}</span></Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.zulip.step1', 'Create or view your Zulip API key in your Zulip account settings.')}</>,
+                                    <>{t('connectors.instructions.zulip.step2', 'Paste your email and API key here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'gitbook':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.gitbook.title', 'GitBook Access Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.gitbook.step1', 'Generate an access token with read permissions for your spaces.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step2', 'Paste the token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'bookstack':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.bookstack.title', 'BookStack API Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.bookstack.step1', 'Create an API token in BookStack with read access.')}</>,
+                                    <>{t('connectors.instructions.bookstack.step2', 'Provide the token here along with the instance URL if required.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'google_sites':
+                            case 'google_site':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.google_sites.title', 'Google Sites')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.google_sites.step1', 'Use a Google credential (Service Account or OAuth) with access to the Sites you want to index.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'guru':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.guru.title', 'Guru API Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.guru.step1', 'Create an API token with read access to your collections.')}</>,
+                                    <>{t('connectors.instructions.guru.step2', 'Paste the token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'slab':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.slab.title', 'Slab API Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.slab.step1', 'Generate an API token with read access.')}</>,
+                                    <>{t('connectors.instructions.slab.step2', 'Paste the token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'salesforce':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.salesforce.title', 'Salesforce')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.salesforce.step1', 'Use a Connected App and provide OAuth credentials or a refresh token with read permissions to target objects.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'hubspot':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.hubspot.title', 'HubSpot')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.hubspot.step1', 'Create a Private App and generate an access token with read scopes.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'gong':
+                            case 'fireflies':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.voice.title', 'Voice/Call Platform Access')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.voice.step1', 'Generate an API token in your account with read access to transcripts/recordings.')}</>,
+                                    <>{t('connectors.instructions.voice.step2', 'Paste the token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'egnyte':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.egnyte.title', 'Egnyte')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.egnyte.step1', 'Provide your Egnyte domain and an access token or OAuth credentials with read permissions.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'web':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.web.title', 'Web Scraper')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.web.step1', 'Provide the start URL(s) and optional rules (depth, include/exclude patterns) depending on configuration.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'axero':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.axero.title', 'Axero')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.axero.step1', 'Use an API key or OAuth app with read access to the communities/spaces you wish to index.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'wikipedia':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.wikipedia.title', 'Wikipedia')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.wikipedia.step1', 'No credential typically required. Configure the pages or categories to include and the language(s) to use, if applicable.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'mediawiki':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.mediawiki.title', 'MediaWiki')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.mediawiki.step1', 'Provide the MediaWiki base URL and a user API token or bot credentials with read access.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'document360':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.document360.title', 'Document360')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.document360.step1', 'Generate an API token with read access to your knowledge base; paste the token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'clickup':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.clickup.title', 'ClickUp')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.clickup.step1', 'Create a Personal API Token with read permissions for the spaces/folders/lists you want to index, then paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'linear':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.linear.title', 'Linear')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.linear.step1', 'Create a Personal API Key with read access; paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'productboard':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.productboard.title', 'Productboard')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.productboard.step1', 'Generate an API token with read access to products and notes; paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'freshdesk':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.freshdesk.title', 'Freshdesk')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.freshdesk.step1', 'Provide your Freshdesk domain and an API key from your profile settings; paste the API key here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'highspot':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.highspot.title', 'Highspot')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.highspot.step1', 'Use an API token with read access to content; paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'loopio':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.loopio.title', 'Loopio')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.loopio.step1', 'Generate an API token with read access to your library/projects; paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'xenforo':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.xenforo.title', 'XenForo')}</Text>
+                                  <Bullets items={[
+                                    <>{t('connectors.instructions.xenforo.step1', 'Provide the XenForo API base URL and an API key with read permissions; paste it here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            case 'gitbook':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.gitbook.title', 'GitBook Access Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.gitbook.step1', 'Generate an access token with read permissions for your spaces.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step2', 'Paste the token here.')}</>,
+                                  ]} />
+                                </div>
+                              );
+                            default:
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.default.title', 'How to obtain credentials')}</Text>
+                                  <Text>{t('connectors.instructions.default.text', "Use your source system's admin panel to generate an API key/token or app credentials with read access, then paste them here to create a credential in contentbuilder.")}</Text>
+                                </div>
+                              );
+                          }
+                        })()}
+                      </div>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowCreateForm(false)}
                     className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    aria-label="Close"
+                    aria-label={t('interface.close', 'Close')}
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
