@@ -49,24 +49,18 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffffff', // Light grey background as per screenshot
+    backgroundColor: '#E0E7FF', // Light grey background as per screenshot
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
     padding: '40px 60px',
-    border: '2px solid #FFFFFF', // White border as per screenshot
   };
 
   // Tags block styles
   const tagsBlockStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: '15px', // From the top of the slide
-    left: '15px',
-    right: '15px',
-    bottom: '80px', // Leave space for logo at bottom
-    backgroundColor: '#EDEDED', // Darker grey for tags block
+    backgroundColor: '#E0E7FF', // Darker grey for tags block
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
@@ -129,8 +123,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           overflow: 'hidden',
           position: 'absolute',
           left: '75px',
-          top: '25px',
-          backgroundColor: '#E36957', // Orange background as per screenshot
+          top: '100px',
+          backgroundColor: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -151,10 +145,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
         {/* Title */}
         <div style={{
           fontSize: '44px',
-          color: '#626262', // Dark grey color as per screenshot
+          color: '#09090B', // Dark grey color as per screenshot
           lineHeight: '1.1',
           position: 'absolute',
-          top: '60px',
+          top: '100px',
           left: '300px',
         }}>
           {isEditable && editingTitle ? (
@@ -204,10 +198,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 key={index}
                 style={{
                   padding: '12px 20px',
-                  border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
-                  borderRadius: '8px',
+                  border: tag.isHighlighted ? 'none' : `1px solid #09090B`, // Dark grey border for non-highlighted
+                  borderRadius: '40px',
                   fontSize: '34px',
-                  color: tag.isHighlighted ? '#FFFFFF' : '#727272', // White for highlighted, dark grey for others
+                  color: tag.isHighlighted ? '#FFFFFF' : '#09090B', // White for highlighted, dark grey for others
                   fontWeight: '500',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
@@ -249,10 +243,10 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 key={index + 2}
                 style={{
                   padding: '12px 20px',
-                  border: tag.isHighlighted ? 'none' : `1px solid #4A4A4A`, // Dark grey border for non-highlighted
-                  borderRadius: '8px',
+                  border: tag.isHighlighted ? 'none' : `1px solid #09090B`, // Dark grey border for non-highlighted
+                  borderRadius: '40px',
                   fontSize: '34px',
-                  color: tag.isHighlighted ? '#FFFFFF' : '#727272', // White for highlighted, dark grey for others
+                  color: tag.isHighlighted ? '#FFFFFF' : '#09090B', // White for highlighted, dark grey for others
                   fontWeight: '500',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
@@ -294,11 +288,11 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 key={index + 5}
                 style={{
                   padding: '12px 20px',
-                  backgroundColor: '#E16B53', // Orange for highlighted, darker grey for others (matching block)
-                  border: tag.isHighlighted ? 'none' : `1px solid #E16B53`, // Dark grey border for non-highlighted
-                  borderRadius: '8px',
+                  backgroundColor: '#0F58F9', // Orange for highlighted, darker grey for others (matching block)
+                  border: tag.isHighlighted ? 'none' : `1px solid #0F58F9`, // Dark grey border for non-highlighted
+                  borderRadius: '40px',
                   fontSize: '34px',
-                  color: '#F6DED6', // White for highlighted, dark grey for others
+                  color: '#FFFFFF', // White for highlighted, dark grey for others
                   fontWeight: '500',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
