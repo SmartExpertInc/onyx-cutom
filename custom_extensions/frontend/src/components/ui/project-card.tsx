@@ -529,10 +529,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     {project.title}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {t("actions.created", "Created {date}").replace(
-                      "{date}",
-                      formatDate(project.createdAt)
-                    )}
+                    {t("actions.created", "Created")} {formatDate(project.createdAt)}
                   </p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
