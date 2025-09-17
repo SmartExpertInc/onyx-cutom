@@ -724,6 +724,7 @@ const ProjectsPageInner: React.FC = () => {
           });
 
           setUserback(instance);
+          console.log('Userback is successfully initialized');
         } catch (error) {
           console.error('Userback initialization failed:', error);
         }
@@ -732,13 +733,6 @@ const ProjectsPageInner: React.FC = () => {
       init();
     }
   }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (userback) {
-      console.log('Userback is successfully initialized');
-      userback.hideLauncher();
-    }
-  }, [userback]);
 
   // Load folders and projects after authentication is confirmed
   useEffect(() => {
