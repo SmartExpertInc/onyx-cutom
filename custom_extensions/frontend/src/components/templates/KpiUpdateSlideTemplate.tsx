@@ -76,16 +76,15 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     padding: '8px 16px',
     borderRadius: '20px',
-    border: '1px solid rgba(0, 0, 0, 0.1)'
+    border: '1px solid #09090B'
   };
 
   const titleDotStyle: React.CSSProperties = {
     width: '8px',
     height: '8px',
-    backgroundColor: '#0F58F9',
+    backgroundColor: '#09090B',
     borderRadius: '50%'
   };
 
@@ -111,7 +110,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
 
   const valueStyle: React.CSSProperties = {
     fontSize: '66px',
-    color: '#3B3E36',
+    color: '#09090B',
     fontWeight: 700,
     textAlign: 'right',
     letterSpacing: '-3px',
@@ -122,7 +121,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   };
 
   const descStyle: React.CSSProperties = {
-    color: '#878783',
+    color: '#09090B',
     lineHeight: 1.65,
     fontSize: '15px',
     maxWidth: '500px',
@@ -230,7 +229,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                 <div style={{
                   position: 'absolute',
                   bottom: '-5px',
-                  left: '0',
+                  left: '-50px', // Start from the beginning of the percentage area
                   right: '0',
                   height: '1px',
                   backgroundColor: 'rgba(0, 0, 0, 0.1)'
@@ -242,7 +241,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
       </div>
 
       {/* Profile image absolute bottom-left */}
-      <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#2B3127', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#0F58F9', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
@@ -250,7 +249,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          style={{ height: '125%', objectFit: 'cover', borderRadius: '50%' }}
         />
       </div>
 
@@ -258,7 +257,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
       <div style={{
         position: 'absolute',
         bottom: '20px',
-        left: '30px',
+        left: '0px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
