@@ -339,12 +339,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         name: 'Web Scraper',
         logoPath: '/web.svg',
         category: 'Web & Content'
-      },
-      {
-        id: 'file',
-        name: 'File Upload',
-        logoPath: '/file.svg',
-        category: 'Web & Content'
       }
     ],
     'Specialized Tools': [
@@ -606,10 +600,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
                    <div className="flex gap-2">
                      <Button
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         handleConnectClick(connector.id, connector.name);
-                       }}
+                       onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                              e.stopPropagation();
+                              handleConnectClick(connector.id, connector.name);
+                            }}
                        variant="download"
                        className="flex-1 rounded-full"
                      >
@@ -621,7 +615,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        {userConnectorsForSource.length > 1 ? (
                          <div className="relative group">
                            <button 
-                             onClick={(e) => {
+                             onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                e.stopPropagation();
                                setOpenDropdownId(connector.id);
                              }}
@@ -660,7 +654,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                        ) : (
                          <Button
                            variant="outline"
-                           onClick={(e) => {
+                           onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                              e.stopPropagation();
                              console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
                              if (!showManagementPage && !isManagementOpening) {
@@ -765,12 +759,12 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
                         <div className="flex gap-2">
                           <Button
-                            onClick={(e) => {
+                            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                               e.stopPropagation();
                               handleConnectClick(connector.id, connector.name);
                             }}
                             variant="download"
-                            className="flex-1 rounded-full bg-green-600 hover:bg-green-700 border border-green-800 hover:border-green-900"
+                            className="flex-1 rounded-full bg-green-600 hover:bg-green-700"
                           >
                             {t('interface.connect', 'Connect')}
                           </Button>
@@ -795,20 +789,20 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                                   {userConnectorsForSource.map((userConnector) => (
                                     <button
                                       key={userConnector.id}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        console.log('Dropdown manage button clicked for connector:', userConnector.id);
-                                        setOpenDropdownId(null); // Close dropdown
-                                        if (!showManagementPage && !isManagementOpening) {
-                                          console.log('Opening management page from dropdown for connector ID:', userConnector.id);
-                                          setIsManagementOpening(true);
-                                          setSelectedConnectorId(userConnector.id);
-                                          setShowManagementPage(true);
-                                          setTimeout(() => {
-                                            setIsManagementOpening(false);
-                                          }, 500);
-                                        }
-                                      }}
+                                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                   e.stopPropagation();
+                                   console.log('Dropdown manage button clicked for connector:', userConnector.id);
+                                   setOpenDropdownId(null); // Close dropdown
+                                   if (!showManagementPage && !isManagementOpening) {
+                                     console.log('Opening management page from dropdown for connector ID:', userConnector.id);
+                                     setIsManagementOpening(true);
+                                     setSelectedConnectorId(userConnector.id);
+                                     setShowManagementPage(true);
+                                     setTimeout(() => {
+                                       setIsManagementOpening(false);
+                                     }, 500);
+                                   }
+                                 }}
                                       className="block w-full text-left px-3 py-2 text-xs text-gray-900 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                                     >
                                       {userConnector.name}

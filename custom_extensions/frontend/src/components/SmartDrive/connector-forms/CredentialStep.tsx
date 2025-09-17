@@ -150,7 +150,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            {credentials.map((credential) => (
+            {credentials.map((credential: Credential) => (
               <Card
                 key={credential.id}
                 className={`group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105 ${
@@ -196,7 +196,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
 
                   <div className="flex gap-2">
                     <Button
-                      onClick={(e) => {
+                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.stopPropagation();
                         handleCredentialSelect(credential);
                       }}
@@ -234,14 +234,81 @@ const CredentialStep: FC<CredentialStepProps> = ({
                   </h3>
                   <p className="text-gray-600 mt-1">Enter your credentials to connect to {connectorName}</p>
                 </div>
-                <button
-                  onClick={() => setShowCreateForm(false)}
-                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                {/* Help tooltip button */}
+                <div className="relative flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="w-8 h-8 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-100 flex items-center justify-center text-sm font-bold border border-blue-200"
+                    aria-label="How to get these credentials"
+                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      const el = (e.currentTarget.nextSibling as HTMLElement);
+                      if (el) el.style.display = 'block';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      const el = (e.currentTarget.nextSibling as HTMLElement);
+                      if (el) el.style.display = 'none';
+                    }}
+                  >
+                    i
+                  </button>
+                  <div
+                    className="absolute right-0 top-full mt-2 w-[28rem] max-w-[90vw] hidden z-50"
+                    role="tooltip"
+                    style={{ display: 'none' }}
+                  >
+                    <div className="rounded-lg shadow-xl border border-gray-200 bg-white p-4 text-sm leading-5 text-gray-800">
+                      {(() => {
+                        switch (connectorId) {
+                          case 'notion':
+                            return (
+                              <div>
+                                <p className="font-semibold mb-2">Get a Notion Integration Token</p>
+                                <ol className="list-decimal pl-5 space-y-1">
+                                  <li>Visit <a className="text-blue-600 hover:underline" href="https://www.notion.com/my-integrations" target="_blank" rel="noreferrer">notion.com/my-integrations</a>.</li>
+                                  <li>Click <strong>+ New integration</strong>, name it (e.g., "Onyx").</li>
+                                  <li>Under Capabilities, select <strong>Read content</strong> only, then submit.</li>
+                                  <li>Copy the <strong>Integration Token</strong> from the next page.</li>
+                                  <li>In Notion, open the pages/databases you want to index → menu <strong>•••</strong> → <strong>Add connections</strong> → select your integration. Child pages/rows become accessible too.</li>
+                                  <li>Paste the token into the <strong>Integration Token</strong> field here and create the credential.</li>
+                                </ol>
+                                <p className="mt-2 text-gray-600">Indexing runs every 10 minutes. To limit content, unshare from Notion.</p>
+                                <p className="mt-2"><a className="text-blue-600 hover:underline" href="https://docs.onyx.app/admin/connectors/official/notion" target="_blank" rel="noreferrer">Open the Notion connector guide</a></p>
+                              </div>
+                            );
+                          case 'google_drive':
+                            return (
+                              <div>
+                                <p className="font-semibold mb-2">Provide Google Drive credentials</p>
+                                <ul className="list-disc pl-5 space-y-1">
+                                  <li><strong>Recommended:</strong> Use a <strong>Service Account</strong> (requires Google Workspace Admin). Follow the Service Account setup in the Google Drive connector docs, then paste the downloaded <strong>Service Account JSON</strong> here.</li>
+                                  <li>Alternatively, set up <strong>OAuth</strong> for individual accounts (see OAuth guide in the docs).</li>
+                                </ul>
+                                <p className="mt-2 text-gray-600">Supported files include Google Docs/Sheets/Slides, Microsoft Office, PDF, CSV, TXT, and others.</p>
+                                <p className="mt-2"><a className="text-blue-600 hover:underline" href="https://docs.onyx.app/admin/connectors/official/google_drive/overview" target="_blank" rel="noreferrer">Open the Google Drive connector guide</a></p>
+                              </div>
+                            );
+                          default:
+                            return (
+                              <div>
+                                <p className="font-semibold mb-2">How to obtain credentials</p>
+                                <p>Open the Onyx connector documentation for this source and follow the setup instructions to generate the required API key or token. Then paste it here.</p>
+                                <p className="mt-2"><a className="text-blue-600 hover:underline" href="https://docs.onyx.app/admin/connectors/overview#knowledge-base-%26-wikis" target="_blank" rel="noreferrer">Browse supported connectors in the docs</a></p>
+                              </div>
+                            );
+                        }
+                      })()}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowCreateForm(false)}
+                    className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    aria-label="Close"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <CredentialCreationForm
@@ -414,7 +481,6 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
           {field.type === 'password' ? (
             <Input
               type="password"
-              variant="shadow"
               name={field.name}
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
@@ -442,7 +508,6 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
           ) : field.type === 'email' ? (
             <Input
               type="email"
-              variant="shadow"
               name={field.name}
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
@@ -453,7 +518,6 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
           ) : (
             <Input
               type="text"
-              variant="shadow"
               name={field.name}
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
