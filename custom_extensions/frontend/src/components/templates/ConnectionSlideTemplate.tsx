@@ -161,7 +161,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           logoPath={logoPath}
           onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
           isEditable={isEditable}
-          color="#c9cbd1"
+          color="#000000"
           text={logoText}
         />
       </div>
