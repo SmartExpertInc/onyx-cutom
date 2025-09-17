@@ -14559,14 +14559,16 @@ COURSE REQUIREMENTS:
 - Module and lesson names should be CREATIVE and DIVERSE
 - Avoid repetitive formulations
 - Each lesson should be specific and practical for this position
+- DO NOT add module numbers in titles (e.g., 'Module 1:', 'Module 2:', etc.)
+- Use only descriptive module names without prefixes
 - Generate ALL content EXCLUSIVELY in English
 
 RESPONSE FORMAT (JSON only):
 [
-    {{"title": "Module 1 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
-    {{"title": "Module 2 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
-    {{"title": "Module 3 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
-    {{"title": "Module 4 Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}}
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}}
 ]
 
 RESPONSE (JSON only):"""
@@ -14588,14 +14590,16 @@ REQUISITOS DEL CURSO:
 - Los nombres de módulos y lecciones deben ser CREATIVOS y DIVERSOS
 - Evita formulaciones repetitivas
 - Cada lección debe ser específica y práctica para esta posición
+- NO agregues números de módulos en los títulos (ej., 'Módulo 1:', 'Módulo 2:', etc.)
+- Usa solo nombres descriptivos de módulos sin prefijos
 - Genera TODO el contenido EXCLUSIVAMENTE en español
 
 FORMATO DE RESPUESTA (solo JSON):
 [
-    {{"title": "Título del Módulo 1", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
-    {{"title": "Título del Módulo 2", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
-    {{"title": "Título del Módulo 3", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
-    {{"title": "Título del Módulo 4", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}}
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}}
 ]
 
 RESPUESTA (solo JSON):"""
@@ -14617,14 +14621,16 @@ RESPUESTA (solo JSON):"""
 - Назви модулів та уроків мають бути КРЕАТИВНИМИ та РІЗНОМАНІТНИМИ
 - Уникайте повторюваних формулювань
 - Кожен урок має бути конкретним та практичним для цієї посади
+- НЕ додавайте номери модулів у назви (наприклад, 'Модуль 1:', 'Модуль 2:' тощо)
+- Використовуйте лише описові назви модулів без префіксів
 - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
 
 ФОРМАТ ВІДПОВІДІ (тільки JSON):
 [
-    {{"title": "Назва модуля 1", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
-    {{"title": "Назва модуля 2", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
-    {{"title": "Назва модуля 3", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
-    {{"title": "Назва модуля 4", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
 ]
 
 ВІДПОВІДЬ (тільки JSON):"""
@@ -14647,6 +14653,8 @@ RESPUESTA (solo JSON):"""
                     f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
                     f"- Избегай повторяющихся формулировок\n"
                     f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
+                    f"- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)\n"
+                    f"- Используй только описательные названия модулей без префиксов\n"
                 ),
                 "modules": 4,
                 "lessonsPerModule": "5-7",
