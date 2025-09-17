@@ -35,10 +35,12 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentBars, setCurrentBars] = useState(bars);
   const [editingBar, setEditingBar] = useState<{ index: number; field: 'valueLabel' | 'year' } | null>(null);
+  const [editingYLabel, setEditingYLabel] = useState<number | null>(null);
   const [currentPageNumber, setCurrentPageNumber] = useState('07');
   const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [yLabels, setYLabels] = useState(['70', '60', '40', '20', '0']);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -92,7 +94,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     backgroundColor: '#ffffff'
   };
 
-  const yLabels: React.CSSProperties = {
+  const yLabelsStyle: React.CSSProperties = {
     position: 'absolute',
     left: '30px',
     top: '24px',
@@ -142,7 +144,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   };
 
   const setBarHeight = (index: number, height: number) => {
-    const clamped = Math.max(40, Math.min(460, height));
+    const clamped = Math.max(40, Math.min(515, height)); // Increased max height to reach bottom
     const newBars = [...currentBars];
     newBars[index] = { ...newBars[index], height: clamped };
     setCurrentBars(newBars);
@@ -169,6 +171,16 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     setCurrentCompanyLogoPath(newLogoPath);
     if (onUpdate) {
       onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, companyLogoPath: newLogoPath });
+    }
+  };
+
+  const handleYLabelSave = (index: number, newValue: string) => {
+    const newYLabels = [...yLabels];
+    newYLabels[index] = newValue;
+    setYLabels(newYLabels);
+    setEditingYLabel(null);
+    if (onUpdate) {
+      onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, yLabels: newYLabels });
     }
   };
   const positions = [-33.5, 93.5, 222.5, 352.5];
@@ -319,12 +331,34 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       {/* Right */}
       <div style={rightArea}>
         {/* Y labels */}
-        <div style={yLabels}>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>70</span></div>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>60</span></div>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>40</span></div>
-          <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>20</span></div>
-          <div><span style={yPillStyle}>0</span></div>
+        <div style={yLabelsStyle}>
+          {yLabels.map((label, index) => (
+            <div key={index} style={{ marginBottom: index < yLabels.length - 1 ? '103px' : '0' }}>
+              {isEditable && editingYLabel === index ? (
+                <ImprovedInlineEditor
+                  initialValue={label}
+                  onSave={(value) => handleYLabelSave(index, value)}
+                  onCancel={() => setEditingYLabel(null)}
+                  className="y-label-editor"
+                  style={{
+                    ...yPillStyle,
+                    background: 'transparent',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    padding: '4px 8px'
+                  }}
+                />
+              ) : (
+                <span 
+                  style={yPillStyle}
+                  onClick={() => isEditable && setEditingYLabel(index)}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                >
+                  {label}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
 
         {/* Grid lines */}
