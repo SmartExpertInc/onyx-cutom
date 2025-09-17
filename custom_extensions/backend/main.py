@@ -7291,6 +7291,8 @@ async def startup_event():
                 initial_features = [
                     ('ai_audit_templates', 'AI Audit Templates', 'Access to AI-powered audit template generation', 'Templates'),
                     ('deloitte_banner', 'Deloitte Banner', 'Show Deloitte banner on Projects page', 'Branding'),
+                    ('offers_tab', 'Offers Tab', 'Access to Offers tab in Projects', 'Navigation'),
+                    ('workspace_tab', 'Workspace Tab', 'Access to Workspace tab in Projects', 'Navigation'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:

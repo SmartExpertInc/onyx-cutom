@@ -357,6 +357,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const [folderSearch, setFolderSearch] = useState('');
   const { isEnabled: aiAuditEnabled } = useFeaturePermission('ai_audit_templates');
   const { isEnabled: deloitteBannerEnabled } = useFeaturePermission('deloitte_banner');
+  const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
+  const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
@@ -468,22 +470,26 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <HardDrive size={18} />
           <span>{t('interface.smartDrive', 'Smart Drive')}</span>
         </Link>
-        <Link
-          href="/projects?tab=offers"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
-        >
-          <FileText size={18} />
-          <span>{t('interface.offers', 'Offers')}</span>
-        </Link>
-        <Link
-          href="/projects?tab=workspace"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
-        >
-          <Users size={18} />
-          <span>{t('interface.workspace', 'Workspace')}</span>
-        </Link>
+        {offersTabEnabled && (
+          <Link
+            href="/projects?tab=offers"
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            onClick={() => onFolderSelect(null)}
+          >
+            <FileText size={18} />
+            <span>{t('interface.offers', 'Offers')}</span>
+          </Link>
+        )}
+        {workspaceTabEnabled && (
+          <Link
+            href="/projects?tab=workspace"
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'workspace' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            onClick={() => onFolderSelect(null)}
+          >
+            <Users size={18} />
+            <span>{t('interface.workspace', 'Workspace')}</span>
+          </Link>
+        )}
         <Link
           href="/projects?tab=export-lms"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
@@ -638,6 +644,12 @@ const ProjectsPageInner: React.FC = () => {
   const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [showAccountModal, setShowAccountModal] = useState(false);
+
+  // Feature flags for conditional tabs/content
+  const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
+  const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
+  const isOffersAllowed = isOffers && offersTabEnabled;
+  const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
 
   // Debug logging for state changes
   useEffect(() => {
@@ -988,13 +1000,13 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffers} isWorkspace={isWorkspace} isExportLMS={isExportLMS} workspaceData={workspaceData} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
           {isSmartDrive ? (
             <SmartDriveConnectors />
-          ) : isOffers ? (
+          ) : isOffersAllowed ? (
             <OffersTable companyId={selectedFolderId} />
-          ) : isWorkspace ? (
+          ) : isWorkspaceAllowed ? (
             <WorkspaceMembers />
           ) : isExportLMS ? (
             <>
