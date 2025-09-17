@@ -67,7 +67,19 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
       'red-600': 'text-red-600',
       'gray-600': 'text-gray-600',
       'blue-600': 'text-blue-600',
-      'purple-600': 'text-purple-600'
+      'purple-600': 'text-purple-600',
+      'orange-700': 'text-orange-700',
+      'blue-700': 'text-blue-700',
+      'purple-700': 'text-purple-700',
+      'cyan-700': 'text-cyan-700',
+      'violet-700': 'text-violet-700',
+      'gray-700': 'text-gray-700',
+      'green-700': 'text-green-700',
+      'teal-700': 'text-teal-700',
+      'indigo-700': 'text-indigo-700',
+      'yellow-700': 'text-yellow-700',
+      'red-700': 'text-red-700',
+      'pink-700': 'text-pink-700'
     };
     return textColorMap[color] || 'text-blue-600';
   };

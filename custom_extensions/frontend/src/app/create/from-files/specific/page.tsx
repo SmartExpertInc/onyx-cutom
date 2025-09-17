@@ -209,7 +209,7 @@ export default function CreateFromSpecificFilesPage() {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen font-sans">
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="absolute left-8 top-1/2 transform -translate-y-1/2 flex items-center gap-4">
+        <div className="absolute left-8 top-1/2 -mt-20  transform -translate-y-1/2 flex items-center gap-4">
           <Button
             variant="back"
           >
@@ -341,7 +341,27 @@ export default function CreateFromSpecificFilesPage() {
                     };
                   };
 
+                  const getTextColorFromGradient = (gradientColors: { from: string; to: string }) => {
+                    // Map gradient colors to their darker text equivalents
+                    const colorMap: Record<string, string> = {
+                      'orange-300': 'orange-700',
+                      'blue-300': 'blue-700',
+                      'purple-300': 'purple-700',
+                      'cyan-300': 'cyan-700',
+                      'violet-300': 'violet-700',
+                      'gray-300': 'gray-700',
+                      'green-300': 'green-700',
+                      'teal-300': 'teal-700',
+                      'indigo-300': 'indigo-700',
+                      'yellow-300': 'yellow-700',
+                      'red-300': 'red-700',
+                      'pink-300': 'pink-700'
+                    };
+                    return colorMap[gradientColors.from] || 'gray-700';
+                  };
+
                   const connectorGradient = getConnectorGradient(connector.source);
+                  const textColor = getTextColorFromGradient(connectorGradient);
                   
                   return (
                     <ConnectorCard
@@ -350,7 +370,7 @@ export default function CreateFromSpecificFilesPage() {
                       value={connector.source}
                       iconSrc={getConnectorIcon(connector.source)}
                       gradientColors={connectorGradient}
-                      textColor="gray-900"
+                      textColor={textColor}
                       iconColor="gray-600"
                       selectable={true}
                       isSelected={selectedConnectors.includes(connector.id)}
