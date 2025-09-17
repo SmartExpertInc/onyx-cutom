@@ -630,39 +630,74 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
   },
   highspot: {
     description: "Configure Highspot connector",
-    values: [],
+    values: [
+      {
+        type: "tab",
+        name: "highspot_scope",
+        label: "What should we index from Highspot?",
+        optional: true,
+        tabs: [
+          {
+            value: "spots",
+            label: "Specific Spots",
+            fields: [
+              {
+                type: "list",
+                query: "Enter the spot name(s):",
+                label: "Spot Name(s)",
+                name: "spot_names",
+                optional: false,
+                description: "For multiple spots, enter your spot one by one.",
+              },
+            ],
+          },
+          {
+            value: "everything",
+            label: "Everything",
+            fields: [
+              {
+                type: "string_tab",
+                label: "Everything",
+                name: "everything",
+                description:
+                  "This connector will index all spots the provided credentials have access to!",
+              },
+            ],
+          },
+        ],
+      },
+    ],
     advanced_values: [],
   },
   discord: {
     description: "Configure Discord connector",
-    values: [
+    values: [],
+    advanced_values: [
       {
-        type: "text",
-        query: "Enter the server ID:",
-        label: "Server ID",
-        name: "server_id",
-        optional: false,
-        description: "The ID of the Discord server to index",
+        type: "list",
+        query: "Enter Server IDs to include:",
+        label: "Server IDs",
+        name: "server_ids",
+        description: `Specify 0 or more server ids to include. Only channels inside them will be used for indexing`,
+        optional: true,
       },
       {
         type: "list",
-        query: "Enter channel IDs:",
-        label: "Channel IDs",
-        name: "channel_ids",
-        description: "Specify 0 or more channel IDs to index from. If none specified, will index all accessible channels.",
+        query: "Enter channel names to include:",
+        label: "Channels",
+        name: "channel_names",
+        description: `Specify 0 or more channels to index. For example, specifying the channel "support" will cause us to only index all content within the "#support" channel. If no channels are specified, all channels the bot has access to will be indexed.`,
         optional: true,
       },
       {
-        type: "checkbox",
-        query: "Include direct messages?",
-        label: "Include Direct Messages",
-        name: "include_direct_messages",
-        description: "Index direct messages",
+        type: "text",
+        query: "Enter the Start Date:",
+        label: "Start Date",
+        name: "start_date",
+        description: `Only messages after this date will be indexed. Format: YYYY-MM-DD`,
         optional: true,
-        default: false,
       },
     ],
-    advanced_values: [],
   },
   document360: {
     description: "Configure Document360 connector",
@@ -706,6 +741,358 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         optional: false,
       },
     ],
+    advanced_values: [],
+  },
+  dropbox: {
+    description: "Configure Dropbox connector",
+    values: [],
+    advanced_values: [],
+  },
+  s3: {
+    description: "Configure S3 connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the bucket name:",
+        label: "Bucket Name",
+        name: "bucket_name",
+        optional: false,
+      },
+      {
+        type: "text",
+        query: "Enter the prefix:",
+        label: "Prefix",
+        name: "prefix",
+        optional: true,
+      },
+      {
+        type: "text",
+        label: "Bucket Type",
+        name: "bucket_type",
+        optional: false,
+        default: "s3",
+        hidden: true,
+      },
+    ],
+    advanced_values: [],
+    overrideDefaultFreq: 60 * 60 * 24,
+  },
+  r2: {
+    description: "Configure R2 connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the bucket name:",
+        label: "Bucket Name",
+        name: "bucket_name",
+        optional: false,
+      },
+      {
+        type: "text",
+        query: "Enter the prefix:",
+        label: "Prefix",
+        name: "prefix",
+        optional: true,
+      },
+      {
+        type: "text",
+        label: "Bucket Type",
+        name: "bucket_type",
+        optional: false,
+        default: "r2",
+        hidden: true,
+      },
+    ],
+    advanced_values: [],
+    overrideDefaultFreq: 60 * 60 * 24,
+  },
+  google_cloud_storage: {
+    description: "Configure Google Cloud Storage connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the bucket name:",
+        label: "Bucket Name",
+        name: "bucket_name",
+        optional: false,
+        description: "Name of the GCS bucket to index, e.g. my-gcs-bucket",
+      },
+      {
+        type: "text",
+        query: "Enter the prefix:",
+        label: "Path Prefix",
+        name: "prefix",
+        optional: true,
+      },
+      {
+        type: "text",
+        label: "Bucket Type",
+        name: "bucket_type",
+        optional: false,
+        default: "google_cloud_storage",
+        hidden: true,
+      },
+    ],
+    advanced_values: [],
+    overrideDefaultFreq: 60 * 60 * 24,
+  },
+  oci_storage: {
+    description: "Configure OCI Storage connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the bucket name:",
+        label: "Bucket Name",
+        name: "bucket_name",
+        optional: false,
+      },
+      {
+        type: "text",
+        query: "Enter the prefix:",
+        label: "Prefix",
+        name: "prefix",
+        optional: true,
+      },
+      {
+        type: "text",
+        label: "Bucket Type",
+        name: "bucket_type",
+        optional: false,
+        default: "oci_storage",
+        hidden: true,
+      },
+    ],
+    advanced_values: [],
+  },
+  freshdesk: {
+    description: "Configure Freshdesk connector",
+    values: [],
+    advanced_values: [],
+  },
+  fireflies: {
+    description: "Configure Fireflies connector",
+    values: [],
+    advanced_values: [],
+  },
+  egnyte: {
+    description: "Configure Egnyte connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter folder path to index:",
+        label: "Folder Path",
+        name: "folder_path",
+        optional: true,
+        description:
+          "The folder path to index (e.g., '/Shared/Documents'). Leave empty to index everything.",
+      },
+    ],
+    advanced_values: [],
+  },
+  hubspot: {
+    description: "Configure HubSpot connector",
+    values: [],
+    advanced_values: [],
+  },
+  linear: {
+    description: "Configure Linear connector",
+    values: [],
+    advanced_values: [],
+  },
+  zulip: {
+    description: "Configure Zulip connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the realm name",
+        label: "Realm Name",
+        name: "realm_name",
+        optional: false,
+      },
+      {
+        type: "text",
+        query: "Enter the realm URL",
+        label: "Realm URL",
+        name: "realm_url",
+        optional: false,
+      },
+    ],
+    advanced_values: [],
+  },
+  slab: {
+    description: "Configure Slab connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the base URL:",
+        label: "Base URL",
+        name: "base_url",
+        optional: false,
+        description: `Specify the base URL for your Slab team. This will look something like: https://onyx.slab.com/`,
+      },
+    ],
+    advanced_values: [],
+  },
+  guru: {
+    description: "Configure Guru connector",
+    values: [],
+    advanced_values: [],
+  },
+  gong: {
+    description: "Configure Gong connector",
+    values: [
+      {
+        type: "list",
+        query: "Enter workspaces to include:",
+        label: "Workspaces",
+        name: "workspaces",
+        optional: true,
+        description:
+          "Specify 0 or more workspaces to index. Provide the workspace ID or the EXACT workspace name from Gong. If no workspaces are specified, transcripts from all workspaces will be indexed.",
+      },
+    ],
+    advanced_values: [],
+  },
+  loopio: {
+    description: "Configure Loopio connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the Loopio stack name",
+        label: "Loopio Stack Name",
+        name: "loopio_stack_name",
+        description:
+          "Must be exact match to the name in Library Management, leave this blank if you want to index all Stacks",
+        optional: true,
+      },
+    ],
+    advanced_values: [],
+    overrideDefaultFreq: 60 * 60 * 24,
+  },
+  file: {
+    description: "Configure File connector",
+    values: [
+      {
+        type: "file",
+        query: "Enter file locations:",
+        label: "File Locations",
+        name: "file_locations",
+        optional: false,
+      },
+    ],
+    advanced_values: [],
+  },
+  wikipedia: {
+    description: "Configure Wikipedia connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the language code:",
+        label: "Language Code",
+        name: "language_code",
+        optional: false,
+        description: "Input a valid Wikipedia language code (e.g. 'en', 'es')",
+      },
+      {
+        type: "list",
+        query: "Enter categories to include:",
+        label: "Categories to index",
+        name: "categories",
+        description:
+          "Specify 0 or more names of categories to index. For most Wikipedia sites, these are pages with a name of the form 'Category: XYZ', that are lists of other pages/categories. Only specify the name of the category, not its url.",
+        optional: true,
+      },
+      {
+        type: "list",
+        query: "Enter pages to include:",
+        label: "Pages",
+        name: "pages",
+        optional: true,
+        description: "Specify 0 or more names of pages to index.",
+      },
+      {
+        type: "number",
+        query: "Enter the recursion depth:",
+        label: "Recursion Depth",
+        name: "recurse_depth",
+        description:
+          "When indexing categories that have sub-categories, this will determine how may levels to index. Specify 0 to only index the category itself (i.e. no recursion). Specify -1 for unlimited recursion depth. Note, that in some rare instances, a category might contain itself in its dependencies, which will cause an infinite loop. Only use -1 if you confident that this will not happen.",
+        optional: false,
+      },
+    ],
+    advanced_values: [],
+  },
+  mediawiki: {
+    description: "Configure MediaWiki connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the language code:",
+        label: "Language Code",
+        name: "language_code",
+        optional: false,
+        description: "Input a valid MediaWiki language code (e.g. 'en', 'es')",
+      },
+      {
+        type: "text",
+        query: "Enter the MediaWiki Site URL",
+        label: "MediaWiki Site URL",
+        name: "hostname",
+        optional: false,
+      },
+      {
+        type: "list",
+        query: "Enter categories to include:",
+        label: "Categories to index",
+        name: "categories",
+        description:
+          "Specify 0 or more names of categories to index. For most MediaWiki sites, these are pages with a name of the form 'Category: XYZ', that are lists of other pages/categories. Only specify the name of the category, not its url.",
+        optional: true,
+      },
+      {
+        type: "list",
+        query: "Enter pages to include:",
+        label: "Pages",
+        name: "pages",
+        optional: true,
+        description:
+          "Specify 0 or more names of pages to index. Only specify the name of the page, not its url.",
+      },
+      {
+        type: "number",
+        query: "Enter the recursion depth:",
+        label: "Recursion Depth",
+        name: "recurse_depth",
+        description:
+          "When indexing categories that have sub-categories, this will determine how may levels to index. Specify 0 to only index the category itself (i.e. no recursion). Specify -1 for unlimited recursion depth. Note, that in some rare instances, a category might contain itself in its dependencies, which will cause an infinite loop. Only use -1 if you confident that this will not happen.",
+        optional: true,
+      },
+    ],
+    advanced_values: [],
+  },
+  xenforo: {
+    description: "Configure Xenforo connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter forum or thread URL:",
+        label: "URL",
+        name: "base_url",
+        optional: false,
+        description:
+          "The XenForo v2.2 forum URL to index. Can be board or thread.",
+      },
+    ],
+    advanced_values: [],
+  },
+  gmail: {
+    description: "Configure Gmail connector",
+    values: [],
+    advanced_values: [],
+  },
+  bookstack: {
+    description: "Configure Bookstack connector",
+    values: [],
     advanced_values: [],
   },
   // Add more connectors as needed...
