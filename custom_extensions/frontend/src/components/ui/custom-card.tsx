@@ -41,32 +41,17 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-3xl relative overflow-hidden transition-all duration-300 w-full h-full",
+          "group rounded-xl relative overflow-hidden transition-all duration-200 w-full h-full",
           useCSSVariables 
             ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))] shadow-[var(--custom-card-shadow)] hover:shadow-[var(--custom-card-shadow-hover)]"
-            : "bg-white border border-gray-200 shadow-lg hover:shadow-xl",
+            : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md",
           disabled
             ? "opacity-50 cursor-not-allowed"
-            : "hover:scale-105 cursor-pointer",
+            : "cursor-pointer",
           className
         )}
         {...props}
       >
-        {/* Gradient at top right corner */}
-        <div 
-          className={cn(
-            "absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br rounded-bl-3xl",
-            useCSSVariables 
-              ? "opacity-[var(--custom-card-gradient-opacity)]"
-              : "opacity-60",
-            useCSSVariables ? "" : gradientFrom,
-            useCSSVariables ? "" : gradientTo
-          )}
-          style={useCSSVariables ? {
-            background: `linear-gradient(to bottom right, hsl(var(--custom-card-gradient-from)), hsl(var(--custom-card-gradient-to)))`
-          } : undefined}
-        />
-        
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (
@@ -86,29 +71,35 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           
           {/* Icon section */}
           {Icon && (
-            <div className="flex items-start justify-start h-16 relative mb-3">
-              <Icon 
-                size={40} 
-                className={useCSSVariables ? "text-[hsl(var(--custom-card-icon))]" : iconColor} 
-              />
+            <div className="flex items-start justify-start h-16 relative mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-300/10 rounded-lg blur-sm"></div>
+                <Icon 
+                  size={40} 
+                  className={cn(
+                    "relative z-10",
+                    useCSSVariables ? "text-[hsl(var(--custom-card-icon))]" : "text-blue-600"
+                  )} 
+                />
+              </div>
             </div>
           )}
           
           {/* Text section */}
           {(title || description) && (
-            <div className="flex flex-col items-start gap-3 flex-1 justify-start">
+            <div className="flex flex-col items-start gap-2 flex-1 justify-start">
               {title && (
                 <h3 className={cn(
-                  "text-xl text-left leading-tight",
-                  useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : labelColor
+                  "text-lg font-semibold text-left leading-tight",
+                  useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : "text-blue-600"
                 )}>
                   {title}
                 </h3>
               )}
               {description && (
                 <p className={cn(
-                  "text-sm text-left leading-relaxed max-w-xs",
-                  useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-500"
+                  "text-sm text-left leading-relaxed text-gray-600",
+                  useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-600"
                 )}>
                   {description}
                 </p>
