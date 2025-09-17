@@ -48,7 +48,6 @@ import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelCl
 interface User {
   id: string;
   email: string;
-  [key: string]: any;
 }
 
 // Authentication check function
@@ -60,8 +59,12 @@ const checkAuthentication = async (): Promise<User | null> => {
     if (!response.ok) {
       return null;
     }
-    const user: User = await response.json();
-    return user;
+    const userData = await response.json();
+
+    return {
+      id: userData.id,
+      email: userData.email,
+    };
   } catch (error) {
     console.error('Authentication check failed:', error);
     return null;
@@ -707,6 +710,10 @@ const ProjectsPageInner: React.FC = () => {
         id: currentUser.id,
         email: currentUser.email,
       });
+      userback?.hideLauncher();
+      if (userback == null){
+        console.warn("Userback is NULL!");
+      }
     }
   }, [isAuthenticated]);
 

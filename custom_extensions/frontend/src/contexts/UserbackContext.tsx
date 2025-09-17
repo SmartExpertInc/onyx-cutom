@@ -45,8 +45,8 @@ export const UserbackProvider: React.FC<UserbackProviderProps> = ({ children }) 
               email: userData.email,
             },
           },
+
         });
-        instance.hideLauncher();
 
         setUserback(instance);
         console.log('Userback initialized for user:', userData);
