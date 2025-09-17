@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit } from "lucide-react";
+import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -1470,26 +1470,24 @@ export default function TextPresentationClient() {
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
-                              <CustomTooltip 
-                                key={option.value} 
-                                content={stylePurposes[option.value as keyof typeof stylePurposes]}
-                              >
-                                <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedStyles.includes(option.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedStyles([...selectedStyles, option.value]);
-                                      } else {
-                                        setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                      }
-                                    }}
-                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  <span className="text-sm">{option.label}</span>
-                                </label>
-                              </CustomTooltip>
+                              <label key={option.value} className="flex items-center gap-2 py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedStyles.includes(option.value)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedStyles([...selectedStyles, option.value]);
+                                    } else {
+                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                    }
+                                  }}
+                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm flex-1">{option.label}</span>
+                                <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
+                                  <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
+                                </CustomTooltip>
+                              </label>
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -1551,26 +1549,24 @@ export default function TextPresentationClient() {
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
-                          <CustomTooltip 
-                            key={option.value} 
-                            content={stylePurposes[option.value as keyof typeof stylePurposes]}
-                          >
-                            <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={selectedStyles.includes(option.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedStyles([...selectedStyles, option.value]);
-                                  } else {
-                                    setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                  }
-                                }}
-                                className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm">{option.label}</span>
-                            </label>
-                          </CustomTooltip>
+                          <label key={option.value} className="flex items-center gap-2 py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedStyles.includes(option.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedStyles([...selectedStyles, option.value]);
+                                } else {
+                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                }
+                              }}
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm flex-1">{option.label}</span>
+                            <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
+                              <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
+                            </CustomTooltip>
+                          </label>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
