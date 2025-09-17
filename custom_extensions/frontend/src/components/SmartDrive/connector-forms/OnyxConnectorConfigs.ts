@@ -572,4 +572,62 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     ],
     advanced_values: [],
   },
+  egnyte: {
+    description: "Configure Egnyte connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter folder path to index:",
+        label: "Folder Path",
+        name: "folder_path",
+        optional: true,
+        description: "The folder path to index (e.g., '/Shared/Documents'). Leave empty to index everything.",
+      },
+    ],
+    advanced_values: [],
+  },
+  freshdesk: {
+    description: "Configure Freshdesk connector",
+    values: [],
+    advanced_values: [],
+  },
+  fireflies: {
+    description: "Configure Fireflies connector",
+    values: [],
+    advanced_values: [],
+  },
+  gmail: {
+    description: "Configure Gmail connector",
+    values: [],
+    advanced_values: [],
+  },
+  hubspot: {
+    description: "Configure HubSpot connector",
+    values: [],
+    advanced_values: [],
+  },
+  linear: {
+    description: "Configure Linear connector",
+    values: [],
+    advanced_values: [],
+  },
+  gong: {
+    description: "Configure Gong connector",
+    values: [
+      {
+        type: "list",
+        query: "Enter workspaces to include:",
+        label: "Workspaces",
+        name: "workspaces",
+        optional: true,
+        description: "Specify 0 or more workspaces to index by ID or EXACT name. If none specified, all accessible workspaces will be indexed.",
+      },
+    ],
+    advanced_values: [],
+  },
+  zulip: {
+    description: "Configure Zulip connector",
+    values: [],
+    advanced_values: [],
+  },
 }; 
