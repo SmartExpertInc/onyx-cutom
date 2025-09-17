@@ -391,7 +391,7 @@ export default function CreateFromSpecificFilesPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-blue-600">
                       {selectedConnectors.length} {selectedConnectors.length === 1 ? t('interface.connector', 'connector') : t('interface.connectorPlural', 'connectors')}
                     </p>
                   </div>
@@ -408,7 +408,7 @@ export default function CreateFromSpecificFilesPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-green-600">
                       {selectedFiles.length} {selectedFiles.length === 1 ? t('interface.file', 'file') : t('interface.filePlural', 'files')}
                     </p>
                   </div>

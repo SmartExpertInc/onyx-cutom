@@ -102,10 +102,14 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
 
   return (
     <div 
-      className={`group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border cursor-pointer ${
-        selectable && isSelected 
-          ? 'border-blue-300 shadow-lg bg-blue-50' 
-          : 'border-gray-200 hover:shadow-xl hover:border-blue-300'
+      className={`group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border ${
+        selectable 
+          ? `cursor-pointer ${
+              isSelected 
+                ? 'border-blue-300 shadow-lg bg-blue-50' 
+                : 'border-gray-200 hover:shadow-xl hover:border-blue-300'
+            }`
+          : 'border-gray-200'
       } ${className}`}
       onClick={selectable ? onSelect : undefined}
     >
