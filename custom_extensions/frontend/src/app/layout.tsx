@@ -5,6 +5,7 @@ import { LanguageProvider } from '../contexts/LanguageContext';
 import { MontFontLoader } from '../components/MontFontLoader';
 import { AvatarDisplayManager } from '../components/AvatarDisplayManager';
 import MixpanelProvider from './MixpanelProvider';
+import { UserbackProvider } from '../contexts/UserbackContext';
 
 export const metadata = {
   title: 'Content Builder AI',
@@ -43,9 +44,11 @@ export default function RootLayout({
         <MontFontLoader />
         <LanguageProvider>
           <AvatarDisplayManager>
-            <MixpanelProvider>
-              {children}
-            </MixpanelProvider>
+            <UserbackProvider>
+              <MixpanelProvider>
+                {children}
+              </MixpanelProvider>
+            </UserbackProvider>
           </AvatarDisplayManager>
         </LanguageProvider>
       </body>

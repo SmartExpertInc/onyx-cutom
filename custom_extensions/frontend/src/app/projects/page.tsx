@@ -41,17 +41,23 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
+import { useUserback } from '@/contexts/UserbackContext';
 import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelClient';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
   try {
+    const { initUserback } = useUserback();
     const response = await fetch('/api/me', {
       credentials: 'same-origin',
     });
     if (response.ok) {
       const user = await response.json();
       console.log(user); //TODO: Remove this
+      await initUserback({
+        id: user.id,
+        email: user.email,
+      });
       identifyUser(user.id);
     }
     return response.ok;
@@ -643,6 +649,9 @@ const ProjectsPageInner: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [showAccountModal, setShowAccountModal] = useState(false);
 
+  // Userback instance
+  const { userback } = useUserback();
+
   // Clear lesson context when user visits the projects page
   useEffect(() => {
     try {
@@ -952,6 +961,7 @@ const ProjectsPageInner: React.FC = () => {
             type="button"
             className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
             aria-label="Help"
+            onClick={() => userback?.openForm()}
           >
             ?
           </button>
