@@ -238,7 +238,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           position: 'absolute',
           left: '75px',
           top: '100px',
-          backgroundColor: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
+          background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -249,9 +249,9 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             isEditable={isEditable}
             style={{
               width: '100%',
-              height: '100%',
+              height: '129%',
               borderRadius: '50%',
-              objectFit: 'cover'
+              objectFit: 'cover',
             }}
           />
         </div>
@@ -379,6 +379,52 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     style={{
                       fontSize: '34px',
                       color: tag.isHighlighted ? '#FFFFFF' : '#727272',
+                      fontWeight: '500',
+                      width: '100%',
+                      height: 'auto',
+                      textAlign: 'center'
+                    }}
+                  />
+                ) : (
+                  tag.text
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Third row (single blue tag) */}
+          <div style={{
+            display: 'flex',
+            gap: '20px',
+          }}>
+            {currentTags.slice(5).map((tag: TagType, index: number) => (
+              <div
+                key={index + 5}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: '#0F58F9', // Blue background for highlighted tag
+                  border: tag.isHighlighted ? 'none' : `1px solid #0F58F9`,
+                  borderRadius: '40px',
+                  fontSize: '34px',
+                  color: '#FFFFFF', // White text
+                  fontWeight: '500',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '370px'
+                }}
+                onClick={() => isEditable && setEditingTags(index + 5)}
+              >
+                {isEditable && editingTags === index + 5 ? (
+                  <ImprovedInlineEditor
+                    initialValue={tag.text}
+                    onSave={(value) => handleTagSave(index + 5, value)}
+                    onCancel={handleTagCancel}
+                    className="tag-editor"
+                    style={{
+                      fontSize: '30px',
+                      color: '#FFFFFF',
                       fontWeight: '500',
                       width: '100%',
                       height: 'auto',
