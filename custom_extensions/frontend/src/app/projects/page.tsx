@@ -706,7 +706,12 @@ const ProjectsPageInner: React.FC = () => {
   // Initialize userback instance with current user
   useEffect(() => {
     if (isAuthenticated && currentUser) {
-      const token: string = 'A-E3OEYDV2KB1UuBSE8yuXb3RQm';
+      const token: string | undefined = process.env.NEXT_PUBLIC_USERBACK_TOKEN;
+
+      if (token == undefined) {
+        console.warn('Userback token is missing! Check your .env file.');
+        return;
+      }
 
       const init = async () => {
         try {
