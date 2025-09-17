@@ -1786,7 +1786,7 @@ export default function ProjectInstanceViewPage() {
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
   return (
-    <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-inter">
+    <main className="p-4 md:p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen font-inter">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
@@ -2243,9 +2243,8 @@ export default function ProjectInstanceViewPage() {
                   <ChevronDown size={16} className="ml-1" />
                 </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 p-2 border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
-                    <div className="space-y-2">
+                <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
+                  <div className="space-y-1">
                       {/* Training Plan specific columns */}
                       {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
                         <>
