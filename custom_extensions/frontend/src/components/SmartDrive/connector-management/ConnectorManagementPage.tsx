@@ -6,6 +6,7 @@ import { buildCCPairInfoUrl, triggerIndexing, getTooltipMessage } from "./lib";
 import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Settings, FileText, Clock } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { ConnectorCard } from "@/components/ui/connector-card";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -253,7 +254,7 @@ export default function ConnectorManagementPage({
           {popup && (
             <div className={`mb-6 p-4 rounded-lg border ${
               popup.type === 'success' 
-                ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-200' 
+                ? 'bg-gradient-to-tr from-white via-white to-emerald-300 text-green-800 border-green-200' 
                 : 'bg-gradient-to-r from-red-50 to-pink-50 text-red-800 border-red-200'
             }`}>
               <div className="flex items-center gap-2">
@@ -274,85 +275,46 @@ export default function ConnectorManagementPage({
           {/* Status and Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {/* Status Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
-              {/* Gradient at top right corner */}
-              <div className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br rounded-bl-3xl opacity-60 ${
-                isActive ? 'from-green-300 to-emerald-200' : 
-                isPaused ? 'from-yellow-300 to-amber-200' : 
-                isInvalid ? 'from-red-300 to-rose-200' : 'from-gray-300 to-slate-200'
-              }`} />
-              
-              <div className="relative p-6 h-full flex flex-col">
-                {/* Icon section */}
-                <div className="flex items-start justify-start h-16 relative mb-3">
-                    <div className={`w-6 h-6 rounded-full ${
-                      isActive ? 'bg-green-500' : 
-                      isPaused ? 'bg-yellow-500' : 
-                      isInvalid ? 'bg-red-500' : 'bg-gray-500'
-                    }`}></div>
-                </div>
-                
-                {/* Text section */}
-                <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-                  <h3 className={`text-xl font-semibold ${
-                    isActive ? 'text-green-600' : 
-                    isPaused ? 'text-yellow-600' : 
-                    isInvalid ? 'text-red-600' : 'text-gray-600'
-                  }`}>
-                    {t('interface.connectorStatus', 'Status')}
-                  </h3>
-                  <p className="text-lg text-gray-600">
-                    {ccPair.status}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ConnectorCard
+              title={t('interface.connectorStatus', 'Status')}
+              value={ccPair.status}
+              gradientColors={
+                isActive ? { from: 'green-300', to: 'emerald-200' } : 
+                isPaused ? { from: 'yellow-300', to: 'amber-200' } : 
+                isInvalid ? { from: 'red-300', to: 'rose-200' } : 
+                { from: 'gray-300', to: 'slate-200' }
+              }
+              textColor={
+                isActive ? 'green-600' : 
+                isPaused ? 'yellow-600' : 
+                isInvalid ? 'red-600' : 'gray-600'
+              }
+              iconColor={
+                isActive ? 'green-500' : 
+                isPaused ? 'yellow-500' : 
+                isInvalid ? 'red-500' : 'gray-500'
+              }
+            />
 
             {/* Documents Indexed Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
-              {/* Gradient at top right corner */}
-              <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-blue-300 to-indigo-200 rounded-bl-3xl opacity-60" />
-              
-              <div className="relative p-6 h-full flex flex-col">
-                {/* Icon section */}
-                <div className="flex items-start justify-start h-16 relative mb-3">
-                    <FileText size={40} className="text-blue-600" />
-                </div>
-                
-                {/* Text section */}
-                <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-                  <h3 className="text-xl font-semibold text-blue-600">
-                    {t('interface.documentsIndexed', 'Documents Indexed')}
-                  </h3>
-                  <p className="text-lg text-gray-600">
-                    {ccPair.num_docs_indexed.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ConnectorCard
+              title={t('interface.documentsIndexed', 'Documents Indexed')}
+              value={ccPair.num_docs_indexed}
+              icon={FileText}
+              gradientColors={{ from: 'blue-300', to: 'indigo-200' }}
+              textColor="blue-600"
+              iconColor="blue-600"
+            />
 
             {/* Last Indexed Card */}
-            <div className="group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl">
-              {/* Gradient at top right corner */}
-              <div className="absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 bg-gradient-to-br from-purple-300 to-pink-200 rounded-bl-3xl opacity-60" />
-              
-              <div className="relative p-6 h-full flex flex-col">
-                {/* Icon section */}
-                <div className="flex items-start justify-start h-16 relative mb-3">
-                    <Clock size={40} className="text-purple-600" />
-                </div>
-                
-                {/* Text section */}
-                <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-                  <h3 className="text-xl font-semibold text-purple-600">
-                    {t('interface.lastIndexed', 'Last Indexed')}
-                  </h3>
-                  <p className="text-lg text-gray-600">
-                    {ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ConnectorCard
+              title={t('interface.lastIndexed', 'Last Indexed')}
+              value={ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
+              icon={Clock}
+              gradientColors={{ from: 'purple-300', to: 'pink-200' }}
+              textColor="purple-600"
+              iconColor="purple-600"
+            />
           </div>
 
           {/* Error State */}
