@@ -705,29 +705,37 @@ const ProjectsPageInner: React.FC = () => {
 
   // Initialize userback instance with current user
   useEffect(() => {
-    if (currentUser) {
-      const token: string = "A-E3OEYDV2KB1UuBSE8yuXb3RQm";
+    if (isAuthenticated && currentUser) {
+      const token: string = 'A-E3OEYDV2KB1UuBSE8yuXb3RQm';
 
       const init = async () => {
-        const instance = await Userback(token, {
-          user_data: {
-            id: currentUser.id,
-            info: {
-              email: currentUser.email
-            }
-          },
-          autohide: false,
-        });
-        setUserback(instance);
-      };
-  
-      init();
+        try {
+          const instance = await Userback(token, {
+            user_data: {
+              id: currentUser.id,
+              info: {
+                email: currentUser.email,
+              },
+            },
+            autohide: false,
+          });
 
-      if (userback) {
-        console.log('Userback is successfully initialized');
-      }
+          setUserback(instance);
+        } catch (error) {
+          console.error('Userback initialization failed:', error);
+        }
+      };
+
+      init();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, currentUser]);
+
+  useEffect(() => {
+    if (userback) {
+      console.log('Userback is successfully initialized');
+      userback.hideLauncher();
+    }
+  }, [userback]);
 
   // Load folders and projects after authentication is confirmed
   useEffect(() => {
