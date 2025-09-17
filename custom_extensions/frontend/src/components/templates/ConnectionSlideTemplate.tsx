@@ -133,9 +133,9 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
   };
 
   const tab: React.CSSProperties = {
-    backgroundColor: '#0D0D0D',
-    color: '#787878',
-    border: '1px solid #2f2f2f',
+    backgroundColor: '#0F58F9',
+    color: '#ffffff',
+    border: '1px solid #ffffff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -284,7 +284,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
 
       <div style={footer}>
         {tabs.map((t, i) => (
-          <div key={i} style={{ ...tab, borderTop: i===activeTabIndex ? '3px solid #3968D3' : 'none', color: i===activeTabIndex ? '#BCBCBC' : '#6F6F6F', position: 'relative', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingTabIndex(i)}>
+          <div key={i} style={{ ...tab, borderTop: i===activeTabIndex ? '3px solid #ffffff' : 'none', backgroundColor: i===activeTabIndex ? '#ffffff' : '#0F58F9', color: i===activeTabIndex ? '#09090B' : '#ffffff', position: 'relative', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingTabIndex(i)}>
             {isEditable && editingTabIndex === i ? (
               <ImprovedInlineEditor
                 initialValue={t}

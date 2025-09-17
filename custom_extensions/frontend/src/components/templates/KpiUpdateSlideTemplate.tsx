@@ -84,7 +84,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const titleDotStyle: React.CSSProperties = {
     width: '8px',
     height: '8px',
-    backgroundColor: '#09090B',
+    backgroundColor: 'blue',
     borderRadius: '50%'
   };
 
