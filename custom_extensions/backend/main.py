@@ -14591,7 +14591,7 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
             needed_positions = 6 - len(course_templates)
             logger.info(f"🎓 [COURSE TEMPLATES] Generating {needed_positions} additional positions with AI")
             
-            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload)
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload, getattr(payload, 'language', 'ru'))
             
             for i, position in enumerate(additional_positions):
                 job_title = position.get("title", f"Generated Position {i+1}")
@@ -14675,37 +14675,70 @@ async def generate_course_templates(duckduckgo_summary: str, job_positions: list
         ]
 
 
-async def generate_additional_positions(duckduckgo_summary: str, count: int, payload) -> list:
+async def generate_additional_positions(duckduckgo_summary: str, count: int, payload, language: str = "ru") -> list:
     """
     Generate additional job positions using AI based on company industry and context.
     """
     try:
-        prompt = f"""
-        Проанализируй данные компании и сгенерируй {count} дополнительных логических позиций для курсов обучения.
+        # 📊 DETAILED LOGGING: Language parameter in additional positions generation
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language: '{language}'")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - will use {'English' if language == 'en' else 'Russian'} prompts")
         
-        ДАННЫЕ АНКЕТЫ:
-        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
-        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
-        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
-        
-        ДАННЫЕ ИЗ ИНТЕРНЕТА:
-        {duckduckgo_summary}
-        
-        ИНСТРУКЦИИ:
-        - Сгенерируй {count} логических позиций, которые подходят для данной компании и отрасли
-        - Каждая позиция должна быть реалистичной и подходящей для курса обучения
-        - Позиции должны дополнять уже существующие вакансии
-        - Описание курса должно быть КРАТКИМ (максимум 100 символов)
-        - Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
-        - Верни данные в формате JSON: [{{"title": "Название позиции", "description": "Краткое описание курса обучения"}}]
-        
-        ПРИМЕРЫ ПОЗИЦИЙ И ОПИСАНИЙ:
-        - {{"title": "Customer Support", "description": "Обучение работе с клиентами и решению проблем."}}
-        - {{"title": "Marketing Specialist", "description": "Обучение основам маркетинга и продвижения товаров."}}
-        - {{"title": "Logistics Coordinator", "description": "Обучение управлению поставками и логистикой."}}
-        
-        ОТВЕТ (только JSON):
-        """
+        if language == "en":
+            prompt = f"""
+            Analyze the company data and generate {count} additional logical positions for training courses.
+            
+            QUESTIONNAIRE DATA:
+            - Company name: {getattr(payload, 'companyName', 'Company Name')}
+            - Company description: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            INTERNET DATA:
+            {duckduckgo_summary}
+            
+            INSTRUCTIONS:
+            - Generate {count} logical positions that fit this company and industry
+            - Each position should be realistic and suitable for training courses
+            - Positions should complement existing vacancies
+            - Course description should be BRIEF (maximum 100 characters)
+            - Use format: "Training [key skills/processes] for [position]"
+            - Return data in JSON format: [{{"title": "Position Title", "description": "Brief training course description"}}]
+            - Generate ALL content EXCLUSIVELY in English
+            
+            EXAMPLES OF POSITIONS AND DESCRIPTIONS:
+            - {{"title": "Customer Support", "description": "Training in customer service and problem solving."}}
+            - {{"title": "Marketing Specialist", "description": "Training in marketing fundamentals and product promotion."}}
+            - {{"title": "Logistics Coordinator", "description": "Training in supply chain management and logistics."}}
+            
+            RESPONSE (JSON only):
+            """
+        else:
+            prompt = f"""
+            Проанализируй данные компании и сгенерируй {count} дополнительных логических позиций для курсов обучения.
+            
+            ДАННЫЕ АНКЕТЫ:
+            - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+            - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            ДАННЫЕ ИЗ ИНТЕРНЕТА:
+            {duckduckgo_summary}
+            
+            ИНСТРУКЦИИ:
+            - Сгенерируй {count} логических позиций, которые подходят для данной компании и отрасли
+            - Каждая позиция должна быть реалистичной и подходящей для курса обучения
+            - Позиции должны дополнять уже существующие вакансии
+            - Описание курса должно быть КРАТКИМ (максимум 100 символов)
+            - Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
+            - Верни данные в формате JSON: [{{"title": "Название позиции", "description": "Краткое описание курса обучения"}}]
+            
+            ПРИМЕРЫ ПОЗИЦИЙ И ОПИСАНИЙ:
+            - {{"title": "Customer Support", "description": "Обучение работе с клиентами и решению проблем."}}
+            - {{"title": "Marketing Specialist", "description": "Обучение основам маркетинга и продвижения товаров."}}
+            - {{"title": "Logistics Coordinator", "description": "Обучение управлению поставками и логистикой."}}
+            
+            ОТВЕТ (только JSON):
+            """
         
         response_text = await stream_openai_response_direct(
             prompt=prompt,
@@ -14714,6 +14747,10 @@ async def generate_additional_positions(duckduckgo_summary: str, count: int, pay
         
         # Log the raw response for debugging
         logger.info(f"[COURSE TEMPLATES] Raw additional positions response: '{response_text}'")
+        
+        # 📊 DETAILED LOGGING: Language parameter in response
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - raw response length: {len(response_text)}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language used: {'English' if language == 'en' else 'Russian'}")
         
         # Try to parse JSON response - handle markdown-wrapped JSON
         try:
@@ -16100,7 +16137,7 @@ async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payl
             logger.info(f"🔍 [AUDIT DATA FLOW] Need {needed_positions} additional positions to reach {target_count} total")
             
             # Generate additional positions using the same logic as course templates
-            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload)
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload, language)
             
             # Convert additional positions to the expected format
             for position in additional_positions:
