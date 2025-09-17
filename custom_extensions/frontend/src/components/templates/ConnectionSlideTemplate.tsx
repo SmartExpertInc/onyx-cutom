@@ -220,15 +220,46 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         />
         {/* Keep overlay but let clicks pass to the image below for editing */}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35))', pointerEvents: 'none' }} />
+        
+        {/* Clickable area for background image editing - covers areas without text */}
+        {isEditable && (
+          <div 
+            style={{ 
+              position: 'absolute', 
+              inset: 0, 
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+              zIndex: 1
+            }}
+            onClick={() => {
+              // Trigger image upload for background
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const result = event.target?.result as string;
+                    onUpdate && onUpdate({ backgroundImagePath: result });
+                  };
+                  reader.readAsDataURL(file);
+                }
+              };
+              input.click();
+            }}
+          />
+        )}
         {/* Venn circles */}
-        <div style={vennWrapper}>
+        <div style={{...vennWrapper, zIndex: 2}}>
           <div style={bigCircle} />
           <div style={small} />
           <div style={smallRight} />
         </div>
 
         {/* Venn labels */}
-        <div style={{ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none', zIndex: 2 }}>
           {/* Culture (top center of big circle) */}
           <div style={{ position: 'absolute', left: '59%', top: '56px', color: '#B1B0B1', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto' }}>
             {isEditable && editingVenn === 'culture' ? (
