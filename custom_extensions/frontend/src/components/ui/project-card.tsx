@@ -424,7 +424,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.isPrivate && (
               <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-gray-200">
                 <Lock size={8} className="text-gray-600" />
-                <span className="text-xs font-medium text-gray-700">
+                <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
                 </span>
               </div>
@@ -450,9 +450,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
+              className="inline-flex items-center gap-1 bg-gray-50 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
             >
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
               </span>
             </div>

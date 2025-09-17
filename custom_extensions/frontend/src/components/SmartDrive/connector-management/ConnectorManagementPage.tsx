@@ -294,6 +294,7 @@ export default function ConnectorManagementPage({
                 isPaused ? 'yellow-500' : 
                 isInvalid ? 'red-500' : 'gray-500'
               }
+              showHoverEffect={false}
             />
 
             {/* Documents Indexed Card */}
@@ -304,6 +305,7 @@ export default function ConnectorManagementPage({
               gradientColors={{ from: 'blue-300', to: 'indigo-200' }}
               textColor="blue-600"
               iconColor="blue-600"
+              showHoverEffect={false}
             />
 
             {/* Last Indexed Card */}
@@ -314,6 +316,7 @@ export default function ConnectorManagementPage({
               gradientColors={{ from: 'purple-300', to: 'pink-200' }}
               textColor="purple-600"
               iconColor="purple-600"
+              showHoverEffect={false}
             />
           </div>
 

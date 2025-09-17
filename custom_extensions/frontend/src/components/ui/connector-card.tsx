@@ -1,10 +1,12 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, Check } from 'lucide-react';
+import Image from 'next/image';
 
 export interface ConnectorCardProps {
   title: string;
-  value: string | number;
+  value?: string | number;
   icon?: LucideIcon;
+  iconSrc?: string;
   gradientColors?: {
     from: string;
     to: string;
@@ -12,16 +14,32 @@ export interface ConnectorCardProps {
   textColor?: string;
   iconColor?: string;
   className?: string;
+  // Selection props
+  isSelected?: boolean;
+  onSelect?: () => void;
+  selectable?: boolean;
+  // Hover effect props
+  showHoverEffect?: boolean;
+  hoverGradientColors?: {
+    from: string;
+    to: string;
+  };
 }
 
 export const ConnectorCard: React.FC<ConnectorCardProps> = ({
   title,
   value,
   icon: Icon,
+  iconSrc,
   gradientColors = { from: 'blue-300', to: 'indigo-200' },
   textColor = 'blue-600',
   iconColor = 'blue-600',
-  className = ''
+  className = '',
+  isSelected = false,
+  onSelect,
+  selectable = false,
+  showHoverEffect = false,
+  hoverGradientColors = { from: 'blue-500', to: 'purple-500' }
 }) => {
   // Create a mapping for gradient classes to ensure Tailwind includes them
   const getGradientClass = (from: string, to: string) => {
@@ -71,15 +89,58 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
     return iconBgMap[color] || 'bg-blue-600';
   };
 
+  const getHoverGradientClass = (from: string, to: string) => {
+    const hoverGradientMap: Record<string, string> = {
+      'blue-500-purple-500': 'from-blue-500/5 to-purple-500/5',
+      'blue-500-blue-600': 'from-blue-500/5 to-blue-600/5',
+      'purple-500-pink-500': 'from-purple-500/5 to-pink-500/5',
+      'green-500-emerald-500': 'from-green-500/5 to-emerald-500/5'
+    };
+    const key = `${from}-${to}`;
+    return hoverGradientMap[key] || 'from-blue-500/5 to-purple-500/5';
+  };
+
   return (
-    <div className={`group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-lg hover:shadow-xl ${className}`}>
+    <div 
+      className={`group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border cursor-pointer ${
+        selectable && isSelected 
+          ? 'border-blue-300 shadow-lg bg-blue-50' 
+          : 'border-gray-200 hover:shadow-xl hover:border-blue-300'
+      } ${className}`}
+      onClick={selectable ? onSelect : undefined}
+    >
+      {/* Selection Indicator */}
+      {selectable && (
+        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+          isSelected
+            ? 'bg-blue-600 border-blue-600'
+            : 'border-gray-300 group-hover:border-blue-400'
+        }`}>
+          {isSelected && (
+            <Check size={14} className="text-white" />
+          )}
+        </div>
+      )}
+
       {/* Gradient at top right corner */}
       <div className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 ${getGradientClass(gradientColors.from, gradientColors.to)} rounded-bl-3xl opacity-60`} />
       
       <div className="relative p-6 h-full flex flex-col">
         {/* Icon section */}
         <div className="flex items-start justify-start h-16 relative mb-3">
-          {Icon ? (
+          {iconSrc ? (
+            <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
+              <Image
+                src={iconSrc}
+                alt={`${title} logo`}
+                width={32}
+                height={32}
+                className="object-contain w-8 h-8"
+                priority={false}
+                unoptimized={true}
+              />
+            </div>
+          ) : Icon ? (
             <Icon size={40} className={getIconColorClass(iconColor)} />
           ) : (
             <div className={`w-6 h-6 rounded-full ${getIconBgClass(iconColor)}`}></div>
@@ -91,11 +152,18 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
           <h3 className={`text-xl font-semibold ${getTextColorClass(textColor)}`}>
             {title}
           </h3>
-          <p className="text-lg text-gray-600">
-            {typeof value === 'number' ? value.toLocaleString() : value}
-          </p>
+          {value !== undefined && (
+            <p className="text-lg text-gray-600">
+              {typeof value === 'number' ? value.toLocaleString() : value}
+            </p>
+          )}
         </div>
       </div>
+
+      {/* Hover Effect */}
+      {showHoverEffect && (
+        <div className={`absolute inset-0 bg-gradient-to-br ${getHoverGradientClass(hoverGradientColors.from, hoverGradientColors.to)} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+      )}
     </div>
   );
 };
