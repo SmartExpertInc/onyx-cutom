@@ -7,7 +7,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { UserRole } from "../lib/types"; 
 import { checkUserIsNoAuthUser, logout } from "../lib/user"; 
 import { LOGOUT_DISABLED } from "../lib/constants";
-import { resetUser } from "../lib/mixpanelClient"
+import { resetUserIdentity } from "../lib/mixpanelClient"
 
 interface DropdownOptionProps {
   href?: string;
@@ -110,7 +110,7 @@ export function UserDropdown({
       }
 
       // Reset mixpanel
-      resetUser();
+      resetUserIdentity();
 
       // Redirect to main app's login page after logout
       // This follows the same pattern as the authentication check in projects page

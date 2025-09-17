@@ -41,7 +41,7 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
-import { identifyUser, trackPageView } from '@/lib/mixpanelClient';
+import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelClient';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -663,12 +663,14 @@ const ProjectsPageInner: React.FC = () => {
         setIsAuthenticated(authenticated);
 
         if (!authenticated) {
+          resetUserIdentity();
           // Redirect to main app's login with return URL
           const currentUrl = window.location.pathname + window.location.search;
           redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
       } catch (error) {
+        resetUserIdentity();
         console.error('Authentication check failed:', error);
         setIsAuthenticated(false);
         const currentUrl = window.location.pathname + window.location.search;

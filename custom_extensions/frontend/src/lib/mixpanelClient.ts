@@ -63,7 +63,7 @@ export function identifyUser(userId: string) {
 }
 
 // Call on logout to handle multiple users on a single device
-export function resetUser() {
+export function resetUserIdentity() {
   if (!isInitialized) {
     return;
   }
