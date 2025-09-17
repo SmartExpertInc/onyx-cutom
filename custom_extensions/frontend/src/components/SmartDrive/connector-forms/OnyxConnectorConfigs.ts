@@ -2,22 +2,20 @@
 
 export interface ConnectorField {
   type: "text" | "select" | "checkbox" | "number" | "list" | "file" | "tab" | "string_tab";
-  label: string | ((currentCredential: any) => string);
+  label: string;
   name: string;
   query?: string;
   optional?: boolean;
-  description?: string | ((currentCredential: any) => string);
+  description?: string;
   options?: Array<{ name: string; value: string; description?: string }>;
   default?: any;
   isTextArea?: boolean;
   hidden?: boolean;
-  visibleCondition?: (values: any, currentCredential: any) => boolean;
   tabs?: Array<{
     value: string;
     label: string;
     fields: ConnectorField[];
   }>;
-  defaultTab?: string;
 }
 
 export interface ConnectorConfig {
@@ -375,82 +373,177 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         name: "indexing_scope",
         label: "How should we index your Google Drive?",
         optional: true,
-        defaultTab: "general",
         tabs: [
           {
-            value: "general",
-            label: "General",
+            value: "specific_folders",
+            label: "Specific Folders",
             fields: [
               {
-                type: "checkbox",
-                label: (currentCredential: any) => currentCredential?.credential_json?.google_tokens ? "Include shared drives?" : "Include shared drives?",
-                description: (currentCredential: any) => currentCredential?.credential_json?.google_tokens ? "This will allow contentbuilder to index everything in the shared drives you have access to." : "This will allow contentbuilder to index everything in your Organization's shared drives.",
-                name: "include_shared_drives",
-                default: false,
-              },
-              {
-                type: "checkbox",
-                label: (currentCredential: any) => currentCredential?.credential_json?.google_tokens ? "Include My Drive?" : "Include Everyone's My Drive?",
-                description: (currentCredential: any) => currentCredential?.credential_json?.google_tokens ? "This will allow contentbuilder to index everything in your My Drive." : "This will allow contentbuilder to index everything in everyone's My Drives.",
-                name: "include_my_drives",
-                default: false,
-              },
-              {
-                type: "checkbox",
-                description: "This will allow contentbuilder to index all files shared with you.",
-                label: "Include All Files Shared With You?",
-                name: "include_files_shared_with_me",
-                visibleCondition: (values: any, currentCredential: any) => !!currentCredential?.credential_json?.google_tokens,
-                default: false,
+                type: "list",
+                query: "Enter folder IDs:",
+                label: "Folder IDs",
+                name: "folder_ids",
+                description: "Specify 0 or more folder IDs to index from.",
+                optional: true,
               },
             ],
           },
           {
-            value: "specific",
-            label: "Specific",
+            value: "everything",
+            label: "Everything",
             fields: [
               {
-                type: "text",
-                description: (currentCredential: any) => currentCredential?.credential_json?.google_tokens ? "Enter a comma separated list of the URLs for the shared drive you would like to index. You must have access to these shared drives." : "Enter a comma separated list of the URLs for the shared drive you would like to index.",
-                label: "Shared Drive URLs",
-                name: "shared_drive_urls",
-                default: "",
-                isTextArea: true,
-              },
-              {
-                type: "text",
-                description: "Enter a comma separated list of the URLs of any folders you would like to index. The files located in these folders (and all subfolders) will be indexed.",
-                label: "Folder URLs",
-                name: "shared_folder_urls",
-                default: "",
-                isTextArea: true,
-              },
-              {
-                type: "text",
-                description: "Enter a comma separated list of the emails of the users whose MyDrive you want to index.",
-                label: "My Drive Emails",
-                name: "my_drive_emails",
-                visibleCondition: (values: any, currentCredential: any) => !currentCredential?.credential_json?.google_tokens,
-                default: "",
-                isTextArea: true,
+                type: "string_tab",
+                label: "Everything",
+                name: "everything",
+                description:
+                  "This connector will index all files and folders the provided credentials have access to!",
               },
             ],
           },
         ],
       },
+      {
+        type: "checkbox",
+        query: "Include shared folders?",
+        label: "Include Shared Folders",
+        name: "include_shared_folders",
+        description: "Index folders shared with you",
+        optional: true,
+        default: true,
+      },
+      {
+        type: "checkbox",
+        query: "Include my drive?",
+        label: "Include My Drive",
+        name: "include_my_drive",
+        description: "Index files in your personal Google Drive",
+        optional: true,
+        default: true,
+      },
+    ],
+    advanced_values: [
+      {
+        type: "list",
+        query: "File types to index:",
+        label: "File Types",
+        name: "file_types",
+        description: "Specify which file types to include in the index",
+        optional: true,
+        default: ["document", "spreadsheet", "presentation", "pdf"],
+      },
+    ],
+  },
+  zendesk: {
+    description: "Configure Zendesk connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the Zendesk subdomain:",
+        label: "Subdomain",
+        name: "zendesk_subdomain",
+        optional: false,
+        description: "Your Zendesk subdomain (without .zendesk.com)",
+      },
+      {
+        type: "checkbox",
+        query: "Include tickets?",
+        label: "Include Tickets",
+        name: "include_tickets",
+        description: "Index Zendesk tickets",
+        optional: true,
+        default: true,
+      },
+      {
+        type: "checkbox",
+        query: "Include articles?",
+        label: "Include Articles",
+        name: "include_articles",
+        description: "Index help center articles",
+        optional: true,
+        default: true,
+      },
+    ],
+    advanced_values: [],
+  },
+  asana: {
+    description: "Configure Asana connector",
+    values: [
+      {
+        type: "list",
+        query: "Enter project IDs:",
+        label: "Project IDs",
+        name: "project_ids",
+        description: "Specify 0 or more project IDs to index from. If none specified, will index all accessible projects.",
+        optional: true,
+      },
+      {
+        type: "checkbox",
+        query: "Include tasks?",
+        label: "Include Tasks",
+        name: "include_tasks",
+        description: "Index Asana tasks",
+        optional: true,
+        default: true,
+      },
+      {
+        type: "checkbox",
+        query: "Include comments?",
+        label: "Include Comments",
+        name: "include_comments",
+        description: "Index task comments in addition to task content",
+        optional: true,
+        default: true,
+      },
+    ],
+    advanced_values: [],
+  },
+  airtable: {
+    description: "Configure Airtable connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the base ID:",
+        label: "Base ID",
+        name: "base_id",
+        optional: false,
+        description: "The ID of the Airtable base to index.",
+      },
+      {
+        type: "text",
+        query: "Enter the table name or ID:",
+        label: "Table Name or Table ID",
+        name: "table_name_or_id",
+        optional: false,
+      },
+      {
+        type: "checkbox",
+        label: "Treat all fields except attachments as metadata",
+        name: "treat_all_non_attachment_fields_as_metadata",
+        description:
+          "Choose this if the primary content to index are attachments and all other columns are metadata for these attachments.",
+        optional: false,
+      },
     ],
     advanced_values: [
       {
         type: "text",
-        description: "Enter a comma separated list of specific user emails to index. This will only index files accessible to these users.",
-        label: "Specific User Emails",
-        name: "specific_user_emails",
+        label: "View ID",
+        name: "view_id",
         optional: true,
-        default: "",
-        isTextArea: true,
+        description:
+          "If you need to link to a specific View, put that ID here e.g. viwVUEJjWPd8XYjh8.",
+      },
+      {
+        type: "text",
+        label: "Share ID",
+        name: "share_id",
+        optional: true,
+        description:
+          "If you need to link to a specific Share, put that ID here e.g. shrkfjEzDmLaDtK83.",
       },
     ],
-    advancedValuesVisibleCondition: (values: any, currentCredential: any) => !currentCredential?.credential_json?.google_tokens,
+    overrideDefaultFreq: 60 * 60 * 24,
   },
   sharepoint: {
     description: "Configure SharePoint connector",
@@ -461,7 +554,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         label: "Sites",
         name: "sites",
         optional: true,
-        description: "If no sites are specified, all sites in your organization may be indexed (requires adequate permissions). You can specify full site or subfolder URLs.",
+        description: `• If no sites are specified, all sites in your organization will be indexed (Sites.Read.All permission required).\n\n• Specifying 'https://example.sharepoint.com/sites/support' will only index documents within this site.\n\n• Specifying 'https://example.sharepoint.com/sites/support/subfolder' will only index documents within this folder.`,
       },
     ],
     advanced_values: [],
@@ -475,7 +568,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         label: "Teams",
         name: "teams",
         optional: true,
-        description: "Specify 0 or more Teams to index. If none specified, all Teams in your organization may be indexed.",
+        description: `Specify 0 or more Teams to index. If no Teams are specified, all Teams in your organization will be indexed.`,
       },
     ],
     advanced_values: [],
@@ -483,151 +576,137 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
   discourse: {
     description: "Configure Discourse connector",
     values: [
-      { type: "text", query: "Enter the base URL:", label: "Base URL", name: "base_url", optional: false },
-      { type: "list", query: "Enter categories to include:", label: "Categories", name: "categories", optional: true },
+      {
+        type: "text",
+        query: "Enter the base URL:",
+        label: "Base URL",
+        name: "base_url",
+        optional: false,
+      },
+      {
+        type: "list",
+        query: "Enter categories to include:",
+        label: "Categories",
+        name: "categories",
+        optional: true,
+      },
     ],
     advanced_values: [],
   },
   axero: {
     description: "Configure Axero connector",
     values: [
-      { type: "list", query: "Enter spaces to include:", label: "Spaces", name: "spaces", optional: true, description: "Specify zero or more Space IDs to index. If none specified, all Spaces will be indexed." },
+      {
+        type: "list",
+        query: "Enter spaces to include:",
+        label: "Spaces",
+        name: "spaces",
+        optional: true,
+        description:
+          "Specify zero or more Spaces to index (by the Space IDs). If no Space IDs are specified, all Spaces will be indexed.",
+      },
     ],
     advanced_values: [],
     overrideDefaultFreq: 60 * 60 * 24,
   },
-  productboard: { description: "Configure Productboard connector", values: [], advanced_values: [] },
-  guru: { description: "Configure Guru connector", values: [], advanced_values: [] },
-  slab: {
-    description: "Configure Slab connector",
-    values: [ { type: "text", query: "Enter the base URL:", label: "Base URL", name: "base_url", optional: false, description: "Specify the base URL for your Slab team (e.g., https://example.slab.com/)." } ],
+  productboard: {
+    description: "Configure Productboard connector",
+    values: [],
     advanced_values: [],
   },
   salesforce: {
     description: "Configure Salesforce connector",
-    values: [ { type: "list", query: "Enter requested objects:", label: "Requested Objects", name: "requested_objects", optional: true, description: "Specify object types to index (singular form), or leave blank to index default objects." } ],
-    advanced_values: [],
-  },
-  google_cloud_storage: {
-    description: "Configure Google Cloud Storage connector",
     values: [
-      { type: "text", query: "Enter the bucket name:", label: "Bucket Name", name: "bucket_name", optional: false, description: "Name of the GCS bucket to index." },
-      { type: "text", query: "Enter the prefix:", label: "Path Prefix", name: "prefix", optional: true },
-      { type: "text", label: "Bucket Type", name: "bucket_type", optional: false, default: "google_cloud_storage", hidden: true },
+      {
+        type: "list",
+        query: "Enter requested objects:",
+        label: "Requested Objects",
+        name: "requested_objects",
+        optional: true,
+        description: `Specify the Salesforce object types you want to index. If unsure, leave blank to index Accounts by default.\n\nHint: Use the singular form (e.g., 'Opportunity' not 'Opportunities').`,
+      },
     ],
-    advanced_values: [],
-    overrideDefaultFreq: 60 * 60 * 24,
-  },
-  oci_storage: {
-    description: "Configure OCI Storage connector",
-    values: [
-      { type: "text", query: "Enter the bucket name:", label: "Bucket Name", name: "bucket_name", optional: false },
-      { type: "text", query: "Enter the prefix:", label: "Prefix", name: "prefix", optional: true },
-      { type: "text", label: "Bucket Type", name: "bucket_type", optional: false, default: "oci_storage", hidden: true },
-    ],
-    advanced_values: [],
-  },
-  s3: {
-    description: "Configure S3 connector",
-    values: [
-      { type: "text", query: "Enter the bucket name:", label: "Bucket Name", name: "bucket_name", optional: false },
-      { type: "text", query: "Enter the prefix:", label: "Prefix", name: "prefix", optional: true },
-      { type: "text", label: "Bucket Type", name: "bucket_type", optional: false, default: "s3", hidden: true },
-    ],
-    advanced_values: [],
-    overrideDefaultFreq: 60 * 60 * 24,
-  },
-  r2: {
-    description: "Configure R2 connector",
-    values: [
-      { type: "text", query: "Enter the bucket name:", label: "Bucket Name", name: "bucket_name", optional: false },
-      { type: "text", query: "Enter the prefix:", label: "Prefix", name: "prefix", optional: true },
-      { type: "text", label: "Bucket Type", name: "bucket_type", optional: false, default: "r2", hidden: true },
-    ],
-    advanced_values: [],
-    overrideDefaultFreq: 60 * 60 * 24,
-  },
-  wikipedia: {
-    description: "Configure Wikipedia connector",
-    values: [
-      { type: "text", query: "Enter the language code:", label: "Language Code", name: "language_code", optional: false, description: "Valid Wikipedia language code (e.g., 'en', 'es')." },
-      { type: "list", query: "Enter categories to include:", label: "Categories to index", name: "categories", optional: true, description: "Specify names of categories to index (not URLs)." },
-      { type: "list", query: "Enter pages to include:", label: "Pages", name: "pages", optional: true, description: "Specify 0 or more page names to index." },
-      { type: "number", query: "Enter the recursion depth:", label: "Recursion Depth", name: "recurse_depth", optional: false, description: "0 to index the category only; -1 for unlimited recursion (use with caution)." },
-    ],
-    advanced_values: [],
-  },
-  xenforo: {
-    description: "Configure Xenforo connector",
-    values: [ { type: "text", query: "Enter forum or thread URL:", label: "URL", name: "base_url", optional: false, description: "The XenForo v2.2 forum URL to index. Can be board or thread." } ],
     advanced_values: [],
   },
   highspot: {
     description: "Configure Highspot connector",
-    values: [
-      { type: "tab", name: "highspot_scope", label: "What should we index from Highspot?", optional: true, tabs: [
-        { value: "spots", label: "Specific Spots", fields: [ { type: "list", query: "Enter the spot name(s):", label: "Spot Name(s)", name: "spot_names", optional: false, description: "For multiple spots, enter one by one." } ] },
-        { value: "everything", label: "Everything", fields: [ { type: "string_tab", label: "Everything", name: "everything", description: "This will index all spots the provided credentials have access to!" } ] }
-      ]}
-    ],
+    values: [],
     advanced_values: [],
   },
-  egnyte: {
-    description: "Configure Egnyte connector",
+  discord: {
+    description: "Configure Discord connector",
     values: [
       {
         type: "text",
-        query: "Enter folder path to index:",
-        label: "Folder Path",
-        name: "folder_path",
-        optional: true,
-        description: "The folder path to index (e.g., '/Shared/Documents'). Leave empty to index everything.",
+        query: "Enter the server ID:",
+        label: "Server ID",
+        name: "server_id",
+        optional: false,
+        description: "The ID of the Discord server to index",
       },
-    ],
-    advanced_values: [],
-  },
-  freshdesk: {
-    description: "Configure Freshdesk connector",
-    values: [],
-    advanced_values: [],
-  },
-  fireflies: {
-    description: "Configure Fireflies connector",
-    values: [],
-    advanced_values: [],
-  },
-  gmail: {
-    description: "Configure Gmail connector",
-    values: [],
-    advanced_values: [],
-  },
-  hubspot: {
-    description: "Configure HubSpot connector",
-    values: [],
-    advanced_values: [],
-  },
-  linear: {
-    description: "Configure Linear connector",
-    values: [],
-    advanced_values: [],
-  },
-  gong: {
-    description: "Configure Gong connector",
-    values: [
       {
         type: "list",
-        query: "Enter workspaces to include:",
-        label: "Workspaces",
-        name: "workspaces",
+        query: "Enter channel IDs:",
+        label: "Channel IDs",
+        name: "channel_ids",
+        description: "Specify 0 or more channel IDs to index from. If none specified, will index all accessible channels.",
         optional: true,
-        description: "Specify 0 or more workspaces to index by ID or EXACT name. If none specified, all accessible workspaces will be indexed.",
+      },
+      {
+        type: "checkbox",
+        query: "Include direct messages?",
+        label: "Include Direct Messages",
+        name: "include_direct_messages",
+        description: "Index direct messages",
+        optional: true,
+        default: false,
       },
     ],
     advanced_values: [],
   },
-  zulip: {
-    description: "Configure Zulip connector",
-    values: [],
+  document360: {
+    description: "Configure Document360 connector",
+    values: [
+      {
+        type: "text",
+        query: "Enter the workspace:",
+        label: "Workspace",
+        name: "workspace",
+        optional: false,
+      },
+      {
+        type: "list",
+        query: "Enter categories to include:",
+        label: "Categories",
+        name: "categories",
+        optional: true,
+        description:
+          "Specify 0 or more categories to index. For instance, specifying the category 'Help' will cause us to only index all content within the 'Help' category. If no categories are specified, all categories in your workspace will be indexed.",
+      },
+    ],
     advanced_values: [],
   },
+  google_sites: {
+    description: "Configure Google Sites connector",
+    values: [
+      {
+        type: "file",
+        query: "Enter the zip path:",
+        label: "File Locations",
+        name: "file_locations",
+        optional: false,
+        description:
+          "Upload a zip file containing the HTML of your Google Site",
+      },
+      {
+        type: "text",
+        query: "Enter the base URL:",
+        label: "Base URL",
+        name: "base_url",
+        optional: false,
+      },
+    ],
+    advanced_values: [],
+  },
+  // Add more connectors as needed...
 }; 
