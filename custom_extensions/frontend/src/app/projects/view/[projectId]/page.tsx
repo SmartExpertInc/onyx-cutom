@@ -2373,7 +2373,7 @@ export default function ProjectInstanceViewPage() {
           </div>
         }
 
-        <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl">
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
             {displayContent()}
           </Suspense>
