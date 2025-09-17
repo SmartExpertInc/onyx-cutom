@@ -366,7 +366,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   userSelect: 'none',
                   display: 'flex',
                   justifyContent: 'center',
-                  width: index === 0 ? '150px' : index === 1 ? '165px' : '180px'
+                  width: index === 0 ? '150px' : index === 1 ? '190px' : '180px'
                 }}
                 onClick={() => isEditable && setEditingTags(index + 3)}
               >

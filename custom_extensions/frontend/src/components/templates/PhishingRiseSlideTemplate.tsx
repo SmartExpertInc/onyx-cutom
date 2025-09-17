@@ -5,6 +5,7 @@ import { PhishingRiseSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   theme?: SlideTheme | string;
@@ -30,8 +31,14 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentBars, setCurrentBars] = useState(bars);
   const [editingBar, setEditingBar] = useState<{ index: number; field: 'valueLabel' | 'year' } | null>(null);
+  const [currentPageNumber, setCurrentPageNumber] = useState('07');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -48,25 +55,25 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const leftArea: React.CSSProperties = {
     padding: '35px 56px 56px 64px',
     position: 'relative',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#E0E7FF',
     // right-side soft shadow to match design separation
     boxShadow: '24px 0 48px -24px rgba(0,0,0,0.1)',
     zIndex: 1
   };
 
   const largeFaintTitle: React.CSSProperties = {
-    fontSize: '64px',
+    fontSize: '47px',
     fontWeight: 700,
     letterSpacing: '-0.5px',
-    color: '#F1ECEE' // soft violet-tinted light heading
+    color: '#09090B' // soft violet-tinted light heading
   };
 
   const paragraph: React.CSSProperties = {
     marginTop: '10px',
-    maxWidth: '560px',
+    maxWidth: '410px',
     lineHeight: 1.7,
-    color: '#CEC0E9', // light desaturated violet like in the reference
-    fontSize: '14px'
+    color: '#09090B', // light desaturated violet like in the reference
+    fontSize: '18px'
   };
 
   const avatarHolder: React.CSSProperties = {
@@ -75,9 +82,9 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     bottom: '40px',
     width: '140px',
     height: '140px',
+    backgroundColor: '#0F58F9',
     borderRadius: '50%',
     overflow: 'hidden',
-    border: '2px solid rgb(171 144 255)' // subtle purple ring
   };
 
   // Right chart area
@@ -143,8 +150,127 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     onUpdate && onUpdate({ bars: newBars });
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, yourLogoText: newYourLogoText });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
-    <div className="phishing-rise-slide inter-theme" style={slideStyles}>
+    <div className="phishing-rise-slide" style={slideStyles}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        zIndex: 10
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#000000',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#000000',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Left */}
       <div style={leftArea}>
         <div style={largeFaintTitle}>
@@ -185,7 +311,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             position="CENTER"
             description="Actor"
             isEditable={isEditable}
-            style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+            style={{ height: '126%', borderRadius: '50%', objectFit: 'cover' }}
           />
         </div>
       </div>
@@ -199,6 +325,31 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
           <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>40</span></div>
           <div style={{ marginBottom: '103px' }}><span style={yPillStyle}>20</span></div>
           <div><span style={yPillStyle}>0</span></div>
+        </div>
+
+        {/* Grid lines */}
+        <div style={{
+          position: 'absolute',
+          right: '48px',
+          left: '96px',
+          bottom: '72px',
+          top: '72px',
+          pointerEvents: 'none'
+        }}>
+          {/* Horizontal grid lines */}
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: '0',
+                right: '0',
+                height: '1px',
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                top: `${i * 103}px`
+              }}
+            />
+          ))}
         </div>
 
         {/* Bars */}
@@ -275,6 +426,68 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
           )}
         </div>
       </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '0',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
