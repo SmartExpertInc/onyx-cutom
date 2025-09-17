@@ -1817,8 +1817,8 @@ export default function ProjectInstanceViewPage() {
                 onClick={handleToggleEdit}
                 disabled={isSaving}
                 className={`px-4 py-2 text-sm font-medium rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center transition-all duration-200 ${isEditing
-                  ? 'text-white bg-green-600/80 backdrop-blur-sm border border-green-500/30 hover:bg-green-700/80 focus:ring-green-500'
-                  : 'text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 focus:ring-blue-500'
+                  ? 'text-gray-700 bg-green-600/40 backdrop-blur-sm border border-green-500/20 hover:bg-green-700/50 hover:shadow-md focus:ring-green-500'
+                  : 'text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:ring-blue-500'
                   }`}
                 title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
               >
@@ -1852,7 +1852,7 @@ export default function ProjectInstanceViewPage() {
                 <button
                   onClick={handlePdfDownload}
                   disabled={isSaving}
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-white bg-blue-600/80 backdrop-blur-sm border border-blue-500/30 hover:bg-blue-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-blue-600/40 backdrop-blur-sm border border-blue-500/20 hover:bg-blue-700/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center transition-all duration-200"
                   title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
                 >
                  <Download size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
@@ -1864,7 +1864,7 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-white bg-purple-600/80 backdrop-blur-sm border border-purple-500/30 hover:bg-purple-700/80 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center transition-all duration-200"
+                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-purple-600/40 backdrop-blur-sm border border-purple-500/20 hover:bg-purple-700/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center transition-all duration-200"
                 title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
               >
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
@@ -1876,7 +1876,7 @@ export default function ProjectInstanceViewPage() {
               <div className="relative" data-theme-picker-section>
                 <button
                   onClick={() => setShowTrainingPlanThemePicker(!showTrainingPlanThemePicker)}
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center transition-all duration-200"
                   title="Change theme"
                 >
                   <Palette size={16} className="mr-2" /> Theme
@@ -1931,7 +1931,7 @@ export default function ProjectInstanceViewPage() {
               <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-sky-200/80 backdrop-blur-sm border border-sky-300/50 hover:bg-sky-300/80 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-sky-200/40 backdrop-blur-sm border border-sky-300/30 hover:bg-sky-300/50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center transition-all duration-200"
                   title={t('interface.projectView.configureAccessControl', 'Configure access control')}
                 >
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2238,7 +2238,7 @@ export default function ProjectInstanceViewPage() {
               <div className="relative" ref={columnDropdownRef}>
                 <button
                   onClick={() => setShowColumnDropdown(!showColumnDropdown)}
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center transition-all duration-200"
                   title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
                 >
                   <Info size={16} className="mr-2" />
@@ -2357,7 +2357,7 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
               <button
                 onClick={handleMoveToTrash}
-                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-red-700 bg-white/60 backdrop-blur-sm border border-red-400/50 hover:bg-red-50/80 focus:outline-none flex items-center transition-all duration-200"
+                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-red-700 bg-red-50/40 backdrop-blur-sm border border-red-400/30 hover:bg-red-50/60 hover:shadow-md focus:outline-none flex items-center transition-all duration-200"
                 title={t('interface.projectView.moveToTrashTooltip', 'Move this product to Trash')}
               >
                 <Trash2 size={16} className="mr-2" /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
