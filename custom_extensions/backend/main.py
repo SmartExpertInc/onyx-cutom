@@ -15996,6 +15996,128 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
         - industry should be industry name, not company name
         - Consider real industry scale when generating numbers
         """
+    elif language == "es":
+        prompt = f"""
+        Analiza los datos y genera un conjunto de datos estructurado para el gráfico "Escasez de personal calificado" de los últimos 12 meses.
+
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+
+        INSTRUCCIONES:
+        1. Determina la INDUSTRIA en general (no la empresa específica) basándote en los datos proporcionados
+        2. Analiza la escasez de personal para TODA LA INDUSTRIA, no solo para la empresa especificada
+        3. Genera datos realistas con fluctuaciones naturales (NO crecimiento lineal)
+        4. Considera especificidades de la industria: estacionalidad, ciclos económicos, eventos del mercado
+        5. La escala de escasez debe coincidir con el tamaño de la industria (industrias grandes = números grandes)
+        6. Genera TODO el contenido EXCLUSIVAMENTE en español
+
+        REQUISITOS DE REALISMO:
+        - PROHIBIDO: aumento perfectamente lineal cada mes
+        - OBLIGATORIO: incluir fluctuaciones mensuales (algunos meses pueden mostrar disminución)
+        - Factores estacionales: considera especificidades de la industria (ej., construcción - pico en verano, automotriz - disminución en agosto por vacaciones)
+        - La escala debe reflejar el tamaño de la industria (manufactura, IT, finanzas = miles de especialistas)
+        - Incluir 2-3 meses con ligera disminución en los indicadores
+
+        FORMATO DE RESPUESTA:
+        Devuelve SOLO un objeto JSON válido en el siguiente formato:
+        {{
+            "industry": "nombre de la industria (no empresa)",
+            "chartData": [
+                {{"month": "Enero", "shortage": 2800}},
+                {{"month": "Febrero", "shortage": 2650}},
+                {{"month": "Marzo", "shortage": 3100}},
+                {{"month": "Abril", "shortage": 3450}},
+                {{"month": "Mayo", "shortage": 3200}},
+                {{"month": "Junio", "shortage": 3800}},
+                {{"month": "Julio", "shortage": 4100}},
+                {{"month": "Agosto", "shortage": 3600}},
+                {{"month": "Septiembre", "shortage": 3900}},
+                {{"month": "Octubre", "shortage": 4200}},
+                {{"month": "Noviembre", "shortage": 3950}},
+                {{"month": "Diciembre", "shortage": 4300}}
+            ],
+            "totalShortage": [suma de todos los valores de shortage],
+            "trend": "crecimiento/estabilidad/declive",
+            "description": "Breve descripción de la tendencia de escasez de personal en la industria con mención de factores clave"
+        }}
+
+        EJEMPLO NEGATIVO (NO hagas esto):
+        - Datos: 100, 110, 120, 130, 140... (demasiado lineal y escala pequeña)
+        - Enfocarse solo en una empresa en lugar de la industria
+
+        VERIFICACIONES OBLIGATORIAS:
+        - Usa solo nombres de meses en español
+        - Valores de shortage - números enteros correspondientes al tamaño de la industria
+        - Mínimo 2 meses deben mostrar disminución comparado con el anterior
+        - industry debe ser nombre de la industria, no de la empresa
+        - Considera la escala real de la industria al generar números
+        """
+    elif language == "ua":
+        prompt = f"""
+        Проаналізуйте дані та згенеруйте структурований набір даних для графіка "Дефіцит кваліфікованих кадрів" за останні 12 місяців.
+
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+
+        ІНСТРУКЦІЇ:
+        1. Визначте ГАЛУЗЬ в цілому (не конкретну компанію) на основі наданих даних
+        2. Проаналізуйте дефіцит кадрів для ВСІЄЇ ГАЛУЗІ, а не тільки для вказаної компанії
+        3. Згенеруйте реалістичні дані з природними коливаннями (НЕ лінійне зростання)
+        4. Врахуйте галузеву специфіку: сезонність, економічні цикли, ринкові події
+        5. Масштаб дефіциту повинен відповідати розміру галузі (великі галузі = великі числа)
+        6. Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+
+        ВИМОГИ ДО РЕАЛІЗМУ:
+        - ЗАБОРОНЕНО: ідеально лінійне збільшення щомісяця
+        - ОБОВ'ЯЗКОВО: включіть місячні коливання (деякі місяці можуть показувати зниження)
+        - Сезонні фактори: врахуйте специфіку галузі (наприклад, будівництво - пік влітку, автопром - зниження в серпні через відпустки)
+        - Масштаб повинен відображати розмір галузі (машинобудування, IT, фінанси = тисячі спеціалістів)
+        - Включіть 2-3 місяці з незначним зниженням показників
+
+        ФОРМАТ ВІДПОВІДІ:
+        Поверніть ЛИШЕ валідний JSON об'єкт у наступному форматі:
+        {{
+            "industry": "назва галузі (не компанії)",
+            "chartData": [
+                {{"month": "Січень", "shortage": 2800}},
+                {{"month": "Лютий", "shortage": 2650}},
+                {{"month": "Березень", "shortage": 3100}},
+                {{"month": "Квітень", "shortage": 3450}},
+                {{"month": "Травень", "shortage": 3200}},
+                {{"month": "Червень", "shortage": 3800}},
+                {{"month": "Липень", "shortage": 4100}},
+                {{"month": "Серпень", "shortage": 3600}},
+                {{"month": "Вересень", "shortage": 3900}},
+                {{"month": "Жовтень", "shortage": 4200}},
+                {{"month": "Листопад", "shortage": 3950}},
+                {{"month": "Грудень", "shortage": 4300}}
+            ],
+            "totalShortage": [сума всіх значень shortage],
+            "trend": "зростання/стабільність/зниження",
+            "description": "Короткий опис тренду дефіциту кадрів у галузі з згадкою ключових факторів"
+        }}
+
+        НЕГАТИВНИЙ ПРИКЛАД (НЕ робіть так):
+        - Дані: 100, 110, 120, 130, 140... (занадто лінійно і малий масштаб)
+        - Фокус тільки на одній компанії замість галузі
+
+        ОБОВ'ЯЗКОВІ ПЕРЕВІРКИ:
+        - Використовуйте лише українські назви місяців
+        - Значення shortage - цілі числа, що відповідають розміру галузі
+        - Мінімум 2 місяці повинні показувати зниження порівняно з попереднім
+        - industry повинно бути назвою галузі, а не компанії
+        - Враховуйте реальний масштаб галузі при генерації чисел
+        """
     else:
         prompt = f"""
         Проанализируй данные и сгенерируй структурированный набор данных для графика "Дефицит квалифицированных кадров" за последние 12 месяцев.
@@ -16098,50 +16220,179 @@ async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload
         logger.error(f"[AI-Audit Landing Page] Chart data JSON parsing error: {e}")
         logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
         logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
-        # Fallback to default values
-        return {
-            "industry": "HVAC",
-            "chartData": [
-                {"month": "Январь", "shortage": 150},
-                {"month": "Февраль", "shortage": 165},
-                {"month": "Март", "shortage": 180},
-                {"month": "Апрель", "shortage": 195},
-                {"month": "Май", "shortage": 210},
-                {"month": "Июнь", "shortage": 225},
-                {"month": "Июль", "shortage": 240},
-                {"month": "Август", "shortage": 255},
-                {"month": "Сентябрь", "shortage": 270},
-                {"month": "Октябрь", "shortage": 285},
-                {"month": "Ноябрь", "shortage": 300},
-                {"month": "Декабрь", "shortage": 315}
-            ],
-            "totalShortage": 2775,
-            "trend": "рост",
-            "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
-        }
+        # Fallback to default values based on language
+        if language == "en":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "January", "shortage": 150},
+                    {"month": "February", "shortage": 165},
+                    {"month": "March", "shortage": 180},
+                    {"month": "April", "shortage": 195},
+                    {"month": "May", "shortage": 210},
+                    {"month": "June", "shortage": 225},
+                    {"month": "July", "shortage": 240},
+                    {"month": "August", "shortage": 255},
+                    {"month": "September", "shortage": 270},
+                    {"month": "October", "shortage": 285},
+                    {"month": "November", "shortage": 300},
+                    {"month": "December", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "growth",
+                "description": "Continuous growth in qualified personnel shortage in HVAC industry"
+            }
+        elif language == "es":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Enero", "shortage": 150},
+                    {"month": "Febrero", "shortage": 165},
+                    {"month": "Marzo", "shortage": 180},
+                    {"month": "Abril", "shortage": 195},
+                    {"month": "Mayo", "shortage": 210},
+                    {"month": "Junio", "shortage": 225},
+                    {"month": "Julio", "shortage": 240},
+                    {"month": "Agosto", "shortage": 255},
+                    {"month": "Septiembre", "shortage": 270},
+                    {"month": "Octubre", "shortage": 285},
+                    {"month": "Noviembre", "shortage": 300},
+                    {"month": "Diciembre", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "crecimiento",
+                "description": "Crecimiento continuo en la escasez de personal calificado en la industria HVAC"
+            }
+        elif language == "ua":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Січень", "shortage": 150},
+                    {"month": "Лютий", "shortage": 165},
+                    {"month": "Березень", "shortage": 180},
+                    {"month": "Квітень", "shortage": 195},
+                    {"month": "Травень", "shortage": 210},
+                    {"month": "Червень", "shortage": 225},
+                    {"month": "Липень", "shortage": 240},
+                    {"month": "Серпень", "shortage": 255},
+                    {"month": "Вересень", "shortage": 270},
+                    {"month": "Жовтень", "shortage": 285},
+                    {"month": "Листопад", "shortage": 300},
+                    {"month": "Грудень", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "зростання",
+                "description": "Постійне зростання дефіциту кваліфікованих кадрів у галузі HVAC"
+            }
+        else:  # Russian
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Январь", "shortage": 150},
+                    {"month": "Февраль", "shortage": 165},
+                    {"month": "Март", "shortage": 180},
+                    {"month": "Апрель", "shortage": 195},
+                    {"month": "Май", "shortage": 210},
+                    {"month": "Июнь", "shortage": 225},
+                    {"month": "Июль", "shortage": 240},
+                    {"month": "Август", "shortage": 255},
+                    {"month": "Сентябрь", "shortage": 270},
+                    {"month": "Октябрь", "shortage": 285},
+                    {"month": "Ноябрь", "shortage": 300},
+                    {"month": "Декабрь", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "рост",
+                "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+            }
         
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error generating chart data: {e}")
-        return {
-            "industry": "HVAC",
-            "chartData": [
-                {"month": "Январь", "shortage": 150},
-                {"month": "Февраль", "shortage": 165},
-                {"month": "Март", "shortage": 180},
-                {"month": "Апрель", "shortage": 195},
-                {"month": "Май", "shortage": 210},
-                {"month": "Июнь", "shortage": 225},
-                {"month": "Июль", "shortage": 240},
-                {"month": "Август", "shortage": 255},
-                {"month": "Сентябрь", "shortage": 270},
-                {"month": "Октябрь", "shortage": 285},
-                {"month": "Ноябрь", "shortage": 300},
-                {"month": "Декабрь", "shortage": 315}
-            ],
-            "totalShortage": 2775,
-            "trend": "рост",
-            "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
-        }
+        # Fallback to default values based on language
+        if language == "en":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "January", "shortage": 150},
+                    {"month": "February", "shortage": 165},
+                    {"month": "March", "shortage": 180},
+                    {"month": "April", "shortage": 195},
+                    {"month": "May", "shortage": 210},
+                    {"month": "June", "shortage": 225},
+                    {"month": "July", "shortage": 240},
+                    {"month": "August", "shortage": 255},
+                    {"month": "September", "shortage": 270},
+                    {"month": "October", "shortage": 285},
+                    {"month": "November", "shortage": 300},
+                    {"month": "December", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "growth",
+                "description": "Continuous growth in qualified personnel shortage in HVAC industry"
+            }
+        elif language == "es":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Enero", "shortage": 150},
+                    {"month": "Febrero", "shortage": 165},
+                    {"month": "Marzo", "shortage": 180},
+                    {"month": "Abril", "shortage": 195},
+                    {"month": "Mayo", "shortage": 210},
+                    {"month": "Junio", "shortage": 225},
+                    {"month": "Julio", "shortage": 240},
+                    {"month": "Agosto", "shortage": 255},
+                    {"month": "Septiembre", "shortage": 270},
+                    {"month": "Octubre", "shortage": 285},
+                    {"month": "Noviembre", "shortage": 300},
+                    {"month": "Diciembre", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "crecimiento",
+                "description": "Crecimiento continuo en la escasez de personal calificado en la industria HVAC"
+            }
+        elif language == "ua":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Січень", "shortage": 150},
+                    {"month": "Лютий", "shortage": 165},
+                    {"month": "Березень", "shortage": 180},
+                    {"month": "Квітень", "shortage": 195},
+                    {"month": "Травень", "shortage": 210},
+                    {"month": "Червень", "shortage": 225},
+                    {"month": "Липень", "shortage": 240},
+                    {"month": "Серпень", "shortage": 255},
+                    {"month": "Вересень", "shortage": 270},
+                    {"month": "Жовтень", "shortage": 285},
+                    {"month": "Листопад", "shortage": 300},
+                    {"month": "Грудень", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "зростання",
+                "description": "Постійне зростання дефіциту кваліфікованих кадрів у галузі HVAC"
+            }
+        else:  # Russian
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Январь", "shortage": 150},
+                    {"month": "Февраль", "shortage": 165},
+                    {"month": "Март", "shortage": 180},
+                    {"month": "Апрель", "shortage": 195},
+                    {"month": "Май", "shortage": 210},
+                    {"month": "Июнь", "shortage": 225},
+                    {"month": "Июль", "shortage": 240},
+                    {"month": "Август", "shortage": 255},
+                    {"month": "Сентябрь", "shortage": 270},
+                    {"month": "Октябрь", "shortage": 285},
+                    {"month": "Ноябрь", "shortage": 300},
+                    {"month": "Декабрь", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "рост",
+                "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+            }
 
 
 async def extract_yearly_shortage_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:

@@ -19,12 +19,29 @@ interface ChartData {
 interface PersonnelShortageChartProps {
   chartData: ChartData;
   isMobile?: boolean;
+  language?: string;
 }
 
 const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({ 
   chartData, 
-  isMobile = false 
+  isMobile = false,
+  language = "ru"
 }) => {
+  // Helper function to get localized tooltip text
+  const getTooltipText = (shortage: number) => {
+    switch (language) {
+      case 'en':
+        return `Shortage: ${shortage} specialists`
+      case 'es':
+        return `Escasez: ${shortage} especialistas`
+      case 'ua':
+        return `Дефіцит: ${shortage} спеціалістів`
+      case 'ru':
+      default:
+        return `Недостаток: ${shortage} специалистов`
+    }
+  }
+
   // Transform data for Nivo Line chart
   const nivoData = [
     {
@@ -106,7 +123,7 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
               <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="font-semibold text-gray-900">{slice.points[0]?.data.x}</div>
                 <div className="text-gray-600">
-                  Недостаток: {slice.points[0]?.data.y} специалистов
+                  {getTooltipText(slice.points[0]?.data.y)}
                 </div>
               </div>
             )}
@@ -114,7 +131,7 @@ const PersonnelShortageChart: React.FC<PersonnelShortageChartProps> = ({
               <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg z-50">
                 <div className="font-semibold text-gray-900">{point.data.x}</div>
                 <div className="text-gray-600">
-                  Недостаток: {point.data.y} специалистов
+                  {getTooltipText(point.data.y)}
                 </div>
               </div>
             )}

@@ -686,6 +686,7 @@ export default function DynamicAuditLandingPage() {
                         <PersonnelShortageChart 
                           chartData={landingPageData.workforceCrisis.chartData} 
                           isMobile={true}
+                          language={landingPageData?.language}
                         />
                       </div>
                     ) : (
@@ -706,6 +707,7 @@ export default function DynamicAuditLandingPage() {
                         <PersonnelShortageChart 
                           chartData={landingPageData.workforceCrisis.chartData} 
                           isMobile={false}
+                          language={landingPageData?.language}
                         />
                       </div>
                     ) : (
