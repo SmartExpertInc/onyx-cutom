@@ -948,6 +948,93 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                   <Text className="mt-2 text-gray-600">{t('connectors.instructions.file.note', 'Supported formats: PDF, DOCX, PPTX, XLSX, TXT, MD, HTML, and more.')}</Text>
                                 </div>
                               );
+                            case 'document360':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.document360.title', 'Get Document360 API Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.document360.step1', 'Log into your Document360 account as an admin.')}</>,
+                                    <>{t('connectors.instructions.document360.step2', 'Go to Settings → API.')}</>,
+                                    <>{t('connectors.instructions.document360.step3', 'Generate a new API token with read permissions.')}</>,
+                                    <>{t('connectors.instructions.document360.step4', 'Copy your Portal ID from the account URL or API settings.')}</>,
+                                    <>{t('connectors.instructions.document360.step5', 'Enter both the Portal ID and API token here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://apidocs.document360.com/apidocs/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.document360.link', 'Learn about Document360 API →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'clickup':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.clickup.title', 'Get ClickUp API Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.clickup.step1', 'Log into your ClickUp account.')}</>,
+                                    <>{t('connectors.instructions.clickup.step2', 'Go to Settings → Apps → API.')}</>,
+                                    <>{t('connectors.instructions.clickup.step3', 'Generate a personal API token.')}</>,
+                                    <>{t('connectors.instructions.clickup.step4', 'Copy the token and also find your Team ID from the URL or API.')}</>,
+                                    <>{t('connectors.instructions.clickup.step5', 'Enter both the API token and Team ID here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://app.clickup.com/settings/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.clickup.link', 'Go to ClickUp API Settings →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'linear':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.linear.title', 'Get Linear API Key')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.linear.step1', 'Log into your Linear account.')}</>,
+                                    <>{t('connectors.instructions.linear.step2', 'Go to Settings → Account → API.')}</>,
+                                    <>{t('connectors.instructions.linear.step3', 'Create a new Personal API Key with a descriptive name.')}</>,
+                                    <>{t('connectors.instructions.linear.step4', 'The key will have read access to issues, projects, and comments in your workspace.')}</>,
+                                    <>{t('connectors.instructions.linear.step5', 'Copy the generated API key.')}</>,
+                                    <>{t('connectors.instructions.linear.step6', 'Paste the API key here to create the credential.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://linear.app/settings/api" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.linear.link', 'Go to Linear API Settings →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'freshdesk':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.freshdesk.title', 'Get Freshdesk API Key')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.freshdesk.step1', 'Log into your Freshdesk account as an admin.')}</>,
+                                    <>{t('connectors.instructions.freshdesk.step2', 'Go to Admin → Profile Settings.')}</>,
+                                    <>{t('connectors.instructions.freshdesk.step3', 'Find your API Key in the "Your API Key" section on the right.')}</>,
+                                    <>{t('connectors.instructions.freshdesk.step4', 'Copy the API key and note your Freshdesk domain (e.g., "yourcompany" from yourcompany.freshdesk.com).')}</>,
+                                    <>{t('connectors.instructions.freshdesk.step5', 'Enter your domain, email, and API key here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://support.freshdesk.com/support/solutions/articles/215517" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.freshdesk.link', 'Learn about Freshdesk API Keys →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'xenforo':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.xenforo.title', 'Get XenForo Access')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.xenforo.step1', 'Log into your XenForo forum as an admin.')}</>,
+                                    <>{t('connectors.instructions.xenforo.step2', 'Go to Admin CP → Setup → API keys.')}</>,
+                                    <>{t('connectors.instructions.xenforo.step3', 'Create a new API key with read permissions.')}</>,
+                                    <>{t('connectors.instructions.xenforo.step4', 'Copy your forum base URL (e.g., https://yourforum.com).')}</>,
+                                    <>{t('connectors.instructions.xenforo.step5', 'Enter the base URL here (API key will be configured separately if needed).')}</>,
+                                  ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.xenforo.note', 'XenForo v2.2+ required. Some installations may not require API keys for public content.')}</Text>
+                                </div>
+                              );
                             default:
                               return (
                                 <div>
