@@ -45,7 +45,9 @@ import { useUserback } from '@/contexts/UserbackContext';
 import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelClient';
 
 // Authentication check function
-const checkAuthentication = async (): Promise<boolean> => {
+const checkAuthentication = async (
+  initUserback: ReturnType<typeof useUserback>['initUserback']
+): Promise<boolean> => {
   try {
     const response = await fetch('/api/me', {
       credentials: 'same-origin',
@@ -54,6 +56,10 @@ const checkAuthentication = async (): Promise<boolean> => {
       const user = await response.json();
       console.log(user); //TODO: Remove this
       identifyUser(user.id);
+      await initUserback({
+        id: user.id,
+        email: user.email,
+      });
     }
     return response.ok;
   } catch (error) {
@@ -645,7 +651,7 @@ const ProjectsPageInner: React.FC = () => {
   const [showAccountModal, setShowAccountModal] = useState(false);
 
   // Userback instance
-  const { userback } = useUserback();
+  const { initUserback, userback } = useUserback();
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {
@@ -663,7 +669,7 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const authenticated = await checkAuthentication();
+        const authenticated = await checkAuthentication(initUserback);
         setIsAuthenticated(authenticated);
 
         if (!authenticated) {
@@ -685,7 +691,7 @@ const ProjectsPageInner: React.FC = () => {
     };
 
     checkAuth();
-  }, []);
+  }, [initUserback]);
 
   // Load folders and projects after authentication is confirmed
   useEffect(() => {
