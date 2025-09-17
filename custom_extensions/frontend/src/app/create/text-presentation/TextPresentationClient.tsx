@@ -1553,8 +1553,8 @@ export default function TextPresentationClient() {
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
-                          <label key={option.value} className="flex gap-2 flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <div className="flex items-center">
+                          <label key={option.value} className="flex justify-between flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <div className="flex items-center gap-[10px]">
                               <input
                                 type="checkbox"
                                 checked={selectedStyles.includes(option.value)}
