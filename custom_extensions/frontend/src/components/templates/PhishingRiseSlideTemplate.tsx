@@ -171,6 +171,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       onUpdate({ ...{ title, description, bars, actorImagePath, actorImageAlt }, companyLogoPath: newLogoPath });
     }
   };
+  const positions = [-34.5, 93.5, 222.5, 352.5];
 
   return (
     <div className="phishing-rise-slide" style={slideStyles}>
@@ -345,7 +346,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 right: '0',
                 height: '1px',
                 backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                top: `${i * 103}px` // Center of each number (103px spacing / 2)
+                top: `${positions[i]}px`
               }}
             />
           ))}
