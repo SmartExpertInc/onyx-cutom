@@ -47,14 +47,19 @@ const OnyxFormRenderer: FC<OnyxFormRendererProps> = ({
   }, [initialConnectorName, setFieldValue, values, connectorNameInitialized]);
 
   const renderField = (field: any) => {
+    if (field.visibleCondition && !field.visibleCondition(values, currentCredential)) {
+      return null;
+    }
+    const label = typeof field.label === 'function' ? field.label(currentCredential) : field.label;
+    const description = typeof field.description === 'function' ? field.description(currentCredential) : field.description;
     switch (field.type) {
       case "text":
         return (
           <TextFormField
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
-            subtext={field.description}
+            subtext={description}
             optional={field.optional}
             isTextArea={field.isTextArea}
           />
@@ -63,10 +68,10 @@ const OnyxFormRenderer: FC<OnyxFormRendererProps> = ({
         return (
           <SelectInput
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
             options={field.options || []}
-            description={field.description}
+            description={description}
             optional={field.optional}
           />
         );
@@ -74,9 +79,9 @@ const OnyxFormRenderer: FC<OnyxFormRendererProps> = ({
         return (
           <NumberInput
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
-            description={field.description}
+            description={description}
             optional={field.optional}
           />
         );
@@ -84,27 +89,27 @@ const OnyxFormRenderer: FC<OnyxFormRendererProps> = ({
         return (
           <BooleanFormField
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
-            subtext={field.description}
+            subtext={description}
           />
         );
       case "list":
         return (
           <ListInput
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
-            description={field.description}
+            description={description}
           />
         );
       case "file":
         return (
           <FileInput
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
-            description={field.description}
+            description={description}
             optional={field.optional}
           />
         );
@@ -112,16 +117,16 @@ const OnyxFormRenderer: FC<OnyxFormRendererProps> = ({
         return (
           <TabsField
             key={field.name}
-            label={field.label}
+            label={label}
             name={field.name}
             tabs={field.tabs || []}
-            description={field.description}
+            description={description}
           />
         );
       case "string_tab":
         return (
           <div key={field.name} className="text-center text-sm text-gray-600 py-4">
-            {field.description}
+            {description}
           </div>
         );
       default:
