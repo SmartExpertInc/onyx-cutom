@@ -305,6 +305,7 @@ export default function ProjectInstanceViewPage() {
   const { isEnabled: colOnePagerEnabled } = useFeaturePermission('col_one_pager');
   const { isEnabled: colVideoPresentationEnabled } = useFeaturePermission('col_video_presentation');
   const { isEnabled: colLessonPresentationEnabled } = useFeaturePermission('col_lesson_presentation');
+  const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
 
   // Apply feature flags to compute effective visibility used for rendering and exporting
   const effectiveColumnVisibility = useMemo(() => ({
@@ -1966,7 +1967,7 @@ export default function ProjectInstanceViewPage() {
             )}
 
             {/* Role Visibility Dropdown - only for Training Plans */}
-            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && workspaceTabEnabled && (
               <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
