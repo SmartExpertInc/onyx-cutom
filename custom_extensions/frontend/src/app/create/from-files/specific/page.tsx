@@ -320,13 +320,13 @@ export default function CreateFromSpecificFilesPage() {
                   const getConnectorGradient = (source: string) => {
                     // Map specific connector sources to specific gradients for consistency
                     const connectorGradients: Record<string, { from: string; to: string }> = {
-                      'google_drive': { from: 'green-300', to: 'emerald-200' },      // Green for Google Drive
+                      'google_drive': { from: 'orange-300', to: 'amber-200' },      // Green for Google Drive
                       'dropbox': { from: 'blue-300', to: 'indigo-200' },            // Blue for Dropbox
                       'notion': { from: 'purple-300', to: 'pink-200' },             // Purple for Notion
                       'salesforce': { from: 'cyan-300', to: 'blue-200' },           // Cyan for Salesforce
                       'slack': { from: 'violet-300', to: 'purple-200' },            // Violet for Slack
                       'github': { from: 'gray-300', to: 'slate-200' },              // Gray for GitHub
-                      'confluence': { from: 'orange-300', to: 'amber-200' },        // Orange for Confluence
+                      'confluence': { from: 'green-300', to: 'emerald-200' },        // Orange for Confluence
                       'sharepoint': { from: 'teal-300', to: 'cyan-200' },           // Teal for SharePoint
                       'onedrive': { from: 'indigo-300', to: 'blue-200' },           // Indigo for OneDrive
                       'box': { from: 'yellow-300', to: 'orange-200' },              // Yellow for Box
