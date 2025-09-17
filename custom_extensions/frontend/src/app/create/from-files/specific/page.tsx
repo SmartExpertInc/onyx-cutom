@@ -209,7 +209,7 @@ export default function CreateFromSpecificFilesPage() {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen font-sans">
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="absolute left-8 flex items-center gap-4">
+        <div className="absolute left-8 top-1/2 transform -translate-y-1/2 flex items-center gap-4">
           <Button
             variant="back"
           >
@@ -422,7 +422,7 @@ export default function CreateFromSpecificFilesPage() {
                     variant="create"
                     onClick={handleCreateContent}
                     disabled={!connectorSelectionValid}
-                    className={`w-1/2 ${
+                    className={`w-2/5 ${
                       !connectorSelectionValid
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
