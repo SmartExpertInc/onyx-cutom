@@ -37,8 +37,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTags, setEditingTags] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTags, setCurrentTags] = useState(tags);
+  const [currentPageNumber, setCurrentPageNumber] = useState('06');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
@@ -109,9 +113,119 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     }
   };
 
-  return (
-    <div className="benefits-tags-slide-template inter-theme" style={slideStyles}>
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
 
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, tags, profileImagePath, profileImageAlt, companyName, backgroundColor, titleColor, contentColor, accentColor }, yourLogoText: newYourLogoText });
+    }
+  };
+
+  return (
+    <div className="benefits-tags-slide-template" style={slideStyles}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        zIndex: 10
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#000000',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#000000',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Tags Block - contains everything except logo */}
       <div style={tagsBlockStyles}>
@@ -188,12 +302,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           top: '205px',
           left: '300px',
         }}>
-          {/* First row */}
+          {/* First row - 3 tags */}
           <div style={{
             display: 'flex',
             gap: '20px'
           }}>
-            {currentTags.slice(0, 2).map((tag: TagType, index: number) => (
+            {currentTags.slice(0, 3).map((tag: TagType, index: number) => (
               <div
                 key={index}
                 style={{
@@ -233,14 +347,14 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             ))}
           </div>
 
-          {/* Second row */}
+          {/* Second row - 2 tags */}
           <div style={{
             display: 'flex',
             gap: '20px'
           }}>
-            {currentTags.slice(2, 5).map((tag: TagType, index: number) => (
+            {currentTags.slice(3, 5).map((tag: TagType, index: number) => (
               <div
-                key={index + 2}
+                key={index + 3}
                 style={{
                   padding: '12px 20px',
                   border: tag.isHighlighted ? 'none' : `1px solid #09090B`, // Dark grey border for non-highlighted
@@ -254,12 +368,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   justifyContent: 'center',
                   width: index === 0 ? '150px' : index === 1 ? '165px' : '180px'
                 }}
-                onClick={() => isEditable && setEditingTags(index + 2)}
+                onClick={() => isEditable && setEditingTags(index + 3)}
               >
-                {isEditable && editingTags === index + 2 ? (
+                {isEditable && editingTags === index + 3 ? (
                   <ImprovedInlineEditor
                     initialValue={tag.text}
-                    onSave={(value) => handleTagSave(index + 2, value)}
+                    onSave={(value) => handleTagSave(index + 3, value)}
                     onCancel={handleTagCancel}
                     className="tag-editor"
                     style={{
@@ -278,123 +392,56 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             ))}
           </div>
 
-          {/* Third row (single tag) */}
-          <div style={{
-            display: 'flex',
-            gap: '20px',
-          }}>
-            {currentTags.slice(5).map((tag: TagType, index: number) => (
-              <div
-                key={index + 5}
-                style={{
-                  padding: '12px 20px',
-                  backgroundColor: '#0F58F9', // Orange for highlighted, darker grey for others (matching block)
-                  border: tag.isHighlighted ? 'none' : `1px solid #0F58F9`, // Dark grey border for non-highlighted
-                  borderRadius: '40px',
-                  fontSize: '34px',
-                  color: '#FFFFFF', // White for highlighted, dark grey for others
-                  fontWeight: '500',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  width: '370px'
-                }}
-                onClick={() => isEditable && setEditingTags(index + 5)}
-              >
-                {isEditable && editingTags === index + 5 ? (
-                  <ImprovedInlineEditor
-                    initialValue={tag.text}
-                    onSave={(value) => handleTagSave(index + 5, value)}
-                    onCancel={handleTagCancel}
-                    className="tag-editor"
-                    style={{
-                      fontSize: '30px',
-                      color: tag.isHighlighted ? '#FFFFFF' : '#4A4A4A',
-                      fontWeight: '500',
-                      width: '100%',
-                      height: 'auto',
-                      textAlign: 'center'
-                    }}
-                  />
-                ) : (
-                  tag.text
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Footer - below tags block */}
+      {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '15px',
-        left: '15px',
+        bottom: '20px',
+        left: '0',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px'
+        gap: '8px'
       }}>
+        {/* Small line */}
         <div style={{
-          fontSize: '14px',
-          fontWeight: '300',
-          color: '#4A4A4A' // Dark grey color as per screenshot
-        }}>
-          {currentCompanyLogoPath ? (
-            // Show uploaded logo image
-            <ClickableImagePlaceholder
-              imagePath={currentCompanyLogoPath}
-              onImageUploaded={handleCompanyLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                height: '30px',
-                maxWidth: '120px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            // Show default logo design with clickable area
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              cursor: isEditable ? 'pointer' : 'default'
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
             }}
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-            >
-              <div style={{
-                width: '30px',
-                height: '30px',
-                border: `2px solid #4A4A4A`, // Dark grey border as per screenshot
-                borderRadius: '50%',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <div style={{
-                  width: '12px',
-                  height: '2px',
-                  backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
-                  position: 'absolute'
-                }} />
-                <div style={{
-                  width: '2px',
-                  height: '12px',
-                  backgroundColor: '#4A4A4A', // Dark grey color as per screenshot
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)'
-                }} />
-              </div>
-              <div style={{ fontSize: '14px', fontWeight: '300', color: '#4A4A4A' }}>Your Logo</div>
-            </div>
-          )}
-        </div>
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {/* Logo Upload Modal */}
