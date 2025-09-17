@@ -41,8 +41,8 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
-import { useUserback } from '@/contexts/UserbackContext';
 import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelClient';
+import Userback, { UserbackWidget } from '@userback/widget';
 
 
 interface User {
@@ -655,7 +655,7 @@ const ProjectsPageInner: React.FC = () => {
 
   // Userback
   const [currentUser, setUser] = useState<User | null>(null);
-  const { initUserback, userback } = useUserback();
+  const [userback, setUserback] = useState<UserbackWidget | null>(null);
 
   // Clear lesson context when user visits the projects page
   useEffect(() => {
@@ -706,13 +706,25 @@ const ProjectsPageInner: React.FC = () => {
   // Initialize userback instance with current user
   useEffect(() => {
     if (currentUser) {
-      initUserback({
-        id: currentUser.id,
-        email: currentUser.email,
-      });
-      userback?.hideLauncher();
-      if (userback == null){
-        console.warn("Userback is NULL!");
+      const token: string = "A-E3OEYDV2KB1UuBSE8yuXb3RQm";
+
+      const init = async () => {
+        const instance = await Userback(token, {
+          user_data: {
+            id: currentUser.id,
+            info: {
+              email: currentUser.email
+            }
+          },
+          autohide: false,
+        });
+        setUserback(instance);
+      };
+  
+      init();
+
+      if (userback) {
+        console.log('Userback is successfully initialized');
       }
     }
   }, [isAuthenticated]);
