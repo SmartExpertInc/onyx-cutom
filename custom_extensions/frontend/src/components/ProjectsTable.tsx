@@ -1550,83 +1550,84 @@ const ProjectRowMenu: React.FC<{
             ) : (
               <>
                 <div className="py-1">
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
-                  </Button>
-                  <Button
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
-                  </Button>
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </Button>
-                  <Button
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </Button>
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </Button>
+                  </DropdownMenuItem>
                   {isOutline && (
-                    <Button
+                    <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
-                    </Button>
+                    </DropdownMenuItem>
                   )}
                   {folderId && (
-                    <Button
+                    <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 cursor-pointer"
                     >
                       <FolderMinus size={16} className="text-orange-500" />
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
-                    </Button>
+                    </DropdownMenuItem>
                   )}
                 </div>
-                <div className="py-1 border-t border-gray-100">
-                  <Button
+                <DropdownMenuSeparator />
+                <div className="py-1">
+                  <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </Button>
+                  </DropdownMenuItem>
                 </div>
               </>
             )}

@@ -362,6 +362,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return t("interface.today", "Today");
+    if (diffDays === 2) return t("interface.yesterday", "Yesterday");
+    if (diffDays <= 7)
+      return t("interface.daysAgo", "{days} days ago").replace(
+        "{days}",
+        (diffDays - 1).toString()
+      );
+    if (diffDays <= 30)
+      return t("interface.weeksAgo", "{weeks} weeks ago").replace(
+        "{weeks}",
+        Math.floor(diffDays / 7).toString()
+      );
+    if (diffDays <= 365)
+      return t("interface.monthsAgo", "{months} months ago").replace(
+        "{months}",
+        Math.floor(diffDays / 30).toString()
+      );
+
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",

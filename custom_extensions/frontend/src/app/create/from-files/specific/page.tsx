@@ -209,7 +209,7 @@ export default function CreateFromSpecificFilesPage() {
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen font-sans">
       {/* Header */}
       <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="absolute left-8 top-1/2 -mt-12  transform -translate-y-1/2 flex items-center gap-4">
+        <div className="absolute left-8 top-1/2 -mt-10  transform -translate-y-1/2 flex items-center gap-4">
           <Button
             variant="back"
           >
@@ -459,7 +459,7 @@ export default function CreateFromSpecificFilesPage() {
                     </div>
                   </Button>
                 </div>
-              </div>Button
+              </div>
             </div>
           </div>
         </div>
