@@ -306,26 +306,31 @@ export default function CreateFromSpecificFilesPage() {
               ) : (
                 filteredConnectors.map((connector, index) => {
                   // Different gradient colors for different connectors
-                  const getConnectorGradient = (source: string, index: number) => {
-                    const gradients = [
-                      { from: 'blue-300', to: 'indigo-200' },      // Blue
-                      { from: 'purple-300', to: 'pink-200' },      // Purple
-                      { from: 'green-300', to: 'emerald-200' },    // Green
-                      { from: 'orange-300', to: 'amber-200' },     // Orange
-                      { from: 'red-300', to: 'rose-200' },         // Red
-                      { from: 'teal-300', to: 'cyan-200' },        // Teal
-                      { from: 'violet-300', to: 'purple-200' },    // Violet
-                      { from: 'yellow-300', to: 'orange-200' },    // Yellow
-                      { from: 'indigo-300', to: 'blue-200' },      // Indigo
-                      { from: 'pink-300', to: 'rose-200' }         // Pink
-                    ];
+                  const getConnectorGradient = (source: string) => {
+                    // Map specific connector sources to specific gradients for consistency
+                    const connectorGradients: Record<string, { from: string; to: string }> = {
+                      'google_drive': { from: 'green-300', to: 'emerald-200' },      // Green for Google Drive
+                      'dropbox': { from: 'blue-300', to: 'indigo-200' },            // Blue for Dropbox
+                      'notion': { from: 'purple-300', to: 'pink-200' },             // Purple for Notion
+                      'salesforce': { from: 'cyan-300', to: 'blue-200' },           // Cyan for Salesforce
+                      'slack': { from: 'violet-300', to: 'purple-200' },            // Violet for Slack
+                      'github': { from: 'gray-300', to: 'slate-200' },              // Gray for GitHub
+                      'confluence': { from: 'orange-300', to: 'amber-200' },        // Orange for Confluence
+                      'sharepoint': { from: 'teal-300', to: 'cyan-200' },           // Teal for SharePoint
+                      'onedrive': { from: 'indigo-300', to: 'blue-200' },           // Indigo for OneDrive
+                      'box': { from: 'yellow-300', to: 'orange-200' },              // Yellow for Box
+                      'gmail': { from: 'red-300', to: 'rose-200' },                 // Red for Gmail
+                      'outlook': { from: 'pink-300', to: 'rose-200' }               // Pink for Outlook
+                    };
                     
-                    // Use connector source to determine gradient for consistency
-                    const sourceIndex = source.length % gradients.length;
-                    return gradients[sourceIndex];
+                    // Return specific gradient for known connectors, or fallback to index-based selection
+                    return connectorGradients[source] || {
+                      from: ['blue-300', 'purple-300', 'green-300', 'orange-300', 'red-300', 'teal-300'][source.length % 6],
+                      to: ['indigo-200', 'pink-200', 'emerald-200', 'amber-200', 'rose-200', 'cyan-200'][source.length % 6]
+                    };
                   };
 
-                  const connectorGradient = getConnectorGradient(connector.source, index);
+                  const connectorGradient = getConnectorGradient(connector.source);
                   
                   return (
                     <ConnectorCard
@@ -350,8 +355,8 @@ export default function CreateFromSpecificFilesPage() {
 
           {/* Content Creation Section */}
           <div className="mb-8">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-6">
-              <div className="flex items-center gap-4 mb-4 bg-gradient-to-tr from-white-50 via-white to-blue-100">
+            <div className="bg-gradient-to-br from-white to-purple-100 rounded-xl border border-purple-200 p-6">
+              <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-purple-600" />
                 </div>
