@@ -44,11 +44,11 @@ export default function RootLayout({
         <MontFontLoader />
         <LanguageProvider>
           <AvatarDisplayManager>
-            <UserbackProvider>
-              <MixpanelProvider>
+            <MixpanelProvider>
+              <UserbackProvider>
                 {children}
-              </MixpanelProvider>
-            </UserbackProvider>
+              </UserbackProvider>
+            </MixpanelProvider>
           </AvatarDisplayManager>
         </LanguageProvider>
       </body>

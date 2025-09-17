@@ -49,15 +49,16 @@ export const UserbackProvider: React.FC<UserbackProviderProps> = ({ children }) 
         });
 
         setUserback(instance);
-        console.log('✅ Userback initialized for user:', userData);
+        console.log('Userback initialized for user:', userData);
       } catch (error) {
-        console.error('❌ Failed to initialize Userback:', error);
+        console.error('Failed to initialize Userback:', error);
       }
     },
     []
   );
 
   // Optional: pre-initialize without user info (anonymous session)
+  /*
   useEffect(() => {
     const preInit = async () => {
       try {
@@ -69,6 +70,7 @@ export const UserbackProvider: React.FC<UserbackProviderProps> = ({ children }) 
     };
     preInit();
   }, []);
+  */
 
   return (
     <UserbackContext.Provider value={{ userback, initUserback }}>
