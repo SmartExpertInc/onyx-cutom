@@ -431,7 +431,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       <div style={{
         position: 'absolute',
         bottom: '20px',
-        left: '0',
+        left: '30px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px'
