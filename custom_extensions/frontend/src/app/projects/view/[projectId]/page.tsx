@@ -1782,7 +1782,7 @@ export default function ProjectInstanceViewPage() {
           <div className="flex items-center gap-x-4">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
             >
               <ArrowLeft size={16} />
               {t('interface.projectView.back', 'Back')}
@@ -1793,7 +1793,7 @@ export default function ProjectInstanceViewPage() {
                 console.log('Open Products button clicked - navigating to /projects');
                 window.location.href = '/projects';
               }}
-              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
             >
               <FolderOpen size={16} />
               {t('interface.projectView.openProducts', 'Open Products')}
