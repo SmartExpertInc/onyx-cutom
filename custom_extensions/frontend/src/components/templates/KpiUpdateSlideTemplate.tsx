@@ -5,6 +5,7 @@ import { KpiUpdateSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: SlideTheme | string }>= ({
   slideId,
@@ -27,16 +28,22 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentItems, setCurrentItems] = useState(items);
   const [editingItem, setEditingItem] = useState<{ index: number; field: 'value' | 'description' } | null>(null);
   const [editingFooterLeft, setEditingFooterLeft] = useState(false);
   const [editingFooterCenter, setEditingFooterCenter] = useState(false);
   const [editingFooterRight, setEditingFooterRight] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState('19');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F9F8F6',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont
@@ -58,10 +65,33 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
 
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
-    left: '56px',
-    top: '90px',
+    left: '40px',
+    top: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  };
+
+  const titlePillStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: '8px 16px',
+    borderRadius: '20px',
+    border: '1px solid rgba(0, 0, 0, 0.1)'
+  };
+
+  const titleDotStyle: React.CSSProperties = {
+    width: '8px',
+    height: '8px',
+    backgroundColor: '#0F58F9',
+    borderRadius: '50%'
+  };
+
+  const titleTextStyle: React.CSSProperties = {
     color: '#585955',
-    fontSize: '26px',
+    fontSize: '16px',
     fontWeight: 500
   };
 
@@ -114,22 +144,51 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     position: 'absolute',
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, items, profileImagePath, profileImageAlt, footerLeft, footerCenter, footerRight }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, items, profileImagePath, profileImageAlt, footerLeft, footerCenter, footerRight }, yourLogoText: newYourLogoText });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, items, profileImagePath, profileImageAlt, footerLeft, footerCenter, footerRight }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
-    <div className="kpi-update-slide inter-theme" style={slideStyles}>
-      <div style={headerLine} />
-      <div style={headerLineCap} />
+    <div className="kpi-update-slide" style={slideStyles}>
       <div style={titleStyle}>
-        {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
-            initialValue={title}
-            onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
-            onCancel={() => setEditingTitle(false)}
-            className="kpi-title-editor"
-            style={{ ...titleStyle, position: 'relative' }}
-          />
-        ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
-        )}
+        <div style={titlePillStyle}>
+          <div style={titleDotStyle} />
+          {isEditable && editingTitle ? (
+            <ImprovedInlineEditor
+              initialValue={title}
+              onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
+              onCancel={() => setEditingTitle(false)}
+              className="kpi-title-editor"
+              style={{ ...titleTextStyle, background: 'transparent', border: 'none', outline: 'none' }}
+            />
+          ) : (
+            <div 
+              onClick={() => isEditable && setEditingTitle(true)} 
+              style={{ ...titleTextStyle, cursor: isEditable ? 'pointer' : 'default' }}
+            >
+              {title}
+            </div>
+          )}
+        </div>
       </div>
 
       <div style={itemsArea}>
@@ -152,7 +211,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             </div>
 
             {/* Description cell */}
-            <div style={{ minHeight: '64px' }}>
+            <div style={{ minHeight: '64px', position: 'relative' }}>
               {isEditable && editingItem?.index === i && editingItem?.field === 'description' ? (
                 <ImprovedInlineEditor
                   initialValue={it.description}
@@ -165,13 +224,22 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
               ) : (
                 <div style={descStyle} onClick={() => isEditable && setEditingItem({ index: i, field: 'description' })}>{it.description}</div>
               )}
+              
+              {/* Separator line under each description */}
+              {i < currentItems.length - 1 && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '-5px',
+                  left: '0',
+                  right: '0',
+                  height: '1px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)'
+                }} />
+              )}
             </div>
           </React.Fragment>
         ))}
       </div>
-
-      <div style={footerLine} />
-      <div style={footerLineCap} />
 
       {/* Profile image absolute bottom-left */}
       <div style={{ position: 'absolute', left: '56px', bottom: '120px', width: '140px', backgroundColor: '#2B3127', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
@@ -186,43 +254,164 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
         />
       </div>
 
-      {/* Footer texts (editable) */}
-      <div style={{ position: 'absolute', left: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
-        {isEditable && editingFooterLeft ? (
+      {/* Page number in bottom-left */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        zIndex: 10
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
           <ImprovedInlineEditor
-            initialValue={footerLeft}
-            onSave={(v) => { onUpdate && onUpdate({ footerLeft: v }); setEditingFooterLeft(false); }}
-            onCancel={() => setEditingFooterLeft(false)}
-            style={{ color: '#babbb2', fontSize: '14px' }}
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
+            }}
           />
         ) : (
-          <span onClick={() => isEditable && setEditingFooterLeft(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerLeft}</span>
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
         )}
       </div>
-      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
-        {isEditable && editingFooterCenter ? (
-          <ImprovedInlineEditor
-            initialValue={footerCenter}
-            onSave={(v) => { onUpdate && onUpdate({ footerCenter: v }); setEditingFooterCenter(false); }}
-            onCancel={() => setEditingFooterCenter(false)}
-            style={{ color: '#babbb2', fontSize: '14px' }}
+
+      {/* Your Logo in bottom-right */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        right: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        zIndex: 10
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
           />
         ) : (
-          <span onClick={() => isEditable && setEditingFooterCenter(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerCenter}</span>
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#000000',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#000000',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
         )}
       </div>
-      <div style={{ position: 'absolute', right: '40px', bottom: '24px', color: '#babbb2', fontSize: '14px' }}>
-        {isEditable && editingFooterRight ? (
-          <ImprovedInlineEditor
-            initialValue={footerRight}
-            onSave={(v) => { onUpdate && onUpdate({ footerRight: v }); setEditingFooterRight(false); }}
-            onCancel={() => setEditingFooterRight(false)}
-            style={{ color: '#babbb2', fontSize: '14px' }}
-          />
-        ) : (
-          <span onClick={() => isEditable && setEditingFooterRight(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{footerRight}</span>
-        )}
-      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
