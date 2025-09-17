@@ -436,7 +436,7 @@ export default function CreateFromSpecificFilesPage() {
                       : t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
                     }
                   </div>
-                </button>
+                </Button>
               </div>Button
             </div>
           </div>
