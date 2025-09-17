@@ -8,15 +8,15 @@ export default function EventPosterResults() {
   const searchParams = useSearchParams();
 
   // Extract data from URL parameters
-  const eventName = searchParams.get('eventName') || '';
-  const mainSpeaker = searchParams.get('mainSpeaker') || '';
-  const speakerDescription = searchParams.get('speakerDescription') || '';
-  const date = searchParams.get('date') || '';
-  const topic = searchParams.get('topic') || '';
-  const additionalSpeakers = searchParams.get('additionalSpeakers') || '';
-  const ticketPrice = searchParams.get('ticketPrice') || '';
-  const ticketType = searchParams.get('ticketType') || '';
-  const freeAccessConditions = searchParams.get('freeAccessConditions') || '';
+  const eventName = searchParams?.get('eventName') || '';
+  const mainSpeaker = searchParams?.get('mainSpeaker') || '';
+  const speakerDescription = searchParams?.get('speakerDescription') || '';
+  const date = searchParams?.get('date') || '';
+  const topic = searchParams?.get('topic') || '';
+  const additionalSpeakers = searchParams?.get('additionalSpeakers') || '';
+  const ticketPrice = searchParams?.get('ticketPrice') || '';
+  const ticketType = searchParams?.get('ticketType') || '';
+  const freeAccessConditions = searchParams?.get('freeAccessConditions') || '';
 
   const handleBackToQuestionnaire = () => {
     router.push('/create/event-poster/questionnaire');
