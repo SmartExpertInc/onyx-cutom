@@ -56,23 +56,22 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
 
   const left: React.CSSProperties = {
     padding: '88px 56px 140px 56px',
-    backgroundColor: '#262626',
-    borderRight: '1px solid #2b2b2b'
+    backgroundColor: '#E0E7FF',
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: '45px',
-    color: '#C9C9C9',
+    color: '#09090B',
     fontWeight: 800,
     marginTop: '40px',
     marginBottom: '20px'
   };
 
   const desc: React.CSSProperties = {
-    fontSize: '20px',
+    fontSize: '15px',
     lineHeight: 1.5,
     maxWidth: '380px',
-    color: '#BEBEBE'
+    color: '#09090B'
   };
 
   const right: React.CSSProperties = {
@@ -197,7 +196,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         </div>
 
         {/* Avatar */}
-        <div style={{ marginTop: '85px', backgroundColor: '#3466FA', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+        <div style={{ marginTop: '85px', backgroundColor: '#ffffff', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
@@ -205,7 +204,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
             position="CENTER"
             description="Avatar"
             isEditable={isEditable}
-            style={{ width: '100%', marginTop: '3px', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            style={{ marginTop: '3px', height: '125%', objectFit: 'cover', borderRadius: '50%' }}
           />
         </div>
       </div>
@@ -284,7 +283,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
 
       <div style={footer}>
         {tabs.map((t, i) => (
-          <div key={i} style={{ ...tab, borderTop: i===activeTabIndex ? '3px solid #ffffff' : 'none', backgroundColor: i===activeTabIndex ? '#ffffff' : '#0F58F9', color: i===activeTabIndex ? '#09090B' : '#ffffff', position: 'relative', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingTabIndex(i)}>
+          <div key={i} style={{ ...tab, borderTop: i===activeTabIndex ? '3px solid #ffffff' : 'none', backgroundColor: i===activeTabIndex ? '#ffffff' : '#0F58F9', color: i===activeTabIndex ? '#0F58F9' : '#ffffff', position: 'relative', cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingTabIndex(i)}>
             {isEditable && editingTabIndex === i ? (
               <ImprovedInlineEditor
                 initialValue={t}
