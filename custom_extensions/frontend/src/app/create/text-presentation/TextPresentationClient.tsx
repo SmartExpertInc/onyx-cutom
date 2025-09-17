@@ -1470,20 +1470,22 @@ export default function TextPresentationClient() {
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
-                              <label key={option.value} className="flex items-center gap-2 py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedStyles.includes(option.value)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
-                                      setSelectedStyles([...selectedStyles, option.value]);
-                                    } else {
-                                      setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                    }
-                                  }}
-                                  className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm flex-1">{option.label}</span>
+                              <label key={option.value} className="flex items-center justify-between py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedStyles.includes(option.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedStyles([...selectedStyles, option.value]);
+                                      } else {
+                                        setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                      }
+                                    }}
+                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <span className="text-sm">{option.label}</span>
+                                </div>
                                 <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
                                   <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
                                 </CustomTooltip>
@@ -1549,20 +1551,22 @@ export default function TextPresentationClient() {
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
-                          <label key={option.value} className="flex items-center gap-2 py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={selectedStyles.includes(option.value)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedStyles([...selectedStyles, option.value]);
-                                } else {
-                                  setSelectedStyles(selectedStyles.filter(s => s !== option.value));
-                                }
-                              }}
-                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm flex-1">{option.label}</span>
+                          <label key={option.value} className="flex items-center justify-between py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedStyles.includes(option.value)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedStyles([...selectedStyles, option.value]);
+                                  } else {
+                                    setSelectedStyles(selectedStyles.filter(s => s !== option.value));
+                                  }
+                                }}
+                                className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                              />
+                              <span className="text-sm">{option.label}</span>
+                            </div>
                             <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
                               <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
                             </CustomTooltip>
