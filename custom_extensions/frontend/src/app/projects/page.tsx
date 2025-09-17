@@ -44,27 +44,27 @@ import { LMSAccountStatus } from '../../types/lmsTypes';
 import { useUserback } from '@/contexts/UserbackContext';
 import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelClient';
 
+
+interface User {
+  id: string;
+  email: string;
+  [key: string]: any;
+}
+
 // Authentication check function
-const checkAuthentication = async (
-  initUserback: ReturnType<typeof useUserback>['initUserback']
-): Promise<boolean> => {
+const checkAuthentication = async (): Promise<User | null> => {
   try {
     const response = await fetch('/api/me', {
       credentials: 'same-origin',
     });
-    if (response.ok) {
-      const user = await response.json();
-      console.log(user); //TODO: Remove this
-      identifyUser(user.id);
-      await initUserback({
-        id: user.id,
-        email: user.email,
-      });
+    if (!response.ok) {
+      return null;
     }
-    return response.ok;
+    const user: User = await response.json();
+    return user;
   } catch (error) {
     console.error('Authentication check failed:', error);
-    return false;
+    return null;
   }
 };
 
@@ -650,7 +650,8 @@ const ProjectsPageInner: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [showAccountModal, setShowAccountModal] = useState(false);
 
-  // Userback instance
+  // Userback
+  const [currentUser, setUser] = useState<User | null>(null);
   const { initUserback, userback } = useUserback();
 
   // Clear lesson context when user visits the projects page
@@ -669,7 +670,10 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const authenticated = await checkAuthentication(initUserback);
+        const user = await checkAuthentication();
+        setUser(user);
+
+        const authenticated = user !== null;
         setIsAuthenticated(authenticated);
 
         if (!authenticated) {
@@ -679,7 +683,10 @@ const ProjectsPageInner: React.FC = () => {
           redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
+        // Identify user for Mixpanel
+        identifyUser(user.id);
       } catch (error) {
+        setUser(null);
         resetUserIdentity();
         console.error('Authentication check failed:', error);
         setIsAuthenticated(false);
@@ -691,7 +698,17 @@ const ProjectsPageInner: React.FC = () => {
     };
 
     checkAuth();
-  }, [initUserback]);
+  }, []);
+
+  // Initialize userback instance with current user
+  useEffect(() => {
+    if (currentUser) {
+      initUserback({
+        id: currentUser.id,
+        email: currentUser.email,
+      });
+    }
+  }, [isAuthenticated]);
 
   // Load folders and projects after authentication is confirmed
   useEffect(() => {
