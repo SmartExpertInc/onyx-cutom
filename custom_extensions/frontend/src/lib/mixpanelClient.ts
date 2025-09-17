@@ -1,8 +1,4 @@
 import mixpanel, { Config } from "mixpanel-browser";
-import {
-  PageLeftEvent,
-  FeatureUsedEvent
-} from "./analyticsTypes";
 
 const MIXPANEL_TOKEN: string | undefined = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
 
