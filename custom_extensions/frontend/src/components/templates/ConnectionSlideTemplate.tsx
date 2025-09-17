@@ -63,7 +63,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     fontSize: '45px',
     color: '#09090B',
     fontWeight: 800,
-    marginTop: '40px',
+    marginTop: '5px',
     marginBottom: '20px'
   };
 
@@ -147,8 +147,6 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     right: 0,
     top: 0,
     minHeight: '64px',
-    backgroundColor: '#0D0D0D',
-    borderBottom: '1px solid #2b2b2b',
     display: 'flex',
     alignItems: 'center',
     padding: '25px 50px',
@@ -196,7 +194,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         </div>
 
         {/* Avatar */}
-        <div style={{ marginTop: '85px', backgroundColor: '#ffffff', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+        <div style={{ marginTop: '150px', backgroundColor: '#ffffff', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}

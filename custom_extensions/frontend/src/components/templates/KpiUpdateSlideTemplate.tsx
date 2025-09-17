@@ -344,18 +344,19 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
               position: 'relative',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              backgroundColor: '#000000'
             }}>
               <div style={{
                 width: '12px',
                 height: '2px',
-                backgroundColor: '#000000',
+                backgroundColor: '#FFFFFF',
                 position: 'absolute'
               }} />
               <div style={{
                 width: '2px',
                 height: '12px',
-                backgroundColor: '#000000',
+                backgroundColor: '#FFFFFF',
                 position: 'absolute',
                 left: '50%',
                 top: '50%',
