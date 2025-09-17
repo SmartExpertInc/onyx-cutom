@@ -208,8 +208,8 @@ export default function CreateFromSpecificFilesPage() {
   return (
     <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen font-sans">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="flex items-center gap-4">
+      <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="absolute left-8 flex items-center gap-4">
           <Button
             variant="back"
           >
@@ -225,8 +225,8 @@ export default function CreateFromSpecificFilesPage() {
         <HeadTextCustom
           text={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
           textSize="text-2xl sm:text-3xl"
+          className="text-center"
         />
-        <div className="w-24"></div> {/* Spacer for centering */}
       </header>
 
       <main className="flex-1 overflow-y-auto p-8">
@@ -320,7 +320,7 @@ export default function CreateFromSpecificFilesPage() {
                   const getConnectorGradient = (source: string) => {
                     // Map specific connector sources to specific gradients for consistency
                     const connectorGradients: Record<string, { from: string; to: string }> = {
-                      'google_drive': { from: 'orange-300', to: 'amber-200' },      // Green for Google Drive
+                      'google_drive': { from: 'orange-300', to: 'amber-200' },      // orange for Google Drive
                       'dropbox': { from: 'blue-300', to: 'indigo-200' },            // Blue for Dropbox
                       'notion': { from: 'purple-300', to: 'pink-200' },             // Purple for Notion
                       'salesforce': { from: 'cyan-300', to: 'blue-200' },           // Cyan for Salesforce
@@ -422,7 +422,7 @@ export default function CreateFromSpecificFilesPage() {
                     variant="create"
                     onClick={handleCreateContent}
                     disabled={!connectorSelectionValid}
-                    className={`w-3/5 ${
+                    className={`w-1/2 ${
                       !connectorSelectionValid
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'

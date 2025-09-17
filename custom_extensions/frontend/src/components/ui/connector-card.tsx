@@ -49,7 +49,12 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
       'red-300-rose-200': 'bg-gradient-to-br from-red-300 to-rose-200',
       'gray-300-slate-200': 'bg-gradient-to-br from-gray-300 to-slate-200',
       'blue-300-indigo-200': 'bg-gradient-to-br from-blue-300 to-indigo-200',
-      'purple-300-pink-200': 'bg-gradient-to-br from-purple-300 to-pink-200'
+      'purple-300-pink-200': 'bg-gradient-to-br from-purple-300 to-pink-200',
+      'orange-300-amber-200': 'bg-gradient-to-br from-orange-300 to-amber-200',
+      'cyan-300-blue-200': 'bg-gradient-to-br from-cyan-300 to-blue-200',
+      'violet-300-purple-200': 'bg-gradient-to-br from-violet-300 to-purple-200',
+      'teal-300-cyan-200': 'bg-gradient-to-br from-teal-300 to-cyan-200',
+      'indigo-300-blue-200': 'bg-gradient-to-br from-indigo-300 to-blue-200'
     };
     const key = `${from}-${to}`;
     return gradientMap[key] || 'bg-gradient-to-br from-blue-300 to-indigo-200';
