@@ -1884,11 +1884,9 @@ export default function ProjectInstanceViewPage() {
                   <ChevronDown size={16} className="ml-1" />
                 </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 p-2 border border-gray-200 rounded-lg shadow-lg z-20" style={{ backgroundColor: 'white' }}>
-                    <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                      Select Theme
-                    </div>
-                    {[
+                <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-20" style={{ backgroundColor: 'white' }}>
+                  <div className="space-y-1">
+                  {[
                       { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
                       { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
                       { id: 'wine', label: 'Wine', color: '#0540AB' },
@@ -1904,7 +1902,7 @@ export default function ProjectInstanceViewPage() {
                         <button
                           key={theme.id}
                           onClick={() => handleTrainingPlanThemeChange(theme.id)}
-                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
+                        className={`w-full py-1.5 pr-8 pl-2 text-left text-sm hover:bg-gray-50 rounded cursor-pointer flex items-center gap-2 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
                         >
                           <div
                             className="w-4 h-4 rounded-full border border-gray-300"
@@ -1919,6 +1917,7 @@ export default function ProjectInstanceViewPage() {
                         </button>
                       );
                     })}
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -2243,7 +2242,7 @@ export default function ProjectInstanceViewPage() {
                   <ChevronDown size={16} className="ml-1" />
                 </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
+                <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
                   <div className="space-y-1">
                       {/* Training Plan specific columns */}
                       {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
