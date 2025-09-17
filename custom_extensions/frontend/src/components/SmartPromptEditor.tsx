@@ -253,7 +253,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Advanced mode panel - always shown */}
       {showAdvanced && (
-        <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4 shadow-sm">
+        <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
             <button
