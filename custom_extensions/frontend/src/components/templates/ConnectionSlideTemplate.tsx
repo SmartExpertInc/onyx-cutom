@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import YourLogo from '../YourLogo';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export interface ConnectionSlideProps extends BaseTemplateProps {
   title?: string;
@@ -41,6 +42,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
   const [editingLogoText, setEditingLogoText] = useState(false);
   const [editingVenn, setEditingVenn] = useState<null | keyof typeof vennLabels>(null);
   const [editingTabIndex, setEditingTabIndex] = useState<number | null>(null);
+  const [showBackgroundUploadModal, setShowBackgroundUploadModal] = useState(false);
 
   const slide: React.CSSProperties = {
     width: '100%',
@@ -231,24 +233,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
               cursor: 'pointer',
               zIndex: 1
             }}
-            onClick={() => {
-              // Trigger image upload for background
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/*';
-              input.onchange = (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const result = event.target?.result as string;
-                    onUpdate && onUpdate({ backgroundImagePath: result });
-                  };
-                  reader.readAsDataURL(file);
-                }
-              };
-              input.click();
-            }}
+            onClick={() => setShowBackgroundUploadModal(true)}
           />
         )}
         {/* Venn circles */}
@@ -332,6 +317,19 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
         ))}
       </div>
+
+      {/* Background Image Upload Modal */}
+      {showBackgroundUploadModal && (
+        <PresentationImageUpload
+          isOpen={showBackgroundUploadModal}
+          onClose={() => setShowBackgroundUploadModal(false)}
+          onImageUploaded={(newImagePath: string) => {
+            onUpdate && onUpdate({ backgroundImagePath: newImagePath });
+            setShowBackgroundUploadModal(false);
+          }}
+          title="Upload Background Image"
+        />
+      )}
     </div>
   );
 };
