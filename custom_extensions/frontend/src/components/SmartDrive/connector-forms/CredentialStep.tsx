@@ -451,40 +451,77 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             case 's3':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.s3.title', 'Amazon S3 Credentials')}</span></Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.s3.title', 'Get AWS S3 Credentials')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.s3.step1', 'Provide Access Key ID, Secret Access Key, and the target Bucket (and region if needed).')}</>,
-                                    <>{t('connectors.instructions.s3.step2', 'Ensure read permissions for the bucket and keys.')}</>,
+                                    <>{t('connectors.instructions.s3.step1', 'Go to AWS Console → IAM → Users (or Roles for IAM role method).')}</>,
+                                    <>{t('connectors.instructions.s3.step2', 'For Access Key method: Create a new user or use existing user.')}</>,
+                                    <>{t('connectors.instructions.s3.step3', 'Attach a policy with S3 read permissions (s3:GetObject, s3:ListBucket) for your target bucket.')}</>,
+                                    <>{t('connectors.instructions.s3.step4', 'For Access Key: Go to Security Credentials → Create Access Key.')}</>,
+                                    <>{t('connectors.instructions.s3.step5', 'For IAM Role: Copy the Role ARN from the role summary page.')}</>,
+                                    <>{t('connectors.instructions.s3.step6', 'Choose your authentication method and enter the credentials here.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://console.aws.amazon.com/iam/home#/users" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.s3.link', 'Go to AWS IAM Users →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'r2':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.r2.title', 'Cloudflare R2 Credentials')}</span></Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.r2.title', 'Get Cloudflare R2 Credentials')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.r2.step1', 'Provide R2 Access Key ID, Secret Access Key, and Bucket details.')}</>,
-                                    <>{t('connectors.instructions.r2.step2', 'Ensure read access for the bucket.')}</>,
+                                    <>{t('connectors.instructions.r2.step1', 'Go to Cloudflare Dashboard → R2 Object Storage.')}</>,
+                                    <>{t('connectors.instructions.r2.step2', 'Click "Manage R2 API Tokens" in the right sidebar.')}</>,
+                                    <>{t('connectors.instructions.r2.step3', 'Create a new API token with "Object Read" permissions for your bucket.')}</>,
+                                    <>{t('connectors.instructions.r2.step4', 'Copy your Account ID from the R2 overview page.')}</>,
+                                    <>{t('connectors.instructions.r2.step5', 'Copy the Access Key ID and Secret Access Key from the token creation.')}</>,
+                                    <>{t('connectors.instructions.r2.step6', 'Enter all three values (Account ID, Access Key ID, Secret) here.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://dash.cloudflare.com/profile/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.r2.link', 'Go to Cloudflare API Tokens →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'google_cloud_storage':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.gcs.title', 'Google Cloud Storage')}</span></Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.gcs.title', 'Get Google Cloud Storage Credentials')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.gcs.step1', 'Use a Service Account JSON with access to the target GCS buckets.')}</>,
-                                    <>{t('connectors.instructions.gcs.step2', 'Paste the JSON content here.')}</>,
+                                    <>{t('connectors.instructions.gcs.step1', 'Go to Google Cloud Console → IAM & Admin → Service Accounts.')}</>,
+                                    <>{t('connectors.instructions.gcs.step2', 'Create a new service account with "Storage Object Viewer" role.')}</>,
+                                    <>{t('connectors.instructions.gcs.step3', 'Generate and download a JSON key file for the service account.')}</>,
+                                    <>{t('connectors.instructions.gcs.step4', 'Open the JSON file and copy the "client_email" and "private_key" values.')}</>,
+                                    <>{t('connectors.instructions.gcs.step5', 'Use the client_email as Access Key ID and private_key as Secret Access Key.')}</>,
+                                    <>{t('connectors.instructions.gcs.step6', 'Enter both values here to create the credential.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.gcs.link', 'Go to Google Cloud Service Accounts →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'oci_storage':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.oci.title', 'Oracle Cloud Object Storage')}</span></Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.oci.title', 'Get Oracle Cloud Infrastructure Storage Credentials')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.oci.step1', 'Provide required credentials (Tenancy OCID, User OCID, Key Fingerprint, Private Key) and bucket details.')}</>,
+                                    <>{t('connectors.instructions.oci.step1', 'Go to Oracle Cloud Console → Identity & Security → Users.')}</>,
+                                    <>{t('connectors.instructions.oci.step2', 'Select a user and go to Customer Secret Keys.')}</>,
+                                    <>{t('connectors.instructions.oci.step3', 'Generate a new Customer Secret Key and copy it.')}</>,
+                                    <>{t('connectors.instructions.oci.step4', 'Find your Namespace in Object Storage → Buckets (shown at top).')}</>,
+                                    <>{t('connectors.instructions.oci.step5', 'Find your Region identifier (e.g., us-ashburn-1) from the console URL.')}</>,
+                                    <>{t('connectors.instructions.oci.step6', 'Enter the Namespace, Region, Access Key (username), and Secret Key here.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://cloud.oracle.com/identity/users" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.oci.link', 'Go to Oracle Cloud Users →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'sharepoint':
@@ -507,11 +544,20 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             case 'gmail':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.gmail.title', 'Gmail Access')}</span></Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.gmail.step1', 'Use a Google Workspace admin-provisioned OAuth app or a Service Account with domain-wide delegation.')}</>,
-                                    <>{t('connectors.instructions.gmail.step2', 'Grant the necessary read scopes for messages/threads as required.')}</>,
+                                  <Text className="font-semibold">{t('connectors.instructions.gmail.title', 'Get Gmail Service Account')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.gmail.step1', 'Go to Google Cloud Console → IAM & Admin → Service Accounts.')}</>,
+                                    <>{t('connectors.instructions.gmail.step2', 'Create a new service account with a descriptive name like "contentbuilder-gmail".')}</>,
+                                    <>{t('connectors.instructions.gmail.step3', 'Generate and download a JSON key file for the service account.')}</>,
+                                    <>{t('connectors.instructions.gmail.step4', 'Enable Gmail API in Google Cloud Console → APIs & Services → Library.')}</>,
+                                    <>{t('connectors.instructions.gmail.step5', 'In Google Admin Console, enable domain-wide delegation for the service account.')}</>,
+                                    <>{t('connectors.instructions.gmail.step6', 'Upload the JSON key file and provide the primary admin email address.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.gmail.link', 'Go to Google Cloud Service Accounts →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'teams':
@@ -527,21 +573,35 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             case 'discord':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.discord.title', 'Discord Bot Token')}</span></Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.discord.title', 'Get a Discord Bot Token')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.discord.step1', 'Create a Discord application and bot, then invite it to your server with the required permissions.')}</>,
-                                    <>{t('connectors.instructions.discord.step2', 'Copy the bot token and paste it here.')}</>,
+                                    <>{t('connectors.instructions.discord.step1', 'Go to Discord Developer Portal and create a new application.')}</>,
+                                    <>{t('connectors.instructions.discord.step2', 'In the Bot section, click "Add Bot" to create a bot user.')}</>,
+                                    <>{t('connectors.instructions.discord.step3', 'Under Token, click "Copy" to get your bot token.')}</>,
+                                    <>{t('connectors.instructions.discord.step4', 'In Bot Permissions, enable "Read Messages/View Channels" and "Read Message History".')}</>,
+                                    <>{t('connectors.instructions.discord.step5', 'Invite the bot to your Discord server using the OAuth2 URL generator.')}</>,
+                                    <>{t('connectors.instructions.discord.step6', 'Paste the bot token here and create the credential.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.discord.link', 'Go to Discord Developer Portal →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'zulip':
                               return (
                                 <div>
-                                  <Text><span className="font-semibold">{t('connectors.instructions.zulip.title', 'Zulip API Key')}</span></Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.zulip.title', 'Get Zulip Bot Credentials')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.zulip.step1', 'Create or view your Zulip API key in your Zulip account settings.')}</>,
-                                    <>{t('connectors.instructions.zulip.step2', 'Paste your email and API key here.')}</>,
+                                    <>{t('connectors.instructions.zulip.step1', 'Log into your Zulip organization as an admin.')}</>,
+                                    <>{t('connectors.instructions.zulip.step2', 'Go to Settings → Your bots → Add a new bot.')}</>,
+                                    <>{t('connectors.instructions.zulip.step3', 'Create a new bot with "Generic bot" type and give it a name.')}</>,
+                                    <>{t('connectors.instructions.zulip.step4', 'Download the bot\'s zuliprc configuration file.')}</>,
+                                    <>{t('connectors.instructions.zulip.step5', 'Open the zuliprc file and copy its entire contents.')}</>,
+                                    <>{t('connectors.instructions.zulip.step6', 'Paste the complete zuliprc content here.')}</>,
                                   ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.zulip.note', 'The zuliprc file contains your bot email, API key, and server URL all in one configuration.')}</Text>
                                 </div>
                               );
                             case 'gitbook':
@@ -577,39 +637,71 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             case 'guru':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.guru.title', 'Guru API Token')}</Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.guru.title', 'Get Guru API Credentials')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.guru.step1', 'Create an API token with read access to your collections.')}</>,
-                                    <>{t('connectors.instructions.guru.step2', 'Paste the token here.')}</>,
+                                    <>{t('connectors.instructions.guru.step1', 'Log into your Guru account as an admin.')}</>,
+                                    <>{t('connectors.instructions.guru.step2', 'Go to Settings → API Access.')}</>,
+                                    <>{t('connectors.instructions.guru.step3', 'Generate a new API token for your user account.')}</>,
+                                    <>{t('connectors.instructions.guru.step4', 'Copy your username/email and the API token.')}</>,
+                                    <>{t('connectors.instructions.guru.step5', 'Enter both your Guru username and the API token here.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://help.getguru.com/docs/guru-api-overview" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.guru.link', 'Learn about Guru API →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'slab':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.slab.title', 'Slab API Token')}</Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.slab.title', 'Get Slab Bot Token')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.slab.step1', 'Generate an API token with read access.')}</>,
-                                    <>{t('connectors.instructions.slab.step2', 'Paste the token here.')}</>,
+                                    <>{t('connectors.instructions.slab.step1', 'Log into your Slab team as an admin.')}</>,
+                                    <>{t('connectors.instructions.slab.step2', 'Go to Settings → Integrations → API.')}</>,
+                                    <>{t('connectors.instructions.slab.step3', 'Create a new API token with read permissions.')}</>,
+                                    <>{t('connectors.instructions.slab.step4', 'Copy the generated token and your Slab team URL.')}</>,
+                                    <>{t('connectors.instructions.slab.step5', 'Enter both the base URL and bot token here.')}</>,
                                   ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.slab.note', 'Your base URL should look like: https://yourteam.slab.com/')}</Text>
                                 </div>
                               );
                             case 'salesforce':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.salesforce.title', 'Salesforce')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.salesforce.step1', 'Use a Connected App and provide OAuth credentials or a refresh token with read permissions to target objects.')}</>,
+                                  <Text className="font-semibold">{t('connectors.instructions.salesforce.title', 'Get Salesforce Credentials')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.salesforce.step1', 'Log into your Salesforce account as an admin.')}</>,
+                                    <>{t('connectors.instructions.salesforce.step2', 'Go to Setup → My Personal Information → Reset My Security Token.')}</>,
+                                    <>{t('connectors.instructions.salesforce.step3', 'Click "Reset Security Token" - a new token will be emailed to you.')}</>,
+                                    <>{t('connectors.instructions.salesforce.step4', 'Copy the security token from the email.')}</>,
+                                    <>{t('connectors.instructions.salesforce.step5', 'Determine if you\'re using a Sandbox environment (usually has "test" in the URL).')}</>,
+                                    <>{t('connectors.instructions.salesforce.step6', 'Enter your username, password, security token, and sandbox setting here.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://help.salesforce.com/s/articleView?id=sf.user_security_token.htm" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.salesforce.link', 'Learn about Salesforce Security Tokens →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'hubspot':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.hubspot.title', 'HubSpot')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.hubspot.step1', 'Create a Private App and generate an access token with read scopes.')}</>,
+                                  <Text className="font-semibold">{t('connectors.instructions.hubspot.title', 'Get HubSpot Access Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.hubspot.step1', 'Log into your HubSpot account as an admin.')}</>,
+                                    <>{t('connectors.instructions.hubspot.step2', 'Go to Settings → Integrations → Private Apps.')}</>,
+                                    <>{t('connectors.instructions.hubspot.step3', 'Create a new private app with a descriptive name.')}</>,
+                                    <>{t('connectors.instructions.hubspot.step4', 'In Scopes, enable read permissions for content, contacts, deals, and tickets.')}</>,
+                                    <>{t('connectors.instructions.hubspot.step5', 'Generate the access token and copy it.')}</>,
+                                    <>{t('connectors.instructions.hubspot.step6', 'Paste the access token here to create the credential.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://developers.hubspot.com/docs/api/private-apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.hubspot.link', 'Learn about HubSpot Private Apps →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'gong':
@@ -626,10 +718,20 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             case 'egnyte':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.egnyte.title', 'Egnyte')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.egnyte.step1', 'Provide your Egnyte domain and an access token or OAuth credentials with read permissions.')}</>,
+                                  <Text className="font-semibold">{t('connectors.instructions.egnyte.title', 'Get Egnyte Access Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.egnyte.step1', 'Log into your Egnyte domain as an admin.')}</>,
+                                    <>{t('connectors.instructions.egnyte.step2', 'Go to Settings → Integrations → API Tokens.')}</>,
+                                    <>{t('connectors.instructions.egnyte.step3', 'Create a new API application with read permissions.')}</>,
+                                    <>{t('connectors.instructions.egnyte.step4', 'Generate an access token for the application.')}</>,
+                                    <>{t('connectors.instructions.egnyte.step5', 'Copy your Egnyte domain (e.g., "yourcompany" from yourcompany.egnyte.com).')}</>,
+                                    <>{t('connectors.instructions.egnyte.step6', 'Enter your domain and access token here.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://developers.egnyte.com/docs/read/Getting_Started" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.egnyte.link', 'Learn about Egnyte API →')}
+                                    </a>
+                                  </Text>
                                 </div>
                               );
                             case 'web':
@@ -671,90 +773,149 @@ const CredentialStep: FC<CredentialStepProps> = ({
                             case 'document360':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.document360.title', 'Document360')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.document360.step1', 'Generate an API token with read access to your knowledge base; paste the token here.')}</>,
-                                  ]} />
-                                </div>
-                              );
-                            case 'clickup':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.clickup.title', 'Get ClickUp API Token')}</Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.document360.title', 'Get Document360 API Token')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.clickup.step1', 'Go to ClickUp Settings → Apps → API.')}</>,
-                                    <>{t('connectors.instructions.clickup.step2', 'Generate a personal API token.')}</>,
-                                    <>{t('connectors.instructions.clickup.step3', 'Copy the token and also find your Team ID from the URL or API.')}</>,
+                                    <>{t('connectors.instructions.document360.step1', 'Log into your Document360 account as an admin.')}</>,
+                                    <>{t('connectors.instructions.document360.step2', 'Go to Settings → API.')}</>,
+                                    <>{t('connectors.instructions.document360.step3', 'Generate a new API token with read permissions.')}</>,
+                                    <>{t('connectors.instructions.document360.step4', 'Copy your Portal ID from the account URL or API settings.')}</>,
+                                    <>{t('connectors.instructions.document360.step5', 'Enter both the Portal ID and API token here.')}</>,
                                   ]} />
                                   <Text className="mt-2">
-                                    <a href="https://app.clickup.com/settings/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                                      {t('connectors.instructions.clickup.link', 'Go to ClickUp API Settings →')}
+                                    <a href="https://apidocs.document360.com/apidocs/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.document360.link', 'Learn about Document360 API →')}
                                     </a>
                                   </Text>
-                                </div>
-                              );
-                            case 'linear':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.linear.title', 'Linear')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.linear.step1', 'Create a Personal API Key with read access; paste it here.')}</>,
-                                  ]} />
-                                </div>
-                              );
-                            case 'productboard':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.productboard.title', 'Productboard')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.productboard.step1', 'Generate an API token with read access to products and notes; paste it here.')}</>,
-                                  ]} />
-                                </div>
-                              );
-                            case 'freshdesk':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.freshdesk.title', 'Freshdesk')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.freshdesk.step1', 'Provide your Freshdesk domain and an API key from your profile settings; paste the API key here.')}</>,
-                                  ]} />
-                                </div>
-                              );
-                            case 'highspot':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.highspot.title', 'Highspot')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.highspot.step1', 'Use an API token with read access to content; paste it here.')}</>,
-                                  ]} />
-                                </div>
-                              );
-                            case 'loopio':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.loopio.title', 'Loopio')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.loopio.step1', 'Generate an API token with read access to your library/projects; paste it here.')}</>,
-                                  ]} />
-                                </div>
-                              );
-                            case 'xenforo':
-                              return (
-                                <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.xenforo.title', 'XenForo')}</Text>
-                                  <Bullets items={[
-                                    <>{t('connectors.instructions.xenforo.step1', 'Provide the XenForo API base URL and an API key with read permissions; paste it here.')}</>,
-                                  ]} />
                                 </div>
                               );
                             case 'gitbook':
                               return (
                                 <div>
-                                  <Text className="font-semibold">{t('connectors.instructions.gitbook.title', 'GitBook Access Token')}</Text>
+                                  <Text className="font-semibold">{t('connectors.instructions.gitbook.title', 'Get GitBook Access Token')}</Text>
                                   <Steps items={[
-                                    <>{t('connectors.instructions.gitbook.step1', 'Generate an access token with read permissions for your spaces.')}</>,
-                                    <>{t('connectors.instructions.gitbook.step2', 'Paste the token here.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step1', 'Log into your GitBook account.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step2', 'Go to Settings → Developer settings.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step3', 'Create a new personal access token with read permissions for your spaces.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step4', 'Copy the generated token.')}</>,
+                                    <>{t('connectors.instructions.gitbook.step5', 'Paste the token here to create the credential.')}</>,
                                   ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://developer.gitbook.com/gitbook-api/authentication" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.gitbook.link', 'Learn about GitBook API →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'xenforo':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.xenforo.title', 'Get XenForo Access')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.xenforo.step1', 'Log into your XenForo forum as an admin.')}</>,
+                                    <>{t('connectors.instructions.xenforo.step2', 'Go to Admin CP → Setup → API keys.')}</>,
+                                    <>{t('connectors.instructions.xenforo.step3', 'Create a new API key with read permissions.')}</>,
+                                    <>{t('connectors.instructions.xenforo.step4', 'Copy your forum base URL (e.g., https://yourforum.com).')}</>,
+                                    <>{t('connectors.instructions.xenforo.step5', 'Enter the base URL here (API key will be configured separately if needed).')}</>,
+                                  ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.xenforo.note', 'XenForo v2.2+ required. Some installations may not require API keys for public content.')}</Text>
+                                </div>
+                              );
+                            case 'wikipedia':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.wikipedia.title', 'Configure Wikipedia Indexing')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.wikipedia.step1', 'Choose your target Wikipedia language edition (e.g., "en" for English).')}</>,
+                                    <>{t('connectors.instructions.wikipedia.step2', 'Identify specific categories or pages you want to index.')}</>,
+                                    <>{t('connectors.instructions.wikipedia.step3', 'Set recursion depth: 0 for no sub-categories, -1 for unlimited depth.')}</>,
+                                    <>{t('connectors.instructions.wikipedia.step4', 'No API key required - Wikipedia content is publicly accessible.')}</>,
+                                    <>{t('connectors.instructions.wikipedia.step5', 'Configure your indexing scope in the connector settings.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://en.wikipedia.org/wiki/Category:Contents" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.wikipedia.link', 'Browse Wikipedia Categories →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'mediawiki':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.mediawiki.title', 'Configure MediaWiki Access')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.mediawiki.step1', 'Identify your MediaWiki site URL (e.g., https://wiki.yourcompany.com).')}</>,
+                                    <>{t('connectors.instructions.mediawiki.step2', 'Choose the language code for your wiki (usually "en").')}</>,
+                                    <>{t('connectors.instructions.mediawiki.step3', 'For private wikis, you may need to configure API access in MediaWiki admin.')}</>,
+                                    <>{t('connectors.instructions.mediawiki.step4', 'Identify categories or specific pages you want to index.')}</>,
+                                    <>{t('connectors.instructions.mediawiki.step5', 'Set recursion depth for category traversal.')}</>,
+                                    <>{t('connectors.instructions.mediawiki.step6', 'Enter the hostname and language code here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.mediawiki.note', 'Most public MediaWiki installations allow API access without authentication.')}</Text>
+                                </div>
+                              );
+                            case 'discourse':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.discourse.title', 'Get Discourse API Key')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.discourse.step1', 'Log into your Discourse forum as an admin.')}</>,
+                                    <>{t('connectors.instructions.discourse.step2', 'Go to Admin → API → Keys.')}</>,
+                                    <>{t('connectors.instructions.discourse.step3', 'Create a new API key with read permissions.')}</>,
+                                    <>{t('connectors.instructions.discourse.step4', 'Choose a specific user or "All Users" for the key scope.')}</>,
+                                    <>{t('connectors.instructions.discourse.step5', 'Copy your Discourse base URL and the API key.')}</>,
+                                    <>{t('connectors.instructions.discourse.step6', 'Enter the base URL, API key, and username here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://meta.discourse.org/t/create-and-configure-an-api-key/230124" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.discourse.link', 'Learn about Discourse API →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'axero':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.axero.title', 'Get Axero API Token')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.axero.step1', 'Log into your Axero intranet as an admin.')}</>,
+                                    <>{t('connectors.instructions.axero.step2', 'Go to Control Panel → Configuration → API Settings.')}</>,
+                                    <>{t('connectors.instructions.axero.step3', 'Enable API access and generate a new API token.')}</>,
+                                    <>{t('connectors.instructions.axero.step4', 'Copy your Axero base URL (e.g., https://yourcompany.axerosolutions.com).')}</>,
+                                    <>{t('connectors.instructions.axero.step5', 'Enter the base URL and API token here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2">
+                                    <a href="https://community.axerosolutions.com/communities/public/communifire-api" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                      {t('connectors.instructions.axero.link', 'Learn about Axero API →')}
+                                    </a>
+                                  </Text>
+                                </div>
+                              );
+                            case 'google_sites':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.google_sites.title', 'Prepare Google Sites Content')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.google_sites.step1', 'Open your Google Site in a web browser.')}</>,
+                                    <>{t('connectors.instructions.google_sites.step2', 'Use browser tools or a web scraper to download the HTML content.')}</>,
+                                    <>{t('connectors.instructions.google_sites.step3', 'Create a ZIP file containing all the HTML files and assets.')}</>,
+                                    <>{t('connectors.instructions.google_sites.step4', 'Note your Google Site\'s public URL.')}</>,
+                                    <>{t('connectors.instructions.google_sites.step5', 'Upload the ZIP file and enter the base URL here.')}</>,
+                                  ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.google_sites.note', 'This connector requires pre-downloaded HTML content as Google Sites doesn\'t provide a direct API.')}</Text>
+                                </div>
+                              );
+                            case 'file':
+                              return (
+                                <div>
+                                  <Text className="font-semibold">{t('connectors.instructions.file.title', 'Upload Files for Indexing')}</Text>
+                                  <Steps items={[
+                                    <>{t('connectors.instructions.file.step1', 'Prepare the documents you want to index (PDF, DOCX, TXT, etc.).')}</>,
+                                    <>{t('connectors.instructions.file.step2', 'Organize files in folders if you want to maintain structure.')}</>,
+                                    <>{t('connectors.instructions.file.step3', 'Use the file upload interface to select your documents.')}</>,
+                                    <>{t('connectors.instructions.file.step4', 'Multiple files can be uploaded in a single batch.')}</>,
+                                    <>{t('connectors.instructions.file.step5', 'Files will be processed and indexed automatically after upload.')}</>,
+                                  ]} />
+                                  <Text className="mt-2 text-gray-600">{t('connectors.instructions.file.note', 'Supported formats: PDF, DOCX, PPTX, XLSX, TXT, MD, HTML, and more.')}</Text>
                                 </div>
                               );
                             default:
