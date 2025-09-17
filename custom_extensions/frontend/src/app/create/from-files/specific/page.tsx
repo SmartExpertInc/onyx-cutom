@@ -9,6 +9,8 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
 import { Input } from '@/components/ui/input';
 import { ConnectorCard } from '@/components/ui/connector-card';
+import { Button } from '@/components/ui/button';
+import { HeadTextCustom } from '@/components/ui/head-text-custom';
 
 interface Connector {
   id: number;
@@ -208,17 +210,22 @@ export default function CreateFromSpecificFilesPage() {
       {/* Header */}
       <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <Link
-            href="/create"
-            className="group flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-800 rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+          <Button
+            variant="back"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
-            {t('interface.back', 'Back')}
-          </Link>
+            <Link
+              href="/create"
+              className="group flex items-center gap-3 px-4 py-2.5"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+              {t('interface.back', 'Back')}
+            </Link>
+          </Button>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
-        </h1>
+        <HeadTextCustom
+          text={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
+          textSize="text-2xl sm:text-3xl"
+        />
         <div className="w-24"></div> {/* Spacer for centering */}
       </header>
 
@@ -239,7 +246,11 @@ export default function CreateFromSpecificFilesPage() {
                 </div>
                 <button
                   onClick={() => setShowFileBrowser(!showFileBrowser)}
-                  className="group p-2.5 bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 rounded-lg border border-gray-200 hover:border-blue-200 transition-all duration-200 hover:shadow-md"
+                  className={`group p-2.5 rounded-lg border transition-all duration-200 hover:shadow-md ${
+                    showFileBrowser 
+                      ? 'bg-blue-100 hover:bg-blue-200 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-700 border-gray-200 hover:border-gray-300'
+                  }`}
                   title={showFileBrowser ? t('interface.hideBrowser', 'Hide Browser') : t('interface.showBrowser', 'Show Browser')}
                 >
                   <FolderOpen className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
@@ -367,7 +378,7 @@ export default function CreateFromSpecificFilesPage() {
               </div>
               
               <div className="space-y-4">
-                <div className="flex items-center bg-gradient-to-tr from-white-50 via-white to-blue-100 justify-between p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-100">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Settings className="w-4 h-4 text-blue-600" />
@@ -386,7 +397,7 @@ export default function CreateFromSpecificFilesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gradient-to-tr from-white-50 via-white to-green-100 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-100">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                       <FileText className="w-4 h-4 text-green-600" />
