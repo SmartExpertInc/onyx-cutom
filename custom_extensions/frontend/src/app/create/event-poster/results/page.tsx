@@ -2,6 +2,7 @@
 
 import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import EventPoster from "../components/EventPoster";
 
 function EventPosterResultsContent() {
   const router = useRouter();
@@ -42,16 +43,6 @@ function EventPosterResultsContent() {
             </button>
             
             <button
-              onClick={() => router.push('/create/event-poster/poster')}
-              className="text-purple-600 hover:text-purple-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors cursor-pointer"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              View Poster
-            </button>
-            
-            <button
               onClick={handleBackToProjects}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
@@ -66,100 +57,23 @@ function EventPosterResultsContent() {
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Poster Results</h1>
-            <p className="text-gray-600">Your event poster data has been generated successfully</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Poster</h1>
+            <p className="text-gray-600">Your event poster has been generated successfully</p>
           </div>
 
-          <div className="space-y-8">
-            {/* Event Information Section */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
-                Event Information
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Назва події (Event Name)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {eventName}
-                  </h1>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Дата (Date)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {date}
-                  </h1>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Тема/Заголовок (Topic/Title)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {topic}
-                  </h1>
-                </div>
-              </div>
-            </div>
-            
-            {/* Speaker Information Section */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
-                Speaker Information
-              </h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Головний спікер (Main Speaker)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {mainSpeaker}
-                  </h1>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Опис спікера (Speaker Description)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {speakerDescription}
-                  </h1>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Додаткові спікери (Additional Speakers)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {additionalSpeakers}
-                  </h1>
-                </div>
-              </div>
-            </div>
-            
-            {/* Ticket Information Section */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-4">
-                Ticket Information
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Ціна квитка (Ticket Price)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {ticketPrice}
-                  </h1>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Тип квитка (Ticket Type)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {ticketType}
-                  </h1>
-                </div>
-                
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Умови безкоштовного доступу (Free Access Conditions)</label>
-                  <h1 className="text-2xl font-bold text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    {freeAccessConditions}
-                  </h1>
-                </div>
-              </div>
-            </div>
+          {/* Event Poster Component */}
+          <div className="flex justify-center">
+            <EventPoster
+              eventName={eventName}
+              mainSpeaker={mainSpeaker}
+              speakerDescription={speakerDescription}
+              date={date}
+              topic={topic}
+              additionalSpeakers={additionalSpeakers}
+              ticketPrice={ticketPrice}
+              ticketType={ticketType}
+              freeAccessConditions={freeAccessConditions}
+            />
           </div>
         </div>
       </div>

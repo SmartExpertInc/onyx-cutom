@@ -3,9 +3,31 @@
 import React from "react";
 import Image from "next/image";
 
-export default function EventPosterPage() {
+interface EventPosterProps {
+  eventName: string;
+  mainSpeaker: string;
+  speakerDescription: string;
+  date: string;
+  topic: string;
+  additionalSpeakers: string;
+  ticketPrice: string;
+  ticketType: string;
+  freeAccessConditions: string;
+}
+
+export default function EventPoster({
+  eventName,
+  mainSpeaker,
+  speakerDescription,
+  date,
+  topic,
+  additionalSpeakers,
+  ticketPrice,
+  ticketType,
+  freeAccessConditions
+}: EventPosterProps) {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="w-[1000px] h-[1000px] bg-black relative overflow-hidden mx-auto">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -18,13 +40,13 @@ export default function EventPosterPage() {
       </div>
       
       {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="relative z-10 h-full flex flex-col">
         {/* Top Section */}
         <div className="flex justify-between items-start p-8 pt-12">
           {/* Left Side - Main Title */}
           <div className="flex-1">
             <h1 className="text-6xl font-bold text-white mb-8 leading-tight">
-              ВЕЛИКА ОНЛАЙН-КОНФЕРЕНЦІЯ:
+              {eventName}:
             </h1>
           </div>
           
@@ -36,7 +58,7 @@ export default function EventPosterPage() {
               <div>CLUB</div>
             </div>
             <div className="bg-purple-600 text-white text-4xl font-bold px-6 py-3 rounded-lg">
-              08.10.2025
+              {date}
             </div>
           </div>
         </div>
@@ -48,22 +70,22 @@ export default function EventPosterPage() {
             <div className="flex-1 pr-8">
               {/* Main Speaker Name */}
               <h2 className="text-5xl font-bold text-white mb-6">
-                Денис Довгополий
+                {mainSpeaker}
               </h2>
               
               {/* Speaker Description */}
               <p className="text-white text-lg mb-8 leading-relaxed max-w-2xl">
-                засновник QNICORN NEST (Luxemburg), першого штучного інтелекту, який вже 8 років шукає фінансування та автоматизує процес спілкування з інвесторами
+                {speakerDescription}
               </p>
               
               {/* Event Topic */}
               <h3 className="text-4xl font-bold text-white mb-6">
-                Тренди та пріоритети ринку VC у 2025-2026 роках
+                {topic}
               </h3>
               
               {/* Additional Speakers */}
               <p className="text-white text-lg">
-                Та ще 4 зіркових спікерів: Сергій Рабенко, Олександр Борняков, Антон Вайсбурд та Андрій Лазоренко
+                {additionalSpeakers}
               </p>
             </div>
             
@@ -71,7 +93,7 @@ export default function EventPosterPage() {
             <div className="w-80 h-80 relative">
               <Image
                 src="/create/event-poster/person.png"
-                alt="Денис Довгополий"
+                alt={mainSpeaker}
                 fill
                 className="object-cover rounded-lg"
                 priority
@@ -85,12 +107,12 @@ export default function EventPosterPage() {
           <div className="flex justify-between items-center">
             {/* Left - Ticket Price */}
             <div className="bg-gray-800 border-2 border-gray-600 text-white text-2xl font-bold px-8 py-4 rounded-lg">
-              Квиток STANDART 150€
+              {ticketPrice}
             </div>
             
             {/* Right - Free Access */}
             <div className="bg-purple-600 text-white text-xl font-bold px-8 py-4 rounded-lg">
-              БЕЗКОШТОВНО ДЛЯ ЧЛЕНІВ FUTURE BUSINESS CLUB
+              {freeAccessConditions}
             </div>
           </div>
         </div>
