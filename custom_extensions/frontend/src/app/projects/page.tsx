@@ -960,7 +960,7 @@ const ProjectsPageInner: React.FC = () => {
         <div className="fixed bottom-4 right-4">
           <button
             type="button"
-            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
+            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition cursor-pointer"
             aria-label="Help"
             onClick={() => userback?.openForm()}
           >

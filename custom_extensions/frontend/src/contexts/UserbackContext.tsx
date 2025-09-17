@@ -45,8 +45,8 @@ export const UserbackProvider: React.FC<UserbackProviderProps> = ({ children }) 
               email: userData.email,
             },
           },
-          autohide: false,
         });
+        instance.hideLauncher();
 
         setUserback(instance);
         console.log('Userback initialized for user:', userData);
@@ -65,7 +65,7 @@ export const UserbackProvider: React.FC<UserbackProviderProps> = ({ children }) 
         const instance = await Userback(token, { autohide: true });
         setUserback(instance);
       } catch (error) {
-        console.error('❌ Failed to pre-initialize Userback:', error);
+        console.error('Failed to pre-initialize Userback:', error);
       }
     };
     preInit();
