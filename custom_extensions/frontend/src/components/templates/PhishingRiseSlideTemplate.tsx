@@ -53,7 +53,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
   // Left content area
   const leftArea: React.CSSProperties = {
-    padding: '35px 56px 56px 64px',
+    padding: '90px 56px 56px 64px',
     position: 'relative',
     backgroundColor: '#E0E7FF',
     // right-side soft shadow to match design separation
@@ -79,7 +79,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const avatarHolder: React.CSSProperties = {
     position: 'absolute',
     left: '72px',
-    bottom: '40px',
+    bottom: '70px',
     width: '140px',
     height: '140px',
     backgroundColor: '#0F58F9',
@@ -336,8 +336,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
           top: '72px',
           pointerEvents: 'none'
         }}>
-          {/* Horizontal grid lines */}
-          {[0, 1, 2, 3, 4].map((i) => (
+          {/* Horizontal grid lines - only for 20, 40, 60, 70 (not for 0) */}
+          {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
               style={{
@@ -346,7 +346,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 right: '0',
                 height: '1px',
                 backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                top: `${i * 103}px`
+                top: `${i * 103 - 51.5}px` // Center of each number (103px spacing / 2)
               }}
             />
           ))}
@@ -373,7 +373,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 style={{
                   width: '96px',
                   height: `${b.height}px`,
-                  backgroundColor: '#0b0b0b',
+                  background: 'linear-gradient(to bottom, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 117% )',
                   position: 'relative',
                   cursor: isEditable ? 'ns-resize' : 'default',
                   boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
@@ -434,7 +434,8 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
         left: '30px',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px'
+        gap: '8px',
+        zIndex: 10,
       }}>
         {/* Small line */}
         <div style={{
