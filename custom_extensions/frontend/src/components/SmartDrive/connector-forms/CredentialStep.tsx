@@ -359,7 +359,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                   <Steps items={[
                                     <>{t('connectors.instructions.confluence.step1', 'Go to Atlassian Account Settings → Security → Create and manage API tokens.')}</>,
                                     <>{t('connectors.instructions.confluence.step2', 'Create a new API token with a descriptive label.')}</>,
-                                    <>{t('connectors.instructions.confluence.step3', 'Copy the token and use it with your Confluence username and URL.')}</>,
+                                    <>{t('connectors.instructions.confluence.step3', 'Copy the token and your Confluence username (not URL).')}</>,
+                                    <>{t('connectors.instructions.confluence.step4', 'Enter your username and the API token here.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -375,7 +376,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                   <Steps items={[
                                     <>{t('connectors.instructions.jira.step1', 'Go to Atlassian Account Settings → Security → Create and manage API tokens.')}</>,
                                     <>{t('connectors.instructions.jira.step2', 'Create a new API token with a descriptive label.')}</>,
-                                    <>{t('connectors.instructions.jira.step3', 'Copy the token and use it with your Jira email and URL.')}</>,
+                                    <>{t('connectors.instructions.jira.step3', 'Copy the token and your Jira user email address.')}</>,
+                                    <>{t('connectors.instructions.jira.step4', 'Enter your email and the API token here.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -391,7 +393,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                   <Steps items={[
                                     <>{t('connectors.instructions.zendesk.step1', 'Go to Zendesk Admin Center → Apps and integrations → APIs → Zendesk API.')}</>,
                                     <>{t('connectors.instructions.zendesk.step2', 'Enable Token Access and create a new API token.')}</>,
-                                    <>{t('connectors.instructions.zendesk.step3', 'Copy the token and use it with your email and subdomain.')}</>,
+                                    <>{t('connectors.instructions.zendesk.step3', 'Copy the token, your email, and subdomain (e.g., "yourcompany" from yourcompany.zendesk.com).')}</>,
+                                    <>{t('connectors.instructions.zendesk.step4', 'Enter the subdomain, email, and token here.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://support.zendesk.com/hc/en-us/articles/4408889192858" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -440,6 +443,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.dropbox.step1', 'Go to Dropbox App Console and create a new app.')}</>,
                                     <>{t('connectors.instructions.dropbox.step2', 'Choose "Scoped access" and "Full Dropbox" access.')}</>,
                                     <>{t('connectors.instructions.dropbox.step3', 'Generate an access token and copy it.')}</>,
+                                    <>{t('connectors.instructions.dropbox.step4', 'The form will show "Dropbox API Key" - paste your access token there.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -532,7 +536,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                   <Steps items={[
                                     <>{t('connectors.instructions.sharepoint.step1', 'Go to Azure Portal → App registrations → New registration.')}</>,
                                     <>{t('connectors.instructions.sharepoint.step2', 'Create app with appropriate Microsoft Graph permissions.')}</>,
-                                    <>{t('connectors.instructions.sharepoint.step3', 'Generate a client secret and copy the Client ID, Secret, and Directory ID.')}</>,
+                                    <>{t('connectors.instructions.sharepoint.step3', 'Generate a client secret and copy the Client ID, Secret, and Directory (Tenant) ID.')}</>,
+                                    <>{t('connectors.instructions.sharepoint.step4', 'Enter Client ID, Client Secret, and Directory ID in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -632,7 +637,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.bookstack.step3', 'Create a new API token with a descriptive name.')}</>,
                                     <>{t('connectors.instructions.bookstack.step4', 'Copy the Token ID and Token Secret that are generated.')}</>,
                                     <>{t('connectors.instructions.bookstack.step5', 'Note your BookStack base URL (e.g., https://wiki.yourcompany.com).')}</>,
-                                    <>{t('connectors.instructions.bookstack.step6', 'Enter the base URL, Token ID, and Token Secret here.')}</>,
+                                    <>{t('connectors.instructions.bookstack.step6', 'Enter the base URL, Token ID, and Token Secret in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://www.bookstackapp.com/docs/admin/api-auth/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -702,7 +707,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.loopio.step2', 'Go to Settings → Integrations → API Access.')}</>,
                                     <>{t('connectors.instructions.loopio.step3', 'Generate new API credentials (Client ID and Client Token).')}</>,
                                     <>{t('connectors.instructions.loopio.step4', 'Find your Loopio subdomain (e.g., "yourcompany" from yourcompany.loopio.com).')}</>,
-                                    <>{t('connectors.instructions.loopio.step5', 'Enter the subdomain, Client ID, and Client Token here.')}</>,
+                                    <>{t('connectors.instructions.loopio.step5', 'Enter the Loopio Subdomain, Client ID, and Client Token in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://help.loopio.com/en/articles/4454029" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -720,7 +725,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.guru.step2', 'Go to Settings → API Access.')}</>,
                                     <>{t('connectors.instructions.guru.step3', 'Generate a new API token for your user account.')}</>,
                                     <>{t('connectors.instructions.guru.step4', 'Copy your username/email and the API token.')}</>,
-                                    <>{t('connectors.instructions.guru.step5', 'Enter both your Guru username and the API token here.')}</>,
+                                    <>{t('connectors.instructions.guru.step5', 'Enter both the Guru User and Guru User Token in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://help.getguru.com/docs/guru-api-overview" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -737,8 +742,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.slab.step1', 'Log into your Slab team as an admin.')}</>,
                                     <>{t('connectors.instructions.slab.step2', 'Go to Settings → Integrations → API.')}</>,
                                     <>{t('connectors.instructions.slab.step3', 'Create a new API token with read permissions.')}</>,
-                                    <>{t('connectors.instructions.slab.step4', 'Copy the generated token and your Slab team URL.')}</>,
-                                    <>{t('connectors.instructions.slab.step5', 'Enter both the base URL and bot token here.')}</>,
+                                    <>{t('connectors.instructions.slab.step4', 'Copy the generated bot token.')}</>,
+                                    <>{t('connectors.instructions.slab.step5', 'Enter the bot token in the "Slab Bot Token" field.')}</>,
                                   ]} />
                                   <Text className="mt-2 text-gray-600">{t('connectors.instructions.slab.note', 'Your base URL should look like: https://yourteam.slab.com/')}</Text>
                                 </div>
@@ -753,7 +758,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.salesforce.step3', 'Click "Reset Security Token" - a new token will be emailed to you.')}</>,
                                     <>{t('connectors.instructions.salesforce.step4', 'Copy the security token from the email.')}</>,
                                     <>{t('connectors.instructions.salesforce.step5', 'Determine if you\'re using a Sandbox environment (usually has "test" in the URL).')}</>,
-                                    <>{t('connectors.instructions.salesforce.step6', 'Enter your username, password, security token, and sandbox setting here.')}</>,
+                                    <>{t('connectors.instructions.salesforce.step6', 'Enter your username, password, security token, and check sandbox if applicable.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://help.salesforce.com/s/articleView?id=sf.user_security_token.htm" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -790,7 +795,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.gong.step2', 'Go to Settings → Integrations → REST API.')}</>,
                                     <>{t('connectors.instructions.gong.step3', 'Create a new API credential with read permissions.')}</>,
                                     <>{t('connectors.instructions.gong.step4', 'Copy the Access Key and Access Key Secret.')}</>,
-                                    <>{t('connectors.instructions.gong.step5', 'Enter both the Access Key and Secret here.')}</>,
+                                    <>{t('connectors.instructions.gong.step5', 'Enter both the Gong Access Key and Gong Access Key Secret in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://help.gong.io/hc/en-us/articles/115005055646" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -859,7 +864,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.egnyte.step3', 'Create a new API application with read permissions.')}</>,
                                     <>{t('connectors.instructions.egnyte.step4', 'Generate an access token for the application.')}</>,
                                     <>{t('connectors.instructions.egnyte.step5', 'Copy your Egnyte domain (e.g., "yourcompany" from yourcompany.egnyte.com).')}</>,
-                                    <>{t('connectors.instructions.egnyte.step6', 'Enter your domain and access token here.')}</>,
+                                    <>{t('connectors.instructions.egnyte.step6', 'Enter the domain and access token here.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://developers.egnyte.com/docs/read/Getting_Started" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -910,8 +915,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.discourse.step2', 'Go to Admin → API → Keys.')}</>,
                                     <>{t('connectors.instructions.discourse.step3', 'Create a new API key with read permissions.')}</>,
                                     <>{t('connectors.instructions.discourse.step4', 'Choose a specific user or "All Users" for the key scope.')}</>,
-                                    <>{t('connectors.instructions.discourse.step5', 'Copy your Discourse base URL and the API key.')}</>,
-                                    <>{t('connectors.instructions.discourse.step6', 'Enter the base URL, API key, and username here.')}</>,
+                                    <>{t('connectors.instructions.discourse.step5', 'Copy the API key and the username associated with it.')}</>,
+                                    <>{t('connectors.instructions.discourse.step6', 'Enter the API key and API username in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://meta.discourse.org/t/create-and-configure-an-api-key/230124" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -994,7 +999,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.linear.step3', 'Create a new Personal API Key with a descriptive name.')}</>,
                                     <>{t('connectors.instructions.linear.step4', 'The key will have read access to issues, projects, and comments in your workspace.')}</>,
                                     <>{t('connectors.instructions.linear.step5', 'Copy the generated API key.')}</>,
-                                    <>{t('connectors.instructions.linear.step6', 'Paste the API key here to create the credential.')}</>,
+                                    <>{t('connectors.instructions.linear.step6', 'Paste the API key in the "Linear Access Token" field.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://linear.app/settings/api" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
@@ -1011,8 +1016,8 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.freshdesk.step1', 'Log into your Freshdesk account as an admin.')}</>,
                                     <>{t('connectors.instructions.freshdesk.step2', 'Go to Admin → Profile Settings.')}</>,
                                     <>{t('connectors.instructions.freshdesk.step3', 'Find your API Key in the "Your API Key" section on the right.')}</>,
-                                    <>{t('connectors.instructions.freshdesk.step4', 'Copy the API key and note your Freshdesk domain (e.g., "yourcompany" from yourcompany.freshdesk.com).')}</>,
-                                    <>{t('connectors.instructions.freshdesk.step5', 'Enter your domain, email, and API key here.')}</>,
+                                    <>{t('connectors.instructions.freshdesk.step4', 'Copy the API key, your password, and note your Freshdesk domain (e.g., "yourcompany" from yourcompany.freshdesk.com).')}</>,
+                                    <>{t('connectors.instructions.freshdesk.step5', 'Enter the domain, password, and API key in the form.')}</>,
                                   ]} />
                                   <Text className="mt-2">
                                     <a href="https://support.freshdesk.com/support/solutions/articles/215517" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
