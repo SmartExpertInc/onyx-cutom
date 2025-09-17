@@ -304,29 +304,53 @@ export default function CreateFromSpecificFilesPage() {
                   </p>
                 </div>
               ) : (
-                filteredConnectors.map((connector) => (
-                  <ConnectorCard
-                    key={connector.id}
-                    title={connector.name}
-                    value={connector.source}
-                    iconSrc={getConnectorIcon(connector.source)}
-                    gradientColors={{ from: 'gray-300', to: 'slate-200' }}
-                    textColor="gray-900"
-                    iconColor="gray-600"
-                    selectable={true}
-                    isSelected={selectedConnectors.includes(connector.id)}
-                    onSelect={() => handleConnectorToggle(connector.id)}
-                    showHoverEffect={true}
-                    hoverGradientColors={{ from: 'blue-500', to: 'purple-500' }}
-                  />
-                ))
+                filteredConnectors.map((connector, index) => {
+                  // Different gradient colors for different connectors
+                  const getConnectorGradient = (source: string, index: number) => {
+                    const gradients = [
+                      { from: 'blue-300', to: 'indigo-200' },      // Blue
+                      { from: 'purple-300', to: 'pink-200' },      // Purple
+                      { from: 'green-300', to: 'emerald-200' },    // Green
+                      { from: 'orange-300', to: 'amber-200' },     // Orange
+                      { from: 'red-300', to: 'rose-200' },         // Red
+                      { from: 'teal-300', to: 'cyan-200' },        // Teal
+                      { from: 'violet-300', to: 'purple-200' },    // Violet
+                      { from: 'yellow-300', to: 'orange-200' },    // Yellow
+                      { from: 'indigo-300', to: 'blue-200' },      // Indigo
+                      { from: 'pink-300', to: 'rose-200' }         // Pink
+                    ];
+                    
+                    // Use connector source to determine gradient for consistency
+                    const sourceIndex = source.length % gradients.length;
+                    return gradients[sourceIndex];
+                  };
+
+                  const connectorGradient = getConnectorGradient(connector.source, index);
+                  
+                  return (
+                    <ConnectorCard
+                      key={connector.id}
+                      title={connector.name}
+                      value={connector.source}
+                      iconSrc={getConnectorIcon(connector.source)}
+                      gradientColors={connectorGradient}
+                      textColor="gray-900"
+                      iconColor="gray-600"
+                      selectable={true}
+                      isSelected={selectedConnectors.includes(connector.id)}
+                      onSelect={() => handleConnectorToggle(connector.id)}
+                      showHoverEffect={true}
+                      hoverGradientColors={{ from: 'blue-500', to: 'purple-500' }}
+                    />
+                  );
+                })
               )}
             </div>
           </div>
 
           {/* Content Creation Section */}
           <div className="mb-8">
-            <div className="bg-gradient-to-tr from-white-50 via-white to-purple-100 rounded-xl border border-purple-200 p-6">
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border border-purple-200 p-6">
               <div className="flex items-center gap-4 mb-4 bg-gradient-to-tr from-white-50 via-white to-blue-100">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-purple-600" />
