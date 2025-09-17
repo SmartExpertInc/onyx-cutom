@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import YourLogo from '../YourLogo';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSlideProps & {
   theme?: SlideTheme | string;
@@ -28,13 +29,19 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [editingYourLogoText, setEditingYourLogoText] = useState(false);
   const [currentBars, setCurrentBars] = useState(bars);
   const [editingBar, setEditingBar] = useState<{ index: number; field: 'label' | 'year' | 'widthPercent' } | null>(null);
+  const [currentPageNumber, setCurrentPageNumber] = useState('08');
+  const [currentYourLogoText, setCurrentYourLogoText] = useState('Your Logo');
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -47,29 +54,28 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     left: '16px',
     right: '16px',
     bottom: '16px',
-    backgroundColor: '#DCEAF7',
+    backgroundColor: '#E0E7FF',
     borderRadius: '20px'
   };
 
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
-    left: '129px',
-    top: '70px',
-    fontSize: '48px',
+    left: '60px',
+    top: '125px',
+    fontSize: '44px',
     lineHeight: 1.05,
     fontWeight: 700,
-    color: '#354963',
-    whiteSpace: 'pre-line'
+    color: '#09090B',
   };
 
   const barsArea: React.CSSProperties = {
     position: 'absolute',
     left: '64px',
-    top: '220px',
+    top: '275px',
     width: '56%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '28px'
+    gap: '15px'
   };
 
   const rightImageArea: React.CSSProperties = {
@@ -80,9 +86,129 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     height: '96%',
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, bars, doctorImagePath, doctorImageAlt, panelBackgroundColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handleYourLogoTextSave = (newYourLogoText: string) => {
+    setCurrentYourLogoText(newYourLogoText);
+    setEditingYourLogoText(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, bars, doctorImagePath, doctorImageAlt, panelBackgroundColor }, yourLogoText: newYourLogoText });
+    }
+  };
+
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, bars, doctorImagePath, doctorImageAlt, panelBackgroundColor }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
-    <div className="ai-pharma-market-growth-slide inter-theme" style={slideStyles}>
+    <div className="ai-pharma-market-growth-slide" style={slideStyles}>
       <div style={roundedPanel} />
+
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        zIndex: 10
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #000000',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#000000'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '2px',
+                backgroundColor: '#FFFFFF',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '12px',
+                backgroundColor: '#FFFFFF',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            {isEditable && editingYourLogoText ? (
+              <ImprovedInlineEditor
+                initialValue={currentYourLogoText}
+                onSave={handleYourLogoTextSave}
+                onCancel={() => setEditingYourLogoText(false)}
+                className="your-logo-text-editor"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  width: '80px',
+                  height: 'auto',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => isEditable && setEditingYourLogoText(true)}
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: '#000000',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+              >
+                {currentYourLogoText}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       <div style={titleStyle}>
         {isEditable && editingTitle ? (
@@ -102,7 +228,38 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
       {/* Bars */}
       <div style={barsArea}>
         {currentBars.map((b, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '18px', position: 'relative' }}>
+          <div 
+            key={i} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '18px', 
+              position: 'relative',
+              padding: '8px',
+              borderRadius: '8px',
+              transition: 'background-color 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (isEditable) {
+                e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                // Show delete button
+                const deleteBtn = e.currentTarget.querySelector('[data-delete-btn]') as HTMLElement;
+                if (deleteBtn) {
+                  deleteBtn.style.opacity = '1';
+                  deleteBtn.style.pointerEvents = 'auto';
+                }
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              // Hide delete button
+              const deleteBtn = e.currentTarget.querySelector('[data-delete-btn]') as HTMLElement;
+              if (deleteBtn) {
+                deleteBtn.style.opacity = '0';
+                deleteBtn.style.pointerEvents = 'none';
+              }
+            }}
+          >
             {/* Year editable */}
             <div style={{ width: '50px', minHeight: '22px' }}>
               {isEditable && editingBar?.index === i && editingBar?.field === 'year' ? (
@@ -110,17 +267,17 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                   initialValue={b.year}
                   onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], year: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                   onCancel={() => setEditingBar(null)}
-                  style={{ width: '50px', color: '#677686' }}
+                  style={{ width: '50px', color: '#09090B' }}
                 />
               ) : (
-                <div style={{ color: '#677686' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
+                <div style={{ color: '#09090B' }} onClick={() => isEditable && setEditingBar({ index: i, field: 'year' })}>{b.year}</div>
               )}
             </div>
 
             <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
               {/* Width resizable via drag */}
               <div
-                style={{ width: `${b.widthPercent}%`, height: '100%', backgroundColor: '#2C405F', borderRadius: '6px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px' }}
+                style={{ width: `${b.widthPercent}%`, height: '100%', background: 'linear-gradient(to left, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 122% )', borderRadius: '2px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px' }}
                 onMouseDown={(e) => {
                   if (!isEditable) return;
                   const container = (e.currentTarget.parentElement as HTMLElement);
@@ -146,11 +303,11 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                     initialValue={b.label}
                     onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', background: 'transparent', border: 'none', outline: 'none' }}
+                    style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', background: 'transparent', border: 'none', outline: 'none' }}
                   />
                 ) : (
                   <div 
-                    style={{ color: '#C4D4E2', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
+                    style={{ color: '#ffffff', fontSize: '22px', fontWeight: '500', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
                     onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}
                   >
                     {b.label}
@@ -185,14 +342,55 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               </div>
             </div>
 
+            {/* Delete button - appears on hover */}
             {isEditable && (
-              <button
+              <div
+                data-delete-btn
                 onClick={() => { const nb=currentBars.filter((_,idx)=>idx!==i); setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
-                style={{ position: 'absolute', right: '110px', top: '-8px', background: '#fff', border: '1px solid #ddd', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}
+                style={{ 
+                  position: 'absolute', 
+                  right: '-40px', 
+                  top: '50%', 
+                  transform: 'translateY(-50%)',
+                  width: '32px', 
+                  height: '32px', 
+                  backgroundColor: '#ff4444',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(255, 68, 68, 0.3)',
+                  transition: 'all 0.2s ease',
+                  opacity: 0,
+                  pointerEvents: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                }}
                 aria-label="Delete bar"
               >
-                ×
-              </button>
+                <div style={{
+                  width: '16px',
+                  height: '2px',
+                  backgroundColor: '#ffffff',
+                  transform: 'rotate(45deg)',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    width: '16px',
+                    height: '2px',
+                    backgroundColor: '#ffffff',
+                    transform: 'rotate(-90deg)',
+                    position: 'absolute',
+                    top: '0',
+                    left: '0'
+                  }} />
+                </div>
+              </div>
             )}
           </div>
         ))}
@@ -219,6 +417,69 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
           style={{ width: '100%', height: '100%' }}
         />
       </div>
+
+      {/* Page number in bottom-left */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '30px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        zIndex: 10
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={() => setEditingPageNumber(false)}
+            className="page-number-editor"
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#000000',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
