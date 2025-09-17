@@ -14394,72 +14394,112 @@ async def generate_course_description_for_position(job_title: str, company_name:
 COMPANY DATA:
 {duckduckgo_summary}
 
-REQUIREMENTS:
-- Description should be brief (1-2 sentences)
-- Should describe what the course will teach for this position
-- Use format: "Training in [key skills/processes] for [position]"
-- Maximum 100 characters
+CRITICAL REQUIREMENTS:
+- Description must be VERY short - maximum 80 characters (not 100!)
+- Use ONLY simple format: "Training in [skills] for [short position name]"
+- Avoid long words and unnecessary details
+- DO NOT use complex constructions
 
-EXAMPLES:
-- "Training in installation, maintenance and repair of HVAC equipment systems."
-- "Training in marketing fundamentals and product promotion on marketplaces."
-- "Training in technical customer support and problem solving."
+GOOD EXAMPLES (short):
+- "Training in data analysis and visualization for analyst."
+- "Training in system design for engineer."
+- "Training in sales techniques for manager."
 
-RESPONSE (course description only):"""
+BAD EXAMPLES (too long):
+- "Training in effective sales strategies and customer relationship management for sales manager"
+- "Training in effective communication and problem solving for customer service specialists"
+
+SHORTENING RULES:
+- "sales manager" → "manager"
+- "customer service specialist" → "consultant"
+- "marketing specialist" → "marketer"
+- "data analyst" → "analyst"
+
+RESPONSE (course description only, maximum 80 characters):"""
         elif language == "es":
             prompt = f"""Crea una breve descripción del curso para la posición "{job_title}" en {company_name}.
 
 DATOS DE LA EMPRESA:
 {duckduckgo_summary}
 
-REQUISITOS:
-- La descripción debe ser breve (1-2 oraciones)
-- Debe describir qué enseñará el curso para esta posición
-- Usa el formato: "Capacitación en [habilidades/procesos clave] para [posición]"
-- Máximo 100 caracteres
+REQUISITOS CRÍTICOS:
+- La descripción debe ser MUY corta - máximo 80 caracteres (¡no 100!)
+- Usa SOLO formato simple: "Capacitación en [habilidades] para [nombre corto de posición]"
+- Evita palabras largas y detalles innecesarios
+- NO uses construcciones complejas
 
-EJEMPLOS:
-- "Capacitación en instalación, mantenimiento y reparación de sistemas de equipos HVAC."
-- "Capacitación en fundamentos de marketing y promoción de productos en marketplaces."
-- "Capacitación en soporte técnico al cliente y resolución de problemas."
+BUENOS EJEMPLOS (cortos):
+- "Capacitación en análisis de datos y visualización para analista."
+- "Capacitación en diseño de sistemas para ingeniero."
+- "Capacitación en técnicas de ventas para gerente."
 
-RESPUESTA (solo descripción del curso):"""
+MALOS EJEMPLOS (muy largos):
+- "Capacitación en estrategias efectivas de ventas y gestión de relaciones con clientes para gerente de ventas"
+- "Capacitación en comunicación efectiva y resolución de problemas para especialistas en atención al cliente"
+
+REGLAS DE ABREVIACIÓN:
+- "gerente de ventas" → "gerente"
+- "especialista en atención al cliente" → "consultor"
+- "especialista en marketing" → "marketero"
+- "analista de datos" → "analista"
+
+RESPUESTA (solo descripción del curso, máximo 80 caracteres):"""
         elif language == "ua":
             prompt = f"""Створіть короткий опис курсу для посади "{job_title}" в компанії {company_name}.
 
 ДАНІ ПРО КОМПАНІЮ:
 {duckduckgo_summary}
 
-ВИМОГИ:
-- Опис має бути коротким (1-2 речення)
-- Має описувати, чому буде навчати курс для цієї посади
-- Використовуйте формат: "Навчання [ключовим навичкам/процесам] для [посади]"
-- Максимум 100 символів
+КРИТИЧНІ ВИМОГИ:
+- Опис має бути ДУЖЕ коротким - максимум 80 символів (не 100!)
+- Використовуйте ЛИШЕ простий формат: "Навчання [навичкам] для [скорочена назва посади]"
+- Уникайте довгих слів та зайвих деталей
+- НЕ використовуйте складні конструкції
 
-ПРИКЛАДИ:
-- "Навчання встановленню, обслуговуванню та ремонту систем обладнання HVAC."
-- "Навчання основам маркетингу та просування товарів на маркетплейсах."
-- "Навчання технічній підтримці клієнтів та вирішенню проблем."
+ХОРОШІ ПРИКЛАДИ (короткі):
+- "Навчання аналізу даних та візуалізації для аналітика."
+- "Навчання проектуванню систем для інженера."
+- "Навчання продажам для менеджера."
 
-ВІДПОВІДЬ (тільки опис курсу):"""
+ПОГАНІ ПРИКЛАДИ (занадто довгі):
+- "Навчання ефективним стратегіям продажів та управлінню клієнтськими відносинами для менеджера"
+- "Навчання ефективному спілкуванню та вирішенню проблем для фахівців з обслуговування"
+
+ПРАВИЛА СКОРОЧЕННЯ:
+- "менеджер з продажів" → "менеджера"
+- "фахівець з обслуговування клієнтів" → "консультанта"
+- "спеціаліст з маркетингу" → "маркетолога"
+- "аналізатор даних" → "аналітика"
+
+ВІДПОВІДЬ (тільки опис курсу, максимум 80 символів):"""
         else:  # Russian
             prompt = f"""Создай краткое описание курса обучения для позиции "{job_title}" в компании {company_name}.
 
 ДАННЫЕ О КОМПАНИИ:
 {duckduckgo_summary}
 
-ТРЕБОВАНИЯ:
-- Описание должно быть кратким (1-2 предложения)
-- Должно описывать, чему будет обучать курс для данной позиции
-- Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
-- Максимум 100 символов
+КРИТИЧЕСКИЕ ТРЕБОВАНИЯ:
+- Описание должно быть ОЧЕНЬ коротким - максимум 80 символов (не 100!)
+- Используй ТОЛЬКО простой формат: "Обучение [навыкам] для [сокращенное название позиции]"
+- Избегай длинных слов и лишних деталей
+- НЕ используй сложные конструкции
 
-ПРИМЕРЫ:
-- "Обучение установке, обслуживанию и ремонту систем HVAC оборудования."
-- "Обучение основам маркетинга и продвижения товаров на маркетплейсе."
-- "Обучение технической поддержке клиентов и решению проблем."
+ХОРОШИЕ ПРИМЕРЫ (короткие):
+- "Обучение анализу данных и визуализации для аналитика."
+- "Обучение проектированию систем для инженера."
+- "Обучение продажам для менеджера."
 
-ОТВЕТ (только описание курса):"""
+ПЛОХИЕ ПРИМЕРЫ (слишком длинные):
+- "Обучение эффективным стратегиям продаж и управлению клиентскими отношениями для менеджера"
+- "Обучение эффективному общению и решению проблем для специалистов по обслуживанию"
+
+ПРАВИЛА СОКРАЩЕНИЯ:
+- "менеджер по продажам" → "менеджера"
+- "специалист по обслуживанию клиентов" → "консультанта"
+- "специалист по маркетингу" → "маркетолога"
+- "аналитик данных" → "аналитика"
+
+ОТВЕТ (только описание курса, максимум 80 символов):"""
         
         response_text = await stream_openai_response_direct(
             prompt=prompt,
@@ -14468,8 +14508,8 @@ RESPUESTA (solo descripción del curso):"""
         
         # Clean up the response
         description = response_text.strip()
-        if len(description) > 100:
-            description = description[:97] + "..."
+        if len(description) > 80:
+            description = description[:77] + "..."
             
         return description
         
