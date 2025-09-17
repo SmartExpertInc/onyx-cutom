@@ -366,13 +366,13 @@ export default function DynamicAuditLandingPage() {
                   
                   {/* Text */}
                   <span className="font-medium text-[13px] xl:text-[16px] text-[#71717A] xl:text-[#09090B] tracking-[0.05em]">
-                    Внедрите AI-онбординг за 7 дней
+                    {landingPageData?.language === 'en' ? 'Implement AI onboarding in 7 days' : 'Внедрите AI-онбординг за 7 дней'}
                   </span>
                 </div>
                 
                 {/* Title with colored text and span */}
                 <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
-                  AI-аудит <span className="text-[#09090B]">для компании {companyName}</span>
+                  {landingPageData?.language === 'en' ? 'AI Audit' : 'AI-аудит'} <span className="text-[#09090B]">{landingPageData?.language === 'en' ? 'for company' : 'для компании'} {companyName}</span>
                 </h1>
                 
                 {/* Description text */}
@@ -475,7 +475,7 @@ export default function DynamicAuditLandingPage() {
                         <span className="font-semibold text-[15px] xl:text-[19px] text-white leading-[120%]">3</span>
                       </div>
                       <h3 className="font-semibold text-[18px] xl:text-[24px] xl:mb-[20px] xl:leading-[140%]">
-                        Внедрение AI-онбординг <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">за 7 дней</span>
+                        {landingPageData?.language === 'en' ? 'AI Onboarding Implementation' : 'Внедрение AI-онбординг'} <br className="xl:hidden"/> <span className="text-[#0F58F9] xl:leading-[140%]">{landingPageData?.language === 'en' ? 'in 7 days' : 'за 7 дней'}</span>
                       </h3>
                     </div>
                   </div>
@@ -495,7 +495,7 @@ export default function DynamicAuditLandingPage() {
             {/* Third Section */}
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] ">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] mb-[30px] xl:mb-[50px]">
-                Открытые вакансии <br className="xl:hidden"/> {companyName}
+                {landingPageData?.language === 'en' ? 'Open Positions' : 'Открытые вакансии'} <br className="xl:hidden"/> {companyName}
               </h2>
               
               <div className="flex flex-col xl:flex-row gap-[20px] xl:gap-[30px]">
@@ -518,7 +518,7 @@ export default function DynamicAuditLandingPage() {
   
                 <div className="bg-white flex flex-col gap-[10px] xl:gap-[30px] rounded-[4px] px-[15px] pt-[20px] pb-[10px] xl:px-[30px] xl:pt-[40px] xl:pb-[29px] xl:w-[680px] xl:h-[870px]" style={{ boxShadow: '2px 2px 5px -1.5px #2A33460D' }}>
                   <h3 className="font-medium text-[20px] xl:text-[26px] mb-[10px] xl:mb-0 text-center xl:text-left">
-                    Дефицит квалифицированных кадров
+                    {landingPageData?.language === 'en' ? 'Shortage of Qualified Personnel' : 'Дефицит квалифицированных кадров'}
                   </h3>
                   
                   {/* First Card */}
@@ -539,7 +539,7 @@ export default function DynamicAuditLandingPage() {
                             {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
                           </div>
                           <div className="font-normal text-[12px] text-[#09090B]">
-                            специалистов
+                            {landingPageData?.language === 'en' ? 'specialists' : 'специалистов'}
                           </div>
                         </div>
                       </div>
@@ -569,10 +569,10 @@ export default function DynamicAuditLandingPage() {
   
                     <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
                       <p className="font-semibold text-[16px] xl:text-[20px]">
-                        Не хватает в год в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.
+                        {landingPageData?.language === 'en' ? `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.` : `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`}
                       </p>
                       <p className="font-normal italic text-[12px] text-[#BABABE]">
-                        По данным Bureau of Labor Statistics
+                        {landingPageData?.language === 'en' ? 'According to Bureau of Labor Statistics' : 'По данным Bureau of Labor Statistics'}
                       </p>
                     </div>
                   </div>
@@ -821,19 +821,19 @@ export default function DynamicAuditLandingPage() {
             {/* Fifth Section */}
             <section className="bg-[#FAFAFA] pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px] xl:gap-[50px]">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%]">
-                Предлагаем три <br className="xl:hidden"/> готовых решения:
+                {landingPageData?.language === 'en' ? 'We offer three' : 'Предлагаем три'} <br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'ready solutions:' : 'готовых решения:'}
               </h2>
   
               {/* Service 1 */}
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                   <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                    Услуга 1:
+                    {landingPageData?.language === 'en' ? 'Service 1:' : 'Услуга 1:'}
                   </span>
                 </div>
                 
                 <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                  Купите готовые шаблоны <br className="xl:hidden"/> курсов для онбординга<br className="hidden xl:block"/> и <br className="xl:hidden"/> обучения:
+                  {landingPageData?.language === 'en' ? 'Buy ready-made course templates' : 'Купите готовые шаблоны'} <br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'for onboarding' : 'курсов для онбординга'}<br className="hidden xl:block"/> {landingPageData?.language === 'en' ? 'and' : 'и'} <br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'training:' : 'обучения:'}
                 </h3>
   
                 <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
@@ -913,12 +913,12 @@ export default function DynamicAuditLandingPage() {
                     </svg>
                     
                     <span className="font-semibold text-[14px] xl:text-[16px] text-[#09090B]">
-                      Пример курса
+                      {landingPageData?.language === 'en' ? 'Course Example' : 'Пример курса'}
                     </span>
                   </div>
                   
                   <h4 className="font-medium text-[20px] xl:text-[32px] text-[#09090B] mb-[6px] xl:mb-[15px]">
-                    Онбординг курс для <br className="xl:hidden"/> должности {landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
+                    {landingPageData?.language === 'en' ? 'Onboarding course for' : 'Онбординг курс для'} <br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'position' : 'должности'} {landingPageData?.courseTemplates?.[0]?.title || 'HVAC Installer'}
                   </h4>
                   
                   <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
@@ -976,7 +976,7 @@ export default function DynamicAuditLandingPage() {
                         <div className="flex items-center justify-between">
                           <div className="xl:flex xl:items-center xl:gap-[6px]">
                             <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 01:
+                              {landingPageData?.language === 'en' ? 'Module 01:' : 'Модуль 01:'}
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
@@ -1172,7 +1172,7 @@ export default function DynamicAuditLandingPage() {
                         <div className="flex items-center justify-between">
                           <div className="xl:flex xl:items-center xl:gap-[6px]">
                             <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 02:
+                              {landingPageData?.language === 'en' ? 'Module 02:' : 'Модуль 02:'}
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
@@ -1366,7 +1366,7 @@ export default function DynamicAuditLandingPage() {
                         <div className="flex items-center justify-between">
                           <div className="xl:flex xl:items-center xl:gap-[6px]">
                             <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 03:
+                              {landingPageData?.language === 'en' ? 'Module 03:' : 'Модуль 03:'}
                             </span>
   
                             <h5 className="font-medium text-[16px] hidden xl:block">
@@ -1560,7 +1560,7 @@ export default function DynamicAuditLandingPage() {
                         <div className="flex items-center justify-between">
                           <div className="xl:flex xl:items-center xl:gap-[6px]">
                             <span className="text-[#0F58F9] font-semibold text-[14px] xl:text-[16px] leading-[100%]">
-                              Модуль 04:
+                              {landingPageData?.language === 'en' ? 'Module 04:' : 'Модуль 04:'}
                             </span>
   
                             <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
@@ -1758,12 +1758,12 @@ export default function DynamicAuditLandingPage() {
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                   <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                    Услуга 2:
+                    {landingPageData?.language === 'en' ? 'Service 2:' : 'Услуга 2:'}
                   </span>
                 </div>
                 
                 <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                  ContentBuilder.ai — AI-<br className="xl:hidden"/>платформа для <br/> автоматизации создания<br className="xl:hidden"/> и обновления курсов
+                  ContentBuilder.ai — AI-<br className="xl:hidden"/>{landingPageData?.language === 'en' ? 'platform for' : 'платформа для'} <br/> {landingPageData?.language === 'en' ? 'automating course creation' : 'автоматизации создания'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'and updating' : 'и обновления'} {landingPageData?.language === 'en' ? 'courses' : 'курсов'}
                 </h3>
   
                 <div 
@@ -1796,7 +1796,7 @@ export default function DynamicAuditLandingPage() {
                       </div>
   
                       <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        Генерация видеоуроков
+                        {landingPageData?.language === 'en' ? 'Video lesson generation' : 'Генерация видеоуроков'}
                       </span>
                     </div>
   
@@ -1812,7 +1812,7 @@ export default function DynamicAuditLandingPage() {
                       </div>
   
                       <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        Генерация тестов
+                        {landingPageData?.language === 'en' ? 'Test generation' : 'Генерация тестов'}
                       </span>
                     </div>
   
@@ -1832,7 +1832,7 @@ export default function DynamicAuditLandingPage() {
                       </div>
   
                       <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        Генерация презентаций
+                        {landingPageData?.language === 'en' ? 'Presentation generation' : 'Генерация презентаций'}
                       </span>
                     </div>
   
@@ -1848,7 +1848,7 @@ export default function DynamicAuditLandingPage() {
                       </div>
   
                       <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        Перевод на 120+ языков
+                        {landingPageData?.language === 'en' ? 'Translation to 120+ languages' : 'Перевод на 120+ языков'}
                       </span>
                     </div>
   
@@ -1865,7 +1865,7 @@ export default function DynamicAuditLandingPage() {
                       </div>
   
                       <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        Озвучка и AI-аватары
+                        {landingPageData?.language === 'en' ? 'Voice-over and AI avatars' : 'Озвучка и AI-аватары'}
                       </span>
                     </div>
   
@@ -1882,7 +1882,7 @@ export default function DynamicAuditLandingPage() {
                       </div>
   
                       <span className="text-[#71717A] font-medium text-[16px] xl:text-[20px]">
-                        Интеграция с LMS платформами
+                        {landingPageData?.language === 'en' ? 'LMS platform integration' : 'Интеграция с LMS платформами'}
                       </span>
                     </div>
                   </div>
@@ -1908,7 +1908,7 @@ export default function DynamicAuditLandingPage() {
   
                 <div className="flex flex-col gap-[15px] xl:gap-[40px]">
                   <h4 className="font-semibold text-[20px] xl:text-[32px] leading-[130%] mb-[5px]">
-                    Как это работает:
+                    {landingPageData?.language === 'en' ? 'How it works:' : 'Как это работает:'}
                   </h4>
                   
                   <div className="flex flex-col xl:flex-row gap-[15px] xl:gap-[19px]">
@@ -1923,9 +1923,9 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                          Методолог <span className="text-[#0F58F9]">загружает ваши</span><br className="xl:hidden"/>
-                          <span className="text-[#0F58F9]">материалы</span><br className="hidden xl:block"/> (тексты,<br className="xl:hidden"/>
-                          инструкции, PDF, видео и др.)
+                          {landingPageData?.language === 'en' ? 'Methodologist' : 'Методолог'} <span className="text-[#0F58F9]">{landingPageData?.language === 'en' ? 'uploads your' : 'загружает ваши'}</span><br className="xl:hidden"/>
+                          <span className="text-[#0F58F9]">{landingPageData?.language === 'en' ? 'materials' : 'материалы'}</span><br className="hidden xl:block"/> ({landingPageData?.language === 'en' ? 'texts,' : 'тексты,'}<br className="xl:hidden"/>
+                          {landingPageData?.language === 'en' ? 'instructions, PDF, videos, etc.)' : 'инструкции, PDF, видео и др.)'}
                         </h5>
                       </div>
                       <div 
@@ -1963,7 +1963,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-semibold text-[18px] xl:text-[22px] xl:text-center mt-[15px] xl:mt-0">
-                          Платформа превращает<br className="xl:hidden"/> их в <span className="text-[#0F58F9]">уроки,<br className="hidden xl:block"/> тесты,<br className="xl:hidden"/> видео и презентации</span>
+                          {landingPageData?.language === 'en' ? 'Platform converts' : 'Платформа превращает'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'them into' : 'их в'} <span className="text-[#0F58F9]">{landingPageData?.language === 'en' ? 'lessons,' : 'уроки,'}<br className="hidden xl:block"/> {landingPageData?.language === 'en' ? 'tests,' : 'тесты,'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'videos and presentations' : 'видео и презентации'}</span>
                         </h5>
                       </div>
   
@@ -1999,12 +1999,12 @@ export default function DynamicAuditLandingPage() {
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                   <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                    Услуга 3:
+                    {landingPageData?.language === 'en' ? 'Service 3:' : 'Услуга 3:'}
                   </span>
                 </div>
                 
                 <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] mb-[10px] xl:mb-[20px]">
-                  LMS-платформа<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> автоматизация<br /> корпоративного<br className="xl:hidden"/> обучения и онбординга
+                  {landingPageData?.language === 'en' ? 'LMS platform' : 'LMS-платформа'}<br className="xl:hidden"/> SmartExpert —<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'automation' : 'автоматизация'}<br /> {landingPageData?.language === 'en' ? 'of corporate' : 'корпоративного'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'training and onboarding' : 'обучения и онбординга'}
                 </h3>
   
                 <div 
@@ -2019,7 +2019,7 @@ export default function DynamicAuditLandingPage() {
   
                 <div className="py-[20px] xl:py-[30px] px-[15px] xl:px-[30px] bg-[#F5F8FF] rounded-[6px] flex flex-col gap-[20px] xl:gap-[30px]">
                   <h4 className="font-semibold text-[20px] xl:text-[32px]">
-                    Возможности платформы:
+                    {landingPageData?.language === 'en' ? 'Platform capabilities:' : 'Возможности платформы:'}
                   </h4>
                   
                   {/* Perks Grid - Single column on mobile, two columns on desktop XL */}
@@ -2044,7 +2044,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      Онбординг и адаптация<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">новых<br className="hidden xl:block"/> сотрудников</span>
+                      {landingPageData?.language === 'en' ? 'Onboarding and adaptation' : 'Онбординг и адаптация'}<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">{landingPageData?.language === 'en' ? 'of new' : 'новых'}<br className="hidden xl:block"/>{landingPageData?.language === 'en' ? 'employees' : 'сотрудников'}</span>
                     </span>
                   </div>
   
@@ -2059,7 +2059,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                    Обучение по ролям <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>и<br className="xl:hidden"/> департаментам</span>
+                    {landingPageData?.language === 'en' ? 'Role-based training' : 'Обучение по ролям'} <span className="font-normal text-[#71717A]"><br className="hidden xl:block"/>{landingPageData?.language === 'en' ? 'and' : 'и'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'departments' : 'департаментам'}</span>
                     </span>
                   </div>
   
@@ -2074,7 +2074,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      База знаний <span className="font-normal text-[#71717A]">и<br className="xl:hidden"/> централизованное<br/> обновление контента</span>
+                      {landingPageData?.language === 'en' ? 'Knowledge base' : 'База знаний'} <span className="font-normal text-[#71717A]">{landingPageData?.language === 'en' ? 'and' : 'и'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'centralized' : 'централизованное'}<br/>{landingPageData?.language === 'en' ? 'content updates' : 'обновление контента'}</span>
                     </span>
                   </div>
   
@@ -2089,7 +2089,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      Геймификация<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> тестирование<br className="hidden xl:block"/> и оценка<br className="xl:hidden"/> компетенций</span>
+                      {landingPageData?.language === 'en' ? 'Gamification' : 'Геймификация'}<span className="font-normal text-[#71717A]">,<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'testing' : 'тестирование'}<br className="hidden xl:block"/> {landingPageData?.language === 'en' ? 'and assessment' : 'и оценка'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'of competencies' : 'компетенций'}</span>
                     </span>
                   </div>
                     </div>
@@ -2107,7 +2107,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      Отчётность, дашборды<span className="font-normal text-[#71717A]"> и<br/> аналитика по обучению</span>
+                      {landingPageData?.language === 'en' ? 'Reporting, dashboards' : 'Отчётность, дашборды'}<span className="font-normal text-[#71717A]"> {landingPageData?.language === 'en' ? 'and' : 'и'}<br/>{landingPageData?.language === 'en' ? 'training analytics' : 'аналитика по обучению'}</span>
                     </span>
                   </div>
   
@@ -2124,7 +2124,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      Встроенный AI-ассистент<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">для<br className="hidden xl:block"/> сопровождения и<br className="xl:hidden"/> автоматизации</span>
+                      {landingPageData?.language === 'en' ? 'Built-in AI assistant' : 'Встроенный AI-ассистент'}<br className="xl:hidden"/> <span className="font-normal text-[#71717A]">{landingPageData?.language === 'en' ? 'for' : 'для'}<br className="hidden xl:block"/>{landingPageData?.language === 'en' ? 'support and' : 'сопровождения и'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'automation' : 'автоматизации'}</span>
                     </span>
                   </div>
   
@@ -2139,7 +2139,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      Мультиязычность<span className="font-normal text-[#71717A]"> и<br className="xl:hidden"/> поддержка<br className="hidden xl:block"/> глобальных<br className="xl:hidden"/> команд</span>
+                      {landingPageData?.language === 'en' ? 'Multilingual support' : 'Мультиязычность'}<span className="font-normal text-[#71717A]"> {landingPageData?.language === 'en' ? 'and' : 'и'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'support for' : 'поддержка'}<br className="hidden xl:block"/>{landingPageData?.language === 'en' ? 'global' : 'глобальных'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'teams' : 'команд'}</span>
                     </span>
                   </div>
   
@@ -2157,7 +2157,7 @@ export default function DynamicAuditLandingPage() {
                     </div>
                     
                     <span className="font-medium text-[16px] xl:text-[20px]">
-                      Гибкое управление<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> доступами<br className="hidden xl:block"/> и брендированием</span>
+                      {landingPageData?.language === 'en' ? 'Flexible access management' : 'Гибкое управление'}<br className="xl:hidden"/><span className="font-normal text-[#71717A]"> {landingPageData?.language === 'en' ? 'and' : 'доступами'}<br className="hidden xl:block"/>{landingPageData?.language === 'en' ? 'branding' : 'и брендированием'}</span>
                     </span>
                   </div>
                     </div>
@@ -2169,12 +2169,12 @@ export default function DynamicAuditLandingPage() {
               <div className="bg-white rounded-[4px] flex flex-col gap-[15px] xl:gap-[20px] py-[20px] xl:py-[40px] px-[10px] xl:px-[40px]" style={{ boxShadow: '2px 2px 5px -1px #2A33460D' }}>
                 <div className="bg-[#0F58F9] rounded-[2.24px] xl:rounded-[4px] flex items-center justify-center w-fit px-[10px] xl:px-[20px] py-[4px] xl:py-[6px] xl:h-[51px]" style={{ boxShadow: '0.71px 0.71px 2.83px 0.71px #00000026' }}>
                   <span className="font-medium text-[16.8px] xl:text-[28px] text-white leading-[120%]">
-                    Услуга 4:
+                    {landingPageData?.language === 'en' ? 'Service 4:' : 'Услуга 4:'}
                   </span>
                 </div>
                 
                 <h3 className="font-medium text-[22px] xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                  Expert-as-a-Service — Методолог:
+                  Expert-as-a-Service — {landingPageData?.language === 'en' ? 'Methodologist:' : 'Методолог:'}
                 </h3>
   
                 <div className="xl:h-[531px] xl:py-[20px] xl:pr-[39px] xl:pl-[20px] flex flex-col xl:flex-row gap-[15px] xl:gap-[19px] xl:border xl:rounded-[4px] xl:border-[#E0E0E0]">
@@ -2195,13 +2195,13 @@ export default function DynamicAuditLandingPage() {
                       </svg>
                       
                       <span className="font-semibold text-[14px] text-[#09090B]">
-                        Пробный пакет
+                        {landingPageData?.language === 'en' ? 'Trial Package' : 'Пробный пакет'}
                       </span>
                     </div>
   
                     <div>
                       <span className="font-bold text-[30px] leading-[120%]">
-                        <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> часов
+                        <span className="text-[70px] text-[#0F58F9] leading-[120%]">10</span> {landingPageData?.language === 'en' ? 'hours' : 'часов'}
                       </span>
                     </div>
   
@@ -2215,7 +2215,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
   
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                          Структурирует и систематизирует ваши знания
+                          {landingPageData?.language === 'en' ? 'Structures and systematizes your knowledge' : 'Структурирует и систематизирует ваши знания'}
                         </span>
                       </div>
   
@@ -2231,7 +2231,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
   
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                          Создаёт курсы, видеоуроки, тесты, презентации
+                          {landingPageData?.language === 'en' ? 'Creates courses, video lessons, tests, presentations' : 'Создаёт курсы, видеоуроки, тесты, презентации'}
                         </span>
                       </div>
   
@@ -2244,7 +2244,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                          Загружает и адаптирует материалы в LMS
+                          {landingPageData?.language === 'en' ? 'Uploads and adapts materials to LMS' : 'Загружает и адаптирует материалы в LMS'}
                         </span>
                       </div>
   
@@ -2260,7 +2260,7 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <span className="font-medium text-[16px] xl:text-[18px] text-[#09090B]">
-                          Выполняет технические и методологические<br className="hidden xl:block"/> задачи по вашему запросу
+                          {landingPageData?.language === 'en' ? 'Performs technical and methodological' : 'Выполняет технические и методологические'}<br className="hidden xl:block"/>{landingPageData?.language === 'en' ? 'tasks upon your request' : 'задачи по вашему запросу'}
                         </span>
                       </div>
                     </div>
@@ -2276,7 +2276,7 @@ export default function DynamicAuditLandingPage() {
                     <path d="M4.12409 10L4.27007 6.18056L0.875912 8.22917L0 6.77083L3.57664 5L0 3.22917L0.875912 1.77083L4.27007 3.81944L4.12409 0H5.87591L5.72993 3.81944L9.12409 1.77083L10 3.22917L6.42336 5L10 6.77083L9.12409 8.22917L5.72993 6.18056L5.87591 10H4.12409Z" fill="#0F58F9"/>
                   </svg>
                   <span className="text-[14px] xl:text-[22px] text-[#71717A] font-normal font-[400] leading-[140%]">
-                    Вы приобретаете <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">почасовой <br className="xl:hidden"/>доступ к профессиональному<br className="xl:hidden"/> методологу</span> по предоплаченной<br/> модели. Методолог — это ваша<br className="xl:hidden"/> «правая рука», которая берёт на<br className="xl:hidden"/> себя всю операционную<br className="hidden xl:block"/> работу: от<br className="xl:hidden"/> структурирования знаний до<br className="xl:hidden"/> подготовки обучающих материалов<br className="xl:hidden"/> и загрузки их в<br className="hidden xl:block"/> систему.
+                    {landingPageData?.language === 'en' ? 'You get' : 'Вы приобретаете'} <span className="text-[14px] xl:text-[22px] text-[#09090B] font-semibold font-[600]">{landingPageData?.language === 'en' ? 'hourly' : 'почасовой'} <br className="xl:hidden"/>{landingPageData?.language === 'en' ? 'access to a professional' : 'доступ к профессиональному'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'methodologist' : 'методологу'}</span> {landingPageData?.language === 'en' ? 'on a prepaid' : 'по предоплаченной'}<br/> {landingPageData?.language === 'en' ? 'model. The methodologist is your' : 'модели. Методолог — это ваша'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? '"right hand" that takes on' : '«правая рука», которая берёт на'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'all operational' : 'себя всю операционную'}<br className="hidden xl:block"/> {landingPageData?.language === 'en' ? 'work: from' : 'работу: от'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'knowledge structuring to' : 'структурирования знаний до'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'preparing training materials' : 'подготовки обучающих материалов'}<br className="xl:hidden"/> {landingPageData?.language === 'en' ? 'and uploading them to' : 'и загрузки их в'}<br className="hidden xl:block"/> {landingPageData?.language === 'en' ? 'the system.' : 'систему.'}
                   </span>
                 </div> 
               </div>
@@ -2361,7 +2361,7 @@ export default function DynamicAuditLandingPage() {
                 
                 <div className="flex flex-col gap-[30px] xl:gap-[40px] z-10 relative">
                   <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] text-[#09090B] text-center">
-                    Записаться на демонстрацию
+                    {landingPageData?.language === 'en' ? 'Book a Demo' : 'Записаться на демонстрацию'}
                   </h2>
                   
                   <div 
@@ -2379,7 +2379,7 @@ export default function DynamicAuditLandingPage() {
                     <button 
                       className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
                     >
-                      <span className="text-white font-semibold text-[16px] xl:text-[18px]">Забронировать</span>
+                      <span className="text-white font-semibold text-[16px] xl:text-[18px]">{landingPageData?.language === 'en' ? 'Book Now' : 'Забронировать'}</span>
                     </button>
                   </div>
                 </div>
