@@ -16,20 +16,22 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border rounded-full bg-gray-50 hover:bg-gray-100 hover:border-gray-300 text-gray-600 shadow-xs hover:bg-gray-100 border-gray-200 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+        manage:
+          "bg-slate-400 text-white hover:bg-slate-500",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         gradient:
           "bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] text-white shadow-lg hover:opacity-90 active:scale-95 transition-all",
         blueGradient:
-          "bg-gradient-to-r from-[#E5EFFF] to-[#F2F2FF] text-gray-600 shadow-lg hover:opacity-90 active:scale-95 transition-all",
+          "bg-gradient-to-r from-[#E5EFFF] to-[#F2F2FF] text-gray-600 shadow-lg hover:opacity-90 rounded-full active:scale-95 transition-all",
         import:
           "bg-white text-gray-800 border border-gray-300 shadow-sm hover:bg-gray-50 active:scale-95 transition-all",
         filter:
-          "text-gray-600 hover:bg-gray-100 transition-colors",
+          "text-gray-600 hover:bg-gray-100 transition-colors border border-gray-300",
         "filter-active":
           "bg-white shadow-sm border border-gray-200 text-black",
         sort:
@@ -37,7 +39,7 @@ const buttonVariants = cva(
         columns:
           "text-black hover:text-gray-700 transition-colors",
         download:
-          "bg-blue-600 text-white hover:bg-blue-700 transition-colors",
+          "bg-blue-600 rounded-full text-white hover:bg-blue-700 transition-colors",
         view:
           "p-1.5 rounded-md cursor-pointer",
         "view-active":

@@ -108,7 +108,7 @@ export default function PasteTextPage() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={t('interface.pasteText.textPlaceholder', 'Paste your text, notes, outline, or any content you\'d like to work with...')}
-            className="w-full h-96 p-6" />
+            className="w-full h-66 p-6" />
 
           <div className="mt-2 flex justify-between items-center">
             <div className="text-sm text-gray-500">
@@ -144,8 +144,8 @@ export default function PasteTextPage() {
               }`}
               gradientFrom="from-blue-300"
               gradientTo="to-blue-200"
-              iconColor={mode === "context" ? "text-white" : "text-blue-600"}
-              labelColor={mode === "context" ? "text-white" : "text-blue-600"}
+              iconColor="text-blue-600"
+              labelColor="text-blue-600"
             />
             
             <CustomCard 

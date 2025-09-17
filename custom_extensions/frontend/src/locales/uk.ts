@@ -525,6 +525,7 @@ export const uk = {
     },
     noMembers: "Учасники робочого простору не знайдені",
     searchPlaceholder: "Пошук учасників...",
+    searchPlaceholderProjects: "Пошук проектів...",
     manageRoles: "Керування ролями",
     roleManager: {
       title: "Керування користувацькими ролями",

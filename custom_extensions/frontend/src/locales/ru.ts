@@ -539,6 +539,7 @@ export const ru = {
     },
     noMembers: "Участники рабочего пространства не найдены",
     searchPlaceholder: "Поиск участников...",
+    searchPlaceholderProjects: "Поиск проектов...",
     manageRoles: "Управление ролями",
     roleManager: {
       title: "Управление пользовательскими ролями",

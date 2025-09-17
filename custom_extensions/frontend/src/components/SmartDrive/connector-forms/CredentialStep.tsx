@@ -2,6 +2,9 @@
 
 import React, { FC, useState, useEffect } from "react";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "../../ui/card";
+import { Input } from "@/components/ui/input";
 
 export interface Credential {
   id: number;
@@ -120,12 +123,13 @@ const CredentialStep: FC<CredentialStepProps> = ({
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-semibold text-gray-900">Available Credentials</h3>
-          <button
+          <Button
+            variant="blueGradient"
             onClick={handleCreateNew}
-            className="px-6 py-2.5 text-sm font-medium text-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg hover:from-blue-100 hover:to-indigo-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            className="px-6 py-2.5"
           >
             Create New
-          </button>
+          </Button>
         </div>
 
         {credentials.length === 0 ? (
@@ -136,54 +140,83 @@ const CredentialStep: FC<CredentialStepProps> = ({
               </svg>
             </div>
             <p className="text-gray-900 text-lg mb-4">No credentials found for {connectorName}</p>
-            <button
+            <Button
+              variant="download"
               onClick={handleCreateNew}
-              className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
             >
               Create your first credential
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">
             {credentials.map((credential) => (
-              <div
+              <Card
                 key={credential.id}
-                className={`p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-                  selectedCredential?.id === credential.id
-                    ? "border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg"
-                    : "border-gray-200 hover:border-blue-300 hover:shadow-md bg-white"
+                className={`group relative overflow-hidden transition-all duration-200 cursor-pointer hover:scale-105 ${
+                  selectedCredential?.id === credential.id ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
                 }`}
+                style={{
+                  backgroundColor: 'white',
+                  borderColor: selectedCredential?.id === credential.id ? '#3b82f6' : '#e2e8f0',
+                  background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                  borderWidth: '1px',
+                  boxShadow: selectedCredential?.id === credential.id 
+                    ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
+                    : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedCredential?.id !== credential.id) {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedCredential?.id !== credential.id) {
+                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                  }
+                }}
                 onClick={() => handleCredentialSelect(credential)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      selectedCredential?.id === credential.id
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600"
-                        : "bg-gradient-to-r from-gray-100 to-gray-200"
-                    }`}>
-                      <svg className={`w-6 h-6 ${
-                        selectedCredential?.id === credential.id ? "text-white" : "text-gray-600"
-                      }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                       </svg>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-gray-900">{credential.name}</h4>
-                      <p className="text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        {credential.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
                         Created for {credential.source}
                       </p>
                     </div>
                   </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCredentialSelect(credential);
+                      }}
+                      variant="download"
+                      className="flex-1 rounded-full"
+                    >
+                      {selectedCredential?.id === credential.id ? 'Selected' : 'Select'}
+                    </Button>
+                  </div>
+
+                  {/* Selection check mark */}
                   {selectedCredential?.id === credential.id && (
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </div>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
@@ -224,19 +257,21 @@ const CredentialStep: FC<CredentialStepProps> = ({
 
       {/* Action Buttons */}
       <div className="flex justify-between pt-8 border-t border-gray-200">
-        <button
+        <Button
+          variant="outline"
           onClick={onCancel}
-          className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+          className="px-6 py-3 text-sm duration-200 rounded-full"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="download"
           onClick={handleContinue}
           disabled={!selectedCredential}
-          className="px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+          className="px-8 py-3 rounded-full"
         >
           Continue
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -377,13 +412,14 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
             {field.required && <span className="text-red-500 ml-1">*</span>}
           </label>
           {field.type === 'password' ? (
-            <input
+            <Input
               type="password"
+              variant="shadow"
               name={field.name}
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
               required={field.required}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              className="w-full px-4 py-3 duration-200"
               placeholder={`Enter ${field.label.toLowerCase()}`}
             />
           ) : field.type === 'file' ? (
@@ -404,23 +440,25 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
               />
             </div>
           ) : field.type === 'email' ? (
-            <input
+            <Input
               type="email"
+              variant="shadow"
               name={field.name}
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
               required={field.required}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              className="w-full px-4 py-3 duration-200"
               placeholder="Enter email address"
             />
           ) : (
-            <input
+            <Input
               type="text"
+              variant="shadow"
               name={field.name}
               value={formData[field.name] || ''}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
               required={field.required}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+              className="w-full px-4 py-3"
               placeholder={`Enter ${field.label.toLowerCase()}`}
             />
           )}
@@ -439,17 +477,19 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
       )}
 
       <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={onCancel}
-          className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+          className="px-6 py-3 rounded-full"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
           type="submit"
+          variant="download"
           disabled={loading}
-          className="px-8 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+          className="px-8 py-3"
         >
           {loading ? (
             <>
@@ -459,7 +499,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
           ) : (
             'Create Credential'
           )}
-        </button>
+        </Button>
       </div>
     </form>
   );

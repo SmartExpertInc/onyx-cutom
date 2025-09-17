@@ -46,8 +46,8 @@ function DropdownMenuContent({
           className
         )}
         style={{
-          backgroundColor: `rgb(var(--dropdown-bg))`,
-          borderColor: `rgb(var(--dropdown-border))`,
+          backgroundColor: `white`,
+          borderColor: `#E6E6E6`,
           boxShadow: `var(--dropdown-shadow)`
         }}
         {...props}
@@ -83,16 +83,21 @@ function DropdownMenuItem({
         className
       )}
       style={{
-        backgroundColor: `rgb(var(--dropdown-item-bg))`,
-        color: `rgb(var(--dropdown-item-text))`
+        backgroundColor: `white`,
+        color: variant === "destructive" ? `#dc2626` : `#4b5563`
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-hover-bg))`;
-        e.currentTarget.style.color = `rgb(var(--dropdown-item-hover-text))`;
+        if (variant === "destructive") {
+          e.currentTarget.style.backgroundColor = `#fef2f2`;
+          e.currentTarget.style.color = `#dc2626`;
+        } else {
+          e.currentTarget.style.backgroundColor = `#f9fafb`;
+          e.currentTarget.style.color = `#4b5563`;
+        }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = `rgb(var(--dropdown-item-bg))`;
-        e.currentTarget.style.color = `rgb(var(--dropdown-item-text))`;
+        e.currentTarget.style.backgroundColor = `white`;
+        e.currentTarget.style.color = variant === "destructive" ? `#dc2626` : `#4b5563`;
       }}
       {...props}
     />
@@ -277,7 +282,7 @@ function DropdownMenuSubContent({
         )}
         style={{
           backgroundColor: `rgb(var(--dropdown-bg))`,
-          borderColor: `rgb(var(--dropdown-border))`,
+          borderColor: `#E6E6E6`,
           boxShadow: `var(--dropdown-shadow)`
         }}
       {...props}

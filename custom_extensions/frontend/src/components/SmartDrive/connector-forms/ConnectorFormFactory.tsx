@@ -112,7 +112,14 @@ const ConnectorFormFactory: FC<ConnectorFormFactoryProps> = ({
         <div className="space-y-6">
           {/* Selected Credential Info */}
           {selectedCredential && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div className="rounded-md p-4"
+            style={{
+              backgroundColor: 'white',
+              borderColor: '#e2e8f0',
+              background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+              borderWidth: '1px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-blue-900">Selected Credential</h3>

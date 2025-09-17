@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface Folder {
   id: number;
@@ -187,7 +190,7 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
 
   return (
     <div
-      className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -209,26 +212,29 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                   {t('interface.company', 'Company')} *
                 </label>
                 {selectedClient ? (
-                  <input
+                  <Input
+                    variant="shadow"
                     type="text"
                     value={selectedClient.name}
                     disabled
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3"
                   />
                 ) : (
-                  <select
-                    value={formData.company_id}
-                    onChange={handleCompanyChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
-                    required
+                  <Select
+                    value={formData.company_id.toString()}
+                    onValueChange={(value) => handleCompanyChange({ target: { value } } as any)}
                   >
-                    <option value="">{t('interface.selectClient', 'Select a client...')}</option>
-                    {folders.map((folder) => (
-                      <option key={folder.id} value={folder.id}>
-                        {folder.name} {folder.project_count ? `(${folder.project_count} projects)` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('interface.selectClient', 'Select a client...')} />
+                    </SelectTrigger>
+                    <SelectContent className='border border-gray-200 shadow-lg'>
+                      {folders.map((folder) => (
+                        <SelectItem key={folder.id} value={folder.id.toString()}>
+                          {folder.name} {folder.project_count ? `(${folder.project_count} projects)` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
               </div>
 
@@ -237,11 +243,12 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('interface.offerName', 'Offer Name')} *
                 </label>
-                <input
+                <Input
+                  variant="shadow"
                   type="text"
                   value={formData.offer_name}
                   onChange={(e) => setFormData({ ...formData, offer_name: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                  className="w-full px-4 py-3"
                   placeholder={t('interface.enterOfferName', 'Enter offer name...')}
                   required
                 />
@@ -252,11 +259,12 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('interface.manager', 'Manager')} *
                 </label>
-                <input
+                <Input
+                  variant="shadow"
                   type="text"
                   value={formData.manager}
                   onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                  className="w-full px-4 py-3"
                   placeholder={t('interface.enterManager', 'Enter manager name...')}
                   required
                 />
@@ -281,21 +289,23 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
 
               {/* Action buttons */}
               <div className="flex gap-3 pt-6">
-                <button
+                <Button
+                  variant="outline"
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="flex-1 px-6 py-3"
                   disabled={isSubmitting}
                 >
                   {t('interface.cancel', 'Cancel')}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="download"
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="flex-1 px-6 py-3 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 px-6 py-3"
                 >
                   {isSubmitting ? t('interface.creating', 'Creating...') : t('interface.create', 'Create')}
-                </button>
+                </Button>
               </div>
             </form>
           )}

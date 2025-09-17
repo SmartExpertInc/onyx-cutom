@@ -2,18 +2,18 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  CheckSquare, 
-  Square,
   MoreHorizontal,
   Lock,
   TableOfContents,
   HelpCircle,
   Presentation,
   Video,
-  FileText
+  FileText,
+  List
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Product } from '../types/lmsTypes';
+import { Checkbox } from './ui/checkbox';
 
 interface LMSProductCardProps {
   product: Product;
@@ -94,6 +94,10 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
     onToggleSelect(product.id);
   };
 
+  const handleCheckboxChange = (checked: boolean) => {
+    onToggleSelect(product.id);
+  };
+
   return (
     <div
       className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative cursor-pointer ${
@@ -101,88 +105,70 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
       }`}
       onClick={handleCardClick}
     >
-      {/* Selection indicator */}
-      <div className="absolute top-3 right-3 z-10">
-        {isSelected ? (
-          <div className="w-5 h-5 bg-blue-600 rounded border-2 border-blue-600 flex items-center justify-center shadow-sm">
-            <CheckSquare size={12} className="text-white" />
-          </div>
-        ) : (
-          <div className="w-5 h-5 border-2 border-gray-300 rounded bg-white opacity-0 group-hover:opacity-100 transition-opacity hover:border-gray-400">
-            <Square size={12} className="text-gray-400 opacity-0" />
-          </div>
-        )}
+      {/* Selection checkbox */}
+      <div 
+        className={`absolute top-3 right-3 z-10 transition-opacity duration-200 ${
+          isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={handleCheckboxChange}
+          className="w-5 h-5"
+        />
       </div>
 
       {/* Card content - exact copy from ProjectsTable */}
       <div className="block">
-        <div
-          className="relative h-40 rounded-t-lg"
+        <div 
+          className="relative rounded-t-xl h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
           style={{
             backgroundColor: bgColor,
             backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
               displayTitle.split("").reverse().join("")
             )}99)`,
           }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: 8,
-              left: 8,
-              background: "#fff",
-              borderRadius: "6px",
-              padding: "4px",
-              zIndex: 2,
-              backdropFilter: "blur(2px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {getDesignMicroproductIcon("Training Plan")}
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
-            <h3
-              className="font-bold text-lg text-center truncate max-w-full"
-              title={displayTitle}
+        >        
+          {/* Truncated title in center */}
+          <div className="flex items-center justify-center flex-1 px-2">
+            <h3 
+              className="font-semibold text-md text-center leading-tight line-clamp-2"
+              style={{ color: "white" }}
             >
-              {displayTitle}
+              {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
             </h3>
           </div>
         </div>
-        <div className="p-4">
-          <h3
-            className="font-semibold text-gray-800 mb-2 truncate text-sm max-w-full"
-            title={displayTitle}
-          >
+        
+        {/* Lower section with white background */}
+        <div className="bg-white p-4 h-25 flex flex-col justify-between rounded-b-xl">
+          {/* Full title */}
+          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
-          <div className="flex items-center text-xs text-gray-500 mb-3">
-            <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
-              <span className="text-gray-700">
-                Course Outline
-              </span>
-            </div>
-          </div>
+          
+          {/* Creator info */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {/* Avatar */}
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
                 style={{ backgroundColor: avatarColor }}
               >
                 {(product.user_id || 'U').slice(0, 1).toUpperCase()}
               </div>
+              
+              {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-xs font-medium text-gray-900 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 leading-tight">
                   {formatDate(product.created_at || product.createdAt || new Date().toISOString())}
                 </span>
               </div>
             </div>
-            <div className="w-7 h-7" />
           </div>
         </div>
       </div>

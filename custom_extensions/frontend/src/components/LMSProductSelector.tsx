@@ -6,6 +6,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Product } from '../types/lmsTypes';
 import LMSExportButton from './LMSExportButton';
 import LMSProductCard from './LMSProductCard';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
 interface LMSProductSelectorProps {
   selectedProducts: Set<number>;
@@ -211,21 +213,23 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         {/* Search Controls with Export Button */}
-        <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <div className="flex items-center gap-4 p-4">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
-            <input
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 z-10" />
+            <Input
+              variant="shadow"
               type="text"
               placeholder="Search course outlines..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-700"
+              className="w-full pl-10"
             />
           </div>
 
-          <button
+          <Button
+            variant="outline"
             onClick={handleSelectAllFiltered}
-            className="flex items-center gap-3 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors text-gray-900"
+            className="flex items-center gap-3 px-4 py-2 rounded-full"
           >
             <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
               allFilteredSelected 
@@ -235,14 +239,24 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
               {allFilteredSelected && <CheckSquare size={10} className="text-white" />}
             </div>
             {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
-          </button>
+          </Button>
 
           <LMSExportButton selectedProducts={selectedProducts} />
         </div>
 
         {/* Subtitle on the left */}
         <div className="flex items-center -mt-2">
-          <p className="text-sm text-gray-700 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+          <p 
+            className="text-sm px-4 py-2 rounded-lg border"
+            style={{
+              backgroundColor: 'white',
+              borderColor: '#e2e8f0',
+              background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+              borderWidth: '1px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              color: '#4A5565'
+            }}
+          >
             Choose which course outlines to export to Smart Expert LMS
           </p>
         </div>
@@ -250,10 +264,19 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
 
       {/* Course Outlines Grid */}
       {filteredProducts.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+        <div 
+          className="text-center py-12 rounded-lg border"
+          style={{
+            backgroundColor: 'white',
+            borderColor: '#e2e8f0',
+            background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+            borderWidth: '1px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          }}
+        >
           <div className="flex flex-col items-center">
-            <TableOfContents size={48} className="text-gray-300 mb-4" />
-            <p className="text-gray-800 text-lg font-medium mb-2">
+            <TableOfContents size={48} className="mb-4" style={{ color: '#4b5563' }} />
+            <p className="text-lg font-medium mb-2" style={{ color: '#4A5565' }}>
               {courseOutlines.length === 0
                 ? t('interface.noCourseOutlines', 'No course outlines found')
                 : searchTerm || typeFilter !== 'all'
@@ -261,7 +284,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
                 : t('interface.noProductsAvailable', 'No course outlines available for export')}
             </p>
             {courseOutlines.length === 0 && (
-              <p className="text-gray-600 text-sm">
+              <p className="text-sm" style={{ color: '#4A5565' }}>
                 Create some course outlines first to export them to Smart Expert LMS.
               </p>
             )}
