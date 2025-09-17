@@ -49,20 +49,20 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-xl relative overflow-hidden transition-all duration-200 w-full h-full",
+          "group rounded-xl relative overflow-hidden transition-all duration-200 w-full h-full min-w-[320px]",
           useCSSVariables 
             ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))] shadow-lg hover:shadow-xl"
-            : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md",
+            : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md shadow-lg hover:shadow-xl",
           disabled
-            ? "opacity-50 cursor-not-allowed"
-            : "cursor-pointer",
+            ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
+            : "cursor-pointer shadow-lg hover:shadow-xl",
           className
         )}
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-50/30 rounded-full" />
-        <div className="absolute -top-10 -left-10 w-60 h-60 bg-blue-100/20 rounded-full" />
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-50/50 border border-indigo-100 rounded-full" />
+        <div className="absolute -top-10 -left-10 w-60 h-60 bg-blue-100/50 border border-indigo-100 rounded-full" />
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (
@@ -71,8 +71,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                 variant="secondary" 
                 className={cn(
                   useCSSVariables 
-                    ? "bg-white rounded-lg border-none text-blue-600"
-                    : cn(labelColor, "bg-white border-none")
+                    ? "bg-white rounded-lg border-none text-blue-600 normal-case gap-2"
+                    : cn(labelColor, "bg-white rounded-lg border-none text-blue-600 normal-case gap-2")
                 )}
               >
                 <SparklesIcon size={10} />
