@@ -24877,26 +24877,52 @@ async def get_smartdrive_login_credentials(
                     userid = f"sd_{sanitized[:24]}"
                     new_password = secrets.token_urlsafe(16)
 
-                    ocs_base = (base_url or "").rstrip("/")
+                    # Normalize base to HTTPS to avoid 301 on POST and preserve method
+                    from urllib.parse import urlparse
+                    parsed = urlparse(base_url)
+                    if parsed.scheme == "http":
+                        base_url = f"https://{parsed.netloc}{parsed.path}".rstrip("/")
+                    else:
+                        base_url = (base_url or "").rstrip("/")
+                    ocs_base = base_url
+
+                    headers = {"OCS-APIRequest": "true", "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
+
                     async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
                         create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
                         create_resp = await client.post(
                             create_url,
                             data={"userid": userid, "password": new_password},
-                            headers={"OCS-APIRequest": "true", "Accept": "application/json"},
+                            headers=headers,
                             auth=(nc_admin_user, nc_admin_pass)
                         )
-                        if create_resp.status_code == 409:
+
+                        # Try to parse OCS response if possible
+                        ocs_ok = False
+                        reset_needed = False
+                        try:
+                            j = create_resp.json()
+                            sc = j.get("ocs", {}).get("meta", {}).get("statuscode")
+                            # 100 = OK, 102 = Already exists
+                            if sc == 100:
+                                ocs_ok = True
+                            elif sc == 102:
+                                reset_needed = True
+                        except Exception:
+                            pass
+
+                        if create_resp.status_code == 409 or reset_needed or (not ocs_ok and create_resp.status_code in (200, 201)):
+                            # User likely exists; attempt password reset
                             update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
                             update_resp = await client.put(
                                 update_url,
                                 data={"key": "password", "value": new_password},
-                                headers={"OCS-APIRequest": "true", "Accept": "application/json"},
+                                headers=headers,
                                 auth=(nc_admin_user, nc_admin_pass)
                             )
                             if update_resp.status_code not in (200, 201, 204):
                                 logger.warning(f"Failed to reset Nextcloud password for existing user {userid}: {update_resp.status_code} {update_resp.text[:200]}")
-                        elif create_resp.status_code not in (200, 201):
+                        elif (create_resp.status_code not in (200, 201)) and not ocs_ok:
                             logger.error(f"Failed to create Nextcloud user: {create_resp.status_code} {create_resp.text[:200]}")
                             raise HTTPException(status_code=500, detail="Failed to auto-provision Nextcloud user")
 
