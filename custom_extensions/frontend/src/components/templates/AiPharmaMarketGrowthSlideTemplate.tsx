@@ -275,6 +275,57 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             </div>
 
             <div style={{ flexGrow: 1, backgroundColor: 'transparent', height: '78px', borderRadius: '6px', position: 'relative' }}>
+              {/* Delete button - appears on hover in top-left corner of chart */}
+              {isEditable && (
+                <div
+                  data-delete-btn
+                  onClick={() => { const nb=currentBars.filter((_,idx)=>idx!==i); setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
+                  style={{ 
+                    position: 'absolute', 
+                    left: '8px', 
+                    top: '8px', 
+                    width: '20px', 
+                    height: '20px', 
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                    transition: 'all 0.2s ease',
+                    opacity: 0,
+                    pointerEvents: 'none',
+                    zIndex: 10
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  aria-label="Delete bar"
+                >
+                  <div style={{
+                    width: '10px',
+                    height: '2px',
+                    backgroundColor: '#ff4444',
+                    transform: 'rotate(45deg)',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      width: '10px',
+                      height: '2px',
+                      backgroundColor: '#ff4444',
+                      transform: 'rotate(-90deg)',
+                      position: 'absolute',
+                      top: '0',
+                      left: '0'
+                    }} />
+                  </div>
+                </div>
+              )}
+
               {/* Width resizable via drag */}
               <div
                 style={{ width: `${b.widthPercent}%`, height: '100%', background: 'linear-gradient(to left, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 122% )', borderRadius: '2px', cursor: isEditable ? 'ew-resize' : 'default', minWidth: '12px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '18px' }}
@@ -342,56 +393,6 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               </div>
             </div>
 
-            {/* Delete button - appears on hover */}
-            {isEditable && (
-              <div
-                data-delete-btn
-                onClick={() => { const nb=currentBars.filter((_,idx)=>idx!==i); setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); }}
-                style={{ 
-                  position: 'absolute', 
-                  right: '-40px', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)',
-                  width: '32px', 
-                  height: '32px', 
-                  backgroundColor: '#ff4444',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(255, 68, 68, 0.3)',
-                  transition: 'all 0.2s ease',
-                  opacity: 0,
-                  pointerEvents: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
-                }}
-                aria-label="Delete bar"
-              >
-                <div style={{
-                  width: '16px',
-                  height: '2px',
-                  backgroundColor: '#ffffff',
-                  transform: 'rotate(45deg)',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    width: '16px',
-                    height: '2px',
-                    backgroundColor: '#ffffff',
-                    transform: 'rotate(-90deg)',
-                    position: 'absolute',
-                    top: '0',
-                    left: '0'
-                  }} />
-                </div>
-              </div>
-            )}
           </div>
         ))}
 
@@ -422,7 +423,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
       <div style={{
         position: 'absolute',
         bottom: '20px',
-        left: '30px',
+        left: '0px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
