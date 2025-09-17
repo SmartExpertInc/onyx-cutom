@@ -225,16 +225,14 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
               )}
               
               {/* Separator line under each description */}
-              {i < currentItems.length - 1 && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: '-5px',
-                  left: '-50px', // Start from the beginning of the percentage area
-                  right: '0',
-                  height: '1px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)'
-                }} />
-              )}
+              <div style={{
+                position: 'absolute',
+                bottom: '-5px',
+                left: '-50px', // Start from the beginning of the percentage area
+                right: '0',
+                height: '1px',
+                backgroundColor: 'rgba(0, 0, 0, 0.1)'
+              }} />
             </div>
           </React.Fragment>
         ))}
