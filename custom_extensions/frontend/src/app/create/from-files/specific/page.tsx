@@ -417,10 +417,11 @@ export default function CreateFromSpecificFilesPage() {
 
               {/* Create Content Button */}
               <div className="mt-6">
-                <button
+                <Button
+                  variant="create"
                   onClick={handleCreateContent}
                   disabled={!connectorSelectionValid}
-                  className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl ${
+                  className={`${
                     !connectorSelectionValid
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
@@ -436,7 +437,7 @@ export default function CreateFromSpecificFilesPage() {
                     }
                   </div>
                 </button>
-              </div>
+              </div>Button
             </div>
           </div>
         </div>
