@@ -1884,7 +1884,7 @@ export default function ProjectInstanceViewPage() {
                     <ChevronDown size={16} className="ml-1" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 p-2 border border-gray-300 rounded-lg shadow-lg z-20" style={{ backgroundColor: 'white' }}>
+                <DropdownMenuContent align="end" className="w-48 p-2 border border-gray-200 rounded-lg shadow-lg z-20" style={{ backgroundColor: 'white' }}>
                   <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
                     Select Theme
                   </div>
@@ -1904,7 +1904,7 @@ export default function ProjectInstanceViewPage() {
                       <button
                         key={theme.id}
                         onClick={() => handleTrainingPlanThemeChange(theme.id)}
-                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${isSelected ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'}`}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
                       >
                         <div
                           className="w-4 h-4 rounded-full border border-gray-300"
@@ -1912,7 +1912,7 @@ export default function ProjectInstanceViewPage() {
                         />
                         <span className="flex-1">{theme.label}</span>
                         {isSelected && (
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         )}
@@ -2243,7 +2243,7 @@ export default function ProjectInstanceViewPage() {
                     <ChevronDown size={16} className="ml-1" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-300 rounded-lg shadow-lg z-10" style={{ backgroundColor: 'white' }}>
+                <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg z-10" style={{ backgroundColor: 'white' }}>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
                   <div className="space-y-2">
                     {/* Training Plan specific columns */}
