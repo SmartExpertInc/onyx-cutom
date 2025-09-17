@@ -417,26 +417,28 @@ export default function CreateFromSpecificFilesPage() {
 
               {/* Create Content Button */}
               <div className="mt-6">
-                <Button
-                  variant="create"
-                  onClick={handleCreateContent}
-                  disabled={!connectorSelectionValid}
-                  className={`${
-                    !connectorSelectionValid
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-3">
-                    <Sparkles className="w-5 h-5" />
-                    {connectorSelectionValid 
-                      ? t('interface.createContentFromConnectors', 'Create Content from {count} Selected Connector{s}')
-                          .replace('{count}', selectedConnectors.length.toString())
-                          .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
-                      : t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
-                    }
-                  </div>
-                </Button>
+                <div className="flex justify-center">
+                  <Button
+                    variant="create"
+                    onClick={handleCreateContent}
+                    disabled={!connectorSelectionValid}
+                    className={`w-3/5 ${
+                      !connectorSelectionValid
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-3">
+                      <Sparkles className="w-5 h-5" />
+                      {connectorSelectionValid 
+                        ? t('interface.createContentFromConnectors', 'Create Content from {count} Selected Connector{s}')
+                            .replace('{count}', selectedConnectors.length.toString())
+                            .replace('{s}', selectedConnectors.length !== 1 ? 's' : '')
+                        : t('interface.selectConnectorsToContinue', 'Select Connectors to Continue')
+                      }
+                    </div>
+                  </Button>
+                </div>
               </div>Button
             </div>
           </div>
