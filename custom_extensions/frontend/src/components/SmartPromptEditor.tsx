@@ -253,7 +253,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Advanced mode panel - always shown */}
       {showAdvanced && (
-        <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4">
+        <div className="w-full bg-white rounded-xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
             <button
@@ -268,7 +268,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
             placeholder="Describe what you'd like to improve..."
-            className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+            className="w-full px-7 py-5 rounded-2xl bg-white text-sm text-black resize-none overflow-hidden min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.95)' }}
             disabled={loadingEdit}
           />
