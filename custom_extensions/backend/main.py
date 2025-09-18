@@ -21501,7 +21501,37 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
             logger.error(f"Failed to decompress text: {e}")
             # Continue with original text if decompression fails
     
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}"  
+    # Enforce diverse question types by default unless explicitly told otherwise
+    diversity_note = ""
+    try:
+        chosen_types_csv = (payload.questionTypes or "").strip()
+        if not chosen_types_csv:
+            default_types = ["multiple-choice", "multi-select", "matching", "sorting", "open-answer"]
+            wiz_payload["questionTypes"] = ",".join(default_types)
+            chosen_types = default_types
+            enforce_diverse = True
+        else:
+            chosen_types = [t.strip() for t in chosen_types_csv.split(",") if t.strip()]
+            enforce_diverse = len(chosen_types) > 1
+        if enforce_diverse:
+            total = payload.questionCount or 10
+            base = total // len(chosen_types)
+            remainder = total % len(chosen_types)
+            # Prioritize non-multiple-choice types for remainders to reduce MC dominance
+            remainder_order = [t for t in chosen_types if t != "multiple-choice"] + [t for t in chosen_types if t == "multiple-choice"]
+            counts = {t: base for t in chosen_types}
+            for i in range(remainder):
+                counts[remainder_order[i % len(remainder_order)]] += 1
+            plan_str = ", ".join([f"{t}: {counts[t]}" for t in chosen_types])
+            diversity_note = (
+                f"CRITICAL QUIZ DIVERSITY INSTRUCTION: Generate a balanced mix of question types. "
+                f"Unless the user's prompt explicitly requests a different mix, distribute the {total} questions across types exactly as follows: {plan_str}. "
+                f"Do not exceed a difference of +1 between any two types. Avoid making 'multiple-choice' more than any other type unless required by the user."
+            )
+    except Exception as e:
+        logger.warning(f"[QUIZ_DIVERSITY_NOTE] Failed to build diversity instruction: {e}")
+    
+    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations - For quizzes: questions, answers, explanations ALL must be in {payload.language}" + (("\n" + diversity_note) if diversity_note else "")  
 
     # ---------- StreamingResponse with keep-alive -----------
     async def streamer():
