@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Search, RefreshCw, ToggleLeft, ToggleRight, Users, Settings, Check, X } from 'lucide-react';
+import { Search, RefreshCw, ToggleLeft, ToggleRight, Users, Settings, Check, X, UserCheck, Tag } from 'lucide-react';
 
 interface FeatureDefinition {
   id: number;
@@ -30,9 +30,15 @@ interface UserWithFeatures {
   features: UserFeature[];
 }
 
+interface UserType {
+  display_name: string;
+  features: string[];
+}
+
 const FeaturesTab: React.FC = () => {
   const [users, setUsers] = useState<UserWithFeatures[]>([]);
   const [featureDefinitions, setFeatureDefinitions] = useState<FeatureDefinition[]>([]);
+  const [userTypes, setUserTypes] = useState<Record<string, UserType>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,33 +46,41 @@ const FeaturesTab: React.FC = () => {
   const [bulkFeature, setBulkFeature] = useState('');
   const [bulkEnabled, setBulkEnabled] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showUserTypeModal, setShowUserTypeModal] = useState(false);
+  const [selectedUserType, setSelectedUserType] = useState('');
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [userTypeLoading, setUserTypeLoading] = useState(false);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [usersResponse, definitionsResponse] = await Promise.all([
+      const [usersResponse, definitionsResponse, userTypesResponse] = await Promise.all([
         fetch(`${CUSTOM_BACKEND_URL}/admin/features/users`, {
           credentials: 'same-origin',
         }),
         fetch(`${CUSTOM_BACKEND_URL}/admin/features/definitions`, {
           credentials: 'same-origin',
+        }),
+        fetch(`${CUSTOM_BACKEND_URL}/admin/features/user-types`, {
+          credentials: 'same-origin',
         })
       ]);
 
-      if (!usersResponse.ok || !definitionsResponse.ok) {
+      if (!usersResponse.ok || !definitionsResponse.ok || !userTypesResponse.ok) {
         throw new Error('Failed to fetch feature data');
       }
 
-      const [usersData, definitionsData] = await Promise.all([
+      const [usersData, definitionsData, userTypesData] = await Promise.all([
         usersResponse.json(),
-        definitionsResponse.json()
+        definitionsResponse.json(),
+        userTypesResponse.json()
       ]);
 
       setUsers(usersData);
       setFeatureDefinitions(definitionsData);
+      setUserTypes(userTypesData);
       setError(null);
     } catch (err) {
       console.error('Error fetching feature data:', err);
@@ -153,6 +167,45 @@ const FeaturesTab: React.FC = () => {
     }
   };
 
+  const handleAssignUserType = async () => {
+    if (!selectedUserType || selectedUsers.size === 0) {
+      alert('Please select a user type and at least one user');
+      return;
+    }
+
+    try {
+      setUserTypeLoading(true);
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/features/assign-user-type`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          user_ids: Array.from(selectedUsers),
+          user_type: selectedUserType
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to assign user type');
+      }
+
+      const result = await response.json();
+      alert(result.message);
+      
+      // Refresh data and reset selection
+      await fetchData();
+      setSelectedUsers(new Set());
+      setShowUserTypeModal(false);
+    } catch (err) {
+      console.error('Error assigning user type:', err);
+      alert('Failed to assign user type');
+    } finally {
+      setUserTypeLoading(false);
+    }
+  };
+
   const toggleUserSelection = (userId: string) => {
     const newSelection = new Set(selectedUsers);
     if (newSelection.has(userId)) {
@@ -223,13 +276,22 @@ const FeaturesTab: React.FC = () => {
         </div>
         
         {selectedUsers.size > 0 && (
-          <button
-            onClick={() => setShowBulkModal(true)}
-            className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Bulk Operations ({selectedUsers.size} users)
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowUserTypeModal(true)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700"
+            >
+              <UserCheck className="w-4 h-4 mr-2" />
+              Assign Type ({selectedUsers.size} users)
+            </button>
+            <button
+              onClick={() => setShowBulkModal(true)}
+              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Bulk Operations ({selectedUsers.size} users)
+            </button>
+          </div>
         )}
       </div>
 
@@ -400,6 +462,103 @@ const FeaturesTab: React.FC = () => {
                   <RefreshCw className="w-4 h-4 animate-spin" />
                 ) : (
                   `${bulkEnabled ? 'Enable' : 'Disable'} for ${selectedUsers.size} users`
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Type Assignment Modal */}
+      {showUserTypeModal && (
+        <div 
+          className="fixed inset-0 backdrop-blur-md bg-white bg-opacity-10 flex items-center justify-center p-4 z-50"
+          onClick={() => setShowUserTypeModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">
+                Assign User Type
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {selectedUsers.size} users selected
+              </p>
+            </div>
+
+            <div className="px-6 py-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select User Type
+                </label>
+                <div className="space-y-3">
+                  {Object.entries(userTypes).map(([typeKey, typeInfo]) => (
+                    <div 
+                      key={typeKey}
+                      className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                        selectedUserType === typeKey 
+                          ? 'border-green-500 bg-green-50' 
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedUserType(typeKey)}
+                    >
+                      <div className="flex items-start">
+                        <input
+                          type="radio"
+                          checked={selectedUserType === typeKey}
+                          onChange={() => setSelectedUserType(typeKey)}
+                          className="mt-1 mr-3"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center mb-2">
+                            <Tag className="w-4 h-4 mr-2 text-gray-500" />
+                            <h4 className="font-semibold text-gray-900">
+                              {typeInfo.display_name}
+                            </h4>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            <strong>Features ({typeInfo.features.length}):</strong>
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {typeInfo.features.map((featureName) => {
+                                const feature = featureDefinitions.find(f => f.feature_name === featureName);
+                                return (
+                                  <span 
+                                    key={featureName}
+                                    className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                                  >
+                                    {feature?.display_name || featureName}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowUserTypeModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={userTypeLoading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAssignUserType}
+                disabled={userTypeLoading || !selectedUserType}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {userTypeLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  `Assign ${userTypes[selectedUserType]?.display_name || 'Type'} to ${selectedUsers.size} users`
                 )}
               </button>
             </div>

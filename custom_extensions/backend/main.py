@@ -44,8 +44,9 @@ except ImportError:
 # Feature management models
 from app.models.feature_models import (
     FeatureDefinition, UserFeature, UserFeatureWithDetails,
-    BulkFeatureToggleRequest, FeatureToggleRequest
+    BulkFeatureToggleRequest, FeatureToggleRequest, UserTypeAssignmentRequest, UserTypeAssignmentRequest
 )
+from app.models.feature_models import UserTypeAssignmentRequest
 
 # Workspace management models and services
 from app.models.workspace_models import (
@@ -23344,6 +23345,126 @@ async def check_user_feature(
     except Exception as e:
         logger.error(f"Error checking user feature: {e}")
         return {"is_enabled": False}
+
+# Define user types and their associated features
+USER_TYPES = {
+    "normal_hr": {
+        "display_name": "Normal (HR)",
+        "features": [
+            "col_one_pager",
+            "col_lesson_presentation", 
+            "col_quiz"
+        ]
+    },
+    "enterprise": {
+        "display_name": "Enterprise",
+        "features": [
+            "col_one_pager",
+            "col_lesson_presentation",
+            "col_quiz",
+            "deloitte_banner",
+            "col_est_completion_time",
+            "col_est_creation_time",
+            "col_content_volume",
+            "col_quality_tier",
+            "lesson_draft",
+            "offers_tab"
+        ]
+    },
+    "beta": {
+        "display_name": "Beta",
+        "features": [
+            "ai_audit_templates",
+            "deloitte_banner",
+            "offers_tab",
+            "workspace_tab",
+            "video_lesson",
+            "lesson_draft",
+            "col_assessment_type",
+            "col_content_volume",
+            "col_source",
+            "col_est_creation_time",
+            "col_est_completion_time",
+            "col_quality_tier",
+            "col_quiz",
+            "col_one_pager",
+            "col_video_presentation",
+            "col_lesson_presentation",
+            "quality_tier"
+        ]
+    }
+}
+
+@app.get("/api/custom/admin/features/user-types")
+async def get_user_types(request: Request):
+    """Get available user types and their features"""
+    await verify_admin_user(request)
+    return USER_TYPES
+
+@app.post("/api/custom/admin/features/assign-user-type")
+async def assign_user_type(
+    assignment_request: UserTypeAssignmentRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Assign a user type to multiple users, enabling all features for that type"""
+    await verify_admin_user(request)
+    
+    if assignment_request.user_type not in USER_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid user type")
+    
+    try:
+        user_type_info = USER_TYPES[assignment_request.user_type]
+        features_to_enable = user_type_info["features"]
+        
+        async with pool.acquire() as conn:
+            # First, verify all features exist
+            for feature_name in features_to_enable:
+                feature_row = await conn.fetchrow(
+                    "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
+                    feature_name
+                )
+                if not feature_row:
+                    logger.warning(f"Feature {feature_name} not found or inactive, skipping")
+                    continue
+            
+            # For each user, enable all features for this user type
+            users_updated = 0
+            features_updated = 0
+            
+            for user_id in assignment_request.user_ids:
+                for feature_name in features_to_enable:
+                    # Check if feature exists before trying to assign it
+                    feature_exists = await conn.fetchrow(
+                        "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
+                        feature_name
+                    )
+                    
+                    if feature_exists:
+                        await conn.execute("""
+                            INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
+                            VALUES ($1, $2, true, NOW())
+                            ON CONFLICT (user_id, feature_name) 
+                            DO UPDATE SET 
+                                is_enabled = true,
+                                updated_at = NOW()
+                        """, user_id, feature_name)
+                        features_updated += 1
+                
+                users_updated += 1
+            
+            return {
+                "success": True,
+                "message": f"Assigned '{user_type_info['display_name']}' type to {users_updated} users ({features_updated} feature assignments)",
+                "users_updated": users_updated,
+                "features_updated": features_updated,
+                "user_type": user_type_info["display_name"]
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error assigning user type: {e}")
+        raise HTTPException(status_code=500, detail="Failed to assign user type")
 
 @app.post("/api/custom/projects/duplicate/{project_id}", response_model=ProjectDuplicationResponse)
 async def duplicate_project(project_id: int, request: Request, user_id: str = Depends(get_current_onyx_user_id)):
