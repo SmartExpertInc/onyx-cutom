@@ -15318,8 +15318,8 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         chunks_received += 1
                         logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
                         
-                        # Extract live progress updates using simple text-based approach
-                        progress_updates = extract_live_progress_simple(assistant_reply, chat_id)
+                        # Extract live progress updates using robust regex-based approach
+                        progress_updates = extract_live_progress(assistant_reply, chat_id)
                         for update in progress_updates:
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
@@ -15440,58 +15440,11 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
                         
-                        # Extract live progress updates using simple text-based approach
-                        progress_updates = extract_live_progress_simple(assistant_reply, chat_id)
+                        # Extract live progress updates using robust regex-based approach
+                        progress_updates = extract_live_progress(assistant_reply, chat_id)
                         for update in progress_updates:
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
-                        
-                        # Always send the raw delta for fallback display
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                        try:
-                            # Check if we have a complete JSON object so far
-                            if assistant_reply.strip().startswith('{') and assistant_reply.count('{') > 0:
-                                # Try to parse the current JSON (might be incomplete)
-                                temp_json = assistant_reply.strip()
-                                if temp_json.endswith(','):
-                                    temp_json = temp_json[:-1]  # Remove trailing comma
-                                if not temp_json.endswith('}') and temp_json.count('{') > temp_json.count('}'):
-                                    # Add closing braces to make it valid for parsing
-                                    missing_braces = temp_json.count('{') - temp_json.count('}')
-                                    temp_json += '}' * missing_braces
-                                
-                                try:
-                                    parsed_json = json.loads(temp_json)
-                                    if isinstance(parsed_json, dict) and "sections" in parsed_json:
-                                        sections = parsed_json["sections"]
-                                        for section in sections:
-                                            if isinstance(section, dict) and "title" in section:
-                                                # Send module progress
-                                                module_progress = {
-                                                    "type": "module", 
-                                                    "title": section["title"],
-                                                    "id": section.get("id", "")
-                                                }
-                                                yield (json.dumps(module_progress) + "\n").encode()
-                                                
-                                                # Send lesson progress for this module
-                                                if "lessons" in section:
-                                                    for lesson in section["lessons"]:
-                                                        if isinstance(lesson, dict) and "title" in lesson:
-                                                            lesson_title = lesson["title"]
-                                                            # Clean lesson title (remove "Lesson X.Y:" prefix)
-                                                            import re
-                                                            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title)
-                                                            lesson_progress = {
-                                                                "type": "lesson",
-                                                                "title": cleaned_title,
-                                                                "module": section["title"]
-                                                            }
-                                                            yield (json.dumps(lesson_progress) + "\n").encode()
-                                except (json.JSONDecodeError, KeyError):
-                                    pass  # JSON not complete yet, continue
-                        except Exception as e:
-                            logger.debug(f"[JSON_STREAM_PARSE] Error parsing streaming JSON: {e}")
                         
                         # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
@@ -16274,7 +16227,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.info(f"[FINALIZE_CACHE] Parsed {len(parsed_orig)} modules from JSON preview")
             else:
                 # Fallback to markdown parsing
-                parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        parsed_orig = _parse_outline_markdown(raw_outline_cached)
                 logger.info(f"[FINALIZE_CACHE] Used markdown fallback, parsed {len(parsed_orig)} modules")
         except (json.JSONDecodeError, KeyError) as e:
             # Fallback to markdown parsing for old format
@@ -16323,7 +16276,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             
             # Fallback to markdown extraction or payload prompt
             if not project_name_detected:
-                project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
                 logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name_detected}")
             
             logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
@@ -16739,179 +16692,85 @@ QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
 # Global tracking for live streaming progress to avoid duplicates
 LIVE_STREAM_TRACKING: Dict[str, Dict[str, set]] = {}  # chat_id -> {"modules": set(), "lessons": set()}
 
-def extract_live_progress_simple(assistant_reply: str, chat_id: str):
-    """Simple text-based extraction of modules and lessons from streaming response."""
-    import re
-    
-    # Initialize tracking for this chat session
-    if chat_id not in LIVE_STREAM_TRACKING:
-        LIVE_STREAM_TRACKING[chat_id] = {"modules": set(), "lessons": set(), "last_module": ""}
-    
-    sent_modules = LIVE_STREAM_TRACKING[chat_id]["modules"]
-    sent_lessons = LIVE_STREAM_TRACKING[chat_id]["lessons"]
-    
-    progress_updates = []
-    
-    try:
-        # Simple approach: look for "title": "..." patterns and determine if they're modules or lessons
-        title_pattern = r'"title":\s*"([^"]+)"'
-        all_titles = re.findall(title_pattern, assistant_reply)
-        
-        for title in all_titles:
-            # Clean the title first
-            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', title).strip()
-            
-            # Determine if this is likely a module or lesson based on context
-            # Look for patterns that suggest this is a module (has "id" nearby)
-            title_context = assistant_reply[max(0, assistant_reply.find(f'"{title}"') - 100):assistant_reply.find(f'"{title}"') + 100]
-            
-            if '"id":' in title_context and not title.startswith('Lesson'):
-                # This looks like a module
-                module_key = f"module:{cleaned_title}"
-                if module_key not in sent_modules:
-                    sent_modules.add(module_key)
-                    LIVE_STREAM_TRACKING[chat_id]["last_module"] = cleaned_title
-                    progress_updates.append({
-                        "type": "module",
-                        "title": cleaned_title,
-                        "id": f"mod_{len(sent_modules)}"
-                    })
-            elif title.startswith('Lesson') or '"hours":' in title_context or '"source":' in title_context:
-                # This looks like a lesson
-                lesson_key = f"lesson:{cleaned_title}"
-                if lesson_key not in sent_lessons and cleaned_title:
-                    sent_lessons.add(lesson_key)
-                    current_module = LIVE_STREAM_TRACKING[chat_id]["last_module"] or "Current Module"
-                    progress_updates.append({
-                        "type": "lesson",
-                        "title": cleaned_title,
-                        "module": current_module
-                    })
-    
-    except Exception as e:
-        logger.debug(f"[LIVE_PROGRESS_SIMPLE] Error extracting progress: {e}")
-    
-    return progress_updates
-
 def extract_live_progress(assistant_reply: str, chat_id: str):
     """Extract modules and lessons from streaming JSON response and yield progress updates."""
     import re
     
     # Initialize tracking for this chat session
     if chat_id not in LIVE_STREAM_TRACKING:
-        LIVE_STREAM_TRACKING[chat_id] = {"modules": set(), "lessons": set()}
+        LIVE_STREAM_TRACKING[chat_id] = {"modules": set(), "lessons": set(), "last_position": 0}
     
     sent_modules = LIVE_STREAM_TRACKING[chat_id]["modules"]
     sent_lessons = LIVE_STREAM_TRACKING[chat_id]["lessons"]
+    last_position = LIVE_STREAM_TRACKING[chat_id]["last_position"]
     
     progress_updates = []
     
     try:
-        # Find all complete section blocks in the JSON
-        # Look for sections that have both id and title, and may have lessons
-        section_blocks = re.findall(r'\{\s*"id":\s*"([^"]*)"[^}]*?"title":\s*"([^"]+)"[^}]*?(?:"lessons":\s*\[[^\]]*?\])?[^}]*?\}', assistant_reply, re.DOTALL)
+        # Only process new content since last position to avoid re-processing
+        new_content = assistant_reply[last_position:]
+        LIVE_STREAM_TRACKING[chat_id]["last_position"] = len(assistant_reply)
         
-        for module_id, module_title in section_blocks:
-            module_key = f"{module_id}:{module_title}"
-            if module_key not in sent_modules:
+        if not new_content.strip():
+            return progress_updates
+        
+        # Look for module patterns in new content
+        # Pattern: "title": "Module Title" with "id" nearby
+        module_pattern = r'"title":\s*"([^"]+)"[^}]*?"id":\s*"([^"]*)"'
+        module_matches = re.findall(module_pattern, new_content)
+        
+        # Also try reverse pattern: "id" before "title"
+        reverse_module_pattern = r'"id":\s*"([^"]*)"[^}]*?"title":\s*"([^"]+)"'
+        reverse_matches = re.findall(reverse_module_pattern, new_content)
+        
+        # Combine matches (reverse the order for reverse matches)
+        all_module_matches = module_matches + [(title, module_id) for module_id, title in reverse_matches]
+        
+        for title, module_id in all_module_matches:
+            module_key = f"{module_id}:{title}"
+            if module_key not in sent_modules and title.strip():
                 sent_modules.add(module_key)
                 progress_updates.append({
                     "type": "module",
-                    "title": module_title,
+                    "title": title.strip(),
                     "id": module_id
                 })
+                logger.debug(f"[LIVE_PROGRESS] Found new module: {title}")
+        
+        # Look for lesson patterns in new content
+        # Simple pattern: "title": "Lesson content"
+        lesson_pattern = r'"title":\s*"([^"]+)"'
+        lesson_matches = re.findall(lesson_pattern, new_content)
+        
+        # Get the most recent module for context
+        current_module = "Unknown Module"
+        if progress_updates:
+            # Use the module we just found
+            current_module = progress_updates[-1]["title"]
+        elif sent_modules:
+            # Use the last module we sent
+            current_module = list(sent_modules)[-1].split(":", 1)[1]
+        
+        for lesson_title in lesson_matches:
+            # Skip if this looks like a module title (already processed)
+            if any(lesson_title == title for title, _ in all_module_matches):
+                continue
                 
-                # Now look for lessons within this specific section block
-                # Find the section block that matches this module
-                section_block_pattern = rf'\{{\s*"id":\s*"{re.escape(module_id)}"[^}}]*?"title":\s*"{re.escape(module_title)}"[^}}]*?(?:"lessons":\s*\[([^\]]*?)\])?[^}}]*?\}}'
-                section_match = re.search(section_block_pattern, assistant_reply, re.DOTALL)
-                
-                if section_match and section_match.group(1):
-                    lessons_block = section_match.group(1)
-                    # Extract lesson titles from this specific lessons array
-                    lesson_titles = re.findall(r'"title":\s*"([^"]+)"', lessons_block)
-                    
-                    for lesson_title in lesson_titles:
-                        # Clean lesson title (remove "Lesson X.Y:" prefix)
-                        cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title).strip()
-                        
-                        lesson_key = f"{module_title}:{cleaned_title}"
-                        if lesson_key not in sent_lessons and cleaned_title:
-                            sent_lessons.add(lesson_key)
-                            progress_updates.append({
-                                "type": "lesson",
-                                "title": cleaned_title,
-                                "module": module_title
-                            })
+            # Clean lesson title (remove "Lesson X.Y:" prefix)
+            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title).strip()
+            
+            lesson_key = f"{current_module}:{cleaned_title}"
+            if lesson_key not in sent_lessons and cleaned_title:
+                sent_lessons.add(lesson_key)
+                progress_updates.append({
+                    "type": "lesson",
+                    "title": cleaned_title,
+                    "module": current_module
+                })
+                logger.debug(f"[LIVE_PROGRESS] Found new lesson: {cleaned_title}")
     
     except Exception as e:
         logger.debug(f"[LIVE_PROGRESS_EXTRACT] Error extracting progress: {e}")
-    
-    return progress_updates
-
-def extract_live_progress_simple(assistant_reply: str, chat_id: str):
-    """Simple text-based extraction of modules and lessons from streaming JSON."""
-    import re
-    
-    # Initialize tracking for this chat session
-    if chat_id not in LIVE_STREAM_TRACKING:
-        LIVE_STREAM_TRACKING[chat_id] = {"modules": set(), "lessons": set()}
-    
-    sent_modules = LIVE_STREAM_TRACKING[chat_id]["modules"]
-    sent_lessons = LIVE_STREAM_TRACKING[chat_id]["lessons"]
-    
-    progress_updates = []
-    current_module = None
-    
-    try:
-        lines = assistant_reply.split('\n')
-        
-        for line in lines:
-            line = line.strip()
-            
-            # Look for module titles (section titles)
-            if '"title":' in line and '"id":' in assistant_reply.split(line)[0].split('"title":')[-1]:
-                # Extract title from: "title": "Module Name"
-                title_match = re.search(r'"title":\s*"([^"]+)"', line)
-                if title_match:
-                    title = title_match.group(1)
-                    
-                    # Look for corresponding ID in nearby lines
-                    context_start = max(0, assistant_reply.find(line) - 200)
-                    context_end = min(len(assistant_reply), assistant_reply.find(line) + 200)
-                    context = assistant_reply[context_start:context_end]
-                    
-                    id_match = re.search(r'"id":\s*"([^"]*)"', context)
-                    module_id = id_match.group(1) if id_match else ""
-                    
-                    # Check if this looks like a section (has id like №1, №2, etc.)
-                    if module_id.startswith('№') or module_id.isdigit():
-                        module_key = f"{module_id}:{title}"
-                        if module_key not in sent_modules:
-                            sent_modules.add(module_key)
-                            current_module = title
-                            progress_updates.append({
-                                "type": "module",
-                                "title": title,
-                                "id": module_id
-                            })
-                    
-                    # Check if this looks like a lesson title within lessons array
-                    elif current_module and ('"hours":' in context or '"source":' in context or '"check":' in context):
-                        # Clean lesson title (remove "Lesson X.Y:" prefix)
-                        cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', title).strip()
-                        
-                        lesson_key = f"{current_module}:{cleaned_title}"
-                        if lesson_key not in sent_lessons and cleaned_title:
-                            sent_lessons.add(lesson_key)
-                            progress_updates.append({
-                                "type": "lesson",
-                                "title": cleaned_title,
-                                "module": current_module
-                            })
-    
-    except Exception as e:
-        logger.debug(f"[LIVE_PROGRESS_SIMPLE] Error extracting progress: {e}")
     
     return progress_updates
 
