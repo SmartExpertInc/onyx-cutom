@@ -232,8 +232,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       <div style={tagsBlockStyles}>
         {/* Profile image with orange background */}
         <div style={{
-          width: '140px',
-          height: '140px',
+          width: '165px',
+          height: '165px',
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'absolute',
@@ -249,8 +249,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '100%',
-              height: '129%',
+              height: '147%',
               borderRadius: '50%',
               objectFit: 'cover',
             }}
@@ -259,7 +258,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
 
         {/* Title */}
         <div style={{
-          fontSize: '44px',
+          fontSize: '48px',
           color: '#09090B', // Dark grey color as per screenshot
           lineHeight: '1.1',
           position: 'absolute',
@@ -273,7 +272,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               onCancel={handleTitleCancel}
               className="benefits-tags-title-editor"
               style={{
-                fontSize: '44px',
+                fontSize: '48px',
                 color: '#626262',
                 lineHeight: '1.1',
                 width: '100%',
@@ -323,7 +322,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   userSelect: 'none',
                   display: 'flex',
                   justifyContent: 'center',
-                  width: index === 0 ? '334px' : '180px'
+                  width: index === 0 ? '315px' : '180px'
                 }}
                 onClick={() => isEditable && setEditingTags(index)}
               >
@@ -369,7 +368,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   userSelect: 'none',
                   display: 'flex',
                   justifyContent: 'center',
-                  width: index === 0 ? '185px' : index === 1 ? '190px' : '180px'
+                  width: index === 0 ? '185px' : index === 1 ? '210px' : '180px'
                 }}
                 onClick={() => isEditable && setEditingTags(index + 3)}
               >

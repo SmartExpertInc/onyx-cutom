@@ -219,7 +219,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Main Title - Top left */}
       <div style={{
         position: 'absolute',
-        top: '235px',
+        top: '265px',
         left: '80px'
       }}>
         {isEditable && editingTitle ? (
@@ -229,7 +229,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             onCancel={handleTitleCancel}
             className="thank-you-title-editor"
             style={{
-              fontSize: '80px',
+              fontSize: '66px',
               color: themeTitle,
               lineHeight: '1.1',
               fontFamily: currentTheme.fonts.titleFont,
@@ -243,7 +243,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           <div
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
-              fontSize: '80px',
+              fontSize: '66px',
               color: themeTitle,
               lineHeight: '1.1',
               cursor: isEditable ? 'pointer' : 'default',
@@ -277,14 +277,14 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
         {/* Left side - Contact and Address */}
         <div style={{
           display: 'flex',
-          gap: '80px'
+          gap: '250px'
         }}>
           {/* Contacts */}
           <div>
             <div style={{
               fontSize: '14px',
               color: 'rgb(219 219 219)',
-              marginBottom: '10px',
+              marginBottom: '15px',
               fontWeight: '300'
             }}>
               Contacts
@@ -360,7 +360,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             <div style={{
               fontSize: '14px',
               color: 'rgb(219 219 219)',
-              marginBottom: '10px',
+              marginBottom: '15px',
               fontWeight: '300'
             }}>
               Our address
@@ -435,16 +435,16 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
 
       {/* Profile Image - Top right */}
       <div style={{
-        width: '210px',
+        width: '225px',
         marginTop: '0',
-        height: '210px',
+        height: '225px',
         borderRadius: '100%',
         display: 'flex',
         backgroundColor: '#ffffff',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'absolute',
-        top: '80px',
+        top: '55px',
         right: '60px',
         zIndex: 10,
         overflow: 'hidden'
@@ -457,10 +457,9 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
           description="Profile photo"
           isEditable={isEditable}
           style={{
-            width: '90%',
-            height: '100%',
+            height: '131%',
             position: 'absolute',
-            bottom: '-30px',
+            bottom: '-88px',
             borderRadius: '50%',
             overflow: 'hidden'
           }}
@@ -470,7 +469,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
       {/* Bottom horizontal separator line */}
       <div style={{
         position: 'absolute',
-        bottom: '115px',
+        bottom: '110px',
         left: '80px',
         right: '80px',
         height: '2px',

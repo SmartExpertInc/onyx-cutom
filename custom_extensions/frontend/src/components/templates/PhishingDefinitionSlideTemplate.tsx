@@ -323,10 +323,10 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
         {/* Profile image at bottom left */}
         <div style={{
           position: 'absolute',
-          bottom: '115px',
+          bottom: '93px',
           left: '60px',
-          width: '145px',
-          height: '145px',
+          width: '160px',
+          height: '160px',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#ffffff'
@@ -340,10 +340,10 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
             isEditable={isEditable}
             style={{
               width: '88%',
-              height: '100%',
+              height: '135%',
               borderRadius: '50%',
               position: 'relative',
-              bottom: '-10px',
+              bottom: '0px',
               objectFit: 'cover'
             }}
           />

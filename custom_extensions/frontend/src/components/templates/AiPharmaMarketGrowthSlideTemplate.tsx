@@ -61,8 +61,9 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
     left: '60px',
-    top: '125px',
+    top: '106px',
     fontSize: '44px',
+    width: '347px',
     lineHeight: 1.05,
     fontWeight: 700,
     color: '#09090B',
@@ -75,7 +76,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     width: '56%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px'
+    gap: '0px'
   };
 
   const rightImageArea: React.CSSProperties = {
@@ -157,18 +158,17 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#000000'
             }}>
               <div style={{
                 width: '12px',
                 height: '2px',
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#000000',
                 position: 'absolute'
               }} />
               <div style={{
                 width: '2px',
                 height: '12px',
-                backgroundColor: '#FFFFFF',
+                backgroundColor: '#000000',
                 position: 'absolute',
                 left: '50%',
                 top: '50%',

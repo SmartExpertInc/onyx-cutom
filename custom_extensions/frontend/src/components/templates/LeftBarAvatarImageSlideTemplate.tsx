@@ -49,8 +49,8 @@ export const LeftBarAvatarImageSlideTemplate: React.FC<LeftBarAvatarImageProps &
   };
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', fontFamily: currentTheme.fonts.titleFont, position:'relative', overflow:'hidden' };
-  const leftBar: React.CSSProperties = { position:'absolute', left:0, top:0, bottom:0, width:'200px', background:'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', left:'85px', border:'1px solid #E0E7FF', zIndex:'10', top:'50%', transform:'translateY(-50%)', width:'230px', height:'230px', borderRadius:'50%', overflow:'hidden', background:'#ffffff' };
+  const leftBar: React.CSSProperties = { position:'absolute', left:0, top:0, bottom:0, width:'170px', background:'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', left:'75px', border:'8px solid #E0E7FF', zIndex:'10', top:'50%', transform:'translateY(-50%)', width:'200px', height:'200px', borderRadius:'50%', overflow:'hidden', background:'#ffffff' };
   const frame: React.CSSProperties = { position:'absolute', left:'330px', top:'100px', right:'70px', bottom:'100px' };
 
   return (
@@ -118,7 +118,7 @@ export const LeftBarAvatarImageSlideTemplate: React.FC<LeftBarAvatarImageProps &
         </div>
       </div>
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p, mainImagePath, logoPath, pageNumber })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'88%', height:'100%', marginTop:'6px', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p, mainImagePath, logoPath, pageNumber })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ height:'147%', objectFit:'cover' }} />
       </div>
       <div style={frame}>
         <ClickableImagePlaceholder imagePath={mainImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath, mainImagePath:p, logoPath, pageNumber })} size="LARGE" position="CENTER" description="Main image" isEditable={isEditable} style={{ width:'100%', borderRadius:'0px', height:'100%', objectFit:'cover' }} />

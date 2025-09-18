@@ -156,13 +156,12 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '88%',
-              height: '100%',
+              height: '149%',
               borderRadius: '50%',
               objectFit: 'cover',
               overflow: 'hidden',
               position: 'relative',
-              bottom: '-15px',
+              bottom: '0px',
             }}
           />
         </div>

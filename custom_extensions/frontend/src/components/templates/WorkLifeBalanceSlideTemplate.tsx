@@ -227,12 +227,12 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Logo placeholder */}
         <div style={{
           position: 'absolute',
-          top: '40px',
-          left: '60px',
+          top: '25px',
+          left: '25px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          color: themeTitle
+          color: '#ffffff'
         }}>
           {logoPath ? (
             // Show uploaded logo image
@@ -262,7 +262,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid ${themeContent}`,
+                border: `2px solid #ffffff`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -285,7 +285,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: '300', color: themeContent }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontWeight: '300', color: '#ffffff' }}>Your Logo</span>
             </div>
           )}
         </div>
@@ -348,8 +348,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 marginTop: '31px',
                 marginLeft: '6px',
-                width: '500px',
-                fontSize: '23px',
+                width: '451px',
+                fontSize: '24px',
                 color: '#ffffff',
                 lineHeight: '1.6',
                 fontFamily: currentTheme.fonts.contentFont,

@@ -151,7 +151,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     minHeight: '64px',
     display: 'flex',
     alignItems: 'center',
-    padding: '25px 50px',
+    padding: '25px 25px',
     zIndex: 2
   };
 
@@ -196,7 +196,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         </div>
 
         {/* Avatar */}
-        <div style={{ marginTop: '150px', backgroundColor: '#ffffff', width: '140px', height: '140px', borderRadius: '50%', overflow: 'hidden' }}>
+        <div style={{ marginTop: '108px', backgroundColor: '#ffffff', width: '160px', height: '160px', borderRadius: '50%', overflow: 'hidden' }}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
@@ -246,7 +246,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
         {/* Venn labels */}
         <div style={{ position: 'absolute', right: '72px', top: '96px', width: '640px', height: '640px', pointerEvents: 'none', zIndex: 2 }}>
           {/* Culture (top center of big circle) */}
-          <div style={{ position: 'absolute', left: '59%', top: '56px', color: '#B1B0B1', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto', zIndex: 3 }}>
+          <div style={{ position: 'absolute', left: '59%', top: '65px', color: '#FFFFFF', opacity: 0.9, fontSize: '22px', pointerEvents: 'auto', zIndex: 3 }}>
             {isEditable && editingVenn === 'culture' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.culture}
@@ -260,13 +260,13 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Managers (center of left small circle) */}
-          <div style={{ position: 'absolute', left: '332px', top: '240px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto', zIndex: 3 }}>
+          <div style={{ position: 'absolute', left: '332px', top: '240px', transform: 'translate(-50%, -50%)', color: '#e5e7eb', fontSize: '20px', pointerEvents: 'auto', zIndex: 3 }}>
             {isEditable && editingVenn === 'managers' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.managers}
                 onSave={(v) => { onUpdate && onUpdate({ vennLabels: { ...vennLabels, managers: v } }); setEditingVenn(null); }}
                 onCancel={() => setEditingVenn(null)}
-                style={{ color: '#e5e7eb', fontSize: '26px' }}
+                style={{ color: '#e5e7eb', fontSize: '20px' }}
               />
             ) : (
               <span style={{ cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingVenn('managers')}>{vennLabels.managers}</span>
@@ -274,13 +274,13 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
           </div>
 
           {/* Teams (center of right small circle) */}
-          <div style={{ position: 'absolute', right: '133px', top: '240px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '26px', pointerEvents: 'auto', zIndex: 3 }}>
+          <div style={{ position: 'absolute', right: '133px', top: '240px', transform: 'translate(50%, -50%)', color: '#e5e7eb', fontSize: '20px', pointerEvents: 'auto', zIndex: 3 }}>
             {isEditable && editingVenn === 'teams' ? (
               <ImprovedInlineEditor
                 initialValue={vennLabels.teams}
                 onSave={(v) => { onUpdate && onUpdate({ vennLabels: { ...vennLabels, teams: v } }); setEditingVenn(null); }}
                 onCancel={() => setEditingVenn(null)}
-                style={{ color: '#e5e7eb', fontSize: '26px' }}
+                style={{ color: '#e5e7eb', fontSize: '20px' }}
               />
             ) : (
               <span style={{ cursor: isEditable ? 'pointer' : 'default' }} onClick={() => isEditable && setEditingVenn('teams')}>{vennLabels.teams}</span>

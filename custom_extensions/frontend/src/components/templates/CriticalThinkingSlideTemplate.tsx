@@ -167,7 +167,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               backgroundColor: '#0F58F9', // Light red/orange background as per screenshot
               color: '#ffffff', // Red/orange text color as per screenshot
               opacity: 1,
-              padding: '0px 10px',
+              padding: '0px 2px',
               borderRadius: '3px'
             }}
           >
@@ -318,8 +318,8 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           position: 'absolute',
           top: '33px',
           left: '70px',
-          width: '140px',
-          height: '140px',
+          width: '155px',
+          height: '155px',
           borderRadius: '50%',
           backgroundColor: '#0F58F9', // Orange background as per screenshot
           display: 'flex',
@@ -335,10 +335,10 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
             description="Profile"
             isEditable={isEditable}
             style={{
-              height: '100%',
+              height: '146%',
               borderRadius: '50%',
               position: 'absolute',
-              bottom: '-34px',
+              bottom: '-92px',
               objectFit: 'cover',
               overflow: 'hidden'
             }}
@@ -348,9 +348,9 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         {/* Title - to the right of profile image */}
         <div style={{
           position: 'absolute',
-          top: '55px',
+          top: '40px',
           left: '300px',
-          fontSize: '38px',
+          fontSize: '43px',
           color: '#09090B', // Dark grey color as per screenshot
           lineHeight: '1.2',
           whiteSpace: 'pre-line',
@@ -369,7 +369,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
               multiline={true}
               className="critical-thinking-title-editor"
               style={{
-                fontSize: '38px',
+                fontSize: '43px',
                 color: '#09090B',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
@@ -389,7 +389,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 height: '100%',
                 display: 'flex',
                 alignItems: 'flex-start',
-                fontSize: '38px',
+                fontSize: '43px',
                 color: '#09090B',
                 lineHeight: '1.2',
                 whiteSpace: 'pre-line',
