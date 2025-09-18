@@ -17,7 +17,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         className={cn(
           "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-18 h-25 xs:w-18 xs:h-23 sm:w-20 sm:h-28 md:w-20 md:h-30 lg:w-22 lg:h-35 xl:w-30 xl:h-38",
+          "w-21 h-25 xs:w-19 xs:h-23 sm:w-23 sm:h-28 md:w-25 md:h-30 lg:w-27 lg:h-31 xl:w-31 xl:h-35",
           "hover:scale-105",
           className
         )}
@@ -46,7 +46,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
               <div 
-                className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 xl:w-22 xl:h-22 flex items-center justify-center"
+                className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 xl:w-12 xl:h-12 flex items-center justify-center"
                 style={{
                   backgroundColor: active ? '#0646D3' : '#ADE9FF',
                   borderRadius: '50%',
@@ -55,11 +55,11 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               >
                 <Icon 
                   size={24}
-                  className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-11 xl:h-11"
+                  className="w-5 h-5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7"
                   style={{
-                    color: active ? 'white' : '#374151',
-                    fill: active ? 'white' : '#374151',
-                    stroke: active ? 'white' : '#374151',
+                    color: active ? 'white' : 'black',
+                    fill: active ? 'white' : 'black',
+                    stroke: active ? 'white' : 'black',
                   }}
                 />
               </div>
