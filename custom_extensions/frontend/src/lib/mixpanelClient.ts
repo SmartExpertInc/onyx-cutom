@@ -111,8 +111,8 @@ export const trackCreateProduct = async (
   isFromConnectors?: boolean,
   language?: string,
   productType?: string,
-  advancedModeState?: string,
-  stylesSelection?: string
+  stylesSelection?: string,
+  advancedModeState?: string
 ) => {
   // Decide generation method based on the flags
   let generationMethod: string | undefined = undefined;

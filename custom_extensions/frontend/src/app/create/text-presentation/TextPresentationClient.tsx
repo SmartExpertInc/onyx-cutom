@@ -1056,9 +1056,9 @@ export default function TextPresentationClient() {
         isFromKnowledgeBase,
         isFromConnectors,
         language, 
-        activeProductType === null ? undefined : activeProductType, 
-        advancedModeState,
-        stylesState
+        activeProductType === null ? undefined : activeProductType,
+        stylesState,
+        advancedModeState
       );
       
       // Clear the failed state since we successfully completed
@@ -1088,8 +1088,8 @@ export default function TextPresentationClient() {
             isFromConnectors,
             language, 
             activeProductType === null ? undefined : activeProductType, 
-            advancedModeState,
-            stylesState
+            stylesState,
+            advancedModeState
           );
           sessionStorage.setItem('createProductFailed', 'true');
         }
@@ -1385,7 +1385,10 @@ export default function TextPresentationClient() {
                         <div className="relative styles-dropdown">
                           <button
                             type="button"
-                            onClick={() => setShowStylesDropdown(!showStylesDropdown)}
+                            onClick={() => {
+                              handleStylesClick();
+                              setShowStylesDropdown(!showStylesDropdown);
+                            }}
                             className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                           >
                             <span>{selectedStyles.length > 0 ? `${selectedStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
@@ -1399,6 +1402,7 @@ export default function TextPresentationClient() {
                                     type="checkbox"
                                     checked={selectedStyles.includes(option.value)}
                                     onChange={(e) => {
+                                      setStylesState("Used");
                                       if (e.target.checked) {
                                         setSelectedStyles([...selectedStyles, option.value]);
                                       } else {

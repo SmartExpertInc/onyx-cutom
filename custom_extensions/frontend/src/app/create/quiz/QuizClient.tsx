@@ -949,6 +949,7 @@ export default function QuizClient() {
         fromConnectors,
         language, 
         activeProductType === null ? undefined : activeProductType, 
+        undefined,
         advancedModeState
       );
       
@@ -975,6 +976,7 @@ export default function QuizClient() {
             fromConnectors,
             language, 
             activeProductType === null ? undefined : activeProductType, 
+            undefined,
             advancedModeState
           );
           sessionStorage.setItem('createProductFailed', 'true');

@@ -853,6 +853,7 @@ export default function LessonPresentationClient() {
         isFromConnectors,
         language, 
         activeProductType === null ? undefined : activeProductType, 
+        undefined,
         advancedModeState
       );
       
@@ -882,7 +883,8 @@ export default function LessonPresentationClient() {
             isFromKnowledgeBase,
             isFromConnectors,
             language, 
-            activeProductType === null ? undefined : activeProductType, 
+            activeProductType === null ? undefined : activeProductType,
+            undefined, 
             advancedModeState
           );
           sessionStorage.setItem('createProductFailed', 'true');

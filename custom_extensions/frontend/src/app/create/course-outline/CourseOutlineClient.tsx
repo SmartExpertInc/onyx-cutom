@@ -870,6 +870,7 @@ export default function CourseOutlineClient() {
         isFromConnectors,
         language, 
         activeProductType === null ? undefined : activeProductType, 
+        undefined,
         advancedModeState
       );
       
@@ -898,6 +899,7 @@ export default function CourseOutlineClient() {
             isFromConnectors,
             language, 
             activeProductType === null ? undefined : activeProductType, 
+            undefined,
             advancedModeState
           );
           sessionStorage.setItem('createProductFailed', 'true');
