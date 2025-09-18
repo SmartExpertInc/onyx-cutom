@@ -6,7 +6,6 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import SimpleRichTextEditor from '../SimpleRichTextEditor';
 
 type TagType = { text: string; isHighlighted?: boolean };
 
@@ -267,7 +266,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           left: '300px',
         }}>
           {isEditable && editingTitle ? (
-            <SimpleRichTextEditor
+            <ImprovedInlineEditor
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
@@ -279,7 +278,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 width: '100%',
                 height: 'auto',
               }}
-              allowFormatting={true}
             />
           ) : (
             <div
@@ -328,7 +326,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index)}
               >
                 {isEditable && editingTags === index ? (
-                  <SimpleRichTextEditor
+                  <ImprovedInlineEditor
                     initialValue={tag.text}
                     onSave={(value) => handleTagSave(index, value)}
                     onCancel={handleTagCancel}
@@ -341,7 +339,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
-                    allowFormatting={true}
                   />
                 ) : (
                   tag.text
@@ -374,7 +371,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index + 3)}
               >
                 {isEditable && editingTags === index + 3 ? (
-                  <SimpleRichTextEditor
+                  <ImprovedInlineEditor
                     initialValue={tag.text}
                     onSave={(value) => handleTagSave(index + 3, value)}
                     onCancel={handleTagCancel}
@@ -387,7 +384,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
-                    allowFormatting={true}
                   />
                 ) : (
                   tag.text
@@ -421,7 +417,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index + 5)}
               >
                 {isEditable && editingTags === index + 5 ? (
-                  <SimpleRichTextEditor
+                  <ImprovedInlineEditor
                     initialValue={tag.text}
                     onSave={(value) => handleTagSave(index + 5, value)}
                     onCancel={handleTagCancel}
@@ -434,7 +430,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
-                    allowFormatting={true}
                   />
                 ) : (
                   tag.text

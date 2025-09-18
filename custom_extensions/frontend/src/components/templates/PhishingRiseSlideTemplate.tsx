@@ -5,7 +5,6 @@ import { PhishingRiseSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import SimpleRichTextEditor from '../SimpleRichTextEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
 export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
@@ -288,13 +287,12 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       <div style={leftArea}>
         <div style={largeFaintTitle}>
           {isEditable && editingTitle ? (
-            <SimpleRichTextEditor
+            <ImprovedInlineEditor
               initialValue={title}
               onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
               onCancel={() => setEditingTitle(false)}
               className="phishing-title-editor"
               style={{ ...largeFaintTitle }}
-              allowFormatting={true}
             />
           ) : (
             <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
@@ -303,14 +301,13 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
         {/* Stable description block to avoid shifting when editing */}
         <div style={{ ...paragraph, minHeight: '104px' }}>
           {isEditable && editingDescription ? (
-            <SimpleRichTextEditor
+            <ImprovedInlineEditor
               initialValue={description}
               multiline={true}
               onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDescription(false); }}
               onCancel={() => setEditingDescription(false)}
               className="phishing-description-editor"
               style={{ ...paragraph, minHeight: 'auto' }}
-              allowFormatting={true}
             />
           ) : (
             <div onClick={() => isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
