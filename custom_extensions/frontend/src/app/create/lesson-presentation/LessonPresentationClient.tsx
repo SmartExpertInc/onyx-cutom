@@ -1172,7 +1172,10 @@ export default function LessonPresentationClient() {
   return (
     <>
       <main
-        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
+        style={{
+          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
+        }}
       >
         {/* Back button */}
         <Link

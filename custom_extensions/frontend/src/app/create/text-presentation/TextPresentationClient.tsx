@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronDown, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Plus, Edit, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -1321,9 +1321,15 @@ export default function TextPresentationClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+            className="absolute top-6 left-6 flex items-center gap-2 bg-white border border-gray-200 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+          style={{
+            color: '#0F58F9',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%'
+          }}
         >
-          <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
+          <ChevronLeft width={4} height={8} style={{ color: '#0F58F9' }} /> {t('interface.generate.back', 'Back')}
         </Link>
 
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
