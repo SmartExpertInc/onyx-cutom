@@ -79,21 +79,6 @@ export default function EventPoster({
         }}
       />
 
-      {/* Background Layer 3 - v1_5 */}
-      <div
-        className="absolute"
-        style={{
-          width: '100%',
-          height: '100%',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_5.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          top: '0px',
-          left: '230px',
-          overflow: 'hidden'
-        }}
-      />
 
       {/* Decorative Element - v1_6 */}
       <div
