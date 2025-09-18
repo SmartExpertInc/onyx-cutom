@@ -97,7 +97,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
             <Users size={24} className="text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewFolder', 'Create New Folder')}</h2>
             <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByFolder', 'Organize your projects by folder for better management')}</p>
           </div>
         </div>

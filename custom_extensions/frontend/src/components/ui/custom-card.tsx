@@ -49,7 +49,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-xl relative overflow-hidden transition-all duration-200 w-full h-full min-w-[320px]",
+          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
           useCSSVariables 
             ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))] shadow-lg hover:shadow-xl"
             : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md shadow-lg hover:shadow-xl",
@@ -69,13 +69,13 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             <div className="absolute top-4 right-4 z-10">
               <div 
                 className={cn(
-                  "inline-flex items-center px-2 py-1 text-xs font-medium",
+                  "inline-flex items-center px-2 py-1 text-xs font-semibold",
                   useCSSVariables 
                     ? "bg-white rounded-md border-none text-blue-600 gap-1"
                     : cn(labelColor, "bg-white rounded-md border-none text-blue-600 gap-1")
                 )}
               >
-                <SparklesIcon size={8} />
+                <SparklesIcon size={10} />
                 {pillLabel}
               </div>
             </div>
@@ -87,7 +87,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-300/10 rounded-lg blur-sm"></div>
                 <Icon 
-                  size={40} 
+                  size={53} 
                   className={cn(
                     "relative z-10",
                     useCSSVariables ? "text-[hsl(var(--custom-card-icon))]" : "text-blue-600"
@@ -102,7 +102,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             <div className="flex flex-col items-start gap-2 flex-1 justify-start">
               {title && (
                 <h3 className={cn(
-                  "text-lg font-semibold text-left leading-tight",
+                  "text-2xl font-semibold text-left leading-tight",
                   useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : "text-blue-600"
                 )}>
                   {title}
@@ -110,7 +110,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               )}
               {description && (
                 <p className={cn(
-                  "text-sm text-left leading-relaxed text-gray-600",
+                  "text-base text-left leading-relaxed text-gray-600",
                   useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-600"
                 )}>
                   {description}

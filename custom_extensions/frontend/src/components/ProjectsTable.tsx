@@ -2058,27 +2058,27 @@ const FolderRowMenu: React.FC<{
                 </p>
               </div>
               <div className="py-1">
-                <Button className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <Button className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none">
                   <Share2 size={16} className="text-gray-500" />
                   <span>{t("actions.share", "Share")}</span>
                 </Button>
                 <Button
                   onClick={handleRenameClick}
-                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
                 </Button>
                 <Button
                   onClick={handleSettingsClick}
-                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Settings size={16} className="text-gray-500" />
                   <span>{t("actions.settings", "Settings")}</span>
                 </Button>
                 <Button
                   onClick={handleExportFolder}
-                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
@@ -2087,7 +2087,7 @@ const FolderRowMenu: React.FC<{
               <div className="py-1 border-t border-gray-100">
                 <Button
                   onClick={handleDeleteFolder}
-                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.delete", "Delete")}</span>

@@ -16,7 +16,7 @@ const HeadTextCustom = React.forwardRef<HTMLDivElement, HeadTextCustomProps>(
           {text}
         </h1>
         {description && (
-          <p className={cn("text-gray-500 leading-relaxed text-center", descriptionSize)}>
+          <p className={cn("text-gray-500 text-md leading-relaxed text-center", descriptionSize)}>
             {description}
           </p>
         )}
