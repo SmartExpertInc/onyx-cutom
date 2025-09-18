@@ -29,32 +29,44 @@ export default function EventPosterQuestionnaire() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Prepare data for the results page
-    const eventData = {
-      eventName,
-      mainSpeaker,
-      speakerDescription,
-      date,
-      topic,
-      additionalSpeakers,
-      ticketPrice,
-      ticketType,
-      freeAccessConditions,
-      speakerImage
-    };
-
-    // Navigate to results page with data
-    const queryParams = new URLSearchParams();
-    Object.entries(eventData).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        queryParams.append(key, value);
+    try {
+      // Create FormData to handle the POST request
+      const formData = new FormData();
+      formData.append('eventName', eventName);
+      formData.append('mainSpeaker', mainSpeaker);
+      formData.append('speakerDescription', speakerDescription);
+      formData.append('date', date);
+      formData.append('topic', topic);
+      formData.append('additionalSpeakers', additionalSpeakers);
+      formData.append('ticketPrice', ticketPrice);
+      formData.append('ticketType', ticketType);
+      formData.append('freeAccessConditions', freeAccessConditions);
+      
+      // Only append speakerImage if it exists
+      if (speakerImage) {
+        formData.append('speakerImage', speakerImage);
       }
-    });
-    
-    router.push(`/create/event-poster/results?${queryParams.toString()}`);
+
+      // Submit form data via POST request
+      const response = await fetch('/api/event-poster/generate', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        // The API route will handle the redirect to the results page
+        window.location.href = response.url;
+      } else {
+        console.error('Failed to submit form data');
+        alert('Failed to generate poster. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (
