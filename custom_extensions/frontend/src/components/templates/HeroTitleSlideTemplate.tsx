@@ -208,8 +208,8 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: getTitleFontSize(titleSize),
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     textAlign: textAlign as any,
     marginBottom: '24px',

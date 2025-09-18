@@ -233,12 +233,12 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    fontFamily: 'Lora-Bold, serif',
     color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const stepsContainerStyles: React.CSSProperties = {

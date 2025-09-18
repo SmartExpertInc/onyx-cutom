@@ -246,11 +246,11 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     marginBottom: '20px',
     lineHeight: 1.3,
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const subtitleStyles: React.CSSProperties = {

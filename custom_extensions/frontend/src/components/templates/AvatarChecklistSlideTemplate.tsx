@@ -240,12 +240,12 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.2rem',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    fontFamily: 'Lora-Bold, serif',
+    fontWeight: 'normal',
     color: titleColor,
     marginBottom: '32px',
     lineHeight: '1.2',
-    wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
+    wordWrap: 'break-word'
   };
 
   const checklistContainerStyles: React.CSSProperties = {

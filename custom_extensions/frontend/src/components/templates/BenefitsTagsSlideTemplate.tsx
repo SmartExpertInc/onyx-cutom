@@ -265,7 +265,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           position: 'absolute',
           top: '100px',
           left: '300px',
-          fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
+          fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
           fontWeight: 'normal', // Prevent font-weight conflicts
         }}>
           {isEditable && editingTitle ? (
@@ -280,7 +280,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
-                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
+                fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
                 fontWeight: 'normal', // Prevent font-weight conflicts
               }}
               allowFormatting={true}

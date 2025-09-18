@@ -253,12 +253,12 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.5rem',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     marginBottom: '16px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const subtitleStyles: React.CSSProperties = {
