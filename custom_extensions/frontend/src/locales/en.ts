@@ -1022,6 +1022,9 @@ export const en = {
       presentation: "Presentation",
       onePager: "One-Pager",
       modules: "Modules",
+      lessonsPerModule: "Lessons per module",
+      length: "Length",
+      stylesSelected: "styles selected",
       creatingFromFiles: "Creating from files",
       foldersSelected: "folder selected",
       foldersSelectedPlural: "folders selected",
@@ -1039,7 +1042,6 @@ export const en = {
       medium: "Medium",
       long: "Long",
       selectStyles: "Select styles",
-      stylesSelected: "styles selected",
       // Text style options
       headlines: "Headlines",
       paragraphs: "Paragraphs",

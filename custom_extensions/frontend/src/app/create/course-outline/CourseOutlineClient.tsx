@@ -1233,13 +1233,13 @@ export default function CourseOutlineClient() {
                     <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
                     </svg>
-                    <span className="text-[#09090B] opacity-50">Modules:</span>
+                    <span className="text-[#09090B] opacity-50">{t('interface.generate.modules', 'Modules')}:</span>
                     <span className="text-[#09090B]">{modules}</span>
                   </div>
                 </SelectTrigger>
-                <SelectContent className="border-white" sideOffset={15}>
+                <SelectContent className="border-white" sideOffset={15} maxHeight={100}>
                   {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-                    <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
+                    <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1259,13 +1259,13 @@ export default function CourseOutlineClient() {
                     <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
                     </svg>
-                    <span className="text-[#09090B] opacity-50">Lessons:</span>
-                    <span className="text-[#09090B]">{lessonsPerModule} {t('interface.generate.perModule', 'per module')}</span>
+                    <span className="text-[#09090B] opacity-50">{t('interface.generate.lessonsPerModule', 'Lessons per module')}:</span>
+                    <span className="text-[#09090B]">{lessonsPerModule}</span>
                   </div>
                 </SelectTrigger>
                 <SelectContent className="border-white" sideOffset={15} align="center">
-                  {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-                    <SelectItem key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
+                  {["1 - 2", "3 - 4", "5 - 7", "8 - 10"].map((rng) => (
+                    <SelectItem key={rng} value={rng}>{rng}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1285,7 +1285,7 @@ export default function CourseOutlineClient() {
                     <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
                     </svg>
-                    <span className="text-[#09090B] opacity-50">Language:</span>
+                    <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
                     <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                   </div>
                 </SelectTrigger>

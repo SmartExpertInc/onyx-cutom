@@ -1292,70 +1292,126 @@ export default function LessonPresentationClient() {
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <>
-                        <Select
-                          value={language}
-                          onValueChange={setLanguage}
-                        >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="border-gray-300">
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={slidesCount.toString()}
-                          onValueChange={(value: string) => setSlidesCount(Number(value))}
-                        >
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="border-gray-300 max-h-48">
-                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                              <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </>
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center">
+                          {/* Language dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={language}
+                              onValueChange={setLanguage}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                                  <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                          
+                          {/* Slides count dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={slidesCount.toString()}
+                              onValueChange={(value: string) => setSlidesCount(Number(value))}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
+                                  <span className="text-[#09090B]">{slidesCount} {t('interface.generate.slides', 'slides')}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15} align="center">
+                                {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                                  <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone lesson dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <>
-                    <Select
-                      value={language}
-                      onValueChange={setLanguage}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-gray-300">
-                        <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={slidesCount.toString()}
-                      onValueChange={(value: string) => setSlidesCount(Number(value))}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="border-gray-300 max-h-48">
-                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                          <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
+                  <div className="w-full bg-white rounded-lg py-3 px-8">
+                    <div className="flex items-center">
+                      {/* Language dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={language}
+                          onValueChange={setLanguage}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                              <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="shadow-none border-white">
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                      
+                      {/* Slides count dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={slidesCount.toString()}
+                          onValueChange={(value: string) => setSlidesCount(Number(value))}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
+                              <span className="text-[#09090B]">{slidesCount} {t('interface.generate.slides', 'slides')}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="shadow-none border-white">
+                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                              <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
               </div>
