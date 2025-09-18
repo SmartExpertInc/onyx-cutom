@@ -163,9 +163,9 @@ export default function TextPresentationClient() {
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
   // Track usage of styles feature
-  const [stylesState, setStylesState] = useState<string | undefined>(undefined);
+  const [stylesState, setStylesState] = useState<string | null>(sessionStorage.getItem('stylesState'));
   const handleStylesClick = () => {
-    if (stylesState === undefined) {
+    if (!stylesState) {
       setStylesState("Clicked");
     }
   };
@@ -1056,8 +1056,8 @@ export default function TextPresentationClient() {
         isFromKnowledgeBase,
         isFromConnectors,
         language, 
-        activeProductType === null ? undefined : activeProductType,
-        stylesState,
+        activeProductType ?? undefined,
+        stylesState ?? undefined,
         advancedModeState
       );
       
@@ -1087,8 +1087,8 @@ export default function TextPresentationClient() {
             isFromKnowledgeBase,
             isFromConnectors,
             language, 
-            activeProductType === null ? undefined : activeProductType, 
-            stylesState,
+            activeProductType ?? undefined,
+            stylesState ?? undefined,
             advancedModeState
           );
           sessionStorage.setItem('createProductFailed', 'true');

@@ -807,6 +807,14 @@ function GenerateProductPicker() {
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 
+  // Track usage of styles feature
+  const [stylesState, setStylesState] = useState<string | undefined>(undefined);
+  const handleStylesClick = () => {
+    if (stylesState === undefined) {
+      setStylesState("Clicked");
+    }
+  };
+
   // Fetch one-pager outlines when product is selected
   useEffect(() => {
     if (activeProduct !== "One-Pager" || useExistingTextOutline !== true) return;
@@ -971,6 +979,8 @@ function GenerateProductPicker() {
       params.set("connectorIds", connectorContext.connectorIds.join(','));
       params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
+
+    sessionStorage.setItem('stylesState', stylesState ?? "");
 
     router.push(`/create/text-presentation?${params.toString()}`);
   };
@@ -1707,7 +1717,10 @@ function GenerateProductPicker() {
                         <div className="relative text-styles-dropdown">
                           <button
                             type="button"
-                            onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
+                            onClick={() => {
+                              handleStylesClick();
+                              setShowTextStylesDropdown(!showTextStylesDropdown);
+                            }}
                             className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                           >
                             <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
@@ -1731,6 +1744,7 @@ function GenerateProductPicker() {
                                     type="checkbox"
                                     checked={textStyles.includes(option.value)}
                                     onChange={(e) => {
+                                      setStylesState("Used");
                                       if (e.target.checked) {
                                         setTextStyles([...textStyles, option.value]);
                                       } else {
@@ -1775,7 +1789,10 @@ function GenerateProductPicker() {
                     <div className="relative text-styles-dropdown">
                       <button
                         type="button"
-                        onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
+                        onClick={() => {
+                          handleStylesClick();
+                          setShowTextStylesDropdown(!showTextStylesDropdown);
+                        }}
                         className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                       >
                         <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
@@ -1799,6 +1816,7 @@ function GenerateProductPicker() {
                                 type="checkbox"
                                 checked={textStyles.includes(option.value)}
                                 onChange={(e) => {
+                                  setStylesState("Used");
                                   if (e.target.checked) {
                                     setTextStyles([...textStyles, option.value]);
                                   } else {

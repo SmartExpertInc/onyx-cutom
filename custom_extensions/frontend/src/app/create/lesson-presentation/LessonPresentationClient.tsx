@@ -852,7 +852,7 @@ export default function LessonPresentationClient() {
         isFromKnowledgeBase,
         isFromConnectors,
         language, 
-        activeProductType === null ? undefined : activeProductType, 
+        activeProductType ?? undefined,
         undefined,
         advancedModeState
       );
@@ -883,7 +883,7 @@ export default function LessonPresentationClient() {
             isFromKnowledgeBase,
             isFromConnectors,
             language, 
-            activeProductType === null ? undefined : activeProductType,
+            activeProductType ?? undefined,
             undefined, 
             advancedModeState
           );

@@ -126,6 +126,7 @@ function CreatePageHandler() {
         sessionStorage.removeItem('lessonContext');
         sessionStorage.removeItem('lessonContextForDropdowns');
         sessionStorage.removeItem('activeProductType');
+        sessionStorage.removeItem('stylesState');
       } catch (error) {
         console.error('Error clearing lesson context:', error);
       }
