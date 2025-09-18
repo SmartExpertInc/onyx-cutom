@@ -168,7 +168,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor,
+    background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',

@@ -170,7 +170,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
+    background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
