@@ -1252,7 +1252,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-3 sm:mb-4 px-3">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-1 px-2">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-1">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1324,7 +1324,7 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && (
-          <div className="flex flex-col items-center gap-4 mb-3">
+          <div className="flex flex-col items-center gap-3 mb-1">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1486,7 +1486,7 @@ function GenerateProductPicker() {
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && (
-          <div className="flex flex-col items-center gap-4 mb-3">
+          <div className="flex flex-col items-center gap-3 mb-1">
             {/* Step 1: Choose source */}
             {useExistingQuizOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1676,7 +1676,7 @@ function GenerateProductPicker() {
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && (
-          <div className="flex flex-col items-center gap-4 mb-3">
+          <div className="flex flex-col items-center gap-3 mb-1">
             {/* Step 1: Choose source */}
             {useExistingTextOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1876,7 +1876,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2 mb-3">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2 mb-1">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
@@ -1908,7 +1908,7 @@ function GenerateProductPicker() {
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
-          <div className="flex flex-col items-center gap-6 w-full max-w-3xl">
+          <div className="flex flex-col items-center gap-3 w-full max-w-3xl">
             {/* Simple prompt input */}
             <div className="w-full">
             <Textarea
@@ -1918,16 +1918,16 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[100px] max-h-[280px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[120px] max-h-[300px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
-              rows={5}
+              rows={6}
             />
             </div>
 
             {/* Simple examples grid */}
             <div className={`w-full transition-opacity duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}>
             <div className="w-full relative z-0">
-              <div className="flex items-center justify-center mb-3 relative">
+              <div className="flex items-center justify-center mb-2 relative">
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
                   <div className="flex-1 border-t border-blue-100"></div>
                 </div>
@@ -1952,7 +1952,7 @@ function GenerateProductPicker() {
                   )
                 )}
               </div>
-              <div className="flex justify-center mt-6">
+              <div className="flex justify-center mt-3">
                 <Button
                   onClick={shuffleExamples}
                   variant="blueGradient"
@@ -1975,7 +1975,7 @@ function GenerateProductPicker() {
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
           (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-3">
             <Button
               onClick={() => {
                 switch (activeProduct) {

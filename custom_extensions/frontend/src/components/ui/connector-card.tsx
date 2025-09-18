@@ -78,12 +78,12 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
 
   return (
     <div 
-      className={`group bg-linear-to-b from-white via-[#F2F9FC] to-[#F2F9FC] rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full ${
+      className={`group bg-linear-to-b shadow-lg from-white via-[#F2F9FC] to-[#F2F9FC] rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full ${
         selectable 
           ? `cursor-pointer ${
               isSelected 
-                ? 'border-blue-300 shadow-lg bg-blue-50' 
-                : 'border-gray-200 hover:shadow-xl hover:border-blue-300'
+                ? 'border-blue-300 shadow-xl bg-blue-50' 
+                : 'border-gray-200 hover:shadow-2xl hover:border-blue-300'
             }`
           : 'border-gray-200'
       } ${className}`}
@@ -91,7 +91,7 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
     >
       {/* Selection Indicator */}
       {selectable && (
-        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+        <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
           isSelected
             ? 'bg-blue-600 border-blue-600'
             : 'border-gray-300 group-hover:border-blue-400'

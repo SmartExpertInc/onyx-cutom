@@ -572,7 +572,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  style={{
                    backgroundColor: 'white',
                    borderColor: '#e2e8f0',
-                   background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                   background: 'linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.4))',
                    borderWidth: '1px',
                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                  }}
@@ -731,7 +731,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       style={{
                         backgroundColor: 'white',
                         borderColor: '#e2e8f0',
-                        background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                        background: 'linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.4))',
                         borderWidth: '1px',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
