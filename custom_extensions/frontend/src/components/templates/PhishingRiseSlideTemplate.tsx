@@ -5,6 +5,7 @@ import { PhishingRiseSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import SimpleRichTextEditor from '../SimpleRichTextEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
 
 export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
@@ -287,12 +288,13 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
       <div style={leftArea}>
         <div style={largeFaintTitle}>
           {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
+            <SimpleRichTextEditor
               initialValue={title}
               onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
               onCancel={() => setEditingTitle(false)}
               className="phishing-title-editor"
               style={{ ...largeFaintTitle }}
+              allowFormatting={true}
             />
           ) : (
             <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
@@ -301,13 +303,14 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
         {/* Stable description block to avoid shifting when editing */}
         <div style={{ ...paragraph, minHeight: '104px' }}>
           {isEditable && editingDescription ? (
-            <ImprovedInlineEditor
+            <SimpleRichTextEditor
               initialValue={description}
               multiline={true}
               onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDescription(false); }}
               onCancel={() => setEditingDescription(false)}
               className="phishing-description-editor"
               style={{ ...paragraph, minHeight: 'auto' }}
+              allowFormatting={true}
             />
           ) : (
             <div onClick={() => isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
@@ -410,7 +413,6 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                   background: 'linear-gradient(to bottom, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 117% )',
                   position: 'relative',
                   cursor: isEditable ? 'ns-resize' : 'default',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
                   borderRadius: '2px'
                 }}
                 onMouseDown={(e) => {

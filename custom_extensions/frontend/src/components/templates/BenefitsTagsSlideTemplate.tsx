@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import SimpleRichTextEditor from '../SimpleRichTextEditor';
 
 type TagType = { text: string; isHighlighted?: boolean };
 
@@ -231,12 +232,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
       <div style={tagsBlockStyles}>
         {/* Profile image with orange background */}
         <div style={{
-          width: '120px',
-          height: '120px',
+          width: '140px',
+          height: '140px',
           borderRadius: '50%',
           overflow: 'hidden',
           position: 'absolute',
-          left: '75px',
+          left: '50px',
           top: '100px',
           background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', // Orange background as per screenshot
         }}>
@@ -266,7 +267,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           left: '300px',
         }}>
           {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
+            <SimpleRichTextEditor
               initialValue={currentTitle}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
@@ -278,6 +279,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 width: '100%',
                 height: 'auto',
               }}
+              allowFormatting={true}
             />
           ) : (
             <div
@@ -326,7 +328,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index)}
               >
                 {isEditable && editingTags === index ? (
-                  <ImprovedInlineEditor
+                  <SimpleRichTextEditor
                     initialValue={tag.text}
                     onSave={(value) => handleTagSave(index, value)}
                     onCancel={handleTagCancel}
@@ -339,6 +341,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
+                    allowFormatting={true}
                   />
                 ) : (
                   tag.text
@@ -366,12 +369,12 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   userSelect: 'none',
                   display: 'flex',
                   justifyContent: 'center',
-                  width: index === 0 ? '150px' : index === 1 ? '190px' : '180px'
+                  width: index === 0 ? '185px' : index === 1 ? '190px' : '180px'
                 }}
                 onClick={() => isEditable && setEditingTags(index + 3)}
               >
                 {isEditable && editingTags === index + 3 ? (
-                  <ImprovedInlineEditor
+                  <SimpleRichTextEditor
                     initialValue={tag.text}
                     onSave={(value) => handleTagSave(index + 3, value)}
                     onCancel={handleTagCancel}
@@ -384,6 +387,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
+                    allowFormatting={true}
                   />
                 ) : (
                   tag.text
@@ -417,7 +421,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingTags(index + 5)}
               >
                 {isEditable && editingTags === index + 5 ? (
-                  <ImprovedInlineEditor
+                  <SimpleRichTextEditor
                     initialValue={tag.text}
                     onSave={(value) => handleTagSave(index + 5, value)}
                     onCancel={handleTagCancel}
@@ -430,6 +434,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                       height: 'auto',
                       textAlign: 'center'
                     }}
+                    allowFormatting={true}
                   />
                 ) : (
                   tag.text
