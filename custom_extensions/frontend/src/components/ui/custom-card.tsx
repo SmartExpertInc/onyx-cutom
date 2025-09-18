@@ -69,7 +69,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             <div className="absolute top-4 right-4 z-10">
               <div 
                 className={cn(
-                  "inline-flex items-center px-2 py-1 text-xs font-medium normal-case",
+                  "inline-flex items-center px-2 py-1 text-xs font-medium",
                   useCSSVariables 
                     ? "bg-white rounded-md border-none text-blue-600 gap-1"
                     : cn(labelColor, "bg-white rounded-md border-none text-blue-600 gap-1")

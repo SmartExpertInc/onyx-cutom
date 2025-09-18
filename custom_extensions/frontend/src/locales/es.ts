@@ -607,6 +607,11 @@ export const es = {
     renameFolder: "Renombrar carpeta",
     deleteFolder: "Eliminar carpeta",
     moveFolder: "Mover carpeta",
+    creatingFolders: "Creando carpetas...",
+    createFolders: "Crear carpeta",
+    createNewFolder: "Crear nueva carpeta",
+    enterFolderNamePlaceholder: "Ingrese el nombre de la carpeta...",
+    organizeProjectsByFolder: "Organiza tus proyectos por carpeta para una mejor gestión",
 
     // Modals
     createFolder: "Crear o unirse a una carpeta",
@@ -889,7 +894,7 @@ export const es = {
     importFileOrUrl: "Crear desde archivos",
     importFileOrUrlDescription:
       "Mejorar documentos, presentaciones o páginas web existentes",
-    popular: "POPULAR",
+    popular: "Popular",
 
     // Projects table toolbar
     createNew: "Crear nuevo",

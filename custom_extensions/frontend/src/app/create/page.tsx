@@ -322,7 +322,7 @@ export default function DataSourceLanding() {
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
+      <div className="w-full max-w-6xl flex flex-col gap-10 items-center">
         {/* Headings */}
         <HeadTextCustom
           text={t('interface.createWithAI', 'Create with AI')}
@@ -331,7 +331,7 @@ export default function DataSourceLanding() {
         />
 
         {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-20 w-full max-w-6xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-24 w-full max-w-6xl">
           <OptionCard
             Icon={TextIcon}
             title={t('interface.pasteInText', 'Paste in text')}
@@ -347,7 +347,7 @@ export default function DataSourceLanding() {
             title={t('interface.generate.title', 'Generate')}
             description={t('interface.generateDescription', 'Create from a one-line prompt in a few seconds')}
             href="/create/generate"
-            pillLabel={t('interface.popular', 'POPULAR')}
+            pillLabel={t('interface.popular', 'Popular')}
             gradientFrom="from-orange-300"
             gradientTo="to-pink-200"
             iconColor="text-orange-600"

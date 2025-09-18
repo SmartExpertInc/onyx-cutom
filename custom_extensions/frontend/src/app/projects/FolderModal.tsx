@@ -98,7 +98,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h2>
-            <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByClient', 'Organize your projects by client for better management')}</p>
+            <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByFolder', 'Organize your projects by folder for better management')}</p>
           </div>
         </div>
 
@@ -107,7 +107,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Plus size={16} className="text-blue-600" />
-              <h3 className="font-semibold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h3>
+              <h3 className="font-semibold text-gray-900">{t('interface.createNewFolder', 'Create New Folder')}</h3>
             </div>
             
             <div className="space-y-3">
@@ -115,7 +115,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 <Input
                   variant="shadow"
                   type="text"
-                  placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
+                  placeholder={t('interface.enterFolderNamePlaceholder', 'Enter folder name...')}
                   className="w-full"
                   value={folderName}
                   onChange={e => setFolderName(e.target.value)}
@@ -153,12 +153,12 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
                 {creating ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    {t('interface.creatingClient', 'Creating Client...')}
+                    {t('interface.creatingFolders', 'Creating Folders...')}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <Plus size={16} />
-                    {t('interface.createClient', 'Create Client')}
+                    {t('interface.createFolders', 'Create Folder')}
                   </div>
                 )}
               </Button>
