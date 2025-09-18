@@ -8549,6 +8549,55 @@ def calculate_lesson_creation_hours_with_module_fallback(lesson: dict, section: 
     except (ValueError, AttributeError):
         return 0
 
+# Define user types and their associated features
+USER_TYPES = {
+    "normal_hr": {
+        "display_name": "Normal (HR)",
+        "features": [
+            "col_one_pager",
+            "col_lesson_presentation", 
+            "col_quiz"
+        ]
+    },
+    "enterprise": {
+        "display_name": "Enterprise",
+        "features": [
+            "col_one_pager",
+            "col_lesson_presentation",
+            "col_quiz",
+            "deloitte_banner",
+            "col_est_completion_time",
+            "col_est_creation_time",
+            "col_content_volume",
+            "col_quality_tier",
+            "lesson_draft",
+            "offers_tab"
+        ]
+    },
+    "beta": {
+        "display_name": "Beta",
+        "features": [
+            "ai_audit_templates",
+            "deloitte_banner",
+            "offers_tab",
+            "workspace_tab",
+            "video_lesson",
+            "lesson_draft",
+            "col_assessment_type",
+            "col_content_volume",
+            "col_source",
+            "col_est_creation_time",
+            "col_est_completion_time",
+            "col_quality_tier",
+            "col_quiz",
+            "col_one_pager",
+            "col_video_presentation",
+            "col_lesson_presentation",
+            "quality_tier"
+        ]
+    }
+}
+
 async def assign_default_user_type(user_id: str, conn: asyncpg.Connection):
     """Assign default 'Normal (HR)' user type to a new user"""
     try:
@@ -23387,94 +23436,6 @@ async def check_user_feature(
     except Exception as e:
         logger.error(f"Error checking user feature: {e}")
         return {"is_enabled": False}
-
-# Define user types and their associated features
-USER_TYPES = {
-    "normal_hr": {
-        "display_name": "Normal (HR)",
-        "features": [
-            "col_one_pager",
-            "col_lesson_presentation", 
-            "col_quiz"
-        ]
-    },
-    "enterprise": {
-        "display_name": "Enterprise",
-        "features": [
-            "col_one_pager",
-            "col_lesson_presentation",
-            "col_quiz",
-            "deloitte_banner",
-            "col_est_completion_time",
-            "col_est_creation_time",
-            "col_content_volume",
-            "col_quality_tier",
-            "lesson_draft",
-            "offers_tab"
-        ]
-    },
-    "beta": {
-        "display_name": "Beta",
-        "features": [
-            "ai_audit_templates",
-            "deloitte_banner",
-            "offers_tab",
-            "workspace_tab",
-            "video_lesson",
-            "lesson_draft",
-            "col_assessment_type",
-            "col_content_volume",
-            "col_source",
-            "col_est_creation_time",
-            "col_est_completion_time",
-            "col_quality_tier",
-            "col_quiz",
-            "col_one_pager",
-            "col_video_presentation",
-            "col_lesson_presentation",
-            "quality_tier"
-        ]
-    }
-}
-
-async def assign_default_user_type(user_id: str, conn: asyncpg.Connection):
-    """Assign default 'Normal (HR)' user type to a new user"""
-    try:
-        default_user_type = "normal_hr"
-        if default_user_type not in USER_TYPES:
-            logger.warning(f"Default user type {default_user_type} not found in USER_TYPES")
-            return
-        
-        user_type_info = USER_TYPES[default_user_type]
-        features_to_enable = user_type_info["features"]
-        
-        # Enable features for the default user type
-        features_assigned = 0
-        for feature_name in features_to_enable:
-            # Check if feature exists before trying to assign it
-            feature_exists = await conn.fetchrow(
-                "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
-                feature_name
-            )
-            
-            if feature_exists:
-                await conn.execute("""
-                    INSERT INTO user_features (user_id, feature_name, is_enabled, created_at, updated_at)
-                    VALUES ($1, $2, true, NOW(), NOW())
-                    ON CONFLICT (user_id, feature_name) 
-                    DO UPDATE SET 
-                        is_enabled = true,
-                        updated_at = NOW()
-                """, user_id, feature_name)
-                features_assigned += 1
-            else:
-                logger.warning(f"Feature {feature_name} not found or inactive for new user {user_id}")
-        
-        logger.info(f"Assigned default user type '{user_type_info['display_name']}' to new user {user_id} ({features_assigned} features enabled)")
-        
-    except Exception as e:
-        logger.error(f"Error assigning default user type to new user {user_id}: {e}")
-        # Don't raise exception to avoid blocking user creation
 
 @app.get("/api/custom/admin/features/user-types")
 async def get_user_types(request: Request):
