@@ -49,7 +49,7 @@ export default function EventPosterQuestionnaire() {
       }
 
       // Submit form data via POST request
-      const response = await fetch('/api/event-poster/generate', {
+      const response = await fetch('/custom-projects-ui/api/event-poster/generate', {
         method: 'POST',
         body: formData,
       });

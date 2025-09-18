@@ -497,7 +497,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <LayoutTemplate size={18} />
           <span>{t('interface.templates', 'Templates')}</span>
         </Link>
-        <Link href="/create/event-poster/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+        <Link href="/custom-projects-ui/create/event-poster/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Presentation size={18} />
           <span>{t('interface.eventPoster', 'Event Poster')}</span>
         </Link>

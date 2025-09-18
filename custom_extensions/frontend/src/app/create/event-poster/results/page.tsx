@@ -35,7 +35,7 @@ function EventPosterResultsContent() {
           return;
         }
 
-        const response = await fetch(`/api/event-poster/session/${sessionId}`);
+        const response = await fetch(`/custom-projects-ui/api/event-poster/session/${sessionId}`);
         
         if (response.ok) {
           const data = await response.json();
@@ -55,11 +55,11 @@ function EventPosterResultsContent() {
   }, [searchParams]);
 
   const handleBackToQuestionnaire = () => {
-    router.push('/create/event-poster/questionnaire');
+    router.push('/custom-projects-ui/create/event-poster/questionnaire');
   };
 
   const handleBackToProjects = () => {
-    router.push('/projects');
+    router.push('/custom-projects-ui/projects');
   };
 
   if (loading) {
