@@ -128,7 +128,7 @@ function InlineEditor({
 }
 
 export const TitleSlideTemplate: React.FC<TitleSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({

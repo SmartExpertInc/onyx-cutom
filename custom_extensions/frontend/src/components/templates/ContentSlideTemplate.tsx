@@ -129,7 +129,7 @@ function InlineEditor({
 }
 
 export const ContentSlideTemplate: React.FC<ContentSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   onAutoSave?: () => void;
 }> = ({
