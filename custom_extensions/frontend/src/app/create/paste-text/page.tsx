@@ -80,7 +80,7 @@ export default function PasteTextPage() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
       {/* back button absolute top-left */}
       <Button
@@ -126,7 +126,7 @@ export default function PasteTextPage() {
         </div>
 
         {/* Mode selection */}
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-4xl">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
             {t('interface.pasteText.howToUseText', 'How would you like to use this text?')}
           </h3>
@@ -155,7 +155,7 @@ export default function PasteTextPage() {
               onClick={() => setMode("base")}
               className={`transition-all ${
                 mode === "base"
-                  ? "border-2 border-purple-500 shadow-lg ring-2 ring-purple-200"
+                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
                   : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
               }`}
               gradientFrom="from-purple-300"
