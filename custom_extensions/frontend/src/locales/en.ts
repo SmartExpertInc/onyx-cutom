@@ -1024,7 +1024,7 @@ export const en = {
       modules: "Modules",
       lessonsPerModule: "Lessons per module",
       length: "Length",
-      stylesSelected: "styles selected",
+      stylesSelected: "Styles selected",
       creatingFromFiles: "Creating from files",
       foldersSelected: "folder selected",
       foldersSelectedPlural: "folders selected",

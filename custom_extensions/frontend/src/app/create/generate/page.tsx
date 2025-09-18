@@ -1956,7 +1956,7 @@ function GenerateProductPicker() {
                         </Select>
                         <Select open={showTextStylesDropdown} onOpenChange={setShowTextStylesDropdown}>
                           <SelectTrigger className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]">
-                            <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                            <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'Styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                           </SelectTrigger>
                           <SelectContent className="max-h-60 overflow-y-auto">
                             {[
@@ -2023,7 +2023,7 @@ function GenerateProductPicker() {
                         onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
                         className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                       >
-                        <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                        <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'Styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                         <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
                       </Button>
                       {showTextStylesDropdown && (
