@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function EventPosterQuestionnaire() {
-  const router = useRouter();
   
   // Pre-populated data as specified
   const [eventName, setEventName] = useState("Велика онлайн-конференція");

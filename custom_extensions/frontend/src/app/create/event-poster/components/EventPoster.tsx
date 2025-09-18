@@ -32,9 +32,6 @@ export default function EventPoster({
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
 
-  // Construct ticket information display string
-  const ticketDisplayText = `Квиток ${ticketType} ${ticketPrice}`;
-
   return (
     <div 
       className="relative overflow-hidden mx-auto"
