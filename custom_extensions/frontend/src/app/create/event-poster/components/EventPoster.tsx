@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 
 interface EventPosterProps {
   eventName: string;
@@ -47,40 +46,18 @@ export default function EventPoster({
         boxSizing: 'border-box'
       }}
     >
-      {/* Background Layer 1 - v1_3 */}
+      {/* Main background - v1_5 without left positioning */}
       <div
-        className="absolute"
+        className="absolute inset-0"
         style={{
-          width: '1000px',
-          height: '1000px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_3.png")',
+          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_5.png")',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center center',
           backgroundSize: 'cover',
-          top: '0px',
-          left: '0px',
-          overflow: 'hidden'
         }}
       />
 
-      {/* Background Layer 2 - v1_4 */}
-      <div
-        className="absolute"
-        style={{
-          width: '1000px',
-          height: '1000px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_4.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          top: '7px',
-          left: '1px',
-          overflow: 'hidden'
-        }}
-      />
-
-
-      {/* Decorative Element - v1_6 */}
+      {/* Logo - v1_6 - keeping as absolute */}
       <div
         className="absolute"
         style={{
@@ -92,27 +69,10 @@ export default function EventPoster({
           backgroundSize: 'cover',
           top: '79px',
           left: '776px',
-          overflow: 'hidden'
         }}
       />
 
-      {/* Decorative Element - v1_7 */}
-      <div
-        className="absolute"
-        style={{
-          width: '208px',
-          height: '128px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_7.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          top: '184px',
-          left: '743px',
-          overflow: 'hidden'
-        }}
-      />
-
-      {/* Speaker Photo - v1_8 */}
+      {/* Speaker Photo - v1_8 - keeping */}
       <div
         className="absolute"
         style={{
@@ -124,260 +84,228 @@ export default function EventPoster({
           backgroundSize: 'cover',
           top: '329px',
           left: '525px',
-          overflow: 'hidden'
         }}
       />
 
-      {/* Main Speaker Name - v1_9 */}
-      <span
-        className="absolute"
-        style={{
-          width: '429px',
-          color: 'rgba(235,235,235,1)',
-          top: '164px',
-          left: '52px',
-          fontFamily: 'Montserrat',
-          fontWeight: '600',
-          fontSize: '41px',
-          textAlign: 'left'
-        }}
-      >
-        {mainSpeaker}
-      </span>
-
-      {/* Bottom Background - v1_10 */}
+      {/* Bottom gradient - v1_10 - keeping or replacing with CSS gradient */}
       <div
         className="absolute"
         style={{
           width: '1000px',
           height: '455px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_10.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%)',
           top: '552px',
           left: '1px',
-          overflow: 'hidden'
         }}
       />
 
-      {/* Ticket Background - v1_11 */}
-      <div
-        className="absolute"
-        style={{
-          width: '769px',
-          height: '193px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_11.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          top: '793px',
-          left: '217px',
-          overflow: 'hidden'
-        }}
-      />
+      {/* Content structure using normal flow */}
+      <div className="relative z-10 h-full flex flex-col">
+        {/* Header section */}
+        <div className="flex justify-between items-start" style={{ marginTop: '58px', marginLeft: '53px', marginRight: '53px' }}>
+          <div className="flex-1" style={{ maxWidth: '515px' }}>
+            <div
+              style={{
+                color: 'rgba(235,235,235,1)',
+                fontFamily: 'Montserrat',
+                fontWeight: '400',
+                fontSize: '33px',
+                textAlign: 'left',
+                lineHeight: '1.2'
+              }}
+            >
+              {eventName}:
+            </div>
+          </div>
+          
+          {/* Date section with CSS border instead of v1_7 */}
+          <div 
+            className="text-right" 
+            style={{ 
+              marginTop: '133px', 
+              marginRight: '54px',
+              border: '3px solid rgba(255,255,255,0.8)',
+              borderRadius: '15px',
+              padding: '15px 20px',
+              background: 'rgba(0,0,0,0.2)',
+              backdropFilter: 'blur(5px)'
+            }}
+          >
+            <div
+              style={{
+                color: 'rgba(255,255,255,1)',
+                fontFamily: 'Montserrat',
+                fontWeight: '600',
+                fontSize: '58px',
+                textAlign: 'left',
+                lineHeight: '1'
+              }}
+            >
+              {dayMonth}
+            </div>
+            <div
+              style={{
+                color: 'rgba(255,255,255,1)',
+                fontFamily: 'Montserrat',
+                fontWeight: '300',
+                fontSize: '52px',
+                textAlign: 'left',
+                lineHeight: '1',
+                marginTop: '9px',
+                marginLeft: '23px'
+              }}
+            >
+              {year}
+            </div>
+          </div>
+        </div>
 
-      {/* Free Access Background - v1_12 */}
-      <div
-        className="absolute"
-        style={{
-          width: '687px',
-          height: '116px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_12.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          top: '832px',
-          left: '259px',
-          overflow: 'hidden'
-        }}
-      />
+        {/* Speaker section */}
+        <div style={{ marginTop: '47px', marginLeft: '52px' }}>
+          <div
+            style={{
+              width: '429px',
+              color: 'rgba(235,235,235,1)',
+              fontFamily: 'Montserrat',
+              fontWeight: '600',
+              fontSize: '41px',
+              textAlign: 'left',
+              lineHeight: '1.2'
+            }}
+          >
+            {mainSpeaker}
+          </div>
+          
+          <div
+            style={{
+              width: '645px',
+              color: 'rgba(235,235,235,1)',
+              fontFamily: 'Montserrat',
+              fontWeight: '400',
+              fontSize: '20px',
+              textAlign: 'left',
+              lineHeight: '1.2',
+              marginTop: '28px'
+            }}
+          >
+            {speakerDescription}
+          </div>
+        </div>
 
-      {/* Ticket Price Background - v1_13 */}
-      <div
-        className="absolute"
-        style={{
-          width: '189px',
-          height: '111px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_13.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          top: '833px',
-          left: '53px',
-          overflow: 'hidden'
-        }}
-      />
+        {/* Topic section */}
+        <div style={{ marginTop: '127px', marginLeft: '53px' }}>
+          <div
+            style={{
+              width: '480px',
+              color: 'rgba(235,235,235,1)',
+              fontFamily: 'Montserrat',
+              fontWeight: '600',
+              fontSize: '50px',
+              textAlign: 'left',
+              lineHeight: '1.2'
+            }}
+          >
+            {topic}
+          </div>
+        </div>
 
-      {/* Ticket Type - v1_14 */}
-      <span
-        className="absolute"
-        style={{
-          width: '122px',
-          color: 'rgba(235,235,235,1)',
-          top: '863px',
-          left: '87px',
-          fontFamily: 'Montserrat',
-          fontWeight: '400',
-          fontSize: '27px',
-          textAlign: 'left'
-        }}
-      >
-        {ticketType}
-      </span>
+        {/* Additional speakers section */}
+        <div style={{ marginTop: '255px', marginLeft: '53px' }}>
+          <div
+            style={{
+              width: '460px',
+              color: 'rgba(235,235,235,1)',
+              fontFamily: 'Montserrat',
+              fontWeight: '400',
+              fontSize: '20px',
+              textAlign: 'left',
+              lineHeight: '1.2'
+            }}
+          >
+            {additionalSpeakers}
+          </div>
+        </div>
 
-      {/* Ticket Label - v1_15 */}
-      <span
-        className="absolute"
-        style={{
-          width: '92px',
-          color: 'rgba(235,235,235,1)',
-          top: '837px',
-          left: '99px',
-          fontFamily: 'Montserrat',
-          fontWeight: '400',
-          fontSize: '25px',
-          textAlign: 'left'
-        }}
-      >
-        {ticketLabel}
-      </span>
+        {/* Bottom section with ticket info */}
+        <div className="flex items-center justify-between mt-auto" style={{ marginBottom: '56px', marginLeft: '53px', marginRight: '53px' }}>
+          {/* Ticket price section with CSS border instead of v1_13 */}
+          <div 
+            className="flex flex-col" 
+            style={{ 
+              width: '189px',
+              border: '2px solid rgba(235,235,235,0.6)',
+              borderRadius: '12px',
+              padding: '15px',
+              background: 'rgba(0,0,0,0.3)',
+              backdropFilter: 'blur(3px)'
+            }}
+          >
+            <div
+              style={{
+                color: 'rgba(235,235,235,1)',
+                fontFamily: 'Montserrat',
+                fontWeight: '400',
+                fontSize: '25px',
+                textAlign: 'center'
+              }}
+            >
+              {ticketLabel}
+            </div>
+            <div
+              style={{
+                color: 'rgba(235,235,235,1)',
+                fontFamily: 'Montserrat',
+                fontWeight: '400',
+                fontSize: '27px',
+                textAlign: 'center',
+                marginTop: '4px'
+              }}
+            >
+              {ticketType}
+            </div>
+            <div
+              style={{
+                color: 'rgba(235,235,235,1)',
+                fontFamily: 'Montserrat',
+                fontWeight: '900',
+                fontSize: '41px',
+                textAlign: 'center',
+                marginTop: '2px'
+              }}
+            >
+              {ticketPriceValue}
+            </div>
+          </div>
 
-      {/* Ticket Price - v1_16 */}
-      <span
-        className="absolute"
-        style={{
-          width: '107px',
-          color: 'rgba(235,235,235,1)',
-          top: '891px',
-          left: '92px',
-          fontFamily: 'Montserrat',
-          fontWeight: '900',
-          fontSize: '41px',
-          textAlign: 'left'
-        }}
-      >
-        {ticketPriceValue}
-      </span>
-
-      {/* Free Access Conditions - v1_17 */}
-      <span
-        className="absolute"
-        style={{
-          width: '510px',
-          color: 'rgba(235,235,235,1)',
-          top: '846px',
-          left: '337px',
-          fontFamily: 'Roboto',
-          fontWeight: '400',
-          fontSize: '37px',
-          textAlign: 'left'
-        }}
-      >
-        {freeAccessConditions}
-      </span>
-
-      {/* Date Day/Month - v1_18 */}
-      <span
-        className="absolute"
-        style={{
-          width: '169px',
-          color: 'rgba(255,255,255,1)',
-          top: '191px',
-          left: '762px',
-          fontFamily: 'Montserrat',
-          fontWeight: '600',
-          fontSize: '58px',
-          textAlign: 'left'
-        }}
-      >
-        {dayMonth}
-      </span>
-
-      {/* Date Year - v1_19 */}
-      <span
-        className="absolute"
-        style={{
-          width: '123px',
-          color: 'rgba(255,255,255,1)',
-          top: '248px',
-          left: '785px',
-          fontFamily: 'Montserrat',
-          fontWeight: '300',
-          fontSize: '52px',
-          textAlign: 'left'
-        }}
-      >
-        {year}
-      </span>
-
-      {/* Event Topic - v1_20 */}
-      <span
-        className="absolute"
-        style={{
-          width: '480px',
-          color: 'rgba(235,235,235,1)',
-          top: '380px',
-          left: '53px',
-          fontFamily: 'Montserrat',
-          fontWeight: '600',
-          fontSize: '50px',
-          textAlign: 'left'
-        }}
-      >
-        {topic}
-      </span>
-
-      {/* Additional Speakers - v1_21 */}
-      <span
-        className="absolute"
-        style={{
-          width: '460px',
-          color: 'rgba(235,235,235,1)',
-          top: '685px',
-          left: '53px',
-          fontFamily: 'Montserrat',
-          fontWeight: '400',
-          fontSize: '20px',
-          textAlign: 'left'
-        }}
-      >
-        {additionalSpeakers}
-      </span>
-
-      {/* Speaker Description - v1_22 */}
-      <span
-        className="absolute"
-        style={{
-          width: '645px',
-          color: 'rgba(235,235,235,1)',
-          top: '233px',
-          left: '52px',
-          fontFamily: 'Montserrat',
-          fontWeight: '400',
-          fontSize: '20px',
-          textAlign: 'left'
-        }}
-      >
-        {speakerDescription}
-      </span>
-
-      {/* Event Name - v1_23 */}
-      <span
-        className="absolute"
-        style={{
-          width: '515px',
-          color: 'rgba(235,235,235,1)',
-          top: '58px',
-          left: '53px',
-          fontFamily: 'Montserrat',
-          fontWeight: '400',
-          fontSize: '33px',
-          textAlign: 'left'
-        }}
-      >
-        {eventName}:
-      </span>
+          {/* Free access conditions with CSS styling instead of v1_11 and v1_12 */}
+          <div 
+            className="flex-1" 
+            style={{ 
+              marginLeft: '95px', 
+              marginTop: '13px',
+            }}
+          >
+            <div
+              style={{
+                width: '510px',
+                color: 'rgba(235,235,235,1)',
+                fontFamily: 'Roboto',
+                fontWeight: '400',
+                fontSize: '37px',
+                textAlign: 'center',
+                lineHeight: '1.2',
+                background: 'rgba(0,0,0,0.6)',
+                borderRadius: '25px',
+                padding: '20px 30px',
+                boxShadow: '0 0 30px rgba(255,255,255,0.2), 0 0 60px rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(5px)'
+              }}
+            >
+              {freeAccessConditions}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
