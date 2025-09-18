@@ -1057,7 +1057,7 @@ export default function TextPresentationClient() {
         isFromConnectors,
         language, 
         activeProductType ?? undefined,
-        stylesState ?? undefined,
+        stylesState || undefined,
         advancedModeState
       );
       
@@ -1088,7 +1088,7 @@ export default function TextPresentationClient() {
             isFromConnectors,
             language, 
             activeProductType ?? undefined,
-            stylesState ?? undefined,
+            stylesState || undefined,
             advancedModeState
           );
           sessionStorage.setItem('createProductFailed', 'true');
