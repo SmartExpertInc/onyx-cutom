@@ -1315,8 +1315,7 @@ export default function TextPresentationClient() {
       <main
         className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
         style={{
-          background: `linear-gradient(0deg, #FFFFFF, #FFFFFF),
-linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%)`
+          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
       >
         {/* Back button */}
