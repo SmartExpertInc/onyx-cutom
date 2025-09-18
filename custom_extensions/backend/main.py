@@ -11441,6 +11441,37 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Return ONLY the JSON object.
             """
         elif selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
+            # Fast path: Check if aiResponse is already valid JSON with sections (from preview)
+            try:
+                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Training Plan: {project_data.aiResponse[:200]}...")
+                cached_json = json.loads(project_data.aiResponse.strip())
+                logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
+                if isinstance(cached_json, dict) and "sections" in cached_json:
+                    logger.info(f"[FAST_PATH_DEBUG] JSON has sections field with {len(cached_json.get('sections', []))} sections")
+                    logger.info(f"[FAST_PATH] Training Plan JSON detected, bypassing LLM parsing for {project_data.projectName}")
+                    parsed_content_model_instance = TrainingPlanDetails(**cached_json)
+                    logger.info(f"[FAST_PATH_DEBUG] TrainingPlanDetails created successfully")
+                    
+                    # Validate the parsed instance
+                    if parsed_content_model_instance.sections and len(parsed_content_model_instance.sections) > 0:
+                        logger.info(f"[FAST_PATH] Successfully validated Training Plan with {len(parsed_content_model_instance.sections)} sections")
+                        # Skip to database insertion
+                        async with pool.acquire() as conn:
+                            project_db_candidate = await add_project_to_db(
+                                project_data.projectName,
+                                selected_design_template.id,
+                                json.dumps(parsed_content_model_instance.dict()),
+                                project_data.chatSessionId,
+                                project_data.folder_id,
+                                project_data.source_context_type,
+                                project_data.source_context_data,
+                                conn
+                            )
+                        logger.info(f"[FAST_PATH] Training Plan project created successfully: {project_db_candidate.id}")
+                        return project_db_candidate
+            except (json.JSONDecodeError, KeyError, Exception) as e:
+                logger.info(f"[FAST_PATH] JSON validation failed ({e}), falling back to LLM parsing")
+            
             target_content_model = TrainingPlanDetails
             default_error_instance = TrainingPlanDetails(mainTitle=f"LLM Parsing Error for {project_data.projectName}", sections=[])
             llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM
