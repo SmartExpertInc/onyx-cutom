@@ -18,6 +18,7 @@ function EventPosterResultsContent() {
   const ticketPrice = searchParams?.get('ticketPrice') || '';
   const ticketType = searchParams?.get('ticketType') || '';
   const freeAccessConditions = searchParams?.get('freeAccessConditions') || '';
+  const speakerImage = searchParams?.get('speakerImage') || null;
 
   const handleBackToQuestionnaire = () => {
     router.push('/create/event-poster/questionnaire');
@@ -73,6 +74,7 @@ function EventPosterResultsContent() {
               ticketPrice={ticketPrice}
               ticketType={ticketType}
               freeAccessConditions={freeAccessConditions}
+              speakerImage={speakerImage}
             />
           </div>
         </div>

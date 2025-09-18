@@ -13,9 +13,21 @@ export default function EventPosterQuestionnaire() {
   const [date, setDate] = useState("08.10.2025");
   const [topic, setTopic] = useState("Тренди та пріоритети ринку VC у 2025-2026 роках");
   const [additionalSpeakers, setAdditionalSpeakers] = useState("Та ще 4 зіркових спікерів: Сергій Рабенко, Олександр Борняков, Антон Вайсбурд та Андрій Лазоренко");
-  const [ticketPrice, setTicketPrice] = useState("Квиток Standart 150€");
-  const [ticketType, setTicketType] = useState("Standart");
+  const [ticketPrice, setTicketPrice] = useState("150€");
+  const [ticketType, setTicketType] = useState("STANDART");
   const [freeAccessConditions, setFreeAccessConditions] = useState("безкоштовно для членів business club");
+  const [speakerImage, setSpeakerImage] = useState<string | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSpeakerImage(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,13 +42,16 @@ export default function EventPosterQuestionnaire() {
       additionalSpeakers,
       ticketPrice,
       ticketType,
-      freeAccessConditions
+      freeAccessConditions,
+      speakerImage
     };
 
     // Navigate to results page with data
     const queryParams = new URLSearchParams();
     Object.entries(eventData).forEach(([key, value]) => {
-      queryParams.append(key, value);
+      if (value !== null && value !== undefined) {
+        queryParams.append(key, value);
+      }
     });
     
     router.push(`/create/event-poster/results?${queryParams.toString()}`);
@@ -145,6 +160,26 @@ export default function EventPosterQuestionnaire() {
                     placeholder="Enter speaker description"
                     rows={3}
                   />
+                </div>
+
+                <div>
+                  <label className="block font-semibold mb-2 text-gray-700">Фото спікера (Speaker Photo)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800"
+                  />
+                  {speakerImage && (
+                    <div className="mt-3">
+                      <p className="text-sm text-green-600 mb-2">✓ Image uploaded successfully</p>
+                      <img 
+                        src={speakerImage} 
+                        alt="Speaker preview" 
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                      />
+                    </div>
+                  )}
                 </div>
                 
                 <div>

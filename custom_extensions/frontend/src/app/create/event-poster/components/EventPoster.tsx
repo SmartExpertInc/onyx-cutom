@@ -12,6 +12,7 @@ interface EventPosterProps {
   ticketPrice: string;
   ticketType: string;
   freeAccessConditions: string;
+  speakerImage?: string | null;
 }
 
 export default function EventPoster({
@@ -23,17 +24,16 @@ export default function EventPoster({
   additionalSpeakers,
   ticketPrice,
   ticketType,
-  freeAccessConditions
+  freeAccessConditions,
+  speakerImage
 }: EventPosterProps) {
   // Parse date to separate day/month and year
   const dateParts = date.split('.');
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
 
-  // Parse ticket price to separate label and price
-  const ticketPriceParts = ticketPrice.split(' ');
-  const ticketLabel = ticketPriceParts[0];
-  const ticketPriceValue = ticketPriceParts.slice(1).join(' ');
+  // Construct ticket information display string
+  const ticketDisplayText = `Квиток ${ticketType} ${ticketPrice}`;
 
   return (
     <div 
@@ -57,13 +57,15 @@ export default function EventPoster({
         }}
       />
 
-      {/* Speaker Photo - v1_8 - keeping */}
+      {/* Speaker Photo - v1_8 - dynamic image */}
       <div
         className="absolute"
         style={{
           width: '519px',
           height: '713px',
-          background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png")',
+          background: speakerImage 
+            ? `url("${speakerImage}")` 
+            : 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png")',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center center',
           backgroundSize: 'cover',
@@ -247,7 +249,7 @@ export default function EventPoster({
                 textAlign: 'center'
               }}
             >
-              {ticketLabel}
+              Квиток
             </div>
             <div
               style={{
@@ -271,7 +273,7 @@ export default function EventPoster({
                 marginTop: '2px'
               }}
             >
-              {ticketPriceValue}
+              {ticketPrice}
             </div>
           </div>
 
