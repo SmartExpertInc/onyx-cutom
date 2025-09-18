@@ -1376,7 +1376,7 @@ const ProjectRowMenu: React.FC<{
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const isOutline =
     (project.designMicroproductType || "").toLowerCase() === "training plan";
-  const { isEnabled: qualityTierEnabled } = useFeaturePermission('quality_tier');
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -1962,7 +1962,7 @@ const FolderRowMenu: React.FC<{
   };
 
   // Feature flag for quality tier (controls visibility of Settings in folder menu)
-  const { isEnabled: qualityTierEnabled } = useFeaturePermission('quality_tier');
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
 
   const handleExportFolder = async (e: React.MouseEvent) => {
     e.stopPropagation();
