@@ -7,6 +7,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
 import ProjectSettingsModal from "../../app/projects/ProjectSettingsModal";
+import useFeaturePermission from "../../hooks/useFeaturePermission";
 import { 
   MoreHorizontal, 
   Lock, 
@@ -179,6 +180,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   );
   const [menuPosition, setMenuPosition] = useState<"above" | "below">("below");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('quality_tier');
   const menuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -565,7 +567,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       <LinkIcon size={16} className="text-gray-500" />
                       <span>{t("actions.copyLink", "Copy link")}</span>
                     </DropdownMenuItem>
-                    {isOutline && (
+                    {isOutline && qualityTierEnabled && (
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();

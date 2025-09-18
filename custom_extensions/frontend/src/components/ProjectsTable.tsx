@@ -85,6 +85,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
+import useFeaturePermission from "../hooks/useFeaturePermission";
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -1375,6 +1376,7 @@ const ProjectRowMenu: React.FC<{
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const isOutline =
     (project.designMicroproductType || "").toLowerCase() === "training plan";
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('quality_tier');
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -1583,7 +1585,7 @@ const ProjectRowMenu: React.FC<{
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
                   </Button>
-                  {isOutline && (
+                  {isOutline && qualityTierEnabled && (
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -2069,13 +2071,15 @@ const FolderRowMenu: React.FC<{
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
                 </Button>
-                <Button
-                  onClick={handleSettingsClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                >
-                  <Settings size={16} className="text-gray-500" />
-                  <span>{t("actions.settings", "Settings")}</span>
-                </Button>
+                {qualityTierEnabled && (
+                  <Button
+                    onClick={handleSettingsClick}
+                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  >
+                    <Settings size={16} className="text-gray-500" />
+                    <span>{t("actions.settings", "Settings")}</span>
+                  </Button>
+                )}
                 <Button
                   onClick={handleExportFolder}
                   className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
