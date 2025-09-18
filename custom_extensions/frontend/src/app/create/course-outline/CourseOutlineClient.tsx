@@ -1237,7 +1237,7 @@ export default function CourseOutlineClient() {
                     <span className="text-[#09090B]">{modules}</span>
                   </div>
                 </SelectTrigger>
-                <SelectContent className="border-white" sideOffset={15} maxHeight={100}>
+                <SelectContent className="border-white max-h-[100px]" sideOffset={15}>
                   {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
                     <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
                   ))}
