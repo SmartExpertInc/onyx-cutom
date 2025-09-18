@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon } from "lucide-react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -188,6 +188,55 @@ function SelectScrollDownButton({
   )
 }
 
+// Custom Pill Selector Component
+interface CustomPillSelectorProps {
+  value: string
+  onValueChange: (value: string) => void
+  options: { value: string; label: string }[]
+  icon?: React.ReactNode
+  label: string
+  className?: string
+}
+
+function CustomPillSelector({
+  value,
+  onValueChange,
+  options,
+  icon,
+  label,
+  className
+}: CustomPillSelectorProps) {
+  return (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger 
+        className={cn(
+          "flex items-center gap-3 px-4 py-2 rounded-md border-0 bg-white shadow-sm hover:shadow-md transition-shadow",
+          "text-gray-700 font-medium text-sm",
+          className
+        )}
+      >
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="flex items-center justify-center">
+              {icon}
+            </div>
+          )}
+          <span>{label}: {value}</span>
+          <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+        </div>
+        <div className="w-px h-6 bg-gray-200 ml-2"></div>
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 export {
   Select,
   SelectContent,
@@ -199,4 +248,5 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
+  CustomPillSelector,
 }

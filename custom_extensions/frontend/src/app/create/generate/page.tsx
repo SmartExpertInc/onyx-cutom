@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
 
@@ -1287,17 +1287,17 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="flex flex-wrap justify-center gap-2 mb-2">
-            <Select value={modulesCount.toString()} onValueChange={(value) => setModulesCount(Number(value))}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                  <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="w-full bg-white flex flex-wrap justify-center gap-2 mb-2">
+            <CustomPillSelector
+              value={modulesCount.toString()}
+              onValueChange={(value) => setModulesCount(Number(value))}
+              options={Array.from({ length: 10 }, (_, i) => ({
+                value: (i + 1).toString(),
+                label: `${i + 1} ${t('interface.generate.modules', 'Modules')}`
+              }))}
+              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              label={t('interface.generate.modules', 'Modules')}
+            />
             <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
               <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
                 <SelectValue />
