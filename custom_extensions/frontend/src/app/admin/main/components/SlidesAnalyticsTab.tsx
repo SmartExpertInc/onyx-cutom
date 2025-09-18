@@ -174,8 +174,8 @@ const SlidesAnalyticsTab: React.FC = () => {
       {/* Header Controls */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Request Analytics Dashboard</h2>
-          <p className="text-gray-600 mt-1">Comprehensive tracking of all API requests across all accounts</p>
+          <h2 className="text-xl font-semibold text-gray-900">Slides Analytics Dashboard</h2>
+          <p className="text-gray-600 mt-1">Tracking of slides types creation across all accounts</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -220,7 +220,7 @@ const SlidesAnalyticsTab: React.FC = () => {
               </span>
               {appliedFilters.endpoint && (
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {t('interface.analytics.endpoint', 'Endpoint')}: {appliedFilters.endpoint}
+                  {t('interface.analytics.endpoint', 'Slide type')}: {appliedFilters.endpoint}
                 </span>
               )}
             </div>
@@ -276,7 +276,7 @@ const SlidesAnalyticsTab: React.FC = () => {
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder={t('interface.analytics.filterEndpoint', 'Filter endpoint...')}
+                placeholder={t('interface.analytics.filterEndpoint', 'Filter slide type...')}
                 value={filters.endpoint}
                 onChange={(e) => setFilters(prev => ({ ...prev, endpoint: e.target.value }))}
                 className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
@@ -287,12 +287,9 @@ const SlidesAnalyticsTab: React.FC = () => {
       </div>
 
       {/* Bar chart */}
-      <div className="mb-8">
-        <div className="bg-white p-6 rounded-xl shadow-sm border">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('interface.analytics.topEndpoints', 'Top Endpoints')}</h3>
-          <div className="space-y-3">
-            <SlideTypeUsageBarChart></SlideTypeUsageBarChart>
-          </div>
+      <div className="flex gap-6 mb-6">
+        <div className="w-full">
+          <SlideTypeUsageBarChart/>
         </div>
       </div>
 
