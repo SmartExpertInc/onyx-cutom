@@ -22,10 +22,10 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           className
         )}
         style={{
-          backgroundColor: active ? 'white' : '#f3f4f6',
+          backgroundColor: active ? 'white' : '#F2F9FC',
           background: active 
             ? `white`
-            : `#f3f4f6`,
+            : `#F2F9FC`,
           boxShadow: active 
             ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
@@ -46,16 +46,17 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
               <div 
-                className="w-10 h-10 xs:w-8 xs:h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 xl:w-12 xl:h-12 flex items-center justify-center"
+                className="w-12 h-12 xs:w-10 xs:h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-13 lg:h-13 xl:w-14 xl:h-14 flex items-center justify-center"
                 style={{
                   backgroundColor: active ? '#0646D3' : '#ADE9FF',
                   borderRadius: '50%',
                   aspectRatio: '1/1',
-                  '--icon-color': active ? 'white' : 'black'
+                  '--icon-color': active ? 'white' : 'black',
+                  color: active ? 'white' : 'black'
                 } as React.CSSProperties}
               >
                 <Icon 
-                  size={24}
+                  size={20}
                   className={cn(
                     "w-5 h-5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7",
                     active ? "text-white" : "text-black"
@@ -64,6 +65,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
                     color: active ? 'white' : 'black',
                     fill: active ? 'white' : 'black',
                     stroke: active ? 'white' : 'black',
+                    '--tw-text-opacity': '1',
                   }}
                 />
               </div>

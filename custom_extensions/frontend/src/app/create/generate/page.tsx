@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full bg-white flex flex-wrap justify-center gap-2 mb-2">
+          <div className="w-full max-w-4xl bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1302,7 +1302,7 @@ function GenerateProductPicker() {
               value={lessonsPerModule}
               onValueChange={setLessonsPerModule}
               options={["1-2", "3-4", "5-7", "8-10"].map((rng) => ({
-                value: rng,
+                value: `${rng} ${t('interface.generate.perModule', 'per module')}`,
                 label: `${rng} ${t('interface.generate.perModule', 'per module')}`
               }))}
               icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1312,10 +1312,10 @@ function GenerateProductPicker() {
               value={language}
               onValueChange={setLanguage}
               options={[
-                { value: "en", label: t('interface.english', 'English') },
-                { value: "uk", label: t('interface.ukrainian', 'Ukrainian') },
-                { value: "es", label: t('interface.spanish', 'Spanish') },
-                { value: "ru", label: t('interface.russian', 'Russian') }
+                { value: "English", label: t('interface.english', 'English') },
+                { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                { value: "Russian", label: t('interface.russian', 'Russian') }
               ]}
               icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}
