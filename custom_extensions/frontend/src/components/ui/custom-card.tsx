@@ -61,8 +61,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-50/15 rounded-full border-indigo-100/50" />
-        <div className="absolute -top-12 -left-12 w-60 h-60 bg-blue-100/10 rounded-full border-indigo-100/50" />
+        <div className="absolute -top-20 -left-20 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/50" />
+        <div className="absolute -top-12 -left-12 w-60 h-60 bg-blue-100/30 rounded-full border-indigo-100/50" />
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (
@@ -110,7 +110,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               )}
               {description && (
                 <p className={cn(
-                  "text-base text-left leading-relaxed text-gray-600 max-w-[66%]",
+                  "text-base text-left leading-relaxed text-gray-600 max-w-[64%]",
                   useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-600"
                 )}>
                   {description}
