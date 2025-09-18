@@ -49,7 +49,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "group bg-linear-to-b from-white via-[#F2F9FC] to-[#F2F9FC] rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
           useCSSVariables 
             ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))] shadow-lg hover:shadow-xl"
             : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md shadow-lg hover:shadow-xl",
@@ -69,7 +69,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             <div className="absolute top-4 right-4 z-10">
               <div 
                 className={cn(
-                  "inline-flex items-center px-2 py-1 text-xs font-semibold",
+                  "inline-flex items-center px-2 py-1 text-sm font-semibold",
                   useCSSVariables 
                     ? "bg-white rounded-md border-none text-blue-600 gap-1"
                     : cn(labelColor, "bg-white rounded-md border-none text-blue-600 gap-1")
@@ -110,7 +110,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               )}
               {description && (
                 <p className={cn(
-                  "text-base text-left leading-relaxed text-gray-600",
+                  "text-base text-left leading-relaxed text-gray-600 max-w-[66%]",
                   useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-600"
                 )}>
                   {description}
