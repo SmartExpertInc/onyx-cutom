@@ -11441,37 +11441,6 @@ async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user
             Return ONLY the JSON object.
             """
         elif selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
-            # Fast path: Check if aiResponse is already valid JSON with sections (from preview)
-            try:
-                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Training Plan: {project_data.aiResponse[:200]}...")
-                cached_json = json.loads(project_data.aiResponse.strip())
-                logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
-                if isinstance(cached_json, dict) and "sections" in cached_json:
-                    logger.info(f"[FAST_PATH_DEBUG] JSON has sections field with {len(cached_json.get('sections', []))} sections")
-                    logger.info(f"[FAST_PATH] Training Plan JSON detected, bypassing LLM parsing for {project_data.projectName}")
-                    parsed_content_model_instance = TrainingPlanDetails(**cached_json)
-                    logger.info(f"[FAST_PATH_DEBUG] TrainingPlanDetails created successfully")
-                    
-                    # Validate the parsed instance
-                    if parsed_content_model_instance.sections and len(parsed_content_model_instance.sections) > 0:
-                        logger.info(f"[FAST_PATH] Successfully validated Training Plan with {len(parsed_content_model_instance.sections)} sections")
-                        # Skip to database insertion
-                        async with pool.acquire() as conn:
-                            project_db_candidate = await add_project_to_db(
-                                project_data.projectName,
-                                selected_design_template.id,
-                                json.dumps(parsed_content_model_instance.dict()),
-                                project_data.chatSessionId,
-                                project_data.folder_id,
-                                project_data.source_context_type,
-                                project_data.source_context_data,
-                                conn
-                            )
-                        logger.info(f"[FAST_PATH] Training Plan project created successfully: {project_db_candidate.id}")
-                        return project_db_candidate
-            except (json.JSONDecodeError, KeyError, Exception) as e:
-                logger.info(f"[FAST_PATH] JSON validation failed ({e}), falling back to LLM parsing")
-            
             target_content_model = TrainingPlanDetails
             default_error_instance = TrainingPlanDetails(mainTitle=f"LLM Parsing Error for {project_data.projectName}", sections=[])
             llm_json_example = selected_design_template.template_structuring_prompt or DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM
@@ -12296,6 +12265,37 @@ Return ONLY the JSON object.
         if selected_design_template.component_name == COMPONENT_NAME_LESSON_PLAN:
             logger.info("Lesson plan detected - skipping LLM parsing entirely")
             parsed_content_model_instance = None  # Will not be used
+        elif selected_design_template.component_name == COMPONENT_NAME_TRAINING_PLAN:
+            # Fast path: Check if aiResponse is already valid JSON with sections (from preview)
+            try:
+                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Training Plan: {project_data.aiResponse[:200]}...")
+                cached_json = json.loads(project_data.aiResponse.strip())
+                logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
+                if isinstance(cached_json, dict) and "sections" in cached_json:
+                    logger.info(f"[FAST_PATH_DEBUG] JSON has sections field with {len(cached_json.get('sections', []))} sections")
+                    logger.info(f"[FAST_PATH] Training Plan JSON detected, bypassing LLM parsing for {project_data.projectName}")
+                    parsed_content_model_instance = TrainingPlanDetails(**cached_json)
+                    logger.info(f"[FAST_PATH_DEBUG] TrainingPlanDetails created successfully with {len(parsed_content_model_instance.sections)} sections")
+                else:
+                    logger.info(f"[FAST_PATH_DEBUG] JSON doesn't have sections, falling back to LLM parsing")
+                    parsed_content_model_instance = await parse_ai_response_with_llm(
+                        ai_response=project_data.aiResponse,
+                        project_name=project_data.projectName,
+                        target_model=target_content_model,
+                        default_error_model_instance=default_error_instance,
+                        dynamic_instructions=component_specific_instructions,
+                        target_json_example=llm_json_example
+                    )
+            except (json.JSONDecodeError, KeyError, Exception) as e:
+                logger.info(f"[FAST_PATH] JSON validation failed ({e}), falling back to LLM parsing")
+                parsed_content_model_instance = await parse_ai_response_with_llm(
+                    ai_response=project_data.aiResponse,
+                    project_name=project_data.projectName,
+                    target_model=target_content_model,
+                    default_error_model_instance=default_error_instance,
+                    dynamic_instructions=component_specific_instructions,
+                    target_json_example=llm_json_example
+                )
         else:
             parsed_content_model_instance = await parse_ai_response_with_llm(
                 ai_response=project_data.aiResponse,
@@ -15366,25 +15366,25 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     logger.warning(f"[PREVIEW_JSON_PARSE] Failed to parse JSON preview ({e}); falling back to markdown parser")
                     logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
                     modules_preview = _parse_outline_markdown(assistant_reply)
-
-                # Validate the parsed result meets basic requirements
-                validation_passed = True
-                validation_messages = []
-                # Check if we have reasonable number of modules (not just 1 with many lessons)
-                if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
-                    validation_passed = False
-                    validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
-                # Check if we have expected module count (if specified in payload)
-                expected_modules = getattr(payload, 'modules', None)
-                if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
-                    validation_passed = False
-                    validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
-                if not validation_passed:
-                    logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
-                    logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-                else:
-                    logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
-
+                    
+                    # Validate the parsed result meets basic requirements
+                    validation_passed = True
+                    validation_messages = []
+                    # Check if we have reasonable number of modules (not just 1 with many lessons)
+                    if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                        validation_passed = False
+                        validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+                    # Check if we have expected module count (if specified in payload)
+                    expected_modules = getattr(payload, 'modules', None)
+                    if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                        validation_passed = False
+                        validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+                    if not validation_passed:
+                        logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                        logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                    else:
+                        logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+                
                 # Send completion packet with the parsed outline
                 logger.info(f"[PREVIEW_DONE] Creating completion packet")
                 done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
@@ -15425,11 +15425,11 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         return
                     
                     # Send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
-                    logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
+                        now = asyncio.get_event_loop().time()
+                        if now - last_send > 8:
+                            yield b" "
+                            last_send = now
+                        logger.debug(f"[OPENAI_STREAM] Sent keep-alive")
                 
                 logger.info(f"[OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
             except Exception as e:
@@ -15484,26 +15484,26 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
             logger.warning(f"[PREVIEW_JSON_PARSE] Failed to parse JSON preview ({e}); falling back to markdown parser")
             logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
             modules_preview = _parse_outline_markdown(assistant_reply)
-
-        # Validate the parsed result meets basic requirements
-        validation_passed = True
-        validation_messages = []
-        # Check if we have reasonable number of modules (not just 1 with many lessons)
-        if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
-            validation_passed = False
-            validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
-        # Check if we have expected module count (if specified in payload)
-        expected_modules = getattr(payload, 'modules', None)
-        if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
-            validation_passed = False
-            validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
-        if not validation_passed:
-            logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
-            logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-        else:
-            logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
-
-        # Send completion packet with the parsed outline
+            
+            # Validate the parsed result meets basic requirements
+            validation_passed = True
+            validation_messages = []
+            # Check if we have reasonable number of modules (not just 1 with many lessons)
+            if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                validation_passed = False
+                validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+            # Check if we have expected module count (if specified in payload)
+            expected_modules = getattr(payload, 'modules', None)
+            if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                validation_passed = False
+                validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+            if not validation_passed:
+                logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+            else:
+                logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+        
+                # Send completion packet with the parsed outline
         logger.info(f"[PREVIEW_DONE] Creating completion packet")
         done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
         yield (json.dumps(done_packet) + "\n").encode()
@@ -16198,7 +16198,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.info(f"[FINALIZE_CACHE] Parsed {len(parsed_orig)} modules from JSON preview")
             else:
                 # Fallback to markdown parsing
-                parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        parsed_orig = _parse_outline_markdown(raw_outline_cached)
                 logger.info(f"[FINALIZE_CACHE] Used markdown fallback, parsed {len(parsed_orig)} modules")
         except (json.JSONDecodeError, KeyError) as e:
             # Fallback to markdown parsing for old format
@@ -16247,7 +16247,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             
             # Fallback to markdown extraction or payload prompt
             if not project_name_detected:
-                project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
                 logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name_detected}")
             
             logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
