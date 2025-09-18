@@ -1252,7 +1252,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-6 sm:mb-8 px-3">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-3 sm:mb-4 px-3">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
@@ -1324,7 +1324,7 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && (
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-4 mb-3">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1486,7 +1486,7 @@ function GenerateProductPicker() {
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && (
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-4 mb-3">
             {/* Step 1: Choose source */}
             {useExistingQuizOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1676,7 +1676,7 @@ function GenerateProductPicker() {
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && (
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col items-center gap-4 mb-3">
             {/* Step 1: Choose source */}
             {useExistingTextOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1876,7 +1876,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2 mb-4">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2 mb-3">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
@@ -1918,7 +1918,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[100px] max-h-[280px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={5}
             />

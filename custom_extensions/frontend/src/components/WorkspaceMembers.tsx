@@ -445,7 +445,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 flex items-center justify-center py-12">
+      <div className="min-h-screen flex items-center justify-center py-12">
         <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
         <span className="ml-2 text-gray-600">Loading workspace data...</span>
       </div>
@@ -454,7 +454,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 flex items-center justify-center py-12">
+      <div className="min-h-screen flex items-center justify-center py-12">
         <XCircle className="h-8 w-8 text-red-600" />
         <span className="ml-2 text-red-600">Error: {error}</span>
         <button
@@ -479,7 +479,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     if (workspaces.length === 0) {
       return (
         <>
-          <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 flex items-center justify-center py-12">
+          <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-#00BBFF66 flex items-center justify-center py-12">
             <div className="text-center">
               <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
@@ -550,7 +550,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     
     // If user has workspaces but none selected
     return (
-      <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 flex items-center justify-center py-12">
+      <div className="min-h-screen flex items-center justify-center py-12">
         <div className="text-center">
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspace Selected</h3>
           <p className="text-gray-600">Please select a workspace to view its members.</p>

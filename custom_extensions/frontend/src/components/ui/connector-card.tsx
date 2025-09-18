@@ -42,47 +42,6 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
   hoverGradientColors = { from: 'blue-500', to: 'purple-500' }
 }) => {
   // Create a mapping for gradient classes to ensure Tailwind includes them
-  const getGradientClass = (from: string, to: string) => {
-    const gradientMap: Record<string, string> = {
-      'green-300-emerald-200': 'bg-gradient-to-br from-green-300 to-emerald-200',
-      'yellow-300-amber-200': 'bg-gradient-to-br from-yellow-300 to-amber-200',
-      'red-300-rose-200': 'bg-gradient-to-br from-red-300 to-rose-200',
-      'gray-300-slate-200': 'bg-gradient-to-br from-gray-300 to-slate-200',
-      'blue-300-indigo-200': 'bg-gradient-to-br from-blue-300 to-indigo-200',
-      'purple-300-pink-200': 'bg-gradient-to-br from-purple-300 to-pink-200',
-      'orange-300-amber-200': 'bg-gradient-to-br from-orange-300 to-amber-200',
-      'cyan-300-blue-200': 'bg-gradient-to-br from-cyan-300 to-blue-200',
-      'violet-300-purple-200': 'bg-gradient-to-br from-violet-300 to-purple-200',
-      'teal-300-cyan-200': 'bg-gradient-to-br from-teal-300 to-cyan-200',
-      'indigo-300-blue-200': 'bg-gradient-to-br from-indigo-300 to-blue-200'
-    };
-    const key = `${from}-${to}`;
-    return gradientMap[key] || 'bg-gradient-to-br from-blue-300 to-indigo-200';
-  };
-
-  const getTextColorClass = (color: string) => {
-    const textColorMap: Record<string, string> = {
-      'green-600': 'text-green-600',
-      'yellow-600': 'text-yellow-600',
-      'red-600': 'text-red-600',
-      'gray-600': 'text-gray-600',
-      'blue-600': 'text-blue-600',
-      'purple-600': 'text-purple-600',
-      'orange-700': 'text-orange-700',
-      'blue-700': 'text-blue-700',
-      'purple-700': 'text-purple-700',
-      'cyan-700': 'text-cyan-700',
-      'violet-700': 'text-violet-700',
-      'gray-700': 'text-gray-700',
-      'green-700': 'text-green-700',
-      'teal-700': 'text-teal-700',
-      'indigo-700': 'text-indigo-700',
-      'yellow-700': 'text-yellow-700',
-      'red-700': 'text-red-700',
-      'pink-700': 'text-pink-700'
-    };
-    return textColorMap[color] || 'text-blue-600';
-  };
 
   const getIconColorClass = (color: string) => {
     const iconColorMap: Record<string, string> = {
@@ -119,7 +78,7 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
 
   return (
     <div 
-      className={`group rounded-3xl relative overflow-hidden transition-all duration-300 bg-white border ${
+      className={`group bg-linear-to-b from-white via-[#F2F9FC] to-[#F2F9FC] rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full ${
         selectable 
           ? `cursor-pointer ${
               isSelected 
@@ -144,13 +103,14 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
       )}
 
       {/* Gradient at top right corner */}
-      <div className={`absolute top-0 right-0 w-44 rotate-45 blur-2xl h-34 ${getGradientClass(gradientColors.from, gradientColors.to)} rounded-bl-3xl opacity-60`} />
-      
+      <div className="absolute -top-20 -left-22 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
+      <div className="absolute -top-12 -left-12 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
+
       <div className="relative p-6 h-full flex flex-col">
         {/* Icon section */}
         <div className="flex items-start justify-start h-16 relative mb-3">
           {iconSrc ? (
-            <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden">
               <Image
                 src={iconSrc}
                 alt={`${title} logo`}
@@ -170,7 +130,7 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
         
         {/* Text section */}
         <div className="flex flex-col items-start gap-3 flex-1 justify-start">
-          <h3 className={`text-xl font-semibold ${getTextColorClass(textColor)}`}>
+          <h3 className={`text-xl font-semibold text-blue-600`}>
             {title}
           </h3>
           {value !== undefined && (
