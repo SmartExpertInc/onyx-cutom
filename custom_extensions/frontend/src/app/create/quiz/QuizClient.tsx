@@ -1099,7 +1099,7 @@ export default function QuizClient() {
   return (
     <>
       <main
-        className="min-h-screen mt-[113px] pb-24 px-4 flex flex-col items-center"
+        className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
         style={{
           background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
@@ -1107,7 +1107,7 @@ export default function QuizClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-            className="absolute top-6 left-6 flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
           style={{
             color: '#0F58F9',
             fontSize: '14px',
@@ -1124,7 +1124,7 @@ export default function QuizClient() {
 
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
 
-          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30]">{t('interface.generate.title', 'Generate')}</h1>
+          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px]">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
           <div className="flex flex-col items-center gap-4">
