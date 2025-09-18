@@ -205,7 +205,7 @@ export default function CourseOutlineClient() {
   const params = useSearchParams();
   const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
-  const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
+  const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3 - 4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
 
   // File context for creation from documents
@@ -1239,7 +1239,7 @@ export default function CourseOutlineClient() {
                 </SelectTrigger>
                 <SelectContent className="border-white w-20 max-h-[200px]" sideOffset={15}>
                   {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-                    <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                    <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1265,7 +1265,7 @@ export default function CourseOutlineClient() {
                 </SelectTrigger>
                 <SelectContent className="border-white w-24 max-h-[200px]" sideOffset={15} align="center">
                   {["1 - 2", "3 - 4", "5 - 7", "8 - 10"].map((rng) => (
-                    <SelectItem key={rng} value={rng}>{rng}</SelectItem>
+                    <SelectItem key={rng} value={rng} className="px-2">{rng}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
