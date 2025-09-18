@@ -1330,7 +1330,10 @@ export default function TextPresentationClient() {
             letterSpacing: '0.05em'
           }}
         >
-          <ChevronLeft height={8} style={{ color: '#0F58F9' }} /> {t('interface.generate.back', 'Back')}
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {t('interface.generate.back', 'Back')}
         </Link>
 
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
