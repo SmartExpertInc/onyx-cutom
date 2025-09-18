@@ -15320,9 +15320,16 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         # Extract live progress updates using robust regex-based approach
                         progress_updates = extract_live_progress(assistant_reply, chat_id)
+                        if progress_updates:
+                            logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
                         for update in progress_updates:
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
+                        
+                        # Also send a debug update every 10 chunks to test streaming
+                        if chunks_received % 10 == 0:
+                            debug_update = {"type": "debug", "message": f"Chunk {chunks_received} processed"}
+                            yield (json.dumps(debug_update) + "\n").encode()
                         
                         # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
@@ -15373,9 +15380,14 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         lessons = []
                         for ls in lessons_src:
                             if isinstance(ls, dict):
-                                lessons.append(ls.get('title') or '')
+                                lesson_title = ls.get('title') or ''
                             else:
-                                lessons.append(str(ls))
+                                lesson_title = str(ls)
+                            
+                            # Clean lesson title (remove "Lesson X.Y:" prefix)
+                            import re
+                            cleaned_lesson_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title).strip()
+                            lessons.append(cleaned_lesson_title)
                         modules_preview.append({
                             "id": f"mod{i+1}",
                             "title": title,
@@ -15442,9 +15454,16 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         # Extract live progress updates using robust regex-based approach
                         progress_updates = extract_live_progress(assistant_reply, chat_id)
+                        if progress_updates:
+                            logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
                         for update in progress_updates:
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
+                        
+                        # Also send a debug update every 10 chunks to test streaming
+                        if chunks_received % 10 == 0:
+                            debug_update = {"type": "debug", "message": f"Chunk {chunks_received} processed"}
+                            yield (json.dumps(debug_update) + "\n").encode()
                         
                         # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
@@ -15499,9 +15518,14 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                 lessons = []
                 for ls in lessons_src:
                     if isinstance(ls, dict):
-                        lessons.append(ls.get('title') or '')
+                        lesson_title = ls.get('title') or ''
                     else:
-                        lessons.append(str(ls))
+                        lesson_title = str(ls)
+                    
+                    # Clean lesson title (remove "Lesson X.Y:" prefix)
+                    import re
+                    cleaned_lesson_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title).strip()
+                    lessons.append(cleaned_lesson_title)
                 modules_preview.append({
                     "id": f"mod{i+1}",
                     "title": title,
