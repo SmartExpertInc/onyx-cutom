@@ -4,55 +4,34 @@ import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EventPoster from "../components/EventPoster";
 
-interface EventData {
-  eventName: string;
-  mainSpeaker: string;
-  speakerDescription: string;
-  date: string;
-  topic: string;
-  additionalSpeakers: string;
-  ticketPrice: string;
-  ticketType: string;
-  freeAccessConditions: string;
-  speakerImage: string | null;
-}
-
 function EventPosterResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [eventData, setEventData] = useState<EventData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  // Extract data from URL parameters
+  const eventName = searchParams?.get('eventName') || '';
+  const mainSpeaker = searchParams?.get('mainSpeaker') || '';
+  const speakerDescription = searchParams?.get('speakerDescription') || '';
+  const date = searchParams?.get('date') || '';
+  const topic = searchParams?.get('topic') || '';
+  const additionalSpeakers = searchParams?.get('additionalSpeakers') || '';
+  const ticketPrice = searchParams?.get('ticketPrice') || '';
+  const ticketType = searchParams?.get('ticketType') || '';
+  const freeAccessConditions = searchParams?.get('freeAccessConditions') || '';
+  const hasCustomSpeakerImage = searchParams?.get('hasCustomSpeakerImage') === 'true';
+  
+  const [speakerImageSrc, setSpeakerImageSrc] = useState<string>('');
 
   useEffect(() => {
-    const fetchEventData = async () => {
-      try {
-        const sessionId = searchParams?.get('sessionId');
-        
-        if (!sessionId) {
-          setError('No session data found');
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(`/custom-projects-ui/api/event-poster/session/${sessionId}`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          setEventData(data);
-        } else {
-          setError('Failed to load event data');
-        }
-      } catch (err) {
-        setError('An error occurred while loading data');
-        console.error('Error fetching event data:', err);
-      } finally {
-        setLoading(false);
+    if (hasCustomSpeakerImage) {
+      const savedImage = localStorage.getItem('temp_speaker_image');
+      if (savedImage) {
+        setSpeakerImageSrc(savedImage);
+        // Clean up localStorage
+        localStorage.removeItem('temp_speaker_image');
       }
-    };
-
-    fetchEventData();
-  }, [searchParams]);
+    }
+  }, [hasCustomSpeakerImage]);
 
   const handleBackToQuestionnaire = () => {
     router.push('/create/event-poster/questionnaire');
@@ -61,34 +40,6 @@ function EventPosterResultsContent() {
   const handleBackToProjects = () => {
     router.push('/projects');
   };
-
-  if (loading) {
-    return (
-      <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading event poster...</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (error || !eventData) {
-    return (
-      <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif] flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-xl mb-4">⚠️ Error</div>
-          <p className="text-gray-600 mb-4">{error || 'Failed to load event data'}</p>
-          <button
-            onClick={handleBackToQuestionnaire}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Back to Questionnaire
-          </button>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
@@ -127,16 +78,16 @@ function EventPosterResultsContent() {
           {/* Event Poster Component */}
           <div className="flex justify-center">
             <EventPoster
-              eventName={eventData.eventName}
-              mainSpeaker={eventData.mainSpeaker}
-              speakerDescription={eventData.speakerDescription}
-              date={eventData.date}
-              topic={eventData.topic}
-              additionalSpeakers={eventData.additionalSpeakers}
-              ticketPrice={eventData.ticketPrice}
-              ticketType={eventData.ticketType}
-              freeAccessConditions={eventData.freeAccessConditions}
-              speakerImage={eventData.speakerImage}
+              eventName={eventName}
+              mainSpeaker={mainSpeaker}
+              speakerDescription={speakerDescription}
+              date={date}
+              topic={topic}
+              additionalSpeakers={additionalSpeakers}
+              ticketPrice={ticketPrice}
+              ticketType={ticketType}
+              freeAccessConditions={freeAccessConditions}
+              speakerImageSrc={speakerImageSrc}
             />
           </div>
         </div>

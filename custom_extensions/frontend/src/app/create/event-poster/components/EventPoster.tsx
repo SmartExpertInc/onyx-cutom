@@ -12,7 +12,7 @@ interface EventPosterProps {
   ticketPrice: string;
   ticketType: string;
   freeAccessConditions: string;
-  speakerImage?: string | null;
+  speakerImageSrc?: string;
 }
 
 export default function EventPoster({
@@ -25,12 +25,19 @@ export default function EventPoster({
   ticketPrice,
   ticketType,
   freeAccessConditions,
-  speakerImage
+  speakerImageSrc
 }: EventPosterProps) {
   // Parse date to separate day/month and year
   const dateParts = date.split('.');
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
+
+  // Construct ticket information display string
+  const ticketDisplayText = `Квиток ${ticketType} ${ticketPrice}`;
+
+  // Determine speaker image source
+  const defaultSpeakerImage = "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png";
+  const imageSrc = speakerImageSrc || defaultSpeakerImage;
 
   return (
     <div 
@@ -54,15 +61,13 @@ export default function EventPoster({
         }}
       />
 
-      {/* Speaker Photo - v1_8 - dynamic image */}
+      {/* Speaker Photo - Dynamic */}
       <div
         className="absolute"
         style={{
           width: '519px',
           height: '713px',
-          background: speakerImage 
-            ? `url("${speakerImage}")` 
-            : 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png")',
+          background: `url("${imageSrc}")`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center center',
           backgroundSize: 'cover',

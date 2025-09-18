@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function EventPosterQuestionnaire() {
+  const router = useRouter();
   
   // Pre-populated data as specified
   const [eventName, setEventName] = useState("Велика онлайн-конференція");
@@ -14,57 +16,62 @@ export default function EventPosterQuestionnaire() {
   const [ticketPrice, setTicketPrice] = useState("150€");
   const [ticketType, setTicketType] = useState("STANDART");
   const [freeAccessConditions, setFreeAccessConditions] = useState("безкоштовно для членів business club");
-  const [speakerImage, setSpeakerImage] = useState<string | null>(null);
+  const [speakerImage, setSpeakerImage] = useState<string>('');
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file.');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB.');
+        return;
+      }
+      
+      // Convert to base64 for URL transfer
       const reader = new FileReader();
-      reader.onload = (event) => {
-        setSpeakerImage(event.target?.result as string);
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        setSpeakerImage(base64String);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-      // Create FormData to handle the POST request
-      const formData = new FormData();
-      formData.append('eventName', eventName);
-      formData.append('mainSpeaker', mainSpeaker);
-      formData.append('speakerDescription', speakerDescription);
-      formData.append('date', date);
-      formData.append('topic', topic);
-      formData.append('additionalSpeakers', additionalSpeakers);
-      formData.append('ticketPrice', ticketPrice);
-      formData.append('ticketType', ticketType);
-      formData.append('freeAccessConditions', freeAccessConditions);
-      
-      // Only append speakerImage if it exists
-      if (speakerImage) {
-        formData.append('speakerImage', speakerImage);
-      }
-
-      // Submit form data via POST request
-      const response = await fetch('/custom-projects-ui/api/event-poster/generate', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        // The API route will handle the redirect to the results page
-        window.location.href = response.url;
-      } else {
-        console.error('Failed to submit form data');
-        alert('Failed to generate poster. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('An error occurred. Please try again.');
+    // Store image separately in localStorage to avoid URL length limits
+    if (speakerImage) {
+      localStorage.setItem('temp_speaker_image', speakerImage);
     }
+    
+    // Prepare data for the results page
+    const eventData = {
+      eventName,
+      mainSpeaker,
+      speakerDescription,
+      date,
+      topic,
+      additionalSpeakers,
+      ticketPrice,
+      ticketType,
+      freeAccessConditions,
+      hasCustomSpeakerImage: speakerImage ? 'true' : 'false'
+    };
+
+    // Navigate to results page with data
+    const queryParams = new URLSearchParams();
+    Object.entries(eventData).forEach(([key, value]) => {
+      queryParams.append(key, value);
+    });
+    
+    router.push(`/create/event-poster/results?${queryParams.toString()}`);
   };
 
   return (
@@ -171,26 +178,6 @@ export default function EventPosterQuestionnaire() {
                     rows={3}
                   />
                 </div>
-
-                <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Фото спікера (Speaker Photo)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800"
-                  />
-                  {speakerImage && (
-                    <div className="mt-3">
-                      <p className="text-sm text-green-600 mb-2">✓ Image uploaded successfully</p>
-                      <img 
-                        src={speakerImage} 
-                        alt="Speaker preview" 
-                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                      />
-                    </div>
-                  )}
-                </div>
                 
                 <div>
                   <label className="block font-semibold mb-2 text-gray-700">Додаткові спікери (Additional Speakers)</label>
@@ -243,6 +230,26 @@ export default function EventPosterQuestionnaire() {
                     onChange={e => setFreeAccessConditions(e.target.value)}
                     placeholder="Enter free access conditions"
                   />
+                </div>
+
+                <div>
+                  <label className="block font-semibold mb-2 text-gray-700">Фото спікера (Speaker Photo)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800"
+                  />
+                  {speakerImage && (
+                    <div className="mt-3">
+                      <p className="text-sm text-green-600 mb-2">✓ Image uploaded successfully</p>
+                      <img 
+                        src={speakerImage} 
+                        alt="Speaker preview" 
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               
