@@ -432,7 +432,7 @@ export const CreateContentTypeModal = ({
                         e.stopPropagation();
                         handlePrefToggle(type.key);
                       }}
-                      disabled={isDisabled || isVideoLessonDisabledByFlag}
+                      disabled={isDisabled}
                     />
                   </div>
 
