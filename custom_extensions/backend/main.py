@@ -15317,6 +15317,54 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[HYBRID_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        
+                        # Try to parse JSON and send module/lesson progress updates
+                        try:
+                            # Check if we have a complete JSON object so far
+                            if assistant_reply.strip().startswith('{') and assistant_reply.count('{') > 0:
+                                # Try to parse the current JSON (might be incomplete)
+                                temp_json = assistant_reply.strip()
+                                if temp_json.endswith(','):
+                                    temp_json = temp_json[:-1]  # Remove trailing comma
+                                if not temp_json.endswith('}') and temp_json.count('{') > temp_json.count('}'):
+                                    # Add closing braces to make it valid for parsing
+                                    missing_braces = temp_json.count('{') - temp_json.count('}')
+                                    temp_json += '}' * missing_braces
+                                
+                                try:
+                                    parsed_json = json.loads(temp_json)
+                                    if isinstance(parsed_json, dict) and "sections" in parsed_json:
+                                        sections = parsed_json["sections"]
+                                        for section in sections:
+                                            if isinstance(section, dict) and "title" in section:
+                                                # Send module progress
+                                                module_progress = {
+                                                    "type": "module", 
+                                                    "title": section["title"],
+                                                    "id": section.get("id", "")
+                                                }
+                                                yield (json.dumps(module_progress) + "\n").encode()
+                                                
+                                                # Send lesson progress for this module
+                                                if "lessons" in section:
+                                                    for lesson in section["lessons"]:
+                                                        if isinstance(lesson, dict) and "title" in lesson:
+                                                            lesson_title = lesson["title"]
+                                                            # Clean lesson title (remove "Lesson X.Y:" prefix)
+                                                            import re
+                                                            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title)
+                                                            lesson_progress = {
+                                                                "type": "lesson",
+                                                                "title": cleaned_title,
+                                                                "module": section["title"]
+                                                            }
+                                                            yield (json.dumps(lesson_progress) + "\n").encode()
+                                except (json.JSONDecodeError, KeyError):
+                                    pass  # JSON not complete yet, continue
+                        except Exception as e:
+                            logger.debug(f"[JSON_STREAM_PARSE] Error parsing streaming JSON: {e}")
+                        
+                        # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
@@ -15431,6 +15479,54 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         assistant_reply += delta_text
                         chunks_received += 1
                         logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        
+                        # Try to parse JSON and send module/lesson progress updates
+                        try:
+                            # Check if we have a complete JSON object so far
+                            if assistant_reply.strip().startswith('{') and assistant_reply.count('{') > 0:
+                                # Try to parse the current JSON (might be incomplete)
+                                temp_json = assistant_reply.strip()
+                                if temp_json.endswith(','):
+                                    temp_json = temp_json[:-1]  # Remove trailing comma
+                                if not temp_json.endswith('}') and temp_json.count('{') > temp_json.count('}'):
+                                    # Add closing braces to make it valid for parsing
+                                    missing_braces = temp_json.count('{') - temp_json.count('}')
+                                    temp_json += '}' * missing_braces
+                                
+                                try:
+                                    parsed_json = json.loads(temp_json)
+                                    if isinstance(parsed_json, dict) and "sections" in parsed_json:
+                                        sections = parsed_json["sections"]
+                                        for section in sections:
+                                            if isinstance(section, dict) and "title" in section:
+                                                # Send module progress
+                                                module_progress = {
+                                                    "type": "module", 
+                                                    "title": section["title"],
+                                                    "id": section.get("id", "")
+                                                }
+                                                yield (json.dumps(module_progress) + "\n").encode()
+                                                
+                                                # Send lesson progress for this module
+                                                if "lessons" in section:
+                                                    for lesson in section["lessons"]:
+                                                        if isinstance(lesson, dict) and "title" in lesson:
+                                                            lesson_title = lesson["title"]
+                                                            # Clean lesson title (remove "Lesson X.Y:" prefix)
+                                                            import re
+                                                            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title)
+                                                            lesson_progress = {
+                                                                "type": "lesson",
+                                                                "title": cleaned_title,
+                                                                "module": section["title"]
+                                                            }
+                                                            yield (json.dumps(lesson_progress) + "\n").encode()
+                                except (json.JSONDecodeError, KeyError):
+                                    pass  # JSON not complete yet, continue
+                        except Exception as e:
+                            logger.debug(f"[JSON_STREAM_PARSE] Error parsing streaming JSON: {e}")
+                        
+                        # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
