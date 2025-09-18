@@ -1220,17 +1220,17 @@ export default function CourseOutlineClient() {
         <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px]">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Controls */}
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-3">
           <Select
             value={modules.toString()}
             onValueChange={(value: string) => setModules(Number(value))}
           >
-            <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+            <SelectTrigger className="px-6 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 h-12 shadow-sm hover:shadow-md transition-all duration-200 min-w-[140px]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border-gray-300">
+            <SelectContent className="border-0 shadow-xl rounded-xl bg-white p-2 mt-2">
               {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-                <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
+                <SelectItem key={n} value={n.toString()} className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{n} {t('interface.generate.modules', 'Modules')}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -1239,12 +1239,12 @@ export default function CourseOutlineClient() {
             value={lessonsPerModule}
             onValueChange={setLessonsPerModule}
           >
-            <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+            <SelectTrigger className="px-6 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 h-12 shadow-sm hover:shadow-md transition-all duration-200 min-w-[160px]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border-gray-300">
+            <SelectContent className="border-0 shadow-xl rounded-xl bg-white p-2 mt-2">
               {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-                <SelectItem key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
+                <SelectItem key={rng} value={rng} className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -1253,14 +1253,14 @@ export default function CourseOutlineClient() {
             value={language}
             onValueChange={setLanguage}
           >
-            <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+            <SelectTrigger className="px-6 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 h-12 shadow-sm hover:shadow-md transition-all duration-200 min-w-[120px]">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="border-gray-300">
-              <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-              <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-              <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-              <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+            <SelectContent className="border-0 shadow-xl rounded-xl bg-white p-2 mt-2">
+              <SelectItem value="en" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.english', 'English')}</SelectItem>
+              <SelectItem value="uk" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+              <SelectItem value="es" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+              <SelectItem value="ru" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.russian', 'Russian')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -1549,30 +1549,30 @@ export default function CourseOutlineClient() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                  <div className="flex flex-col gap-3">
+                    <label className="text-sm font-semibold text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
                     <Select value={imageSource} onValueChange={setImageSource}>
-                      <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                      <SelectTrigger className="w-full px-5 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 h-12 shadow-sm hover:shadow-md transition-all duration-200">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-gray-300" side="top">
-                        <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
-                        <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
-                        <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                      <SelectContent className="border-0 shadow-xl rounded-xl bg-white p-2 mt-2" side="top">
+                        <SelectItem value="ai" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
+                        <SelectItem value="stock" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                        <SelectItem value="none" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.noImages', 'No images')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
+                  <div className="flex flex-col gap-3">
+                    <label className="text-sm font-semibold text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
                     <Select value={aiModel} onValueChange={setAiModel}>
-                      <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                      <SelectTrigger className="w-full px-5 py-3 rounded-xl border-2 border-gray-200 bg-white text-sm font-medium text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500 h-12 shadow-sm hover:shadow-md transition-all duration-200">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-gray-300" side="top">
-                        <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
-                        <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
-                        <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
+                      <SelectContent className="border-0 shadow-xl rounded-xl bg-white p-2 mt-2" side="top">
+                        <SelectItem value="flux-fast" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
+                        <SelectItem value="flux-quality" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
+                        <SelectItem value="stable" className="rounded-lg px-4 py-2 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer transition-colors duration-150">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
