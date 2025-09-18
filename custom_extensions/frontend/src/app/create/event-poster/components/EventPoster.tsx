@@ -91,7 +91,7 @@ export default function EventPoster({
         <div className="col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginBottom: '40px' }}>
           
           {/* First row: Event name and Logo */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name */}
             <div
               style={{
@@ -153,11 +153,8 @@ export default function EventPoster({
             {/* Date with border */}
             <div 
               style={{ 
-                border: '3px solid rgba(255,255,255,0.8)',
-                borderRadius: '15px',
+                border: '3px solid #5416af',
                 padding: '15px 20px',
-                background: 'rgba(0,0,0,0.2)',
-                backdropFilter: 'blur(5px)',
                 display: 'inline-block'
               }}
             >
@@ -231,12 +228,11 @@ export default function EventPoster({
           {/* Ticket price section */}
           <div 
             style={{ 
-              border: '2px solid rgba(235,235,235,0.6)',
-              borderRadius: '12px',
+              border: '2px solid #5416af',
+              borderRadius: '40px',
               padding: '15px 20px',
-              background: 'rgba(0,0,0,0.3)',
-              backdropFilter: 'blur(3px)',
-              minWidth: '150px'
+              minWidth: '150px',
+              lineHeight: '1'
             }}
           >
             <div
@@ -280,17 +276,16 @@ export default function EventPoster({
           <div
             style={{
               color: 'rgba(235,235,235,1)',
-              fontFamily: 'Roboto',
               fontWeight: '400',
               fontSize: '37px',
               textAlign: 'center',
               lineHeight: '1.2',
-              background: 'rgba(0,0,0,0.6)',
-              borderRadius: '25px',
+              backgroundColor: '#5416af',
+              borderRadius: '40px',
               padding: '20px 30px',
-              boxShadow: '0 0 30px rgba(255,255,255,0.2), 0 0 60px rgba(255,255,255,0.1)',
+              boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
-              maxWidth: '500px',
+              maxWidth: '700px',
               marginLeft: '30px'
             }}
           >
