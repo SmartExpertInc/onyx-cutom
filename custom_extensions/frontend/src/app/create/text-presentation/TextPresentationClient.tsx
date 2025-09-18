@@ -1057,7 +1057,8 @@ export default function TextPresentationClient() {
         isFromConnectors,
         language, 
         activeProductType === null ? undefined : activeProductType, 
-        advancedModeState
+        advancedModeState,
+        stylesState
       );
       
       // Clear the failed state since we successfully completed
@@ -1087,7 +1088,8 @@ export default function TextPresentationClient() {
             isFromConnectors,
             language, 
             activeProductType === null ? undefined : activeProductType, 
-            advancedModeState
+            advancedModeState,
+            stylesState
           );
           sessionStorage.setItem('createProductFailed', 'true');
         }
