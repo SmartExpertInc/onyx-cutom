@@ -1476,7 +1476,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-lg border-white" sideOffset={25}>
+                          <SelectContent className="border-white" sideOffset={25}>
                             {lengthOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                             ))}
