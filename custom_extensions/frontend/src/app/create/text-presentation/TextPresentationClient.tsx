@@ -1449,7 +1449,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white">
+                          <SelectContent className="shadow-none border-white mt-2">
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1476,7 +1476,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white">
+                          <SelectContent className="shadow-none border-white mt-2">
                             {lengthOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                             ))}
@@ -1511,7 +1511,7 @@ export default function TextPresentationClient() {
                                 </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent 
-                            className="w-56 p-2 rounded-lg max-h-60 overflow-y-auto" 
+                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto mt-2" 
                             align="start"
                             style={{ backgroundColor: 'white' }}
                           >
@@ -1633,7 +1633,7 @@ export default function TextPresentationClient() {
                             </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                            className="w-56 p-2 border border-gray-300 rounded-lg max-h-60 overflow-y-auto" 
+                            className="w-60 p-2 border border-gray-300 rounded-lg max-h-60 overflow-y-auto mt-2" 
                         align="start"
                         style={{ backgroundColor: 'white' }}
                       >
