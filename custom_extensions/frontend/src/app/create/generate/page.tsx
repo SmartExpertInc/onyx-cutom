@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
@@ -1252,7 +1252,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 mb-6 sm:mb-8 px-4">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 mb-6 sm:mb-8 px-3">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
@@ -1317,7 +1317,7 @@ function GenerateProductPicker() {
                 { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                 { value: "Russian", label: t('interface.russian', 'Russian') }
               ]}
-              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              icon={<Globe className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}
             />
           </div>
@@ -1357,16 +1357,17 @@ function GenerateProductPicker() {
                   <>
                     {/* Outline dropdown */}
                     <CustomPillSelector
-                      value={selectedOutlineId?.toString() ?? ""}
+                      value={selectedOutlineId !== null ? outlines.find(o => o.id === selectedOutlineId)?.name ?? "" : ""}
                       onValueChange={(value) => {
-                        setSelectedOutlineId(value ? Number(value) : null);
+                        const outline = outlines.find(o => o.name === value);
+                        setSelectedOutlineId(outline ? outline.id : null);
                         // clear module & lesson selections when outline changes
                         setSelectedModuleIndex(null);
                         setLessonsForModule([]);
                         setSelectedLesson("");
                       }}
                       options={outlines.map((o) => ({
-                        value: o.id.toString(),
+                        value: o.name,
                         label: o.name
                       }))}
                       icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1401,7 +1402,7 @@ function GenerateProductPicker() {
                           value: l,
                           label: l
                         }))}
-                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        icon={<FileText className="w-4 h-4 text-gray-600" />}
                         label="Lesson"
                       />
                     )}
@@ -1418,7 +1419,7 @@ function GenerateProductPicker() {
                             { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                             { value: "Russian", label: t('interface.russian', 'Russian') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
                         />
                         <CustomPillSelector
@@ -1448,7 +1449,7 @@ function GenerateProductPicker() {
                         { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                         { value: "Russian", label: t('interface.russian', 'Russian') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
                     />
                     <CustomPillSelector
@@ -1518,16 +1519,17 @@ function GenerateProductPicker() {
                   <>
                     {/* Outline dropdown */}
                     <CustomPillSelector
-                      value={selectedQuizOutlineId?.toString() ?? ""}
+                      value={selectedQuizOutlineId !== null ? quizOutlines.find(o => o.id === selectedQuizOutlineId)?.name ?? "" : ""}
                       onValueChange={(value) => {
-                        setSelectedQuizOutlineId(value ? Number(value) : null);
+                        const outline = quizOutlines.find(o => o.name === value);
+                        setSelectedQuizOutlineId(outline ? outline.id : null);
                         // clear module & lesson selections when outline changes
                         setSelectedQuizModuleIndex(null);
                         setQuizLessonsForModule([]);
                         setSelectedQuizLesson("");
                       }}
                       options={quizOutlines.map((outline) => ({
-                        value: outline.id.toString(),
+                        value: outline.name,
                         label: outline.name
                       }))}
                       icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1562,7 +1564,7 @@ function GenerateProductPicker() {
                           value: l,
                           label: l
                         }))}
-                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        icon={<FileText className="w-4 h-4 text-gray-600" />}
                         label="Lesson"
                       />
                     )}
@@ -1579,7 +1581,7 @@ function GenerateProductPicker() {
                             { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                             { value: "Russian", label: t('interface.russian', 'Russian') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
                         />
                         <CustomMultiSelector
@@ -1623,7 +1625,7 @@ function GenerateProductPicker() {
                         { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                         { value: "Russian", label: t('interface.russian', 'Russian') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
                     />
                     <CustomMultiSelector
@@ -1707,16 +1709,17 @@ function GenerateProductPicker() {
                   <>
                     {/* Outline dropdown */}
                     <CustomPillSelector
-                      value={selectedTextOutlineId?.toString() ?? ""}
+                      value={selectedTextOutlineId !== null ? textOutlines.find(o => o.id === selectedTextOutlineId)?.name ?? "" : ""}
                       onValueChange={(value) => {
-                        setSelectedTextOutlineId(value ? Number(value) : null);
+                        const outline = textOutlines.find(o => o.name === value);
+                        setSelectedTextOutlineId(outline ? outline.id : null);
                         // clear module & lesson selections when outline changes
                         setSelectedTextModuleIndex(null);
                         setTextLessonsForModule([]);
                         setSelectedTextLesson("");
                       }}
                       options={textOutlines.map((o) => ({
-                        value: o.id.toString(),
+                        value: o.name,
                         label: o.name
                       }))}
                       icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1751,7 +1754,7 @@ function GenerateProductPicker() {
                           value: l,
                           label: l
                         }))}
-                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        icon={<FileText className="w-4 h-4 text-gray-600" />}
                         label="Lesson"
                       />
                     )}
@@ -1768,7 +1771,7 @@ function GenerateProductPicker() {
                             { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                             { value: "Russian", label: t('interface.russian', 'Russian') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
                         />
                         <CustomPillSelector
@@ -1817,7 +1820,7 @@ function GenerateProductPicker() {
                         { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                         { value: "Russian", label: t('interface.russian', 'Russian') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
                     />
                     <CustomPillSelector
@@ -1893,7 +1896,7 @@ function GenerateProductPicker() {
                 { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                 { value: "Russian", label: t('interface.russian', 'Russian') }
               ]}
-              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              icon={<Globe className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}
             />
           </div>

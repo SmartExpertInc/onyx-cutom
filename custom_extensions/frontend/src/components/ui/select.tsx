@@ -210,7 +210,7 @@ function CustomPillSelector({
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
         className={cn(
-          "flex items-center gap-3 px-5 py-2 rounded-md border-0 bg-white hover:bg-gray-100",
+          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
           "text-gray-700 font-medium text-sm",
           "[&>svg]:hidden",
           "shadow-none",
@@ -279,15 +279,15 @@ function CustomMultiSelector({
     : `${selectedValues.length} types selected`
 
   return (
-    <div className="relative">
-      <div
+    <Select open={isOpen} onOpenChange={setIsOpen}>
+      <SelectTrigger 
         className={cn(
-          "flex items-center gap-3 px-5 py-2 rounded-md border-0 bg-white hover:bg-gray-100",
+          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
           "text-gray-700 font-medium text-sm cursor-pointer",
+          "[&>svg]:hidden",
           "shadow-none",
           className
         )}
-        onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-3">
           {icon && (
@@ -302,27 +302,29 @@ function CustomMultiSelector({
           <ChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", isOpen && "rotate-180")} />
         </div>
         <div className="w-px h-6 bg-gray-200 ml-2"></div>
-      </div>
-      
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto bg-white">
-          {options.map((option) => (
-            <label
-              key={option.value}
-              className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
-            >
-              <input
-                type="checkbox"
-                checked={selectedValues.includes(option.value)}
-                onChange={() => handleToggle(option.value)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      )}
-    </div>
+      </SelectTrigger>
+      <SelectContent className="border border-gray-300 shadow-lg">
+        {options.map((option) => (
+          <div
+            key={option.value}
+            className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+            onClick={(e) => {
+              e.preventDefault()
+              handleToggle(option.value)
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedValues.includes(option.value)}
+              onChange={() => handleToggle(option.value)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              onClick={(e) => e.stopPropagation()}
+            />
+            {option.label}
+          </div>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }
 
