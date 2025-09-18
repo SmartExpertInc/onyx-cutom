@@ -9062,6 +9062,408 @@ async def delete_design_template(template_id: int, pool: asyncpg.Pool = Depends(
         detail_msg = "An error occurred during design template deletion." if IS_PRODUCTION else f"DB error on design template deletion: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
+# Poster Image Generation Models
+class PosterData(BaseModel):
+    eventName: str
+    mainSpeaker: str
+    speakerDescription: str
+    date: str
+    topic: str
+    additionalSpeakers: str
+    ticketPrice: str
+    ticketType: str
+    freeAccessConditions: str
+    speakerImageSrc: Optional[str] = None
+
+@app.post("/api/custom/poster-image/generate")
+async def generate_poster_image(poster_data: PosterData):
+    """Generate downloadable PNG image from event poster data"""
+    try:
+        # Import the service locally to avoid circular imports
+        from app.services.html_to_image_service import HTMLToImageService
+        
+        # Validate required fields
+        if not poster_data.eventName:
+            raise HTTPException(status_code=400, detail="Missing required field: eventName")
+        
+        # Generate unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename = f"poster_image_{timestamp}.png"
+        
+        # Create temporary file path
+        temp_dir = tempfile.gettempdir()
+        output_path = os.path.join(temp_dir, output_filename)
+        
+        # Generate HTML content for poster
+        html_content = _generate_poster_html(poster_data.dict())
+        
+        # Convert HTML to PNG (same as slide system)
+        success = HTMLToImageService.convert_poster_to_png(
+            html_content=html_content,
+            output_path=output_path,
+            width=1000,  # Square format as requested
+            height=1000
+        )
+        
+        if not success or not os.path.exists(output_path):
+            raise HTTPException(status_code=500, detail="Failed to generate poster image")
+        
+        # Return image file (same pattern as slide system)
+        return FileResponse(
+            output_path,
+            media_type='image/png',
+            filename=output_filename
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating poster image: {str(e)}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Internal server error" if IS_PRODUCTION else f"Internal server error: {str(e)}"
+        raise HTTPException(status_code=500, detail=detail_msg)
+
+def _generate_poster_html(poster_data):
+    """Generate HTML content for the poster matching EventPoster component"""
+    
+    # Extract poster data
+    event_name = poster_data.get('eventName', '')
+    main_speaker = poster_data.get('mainSpeaker', '')
+    speaker_description = poster_data.get('speakerDescription', '')
+    date = poster_data.get('date', '')
+    topic = poster_data.get('topic', '')
+    additional_speakers = poster_data.get('additionalSpeakers', '')
+    ticket_price = poster_data.get('ticketPrice', '')
+    ticket_type = poster_data.get('ticketType', '')
+    free_access_conditions = poster_data.get('freeAccessConditions', '')
+    speaker_image_src = poster_data.get('speakerImageSrc', '')
+    
+    # Parse date to separate day/month and year
+    date_parts = date.split('.')
+    day_month = date_parts[:2] if len(date_parts) >= 2 else [date]
+    year = date_parts[2:] if len(date_parts) > 2 else ['']
+    day_month_str = '.'.join(day_month)
+    year_str = '.'.join(year)
+    
+    # Determine speaker image source
+    default_speaker_image = "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png"
+    image_src = speaker_image_src if speaker_image_src else default_speaker_image
+    
+    # Generate HTML that matches EventPoster component exactly
+    html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Poster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
+        
+        body {{
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }}
+        
+        .poster-container {{
+            width: 1000px;
+            height: 1000px;
+            background: rgba(255,255,255,1);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+        }}
+        
+        .main-background {{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/custom-projects-ui/create/event-poster/figma-to-html/images/v1_5.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }}
+        
+        .speaker-photo {{
+            position: absolute;
+            width: 519px;
+            height: 713px;
+            background: url('{image_src}');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            top: 329px;
+            left: 525px;
+        }}
+        
+        .bottom-gradient {{
+            position: absolute;
+            width: 1000px;
+            height: 455px;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
+            top: 552px;
+            left: 1px;
+        }}
+        
+        .main-content {{
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto 1fr auto;
+            padding: 53px;
+        }}
+        
+        .header-section {{
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 40px;
+        }}
+        
+        .first-row {{
+            display: flex;
+            justify-content: space-between;
+        }}
+        
+        .event-name {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 33px;
+            text-align: left;
+            line-height: 1.2;
+        }}
+        
+        .logo {{
+            width: 141px;
+            height: 78px;
+            background: url('/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }}
+        
+        .second-row {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }}
+        
+        .speaker-info {{
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+        }}
+        
+        .main-speaker {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 41px;
+            text-align: left;
+            line-height: 1.2;
+        }}
+        
+        .speaker-description {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 20px;
+            text-align: left;
+            line-height: 1.2;
+        }}
+        
+        .date-container {{
+            border: 3px solid #5416af;
+            padding: 15px 20px;
+            display: inline-block;
+        }}
+        
+        .day-month {{
+            color: rgba(255,255,255,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 58px;
+            text-align: center;
+            line-height: 1;
+        }}
+        
+        .year {{
+            color: rgba(255,255,255,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: 52px;
+            text-align: center;
+            line-height: 1;
+            margin-top: 5px;
+        }}
+        
+        .left-content {{
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding-right: 50px;
+        }}
+        
+        .topic {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 50px;
+            text-align: left;
+            line-height: 1.2;
+            max-width: 480px;
+        }}
+        
+        .additional-speakers {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 20px;
+            text-align: left;
+            line-height: 1.2;
+            max-width: 460px;
+        }}
+        
+        .bottom-section {{
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 50px;
+        }}
+        
+        .ticket-section {{
+            border: 2px solid #5416af;
+            border-radius: 40px;
+            padding: 15px 20px;
+            min-width: 200px;
+            line-height: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
+        
+        .ticket-label {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 25px;
+            text-align: center;
+        }}
+        
+        .ticket-type {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            font-size: 27px;
+            text-align: center;
+            margin-top: 4px;
+        }}
+        
+        .ticket-price {{
+            color: rgba(235,235,235,1);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 41px;
+            text-align: center;
+            margin-top: 2px;
+        }}
+        
+        .free-access {{
+            color: rgba(235,235,235,1);
+            font-weight: 400;
+            font-size: 37px;
+            text-align: center;
+            line-height: 1.2;
+            background-color: #5416af;
+            border-radius: 40px;
+            padding: 20px 30px;
+            box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
+            backdrop-filter: blur(5px);
+            max-width: 700px;
+            margin-left: 30px;
+        }}
+    </style>
+</head>
+<body>
+    <div class="poster-container">
+        <!-- Main background -->
+        <div class="main-background"></div>
+        
+        <!-- Speaker Photo -->
+        <div class="speaker-photo"></div>
+        
+        <!-- Bottom gradient -->
+        <div class="bottom-gradient"></div>
+        
+        <!-- Main content grid layout -->
+        <div class="main-content">
+            <!-- Header section -->
+            <div class="header-section">
+                <!-- First row: Event name and Logo -->
+                <div class="first-row">
+                    <div class="event-name">{event_name}:</div>
+                    <div class="logo"></div>
+                </div>
+                
+                <!-- Second row: Speaker info and Date -->
+                <div class="second-row">
+                    <div class="speaker-info">
+                        <div class="main-speaker">{main_speaker}</div>
+                        <div class="speaker-description">{speaker_description}</div>
+                    </div>
+                    
+                    <div class="date-container">
+                        <div class="day-month">{day_month_str}</div>
+                        <div class="year">{year_str}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Left content area -->
+            <div class="left-content">
+                <div class="topic">{topic}</div>
+                <div class="additional-speakers">{additional_speakers}</div>
+            </div>
+            
+            <!-- Right area - empty space for speaker image -->
+            <div></div>
+            
+            <!-- Bottom section -->
+            <div class="bottom-section">
+                <div class="ticket-section">
+                    <div class="ticket-label">Квиток</div>
+                    <div class="ticket-type">{ticket_type}</div>
+                    <div class="ticket-price">{ticket_price}</div>
+                </div>
+                
+                <div class="free-access">{free_access_conditions}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+"""
+    
+    return html_content
+
 ALLOWED_MICROPRODUCT_TYPES_FOR_DESIGNS = [
     "Training Plan", "PDF Lesson", "Slide Deck", "Text Presentation"
 ]
