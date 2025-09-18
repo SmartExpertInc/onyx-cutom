@@ -15326,10 +15326,11 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
                         
-                        # Also send a debug update every 10 chunks to test streaming
-                        if chunks_received % 10 == 0:
-                            debug_update = {"type": "debug", "message": f"Chunk {chunks_received} processed"}
-                            yield (json.dumps(debug_update) + "\n").encode()
+                        # Send simple test updates to verify streaming works
+                        if chunks_received % 50 == 0:
+                            test_update = {"type": "module", "title": f"Test Module {chunks_received//50}", "id": f"test{chunks_received//50}"}
+                            yield (json.dumps(test_update) + "\n").encode()
+                            logger.info(f"[STREAM_TEST] Sent test module for chunk {chunks_received}")
                         
                         # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
@@ -15445,14 +15446,16 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
 """
             
             try:
+                logger.info(f"[OPENAI_STREAM_DEBUG] Starting to iterate over chunks")
                 async for chunk_data in stream_openai_response(enhanced_wizard_message):
+                    logger.info(f"[OPENAI_STREAM_DEBUG] Received chunk: {chunk_data.get('type', 'unknown')}")
                     if chunk_data["type"] == "delta":
                         delta_text = chunk_data["text"]
                         assistant_reply += delta_text
                         chunks_received += 1
-                        logger.debug(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
+                        logger.info(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
                         
-                        # Extract live progress updates using robust regex-based approach
+                        # Extract live progress updates using the same robust approach as hybrid
                         progress_updates = extract_live_progress(assistant_reply, chat_id)
                         if progress_updates:
                             logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
@@ -15460,10 +15463,13 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
                         
-                        # Also send a debug update every 10 chunks to test streaming
-                        if chunks_received % 10 == 0:
-                            debug_update = {"type": "debug", "message": f"Chunk {chunks_received} processed"}
-                            yield (json.dumps(debug_update) + "\n").encode()
+                        # Send test update every 100 chunks to verify streaming works
+                        if chunks_received % 100 == 0:
+                            test_update = {"type": "test", "message": f"Processing chunk {chunks_received}"}
+                            yield (json.dumps(test_update) + "\n").encode()
+                            logger.info(f"[STREAM_TEST] Sent test update for chunk {chunks_received}")
+                        
+
                         
                         # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
@@ -16735,20 +16741,19 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
         new_content = assistant_reply[last_position:]
         LIVE_STREAM_TRACKING[chat_id]["last_position"] = len(assistant_reply)
         
+        # Debug logging
+        logger.info(f"[LIVE_PROGRESS_DEBUG] Processing {len(new_content)} new chars (total: {len(assistant_reply)})")
+        
         if not new_content.strip():
             return progress_updates
         
         # Look for module patterns in new content
-        # Pattern: "title": "Module Title" with "id" nearby
-        module_pattern = r'"title":\s*"([^"]+)"[^}]*?"id":\s*"([^"]*)"'
+        # Use the working reverse pattern: "id" before "title" 
+        module_pattern = r'"id":\s*"(№\d+)"[^}]*?"title":\s*"([^"]+)"'
         module_matches = re.findall(module_pattern, new_content)
         
-        # Also try reverse pattern: "id" before "title"
-        reverse_module_pattern = r'"id":\s*"([^"]*)"[^}]*?"title":\s*"([^"]+)"'
-        reverse_matches = re.findall(reverse_module_pattern, new_content)
-        
-        # Combine matches (reverse the order for reverse matches)
-        all_module_matches = module_matches + [(title, module_id) for module_id, title in reverse_matches]
+        # Convert to (title, id) format for consistency
+        all_module_matches = [(title, module_id) for module_id, title in module_matches]
         
         for title, module_id in all_module_matches:
             module_key = f"{module_id}:{title}"
