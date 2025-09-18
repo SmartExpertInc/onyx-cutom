@@ -1449,7 +1449,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-lg border-white" sideOffset={25}>
+                          <SelectContent className="border-white">
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1511,10 +1511,10 @@ export default function TextPresentationClient() {
                                 </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent 
-                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white shadow-lg" 
+                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white" 
                             align="center"
                             sideOffset={25}
-                            style={{ backgroundColor: 'white' }}
+                            style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                           >
                             {styleOptions.map((option) => (
                               <label key={option.value} className="flex items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
@@ -1634,10 +1634,10 @@ export default function TextPresentationClient() {
                             </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                            className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto shadow-lg" 
+                            className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto" 
                         align="center"
                         sideOffset={25}
-                        style={{ backgroundColor: 'white' }}
+                        style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                       >
                         {styleOptions.map((option) => (
                           <label key={option.value} className="flex justify-between flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
