@@ -572,7 +572,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  style={{
                    backgroundColor: 'white',
                    borderColor: '#e2e8f0',
-                   background: 'linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.18))',
+                   background: 'white',
                    borderWidth: '1px',
                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                  }}
@@ -731,7 +731,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       style={{
                         backgroundColor: 'white',
                         borderColor: '#e2e8f0',
-                        background: 'linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.18))',
+                        background: 'white',
                         borderWidth: '1px',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
@@ -745,7 +745,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                     >
                       <div className="absolute -top-20 -left-22 w-100 h-100 bg-blue-50/50 rounded-full border-indigo-100/80" />
                       <div className="absolute -top-12 -left-12 w-70 h-70 bg-blue-100/30 rounded-full border-indigo-100/80" />
-                      <CardContent className="p-6 z-10">
+                      <CardContent className="p-6 z-100">
                         <div className="flex items-center gap-4 mb-4">
                             <Image
                               src={connector.logoPath}
