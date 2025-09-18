@@ -1107,9 +1107,19 @@ export default function QuizClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+            className="absolute top-6 left-6 flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+          style={{
+            color: '#0F58F9',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
+          }}
         >
-          <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {t('interface.generate.back', 'Back')}
         </Link>
 
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
