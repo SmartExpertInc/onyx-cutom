@@ -3,6 +3,7 @@
 import React from 'react';
 import { X, ExternalLink, Play, Plus, FileText, RefreshCw, Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import useFeaturePermission from "../hooks/useFeaturePermission";
 
 interface OpenOrCreateModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
   isRefreshingLessonPlan = false,
 }) => {
   const { t } = useLanguage();
+  const { isEnabled: lessonDraftEnabled } = useFeaturePermission('lesson_draft');
 
   if (!isOpen) return null;
 
@@ -88,7 +90,7 @@ const OpenOrCreateModal: React.FC<OpenOrCreateModalProps> = ({
         {/* Action Cards */}
         <div className="space-y-4">
           {/* Lesson Plan Option - First Priority */}
-          {hasLessonPlan && (
+          {lessonDraftEnabled && hasLessonPlan && (
             <div className="group">
               <div className="relative">
                 <button

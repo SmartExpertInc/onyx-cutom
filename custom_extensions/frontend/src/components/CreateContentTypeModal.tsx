@@ -5,6 +5,7 @@ import { BookText, Video, Film, X, HelpCircle, FileText, ChevronRight, Settings,
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../contexts/LanguageContext';
 import { AllContentTypesModal } from './AllContentTypesModal';
+import useFeaturePermission from "../hooks/useFeaturePermission";
 
 interface RecommendedContentTypes {
   primary: string[];
@@ -74,6 +75,9 @@ export const CreateContentTypeModal = ({
   const [showAllOptions, setShowAllOptions] = useState(false);
   const [showSettings, setShowSettings] = useState(false); // NEW: track if showing settings instead of recommendations
   const [isGeneratingLessonPlan, setIsGeneratingLessonPlan] = useState(false);
+  // isRefreshingLessonPlan and errorMessage come from props/parent when applicable
+
+  const { isEnabled: lessonDraftEnabled } = useFeaturePermission('lesson_draft');
 
   // Local recommended state (so UI updates immediately)
   const [recommendedState, setRecommendedState] = useState<RecommendedContentTypes | undefined>(recommendedContentTypes);
@@ -317,7 +321,7 @@ export const CreateContentTypeModal = ({
         </div>
 
         <div className="mb-1 sm:mb-2">
-          {hasLessonPlan ? (
+          {lessonDraftEnabled && hasLessonPlan ? (
             <div className="group">
               <div className="relative">
                 <button
@@ -351,44 +355,7 @@ export const CreateContentTypeModal = ({
                 </button>
               </div>
             </div>
-          ) : (
-          <button
-              onClick={handleLessonPlanGeneration}
-              disabled={isGeneratingLessonPlan}
-              className="w-full bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-2 sm:p-3 lg:p-4 hover:bg-gradient-to-br hover:from-amber-100 hover:to-orange-100 hover:border-amber-300 hover:shadow-md transition-all duration-200 flex items-center justify-between group transform hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-              <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 shadow-sm">
-                  {isGeneratingLessonPlan ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                  )}
-              </div>
-              <div className="text-left flex-1">
-                <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
-                    <span className="text-sm sm:text-base font-semibold text-gray-900">
-                      {isGeneratingLessonPlan ? 'Generating Lesson Draft...' : 'Lesson Draft'}
-                    </span>
-                </div>
-                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                    {isGeneratingLessonPlan ? 'Please wait while we generate your lesson draft...' : 'Technical specification with lesson objectives'}
-                  </p>
-              </div>
-            </div>
-            <div className="text-amber-500 group-hover:text-amber-600 transition-colors ml-4">
-                {isGeneratingLessonPlan ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-                )}
-            </div>
-          </button>
-          )}
+          ) : null}
         </div>
 
         {/* Visual Separator */}
