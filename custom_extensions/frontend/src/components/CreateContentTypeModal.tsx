@@ -78,6 +78,7 @@ export const CreateContentTypeModal = ({
   // isRefreshingLessonPlan and errorMessage come from props/parent when applicable
 
   const { isEnabled: lessonDraftEnabled } = useFeaturePermission('lesson_draft');
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
 
   // Local recommended state (so UI updates immediately)
   const [recommendedState, setRecommendedState] = useState<RecommendedContentTypes | undefined>(recommendedContentTypes);
@@ -149,6 +150,11 @@ export const CreateContentTypeModal = ({
   }, [recommendedState, recommendedContentTypes, updatedContentTypes]);
 
   const handleContentCreate = (contentType: string) => {
+    // Prevent Video Lesson creation if the feature is disabled
+    if (contentType === 'videoLesson' && !videoLessonEnabled) {
+      return;
+    }
+
     let product = '';
     let lessonType = '';
 
@@ -380,12 +386,15 @@ export const CreateContentTypeModal = ({
               // Check if this type is recommended
               const isRecommended = recommendedState?.primary?.includes(type.key) || recommendedContentTypes?.primary?.includes(type.key);
               const isSelected = selectedPrefs[type.key] || false;
+              
+              // Check if Video Lesson is disabled by feature flag
+              const isVideoLessonDisabledByFlag = type.name === "videoLesson" && !videoLessonEnabled;
 
               return (
                 <div
                   key={type.name}
                   className={`group w-full flex items-center p-2 sm:p-3 lg:p-4 border-2 rounded-xl transition-all duration-300 text-left transform hover:scale-[1.02] ${
-                    isDisabled
+                    isDisabled || isVideoLessonDisabledByFlag
                     ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
                     : isSelected
                       ? `${colorClasses[type.color as keyof typeof colorClasses]} hover:shadow-lg cursor-pointer hover:border-opacity-80`
@@ -397,14 +406,15 @@ export const CreateContentTypeModal = ({
                     console.log('Content type clicked:', {
                       typeName: type.name,
                       isDisabled,
+                      isVideoLessonDisabledByFlag,
                       isSelected,
                       isRecommended,
-                      canClick: !isDisabled && (isSelected || isRecommended)
+                      canClick: !isDisabled && !isVideoLessonDisabledByFlag && (isSelected || isRecommended)
                     });
                     
                     // Allow clicking on recommended products regardless of checkbox state
                     // Only allow clicking if not disabled and either selected or recommended
-                    if (!isDisabled && (isSelected || isRecommended)) {
+                    if (!isDisabled && !isVideoLessonDisabledByFlag && (isSelected || isRecommended)) {
                       handleContentCreate(type.name);
                     }
                   }}
@@ -422,13 +432,13 @@ export const CreateContentTypeModal = ({
                         e.stopPropagation();
                         handlePrefToggle(type.key);
                       }}
-                      disabled={isDisabled}
+                      disabled={isDisabled || isVideoLessonDisabledByFlag}
                     />
                   </div>
 
                   <div className="flex items-center space-x-2 sm:space-x-2 lg:space-x-3 flex-1">
                     <div className={`p-2 sm:p-2 lg:p-3 rounded-xl transition-all duration-200 group-hover:scale-110 ${
-                      isDisabled 
+                      isDisabled || isVideoLessonDisabledByFlag
                         ? 'bg-gray-100' 
                         : isSelected 
                           ? iconColorClasses[type.color as keyof typeof iconColorClasses]
@@ -438,7 +448,7 @@ export const CreateContentTypeModal = ({
                       }`}>
                       {React.cloneElement(type.icon, {
                         className: `w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200 ${
-                          isDisabled 
+                          isDisabled || isVideoLessonDisabledByFlag
                             ? 'text-gray-400' 
                             : isSelected 
                               ? '' 
@@ -451,11 +461,13 @@ export const CreateContentTypeModal = ({
                     <div className="flex-1">
                       <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1">
                         <h3 className={`text-sm sm:text-base lg:text-lg font-bold ${
-                          isSelected 
-                            ? 'text-gray-900 group-hover:text-gray-800' 
-                            : isRecommended
-                              ? 'text-blue-900 group-hover:text-blue-800'
-                              : 'text-gray-400'
+                          isDisabled || isVideoLessonDisabledByFlag
+                            ? 'text-gray-400'
+                            : isSelected 
+                              ? 'text-gray-900 group-hover:text-gray-800' 
+                              : isRecommended
+                                ? 'text-blue-900 group-hover:text-blue-800'
+                                : 'text-gray-400'
                         }`}>
                           {type.label}
                         </h3>
@@ -470,19 +482,26 @@ export const CreateContentTypeModal = ({
                             {t('modals.createContent.recommended', 'Recommended')}
                           </span>
                         )}
+                        {isVideoLessonDisabledByFlag && (
+                          <span className="text-xs bg-gradient-to-r from-yellow-100 to-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium border border-amber-200">
+                            Soon
+                          </span>
+                        )}
                       </div>
                       <p className={`text-xs sm:text-sm leading-relaxed ${
-                        isSelected 
-                          ? 'text-gray-600' 
-                          : isRecommended
-                            ? 'text-blue-600'
-                            : 'text-gray-400'
+                        isDisabled || isVideoLessonDisabledByFlag
+                          ? 'text-gray-400'
+                          : isSelected 
+                            ? 'text-gray-600' 
+                            : isRecommended
+                              ? 'text-blue-600'
+                              : 'text-gray-400'
                       }`}>
                         {type.description}
                       </p>
                     </div>
                   </div>
-                  {(isSelected || isRecommended) && !isDisabled && (
+                  {(isSelected || isRecommended) && !isDisabled && !isVideoLessonDisabledByFlag && (
                     <div className={`transition-all duration-200 group-hover:translate-x-1 ${
                       isSelected 
                         ? 'text-gray-400 group-hover:text-gray-600' 

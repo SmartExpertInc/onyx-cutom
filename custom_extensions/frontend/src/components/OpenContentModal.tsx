@@ -3,6 +3,7 @@
 import React from 'react';
 import { Presentation, Video, HelpCircle, X, ExternalLink, FileText } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import useFeaturePermission from "../hooks/useFeaturePermission";
 
 interface OpenContentModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
   parentProjectName,
 }) => {
   const { t } = useLanguage();
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
 
   if (!isOpen) return null;
 
@@ -100,23 +102,40 @@ const OpenContentModal: React.FC<OpenContentModalProps> = ({
           {/* Video Lesson */}
           {hasVideoLesson && videoLessonId && (
             <button
-              onClick={() => handleOpenContent('videoLesson', videoLessonId)}
-              className="w-full flex items-center p-6 border-2 rounded-xl border-orange-200 hover:border-orange-300 bg-orange-50 hover:bg-orange-100 hover:shadow-md transition-all duration-200 text-left"
+              onClick={() => videoLessonEnabled ? handleOpenContent('videoLesson', videoLessonId) : undefined}
+              className={`w-full flex items-center p-6 border-2 rounded-xl transition-all duration-200 text-left ${
+                videoLessonEnabled
+                  ? 'border-orange-200 hover:border-orange-300 bg-orange-50 hover:bg-orange-100 hover:shadow-md cursor-pointer'
+                  : 'border-gray-200 bg-gray-50 cursor-not-allowed'
+              }`}
             >
               <div className="flex items-center space-x-4 flex-1">
-                <div className="p-3 rounded-lg text-orange-600 bg-orange-100">
+                <div className={`p-3 rounded-lg ${
+                  videoLessonEnabled 
+                    ? 'text-orange-600 bg-orange-100' 
+                    : 'text-gray-400 bg-gray-100'
+                }`}>
                   <Video size={24} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-black">
+                    <h3 className={`text-lg font-semibold ${
+                      videoLessonEnabled ? 'text-black' : 'text-gray-400'
+                    }`}>
                       {t('modals.openContent.videoLesson')}
                     </h3>
+                    {!videoLessonEnabled && (
+                      <span className="text-xs bg-gradient-to-r from-yellow-100 to-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium border border-amber-200">
+                        Soon
+                      </span>
+                    )}
                   </div>
-                  <p className="text-sm text-black">{t('modals.openContent.openVideoLesson')}</p>
+                  <p className={`text-sm ${
+                    videoLessonEnabled ? 'text-black' : 'text-gray-400'
+                  }`}>{t('modals.openContent.openVideoLesson')}</p>
                 </div>
               </div>
-              <ExternalLink size={20} className="text-gray-400" />
+              <ExternalLink size={20} className={videoLessonEnabled ? 'text-gray-400' : 'text-gray-300'} />
             </button>
           )}
 
