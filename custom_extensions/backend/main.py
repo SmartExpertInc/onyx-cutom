@@ -23407,7 +23407,7 @@ async def assign_user_type(
     request: Request,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
-    """Assign a user type to multiple users, enabling all features for that type"""
+    """Assign a user type to multiple users, enabling features for that type and disabling others"""
     await verify_admin_user(request)
     
     if assignment_request.user_type not in USER_TYPES:
@@ -23415,32 +23415,26 @@ async def assign_user_type(
     
     try:
         user_type_info = USER_TYPES[assignment_request.user_type]
-        features_to_enable = user_type_info["features"]
+        features_to_enable = set(user_type_info["features"])
         
         async with pool.acquire() as conn:
-            # First, verify all features exist
-            for feature_name in features_to_enable:
-                feature_row = await conn.fetchrow(
-                    "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
-                    feature_name
-                )
-                if not feature_row:
-                    logger.warning(f"Feature {feature_name} not found or inactive, skipping")
-                    continue
+            # Get all active features
+            all_features_rows = await conn.fetch(
+                "SELECT feature_name FROM feature_definitions WHERE is_active = true"
+            )
+            all_features = {row['feature_name'] for row in all_features_rows}
             
-            # For each user, enable all features for this user type
+            # Features to disable = all features - features to enable
+            features_to_disable = all_features - features_to_enable
+            
             users_updated = 0
-            features_updated = 0
+            features_enabled = 0
+            features_disabled = 0
             
             for user_id in assignment_request.user_ids:
+                # Enable features for this user type
                 for feature_name in features_to_enable:
-                    # Check if feature exists before trying to assign it
-                    feature_exists = await conn.fetchrow(
-                        "SELECT * FROM feature_definitions WHERE feature_name = $1 AND is_active = true",
-                        feature_name
-                    )
-                    
-                    if feature_exists:
+                    if feature_name in all_features:  # Verify feature exists
                         await conn.execute("""
                             INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
                             VALUES ($1, $2, true, NOW())
@@ -23449,15 +23443,29 @@ async def assign_user_type(
                                 is_enabled = true,
                                 updated_at = NOW()
                         """, user_id, feature_name)
-                        features_updated += 1
+                        features_enabled += 1
+                
+                # Disable features NOT in this user type
+                for feature_name in features_to_disable:
+                    if feature_name in all_features:  # Verify feature exists
+                        await conn.execute("""
+                            INSERT INTO user_features (user_id, feature_name, is_enabled, updated_at)
+                            VALUES ($1, $2, false, NOW())
+                            ON CONFLICT (user_id, feature_name) 
+                            DO UPDATE SET 
+                                is_enabled = false,
+                                updated_at = NOW()
+                        """, user_id, feature_name)
+                        features_disabled += 1
                 
                 users_updated += 1
             
             return {
                 "success": True,
-                "message": f"Assigned '{user_type_info['display_name']}' type to {users_updated} users ({features_updated} feature assignments)",
+                "message": f"Assigned '{user_type_info['display_name']}' type to {users_updated} users ({features_enabled} features enabled, {features_disabled} features disabled)",
                 "users_updated": users_updated,
-                "features_updated": features_updated,
+                "features_enabled": features_enabled,
+                "features_disabled": features_disabled,
                 "user_type": user_type_info["display_name"]
             }
     except HTTPException:
