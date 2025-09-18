@@ -46,7 +46,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
               <div 
-                className="w-12 h-12 xs:w-10 xs:h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-13 lg:h-13 xl:w-14 xl:h-14 flex items-center justify-center"
+                className="w-15 h-15 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-16 lg:h-16 xl:w-17 xl:h-17 flex items-center justify-center"
                 style={{
                   backgroundColor: active ? '#0646D3' : '#ADE9FF',
                   borderRadius: '50%',

@@ -213,6 +213,7 @@ function CustomPillSelector({
           "flex items-center gap-3 px-5 py-2 rounded-md border-0 bg-white hover:bg-gray-100",
           "text-gray-700 font-medium text-sm",
           "[&>svg]:hidden",
+          "shadow-none",
           className
         )}
       >

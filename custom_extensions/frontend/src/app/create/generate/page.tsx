@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-4xl bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1418,17 +1418,18 @@ function GenerateProductPicker() {
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
                       <>
-                        <Select value={language} onValueChange={setLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-gray-700">
-                            <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={language}
+                          onValueChange={setLanguage}
+                          options={[
+                            { value: "English", label: t('interface.english', 'English') },
+                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                          ]}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.language', 'Language')}
+                        />
                         <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
@@ -1447,17 +1448,18 @@ function GenerateProductPicker() {
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
-                    <Select value={language} onValueChange={setLanguage}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <CustomPillSelector
+                      value={language}
+                      onValueChange={setLanguage}
+                      options={[
+                        { value: "English", label: t('interface.english', 'English') },
+                        { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                        { value: "Russian", label: t('interface.russian', 'Russian') }
+                      ]}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.language', 'Language')}
+                    />
                     <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
@@ -1588,17 +1590,18 @@ function GenerateProductPicker() {
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedQuizLesson && (
                       <>
-                        <Select value={quizLanguage} onValueChange={setQuizLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-gray-700">
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={language}
+                          onValueChange={setQuizLanguage}
+                          options={[
+                            { value: "English", label: t('interface.english', 'English') },
+                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                          ]}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.language', 'Language')}
+                        />
                         <div className="relative question-types-dropdown">
                           <Button
                             type="button"
@@ -1669,17 +1672,18 @@ function GenerateProductPicker() {
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
                   <>
-                    <Select value={quizLanguage} onValueChange={setQuizLanguage}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <CustomPillSelector
+                      value={language}
+                      onValueChange={setQuizLanguage}
+                      options={[
+                        { value: "English", label: t('interface.english', 'English') },
+                        { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                        { value: "Russian", label: t('interface.russian', 'Russian') }
+                      ]}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.language', 'Language')}
+                    />
                     <div className="relative question-types-dropdown">
                       <Button
                         type="button"
@@ -1862,17 +1866,18 @@ function GenerateProductPicker() {
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedTextLesson && (
                       <>
-                        <Select value={textLanguage} onValueChange={setTextLanguage}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={language}
+                          onValueChange={setTextLanguage}
+                          options={[
+                            { value: "English", label: t('interface.english', 'English') },
+                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                          ]}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label={t('interface.language', 'Language')}
+                        />
                         <Select value={textLength} onValueChange={setTextLength}>
                           <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
@@ -1924,17 +1929,18 @@ function GenerateProductPicker() {
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
                   <>
-                    <Select value={textLanguage} onValueChange={setTextLanguage}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
-                        <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
-                        <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
-                        <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <CustomPillSelector
+                      value={language}
+                      onValueChange={setTextLanguage}
+                      options={[
+                        { value: "English", label: t('interface.english', 'English') },
+                        { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                        { value: "Russian", label: t('interface.russian', 'Russian') }
+                      ]}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label={t('interface.language', 'Language')}
+                    />
                     <Select value={textLength} onValueChange={setTextLength}>
                       <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
@@ -2029,17 +2035,18 @@ function GenerateProductPicker() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-              </SelectContent>
-            </Select>
+            <CustomPillSelector
+              value={language}
+              onValueChange={setLanguage}
+              options={[
+                { value: "English", label: t('interface.english', 'English') },
+                { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
+                { value: "Spanish", label: t('interface.spanish', 'Spanish') },
+                { value: "Russian", label: t('interface.russian', 'Russian') }
+              ]}
+              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              label={t('interface.language', 'Language')}
+            />
           </div>
         )}
 
@@ -2059,7 +2066,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-2xl bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={3}
             />
