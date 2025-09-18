@@ -201,16 +201,19 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     }
   };
 
-  const slideStyles: React.CSSProperties = {,
+  const slideStyles: React.CSSProperties = {
+    const slideStyles: React.CSSProperties = {,
     width: '100%',
     height: '100vh',
     minHeight: '100vh',
     display: 'flex',
     position: 'relative',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    overflow: 'hidden'};
+    overflow: 'hidden',
+  };
 
-  const leftPanelStyles: React.CSSProperties = {,
+  const leftPanelStyles: React.CSSProperties = {
+    const leftPanelStyles: React.CSSProperties = {,
     width: '40%',
     height: '100vh',
     minHeight: '100vh',
@@ -221,7 +224,8 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     justifyContent: 'center',
     position: 'relative',
 
-  const rightPanelStyles: React.CSSProperties = {,
+  const rightPanelStyles: React.CSSProperties = {
+    const rightPanelStyles: React.CSSProperties = {,
     width: '60%',
     height: '100vh',
     minHeight: '100vh',
@@ -232,33 +236,33 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     overflow: 'hidden',
 
   const avatarStyles: React.CSSProperties = {
+    const avatarStyles: React.CSSProperties = {,
     width: '120px',
     height: '120px',
     borderRadius: '50%',
     objectFit: 'cover',
     marginBottom: '30px',
-    border: '4px solid rgba(255, 255, 255, 0.2)'
-  };
+    border: '4px solid rgba(255, 255, 255, 0.2)',
 
   const titleStyles: React.CSSProperties = {
+    const titleStyles: React.CSSProperties = {,
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: 'Lora-Bold, serif',
-    fontWeight: 'normal',
     color: titleColor,
     marginBottom: '20px',
-    lineHeight: 1.3
-  };
+    lineHeight: 1.3,
 
   const subtitleStyles: React.CSSProperties = {
+    const subtitleStyles: React.CSSProperties = {,
     fontSize: currentTheme.fonts.contentSize,
     fontFamily: 'Lora, serif',
     color: contentColor,
     marginBottom: '40px',
     lineHeight: 1.5,
-    opacity: 0.9
-  };
+    opacity: 0.9,
 
   const bannerStyles: React.CSSProperties = {
+    const bannerStyles: React.CSSProperties = {,
     backgroundColor: titleColor,
     color: backgroundColor,
     padding: '12px 20px',
@@ -271,12 +275,14 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     display: 'inline-block',
     alignSelf: 'flex-start',
 
-  const checklistStyles: React.CSSProperties = {,
+  const checklistStyles: React.CSSProperties = {
+    const checklistStyles: React.CSSProperties = {,
     display: 'flex',
     flexDirection: 'column',
     gap: '0px',
 
-  const checklistItemStyles: React.CSSProperties = {,
+  const checklistItemStyles: React.CSSProperties = {
+    const checklistItemStyles: React.CSSProperties = {,
     display: 'flex',
     alignItems: 'center',
     marginBottom: '16px',
@@ -284,14 +290,16 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     color: contentColor,
     lineHeight: 1.4,
 
-  const checkmarkStyles: React.CSSProperties = {,
+  const checkmarkStyles: React.CSSProperties = {
+    const checkmarkStyles: React.CSSProperties = {,
     color: titleColor,
     marginRight: '12px',
     fontSize: '18px',
     flexShrink: 0,
 
   // CRM Interface Styles
-  const crmContainerStyles: React.CSSProperties = {,
+  const crmContainerStyles: React.CSSProperties = {
+    const crmContainerStyles: React.CSSProperties = {,
     flex: '1',
     padding: '24px',
     display: 'flex',
@@ -301,29 +309,34 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
 
-  const crmHeaderStyles: React.CSSProperties = {,
+  const crmHeaderStyles: React.CSSProperties = {
+    const crmHeaderStyles: React.CSSProperties = {,
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '8px',
 
-  const crmTitleStyles: React.CSSProperties = {,
+  const crmTitleStyles: React.CSSProperties = {
+    const crmTitleStyles: React.CSSProperties = {,
     fontSize: '1.5rem',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#333',
 
-  const crmCloseStyles: React.CSSProperties = {,
+  const crmCloseStyles: React.CSSProperties = {
+    const crmCloseStyles: React.CSSProperties = {,
     fontSize: '1.5rem',
     color: '#666',
     cursor: 'pointer',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
 
-  const crmSubtitleStyles: React.CSSProperties = {,
+  const crmSubtitleStyles: React.CSSProperties = {
+    const crmSubtitleStyles: React.CSSProperties = {,
     fontSize: '0.9rem',
     color: '#666',
     marginBottom: '20px',
 
-  const searchBarStyles: React.CSSProperties = {,
+  const searchBarStyles: React.CSSProperties = {
+    const searchBarStyles: React.CSSProperties = {,
     width: '100%',
     padding: '12px 16px',
     border: '2px solid #e0e0e0',
@@ -332,30 +345,36 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     fontSize: '1rem',
     backgroundColor: '#f8f9fa',
 
-  const clientListStyles: React.CSSProperties = {,
+  const clientListStyles: React.CSSProperties = {
+    const clientListStyles: React.CSSProperties = {,
     flex: '1',
 
-  const clientItemStyles: React.CSSProperties = {,
+  const clientItemStyles: React.CSSProperties = {
+    const clientItemStyles: React.CSSProperties = {,
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
     padding: '12px 0',
     borderBottom: '1px solid #f0f0f0',
 
-  const clientInfoStyles: React.CSSProperties = {,
+  const clientInfoStyles: React.CSSProperties = {
+    const clientInfoStyles: React.CSSProperties = {,
     flex: '1',
 
-  const clientNameStyles: React.CSSProperties = {,
+  const clientNameStyles: React.CSSProperties = {
+    const clientNameStyles: React.CSSProperties = {,
     fontSize: '1rem',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#333',
 
-  const clientEmailStyles: React.CSSProperties = {,
+  const clientEmailStyles: React.CSSProperties = {
+    const clientEmailStyles: React.CSSProperties = {,
     fontSize: '0.85rem',
     color: '#666',
 
   // Image Placeholder Styles (full width of right panel, full height)
-  const imagePlaceholderStyles: React.CSSProperties = {,
+  const imagePlaceholderStyles: React.CSSProperties = {
+    const imagePlaceholderStyles: React.CSSProperties = {,
     width: '100%',
     height: '100%',
     backgroundColor: '#f0f0f0',

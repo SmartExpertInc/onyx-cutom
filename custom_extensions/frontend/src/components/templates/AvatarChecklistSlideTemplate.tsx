@@ -194,7 +194,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     }
   };
 
-  const slideStyles: React.CSSProperties = {,
+  const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     backgroundColor: backgroundColor,
     fontFamily: 'Lora, serif',
@@ -203,9 +203,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     justifyContent: 'center',
     padding: '40px',
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'hidden'
+  };
 
-  const contentContainerStyles: React.CSSProperties = {,
+  const contentContainerStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -214,42 +215,47 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     maxWidth: '1200px',
     gap: '40px',
     position: 'relative',
-    zIndex: 2,
+    zIndex: 2
+  };
 
-  const leftContentStyles: React.CSSProperties = {,
+  const leftContentStyles: React.CSSProperties = {
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-end',
     zIndex: 2,
     position: 'relative',
-    height: '100%',
+    height: '100%'
+  };
 
-  const rightContentStyles: React.CSSProperties = {,
+  const rightContentStyles: React.CSSProperties = {
     flex: '1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     gap: '24px',
     zIndex: 2,
-    position: 'relative',
+    position: 'relative'
+  };
 
-  const titleStyles: React.CSSProperties = {,
+  const titleStyles: React.CSSProperties = {
     fontSize: '2.2rem',
-    fontFamily: 'Lora-Bold, serif',
-    fontWeight: 'normal',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: titleColor,
     marginBottom: '32px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
+  };
 
-  const checklistContainerStyles: React.CSSProperties = {,
+  const checklistContainerStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: '16px',
-    width: '100%',
+    width: '100%'
+  };
 
-  const checklistItemStyles: React.CSSProperties = {,
+  const checklistItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '16px',
@@ -257,23 +263,26 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     fontFamily: 'Lora, serif',
     color: contentColor,
     lineHeight: '1.4',
-    padding: '8px 0',
+    padding: '8px 0'
+  };
 
-  const iconStyles: React.CSSProperties = {,
+  const iconStyles: React.CSSProperties = {
     fontSize: '1.4rem',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: titleColor,
-    minWidth: '24px',
+    minWidth: '24px'
+  };
 
-  const placeholderStyles: React.CSSProperties = {,
+  const placeholderStyles: React.CSSProperties = {
     width: '623px',
     height: '562px',
     margin: '0 auto',
     position: 'absolute',
     top: '-246px',
-    zIndex: 3,
+    zIndex: 3
+  };
 
-  const pinkShapeStyles: React.CSSProperties = {,
+  const pinkShapeStyles: React.CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -281,9 +290,10 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     height: '400px',
     backgroundColor: titleColor,
     borderRadius: '0 0 250px 0',
-    zIndex: 1,
+    zIndex: 1
+  };
 
-  const darkShapeStyles: React.CSSProperties = {,
+  const darkShapeStyles: React.CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
@@ -291,7 +301,8 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     height: '250px',
     backgroundColor: '#1a1a2e',
     borderRadius: '0 0 200px 0',
-    zIndex: 1,
+    zIndex: 1
+  };
 
   return (
     <div style={slideStyles}>
