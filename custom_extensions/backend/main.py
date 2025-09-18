@@ -12287,6 +12287,10 @@ Return ONLY the JSON object.
                                     lesson["title"] = cleaned_title
                                     logger.info(f"[FAST_PATH_TITLE_CLEAN] '{original_title}' -> '{cleaned_title}'")
                     
+                    # Round hours to integers before creating TrainingPlanDetails to prevent validation errors
+                    cached_json = round_hours_in_content(cached_json)
+                    logger.info(f"[FAST_PATH] Rounded hours to integers to prevent validation errors")
+                    
                     parsed_content_model_instance = TrainingPlanDetails(**cached_json)
                     logger.info(f"[FAST_PATH_DEBUG] TrainingPlanDetails created successfully with {len(parsed_content_model_instance.sections)} sections")
                 else:
