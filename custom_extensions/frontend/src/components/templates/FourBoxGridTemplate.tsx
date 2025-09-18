@@ -164,7 +164,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: currentTheme.colors.backgroundColor,
+        background: currentTheme.colors.backgroundColor,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',

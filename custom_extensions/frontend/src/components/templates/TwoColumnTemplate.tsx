@@ -370,7 +370,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
       style={{
         padding: '40px',
         minHeight: '600px',
-        backgroundColor: currentTheme.colors.backgroundColor,
+        background: currentTheme.colors.backgroundColor,
         fontFamily: currentTheme.fonts.contentFont,
       }}
     >

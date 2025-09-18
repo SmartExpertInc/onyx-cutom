@@ -175,7 +175,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

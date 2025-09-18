@@ -201,7 +201,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
     flexDirection: 'column',
@@ -227,7 +227,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     minWidth: 0,
     marginBottom: '32px'
   };

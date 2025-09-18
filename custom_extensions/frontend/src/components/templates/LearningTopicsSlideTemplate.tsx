@@ -161,7 +161,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -234,7 +234,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: themeBg,
+        background: themeBg,
         padding: '40px 60px',
         display: 'flex',
         flexDirection: 'column',

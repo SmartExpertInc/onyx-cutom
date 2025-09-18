@@ -157,7 +157,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -210,7 +210,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
       <div style={{
         width: '50%',
         height: '100%',
-        backgroundColor: themeBg,
+        background: themeBg,
         padding: '60px',
         display: 'flex',
         flexDirection: 'column',

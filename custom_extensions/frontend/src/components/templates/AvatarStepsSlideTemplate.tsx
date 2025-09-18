@@ -196,7 +196,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
     alignItems: 'center',

@@ -159,7 +159,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     display: 'flex',
     flexDirection: 'column',
     padding: '64px',

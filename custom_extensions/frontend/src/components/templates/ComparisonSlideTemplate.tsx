@@ -246,7 +246,7 @@ export function ComparisonSlideTemplate({
                 <tr
                   key={rowIndex}
                   style={{
-                    backgroundColor: rowIndex % 2 === 0 ? theme.colors.backgroundColor : 'transparent',
+                    background: rowIndex % 2 === 0 ? theme.colors.backgroundColor : 'transparent',
                   }}
                   className="hover:bg-opacity-50 transition-colors"
                 >

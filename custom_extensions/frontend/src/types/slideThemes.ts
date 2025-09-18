@@ -26,7 +26,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     id: 'dark-purple',
     name: 'Dark Purple',
     colors: {
-      backgroundColor: '#110c35',
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
       titleColor: '#ffffff',
       subtitleColor: '#d9e1ff',
       contentColor: '#d9e1ff',

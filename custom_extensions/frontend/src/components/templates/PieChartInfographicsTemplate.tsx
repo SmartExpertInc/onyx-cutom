@@ -409,7 +409,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBg,
+        background: themeBg,
         minHeight: '600px'
       }}
     >
@@ -609,7 +609,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
               <div 
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40px] h-[40px] rounded-full pointer-events-none"
                 style={{
-                  backgroundColor: themeBg
+                  background: themeBg
                 }}
               />
             </div>

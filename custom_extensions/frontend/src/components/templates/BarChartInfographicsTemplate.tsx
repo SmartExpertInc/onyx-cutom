@@ -420,7 +420,7 @@ export const BarChartInfographicsTemplate: React.FC<BarChartInfographicsTemplate
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBg,
+        background: themeBg,
         minHeight: '600px'
       }}
     >

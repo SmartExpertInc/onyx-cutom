@@ -163,7 +163,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    backgroundColor: themeBg,
+    background: themeBg,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',

@@ -266,7 +266,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
     alignItems: 'stretch'
@@ -289,7 +289,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: backgroundColor,
+    background: backgroundColor,
     position: 'relative',
     minWidth: 0, // для flexbox overflow
   };

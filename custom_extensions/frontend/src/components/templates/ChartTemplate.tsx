@@ -301,7 +301,7 @@ export const ChartTemplate: React.FC<ChartTemplateProps> = ({
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        backgroundColor: themeBg,
+        background: themeBg,
         minHeight: '600px'
       }}
     >
@@ -460,7 +460,7 @@ export const ChartTemplate: React.FC<ChartTemplateProps> = ({
               <div 
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[80px] h-[80px] rounded-full border-3"
                 style={{
-                  backgroundColor: themeBg,
+                  background: themeBg,
                   borderColor: '#e5e7eb',
                   borderWidth: '3px'
                 }}
