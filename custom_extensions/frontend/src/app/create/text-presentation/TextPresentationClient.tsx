@@ -162,6 +162,14 @@ export default function TextPresentationClient() {
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
 
+  // Track usage of styles feature
+  const [stylesState, setStylesState] = useState<string | undefined>(undefined);
+  const handleStylesClick = () => {
+    if (stylesState === undefined) {
+      setStylesState("Clicked");
+    }
+  };
+
   // Parse content into lessons/sections
   const parseContentIntoLessons = (content: string) => {
     if (!content.trim()) return [];
@@ -1439,7 +1447,10 @@ export default function TextPresentationClient() {
                     <div className="relative styles-dropdown">
                       <button
                         type="button"
-                        onClick={() => setShowStylesDropdown(!showStylesDropdown)}
+                        onClick={() => {
+                          handleStylesClick();
+                          setShowStylesDropdown(!showStylesDropdown);
+                        }}
                         className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
                       >
                         <span>{selectedStyles.length > 0 ? `${selectedStyles.length} styles selected` : 'Select styles'}</span>
@@ -1453,6 +1464,7 @@ export default function TextPresentationClient() {
                                 type="checkbox"
                                 checked={selectedStyles.includes(option.value)}
                                 onChange={(e) => {
+                                  setStylesState("Used");
                                   if (e.target.checked) {
                                     setSelectedStyles([...selectedStyles, option.value]);
                                   } else {
