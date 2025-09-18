@@ -1237,7 +1237,7 @@ export default function CourseOutlineClient() {
                     <span className="text-[#09090B]">{modules}</span>
                   </div>
                 </SelectTrigger>
-                <SelectContent className="border-white w-20 max-h-[200px]" sideOffset={15}>
+                <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
                   {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
                     <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                   ))}
@@ -1263,7 +1263,7 @@ export default function CourseOutlineClient() {
                     <span className="text-[#09090B]">{lessonsPerModule}</span>
                   </div>
                 </SelectTrigger>
-                <SelectContent className="border-white w-24 max-h-[200px]" sideOffset={15} align="center">
+                <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
                   {["1 - 2", "3 - 4", "5 - 7", "8 - 10"].map((rng) => (
                     <SelectItem key={rng} value={rng} className="px-2">{rng}</SelectItem>
                   ))}

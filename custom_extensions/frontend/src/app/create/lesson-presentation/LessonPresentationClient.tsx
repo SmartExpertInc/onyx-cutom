@@ -1340,7 +1340,7 @@ export default function LessonPresentationClient() {
                                   <span className="text-[#09090B]">{slidesCount}</span>
                                 </div>
                               </SelectTrigger>
-                              <SelectContent className="border-white w-20 max-h-[200px]" sideOffset={15} align="center">
+                              <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
                                 {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                                   <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                                 ))}
@@ -1403,7 +1403,7 @@ export default function LessonPresentationClient() {
                               <span className="text-[#09090B]">{slidesCount} {t('interface.generate.slides', 'slides')}</span>
                             </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white w-20 max-h-[200px]" sideOffset={15}>
+                          <SelectContent className="shadow-none border-white max-h-[200px]" sideOffset={15}>
                             {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                               <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                             ))}
