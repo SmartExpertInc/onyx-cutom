@@ -1449,7 +1449,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="border-white">
+                          <SelectContent className="border-white" sideOffset={25}>
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
