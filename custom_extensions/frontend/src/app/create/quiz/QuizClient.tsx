@@ -1099,7 +1099,7 @@ export default function QuizClient() {
   return (
     <>
       <main
-        className="min-h-screen pt-[113px] pb-24 px-4 flex flex-col items-center"
+        className="min-h-screen mt-[113px] pb-24 px-4 flex flex-col items-center"
         style={{
           background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
@@ -1412,7 +1412,7 @@ export default function QuizClient() {
                 }}
                 placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
                 rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
@@ -1550,7 +1550,7 @@ export default function QuizClient() {
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                     style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 

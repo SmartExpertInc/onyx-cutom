@@ -1313,7 +1313,7 @@ export default function TextPresentationClient() {
   return (
     <>
       <main
-        className="min-h-screen pt-[113px] pb-24 px-4 flex flex-col items-center"
+        className="min-h-screen mt-[113px] pb-24 px-4 flex flex-col items-center"
         style={{
           background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
@@ -1620,7 +1620,7 @@ export default function TextPresentationClient() {
                 }}
                 placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                 rows={1}
-                className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
