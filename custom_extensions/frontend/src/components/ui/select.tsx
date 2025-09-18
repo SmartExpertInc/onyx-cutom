@@ -309,7 +309,7 @@ function CustomMultiSelector({
           {options.map((option) => (
             <label
               key={option.value}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+              className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
             >
               <input
                 type="checkbox"

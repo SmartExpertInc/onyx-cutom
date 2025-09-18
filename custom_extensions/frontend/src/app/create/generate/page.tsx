@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1351,7 +1351,7 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1376,15 +1376,15 @@ function GenerateProductPicker() {
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedOutlineId && (
                       <CustomPillSelector
-                        value={selectedModuleIndex?.toString() ?? ""}
+                        value={selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = value ? Number(value) : null;
-                          setSelectedModuleIndex(idx);
-                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          const idx = modulesForOutline.findIndex(m => m.name === value);
+                          setSelectedModuleIndex(idx !== -1 ? idx : null);
+                          setLessonsForModule(idx !== -1 ? modulesForOutline[idx].lessons : []);
                           setSelectedLesson("");
                         }}
                         options={modulesForOutline.map((m, idx) => ({
-                          value: idx.toString(),
+                          value: m.name,
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1512,7 +1512,7 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingQuizOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
@@ -1537,15 +1537,15 @@ function GenerateProductPicker() {
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedQuizOutlineId && (
                       <CustomPillSelector
-                        value={selectedQuizModuleIndex?.toString() ?? ""}
+                        value={selectedQuizModuleIndex !== null ? quizModulesForOutline[selectedQuizModuleIndex]?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = value ? Number(value) : null;
-                          setSelectedQuizModuleIndex(idx);
-                          setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
+                          const idx = quizModulesForOutline.findIndex(m => m.name === value);
+                          setSelectedQuizModuleIndex(idx !== -1 ? idx : null);
+                          setQuizLessonsForModule(idx !== -1 ? quizModulesForOutline[idx].lessons : []);
                           setSelectedQuizLesson("");
                         }}
                         options={quizModulesForOutline.map((m, idx) => ({
-                          value: idx.toString(),
+                          value: m.name,
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1571,7 +1571,7 @@ function GenerateProductPicker() {
                     {selectedQuizLesson && (
                       <>
                         <CustomPillSelector
-                          value={language}
+                          value={quizLanguage}
                           onValueChange={setQuizLanguage}
                           options={[
                             { value: "English", label: t('interface.english', 'English') },
@@ -1615,7 +1615,7 @@ function GenerateProductPicker() {
                 {useExistingQuizOutline === false && (
                   <>
                     <CustomPillSelector
-                      value={language}
+                      value={quizLanguage}
                       onValueChange={setQuizLanguage}
                       options={[
                         { value: "English", label: t('interface.english', 'English') },
@@ -1701,7 +1701,7 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingTextOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
@@ -1726,15 +1726,15 @@ function GenerateProductPicker() {
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedTextOutlineId && (
                       <CustomPillSelector
-                        value={selectedTextModuleIndex?.toString() ?? ""}
+                        value={selectedTextModuleIndex !== null ? textModulesForOutline[selectedTextModuleIndex]?.name ?? "" : ""}
                         onValueChange={(value) => {
-                          const idx = value ? Number(value) : null;
-                          setSelectedTextModuleIndex(idx);
-                          setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
+                          const idx = textModulesForOutline.findIndex(m => m.name === value);
+                          setSelectedTextModuleIndex(idx !== -1 ? idx : null);
+                          setTextLessonsForModule(idx !== -1 ? textModulesForOutline[idx].lessons : []);
                           setSelectedTextLesson("");
                         }}
                         options={textModulesForOutline.map((m, idx) => ({
-                          value: idx.toString(),
+                          value: m.name,
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
@@ -1760,7 +1760,7 @@ function GenerateProductPicker() {
                     {selectedTextLesson && (
                       <>
                         <CustomPillSelector
-                          value={language}
+                          value={textLanguage}
                           onValueChange={setTextLanguage}
                           options={[
                             { value: "English", label: t('interface.english', 'English') },
@@ -1809,7 +1809,7 @@ function GenerateProductPicker() {
                 {useExistingTextOutline === false && (
                   <>
                     <CustomPillSelector
-                      value={language}
+                      value={textLanguage}
                       onValueChange={setTextLanguage}
                       options={[
                         { value: "English", label: t('interface.english', 'English') },
@@ -1873,7 +1873,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2 mb-4">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2 mb-4">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
