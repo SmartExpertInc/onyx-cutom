@@ -51,7 +51,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     position: 'relative',
     overflow: 'hidden',
     color: '#d1d5db',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr'
   };
@@ -64,7 +64,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
   const titleStyle: React.CSSProperties = {
     fontSize: '45px',
     color: '#09090B',
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     marginTop: '5px',
     marginBottom: '20px'
   };

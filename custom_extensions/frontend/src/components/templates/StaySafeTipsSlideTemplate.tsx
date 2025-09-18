@@ -44,7 +44,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
   };
 
   const leftPanelStyles: React.CSSProperties = {
@@ -62,7 +62,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     left: '41px',
     fontSize: '60px',
     lineHeight: '1.05',
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     color: '#202122',
     maxWidth: '78%',
   };
@@ -81,14 +81,14 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
 
   const numberStyles: React.CSSProperties = {
     fontSize: '25px',
-    fontWeight: 700,
+    fontFamily: 'Lora-Bold, serif',
     color: '#5740BC',
     marginBottom: '8px',
   };
 
   const tipHeadingStyles: React.CSSProperties = {
     fontSize: '29px',
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     color: '#202222',
     marginBottom: '8px',
   };

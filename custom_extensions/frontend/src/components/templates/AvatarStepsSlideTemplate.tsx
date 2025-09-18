@@ -197,7 +197,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     backgroundColor: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -233,12 +233,12 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontWeight: 'bold'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const stepsContainerStyles: React.CSSProperties = {
@@ -255,13 +255,13 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     borderRadius: '12px',
     border: 'none',
     fontSize: '1.3rem',
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     color: '#000000',
     backgroundColor: titleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     textAlign: 'center',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     minHeight: '60px',
@@ -277,7 +277,7 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     color: '#ffffff',
     textAlign: 'center',
     margin: '8px 0',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

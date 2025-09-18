@@ -30,7 +30,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     backgroundColor: '#F8F8F8',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
   };
 
   const titleStyles: React.CSSProperties = {
@@ -39,7 +39,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     left: '56px',
     fontSize: '60px',
     lineHeight: 1.1,
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     color: '#3C3C3C',
     whiteSpace: 'pre-line',
   };
@@ -80,7 +80,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     color: '#CAC7C6',
     padding: '6px 10px',
     fontSize: '25px',
-    fontWeight: 600,
+    fontFamily: 'Lora-Bold, serif',
     display: 'flex',
     alignItems: 'center',
   };

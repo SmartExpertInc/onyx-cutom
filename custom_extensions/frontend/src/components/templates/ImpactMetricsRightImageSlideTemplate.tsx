@@ -54,7 +54,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     backgroundColor: '#182F35',
     position: 'relative',
     color: textColor,
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     display: 'grid',
     gridTemplateColumns: '1fr 540px',
     gap: '40px',
@@ -88,7 +88,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
 
   const metricText: React.CSSProperties = {
     fontSize: '40px',
-    fontWeight: 700,
+    fontFamily: 'Lora-Bold, serif',
     lineHeight: 1.1,
     color: '#DFE6D8',
     maxWidth: '880px'
@@ -96,7 +96,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
 
   const titleStyle: React.CSSProperties = {
     fontSize: '56px',
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     marginBottom: '30px',
     color: textColor
   };

@@ -197,7 +197,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     backgroundColor: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -240,12 +240,12 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.2rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     marginBottom: '32px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontWeight: 'bold'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const checklistContainerStyles: React.CSSProperties = {
@@ -260,7 +260,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
     alignItems: 'center',
     gap: '16px',
     fontSize: '1.2rem',
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     color: contentColor,
     lineHeight: '1.4',
     padding: '8px 0'
@@ -268,7 +268,7 @@ export const AvatarChecklistSlideTemplate: React.FC<AvatarWithChecklistProps & {
 
   const iconStyles: React.CSSProperties = {
     fontSize: '1.4rem',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     minWidth: '24px'
   };

@@ -163,7 +163,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     padding: '60px 80px',
   };
 
@@ -313,7 +313,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             }}>
               <div style={{
                 fontSize: '32px',
-                fontWeight: '500',
+                fontFamily: 'Lora-Bold, serif',
                 color: '#EBDEF8',
                 lineHeight: '1.4',
               }}>
@@ -327,7 +327,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     style={{
                       fontSize: '32px',
                       maxWidth: '386px',
-                      fontWeight: '500',
+                      fontFamily: 'Lora-Bold, serif',
                       color: '#EBDEF8',
                       lineHeight: '1.4',
                       background: 'transparent',
@@ -367,7 +367,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             }}>
               <div style={{
                 fontSize: '18px',
-                fontWeight: '400',
+                fontFamily: 'Lora-Bold, serif',
                 color: themeBg,
                 lineHeight: '1.3',
                 textAlign: 'center'
@@ -381,7 +381,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     className="additional-tip-editor"
                     style={{
                       fontSize: '18px',
-                      fontWeight: '400',
+                      fontFamily: 'Lora-Bold, serif',
                       color: themeBg,
                       lineHeight: '1.3',
                       textAlign: 'center',

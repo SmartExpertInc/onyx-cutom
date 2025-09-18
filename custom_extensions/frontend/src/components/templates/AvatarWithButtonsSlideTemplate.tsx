@@ -196,7 +196,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     backgroundColor: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -245,13 +245,13 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     borderRadius: '12px',
     border: 'none',
     fontSize: '1.3rem',
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     color: '#000000',
     backgroundColor: titleColor, // Changed from safeTitleColor
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     minHeight: '60px',
     display: 'flex',
@@ -269,12 +269,12 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     textAlign: 'center'
   };
 

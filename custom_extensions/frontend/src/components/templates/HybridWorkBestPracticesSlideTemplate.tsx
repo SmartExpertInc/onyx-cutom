@@ -67,7 +67,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     padding: '40px 60px',
     paddingLeft: '0px',
     paddingBottom: '0px'
@@ -153,7 +153,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               fontSize: '14px',
               color: '#A2A19D',
               marginBottom: '20px',
-              fontWeight: '300'
+              fontFamily: 'Lora-Bold, serif'
             }}>
               {isEditable && editingTitle ? (
                 <ImprovedInlineEditor
@@ -164,7 +164,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   style={{
                     fontSize: '14px',
                     color: themeContent,
-                    fontWeight: '300',
+                    fontFamily: 'Lora-Bold, serif',
                     width: '100%',
                     height: 'auto'
                   }}
@@ -282,7 +282,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '12px',
-                  fontWeight: 'bold',
+                  fontFamily: 'Lora-Bold, serif',
                   flexShrink: 0
                 }}>
                   {practice.number}

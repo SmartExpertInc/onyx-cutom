@@ -33,7 +33,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     backgroundColor: '#473CA4',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
   };
 
   const actorStyles: React.CSSProperties = {
@@ -59,7 +59,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     borderRadius: '50%',
     backgroundColor: '#232428',
     color: '#D3D4D8',
-    fontWeight: 700,
+    fontFamily: 'Lora-Bold, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -69,7 +69,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const stepTextStyles: React.CSSProperties = {
     color: '#E0DFEC',
     fontSize: '46px',
-    fontWeight: 700,
+    fontFamily: 'Lora-Bold, serif',
     lineHeight: '1.05',
   };
 
@@ -110,7 +110,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     left: '22px',
     color: '#E6E6F3',
     fontSize: '13px',
-    fontWeight: 400
+    fontFamily: 'Lora-Bold, serif'
   };
 
   return (

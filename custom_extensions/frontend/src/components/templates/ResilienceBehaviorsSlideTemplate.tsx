@@ -39,7 +39,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     backgroundColor: '#B2B89C',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
   };
 
   const titleStyles: React.CSSProperties = {
@@ -49,7 +49,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     right: '420px',
     fontSize: '37px',
     maxWidth: '720px',
-    fontWeight: 700,
+    fontFamily: 'Lora-Bold, serif',
     color: '#4E563B',
     lineHeight: 1.2,
   };

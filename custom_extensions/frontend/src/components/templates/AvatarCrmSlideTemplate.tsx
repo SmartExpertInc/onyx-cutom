@@ -246,16 +246,16 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     marginBottom: '20px',
     lineHeight: 1.3,
-    fontWeight: 'bold'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const subtitleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Lora, serif',
     color: contentColor,
     marginBottom: '40px',
     lineHeight: 1.5,
@@ -268,7 +268,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     padding: '12px 20px',
     borderRadius: '25px',
     fontSize: '14px',
-    fontWeight: '600',
+    fontFamily: 'Lora-Bold, serif',
     textTransform: 'uppercase',
     letterSpacing: '1px',
     marginBottom: '30px',
@@ -319,7 +319,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const crmTitleStyles: React.CSSProperties = {
     fontSize: '1.5rem',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     color: '#333'
   };
 
@@ -327,7 +327,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
     fontSize: '1.5rem',
     color: '#666',
     cursor: 'pointer',
-    fontWeight: 'bold'
+    fontFamily: 'Lora-Bold, serif'
   };
 
   const crmSubtitleStyles: React.CSSProperties = {
@@ -364,7 +364,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
 
   const clientNameStyles: React.CSSProperties = {
     fontSize: '1rem',
-    fontWeight: 'bold',
+    fontFamily: 'Lora-Bold, serif',
     color: '#333'
   };
 

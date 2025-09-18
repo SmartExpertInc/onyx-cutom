@@ -175,7 +175,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -277,7 +277,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             fontSize: '12px',
             color: '#3a6549',
             marginBottom: '25px',
-            fontWeight: '300',
+            fontFamily: 'Lora-Bold, serif',
             minHeight: '20px',
             maxHeight: '20px',
             display: 'flex',
@@ -293,7 +293,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '12px',
                   color: '#3a6549',
-                  fontWeight: '300',
+                  fontFamily: 'Lora-Bold, serif',
                   width: '100%',
                   height: '100%',
                   minHeight: '20px',
@@ -312,7 +312,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   alignItems: 'center',
                   fontSize: '12px',
                   color: '#3a6549',
-                  fontWeight: '300',
+                  fontFamily: 'Lora-Bold, serif',
                   minHeight: '20px',
                   maxHeight: '20px',
                   overflow: 'hidden'
@@ -590,7 +590,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           <div style={{
             fontSize: '12px',
             color: themeContent,
-            fontWeight: '300'
+            fontFamily: 'Lora-Bold, serif'
           }}>
             {isEditable && editingCompanyName ? (
               <InlineEditor
@@ -601,7 +601,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '12px',
                   color: '#8c8c8c',
-                  fontWeight: '300'
+                  fontFamily: 'Lora-Bold, serif'
                 }}
               />
             ) : (
@@ -612,7 +612,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   userSelect: 'none',
                   fontSize: '12px',
                   color: '#8c8c8c',
-                  fontWeight: '300'
+                  fontFamily: 'Lora-Bold, serif'
                 }}
               >
                 {currentCompanyName}

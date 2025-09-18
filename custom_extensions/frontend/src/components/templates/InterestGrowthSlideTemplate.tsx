@@ -42,7 +42,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     display: 'grid',
     gridTemplateColumns: '1fr 57%',
     gap: '0px',
@@ -53,7 +53,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     gridColumn: '2 / 3',
     fontSize: '55px',
     color: '#09090B',
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     letterSpacing: '-0.5px',
   };
 
@@ -191,7 +191,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontWeight: '400',
+                  fontFamily: 'Lora-Bold, serif',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -205,7 +205,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontWeight: '400',
+                  fontFamily: 'Lora-Bold, serif',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
@@ -282,10 +282,10 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
                   initialValue={c.percentage}
                   onSave={(v) => { const next=[...cardList]; next[i] = { ...next[i], percentage: v }; setCardList(next); onUpdate && onUpdate({ cards: next }); setEditingCard(null); }}
                   onCancel={() => setEditingCard(null)}
-                  style={{ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 }}
+                  style={{ fontSize: percentageFontSize, color: '#202022', fontFamily: 'Lora-Bold, serif', lineHeight: 1 }}
                 />
               ) : (
-                <div style={{ fontSize: percentageFontSize, color: '#202022', fontWeight: 800, lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
+                <div style={{ fontSize: percentageFontSize, color: '#202022', fontFamily: 'Lora-Bold, serif', lineHeight: 1 }} onClick={() => isEditable && setEditingCard({ index: i, field: 'percentage' })}>{c.percentage}</div>
               )}
             </div>
 
@@ -342,7 +342,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontWeight: '300',
+              fontFamily: 'Lora-Bold, serif',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -356,7 +356,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontWeight: '300',
+              fontFamily: 'Lora-Bold, serif',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

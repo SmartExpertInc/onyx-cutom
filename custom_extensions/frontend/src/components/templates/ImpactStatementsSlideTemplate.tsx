@@ -44,7 +44,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     padding: '60px 80px',
     paddingBottom: '35px',
   };
@@ -348,7 +348,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       userSelect: 'none',
                       fontSize: '48px',
                       color: themeBg,
-                      fontWeight: 'bold',
+                      fontFamily: 'Lora-Bold, serif',
                       width: '100%'
                     }}
                   >

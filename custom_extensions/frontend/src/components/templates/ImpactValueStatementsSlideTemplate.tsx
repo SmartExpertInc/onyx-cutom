@@ -35,7 +35,7 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
     aspectRatio:'16/9', 
     background:'#F5F5F5', 
     color:'#333333', 
-    fontFamily: currentTheme.fonts.titleFont, 
+    fontFamily: 'Lora-Bold, serif', 
     position:'relative' 
   };
 
@@ -50,7 +50,7 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
 
   const titleStyle: React.CSSProperties = {
     fontSize:'43px',
-    fontWeight:700,
+    fontFamily: 'Lora-Bold, serif',
     color:'rgb(60 58 58)',
     marginBottom:'50px',
     lineHeight:1.2
@@ -71,14 +71,14 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
 
   const percentageStyle: React.CSSProperties = {
     fontSize:'42px',
-    fontWeight:700,
+    fontFamily: 'Lora-Bold, serif',
     color:'#2563EB',
     lineHeight:1
   };
 
   const descriptionStyle: React.CSSProperties = {
     fontSize:'16px',
-    fontWeight:400,
+    fontFamily: 'Lora-Bold, serif',
     color:'rgb(88 88 88)',
     lineHeight:1.4
   };

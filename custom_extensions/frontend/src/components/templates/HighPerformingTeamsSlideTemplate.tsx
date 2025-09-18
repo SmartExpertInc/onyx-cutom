@@ -37,7 +37,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     aspectRatio: '16/9',
     position: 'relative',
     backgroundColor: '#ffffff',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
     overflow: 'hidden'
   };
 
@@ -47,7 +47,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     top: '64px',
     whiteSpace: 'pre-line',
     fontSize: '38px',
-    fontWeight: 800,
+    fontFamily: 'Lora-Bold, serif',
     color: '#343244',
     letterSpacing: '-0.4px',
     maxWidth: '520px'

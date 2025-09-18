@@ -33,7 +33,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     aspectRatio:'16/9', 
     background:'#000000', 
     color:'#FFFFFF', 
-    fontFamily: currentTheme.fonts.titleFont, 
+    fontFamily: 'Lora-Bold, serif', 
     position:'relative',
     borderRadius:'20px',
     overflow:'hidden'
@@ -89,7 +89,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 
   const topicsTitleStyle: React.CSSProperties = {
     fontSize:'42px',
-    fontWeight:700,
+    fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
     color:'#443F33',
     textAlign:'center'
   };
@@ -117,7 +117,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 
   const topicText: React.CSSProperties = {
     fontSize:'16px',
-    fontWeight:400,
+    fontFamily: 'Lora, serif', // Regular Lora for body text
     color:'#C1C1C1',
     lineHeight:1.4
   };

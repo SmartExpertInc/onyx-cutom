@@ -156,7 +156,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
     justifyContent: 'center',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Lora-Bold, serif',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -238,7 +238,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
         <div style={{
           fontSize: '30px',
           color: '#FFFFFF',
-          fontWeight: 'bold',
+          fontFamily: 'Lora-Bold, serif',
           lineHeight: '1.2',
           marginTop: '106px',
         }}>
@@ -252,7 +252,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
               style={{
                 fontSize: '30px',
                 color: '#FFFFFF',
-                fontWeight: 'bold',
+                fontFamily: 'Lora-Bold, serif',
                 lineHeight: '1.2'
               }}
             />
