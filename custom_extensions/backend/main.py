@@ -23279,27 +23279,25 @@ async def get_users_with_features(
     
     try:
         async with pool.acquire() as conn:
-            # Get all users with their feature permissions and user details
             rows = await conn.fetch("""
                 SELECT 
-                    uf.user_id,
+                    uc.onyx_user_id AS user_id,
+                    uc.onyx_user_id AS user_display_id,
+                    uc.name AS user_name,
                     uf.feature_name,
                     uf.is_enabled,
                     uf.created_at,
                     uf.updated_at,
                     fd.display_name,
                     fd.description,
-                    fd.category,
-                    uc.name as user_name,
-                    uc.onyx_user_id as user_display_id
-                FROM user_features uf
-                JOIN feature_definitions fd ON uf.feature_name = fd.feature_name
-                LEFT JOIN user_credits uc ON uf.user_id = uc.onyx_user_id
-                WHERE fd.is_active = true
-                ORDER BY uf.user_id, fd.category, fd.display_name
+                    fd.category
+                FROM user_credits uc
+                LEFT JOIN user_features uf ON uc.onyx_user_id = uf.user_id
+                LEFT JOIN feature_definitions fd 
+                    ON uf.feature_name = fd.feature_name AND fd.is_active = true
+                ORDER BY uc.onyx_user_id, fd.category, fd.display_name
             """)
             
-            # Group by user
             users_features = {}
             for row in rows:
                 user_id = row['user_id']
@@ -23311,15 +23309,16 @@ async def get_users_with_features(
                         'features': []
                     }
                 
-                users_features[user_id]['features'].append({
-                    'feature_name': row['feature_name'],
-                    'display_name': row['display_name'],
-                    'description': row['description'],
-                    'category': row['category'],
-                    'is_enabled': row['is_enabled'],
-                    'created_at': row['created_at'],
-                    'updated_at': row['updated_at']
-                })
+                if row['feature_name']:
+                    users_features[user_id]['features'].append({
+                        'feature_name': row['feature_name'],
+                        'display_name': row['display_name'],
+                        'description': row['description'],
+                        'category': row['category'],
+                        'is_enabled': row['is_enabled'],
+                        'created_at': row['created_at'],
+                        'updated_at': row['updated_at']
+                    })
             
             return list(users_features.values())
     except Exception as e:
