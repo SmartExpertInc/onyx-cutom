@@ -16753,43 +16753,39 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
     progress_updates = []
     
     try:
-        # Extract module titles using regex patterns
-        # Pattern 1: Look for section objects with title and id
-        section_pattern = r'"id":\s*"([^"]*)"[^}]*?"title":\s*"([^"]+)"'
-        section_matches = re.findall(section_pattern, assistant_reply)
+        # Find all sections with their complete structure using a more precise approach
+        # Look for section objects that contain both id, title, and lessons array
+        section_pattern = r'\{\s*"id":\s*"([^"]*)"[^}]*?"title":\s*"([^"]+)"[^}]*?"lessons":\s*\[(.*?)\]'
+        section_matches = re.findall(section_pattern, assistant_reply, re.DOTALL)
         
-        for module_id, title in section_matches:
-            module_key = f"{module_id}:{title}"
+        for module_id, module_title, lessons_content in section_matches:
+            # Send module progress if not already sent
+            module_key = f"{module_id}:{module_title}"
             if module_key not in sent_modules:
                 sent_modules.add(module_key)
                 progress_updates.append({
                     "type": "module",
-                    "title": title,
+                    "title": module_title,
                     "id": module_id
                 })
-        
-        # Extract lesson titles - look for complete lesson objects
-        # Pattern: "title": "Lesson X.Y: Title" within lesson context
-        lesson_pattern = r'"title":\s*"((?:Lesson\s+\d+\.\d+:\s*)?([^"]+))"[^}]*?(?:"hours"|"source"|"check")'
-        lesson_matches = re.findall(lesson_pattern, assistant_reply)
-        
-        # Get current module for context
-        current_module = section_matches[-1][1] if section_matches else "Unknown Module"
-        
-        for full_title, clean_part in lesson_matches:
-            # Clean lesson title (remove "Lesson X.Y:" prefix)
-            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', full_title).strip()
-            if not cleaned_title:
-                cleaned_title = clean_part.strip()
+            
+            # Extract lessons within this specific module's lessons array
+            lesson_pattern = r'"title":\s*"([^"]+)"'
+            lesson_titles = re.findall(lesson_pattern, lessons_content)
+            
+            for lesson_title in lesson_titles:
+                # Clean lesson title (remove "Lesson X.Y:" prefix)
+                cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title).strip()
                 
-            lesson_key = f"{current_module}:{cleaned_title}"
-            if lesson_key not in sent_lessons and cleaned_title:
-                sent_lessons.add(lesson_key)
-                progress_updates.append({
-                    "type": "lesson",
-                    "title": cleaned_title,
-                    "module": current_module
-                })
+                # Create unique key for this lesson in this module
+                lesson_key = f"{module_id}:{module_title}:{cleaned_title}"
+                if lesson_key not in sent_lessons and cleaned_title:
+                    sent_lessons.add(lesson_key)
+                    progress_updates.append({
+                        "type": "lesson",
+                        "title": cleaned_title,
+                        "module": module_title
+                    })
     
     except Exception as e:
         logger.debug(f"[LIVE_PROGRESS_EXTRACT] Error extracting progress: {e}")
