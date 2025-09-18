@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown } from "lucide-react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -242,6 +242,90 @@ function CustomPillSelector({
   )
 }
 
+// Custom Multi-Selector Component
+interface CustomMultiSelectorProps {
+  selectedValues: string[]
+  onSelectionChange: (values: string[]) => void
+  options: { value: string; label: string }[]
+  icon?: React.ReactNode
+  label: string
+  placeholder?: string
+  className?: string
+}
+
+function CustomMultiSelector({
+  selectedValues,
+  onSelectionChange,
+  options,
+  icon,
+  label,
+  placeholder,
+  className
+}: CustomMultiSelectorProps) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
+  const handleToggle = (value: string) => {
+    if (selectedValues.includes(value)) {
+      onSelectionChange(selectedValues.filter(v => v !== value))
+    } else {
+      onSelectionChange([...selectedValues, value])
+    }
+  }
+
+  const displayText = selectedValues.length === 0
+    ? placeholder || `Select ${label}`
+    : selectedValues.length === 1
+    ? options.find(opt => opt.value === selectedValues[0])?.label || selectedValues[0]
+    : `${selectedValues.length} types selected`
+
+  return (
+    <div className="relative">
+      <div
+        className={cn(
+          "flex items-center gap-3 px-5 py-2 rounded-md border-0 bg-white hover:bg-gray-100",
+          "text-gray-700 font-medium text-sm cursor-pointer",
+          "shadow-none",
+          className
+        )}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="flex items-center justify-center">
+              {icon}
+            </div>
+          )}
+          <span>
+            <span className="text-gray-600">{label}:</span> 
+            <span className="text-black ml-1">{displayText}</span>
+          </span>
+          <ChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", isOpen && "rotate-180")} />
+        </div>
+        <div className="w-px h-6 bg-gray-200 ml-2"></div>
+      </div>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto bg-white">
+          {options.map((option) => (
+            <label
+              key={option.value}
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={selectedValues.includes(option.value)}
+                onChange={() => handleToggle(option.value)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export {
   Select,
   SelectContent,
@@ -254,4 +338,5 @@ export {
   SelectTrigger,
   SelectValue,
   CustomPillSelector,
+  CustomMultiSelector,
 }

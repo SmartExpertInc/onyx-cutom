@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
 
@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
+          <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-2">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1351,12 +1351,12 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <Select
+                    <CustomPillSelector
                       value={selectedOutlineId?.toString() ?? ""}
                       onValueChange={(value) => {
                         setSelectedOutlineId(value ? Number(value) : null);
@@ -1365,20 +1365,17 @@ function GenerateProductPicker() {
                         setLessonsForModule([]);
                         setSelectedLesson("");
                       }}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                        <SelectValue placeholder="Select Outline" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-gray-700">
-                        {outlines.map((o) => (
-                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={outlines.map((o) => ({
+                        value: o.id.toString(),
+                        label: o.name
+                      }))}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Outline"
+                    />
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedOutlineId && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedModuleIndex?.toString() ?? ""}
                         onValueChange={(value) => {
                           const idx = value ? Number(value) : null;
@@ -1386,33 +1383,27 @@ function GenerateProductPicker() {
                           setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
                           setSelectedLesson("");
                         }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <SelectValue placeholder="Select Module" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {modulesForOutline.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={modulesForOutline.map((m, idx) => ({
+                          value: idx.toString(),
+                          label: m.name
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Module"
+                      />
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedModuleIndex !== null && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedLesson}
                         onValueChange={setSelectedLesson}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <SelectValue placeholder="Select Lesson" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {lessonsForModule.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={lessonsForModule.map((l) => ({
+                          value: l,
+                          label: l
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Lesson"
+                      />
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
@@ -1430,16 +1421,16 @@ function GenerateProductPicker() {
                           icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
                         />
-                        <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white text-gray-700">
-                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                              <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={slidesCount.toString()}
+                          onValueChange={(value) => setSlidesCount(Number(value))}
+                          options={Array.from({ length: 14 }, (_, i) => ({
+                            value: (i + 2).toString(),
+                            label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                          }))}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label="Slides"
+                        />
                       </>
                     )}
                   </>
@@ -1460,16 +1451,16 @@ function GenerateProductPicker() {
                       icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
                     />
-                    <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-gray-700">
-                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                          <SelectItem key={n} value={n.toString()}>{n} {t('interface.generate.slides', 'slides')}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <CustomPillSelector
+                      value={slidesCount.toString()}
+                      onValueChange={(value) => setSlidesCount(Number(value))}
+                      options={Array.from({ length: 14 }, (_, i) => ({
+                        value: (i + 2).toString(),
+                        label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                      }))}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Slides"
+                    />
                   </>
                 )}
 
@@ -1521,12 +1512,12 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingQuizOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <Select
+                    <CustomPillSelector
                       value={selectedQuizOutlineId?.toString() ?? ""}
                       onValueChange={(value) => {
                         setSelectedQuizOutlineId(value ? Number(value) : null);
@@ -1535,22 +1526,17 @@ function GenerateProductPicker() {
                         setQuizLessonsForModule([]);
                         setSelectedQuizLesson("");
                       }}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white text-gray-700">
-                        {quizOutlines.map((outline) => (
-                          <SelectItem key={outline.id} value={outline.id.toString()}>
-                            {outline.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={quizOutlines.map((outline) => ({
+                        value: outline.id.toString(),
+                        label: outline.name
+                      }))}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Outline"
+                    />
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedQuizOutlineId && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedQuizModuleIndex?.toString() ?? ""}
                         onValueChange={(value) => {
                           const idx = value ? Number(value) : null;
@@ -1558,33 +1544,27 @@ function GenerateProductPicker() {
                           setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
                           setSelectedQuizLesson("");
                         }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {quizModulesForOutline.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={quizModulesForOutline.map((m, idx) => ({
+                          value: idx.toString(),
+                          label: m.name
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Module"
+                      />
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedQuizModuleIndex !== null && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedQuizLesson}
                         onValueChange={setSelectedQuizLesson}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white text-gray-700">
-                          {quizLessonsForModule.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={quizLessonsForModule.map((l) => ({
+                          value: l,
+                          label: l
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Lesson"
+                      />
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
@@ -1602,68 +1582,30 @@ function GenerateProductPicker() {
                           icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
                         />
-                        <div className="relative question-types-dropdown">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="rounded-full border border-gray-300 bg-white/90 text-black flex items-center gap-2 min-w-[200px]"
-                          >
-                            <span>
-                              {selectedQuestionTypes.length === 0
-                                ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                                : selectedQuestionTypes.length === 1
-                                ? selectedQuestionTypes[0]
-                                : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                            </span>
-                            <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                          </Button>
-                          {showQuestionTypesDropdown && (
-                            <div 
-                              className="absolute top-full text-gray-700 left-0 mt-1 w-full border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
-                              style={{
-                                backgroundColor: `white`,
-                              }}
-                            >
-                                                        {[
+                        <CustomMultiSelector
+                          selectedValues={selectedQuestionTypes}
+                          onSelectionChange={setSelectedQuestionTypes}
+                          options={[
                             { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
                             { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
                             { value: "matching", label: t('interface.generate.matching', 'Matching') },
                             { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                             { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                          ].map((type) => (
-                                <label
-                                  key={type.value}
-                                  className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedQuestionTypes.includes(type.value)}
-                                    onChange={(e) => {
-                                      if (e.target.checked) {
-                                        setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                      } else {
-                                        setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                      }
-                                    }}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                  />
-                                  {type.label}
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <Select value={quizQuestionCount.toString()} onValueChange={(value) => setQuizQuestionCount(Number(value))}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[5, 10, 15, 20, 25, 30].map((count) => (
-                              <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.questions', 'questions')}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          ]}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label="Question Types"
+                          placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
+                        />
+                        <CustomPillSelector
+                          value={quizQuestionCount.toString()}
+                          onValueChange={(value) => setQuizQuestionCount(Number(value))}
+                          options={[5, 10, 15, 20, 25, 30].map((count) => ({
+                            value: count.toString(),
+                            label: `${count} ${t('interface.generate.questions', 'questions')}`
+                          }))}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label="Questions"
+                        />
                       </>
                     )}
                   </>
@@ -1684,70 +1626,30 @@ function GenerateProductPicker() {
                       icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
                     />
-                    <div className="relative question-types-dropdown">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-2 min-w-[200px]"
-                      >
-                        <span>
-                          {selectedQuestionTypes.length === 0
-                            ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                            : selectedQuestionTypes.length === 1
-                            ? selectedQuestionTypes[0]
-                            : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                        </span>
-                        <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                      </Button>
-                      {showQuestionTypesDropdown && (
-                        <div 
-                          className="absolute top-full left-0 mt-1 w-full rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
-                          style={{
-                            backgroundColor: `rgb(var(--generate-card-bg))`,
-                            borderColor: `rgb(var(--generate-card-border))`,
-                            borderWidth: '1px'
-                          }}
-                        >
-                          {[
-                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
-                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                          ].map((type) => (
-                            <label
-                              key={type.value}
-                              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedQuestionTypes.includes(type.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                  } else {
-                                    setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                  }
-                                }}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              {type.label}
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <Select value={quizQuestionCount.toString()} onValueChange={(value) => setQuizQuestionCount(Number(value))}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[5, 10, 15, 20, 25, 30].map((count) => (
-                          <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.questions', 'questions')}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <CustomMultiSelector
+                      selectedValues={selectedQuestionTypes}
+                      onSelectionChange={setSelectedQuestionTypes}
+                      options={[
+                        { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                        { value: "multi-select", label: t('interface.generate.multiSelect', 'Multiple Select') },
+                        { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                        { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                        { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                      ]}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Question Types"
+                      placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
+                    />
+                    <CustomPillSelector
+                      value={quizQuestionCount.toString()}
+                      onValueChange={(value) => setQuizQuestionCount(Number(value))}
+                      options={[5, 10, 15, 20, 25, 30].map((count) => ({
+                        value: count.toString(),
+                        label: `${count} ${t('interface.generate.questions', 'questions')}`
+                      }))}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Questions"
+                    />
                   </>
                 )}
 
@@ -1799,12 +1701,12 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingTextOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
                     {/* Outline dropdown */}
-                    <Select
+                    <CustomPillSelector
                       value={selectedTextOutlineId?.toString() ?? ""}
                       onValueChange={(value) => {
                         setSelectedTextOutlineId(value ? Number(value) : null);
@@ -1813,20 +1715,17 @@ function GenerateProductPicker() {
                         setTextLessonsForModule([]);
                         setSelectedTextLesson("");
                       }}
-                    >
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {textOutlines.map((o) => (
-                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={textOutlines.map((o) => ({
+                        value: o.id.toString(),
+                        label: o.name
+                      }))}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Outline"
+                    />
 
                     {/* Module dropdown – appears once outline is selected */}
                     {selectedTextOutlineId && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedTextModuleIndex?.toString() ?? ""}
                         onValueChange={(value) => {
                           const idx = value ? Number(value) : null;
@@ -1834,33 +1733,27 @@ function GenerateProductPicker() {
                           setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
                           setSelectedTextLesson("");
                         }}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {textModulesForOutline.map((m, idx) => (
-                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={textModulesForOutline.map((m, idx) => ({
+                          value: idx.toString(),
+                          label: m.name
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Module"
+                      />
                     )}
 
                     {/* Lesson dropdown – appears when module chosen */}
                     {selectedTextModuleIndex !== null && (
-                      <Select
+                      <CustomPillSelector
                         value={selectedTextLesson}
                         onValueChange={setSelectedTextLesson}
-                      >
-                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {textLessonsForModule.map((l) => (
-                            <SelectItem key={l} value={l}>{l}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={textLessonsForModule.map((l) => ({
+                          value: l,
+                          label: l
+                        }))}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        label="Lesson"
+                      />
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
@@ -1878,49 +1771,35 @@ function GenerateProductPicker() {
                           icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
                         />
-                        <Select value={textLength} onValueChange={setTextLength}>
-                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="short">{t('interface.generate.short', 'Short')}</SelectItem>
-                            <SelectItem value="medium">{t('interface.generate.medium', 'Medium')}</SelectItem>
-                            <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select open={showTextStylesDropdown} onOpenChange={setShowTextStylesDropdown}>
-                          <SelectTrigger className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]">
-                            <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60 overflow-y-auto">
-                            {[
-                              { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                              { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                              { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                              { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                              { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                              { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                              { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                              { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                              { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
-                            ].map((option) => (
-                              <div key={option.value} className="flex items-center px-2 py-1.5 hover:bg-gray-50 cursor-pointer">
-                                <Checkbox
-                                  checked={textStyles.includes(option.value)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setTextStyles([...textStyles, option.value]);
-                                    } else {
-                                      setTextStyles(textStyles.filter(s => s !== option.value));
-                                    }
-                                  }}
-                                  className="mr-3"
-                                />
-                                <span className="text-sm">{option.label}</span>
-                              </div>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <CustomPillSelector
+                          value={textLength}
+                          onValueChange={setTextLength}
+                          options={[
+                            { value: "short", label: t('interface.generate.short', 'Short') },
+                            { value: "medium", label: t('interface.generate.medium', 'Medium') },
+                            { value: "long", label: t('interface.generate.long', 'Long') }
+                          ]}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label="Length"
+                        />
+                        <CustomMultiSelector
+                          selectedValues={textStyles}
+                          onSelectionChange={setTextStyles}
+                          options={[
+                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
+                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
+                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
+                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
+                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
+                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
+                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
+                            { value: "icons", label: t('interface.generate.icons', 'Icons') },
+                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                          ]}
+                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          label="Styles"
+                          placeholder={t('interface.generate.selectStyles', 'Select styles')}
+                        />
                       </>
                     )}
                   </>
@@ -1941,65 +1820,35 @@ function GenerateProductPicker() {
                       icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
                     />
-                    <Select value={textLength} onValueChange={setTextLength}>
-                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="short">{t('interface.generate.short', 'Short')}</SelectItem>
-                        <SelectItem value="medium">{t('interface.generate.medium', 'Medium')}</SelectItem>
-                        <SelectItem value="long">{t('interface.generate.long', 'Long')}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="relative text-styles-dropdown">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowTextStylesDropdown(!showTextStylesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
-                      >
-                        <span>{textStyles.length > 0 ? `${textStyles.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                        <ChevronDown size={14} className={`transition-transform ${showTextStylesDropdown ? 'rotate-180' : ''}`} />
-                      </Button>
-                      {showTextStylesDropdown && (
-                        <div 
-                          className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto"
-                          style={{
-                            backgroundColor: `rgb(var(--generate-card-bg))`,
-                            borderColor: `rgb(var(--generate-card-border))`,
-                            borderWidth: '1px'
-                          }}
-                        >
-                          {[
-                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                            { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
-                          ].map((option) => (
-                            <label key={option.value} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={textStyles.includes(option.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setTextStyles([...textStyles, option.value]);
-                                  } else {
-                                    setTextStyles(textStyles.filter(s => s !== option.value));
-                                  }
-                                }}
-                                className="mr-3"
-                              />
-                              <span className="text-sm">{option.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    <CustomPillSelector
+                      value={textLength}
+                      onValueChange={setTextLength}
+                      options={[
+                        { value: "short", label: t('interface.generate.short', 'Short') },
+                        { value: "medium", label: t('interface.generate.medium', 'Medium') },
+                        { value: "long", label: t('interface.generate.long', 'Long') }
+                      ]}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Length"
+                    />
+                    <CustomMultiSelector
+                      selectedValues={textStyles}
+                      onSelectionChange={setTextStyles}
+                      options={[
+                        { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
+                        { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
+                        { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
+                        { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
+                        { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
+                        { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
+                        { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
+                        { value: "icons", label: t('interface.generate.icons', 'Icons') },
+                        { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                      ]}
+                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      label="Styles"
+                      placeholder={t('interface.generate.selectStyles', 'Select styles')}
+                    />
                   </>
                 )}
 
@@ -2024,17 +1873,17 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => (
-                  <SelectItem key={count} value={count.toString()}>{count} {t('interface.generate.slides', 'slides')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="w-full max-w-3xl rounded-md p-3 bg-white flex flex-wrap justify-center gap-2 mb-4">
+            <CustomPillSelector
+              value={slidesCount.toString()}
+              onValueChange={(value) => setSlidesCount(Number(value))}
+              options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => ({
+                value: count.toString(),
+                label: `${count} ${t('interface.generate.slides', 'slides')}`
+              }))}
+              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              label="Slides"
+            />
             <CustomPillSelector
               value={language}
               onValueChange={setLanguage}
