@@ -44,14 +44,17 @@ export function useTheme({
 }: UseThemeOptions): UseThemeReturn {
   // Determine initial theme using the utility function
   const resolveInitialTheme = () => {
-    return getThemeWithFallback(initialTheme, slideDeck?.theme, enablePersistence ? projectId : undefined);
+    const theme = getThemeWithFallback(initialTheme, slideDeck?.theme, enablePersistence ? projectId : undefined);
+    // Ensure we always return a valid theme
+    return theme && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   };
 
   const [currentTheme, setCurrentTheme] = useState<string>(resolveInitialTheme);
   const [isChangingTheme, setIsChangingTheme] = useState<boolean>(false);
 
-  // Get current theme data
-  const themeData = getSlideTheme(currentTheme);
+  // Get current theme data - ensure we always have a valid theme
+  const effectiveCurrentTheme = currentTheme && currentTheme.trim() !== '' ? currentTheme : DEFAULT_SLIDE_THEME;
+  const themeData = getSlideTheme(effectiveCurrentTheme);
 
   // Effect to handle theme updates when slide deck changes (but respect user preferences)
   useEffect(() => {
@@ -121,7 +124,7 @@ export function useTheme({
   }, [currentTheme, onThemeChange, slideDeck, enablePersistence, projectId]);
 
   return {
-    currentTheme,
+    currentTheme: effectiveCurrentTheme,
     themeData,
     changeTheme,
     isChangingTheme

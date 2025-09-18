@@ -188,7 +188,7 @@ export const getThemeWithFallback = (
   
   // User's manual selection takes precedence over slide deck theme
   const savedTheme = loadThemePreference(projectId);
-  if (savedTheme) {
+  if (savedTheme && isValidThemeId(savedTheme)) {
     return savedTheme;
   }
   
@@ -197,6 +197,8 @@ export const getThemeWithFallback = (
     return slideDeckTheme;
   }
   
+  // Always return default theme as final fallback
+  console.log(`🎨 Using default theme: ${DEFAULT_SLIDE_THEME}`);
   return DEFAULT_SLIDE_THEME;
 };
 
