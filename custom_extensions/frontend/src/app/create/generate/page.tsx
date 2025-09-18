@@ -1252,7 +1252,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-5 mb-6 sm:mb-8 px-3">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-6 sm:mb-8 px-3">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
@@ -1305,7 +1305,7 @@ function GenerateProductPicker() {
                 value: `${rng} ${t('interface.generate.perModule', 'per module')}`,
                 label: `${rng} ${t('interface.generate.perModule', 'per module')}`
               }))}
-              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              icon={<FileText className="w-4 h-4 text-gray-600" />}
               label={t('interface.generate.lessons', 'Lessons')}
             />
             <CustomPillSelector
@@ -1920,7 +1920,7 @@ function GenerateProductPicker() {
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
               className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[90px] max-h-[260px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
               style={{ background: "rgba(255,255,255,0.95)" }}
-              rows={3}
+              rows={5}
             />
             </div>
 
