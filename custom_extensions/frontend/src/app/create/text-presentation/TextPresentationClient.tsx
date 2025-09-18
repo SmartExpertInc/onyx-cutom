@@ -1449,7 +1449,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white mt-2">
+                          <SelectContent className="shadow-none border-white" sideOffset={20}>
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1476,7 +1476,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white mt-2">
+                          <SelectContent className="shadow-none border-white" sideOffset={20}>
                             {lengthOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                             ))}
@@ -1511,8 +1511,9 @@ export default function TextPresentationClient() {
                                 </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent 
-                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto mt-2" 
+                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto" 
                             align="start"
+                            sideOffset={20}
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
@@ -1550,7 +1551,7 @@ export default function TextPresentationClient() {
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <div className="w-full bg-white rounded-lg py-5 px-8">
+                  <div className="w-full bg-white rounded-lg py-3 px-8">
                     <div className="flex items-center">
                       {/* Language dropdown */}
                       <div className="flex-1 flex items-center justify-center">
@@ -1633,8 +1634,9 @@ export default function TextPresentationClient() {
                             </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                            className="w-60 p-2 border border-gray-300 rounded-lg max-h-60 overflow-y-auto mt-2" 
+                            className="w-60 p-2 border border-gray-300 rounded-lg max-h-60 overflow-y-auto" 
                         align="start"
+                        sideOffset={20}
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
