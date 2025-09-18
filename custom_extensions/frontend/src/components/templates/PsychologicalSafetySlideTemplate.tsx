@@ -90,8 +90,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -115,8 +114,7 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         boxSizing: 'border-box',
-        display: 'block',
-      }}
+        display: 'block'}}
     />
   );
 }
@@ -147,7 +145,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#3F3395',
@@ -157,7 +155,6 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -240,8 +237,7 @@ export const PsychologicalSafetySlideTemplate: React.FC<PsychologicalSafetySlide
           color: '#FFFFFF',
           fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
           lineHeight: '1.2',
-          marginTop: '106px',
-        }}>
+          marginTop: '106px'}}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={currentTitle}

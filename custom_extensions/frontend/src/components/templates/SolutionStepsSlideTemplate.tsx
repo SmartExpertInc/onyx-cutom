@@ -49,17 +49,16 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#15232E', // Dark blue-grey background as per screenshot
+    backgroundColor: '#15232E', // Dark blue-grey background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -129,8 +128,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         fontSize: '48px',
         fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#DEE2E2',
-        lineHeight: '1.1',
-      }}>
+        lineHeight: '1.1'}}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
@@ -143,8 +141,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               color: '#FFFFFF',
               lineHeight: '1.1',
               width: '100%',
-              height: 'auto',
-            }}
+              height: 'auto'}}
           />
         ) : (
           <div
@@ -166,8 +163,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         left: '60px',
         backgroundColor: '#EC6140',
         padding: '10px 24px',
-        cursor: isEditable ? 'pointer' : 'default',
-      }}>
+        cursor: isEditable ? 'pointer' : 'default'}}>
         {isEditable && editingButtonText ? (
           <ImprovedInlineEditor
             initialValue={currentButtonText}
@@ -179,8 +175,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#F4D4C8',
               width: '100%',
-              height: 'auto',
-            }}
+              height: 'auto'}}
           />
         ) : (
           <div
@@ -235,16 +230,14 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-      }}>
+        alignItems: 'center'}}>
         {/* Timeline Line */}
         <div style={{
           width: '100%',
           height: '1px',
           backgroundColor: '#F1FEFF',
           position: 'relative',
-          marginBottom: '40px',
-        }}>
+          marginBottom: '40px'}}>
           {/* Step Circles */}
           {currentSteps.map((step, index) => (
             <div key={index} style={{
@@ -256,8 +249,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               height: '25px',
               borderRadius: '50%',
               backgroundColor: '#FAF36F', // Yellow circles
-              zIndex: 1,
-            }} />
+              zIndex: 1}} />
           ))}
         </div>
 
@@ -265,23 +257,20 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          width: '100%',
-        }}>
+          width: '100%'}}>
           {currentSteps.map((step, index) => (
             <div key={index} style={{
               display: 'flex',
               flexDirection: 'column',
               paddingLeft: index === 0 ? '16%' : '0',
               marginTop: '-30px',
-              width: index === 0 ? '33.33%' : index === 1 ? '16.33%' : index === 2 ? '28%' : '0',
-            }}>
+              width: index === 0 ? '33.33%' : index === 1 ? '16.33%' : index === 2 ? '28%' : '0'}}>
               {/* Step Title */}
               <div style={{
                 fontSize: '24px',
                 fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 color: '#D5DBDD',
-                marginBottom: '15px',
-              }}>
+                marginBottom: '15px'}}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'title' ? (
                   <ImprovedInlineEditor
                     initialValue={step.title}
@@ -293,8 +282,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                       fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       color: '#D5DBDD',
                       width: '100%',
-                      height: 'auto',
-                    }}
+                      height: 'auto'}}
                   />
                 ) : (
                   <div
@@ -314,8 +302,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 fontSize: '16px',
                 color: '#A0A9AF',
                 lineHeight: '1.3',
-                maxWidth: '160px',
-              }}>
+                maxWidth: '160px'}}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'description' ? (
                   <ImprovedInlineEditor
                     initialValue={step.description}
@@ -327,8 +314,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                       color: '#A0A9AF',
                       width: '100%',
                       height: 'auto',
-                      lineHeight: '1.3',
-                    }}
+                      lineHeight: '1.3'}}
                   />
                 ) : (
                   <div
@@ -355,13 +341,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         right: '60px',
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
+        alignItems: 'center'}}>
         {/* Website */}
         <div style={{
           fontSize: '14px',
-          color: '#A2ACB1',
-        }}>
+          color: '#A2ACB1'}}>
           {isEditable && editingWebsite ? (
             <ImprovedInlineEditor
               initialValue={currentWebsite}
@@ -372,8 +356,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 fontSize: '14px',
                 color: '#A2ACB1',
                 width: '100%',
-                height: 'auto',
-              }}
+                height: 'auto'}}
             />
           ) : (
             <div
@@ -393,8 +376,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           display: 'flex',
           gap: '45px',
           fontSize: '14px',
-          color: '#A2ACB1',
-        }}>
+          color: '#A2ACB1'}}>
           {isEditable && editingDate ? (
             <ImprovedInlineEditor
               initialValue={currentDate}
@@ -405,8 +387,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 fontSize: '14px',
                 color: '#A2ACB1',
                 width: '100%',
-                height: 'auto',
-              }}
+                height: 'auto'}}
             />
           ) : (
             <div
@@ -430,8 +411,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                 fontSize: '14px',
                 color: '#A2ACB1',
                 width: '100%',
-                height: 'auto',
-              }}
+                height: 'auto'}}
             />
           ) : (
             <div

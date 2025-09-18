@@ -49,9 +49,11 @@ export const LeftBarAvatarImageSlideTemplate: React.FC<LeftBarAvatarImageProps &
   };
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', overflow:'hidden' };
-  const leftBar: React.CSSProperties = { position:'absolute', left:0, top:0, bottom:0, width:'200px', background:'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)' };
+    const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', overflow:'hidden' };,
+    const leftBar: React.CSSProperties = { position:'absolute', left:0, top:0, bottom:0, width:'200px', background:'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)' };,
   const avatarWrap: React.CSSProperties = { position:'absolute', left:'85px', border:'1px solid #E0E7FF', zIndex:'10', top:'50%', transform:'translateY(-50%)', width:'230px', height:'230px', borderRadius:'50%', overflow:'hidden', background:'#ffffff' };
-  const frame: React.CSSProperties = { position:'absolute', left:'330px', top:'100px', right:'70px', bottom:'100px' };
+    const avatarWrap: React.CSSProperties = { position:'absolute', left:'85px', border:'1px solid #E0E7FF', zIndex:'10', top:'50%', transform:'translateY(-50%)', width:'230px', height:'230px', borderRadius:'50%', overflow:'hidden', background:'#ffffff' };,
+    const frame: React.CSSProperties = { position:'absolute', left:'330px', top:'100px', right:'70px', bottom:'100px' };,
 
   return (
     <div className="leftbar-avatar-image inter-theme" style={slide}>

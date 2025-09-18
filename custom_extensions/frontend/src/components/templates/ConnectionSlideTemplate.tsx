@@ -44,7 +44,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
   const [editingTabIndex, setEditingTabIndex] = useState<number | null>(null);
   const [showBackgroundUploadModal, setShowBackgroundUploadModal] = useState(false);
 
-  const slide: React.CSSProperties = {
+  const slide: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#121212',
@@ -53,42 +53,36 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     color: '#d1d5db',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr'
-  };
+    gridTemplateColumns: '1fr 1fr',
 
-  const left: React.CSSProperties = {
+  const left: React.CSSProperties = {,
     padding: '88px 56px 140px 56px',
     backgroundColor: '#E0E7FF',
-  };
 
-  const titleStyle: React.CSSProperties = {
+  const titleStyle: React.CSSProperties = {,
     fontSize: '45px',
     color: '#09090B',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     marginTop: '5px',
-    marginBottom: '20px'
-  };
+    marginBottom: '20px',
 
-  const desc: React.CSSProperties = {
+  const desc: React.CSSProperties = {,
     fontSize: '15px',
     lineHeight: 1.5,
     maxWidth: '380px',
-    color: '#09090B'
-  };
+    color: '#09090B',
 
-  const right: React.CSSProperties = {
+  const right: React.CSSProperties = {,
     position: 'relative',
-    backgroundColor: '#1b1b1b'
-  };
+    backgroundColor: '#1b1b1b',
 
-  const vennWrapper: React.CSSProperties = {
+  const vennWrapper: React.CSSProperties = {,
     position: 'absolute',
     right: '72px',
     top: '96px',
     width: '640px',
-    height: '640px'
-  };
-  const bigCircle: React.CSSProperties = {
+    height: '640px',
+  const bigCircle: React.CSSProperties = {,
     position: 'absolute',
     right: '0',
     top: '15px',
@@ -96,10 +90,9 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     height: '440px',
     borderRadius: '50%',
     border: '3px solid rgba(255,255,255,0.35)',
-    backgroundColor: 'rgba(255,255,255,0.08)'
-  };
+    backgroundColor: 'rgba(255,255,255,0.08)',
 
-  const small: React.CSSProperties = {
+  const small: React.CSSProperties = {,
     position: 'absolute',
     width: '180px',
     height: '180px',
@@ -107,10 +100,9 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     border: '3px solid rgba(255,255,255,0.35)',
     backgroundColor: 'rgba(255,255,255,0.06)',
     top: '150px',
-    left: '240px'
-  };
+    left: '240px',
 
-  const smallRight: React.CSSProperties = {
+  const smallRight: React.CSSProperties = {,
     position: 'absolute',
     width: '180px',
     height: '180px',
@@ -118,10 +110,9 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     border: '3px solid rgba(255,255,255,0.35)',
     backgroundColor: 'rgba(255,255,255,0.06)',
     top: '150px',
-    right: '40px'
-  };
+    right: '40px',
 
-  const footer: React.CSSProperties = {
+  const footer: React.CSSProperties = {,
     position: 'absolute',
     left: 0,
     right: 0,
@@ -130,20 +121,18 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     backgroundColor: '#0D0D0D',
     display: 'grid',
     gridTemplateColumns: 'repeat(6, 1fr)',
-    borderTop: '1px solid #2b2b2b'
-  };
+    borderTop: '1px solid #2b2b2b',
 
-  const tab: React.CSSProperties = {
+  const tab: React.CSSProperties = {,
     backgroundColor: '#0F58F9',
     color: '#ffffff',
     border: '1px solid #ffffff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '16px'
-  };
+    fontSize: '16px',
 
-  const topBar: React.CSSProperties = {
+  const topBar: React.CSSProperties = {,
     position: 'absolute',
     left: 0,
     right: 0,
@@ -152,8 +141,7 @@ export const ConnectionSlideTemplate: React.FC<ConnectionSlideProps & { theme?: 
     display: 'flex',
     alignItems: 'center',
     padding: '25px 50px',
-    zIndex: 2
-  };
+    zIndex: 2,
 
   return (
     <div className="connection-slide" style={slide}>

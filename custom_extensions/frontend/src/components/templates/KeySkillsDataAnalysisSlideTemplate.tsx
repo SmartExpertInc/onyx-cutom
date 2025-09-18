@@ -34,26 +34,33 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const [editItem, setEditItem] = useState<number | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px', gap:'36px', padding:'56px 56px' };
-  const headingStyle: React.CSSProperties = { fontSize:'53px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#485A4F', lineHeight:1.05 };
+    const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px', gap:'36px', padding:'56px 56px' };,
+    const headingStyle: React.CSSProperties = { fontSize:'53px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#485A4F', lineHeight:1.05 };,
   const list: React.CSSProperties = { marginTop:'28px', display:'grid', rowGap:'22px' };
-  const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', alignItems:'center', columnGap:'18px' };
+    const list: React.CSSProperties = { marginTop:'28px', display:'grid', rowGap:'22px' };,
+    const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', alignItems:'center', columnGap:'18px' };,
   const num: React.CSSProperties = { fontSize:'44px', color:'#3E5B4B', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' };
-  const text: React.CSSProperties = { fontSize:'28px', color:'#4B6256' };
+    const num: React.CSSProperties = { fontSize:'44px', color:'#3E5B4B', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' };,
+    const text: React.CSSProperties = { fontSize:'28px', color:'#4B6256' };,
 
   const rightWrap: React.CSSProperties = { position:'relative' };
-  const panel: React.CSSProperties = { position:'absolute', inset:0, borderRadius:'40px', background:'#1C3927' };
+    const rightWrap: React.CSSProperties = { position:'relative' };,
+    const panel: React.CSSProperties = { position:'absolute', inset:0, borderRadius:'40px', background:'#1C3927' };,
   const image: React.CSSProperties = { position:'absolute', inset:0, width:'68%', height:'100%', objectFit:'contain' };
-
-  const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-  const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
+    const image: React.CSSProperties = { position:'absolute', inset:0, width:'68%', height:'100%', objectFit:'contain' };,
+    const inlineHeading = { ...headingStyle, position: 'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;,
+    const inlineText = { ...text, position: 'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;,
+    <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading: v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inlineHeading} />,
+    ): (,
+    <div onClick={()=> isEditable && setEditHeading(true)} style={{ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>,
+    <ImprovedInlineEditor initialValue={it} onSave={(v)=>{ const next=[...items]; next[i]=v; onUpdate&&onUpdate({ items: next }); setEditItem(null); }} onCancel={()=>setEditItem(null)} style={inlineText} />,
+    <div onClick={()=> isEditable && setEditItem(i)} style={{ ...text, cursor: isEditable ? 'pointer':'default' }}>{it}</div>,
+    <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath: p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={image} />,
 
   return (
     <div className="key-skills-data-analysis inter-theme" style={slide}>
       <div>
         {isEditable && editHeading ? (
-          <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inlineHeading} />
-        ) : (
-          <div onClick={()=> isEditable && setEditHeading(true)} style={{ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>
         )}
         <div style={list}>
           {items.map((it, i)=> (
@@ -61,9 +68,6 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
               <div style={num}>{String(i+1)}</div>
               <div>
                 {isEditable && editItem === i ? (
-                  <ImprovedInlineEditor initialValue={it} onSave={(v)=>{ const next=[...items]; next[i]=v; onUpdate&&onUpdate({ items: next }); setEditItem(null); }} onCancel={()=>setEditItem(null)} style={inlineText} />
-                ) : (
-                  <div onClick={()=> isEditable && setEditItem(i)} style={{ ...text, cursor: isEditable ? 'pointer':'default' }}>{it}</div>
                 )}
               </div>
             </div>
@@ -72,7 +76,6 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
       </div>
       <div style={rightWrap}>
         <div style={panel} />
-        <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath:p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={image} />
       </div>
     </div>
   );

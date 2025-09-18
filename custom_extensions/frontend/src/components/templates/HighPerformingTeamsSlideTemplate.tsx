@@ -32,16 +32,15 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const [editingDesc, setEditingDesc] = useState(false);
   const [curvePoints, setCurvePoints] = useState(points);
 
-  const slide: React.CSSProperties = {
+  const slide: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     position: 'relative',
     backgroundColor: '#ffffff',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    overflow: 'hidden'
-  };
+    overflow: 'hidden',
 
-  const titleStyle: React.CSSProperties = {
+  const titleStyle: React.CSSProperties = {,
     position: 'absolute',
     left: '64px',
     top: '64px',
@@ -50,37 +49,33 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#343244',
     letterSpacing: '-0.4px',
-    maxWidth: '520px'
-  };
+    maxWidth: '520px',
 
-  const paragraph: React.CSSProperties = {
+  const paragraph: React.CSSProperties = {,
     position: 'absolute',
     right: '70px',
     top: '80px',
     maxWidth: '418px',
     color: '#6E6D73',
     fontSize: '16px',
-    lineHeight: 1.6
-  };
+    lineHeight: 1.6,
 
-  const panel: React.CSSProperties = {
+  const panel: React.CSSProperties = {,
     position: 'absolute',
     left: '64px',
     right: '64px',
     bottom: '56px',
     top: '210px',
     backgroundColor: panelColor,
-    borderRadius: '36px'
-  };
+    borderRadius: '36px',
 
-  const avatarHolder: React.CSSProperties = {
+  const avatarHolder: React.CSSProperties = {,
     position: 'absolute',
     left: '360px',
     bottom: '-3px',
     width: '360px',
     height: '605px',
-    zIndex: 2
-  };
+    zIndex: 2,
 
   const svgRef = useRef<SVGSVGElement | null>(null);
 

@@ -36,28 +36,32 @@ export const OralHygieneSignsSlideTemplate: React.FC<OralHygieneSignsProps & { t
   const [editItem, setEditItem] = useState<{ side: 'left' | 'right'; idx: number; field: 'title' | 'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };
-  const headingStyle: React.CSSProperties = { position:'absolute', top:'30px', fontSize:'58px', width:'600px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#1F2937', lineHeight:1.05 };
+    const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };,
+    const headingStyle: React.CSSProperties = { position:'absolute', top:'30px', fontSize:'58px', width:'600px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#1F2937', lineHeight:1.05 };,
   const avatar: React.CSSProperties = { position:'absolute', right:'56px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#4B71D6' };
-  const grid: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'56px', top:'285px', display:'grid', gridTemplateColumns:'1fr 1fr', columnGap:'72px' };
+    const avatar: React.CSSProperties = { position:'absolute', right:'56px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#4B71D6' };,
+    const grid: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', bottom:'56px', top:'285px', display:'grid', gridTemplateColumns:'1fr 1fr', columnGap:'72px' };,
   const list: React.CSSProperties = { display:'grid', rowGap:'22px' };
-  const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'96px 1fr', columnGap:'18px', alignItems:'center' };
+    const list: React.CSSProperties = { display:'grid', rowGap:'22px' };,
+    const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'96px 1fr', columnGap:'18px', alignItems:'center' };,
   const num: React.CSSProperties = { fontSize:'64px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#5B78E6' };
-  const title: React.CSSProperties = { fontSize:'18px', color:'#111827', marginBottom:'4px' };
+    const num: React.CSSProperties = { fontSize:'64px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#5B78E6' };,
+    const title: React.CSSProperties = { fontSize:'18px', color:'#111827', marginBottom:'4px' };,
   const body: React.CSSProperties = { fontSize:'14px', color:'#6B7280', lineHeight:1.6 };
+    const body: React.CSSProperties = { fontSize:'14px', color:'#6B7280', lineHeight:1.6 };,
+    const inlineHeading = { ...headingStyle, position: 'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;,
+    const inlineTitle = { ...title, position: 'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;,
+    const inlineBody = { ...body, position: 'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;,
+    const save = (side: 'left' | 'right', idx: number, field: 'title' | 'body', value: string) => {,
+    onUpdate && onUpdate({ leftItems: next });,
+    onUpdate && onUpdate({ rightItems: next });,
 
-  const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-  const inlineTitle = { ...title, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-  const inlineBody = { ...body, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-
-  const save = (side: 'left' | 'right', idx: number, field: 'title' | 'body', value: string) => {
     if (side === 'left') {
       const next = [...leftItems];
       (next[idx] as any)[field] = value;
-      onUpdate && onUpdate({ leftItems: next });
     } else {
       const next = [...rightItems];
       (next[idx] as any)[field] = value;
-      onUpdate && onUpdate({ rightItems: next });
     }
     setEditItem(null);
   };

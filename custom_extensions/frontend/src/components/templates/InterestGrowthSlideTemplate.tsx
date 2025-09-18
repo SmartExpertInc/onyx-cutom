@@ -36,7 +36,7 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
@@ -46,28 +46,25 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     display: 'grid',
     gridTemplateColumns: '1fr 57%',
     gap: '0px',
-    padding: '24px'
-  };
+    padding: '24px',
 
-  const titleStyle: React.CSSProperties = {
+  const titleStyle: React.CSSProperties = {,
     gridColumn: '2 / 3',
     fontSize: '55px',
     color: '#09090B',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     letterSpacing: '-0.5px',
-  };
 
-  const cardsGrid: React.CSSProperties = {
+  const cardsGrid: React.CSSProperties = {,
     gridColumn: '2 / 3',
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gridTemplateRows: 'auto auto',
     gap: '24px',
     alignContent: 'start',
-    marginTop: '12px'
-  };
+    marginTop: '12px',
 
-  const cardStyle: React.CSSProperties = {
+  const cardStyle: React.CSSProperties = {,
     border: '2px solid #d9d9d9',
     padding: '28px',
     display: 'flex',
@@ -75,10 +72,9 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     justifyContent: 'end',
     backgroundColor: '#fff',
     position: 'relative',
-    alignSelf: 'start'
-  };
+    alignSelf: 'start',
 
-  const rightPanel: React.CSSProperties = {
+  const rightPanel: React.CSSProperties = {,
     width: '430px',
     height: '498px',
     background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
@@ -88,14 +84,12 @@ export const InterestGrowthSlideTemplate: React.FC<InterestGrowthSlideProps & { 
     marginTop: '69px',
     overflow: 'hidden',
     borderRadius: '20px',
-  };
 
-  const cornerLine: React.CSSProperties = {
+  const cornerLine: React.CSSProperties = {,
     position: 'absolute',
     width: '96px',
     height: '96px',
-    border: '2px solid rgba(255,255,255,0.8)'
-  };
+    border: '2px solid rgba(255,255,255,0.8)',
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);

@@ -37,7 +37,7 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     if (onUpdate) onUpdate({ title: newTitle });
   };
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#0E0E0E',
@@ -45,18 +45,16 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
-  const leftPanelStyles: React.CSSProperties = {
+  const leftPanelStyles: React.CSSProperties = {,
     position: 'absolute',
     top: 0,
     left: 0,
     bottom: 0,
     width: '66.5%',
     backgroundColor: '#FEFEFE',
-  };
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '44px',
     left: '41px',
@@ -65,9 +63,8 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#202122',
     maxWidth: '78%',
-  };
 
-  const tipsGridStyles: React.CSSProperties = {
+  const tipsGridStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '165px',
     left: '44px',
@@ -77,30 +74,26 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     gridTemplateRows: 'auto auto',
     columnGap: '72px',
     rowGap: '64px',
-  };
 
-  const numberStyles: React.CSSProperties = {
+  const numberStyles: React.CSSProperties = {,
     fontSize: '25px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#5740BC',
     marginBottom: '8px',
-  };
 
-  const tipHeadingStyles: React.CSSProperties = {
+  const tipHeadingStyles: React.CSSProperties = {,
     fontSize: '29px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#202222',
     marginBottom: '8px',
-  };
 
-  const tipDescStyles: React.CSSProperties = {
+  const tipDescStyles: React.CSSProperties = {,
     fontSize: '13px',
     color: '#484949',
     lineHeight: 1.4,
     maxWidth: '95%',
-  };
 
-  const rightPanelStyles: React.CSSProperties = {
+  const rightPanelStyles: React.CSSProperties = {,
     position: 'absolute',
     top: 0,
     right: 0,
@@ -110,7 +103,6 @@ export const StaySafeTipsSlideTemplate: React.FC<StaySafeTipsSlideProps & { them
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-  };
 
   return (
     <div className="stay-safe-tips-slide inter-theme" style={slideStyles}>

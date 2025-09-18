@@ -90,8 +90,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -115,8 +114,7 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         boxSizing: 'border-box',
-        display: 'block',
-      }}
+        display: 'block'}}
     />
   );
 }
@@ -155,7 +153,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#ffff',
@@ -165,7 +163,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '60px 80px',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -266,8 +263,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           width: '145px',
           height: '145px',
           borderRadius: '50%',
-          overflow: 'hidden',
-        }}>
+          overflow: 'hidden'}}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -309,14 +305,12 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               display: 'flex',
               paddingLeft: '32px',
               paddingTop: '40px',
-              zIndex: '2',
-            }}>
+              zIndex: '2'}}>
               <div style={{
                 fontSize: '32px',
                 fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 color: '#EBDEF8',
-                lineHeight: '1.4',
-              }}>
+                lineHeight: '1.4'}}>
                 {isEditable && editingTips === index ? (
                   <InlineEditor
                     initialValue={tip.text}

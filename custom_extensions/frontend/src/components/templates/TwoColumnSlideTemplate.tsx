@@ -39,7 +39,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     height: '600px',
     backgroundColor: themeBg,
@@ -48,7 +48,6 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -162,8 +161,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
               objectFit: 'cover',
               overflow: 'hidden',
               position: 'relative',
-              bottom: '-15px',
-            }}
+              bottom: '-15px'}}
           />
         </div>
 

@@ -18,22 +18,20 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   profileImageAlt = 'Profile',
   isEditable = false,
   onUpdate,
-  theme,
-}) => {
+  theme}) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#F8F8F8',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '33px',
     left: '56px',
@@ -42,9 +40,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#3C3C3C',
     whiteSpace: 'pre-line',
-  };
 
-  const avatarCircleStyles: React.CSSProperties = {
+  const avatarCircleStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '40px',
     right: '56px',
@@ -53,9 +50,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     borderRadius: '50%',
     overflow: 'hidden',
     backgroundColor: '#916AF7',
-  };
 
-  const cardsRowStyles: React.CSSProperties = {
+  const cardsRowStyles: React.CSSProperties = {,
     position: 'absolute',
     left: '56px',
     right: '56px',
@@ -63,17 +59,15 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
     gap: '28px',
-  };
 
-  const cardStyles: React.CSSProperties = {
+  const cardStyles: React.CSSProperties = {,
     position: 'relative',
     backgroundColor: '#E5E5E5',
     borderRadius: '0px',
     overflow: 'hidden',
     height: '340px',
-  };
 
-  const cardLabelStyles: React.CSSProperties = {
+  const cardLabelStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '20px',
     left: '20px',
@@ -83,7 +77,6 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     display: 'flex',
     alignItems: 'center',
-  };
 
   return (
     <div className="soft-skills-types-slide inter-theme" style={slideStyles}>

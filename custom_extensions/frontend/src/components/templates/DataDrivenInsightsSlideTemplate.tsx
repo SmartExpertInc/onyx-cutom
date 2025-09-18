@@ -53,8 +53,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     return Array.from({ length: len }).map((_, i) => ({
       year: years[i] ?? String(2000 + i),
       value: values[i] ?? '',
-      height: Math.max(0, heights[i] ?? 0),
-    }));
+      height: Math.max(0, heights[i] ?? 0)}));
   };
   const [leftSeries, setLeftSeries] = useState<SeriesBar[]>(toSeries(leftBars, leftValues, barLabels));
   const [rightSeries, setRightSeries] = useState<SeriesBar[]>(toSeries(rightBars, rightValues, barLabels));
@@ -68,53 +67,61 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       onUpdate({
         leftBars: leftSeries.map(b => b.height),
         leftValues: leftSeries.map(b => b.value),
-        barLabels: leftSeries.map(b => b.year),
-      });
+        barLabels: leftSeries.map(b => b.year)});
     } else {
       onUpdate({
         rightBars: rightSeries.map(b => b.height),
-        rightValues: rightSeries.map(b => b.value),
-      });
+        rightValues: rightSeries.map(b => b.value)});
     }
   };
 
   // Layout
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#1A1A1A', color:'#E5E7EB', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#282828', color:'#9B9B9B', padding:'8px 18px', fontSize:'16px' };
+    const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#1A1A1A', color:'#E5E7EB', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };,
+    const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#282828', color:'#9B9B9B', padding:'8px 18px', fontSize:'16px' };,
   const titleStyle: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#D2D2D2' };
-  const descStyle: React.CSSProperties = { width:'795px', color:'#909090', fontSize:'14px' };
+    const titleStyle: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#D2D2D2' };,
+    const descStyle: React.CSSProperties = { width:'795px', color:'#909090', fontSize:'14px' };,
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
-  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };
+    const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };,
+    const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };,
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#29282A', height:'338px', padding:'16px 18px', borderRadius:'2px', position:'relative' };
+    const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };,
+    const panel: React.CSSProperties = { background:'#29282A', height:'338px', padding:'16px 18px', borderRadius:'2px', position:'relative' };,
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
-  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
+    const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };,
+    const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };,
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9C9C9C', fontSize:'12px' };
-  const barBase: React.CSSProperties = { width:'40px', background:'#894DF4', position:'relative' };
+    const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9C9C9C', fontSize:'12px' };,
+    const barBase: React.CSSProperties = { width:'40px', background:'#894DF4', position:'relative' };,
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px', gap:'10px' };
-
-  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };
+    const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px', gap:'10px' };,
+    const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };,
   const metricValue: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#DBDBDB' };
-  const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#929292', fontSize:'15px' };
+    const metricValue: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#DBDBDB' };,
+    const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#929292', fontSize:'15px' };,
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
+    const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };,
+    const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });,
+    const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (,
+    <div style={{ position: 'absolute', left:0, bottom:0, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-0` })}>,
+    <ImprovedInlineEditor initialValue="0" onSave={(v)=>{ const num = parseInt(v) || 0; setCurrentYTicks([num, ...currentYTicks]); onUpdate && onUpdate({ yTicks: [num, ...currentYTicks] }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />,
+    ): t},
+    <div key={t} style={{ position: 'absolute', left:0, bottom:`${t*2}px`, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-${i+1}` })}>,
+    <ImprovedInlineEditor initialValue={t.toString()} onSave={(v)=>{ const num = parseInt(v) || 0; const next = [...currentYTicks]; next[i] = num; setCurrentYTicks(next); onUpdate && onUpdate({ yTicks: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />,
+    style={{ ...barBase, height: `${hh}px` }},
+    onMouseEnter={()=> setHoverBar({ panel: panelKey, idx:i })},
+    const onMove = (me: MouseEvent)=>{,
+    next[i] = { ...next[i], height: newVal };,
 
-  const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
-
-  const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (
     <div style={chartArea}>
       <div style={yAxis}>
-        <div style={{ position:'absolute', left:0, bottom:0, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-0` })}>
           {edit?.key===`${panelKey}-y-0` ? (
-            <ImprovedInlineEditor initialValue="0" onSave={(v)=>{ const num = parseInt(v) || 0; setCurrentYTicks([num, ...currentYTicks]); onUpdate && onUpdate({ yTicks: [num, ...currentYTicks] }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />
-          ) : '0'}
         </div>
         {currentYTicks.map((t, i)=> (
-          <div key={t} style={{ position:'absolute', left:0, bottom:`${t*2}px`, cursor: isEditable ? 'pointer':'default' }} onClick={()=> isEditable && setEdit({ key: `${panelKey}-y-${i+1}` })}>
             {edit?.key===`${panelKey}-y-${i+1}` ? (
-              <ImprovedInlineEditor initialValue={t.toString()} onSave={(v)=>{ const num = parseInt(v) || 0; const next = [...currentYTicks]; next[i] = num; setCurrentYTicks(next); onUpdate && onUpdate({ yTicks: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9C9C9C', fontSize:'12px' }} />
-            ) : t}
           </div>
         ))}
       </div>
@@ -124,18 +131,14 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           return (
             <div
               key={i}
-              style={{ ...barBase, height:`${hh}px` }}
-              onMouseEnter={()=> setHoverBar({ panel: panelKey, idx:i })}
               onMouseLeave={()=> setHoverBar(null)}
               onMouseDown={(e)=>{
                 if (!isEditable) return;
                 const startY = e.clientY; const startH = hh;
-                const onMove = (me: MouseEvent)=>{
                   const delta = startY - me.clientY; // px
                   const newHeightPx = Math.max(0, startH + delta);
                   const newVal = Math.round(newHeightPx / 2);
                   const next = [...series];
-                  next[i] = { ...next[i], height: newVal };
                   if (panelKey==='left') setLeftSeries(next); else setRightSeries(next);
                 };
                 const onUp = ()=>{ window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); pushState(panelKey); };

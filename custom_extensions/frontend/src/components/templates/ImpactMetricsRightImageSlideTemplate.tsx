@@ -48,7 +48,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMetricIndex, setEditingMetricIndex] = useState<number | null>(null);
 
-  const slide: React.CSSProperties = {
+  const slide: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#182F35',
@@ -58,24 +58,21 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     display: 'grid',
     gridTemplateColumns: '1fr 540px',
     gap: '40px',
-    padding: '80px 60px'
-  };
+    padding: '80px 60px',
 
-  const metricsCol: React.CSSProperties = {
+  const metricsCol: React.CSSProperties = {,
     display: 'flex',
     flexDirection: 'column',
     gap: '60px',
     alignItems: 'flex-start',
-    justifyContent: 'center'
-  };
+    justifyContent: 'center',
 
-  const metricRow: React.CSSProperties = {
+  const metricRow: React.CSSProperties = {,
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '35px'
-  };
+    gap: '35px',
 
-  const bullet: React.CSSProperties = {
+  const bullet: React.CSSProperties = {,
     width: '34px',
     height: '34px',
     borderRadius: '50%',
@@ -83,25 +80,22 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0
-  };
+    flexShrink: 0,
 
-  const metricText: React.CSSProperties = {
+  const metricText: React.CSSProperties = {,
     fontSize: '40px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     lineHeight: 1.1,
     color: '#DFE6D8',
-    maxWidth: '880px'
-  };
+    maxWidth: '880px',
 
-  const titleStyle: React.CSSProperties = {
+  const titleStyle: React.CSSProperties = {,
     fontSize: '56px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     marginBottom: '30px',
-    color: textColor
-  };
+    color: textColor,
 
-  const rightWrap: React.CSSProperties = {
+  const rightWrap: React.CSSProperties = {,
     position: 'absolute',
     width: '470px',
     height: '86%',
@@ -111,26 +105,24 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden'
-  };
+    overflow: 'hidden',
 
-  const panel: React.CSSProperties = {
+  const panel: React.CSSProperties = {,
     position: 'absolute',
     inset: '0 0 0 0',
     borderRadius: '30px',
-    backgroundColor: '#EC672C'
-  };
+    backgroundColor: '#EC672C',
 
-  const imageStyle: React.CSSProperties = {
+  const imageStyle: React.CSSProperties = {,
     position: 'absolute',
     bottom: '-26px',
     width: '70',
     height: '90%',
-    objectFit: 'contain'
-  };
+    objectFit: 'contain',
 
   const inlineTitleStyle: React.CSSProperties = { ...titleStyle, position: 'relative', backgroundColor: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 };
-  const inlineMetricStyle: React.CSSProperties = { ...metricText, position: 'relative', backgroundColor: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 };
+    const inlineTitleStyle: React.CSSProperties = { ...titleStyle, position: 'relative', backgroundColor: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 };,
+    const inlineMetricStyle: React.CSSProperties = { ...metricText, position: 'relative', backgroundColor: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 };,
 
   return (
     <div className="impact-metrics-right-image inter-theme" style={slide}>

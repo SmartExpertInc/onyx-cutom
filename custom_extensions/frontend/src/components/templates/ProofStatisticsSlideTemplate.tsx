@@ -56,17 +56,16 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#1A1A1A', // Dark background as per screenshot
+    backgroundColor: '#1A1A1A', // Dark background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
-  };
 
   const handleTagTextSave = (newTagText: string) => {
     setCurrentTagText(newTagText);
@@ -136,8 +135,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         backgroundColor: '#282828', // Slightly lighter dark gray
         padding: '8px 16px',
         fontSize: '14px',
-        color: '#A1A1A1',
-      }}>
+        color: '#A1A1A1'}}>
         {isEditable && editingTagText ? (
           <ImprovedInlineEditor
             initialValue={currentTagText}
@@ -148,8 +146,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               fontSize: '14px',
               color: '#FFFFFF',
               width: '100%',
-              height: 'auto',
-            }}
+              height: 'auto'}}
           />
         ) : (
           <div
@@ -173,8 +170,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#DFDFDF',
         lineHeight: '1.1',
-        maxWidth: '600px',
-      }}>
+        maxWidth: '600px'}}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
@@ -187,8 +183,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               color: '#DFDFDF',
               lineHeight: '1.1',
               width: '100%',
-              height: 'auto',
-            }}
+              height: 'auto'}}
           />
         ) : (
           <div
@@ -211,8 +206,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         fontSize: '13px',
         color: '#929292',
         lineHeight: '1.4',
-        maxWidth: '454px',
-      }}>
+        maxWidth: '454px'}}>
         {isEditable && editingDescription ? (
           <ImprovedInlineEditor
             initialValue={currentDescription}
@@ -225,8 +219,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               color: '#FFFFFF',
               lineHeight: '1.4',
               width: '100%',
-              height: 'auto',
-            }}
+              height: 'auto'}}
           />
         ) : (
           <div
@@ -255,20 +248,17 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         padding: '44px',
         borderRadius: '2px',
         paddingTop: '25px',
-        paddingBottom: '35px',
-      }}>
+        paddingBottom: '35px'}}>
         {currentStatistics.map((stat, index) => (
           <div key={index} style={{
             display: 'flex',
-            flexDirection: 'column',
-          }}>
+            flexDirection: 'column'}}>
             {/* Statistic Value */}
             <div style={{
               fontSize: '32px',
               fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#E1E1E1',
-              marginBottom: '12px',
-            }}>
+              marginBottom: '12px'}}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'value' ? (
                 <ImprovedInlineEditor
                   initialValue={stat.value}
@@ -280,8 +270,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                     color: '#E1E1E1',
                     width: '100%',
-                    height: 'auto',
-                  }}
+                    height: 'auto'}}
                 />
               ) : (
                 <div
@@ -300,8 +289,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             <div style={{
               fontSize: '14px',
               color: '#989898',
-              lineHeight: '1.3',
-            }}>
+              lineHeight: '1.3'}}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'description' ? (
                 <ImprovedInlineEditor
                   initialValue={stat.description}
@@ -313,8 +301,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                     color: '#989898',
                     lineHeight: '1.3',
                     width: '100%',
-                    height: 'auto',
-                  }}
+                    height: 'auto'}}
                 />
               ) : (
                 <div
@@ -337,15 +324,13 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         position: 'absolute',
         top: '240px',
         right: '60px',
-        width: '400px',
-      }}>
+        width: '400px'}}>
         {/* Conclusion Text */}
         <div style={{
           fontSize: '14px',
           color: '#939393',
           lineHeight: '1.4',
-          marginBottom: '20px',
-        }}>
+          marginBottom: '20px'}}>
           {isEditable && editingConclusionText ? (
             <ImprovedInlineEditor
               initialValue={currentConclusionText}
@@ -358,8 +343,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                 color: '#939393',
                 lineHeight: '1.4',
                 width: '100%',
-                height: 'auto',
-              }}
+                height: 'auto'}}
             />
           ) : (
             <div
@@ -378,28 +362,24 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
-        }}>
+          gap: '8px'}}>
           {currentBulletPoints.map((bulletPoint, index) => (
             <div key={index} style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '8px',
-            }}>
+              gap: '8px'}}>
               <div style={{
                 width: '19px',
                 height: '18px',
                 borderRadius: '50%',
                 backgroundColor: '#8C51F6', // Purple circle
                 marginTop: '6px',
-                flexShrink: 0,
-              }} />
+                flexShrink: 0}} />
               <div style={{
                 fontSize: '16px',
                 color: '#8E8E8E',
                 lineHeight: '1.4',
-                flex: 1,
-              }}>
+                flex: 1}}>
                 {isEditable && editingBulletPoints === index ? (
                   <ImprovedInlineEditor
                     initialValue={bulletPoint}
@@ -411,8 +391,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                       color: '#8E8E8E',
                       lineHeight: '1.4',
                       width: '100%',
-                      height: 'auto',
-                    }}
+                      height: 'auto'}}
                   />
                 ) : (
                   <div
@@ -440,8 +419,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         height: '120px',
         borderRadius: '50%',
         backgroundColor: '#292929',
-        overflow: 'hidden',
-      }}>
+        overflow: 'hidden'}}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={handleProfileImageUploaded}

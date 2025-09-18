@@ -43,16 +43,15 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#FAF9F4', // Light off-white background as per screenshot
+    backgroundColor: '#FAF9F4', // Light off-white background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -95,8 +94,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         fontSize: '48px',
         fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#1C1B1A', // Black text as per screenshot
-        lineHeight: '1.1',
-      }}>
+        lineHeight: '1.1'}}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
@@ -109,8 +107,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
               color: '#1C1B1A',
               lineHeight: '1.1',
               width: '100%',
-              height: 'auto',
-            }}
+              height: 'auto'}}
           />
         ) : (
           <div
@@ -134,8 +131,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         display: 'grid',
         gridTemplateColumns: '215px 215px',
         gridTemplateRows: 'repeat(3, 70px)',
-        gap: '40px',
-      }}>
+        gap: '40px'}}>
         {currentButtons.map((button, index) => (
           <div key={index} style={{
             backgroundColor: '#6CDC77', // Vibrant green color as per screenshot
@@ -146,8 +142,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             alignItems: 'center',
             justifyContent: 'center',
             cursor: isEditable ? 'pointer' : 'default',
-            minHeight: '60px',
-          }}>
+            minHeight: '60px'}}>
             {isEditable && editingButtons?.index === index ? (
               <ImprovedInlineEditor
                 initialValue={button.text}
@@ -160,8 +155,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                   color: '#245D27',
                   width: '100%',
                   height: 'auto',
-                  textAlign: 'center',
-                }}
+                  textAlign: 'center'}}
               />
             ) : (
               <div
@@ -190,8 +184,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         height: '440px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+        justifyContent: 'center'}}>
         {/* Blue Background Rectangle */}
         <div style={{
           position: 'absolute',
@@ -202,15 +195,13 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           backgroundColor: '#A7B3DD', // Light blue background as per screenshot
           borderRadius: '12px',
           border: '1px solid #000000',
-          zIndex: 1,
-        }} />
+          zIndex: 1}} />
         
         {/* Profile Image! */}
         <div style={{
           position: 'absolute',
           bottom: '-24px',
-          zIndex: 2,
-        }}>
+          zIndex: 2}}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -221,8 +212,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             style={{
               width: '536px',
               height: '551px',
-              objectFit: 'cover',
-            }}
+              objectFit: 'cover'}}
           />
         </div>
       </div>

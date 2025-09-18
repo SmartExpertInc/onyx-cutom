@@ -38,27 +38,25 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    padding: '16px'
-  };
+    padding: '16px',
 
-  const roundedPanel: React.CSSProperties = {
+  const roundedPanel: React.CSSProperties = {,
     position: 'absolute',
     top: '16px',
     left: '16px',
     right: '16px',
     bottom: '16px',
     backgroundColor: '#E0E7FF',
-    borderRadius: '20px'
-  };
+    borderRadius: '20px',
 
-  const titleStyle: React.CSSProperties = {
+  const titleStyle: React.CSSProperties = {,
     position: 'absolute',
     left: '60px',
     top: '125px',
@@ -66,25 +64,22 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     lineHeight: 1.05,
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#09090B',
-  };
 
-  const barsArea: React.CSSProperties = {
+  const barsArea: React.CSSProperties = {,
     position: 'absolute',
     left: '64px',
     top: '275px',
     width: '56%',
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px'
-  };
+    gap: '15px',
 
-  const rightImageArea: React.CSSProperties = {
+  const rightImageArea: React.CSSProperties = {,
     position: 'absolute',
     right: '90px',
     top: '30px',
     bottom: '97px',
     height: '96%',
-  };
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);

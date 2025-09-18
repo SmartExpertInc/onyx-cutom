@@ -91,8 +91,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -116,8 +115,7 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         boxSizing: 'border-box',
-        display: 'block',
-      }}
+        display: 'block'}}
     />
   );
 }
@@ -158,7 +156,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#15232E',
@@ -168,7 +166,6 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 0px',
-  };
 
   const handleBarSave = (index: number, field: 'percentage' | 'description', value: string) => {
     const newBars = [...currentBars];
@@ -269,8 +266,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
          borderRadius: '50%',
          display: 'flex',
          alignItems: 'center',
-         justifyContent: 'center',
-       }}>
+         justifyContent: 'center'}}>
          <ClickableImagePlaceholder
            imagePath={profileImagePath}
            onImageUploaded={handleProfileImageUploaded}

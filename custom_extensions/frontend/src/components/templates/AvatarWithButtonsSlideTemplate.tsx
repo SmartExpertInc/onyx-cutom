@@ -193,90 +193,80 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     }
   };
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     minHeight: '600px',
     backgroundColor: backgroundColor,
     fontFamily: 'Lora, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '40px'
-  };
+    padding: '40px',
 
-  const contentContainerStyles: React.CSSProperties = {
+  const contentContainerStyles: React.CSSProperties = {,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
     maxWidth: '1200px',
-    gap: '40px'
-  };
+    gap: '40px',
 
-  const placeholderStyles: React.CSSProperties = {
+  const placeholderStyles: React.CSSProperties = {,
     width: '623px',
     height: '562px',
     margin: '0 auto',
     position: 'absolute',
     top: '-263px',
-    zIndex: 3
-  };
+    zIndex: 3,
 
-  const leftContentStyles: React.CSSProperties = {
+  const leftContentStyles: React.CSSProperties = {,
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-end',
     position: 'relative',
-    height: '100%'
-  };
+    height: '100%',
 
-  const rightContentStyles: React.CSSProperties = {
+  const rightContentStyles: React.CSSProperties = {,
     flex: '1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '32px'
-  };
+    gap: '32px',
 
-  const buttonStyles: React.CSSProperties = {
+  const buttonStyles: React.CSSProperties = {,
     padding: '20px 0px',
     width: '175px',
     borderRadius: '12px',
     border: 'none',
     fontSize: '1.3rem',
-    fontFamily: 'Lora, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#000000',
-    backgroundColor: titleColor, // Changed from safeTitleColor
+    backgroundColor: titleColor, // Changed from safeTitleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     minHeight: '60px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
-  };
+    justifyContent: 'center',
 
-  const buttonsContainerStyles: React.CSSProperties = {
+  const buttonsContainerStyles: React.CSSProperties = {,
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '20px',
     width: '100%',
-    maxWidth: '500px'
-  };
+    maxWidth: '500px',
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     fontSize: '2.8rem',
     fontFamily: 'Lora-Bold, serif',
     color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif',
-    textAlign: 'center'
-  };
+    textAlign: 'center',
 
   return (
     <div style={slideStyles}>

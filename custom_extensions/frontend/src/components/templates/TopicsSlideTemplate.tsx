@@ -28,99 +28,89 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
 
-  const slide: React.CSSProperties = { 
-    width:'100%', 
-    aspectRatio:'16/9', 
-    background:'#000000', 
-    color:'#FFFFFF', 
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
-    position:'relative',
-    borderRadius:'20px',
-    overflow:'hidden'
-  };
+  const slide: React.CSSProperties = {,
+    width: '100%',
+    aspectRatio: '16/9',
+    background: '#000000',
+    color: '#FFFFFF',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    position: 'relative',
+    borderRadius: '20px',
+    overflow: 'hidden',
 
   // Left section - avatar with dark green background
-  const leftSection: React.CSSProperties = {
-    position:'absolute',
-    left:0,
-    top:0,
-    width:'45%',
-    height:'100%',
-    background:'#2C6657',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    borderTopRightRadius:'50px',
-    borderBottomRightRadius:'50px',
-  };
+  const leftSection: React.CSSProperties = {,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '45%',
+    height: '100%',
+    background: '#2C6657',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopRightRadius: '50px',
+    borderBottomRightRadius: '50px',
 //save1
-  const avatarContainer: React.CSSProperties = {
-    width:'410px',
-    position:'absolute',
-    bottom:'-30px',
-    borderRadius:'16px',
-    overflow:'hidden',
-  };
+  const avatarContainer: React.CSSProperties = {,
+    width: '410px',
+    position: 'absolute',
+    bottom: '-30px',
+    borderRadius: '16px',
+    overflow: 'hidden',
 
   // Right section - topics with black background
-  const rightSection: React.CSSProperties = {
-    position:'absolute',
-    right:0,
-    top:0,
-    width:'55%',
-    height:'100%',
-    background:'#000000',
-    padding:'60px 80px',
-    display:'flex',
-    flexDirection:'column',
-    justifyContent:'center'
-  };
+  const rightSection: React.CSSProperties = {,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: '55%',
+    height: '100%',
+    background: '#000000',
+    padding: '60px 80px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
 
   // Topics header banner
-  const topicsBanner: React.CSSProperties = {
-    background:'#F2E5B4',
-    width:'200px',
-    borderRadius:'27px',
-    marginBottom:'40px',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center'
-  };
+  const topicsBanner: React.CSSProperties = {,
+    background: '#F2E5B4',
+    width: '200px',
+    borderRadius: '27px',
+    marginBottom: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
 
-  const topicsTitleStyle: React.CSSProperties = {
-    fontSize:'42px',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
-    color:'#443F33',
-    textAlign:'center'
-  };
+  const topicsTitleStyle: React.CSSProperties = {,
+    fontSize: '42px',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles,
+    color: '#443F33',
+    textAlign: 'center',
 
   // Topics list
-  const topicsList: React.CSSProperties = {
-    display:'flex',
-    flexDirection:'column',
-    gap:'24px'
-  };
+  const topicsList: React.CSSProperties = {,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '24px',
 
-  const topicItem: React.CSSProperties = {
-    display:'flex',
-    alignItems:'center',
-    gap:'16px'
-  };
+  const topicItem: React.CSSProperties = {,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
 
-  const bulletPoint: React.CSSProperties = {
-    width:'12px',
-    height:'12px',
-    borderRadius:'50%',
-    background:'#F5E6A3',
-    flexShrink:0
-  };
+  const bulletPoint: React.CSSProperties = {,
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+    background: '#F5E6A3',
+    flexShrink: 0,
 
-  const topicText: React.CSSProperties = {
-    fontSize:'16px',
-    fontFamily: 'Lora, serif', // Regular Lora for body text
-    color:'#C1C1C1',
-    lineHeight:1.4
-  };
+  const topicText: React.CSSProperties = {,
+    fontSize: '16px',
+    fontFamily: 'Lora, serif', // Regular Lora for body text,
+    color: '#C1C1C1',
+    lineHeight: 1.4,
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
     ...style,

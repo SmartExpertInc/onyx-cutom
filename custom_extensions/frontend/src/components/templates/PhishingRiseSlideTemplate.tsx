@@ -43,7 +43,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [yLabels, setYLabels] = useState(['70', '60', '40', '20', '0']);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#ffffff',
@@ -51,21 +51,19 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     overflow: 'hidden',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
-  };
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
 
   // Left content area
-  const leftArea: React.CSSProperties = {
+  const leftArea: React.CSSProperties = {,
     padding: '90px 56px 56px 64px',
     position: 'relative',
     backgroundColor: '#E0E7FF',
-    // right-side soft shadow to match design separation
-    zIndex: 1
-  };
+    zIndex: 1};
 
   const largeFaintTitle: React.CSSProperties = {
     fontSize: '47px',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
+    fontFamily: 'Lora-Bold, serif',
+    fontWeight: 'normal',
     letterSpacing: '-0.5px',
     color: '#09090B' // soft violet-tinted light heading
   };
@@ -88,32 +86,28 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     backgroundColor: '#0F58F9',
     borderRadius: '50%',
     overflow: 'hidden',
-  };
 
   // Right chart area
-  const rightArea: React.CSSProperties = {
+  const rightArea: React.CSSProperties = {,
     position: 'relative',
-    backgroundColor: '#ffffff'
-  };
+    backgroundColor: '#ffffff',
 
-  const yLabelsStyle: React.CSSProperties = {
+  const yLabelsStyle: React.CSSProperties = {,
     position: 'absolute',
     left: '30px',
     top: '24px',
     color: '#8d96a3',
-    fontSize: '14px'
-  };
+    fontSize: '14px',
 
-  const yPillStyle: React.CSSProperties = {
+  const yPillStyle: React.CSSProperties = {,
     display: 'inline-block',
     padding: '6px 12px',
     lineHeight: 1,
     color: '#000000',
     minWidth: '40px',
-    textAlign: 'center'
-  };
+    textAlign: 'center',
 
-  const chart: React.CSSProperties = {
+  const chart: React.CSSProperties = {,
     position: 'absolute',
     right: '48px',
     left: '96px',
@@ -121,16 +115,13 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     top: '72px',
     display: 'flex',
     alignItems: 'flex-end',
-    gap: '44px',
-    // no gridlines in the reference; keep background clean
-  };
+    gap: '44px'};
 
-  const yearStyle: React.CSSProperties = {
+  const yearStyle: React.CSSProperties = {,
     textAlign: 'center',
     color: '#8d96a3',
     marginTop: '8px',
-    fontSize: '14px'
-  };
+    fontSize: '14px',
 
   const addBar = () => {
     const newBars = [...currentBars, { year: '2025', valueLabel: 'New', height: 180 }];
@@ -472,8 +463,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        zIndex: 10,
-      }}>
+        zIndex: 10}}>
         {/* Small line */}
         <div style={{
           width: '20px',

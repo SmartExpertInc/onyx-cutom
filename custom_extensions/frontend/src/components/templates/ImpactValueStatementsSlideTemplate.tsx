@@ -30,81 +30,72 @@ export const ImpactValueStatementsSlideTemplate: React.FC<ImpactValueStatementsP
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
 
-  const slide: React.CSSProperties = { 
-    width:'100%', 
-    aspectRatio:'16/9', 
-    background:'#F5F5F5', 
-    color:'#333333', 
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
-    position:'relative' 
-  };
+  const slide: React.CSSProperties = {,
+    width: '100%',
+    aspectRatio: '16/9',
+    background: '#F5F5F5',
+    color: '#333333',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    position: 'relative',
 
   // Left content area
-  const leftContent: React.CSSProperties = {
-    position:'absolute',
-    left:'80px',
-    top:'80px',
-    width:'600px',
-    height:'calc(100% - 160px)'
-  };
+  const leftContent: React.CSSProperties = {,
+    position: 'absolute',
+    left: '80px',
+    top: '80px',
+    width: '600px',
+    height: 'calc(100% - 160px)',
 
-  const titleStyle: React.CSSProperties = {
-    fontSize:'43px',
+  const titleStyle: React.CSSProperties = {,
+    fontSize: '43px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    color:'rgb(60 58 58)',
-    marginBottom:'50px',
-    lineHeight:1.2
-  };
+    color: 'rgb(60 58 58)',
+    marginBottom: '50px',
+    lineHeight: 1.2,
 
-  const statementsContainer: React.CSSProperties = {
+  const statementsContainer: React.CSSProperties = {,
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
     gap: '32px',
-  };
 
-  const statementStyle: React.CSSProperties = {
-    display:'flex',
-    flexDirection:'column',
-    alignItems:'flex-start',
-    gap:'8px'
-  };
+  const statementStyle: React.CSSProperties = {,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '8px',
 
-  const percentageStyle: React.CSSProperties = {
-    fontSize:'42px',
+  const percentageStyle: React.CSSProperties = {,
+    fontSize: '42px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    color:'#2563EB',
-    lineHeight:1
-  };
+    color: '#2563EB',
+    lineHeight: 1,
 
-  const descriptionStyle: React.CSSProperties = {
-    fontSize:'16px',
+  const descriptionStyle: React.CSSProperties = {,
+    fontSize: '16px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    color:'rgb(88 88 88)',
-    lineHeight:1.4
-  };
+    color: 'rgb(88 88 88)',
+    lineHeight: 1.4,
 
   // Right image area
-  const rightImageArea: React.CSSProperties = {
-    position:'absolute',
-    right:'80px',
-    top:'80px',
-    width:'400px',
-    height:'calc(100% - 160px)',
-    background:'#2563EB',
-    borderRadius:'24px',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    overflow:'hidden'
-  };
+  const rightImageArea: React.CSSProperties = {,
+    position: 'absolute',
+    right: '80px',
+    top: '80px',
+    width: '400px',
+    height: 'calc(100% - 160px)',
+    background: '#2563EB',
+    borderRadius: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
 
-  const imageContainer: React.CSSProperties = {
-    width:'320px',
-    position:'absolute',
-    bottom:'-30px',
-    borderRadius:'16px',
-    overflow:'hidden',
-  };
+  const imageContainer: React.CSSProperties = {,
+    width: '320px',
+    position: 'absolute',
+    bottom: '-30px',
+    borderRadius: '16px',
+    overflow: 'hidden',
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
     ...style,

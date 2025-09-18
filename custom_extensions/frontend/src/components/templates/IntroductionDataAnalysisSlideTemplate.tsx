@@ -23,73 +23,66 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
 
-  const slide: React.CSSProperties = { 
-    width:'100%', 
-    aspectRatio:'16/9', 
-    background:'#1C3927', 
-    color:'#FFFFFF', 
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
-    position:'relative' 
-  };
+  const slide: React.CSSProperties = {,
+    width: '100%',
+    aspectRatio: '16/9',
+    background: '#1C3927',
+    color: '#FFFFFF',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    position: 'relative',
 
   // Left side - avatar frame
-  const avatarFrame: React.CSSProperties = {
-    position:'absolute',
-    left:'55px',
-    top:'50%',
-    transform:'translateY(-50%)',
-    width:'540px',
-    height:'540px',
-    background:'#EEFC83',
-    borderRadius:'40px',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    overflow:'hidden'
-  };
+  const avatarFrame: React.CSSProperties = {,
+    position: 'absolute',
+    left: '55px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: '540px',
+    height: '540px',
+    background: '#EEFC83',
+    borderRadius: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
 
-  const avatarContainer: React.CSSProperties = {
-    width:'347px',
-    position:'absolute',
-    bottom:'-28px',
-    borderRadius:'16px',
-    overflow:'hidden',
-  };
+  const avatarContainer: React.CSSProperties = {,
+    width: '347px',
+    position: 'absolute',
+    bottom: '-28px',
+    borderRadius: '16px',
+    overflow: 'hidden',
 
   // Right side - title
-  const titleContainer: React.CSSProperties = {
-    position:'absolute',
-    right:'130px',
-    top:'70px',
-    width:'400px'
-  };
+  const titleContainer: React.CSSProperties = {,
+    position: 'absolute',
+    right: '130px',
+    top: '70px',
+    width: '400px',
 
-  const titleStyle: React.CSSProperties = {
-    fontSize:'55px',
+  const titleStyle: React.CSSProperties = {,
+    fontSize: '55px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    color:'#FFFFFF',
-    lineHeight:1.2,
-    marginBottom:'40px'
-  };
+    color: '#FFFFFF',
+    lineHeight: 1.2,
+    marginBottom: '40px',
 
   // Icon frame
-  const iconFrame: React.CSSProperties = {
-    position:'absolute',
-    right:'130px',
-    top:'230px',
-    width:'400px',
-    height:'371px',
-    background:'#FFFFFF',
-    borderRadius:'40px',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center'
-  };
+  const iconFrame: React.CSSProperties = {,
+    position: 'absolute',
+    right: '130px',
+    top: '230px',
+    width: '400px',
+    height: '371px',
+    background: '#FFFFFF',
+    borderRadius: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
 
-  const iconContainer: React.CSSProperties = {
-    width:'140px',
-    overflow:'hidden'
-  };
+  const iconContainer: React.CSSProperties = {,
+    width: '140px',
+    overflow: 'hidden',
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
     ...style,

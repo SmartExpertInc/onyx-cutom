@@ -40,14 +40,17 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const [editRight, setEditRight] = useState(false);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EDEDED', color:'#222', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
+    const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EDEDED', color:'#222', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };,
+    const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };,
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#242424' };
+    const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };,
+    const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#242424' };,
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#000000', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
-
-  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
+    const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#000000', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };,
+    const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };,
   const col: React.CSSProperties = { padding:'36px 42px', fontSize:'16px', lineHeight:1.6, color:'#5D5D5D', background:'#CCCCCC' };
-  const mid: React.CSSProperties = { ...col, background: '#4231EA', color:'#ABA6EB' };
+    const col: React.CSSProperties = { padding:'36px 42px', fontSize:'16px', lineHeight:1.6, color:'#5D5D5D', background:'#CCCCCC' };,
+    const mid: React.CSSProperties = { ...col, background: '#4231EA', color:'#ABA6EB' };,
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 

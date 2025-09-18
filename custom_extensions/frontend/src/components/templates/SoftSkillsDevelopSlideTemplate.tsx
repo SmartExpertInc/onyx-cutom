@@ -29,32 +29,35 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const [edit, setEdit] = useState<{ k:string; i?:number; f?:'title'|'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };
-  const left: React.CSSProperties = { padding:'72px 72px' };
+    const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };,
+    const left: React.CSSProperties = { padding:'72px 72px' };,
   const titleStyle: React.CSSProperties = { fontSize:'60px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };
-  const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
+    const titleStyle: React.CSSProperties = { fontSize:'60px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };,
+    const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };,
   const itemTitle: React.CSSProperties = { fontSize:'22px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#444444' };
-  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#626262', lineHeight:1.5 };
+    const itemTitle: React.CSSProperties = { fontSize:'22px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#444444' };,
+    const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#626262', lineHeight:1.5 };,
 
   const right: React.CSSProperties = { position:'relative'};
-  const purpleBar: React.CSSProperties = { position:'absolute', left:'3px', top:'72px', bottom:'0', width:'86%', background:'#906AF8' };
+    const right: React.CSSProperties = { position:'relative'};,
+    const purpleBar: React.CSSProperties = { position:'absolute', left:'3px', top:'72px', bottom:'0', width:'86%', background:'#906AF8' };,
   const imageArea: React.CSSProperties = { position:'absolute', left:'54px', right:0, top:0, bottom:0, background:'#212121', height:'93%' };
-
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+    const imageArea: React.CSSProperties = { position:'absolute', left:'54px', right:0, top:0, bottom:0, background:'#212121', height:'93%' };,
+    const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });,
+    <ImprovedInlineEditor initialValue={title} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ title: v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />,
+    ): (,
+    <div onClick={()=> isEditable && setEdit({ k: 'it', i, f:'title' })} style={itemTitle}>,
+    <ImprovedInlineEditor initialValue={it.title} onSave={(v)=>{ const next=[...items]; next[i]={ ...next[i], title: v }; onUpdate&&onUpdate({ items: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(itemTitle)} />,
 
   return (
     <div className="softskills-develop inter-theme" style={slide}>
       <div style={left}>
         {isEditable && edit?.k==='title' ? (
-          <ImprovedInlineEditor initialValue={title} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />
-        ) : (
-          <div onClick={()=> isEditable && setEdit({ k:'title' })} style={{ ...titleStyle, cursor: isEditable ? 'pointer':'default' }}>{title}</div>
         )}
         <div style={grid}>
           {items.map((it, i)=> (
             <div key={i}>
-              <div onClick={()=> isEditable && setEdit({ k:'it', i, f:'title' })} style={itemTitle}>
                 {isEditable && edit?.k==='it' && edit.i===i && edit.f==='title' ? (
-                  <ImprovedInlineEditor initialValue={it.title} onSave={(v)=>{ const next=[...items]; next[i]={ ...next[i], title:v }; onUpdate&&onUpdate({ items: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(itemTitle)} />
                 ) : (
                   it.title
                 )}

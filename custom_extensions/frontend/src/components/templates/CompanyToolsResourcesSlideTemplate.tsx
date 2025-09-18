@@ -61,16 +61,15 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#EDEDED', // Light gray background as per screenshot
+    backgroundColor: '#EDEDED', // Light gray background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -112,8 +111,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         left: '40px',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
-      }}>
+        gap: '8px'}}>
         {currentCompanyLogoPath ? (
           // Show uploaded logo image
           <ClickableImagePlaceholder
@@ -179,8 +177,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#2A2A2A', // Dark gray text as per screenshot
         lineHeight: '1.1',
-        textAlign: 'center',
-      }}>
+        textAlign: 'center'}}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
@@ -194,8 +191,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
-              textAlign: 'center',
-            }}
+              textAlign: 'center'}}
           />
         ) : (
           <div
@@ -246,23 +242,20 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         bottom: '40px',
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gridTemplateRows: '1fr 1fr',
-      }}>
+        gridTemplateRows: '1fr 1fr'}}>
         {currentSections.map((section, index) => (
           <div key={index} style={{
             backgroundColor: index === 0 || index === 3 ? '#CCCCCC' : '#4231EA',
             padding: '33px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px',
-          }}>
+            gap: '16px'}}>
             {/* Section Title */}
             <div style={{
               fontSize: '16px',
               fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
-              lineHeight: '1.2',
-            }}>
+              lineHeight: '1.2'}}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'title' ? (
                 <ImprovedInlineEditor
                   initialValue={section.title}
@@ -275,8 +268,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                     color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
                     lineHeight: '1.2',
                     width: '100%',
-                    height: 'auto',
-                  }}
+                    height: 'auto'}}
                 />
               ) : (
                 <div
@@ -296,8 +288,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               fontSize: '14px',
               color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
               lineHeight: '1.4',
-              flex: 1,
-            }}>
+              flex: 1}}>
               {isEditable && editingSections?.index === index && editingSections?.field === 'content' ? (
                 <ImprovedInlineEditor
                   initialValue={section.content}
@@ -310,8 +301,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                     color: index === 0 || index === 3 ? '#666666' : '#A69FF2',
                     lineHeight: '1.4',
                     width: '100%',
-                    height: 'auto',
-                  }}
+                    height: 'auto'}}
                 />
               ) : (
                 <div

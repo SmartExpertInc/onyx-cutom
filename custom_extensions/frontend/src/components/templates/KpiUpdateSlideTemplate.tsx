@@ -40,61 +40,54 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
-  };
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
 
-  const headerLine: React.CSSProperties = {
+  const headerLine: React.CSSProperties = {,
     position: 'absolute',
     left: '40px',
     right: '40px',
     top: '40px',
     height: '4px',
     backgroundColor: '#E6E5E3',
-    borderRadius: '999px'
-  };
+    borderRadius: '999px',
 
-  const headerLineCap: React.CSSProperties = {
+  const headerLineCap: React.CSSProperties = {,
     position: 'absolute',
-  };
 
-  const titleStyle: React.CSSProperties = {
+  const titleStyle: React.CSSProperties = {,
     position: 'absolute',
     left: '40px',
     top: '40px',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
-  };
+    gap: '12px',
 
-  const titlePillStyle: React.CSSProperties = {
+  const titlePillStyle: React.CSSProperties = {,
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
     padding: '8px 16px',
     borderRadius: '20px',
-    border: '1px solid #09090B'
-  };
+    border: '1px solid #09090B',
 
-  const titleDotStyle: React.CSSProperties = {
+  const titleDotStyle: React.CSSProperties = {,
     width: '8px',
     height: '8px',
     backgroundColor: 'blue',
-    borderRadius: '50%'
-  };
+    borderRadius: '50%',
 
-  const titleTextStyle: React.CSSProperties = {
+  const titleTextStyle: React.CSSProperties = {,
     color: '#585955',
     fontSize: '16px',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
-  };
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
 
-  const itemsArea: React.CSSProperties = {
+  const itemsArea: React.CSSProperties = {,
     position: 'absolute',
     left: '125px',
     right: '56px',
@@ -105,10 +98,9 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     gridAutoRows: 'minmax(120px, auto)',
     rowGap: '10px',
     columnGap: '15px 72px',
-    alignItems: 'center'
-  };
+    alignItems: 'center',
 
-  const valueStyle: React.CSSProperties = {
+  const valueStyle: React.CSSProperties = {,
     fontSize: '66px',
     color: '#09090B',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
@@ -117,31 +109,27 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     lineHeight: 1,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    marginBottom: '50px'
-  };
+    marginBottom: '50px',
 
-  const descStyle: React.CSSProperties = {
+  const descStyle: React.CSSProperties = {,
     color: '#09090B',
     lineHeight: 1.65,
     fontSize: '15px',
     maxWidth: '500px',
     marginLeft: '50px',
-    marginTop: '-28px'
-  };
+    marginTop: '-28px',
 
-  const footerLine: React.CSSProperties = {
+  const footerLine: React.CSSProperties = {,
     position: 'absolute',
     left: '40px',
     right: '40px',
     bottom: '64px',
     height: '6px',
     backgroundColor: '#E6E5E3',
-    borderRadius: '999px'
-  };
+    borderRadius: '999px',
 
-  const footerLineCap: React.CSSProperties = {
+  const footerLineCap: React.CSSProperties = {,
     position: 'absolute',
-  };
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);

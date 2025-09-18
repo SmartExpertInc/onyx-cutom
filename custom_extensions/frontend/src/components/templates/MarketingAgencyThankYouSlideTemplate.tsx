@@ -48,17 +48,16 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF', // Light beige background as per screenshot
+    backgroundColor: '#E0E7FF', // Light beige background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
-  };
 
   const handleHeaderTitleSave = (newHeaderTitle: string) => {
     setCurrentHeaderTitle(newHeaderTitle);
@@ -138,8 +137,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         left: '30px',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-      }}>
+        gap: '10px'}}>
         {currentCompanyLogoPath ? (
           // Show uploaded logo image
           <ClickableImagePlaceholder
@@ -236,8 +234,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         gap: '8px',
         border: '1px solid #09090B',
         padding: '7px 16px',
-        borderRadius: '20px',
-      }}>
+        borderRadius: '20px'}}>
         {/* Small blue dot */}
         <div style={{
           width: '8px',
@@ -250,8 +247,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           fontSize: '16px',
           fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
           color: '#09090B',
-          borderRadius: '20px',
-        }}>
+          borderRadius: '20px'}}>
           {isEditable && editingIntroText ? (
             <ImprovedInlineEditor
               initialValue={currentIntroText}
@@ -291,8 +287,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         right: '60px',
         bottom: '10px',
         display: 'flex',
-        gap: '40px',
-      }}>
+        gap: '40px'}}>
         {/* Left Section - Orange Background with Profile Image */}
         <div style={{
           width: '480px',
@@ -303,8 +298,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          overflow: 'hidden',
-        }}>
+          overflow: 'hidden'}}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -328,16 +322,14 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           flexDirection: 'column',
           justifyContent: 'center',
           paddingTop: '155px',
-          paddingLeft: '20px',
-        }}>
+          paddingLeft: '20px'}}>
           {/* Main Title */}
           <div style={{
             fontSize: '48px',
             fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
             color: '#000', // Dark gray color as per screenshot
             marginBottom: '30px',
-            lineHeight: '1.1',
-          }}>
+            lineHeight: '1.1'}}>
             {isEditable && editingMainTitle ? (
               <ImprovedInlineEditor
                 initialValue={currentMainTitle}
@@ -350,8 +342,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                   color: '#000',
                   lineHeight: '1.1',
                   width: '100%',
-                  height: 'auto',
-                }}
+                  height: 'auto'}}
               />
             ) : (
               <div
@@ -371,8 +362,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             fontSize: '23px',
             color: '#09090B', // Dark gray color as per screenshot
             lineHeight: '1.4',
-            width: '415px',
-          }}>
+            width: '415px'}}>
             {isEditable && editingBodyText ? (
               <ImprovedInlineEditor
                 initialValue={currentBodyText}
@@ -385,16 +375,14 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                   color: '#09090B',
                   lineHeight: '1.4',
                   width: '100%',
-                  height: 'auto',
-                }}
+                  height: 'auto'}}
               />
             ) : (
               <div
                 onClick={() => isEditable && setEditingBodyText(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none',
-                }}
+                  userSelect: 'none'}}
               >
                 {currentBodyText}
               </div>

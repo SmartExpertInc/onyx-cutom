@@ -93,8 +93,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -161,11 +160,10 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     };
   }, []);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -176,33 +174,30 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     alignItems: alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start',
     padding: '80px',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-  };
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'};
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     fontSize: currentTheme.fonts.titleSize,
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles,
     color: titleColor,
     textAlign: alignment,
     marginBottom: '40px',
     lineHeight: 1.3,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
 
-  const contentStyles: React.CSSProperties = {
+  const contentStyles: React.CSSProperties = {,
     fontSize: currentTheme.fonts.contentSize,
-    fontFamily: 'Lora, serif', // Regular Lora for body text
+    fontFamily: 'Lora, serif', // Regular Lora for body text,
     color: contentColor,
     textAlign: alignment,
     lineHeight: 1.6,
     maxWidth: '800px',
     wordWrap: 'break-word',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
-    };
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
 
-  const editOverlayStyles: React.CSSProperties = {
+  const editOverlayStyles: React.CSSProperties = {,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -213,8 +208,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     justifyContent: 'center',
     alignItems: 'center',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
+    transition: 'all 0.2s ease',
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {

@@ -59,7 +59,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#F9F8F4',
@@ -70,8 +70,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
     paddingLeft: '0px',
-    paddingBottom: '0px'
-  };
+    paddingBottom: '0px',
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -228,8 +227,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             overflow: 'hidden',
             alignSelf: 'flex-start',
             position: 'absolute',
-            bottom: '25px',
-          }}>
+            bottom: '25px'}}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
               onImageUploaded={handleProfileImageUploaded}
@@ -369,8 +367,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           {/* Team image at bottom */}
           <div style={{
             width: '100%',
-            height: '90%',
-          }}>
+            height: '90%'}}>
             <ClickableImagePlaceholder
               imagePath={teamImagePath}
               onImageUploaded={handleTeamImageUploaded}
@@ -381,8 +378,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               style={{
                 width: '100%',
                 height: '100%',
-                borderRadius: '0px',
-              }}
+                borderRadius: '0px'}}
             />
           </div>
         </div>

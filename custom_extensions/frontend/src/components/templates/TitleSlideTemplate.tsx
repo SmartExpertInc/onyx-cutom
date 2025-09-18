@@ -93,8 +93,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -166,11 +165,10 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     };
   }, []);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -181,10 +179,9 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     alignItems: 'center',
     padding: '60px 80px',
     position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-  };
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'};
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     fontSize: currentTheme.fonts.titleSize,
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: titleColor,
@@ -193,10 +190,9 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     lineHeight: 1.2,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
 
-  const subtitleStyles: React.CSSProperties = {
+  const subtitleStyles: React.CSSProperties = {,
     fontSize: `${parseInt(currentTheme.fonts.contentSize) + 8}px`,
     fontFamily: 'Lora, serif',
     color: subtitleColor,
@@ -205,20 +201,17 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     lineHeight: 1.4,
     maxWidth: '700px',
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
 
-  const metadataStyles: React.CSSProperties = {
+  const metadataStyles: React.CSSProperties = {,
     display: 'flex',
     gap: '32px',
     fontSize: '1rem',
     color: subtitleColor,
     textAlign: 'center',
-    opacity: 0.8
-  };
+    opacity: 0.8,
 
-  const metadataItemStyles: React.CSSProperties = {
-  };
+  const metadataItemStyles: React.CSSProperties = {,
 
   // Handle title editing
   const handleTitleSave = (newTitle: string) => {

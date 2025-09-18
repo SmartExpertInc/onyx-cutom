@@ -37,7 +37,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#252525',
@@ -47,7 +47,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '60px 80px',
     paddingBottom: '35px',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -180,8 +179,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               height: '92%',
               objectFit: 'cover',
               position: 'relative',
-              bottom: '-22px',
-            }}
+              bottom: '-22px'}}
           />
         </div>
       </div>
@@ -325,8 +323,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             >
               <div style={{
                 fontSize: '48px',
-                color: '#263644',
-              }}>
+                color: '#263644'}}>
                 {isEditable && editingNumbers === 2 ? (
                   <ImprovedInlineEditor
                     initialValue={currentStatements[2].number}

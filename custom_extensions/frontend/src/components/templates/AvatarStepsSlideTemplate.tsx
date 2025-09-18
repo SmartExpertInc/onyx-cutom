@@ -194,74 +194,66 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     }
   };
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     minHeight: '600px',
     backgroundColor: backgroundColor,
     fontFamily: 'Lora, serif',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '40px'
-  };
+    padding: '40px',
 
-  const contentContainerStyles: React.CSSProperties = {
+  const contentContainerStyles: React.CSSProperties = {,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
     maxWidth: '1200px',
-    gap: '40px'
-  };
+    gap: '40px',
 
-  const leftContentStyles: React.CSSProperties = {
+  const leftContentStyles: React.CSSProperties = {,
     flex: '1',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: '32px'
-  };
+    gap: '32px',
 
-  const rightContentStyles: React.CSSProperties = {
+  const rightContentStyles: React.CSSProperties = {,
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-end',
     position: 'relative',
-    height: '100%'
-  };
+    height: '100%',
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     fontSize: '2.8rem',
     fontFamily: 'Lora-Bold, serif',
     color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif'
-  };
 
-  const stepsContainerStyles: React.CSSProperties = {
+  const stepsContainerStyles: React.CSSProperties = {,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '16px',
     width: '100%',
-    maxWidth: '500px'
-  };
+    maxWidth: '500px',
 
-  const stepBoxStyles: React.CSSProperties = {
+  const stepBoxStyles: React.CSSProperties = {,
     padding: '20px 32px',
     borderRadius: '12px',
     border: 'none',
     fontSize: '1.3rem',
-    fontFamily: 'Lora, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#000000',
     backgroundColor: titleColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     textAlign: 'center',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     minHeight: '60px',
@@ -269,10 +261,9 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    maxWidth: '400px'
-  };
+    maxWidth: '400px',
 
-  const arrowStyles: React.CSSProperties = {
+  const arrowStyles: React.CSSProperties = {,
     fontSize: '2rem',
     color: '#ffffff',
     textAlign: 'center',
@@ -281,17 +272,15 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%'
-  };
+    width: '100%',
 
-  const placeholderStyles: React.CSSProperties = {
+  const placeholderStyles: React.CSSProperties = {,
     width: '744px',
     height: '714px',
     margin: '0 auto',
     position: 'absolute',
     top: '-246px',
-    zIndex: 3
-  };
+    zIndex: 3,
 
   return (
     <div style={slideStyles}>

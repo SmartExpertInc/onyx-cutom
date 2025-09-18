@@ -29,147 +29,131 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
 
   // Main slide with light beige background
-  const slide: React.CSSProperties = { 
-    width:'100%', 
-    aspectRatio:'16/9', 
-    background:'#ffff', 
-    color:'#0F172A', 
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
-    position:'relative',
-  };
+  const slide: React.CSSProperties = {,
+    width: '100%',
+    aspectRatio: '16/9',
+    background: '#ffff',
+    color: '#0F172A',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    position: 'relative',
 
   // Top section - main content area
-  const topSection: React.CSSProperties = {
-    position:'absolute',
-    left:'44px',
-    right:'44px',
-    top:'44px',
-    height:'400px',
-    background:'#FFFFFF',
-    border:'2px solid #3C3F46',
-    borderRadius:'24px'
-  };
+  const topSection: React.CSSProperties = {,
+    position: 'absolute',
+    left: '44px',
+    right: '44px',
+    top: '44px',
+    height: '400px',
+    background: '#FFFFFF',
+    border: '2px solid #3C3F46',
+    borderRadius: '24px',
 
   // Title styling - dark gray, bold, two lines
-  const titleStyle: React.CSSProperties = { 
-    position:'absolute', 
-    left:'80px', 
-    top:'60px', 
-    fontSize:'50px', 
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
-    color:'#121110',
-    whiteSpace:'pre-line',
-    lineHeight:1.2
-  };
+  const titleStyle: React.CSSProperties = {,
+    position: 'absolute',
+    left: '80px',
+    top: '60px',
+    fontSize: '50px',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
+    color: '#121110',
+    whiteSpace: 'pre-line',
+    lineHeight: 1.2,
 
   // Circles row - 10 circles total, positioned near avatar
-  const circlesContainer: React.CSSProperties = {
-    position:'absolute',
-    left:'80px',
-    top:'245px',
-    display:'flex',
-    alignItems:'center'
-  };
+  const circlesContainer: React.CSSProperties = {,
+    position: 'absolute',
+    left: '80px',
+    top: '245px',
+    display: 'flex',
+    alignItems: 'center',
 
   // Individual circle styles - smaller to fit with avatar
-  const circleBase: React.CSSProperties = {
-    width:'90px',
-    height:'90px',
-    borderRadius:'43%',
-    border:'2px solid #696864',
-    background:'#FFFFFF',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center'
-  };
+  const circleBase: React.CSSProperties = {,
+    width: '90px',
+    height: '90px',
+    borderRadius: '43%',
+    border: '2px solid #696864',
+    background: '#FFFFFF',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
 
-  const circleFilled: React.CSSProperties = {
-    ...circleBase,
-    background:'#4CCD6A', // Bright green
-    fontSize:'20px',
+  const circleFilled: React.CSSProperties = {,
+    background: '#4CCD6A', // Bright green,
+    fontSize: '20px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    border:'5px solid #6AAF71',
-    color:'#175118',
-    borderRadius:'50%'
-  };
+    border: '5px solid #6AAF71',
+    color: '#175118',
+    borderRadius: '50%'};
 
   // Avatar positioning - upper right, overlapping border
-  const avatarWrap: React.CSSProperties = { 
-    position:'absolute', 
-    right:'70px', 
-    top:'90px', 
-    width:'170px', 
-    height:'170px', 
-    borderRadius:'50%', 
-    overflow:'hidden', 
-    background:'#C7D6FF',
-    border:'3px solid #FFFFFF',
-    zIndex:10
-  };
+  const avatarWrap: React.CSSProperties = {,
+    position: 'absolute',
+    right: '70px',
+    top: '90px',
+    width: '170px',
+    height: '170px',
+    borderRadius: '50%',
+    overflow: 'hidden',
+    background: '#C7D6FF',
+    border: '3px solid #FFFFFF',
+    zIndex: 10,
   const ring1: React.CSSProperties = { position:'absolute', right:'113px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:25 };
-
+    const ring1: React.CSSProperties = { position:'absolute', right:'113px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:25 };,
+    const bottomSection: React.CSSProperties = {,
+    position: 'absolute',
+    left: '44px',
+    right: '44px',
+    bottom: '44px',
+    height: '120px',
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px',
   // Bottom section - two green cards
-  const bottomSection: React.CSSProperties = {
-    position:'absolute',
-    left:'44px',
-    right:'44px',
-    bottom:'44px',
-    height:'120px',
-    display:'grid',
-    gridTemplateColumns:'1fr 1fr',
-    gap:'20px'
   };
 
   // Green card styling
-  const greenCard: React.CSSProperties = {
-    background:'#6CDB78',
-    borderRadius:'12px',
-    padding:'20px 50px',
+  const greenCard: React.CSSProperties = {,
+    background: '#6CDB78',
+    borderRadius: '12px',
+    padding: '20px 50px',
     paddingRight: '175px',
-    display:'flex',
-    justifyContent:'space-between',
-    alignItems:'center',
-    position:'relative'
-  };
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    position: 'relative',
 
   // Text styles for green cards
-  const cardValueStyle: React.CSSProperties = {
-    fontSize:'46px',
+  const cardValueStyle: React.CSSProperties = {,
+    fontSize: '46px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    color:'#000000',
-    marginBottom:'8px'
-  };
+    color: '#000000',
+    marginBottom: '8px',
 
-  const cardTextStyle: React.CSSProperties = {
-    fontSize:'16px',
-    color:'#235D26',
-    lineHeight:1.3
-  };
+  const cardTextStyle: React.CSSProperties = {,
+    fontSize: '16px',
+    color: '#235D26',
+    lineHeight: 1.3,
 
-  const cardTextStyleFirst: React.CSSProperties = {
-    ...cardTextStyle,
-    width:'200px'
-  };
+  const cardTextStyleFirst: React.CSSProperties = {,
+    width: '200px'};
 
-  const cardTextStyleSecond: React.CSSProperties = {
-    ...cardTextStyle,
-    width:'270px'
-  };
+  const cardTextStyleSecond: React.CSSProperties = {,
+    width: '270px'};
 
   // Arrow icon for second card
-  const arrowIcon: React.CSSProperties = {
-    position:'absolute',
-    right:'49px',
-    width:'45px',
-    height:'45px',
-    borderRadius:'50%',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    color:'#000000',
-    border:'1px solid #000000',
-    fontSize:'28px'
-  };
+  const arrowIcon: React.CSSProperties = {,
+    position: 'absolute',
+    right: '49px',
+    width: '45px',
+    height: '45px',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#000000',
+    border: '1px solid #000000',
+    fontSize: '28px',
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
     ...base, 

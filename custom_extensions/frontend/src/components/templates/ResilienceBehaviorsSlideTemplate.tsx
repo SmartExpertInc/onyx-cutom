@@ -26,23 +26,21 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   profileImageAlt = 'Profile',
   isEditable = false,
   onUpdate,
-  theme,
-}) => {
+  theme}) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#B2B89C',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '88px',
     left: '64px',
@@ -52,9 +50,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#4E563B',
     lineHeight: 1.2,
-  };
 
-  const subtitleStyles: React.CSSProperties = {
+  const subtitleStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '240px',
     left: '64px',
@@ -62,9 +59,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     fontSize: '18px',
     color: '#6B7155',
     lineHeight: 1.6,
-  };
 
-  const avatarCircleStyles: React.CSSProperties = {
+  const avatarCircleStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '92px',
     right: '72px',
@@ -73,9 +69,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     borderRadius: '50%',
     overflow: 'hidden',
     backgroundColor: '#6E7A64',
-  };
 
-  const bulletsGridStyles: React.CSSProperties = {
+  const bulletsGridStyles: React.CSSProperties = {,
     position: 'absolute',
     left: '64px',
     right: '64px',
@@ -84,18 +79,15 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     gridTemplateColumns: 'repeat(4, 1fr)',
     rowGap: '36px',
     columnGap: '48px',
-  };
 
-  const bulletItemStyles: React.CSSProperties = {
+  const bulletItemStyles: React.CSSProperties = {,
     color: '#63694D',
     fontSize: '18px',
-  };
 
-  const bulletIndexStyles: React.CSSProperties = {
+  const bulletIndexStyles: React.CSSProperties = {,
     color: '#63694D',
     fontSize: '18px',
     marginRight: '12px',
-  };
 
   return (
     <div className="resilience-behaviors-slide inter-theme" style={slideStyles}>

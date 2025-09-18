@@ -27,33 +27,30 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   contentColor,
   isEditable = false,
   onUpdate,
-  theme,
-}) => {
+  theme}) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingResourceIndex, setEditingResourceIndex] = useState<number | null>(null);
   const [showLogoUpload, setShowLogoUpload] = useState(false);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#4D4828',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     position: 'absolute',
     left: '56px',
     bottom: '33px',
     fontSize: '53px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#D7D1B0',
-  };
 
-  const listContainerStyles: React.CSSProperties = {
+  const listContainerStyles: React.CSSProperties = {,
     position: 'absolute',
     top: '152px',
     left: '56px',
@@ -61,16 +58,14 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     display: 'flex',
     flexDirection: 'column',
     gap: '36px',
-  };
 
-  const itemStyles: React.CSSProperties = {
+  const itemStyles: React.CSSProperties = {,
     backgroundColor: '#58552E',
     color: '#D6D2AC',
     borderRadius: '2px',
     padding: '15px 15px',
     fontSize: '28px',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   return (
     <div className="resources-list-slide inter-theme" style={slideStyles}>

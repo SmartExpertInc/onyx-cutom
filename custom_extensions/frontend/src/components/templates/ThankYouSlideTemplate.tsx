@@ -51,7 +51,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
@@ -60,8 +60,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-    boxSizing: 'border-box'
-  };
+    boxSizing: 'border-box',
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);

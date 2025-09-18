@@ -93,9 +93,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-          
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -165,10 +163,9 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
     };
   }, []);
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     minHeight: '600px',
-    backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
@@ -180,8 +177,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
     padding: '80px',
     position: 'relative',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    overflow: 'hidden'
-  };
+    overflow: 'hidden'};
 
   const getTitleFontSize = (size: string): string => {
     // Use theme font size as base, but allow size variations
@@ -206,9 +202,8 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
     }
   };
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     fontSize: getTitleFontSize(titleSize),
-    fontFamily: 'Lora-Bold, serif',
     fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     textAlign: textAlign as any,
@@ -218,12 +213,10 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
     zIndex: 2,
     position: 'relative',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
 
-  const subtitleStyles: React.CSSProperties = {
+  const subtitleStyles: React.CSSProperties = {,
     fontSize: getSubtitleFontSize(subtitleSize),
-    fontFamily: 'Lora, serif',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: subtitleColor,
     textAlign: textAlign as any,
@@ -232,15 +225,13 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
     zIndex: 2,
     position: 'relative',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
 
   const getAccentStyles = (): React.CSSProperties => {
-    const baseStyles: React.CSSProperties = {
-      position: 'absolute',
-      backgroundColor: accentColor,
-      zIndex: 1
-    };
+    const baseStyles: React.CSSProperties = {,
+    position: 'absolute',
+    backgroundColor: accentColor,
+    zIndex: 1,
 
     switch (accentPosition) {
       case 'left':

@@ -51,27 +51,25 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF', // Light grey background as per screenshot
+    backgroundColor: '#E0E7FF', // Light grey background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
-  };
 
   // Tags block styles
-  const tagsBlockStyles: React.CSSProperties = {
-    backgroundColor: '#E0E7FF', // Darker grey for tags block
+  const tagsBlockStyles: React.CSSProperties = {,
+    backgroundColor: '#E0E7FF', // Darker grey for tags block,
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -252,8 +250,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
               width: '100%',
               height: '129%',
               borderRadius: '50%',
-              objectFit: 'cover',
-            }}
+              objectFit: 'cover'}}
           />
         </div>
 
@@ -306,8 +303,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           width: '100%',
           position: 'absolute',
           top: '205px',
-          left: '300px',
-        }}>
+          left: '300px'}}>
           {/* First row - 3 tags */}
           <div style={{
             display: 'flex',
@@ -403,8 +399,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           {/* Third row (single blue tag) */}
           <div style={{
             display: 'flex',
-            gap: '20px',
-          }}>
+            gap: '20px'}}>
             {currentTags.slice(5).map((tag: TagType, index: number) => (
               <div
                 key={index + 5}

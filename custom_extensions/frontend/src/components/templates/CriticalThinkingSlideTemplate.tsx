@@ -44,32 +44,30 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#E0E7FF', // Light grey background as per screenshot
+    backgroundColor: '#E0E7FF', // Light grey background as per screenshot,
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
-  };
 
   // Content block styles
-  const contentBlockStyles: React.CSSProperties = {
+  const contentBlockStyles: React.CSSProperties = {,
     position: 'absolute',
-    top: '80px', // From the top of the slide
+    top: '80px', // From the top of the slide,
     left: '15px',
     right: '15px',
-    bottom: '80px', // Leave space for logo at bottom
-    backgroundColor: '#E0E7FF', // Darker grey for content block
+    bottom: '80px', // Leave space for logo at bottom,
+    backgroundColor: '#E0E7FF', // Darker grey for content block,
     borderRadius: '12px',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -223,8 +221,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
         left: '30px',
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-      }}>
+        gap: '10px'}}>
         {currentCompanyLogoPath ? (
           // Show uploaded logo image
           <ClickableImagePlaceholder
@@ -359,8 +356,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           display: 'flex',
           alignItems: 'flex-start',
           overflow: 'hidden',
-          width: '485px',
-        }}>
+          width: '485px'}}>
           {isEditable && editingTitle ? (
             <ImprovedInlineEditor
               initialValue={currentTitle}
@@ -414,8 +410,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
           alignItems: 'flex-start',
           position: 'absolute',
           top: '185px',
-          left: '300px',
-        }}>
+          left: '300px'}}>
           {isEditable && editingContent ? (
             <ImprovedInlineEditor
               initialValue={currentContent}

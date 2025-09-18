@@ -91,8 +91,7 @@ function InlineEditor({
           whiteSpace: 'pre-wrap',
           minHeight: '1.6em',
           boxSizing: 'border-box',
-          display: 'block',
-        }}
+          display: 'block'}}
         rows={1}
       />
     );
@@ -116,8 +115,7 @@ function InlineEditor({
         boxShadow: 'none',
         width: '100%',
         boxSizing: 'border-box',
-        display: 'block',
-      }}
+        display: 'block'}}
     />
   );
 }
@@ -168,7 +166,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     display: 'flex',
@@ -176,7 +174,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -454,8 +451,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           width: '190px',
           height: '190px',
           borderRadius: '50%',
-          overflow: 'hidden',
-        }}>
+          overflow: 'hidden'}}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}

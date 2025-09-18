@@ -198,7 +198,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     }
   };
 
-  const darkShapeStyles: React.CSSProperties = {
+  const darkShapeStyles: React.CSSProperties = {,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -206,10 +206,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     height: '500px',
     backgroundColor: '#1a1a2e',
     borderRadius: '0 0 300px 0',
-    zIndex: 1
-  };
+    zIndex: 1,
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     minHeight: '600px',
     backgroundColor: backgroundColor,
     fontFamily: 'Lora, serif',
@@ -218,10 +217,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     justifyContent: 'center',
     padding: '40px',
     position: 'relative',
-    overflow: 'hidden'
-  };
+    overflow: 'hidden',
 
-  const contentContainerStyles: React.CSSProperties = {
+  const contentContainerStyles: React.CSSProperties = {,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -230,64 +228,55 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     maxWidth: '1200px',
     gap: '60px',
     position: 'relative',
-    zIndex: 2
-  };
+    zIndex: 2,
 
-  const leftContentStyles: React.CSSProperties = {
+  const leftContentStyles: React.CSSProperties = {,
     flex: '1',
     textAlign: 'left',
     zIndex: 2,
     position: 'relative',
-    paddingLeft: '60px'
-  };
+    paddingLeft: '60px',
 
-  const rightContentStyles: React.CSSProperties = {
+  const rightContentStyles: React.CSSProperties = {,
     flex: '1',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-end',
     zIndex: 2,
     position: 'relative',
-    height: '100%'
-  };
+    height: '100%',
 
-  const titleStyles: React.CSSProperties = {
+  const titleStyles: React.CSSProperties = {,
     fontSize: '2.5rem',
     fontFamily: 'Lora-Bold, serif',
     color: titleColor,
     marginBottom: '16px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif'
-  };
 
-  const subtitleStyles: React.CSSProperties = {
+  const subtitleStyles: React.CSSProperties = {,
     fontSize: '1.5rem',
-    fontFamily: 'Lora, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: contentColor,
     marginBottom: '16px',
     lineHeight: '1.6',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
-  };
 
-  const contentStyles: React.CSSProperties = {
+  const contentStyles: React.CSSProperties = {,
     fontSize: '1.2rem',
     fontFamily: 'Lora, serif',
     color: contentColor,
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
-  };
+    wordWrap: 'break-word',
 
-  const placeholderStyles: React.CSSProperties = {
+  const placeholderStyles: React.CSSProperties = {,
     width: '623px',
     height: '562px',
     margin: '0 auto',
     position: 'absolute',
     top: '-246px',
-    zIndex: 3
-  };
+    zIndex: 3,
 
   return (
     <div style={slideStyles}>

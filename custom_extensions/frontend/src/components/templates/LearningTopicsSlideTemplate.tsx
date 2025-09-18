@@ -46,7 +46,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
-  const slideStyles: React.CSSProperties = {
+  const slideStyles: React.CSSProperties = {,
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: themeBg,
@@ -54,7 +54,6 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     position: 'relative',
     overflow: 'hidden',
     fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
-  };
 
   const handleTitleSave = (newTitle: string) => {
     setCurrentTitle(newTitle);
@@ -362,8 +361,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           width: '550px',
           height: '570px',
           position: 'absolute',
-          bottom: '-3px',
-        }}>
+          bottom: '-3px'}}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
             onImageUploaded={handleProfileImageUploaded}
@@ -373,8 +371,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             isEditable={isEditable}
             style={{
               width: '100%',
-              height: '100%',
-            }}
+              height: '100%'}}
           />
         </div>
       </div>
