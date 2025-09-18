@@ -1432,7 +1432,7 @@ export default function TextPresentationClient() {
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8">
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-center">
                           {/* Language dropdown */}
                           <div className="flex-1 flex items-center justify-center">
