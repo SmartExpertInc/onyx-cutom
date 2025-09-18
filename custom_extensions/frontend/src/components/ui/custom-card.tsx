@@ -9,8 +9,6 @@ interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   description?: string;
   pillLabel?: string;
-  gradientFrom?: string;
-  gradientTo?: string;
   iconColor?: string;
   labelColor?: string;
   disabled?: boolean;
@@ -34,8 +32,6 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
     title, 
     description, 
     pillLabel,
-    gradientFrom = "from-blue-300",
-    gradientTo = "to-purple-200",
     iconColor = "text-blue-600",
     labelColor = "text-blue-600",
     disabled = false,
@@ -61,8 +57,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-20 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/50" />
-        <div className="absolute -top-12 -left-12 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/50" />
+        <div className="absolute -top-20 -left-18 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/50" />
+        <div className="absolute -top-12 -left-10 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/50" />
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (

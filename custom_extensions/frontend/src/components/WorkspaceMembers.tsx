@@ -560,7 +560,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 space-y-3">
+    <div className="min-h-screen space-y-3">
       {/* Workspace Header and Selector */}
       <div className="rounded-lg p-4">
         <div className="flex flex-col gap-4">

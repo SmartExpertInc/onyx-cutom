@@ -16,15 +16,17 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group relative overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-20 h-16 xs:w-22 xs:h-18 sm:w-28 sm:h-20 md:w-30 md:h-20 lg:w-35 lg:h-22 xl:w-38 xl:h-30",
+          "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
+          "w-18 h-23 xs:w-22 xs:h-18 sm:w-28 sm:h-20 md:w-30 md:h-20 lg:w-35 lg:h-22 xl:w-38 xl:h-30",
           "hover:scale-105",
           className
         )}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: active ? 'white' : '#f3f4f6',
           borderColor: active ? '#C5CAD1' : '#e2e8f0',
-          background: `linear-gradient(to top right, white, white, ${gradientTo})`,
+          background: active 
+            ? `white`
+            : `#f3f4f6`,
           borderWidth: '1px',
           boxShadow: active 
             ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' 
@@ -43,24 +45,27 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         onClick={onClick}
         {...props}
       >
-        <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
+        <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
-              <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-13 xl:h-13 flex items-center justify-center">
+              <div 
+                className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 xl:w-22 xl:h-22 flex items-center justify-center rounded-full"
+                style={{
+                  backgroundColor: active ? '#3b82f6' : '#e0f2fe'
+                }}
+              >
                 <Icon 
-                  size={42}
-                  className="xs:w-8 xs:h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16"
+                  size={24}
+                  className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-11 xl:h-11"
                   style={{
-                    color: active ? '#3b82f6' : '#4b5563',
-                    fontWeight: 'bold',
-                    strokeWidth: active ? 2.5 : 2
+                    color: active ? 'white' : '#374151',
                   }}
                 />
               </div>
             )}
             <span 
-              className="text-[10px] xs:text-xs sm:text-sm leading-tight text-center px-1"
+              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium"
               style={{
-                color: '#4A5565'
+                color: '#374151'
               }}
             >
               {label}

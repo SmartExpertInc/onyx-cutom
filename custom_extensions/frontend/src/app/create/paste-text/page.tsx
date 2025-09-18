@@ -142,8 +142,6 @@ export default function PasteTextPage() {
                   ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
                   : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
               }`}
-              gradientFrom="from-blue-300"
-              gradientTo="to-blue-200"
               iconColor="text-blue-600"
               labelColor="text-blue-600"
             />
@@ -158,8 +156,6 @@ export default function PasteTextPage() {
                   ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
                   : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
               }`}
-              gradientFrom="from-purple-300"
-              gradientTo="to-purple-200"
               iconColor="text-purple-600"
               labelColor="text-purple-600"
             />
