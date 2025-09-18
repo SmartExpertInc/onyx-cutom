@@ -193,7 +193,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     }
   };
 
-  const slideStyles: React.CSSProperties = {,
+  const slideStyles: React.CSSProperties = {
     minHeight: '600px',
     backgroundColor: backgroundColor,
     fontFamily: 'Lora, serif',
@@ -202,7 +202,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     justifyContent: 'center',
     padding: '40px',
 
-  const contentContainerStyles: React.CSSProperties = {,
+  const contentContainerStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

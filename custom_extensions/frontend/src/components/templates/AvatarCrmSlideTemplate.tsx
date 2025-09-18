@@ -202,7 +202,6 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const slideStyles: React.CSSProperties = {
-    const slideStyles: React.CSSProperties = {,
     width: '100%',
     height: '100vh',
     minHeight: '100vh',

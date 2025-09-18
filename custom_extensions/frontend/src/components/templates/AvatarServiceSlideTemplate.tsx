@@ -198,7 +198,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
     }
   };
 
-  const darkShapeStyles: React.CSSProperties = {,
+  const darkShapeStyles: React.CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
