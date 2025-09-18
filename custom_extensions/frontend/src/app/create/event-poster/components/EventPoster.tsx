@@ -231,8 +231,11 @@ export default function EventPoster({
               border: '2px solid #5416af',
               borderRadius: '40px',
               padding: '15px 20px',
-              minWidth: '150px',
-              lineHeight: '1'
+              minWidth: '200px',
+              lineHeight: '1',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
           >
             <div
