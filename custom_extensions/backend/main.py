@@ -12274,6 +12274,19 @@ Return ONLY the JSON object.
                 if isinstance(cached_json, dict) and "sections" in cached_json:
                     logger.info(f"[FAST_PATH_DEBUG] JSON has sections field with {len(cached_json.get('sections', []))} sections")
                     logger.info(f"[FAST_PATH] Training Plan JSON detected, bypassing LLM parsing for {project_data.projectName}")
+                    
+                    # Clean lesson titles to remove "Lesson X.Y:" prefixes before creating TrainingPlanDetails
+                    for section in cached_json.get("sections", []):
+                        for lesson in section.get("lessons", []):
+                            if isinstance(lesson, dict) and "title" in lesson:
+                                original_title = lesson["title"]
+                                # Remove "Lesson X.Y:" prefix using regex
+                                import re
+                                cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', original_title)
+                                if cleaned_title != original_title:
+                                    lesson["title"] = cleaned_title
+                                    logger.info(f"[FAST_PATH_TITLE_CLEAN] '{original_title}' -> '{cleaned_title}'")
+                    
                     parsed_content_model_instance = TrainingPlanDetails(**cached_json)
                     logger.info(f"[FAST_PATH_DEBUG] TrainingPlanDetails created successfully with {len(parsed_content_model_instance.sections)} sections")
                 else:
