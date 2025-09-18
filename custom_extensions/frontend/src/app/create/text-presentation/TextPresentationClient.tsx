@@ -1513,7 +1513,7 @@ export default function TextPresentationClient() {
                           <DropdownMenuContent 
                             className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white" 
                             align="center"
-                            sideOffset={15}
+                            sideOffset={25}
                             style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                           >
                             {styleOptions.map((option) => (
@@ -1636,7 +1636,7 @@ export default function TextPresentationClient() {
                       <DropdownMenuContent 
                             className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto" 
                         align="center"
-                        sideOffset={15}
+                        sideOffset={25}
                         style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                       >
                         {styleOptions.map((option) => (
