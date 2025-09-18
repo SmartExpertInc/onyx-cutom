@@ -1961,6 +1961,9 @@ const FolderRowMenu: React.FC<{
     setShowSettingsModal(true);
   };
 
+  // Feature flag for quality tier (controls visibility of Settings in folder menu)
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('quality_tier');
+
   const handleExportFolder = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
