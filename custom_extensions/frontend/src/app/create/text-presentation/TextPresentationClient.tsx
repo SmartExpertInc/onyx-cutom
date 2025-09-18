@@ -1326,7 +1326,8 @@ export default function TextPresentationClient() {
             color: '#0F58F9',
             fontSize: '14px',
             fontWeight: '600',
-            lineHeight: '140%'
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
           }}
         >
           <ChevronLeft height={8} style={{ color: '#0F58F9' }} /> {t('interface.generate.back', 'Back')}
