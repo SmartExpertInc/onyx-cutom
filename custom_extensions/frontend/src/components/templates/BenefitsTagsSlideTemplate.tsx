@@ -265,7 +265,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           position: 'absolute',
           top: '100px',
           left: '300px',
-          fontWeight: '900', // Very bold
         }}>
           {isEditable && editingTitle ? (
             <SimpleRichTextEditor
@@ -279,7 +278,6 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
-                fontWeight: '900', // Very bold
               }}
               allowFormatting={true}
             />
