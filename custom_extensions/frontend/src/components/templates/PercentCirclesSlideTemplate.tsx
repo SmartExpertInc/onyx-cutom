@@ -34,7 +34,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     aspectRatio:'16/9', 
     background:'#ffff', 
     color:'#0F172A', 
-    fontFamily: 'Lora-Bold, serif', 
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
     position:'relative',
   };
 
@@ -56,7 +56,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     left:'80px', 
     top:'60px', 
     fontSize:'50px', 
-    fontFamily: 'Lora-Bold, serif', 
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
     color:'#121110',
     whiteSpace:'pre-line',
     lineHeight:1.2
@@ -87,7 +87,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     ...circleBase,
     background:'#4CCD6A', // Bright green
     fontSize:'20px',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     border:'5px solid #6AAF71',
     color:'#175118',
     borderRadius:'50%'
@@ -135,7 +135,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Text styles for green cards
   const cardValueStyle: React.CSSProperties = {
     fontSize:'46px',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color:'#000000',
     marginBottom:'8px'
   };
@@ -212,7 +212,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                 initialValue={percent} 
                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
                 onCancel={()=> setEdit(null)} 
-                style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontFamily: 'Lora-Bold, serif' }} 
+                style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' }} 
               />
             ) : (
               <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>

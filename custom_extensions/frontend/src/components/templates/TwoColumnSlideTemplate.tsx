@@ -47,7 +47,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
     flexDirection: 'row-reverse',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -246,7 +246,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
               style={{
                 color: '#ffffff',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 width: '30px',
                 height: 'auto'
               }}
@@ -257,7 +257,7 @@ export const TwoColumnSlideTemplate: React.FC<TwoColumnSlideProps & {
               style={{
                 color: '#ffffff',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}

@@ -186,7 +186,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.titleSize,
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: titleColor,
     textAlign: 'center',
     marginBottom: '24px',

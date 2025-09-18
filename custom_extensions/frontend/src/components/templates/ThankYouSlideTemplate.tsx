@@ -59,7 +59,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     boxSizing: 'border-box'
   };
 
@@ -211,7 +211,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
               <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-            <span style={{ fontSize: '14px', fontFamily: 'Lora-Bold, serif', color: '#ffffff' }}>Your Logo</span>
+            <span style={{ fontSize: '14px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color: '#ffffff' }}>Your Logo</span>
           </div>
         )}
       </div>
@@ -232,7 +232,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               fontSize: '80px',
               color: themeTitle,
               lineHeight: '1.1',
-              fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
               width: '100%',
               height: 'auto',
               minHeight: '60px',
@@ -247,7 +247,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               color: themeTitle,
               lineHeight: '1.1',
               cursor: isEditable ? 'pointer' : 'default',
-              fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
               userSelect: 'none',
               position: 'relative'
             }}
@@ -285,7 +285,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               fontSize: '14px',
               color: 'rgb(219 219 219)',
               marginBottom: '10px',
-              fontFamily: 'Lora-Bold, serif'
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
             }}>
               Contacts
             </div>
@@ -361,7 +361,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
               fontSize: '14px',
               color: 'rgb(219 219 219)',
               marginBottom: '10px',
-              fontFamily: 'Lora-Bold, serif'
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
             }}>
               Our address
             </div>
@@ -502,7 +502,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             style={{
               color: '#ffffff',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto'
             }}
@@ -513,7 +513,7 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
             style={{
               color: '#ffffff',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

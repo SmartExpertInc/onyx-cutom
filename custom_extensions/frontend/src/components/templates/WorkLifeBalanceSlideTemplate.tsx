@@ -161,7 +161,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -227,8 +227,8 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
         {/* Logo placeholder */}
         <div style={{
           position: 'absolute',
-          top: '40px',
-          left: '60px',
+          top: '25px',
+          left: '25px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
@@ -262,7 +262,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               <div style={{
                 width: '30px',
                 height: '30px',
-                border: `2px solid ${themeContent}`,
+                border: `2px solid #ffffff`,
                 borderRadius: '50%',
                 position: 'relative',
                 display: 'flex',
@@ -285,7 +285,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                   transform: 'translate(-50%, -50%)'
                 }} />
               </div>
-              <span style={{ fontSize: '14px', fontFamily: 'Lora-Bold, serif', color: themeContent }}>Your Logo</span>
+              <span style={{ fontSize: '14px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color: '#ffffff' }}>Your Logo</span>
             </div>
           )}
         </div>
@@ -309,7 +309,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 fontSize: '58px',
                 color: '#ffffff',
                 lineHeight: '1.1',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 position: 'relative'
               }}
             />
@@ -322,7 +322,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
                 color: '#ffffff',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 userSelect: 'none',
                 position: 'relative'
               }}
@@ -402,7 +402,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 color: '#ffffff',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 width: '30px',
                 height: 'auto'
               }}
@@ -413,7 +413,7 @@ export const WorkLifeBalanceSlideTemplate: React.FC<WorkLifeBalanceSlideProps & 
               style={{
                 color: '#ffffff',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}

@@ -28,7 +28,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     aspectRatio:'16/9', 
     background:'#1C3927', 
     color:'#FFFFFF', 
-    fontFamily: 'Lora-Bold, serif', 
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', 
     position:'relative' 
   };
 
@@ -66,7 +66,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
 
   const titleStyle: React.CSSProperties = {
     fontSize:'55px',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color:'#FFFFFF',
     lineHeight:1.2,
     marginBottom:'40px'

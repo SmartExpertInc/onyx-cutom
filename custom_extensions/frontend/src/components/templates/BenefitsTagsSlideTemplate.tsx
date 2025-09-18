@@ -59,7 +59,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
   };
 
@@ -201,7 +201,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -215,7 +215,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
@@ -265,7 +265,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
           position: 'absolute',
           top: '100px',
           left: '300px',
-          fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
+          fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
+          fontWeight: 'normal', // Prevent font-weight conflicts
         }}>
           {isEditable && editingTitle ? (
             <SimpleRichTextEditor
@@ -279,7 +280,8 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                 lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
-                fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
+                fontWeight: 'normal', // Prevent font-weight conflicts
               }}
               allowFormatting={true}
             />
@@ -320,7 +322,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   borderRadius: '40px',
                   fontSize: '34px',
                   color: tag.isHighlighted ? '#FFFFFF' : '#09090B', // White for highlighted, dark grey for others
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   display: 'flex',
@@ -338,7 +340,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     style={{
                       fontSize: '34px',
                       color: tag.isHighlighted ? '#FFFFFF' : '#727272',
-                      fontFamily: 'Lora-Bold, serif',
+                      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       width: '100%',
                       height: 'auto',
                       textAlign: 'center'
@@ -366,7 +368,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   borderRadius: '40px',
                   fontSize: '34px',
                   color: tag.isHighlighted ? '#FFFFFF' : '#09090B', // White for highlighted, dark grey for others
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   display: 'flex',
@@ -384,7 +386,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     style={{
                       fontSize: '34px',
                       color: tag.isHighlighted ? '#FFFFFF' : '#727272',
-                      fontFamily: 'Lora-Bold, serif',
+                      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       width: '100%',
                       height: 'auto',
                       textAlign: 'center'
@@ -413,7 +415,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                   borderRadius: '40px',
                   fontSize: '34px',
                   color: '#FFFFFF', // White text
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   display: 'flex',
@@ -431,7 +433,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
                     style={{
                       fontSize: '30px',
                       color: '#FFFFFF',
-                      fontFamily: 'Lora-Bold, serif',
+                      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       width: '100%',
                       height: 'auto',
                       textAlign: 'center'
@@ -473,7 +475,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -487,7 +489,7 @@ export const BenefitsTagsSlideTemplate: React.FC<BenefitsTagsSlideProps & {
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

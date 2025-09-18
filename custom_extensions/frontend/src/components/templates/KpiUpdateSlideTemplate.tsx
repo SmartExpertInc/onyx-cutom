@@ -46,7 +46,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
     backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif'
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
   };
 
   const headerLine: React.CSSProperties = {
@@ -91,7 +91,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const titleTextStyle: React.CSSProperties = {
     color: '#585955',
     fontSize: '16px',
-    fontFamily: 'Lora-Bold, serif'
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
   };
 
   const itemsArea: React.CSSProperties = {
@@ -111,7 +111,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
   const valueStyle: React.CSSProperties = {
     fontSize: '66px',
     color: '#09090B',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     textAlign: 'right',
     letterSpacing: '-3px',
     lineHeight: 1,
@@ -277,7 +277,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -291,7 +291,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}
@@ -371,7 +371,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -385,7 +385,7 @@ export const KpiUpdateSlideTemplate: React.FC<KpiUpdateSlideProps & { theme?: Sl
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'

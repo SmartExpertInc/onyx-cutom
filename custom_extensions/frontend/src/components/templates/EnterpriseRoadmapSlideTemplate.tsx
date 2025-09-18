@@ -134,15 +134,15 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     pushUpdate(cols, nextRows);
   };
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: 'Lora-Bold, serif' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' };
   const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
   const avatarArea: React.CSSProperties = { position:'absolute', left:'56px', top:'96px', width:'140px', height:'140px', borderRadius:'50%', overflow:'hidden', background:'#253020' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'430px', top:'104px', fontSize:'30px', color:'#6C6D68', fontFamily: 'Lora-Bold, serif' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'430px', top:'104px', fontSize:'30px', color:'#6C6D68', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' };
   const descStyle: React.CSSProperties = { position:'absolute', left:'430px', top:'152px', width:'520px', color:'#9D9C98', fontSize:'16px', lineHeight:1.6 };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2B3127', color:'#A0A49B', padding:'12px 20px', borderRadius:'2px', fontFamily: 'Lora-Bold, serif', letterSpacing:0.2, position:'relative' };
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2B3127', color:'#A0A49B', padding:'12px 20px', borderRadius:'2px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', letterSpacing:0.2, position:'relative' };
   const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'12px 20px', background: i%2===0 ? '#F9F8F6' : '#E5E4E0', fontSize:'15px', color:'#7F7F7A', borderRadius:'2px', marginTop:'0px', position:'relative' });
 
   // Inline editor base styles to prevent layout shift
@@ -154,7 +154,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     padding: 0,
     margin: 0,
     color:'#A0A49B',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     lineHeight: 1.2,
   };
   const inlineEditorCellStyle: React.CSSProperties = {

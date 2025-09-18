@@ -69,7 +69,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -165,7 +165,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                 transform: 'translate(-50%, -50%)'
               }} />
             </div>
-            <div style={{ fontSize: '14px', fontFamily: 'Lora-Bold, serif', color: '#374151' }}>Your Logo</div>
+            <div style={{ fontSize: '14px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color: '#374151' }}>Your Logo</div>
           </div>
         )}
       </div>
@@ -176,7 +176,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         top: '100px',
         left: '5%',
         fontSize: '56px',
-        fontFamily: 'Lora-Bold, serif',
+        fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#2A2A2A', // Dark gray text as per screenshot
         lineHeight: '1.1',
         textAlign: 'center',
@@ -189,7 +189,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             className="company-title-editor"
             style={{
               fontSize: '56px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#2A2A2A',
               lineHeight: '1.1',
               width: '100%',
@@ -259,7 +259,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             {/* Section Title */}
             <div style={{
               fontSize: '16px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
               lineHeight: '1.2',
             }}>
@@ -271,7 +271,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   className="section-title-editor"
                   style={{
                     fontSize: '16px',
-                    fontFamily: 'Lora-Bold, serif',
+                    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                     color: index === 0 || index === 3 ? '#404040' : '#ABA5EB',
                     lineHeight: '1.2',
                     width: '100%',

@@ -44,7 +44,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '16px'
   };
 
@@ -64,7 +64,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
     top: '125px',
     fontSize: '44px',
     lineHeight: 1.05,
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#09090B',
   };
 
@@ -183,7 +183,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -197,7 +197,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
@@ -354,11 +354,11 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
                     initialValue={b.label}
                     onSave={(v) => { const nb=[...currentBars]; nb[i] = { ...nb[i], label: v }; setCurrentBars(nb); onUpdate && onUpdate({ bars: nb }); setEditingBar(null); }}
                     onCancel={() => setEditingBar(null)}
-                    style={{ color: '#ffffff', fontSize: '22px', fontFamily: 'Lora-Bold, serif', background: 'transparent', border: 'none', outline: 'none' }}
+                    style={{ color: '#ffffff', fontSize: '22px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', background: 'transparent', border: 'none', outline: 'none' }}
                   />
                 ) : (
                   <div 
-                    style={{ color: '#ffffff', fontSize: '22px', fontFamily: 'Lora-Bold, serif', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
+                    style={{ color: '#ffffff', fontSize: '22px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', whiteSpace: 'nowrap', cursor: isEditable ? 'pointer' : 'default' }}
                     onClick={() => isEditable && setEditingBar({ index: i, field: 'label' })}
                   >
                     {b.label}
@@ -445,7 +445,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -459,7 +459,7 @@ export const AiPharmaMarketGrowthSlideTemplate: React.FC<AiPharmaMarketGrowthSli
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

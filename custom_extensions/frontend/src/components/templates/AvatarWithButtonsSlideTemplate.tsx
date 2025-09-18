@@ -251,7 +251,7 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
     minHeight: '60px',
     display: 'flex',
@@ -269,12 +269,12 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.8rem',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
     marginBottom: '40px',
     lineHeight: '1.2',
     wordWrap: 'break-word',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     textAlign: 'center'
   };
 

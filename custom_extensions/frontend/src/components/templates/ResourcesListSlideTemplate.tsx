@@ -41,7 +41,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     backgroundColor: '#4D4828',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const titleStyles: React.CSSProperties = {
@@ -49,7 +49,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     left: '56px',
     bottom: '33px',
     fontSize: '53px',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     color: '#D7D1B0',
   };
 
@@ -69,7 +69,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     borderRadius: '2px',
     padding: '15px 15px',
     fontSize: '28px',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   return (
@@ -138,7 +138,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
                 onCancel={() => setEditingResourceIndex(null)}
                 className="resources-item-editor"
                 multiline={true}
-                style={{ fontSize: '28px', fontFamily: 'Lora-Bold, serif', color: '#D7D1B0' }}
+                style={{ fontSize: '28px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color: '#D7D1B0' }}
               />
             ) : (
               <div onClick={() => isEditable && setEditingResourceIndex(i)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

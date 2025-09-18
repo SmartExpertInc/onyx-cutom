@@ -52,7 +52,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
   };
 
@@ -284,7 +284,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -298,7 +298,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
@@ -478,7 +478,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -492,7 +492,7 @@ export const CriticalThinkingSlideTemplate: React.FC<CriticalThinkingSlideProps 
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

@@ -56,7 +56,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
   };
 
@@ -199,7 +199,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -213,7 +213,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
@@ -248,7 +248,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
         {/* Introduction text */}
         <div style={{
           fontSize: '16px',
-          fontFamily: 'Lora-Bold, serif',
+          fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
           color: '#09090B',
           borderRadius: '20px',
         }}>
@@ -260,7 +260,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
               className="intro-text-editor"
               style={{
                 fontSize: '16px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 color: '#374151',
                 width: '100%',
                 height: 'auto',
@@ -333,7 +333,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
           {/* Main Title */}
           <div style={{
             fontSize: '48px',
-            fontFamily: 'Lora-Bold, serif',
+            fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
             color: '#000', // Dark gray color as per screenshot
             marginBottom: '30px',
             lineHeight: '1.1',
@@ -346,7 +346,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
                 className="main-title-editor"
                 style={{
                   fontSize: '48px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000',
                   lineHeight: '1.1',
                   width: '100%',
@@ -428,7 +428,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -442,7 +442,7 @@ export const MarketingAgencyThankYouSlideTemplate: React.FC<MarketingAgencyThank
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

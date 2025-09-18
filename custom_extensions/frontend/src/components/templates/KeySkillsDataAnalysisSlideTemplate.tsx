@@ -33,11 +33,11 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const [editHeading, setEditHeading] = useState(false);
   const [editItem, setEditItem] = useState<number | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: 'Lora-Bold, serif', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px', gap:'36px', padding:'56px 56px' };
-  const headingStyle: React.CSSProperties = { fontSize:'53px', fontFamily: 'Lora-Bold, serif', color:'#485A4F', lineHeight:1.05 };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px', gap:'36px', padding:'56px 56px' };
+  const headingStyle: React.CSSProperties = { fontSize:'53px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#485A4F', lineHeight:1.05 };
   const list: React.CSSProperties = { marginTop:'28px', display:'grid', rowGap:'22px' };
   const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', alignItems:'center', columnGap:'18px' };
-  const num: React.CSSProperties = { fontSize:'44px', color:'#3E5B4B', fontFamily: 'Lora-Bold, serif' };
+  const num: React.CSSProperties = { fontSize:'44px', color:'#3E5B4B', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' };
   const text: React.CSSProperties = { fontSize:'28px', color:'#4B6256' };
 
   const rightWrap: React.CSSProperties = { position:'relative' };

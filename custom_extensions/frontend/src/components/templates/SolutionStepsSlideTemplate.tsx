@@ -57,7 +57,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
   };
 
@@ -127,7 +127,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         top: '40px',
         left: '60px',
         fontSize: '48px',
-        fontFamily: 'Lora-Bold, serif',
+        fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#DEE2E2',
         lineHeight: '1.1',
       }}>
@@ -139,7 +139,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             className="solution-title-editor"
             style={{
               fontSize: '48px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#FFFFFF',
               lineHeight: '1.1',
               width: '100%',
@@ -176,7 +176,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             className="button-text-editor"
             style={{
               fontSize: '23px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#F4D4C8',
               width: '100%',
               height: 'auto',
@@ -187,7 +187,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             onClick={() => isEditable && setEditingButtonText(true)}
             style={{
               fontSize: '23px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#F4D4C8',
               userSelect: 'none'
             }}
@@ -278,7 +278,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               {/* Step Title */}
               <div style={{
                 fontSize: '24px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 color: '#D5DBDD',
                 marginBottom: '15px',
               }}>
@@ -290,7 +290,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     className="step-title-editor"
                     style={{
                       fontSize: '24px',
-                      fontFamily: 'Lora-Bold, serif',
+                      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       color: '#D5DBDD',
                       width: '100%',
                       height: 'auto',

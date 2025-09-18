@@ -167,7 +167,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -375,7 +375,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               style={{
                 color: '#09090B',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 width: '30px',
                 height: 'auto'
               }}
@@ -386,7 +386,7 @@ export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlidePr
               style={{
                 color: '#09090B',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}

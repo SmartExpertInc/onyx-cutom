@@ -53,7 +53,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -148,7 +148,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
             fontSize: '14px',
             color: '#818181',
             marginBottom: '20px',
-            fontFamily: 'Lora-Bold, serif'
+            fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
           }}>
             {isEditable && editingSubtitle ? (
               <ImprovedInlineEditor
@@ -159,7 +159,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 style={{
                   fontSize: '14px',
                   color: '#818181',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   width: '100%',
                   height: 'auto'
                 }}
@@ -317,7 +317,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
           <div style={{
             fontSize: '14px',
             color: '#858585',
-            fontFamily: 'Lora-Bold, serif'
+            fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
           }}>
             {isEditable && editingCompanyName ? (
               <ImprovedInlineEditor
@@ -328,7 +328,7 @@ export const LearningTopicsSlideTemplate: React.FC<LearningTopicsSlideProps & {
                 style={{
                   fontSize: '14px',
                   color: '#858585',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   width: '100%',
                   height: 'auto'
                 }}

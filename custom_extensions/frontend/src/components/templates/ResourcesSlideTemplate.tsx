@@ -35,8 +35,8 @@ export const ResourcesSlideTemplate: React.FC<ResourcesSlideProps & { theme?: Sl
   const [editName, setEditName] = useState(false);
   const [editRole, setEditRole] = useState(false);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E3E8FB', color:'#4B5563', fontFamily: 'Lora-Bold, serif', position:'relative', padding:'20px 0' };
-  const titleStyle: React.CSSProperties = { textAlign:'center', fontSize:'84px', fontFamily: 'Lora-Bold, serif', color:'#4B4F58' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E3E8FB', color:'#4B5563', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', padding:'20px 0' };
+  const titleStyle: React.CSSProperties = { textAlign:'center', fontSize:'84px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#4B4F58' };
 
   const listWrap: React.CSSProperties = { marginTop:'40px', display:'grid', rowGap:'20px' };
   const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'1fr', alignItems:'center' };

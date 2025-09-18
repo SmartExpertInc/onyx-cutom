@@ -175,7 +175,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -277,7 +277,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             fontSize: '12px',
             color: '#3a6549',
             marginBottom: '25px',
-            fontFamily: 'Lora-Bold, serif',
+            fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
             minHeight: '20px',
             maxHeight: '20px',
             display: 'flex',
@@ -293,7 +293,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '12px',
                   color: '#3a6549',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   width: '100%',
                   height: '100%',
                   minHeight: '20px',
@@ -312,7 +312,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   alignItems: 'center',
                   fontSize: '12px',
                   color: '#3a6549',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   minHeight: '20px',
                   maxHeight: '20px',
                   overflow: 'hidden'
@@ -590,7 +590,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           <div style={{
             fontSize: '12px',
             color: themeContent,
-            fontFamily: 'Lora-Bold, serif'
+            fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
           }}>
             {isEditable && editingCompanyName ? (
               <InlineEditor
@@ -601,7 +601,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 style={{
                   fontSize: '12px',
                   color: '#8c8c8c',
-                  fontFamily: 'Lora-Bold, serif'
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
                 }}
               />
             ) : (
@@ -612,7 +612,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   userSelect: 'none',
                   fontSize: '12px',
                   color: '#8c8c8c',
-                  fontFamily: 'Lora-Bold, serif'
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
                 }}
               >
                 {currentCompanyName}

@@ -28,11 +28,11 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number; f?:'title'|'body' } | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: 'Lora-Bold, serif', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };
   const left: React.CSSProperties = { padding:'72px 72px' };
-  const titleStyle: React.CSSProperties = { fontSize:'60px', fontFamily: 'Lora-Bold, serif', color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };
+  const titleStyle: React.CSSProperties = { fontSize:'60px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#222', lineHeight:0.95, whiteSpace:'pre-line' };
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
-  const itemTitle: React.CSSProperties = { fontSize:'22px', fontFamily: 'Lora-Bold, serif', color:'#444444' };
+  const itemTitle: React.CSSProperties = { fontSize:'22px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#444444' };
   const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#626262', lineHeight:1.5 };
 
   const right: React.CSSProperties = { position:'relative'};

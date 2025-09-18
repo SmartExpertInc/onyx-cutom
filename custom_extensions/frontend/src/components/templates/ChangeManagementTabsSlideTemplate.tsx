@@ -34,14 +34,14 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const [editTabIdx, setEditTabIdx] = useState<number | null>(null);
   const [editPillIdx, setEditPillIdx] = useState<number | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111827', fontFamily: 'Lora-Bold, serif', position:'relative', paddingTop:'132px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#111827', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative', paddingTop:'132px' };
 
   const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'180px', display:'grid', gridTemplateRows:'45px 45px 45px 45px' };
   const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 24px', fontSize:'14px', letterSpacing:0.5 });
 
   const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'220px', bottom:'120px' };
   const avatar: React.CSSProperties = { position:'absolute', left:'48px', top:'8px', width:'78px', height:'78px', borderRadius:'0px', overflow:'hidden', background:'#D7EBFF' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'154px', right:'56px', top:0, fontSize:'42px', fontFamily: 'Lora-Bold, serif', color:'#2D2D2D', lineHeight:1.2 };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'154px', right:'56px', top:0, fontSize:'42px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#2D2D2D', lineHeight:1.2 };
 
   const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'150px', height:'82px', display:'grid', gridTemplateColumns:'1fr 164px 1fr', columnGap:'1px', alignItems:'center' };
   const capsule: React.CSSProperties = { border:'2px solid #1f2937', borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#434343', fontSize:'12px', height:'100%', background:'#fff' };

@@ -79,9 +79,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
 
   // Layout
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#1A1A1A', color:'#E5E7EB', fontFamily: 'Lora-Bold, serif', position:'relative' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#1A1A1A', color:'#E5E7EB', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };
   const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#282828', color:'#9B9B9B', padding:'8px 18px', fontSize:'16px' };
-  const titleStyle: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', color:'#D2D2D2' };
+  const titleStyle: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#D2D2D2' };
   const descStyle: React.CSSProperties = { width:'795px', color:'#909090', fontSize:'14px' };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
@@ -96,7 +96,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px', gap:'10px' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };
-  const metricValue: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', color:'#DBDBDB' };
+  const metricValue: React.CSSProperties = { fontSize:'38px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#DBDBDB' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#929292', fontSize:'15px' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
 

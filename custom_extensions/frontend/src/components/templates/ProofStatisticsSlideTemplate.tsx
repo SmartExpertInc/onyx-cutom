@@ -64,7 +64,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '40px 60px',
   };
 
@@ -170,7 +170,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         top: '95px',
         left: '60px',
         fontSize: '38px',
-        fontFamily: 'Lora-Bold, serif',
+        fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#DFDFDF',
         lineHeight: '1.1',
         maxWidth: '600px',
@@ -183,7 +183,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             className="proof-title-editor"
             style={{
               fontSize: '38px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#DFDFDF',
               lineHeight: '1.1',
               width: '100%',
@@ -265,7 +265,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             {/* Statistic Value */}
             <div style={{
               fontSize: '32px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#E1E1E1',
               marginBottom: '12px',
             }}>
@@ -277,7 +277,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   className="statistic-value-editor"
                   style={{
                     fontSize: '32px',
-                    fontFamily: 'Lora-Bold, serif',
+                    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                     color: '#E1E1E1',
                     width: '100%',
                     height: 'auto',

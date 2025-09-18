@@ -159,7 +159,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
 
@@ -266,7 +266,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 color: '#ffffff',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 width: '30px',
                 height: 'auto'
               }}
@@ -277,7 +277,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
               style={{
                 color: '#ffffff',
                 fontSize: '17px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none'
               }}
@@ -307,7 +307,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 fontSize: '63px',
                 color: 'white',
                 lineHeight: '1.1',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 userSelect: 'none',
                 position: 'relative'
               }}
@@ -320,7 +320,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 userSelect: 'none',
                 position: 'relative'
               }}
@@ -339,7 +339,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 fontSize: '63px',
                 color: 'white',
                 lineHeight: '1.1',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 userSelect: 'none',
                 position: 'relative'
               }}
@@ -352,7 +352,7 @@ export const CourseOverviewSlideTemplate: React.FC<CourseOverviewSlideProps & {
                 color: 'white',
                 lineHeight: '1.1',
                 cursor: isEditable ? 'pointer' : 'default',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 userSelect: 'none',
                 position: 'relative'
               }}

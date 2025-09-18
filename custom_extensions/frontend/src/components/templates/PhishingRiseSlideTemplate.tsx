@@ -51,7 +51,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     overflow: 'hidden',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    fontFamily: 'Lora-Bold, serif'
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal'
   };
 
   // Left content area
@@ -65,7 +65,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
 
   const largeFaintTitle: React.CSSProperties = {
     fontSize: '47px',
-    fontFamily: 'Lora-Bold, serif', // Lora-Bold for titles
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', // Lora-Bold for titles
     letterSpacing: '-0.5px',
     color: '#09090B' // soft violet-tinted light heading
   };
@@ -258,7 +258,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 className="your-logo-text-editor"
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   width: '80px',
                   height: 'auto',
@@ -272,7 +272,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
                 onClick={() => isEditable && setEditingYourLogoText(true)}
                 style={{
                   fontSize: '14px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#000000',
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none'
@@ -490,7 +490,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               width: '30px',
               height: 'auto',
               background: 'transparent',
@@ -504,7 +504,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
             style={{
               color: '#000000',
               fontSize: '17px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

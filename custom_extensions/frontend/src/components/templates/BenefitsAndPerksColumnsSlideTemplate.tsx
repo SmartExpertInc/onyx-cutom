@@ -39,10 +39,10 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const [editHeading, setEditHeading] = useState(false);
   const [editCol, setEditCol] = useState<{ idx: number; field: 'title' | 'body' } | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: 'Lora-Bold, serif', position:'relative' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontFamily: 'Lora-Bold, serif', color:'#202020' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#202020' };
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#000000', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
@@ -59,11 +59,11 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       display:'inline-flex',
       alignItems:'center',
       justifyContent:'center',
-      fontFamily: 'Lora-Bold, serif',
+      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
       fontSize:'16px'
     };
   };
-  const title: React.CSSProperties = { fontSize:'26px', fontFamily: 'Lora-Bold, serif', letterSpacing:0.5 };
+  const title: React.CSSProperties = { fontSize:'26px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', letterSpacing:0.5 };
   const body: React.CSSProperties = { fontSize:'16px', lineHeight:1.6 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });

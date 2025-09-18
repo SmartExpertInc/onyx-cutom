@@ -25,10 +25,10 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
   const [editingDesc, setEditingDesc] = useState(false);
   const [editingNumber, setEditingNumber] = useState<null | 'big' | 'medium' | 'small'>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#ffffff', fontFamily: 'Lora-Bold, serif' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#ffffff', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal' };
 
   const rightText: React.CSSProperties = { position:'absolute', right:'20px', top:'30px', width:'502px' };
-  const titleStyle: React.CSSProperties = { fontSize:'52px', fontFamily: 'Lora-Bold, serif', color:'#151515', letterSpacing:'-0.5px' };
+  const titleStyle: React.CSSProperties = { fontSize:'52px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#151515', letterSpacing:'-0.5px' };
   const descStyle: React.CSSProperties = { marginTop:'12px', color:'#8C8C8C', fontSize:'15px', lineHeight:1.6 };
 
   const circles: React.CSSProperties = { position:'absolute', left:'20px', bottom:'25px', width:'620px' };
@@ -57,10 +57,10 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
               initialValue={bigLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ bigLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'75px', fontFamily: 'Lora-Bold, serif', color:'#151515', lineHeight:1 }}
+              style={{ fontSize:'75px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#151515', lineHeight:1 }}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('big')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'75px', fontFamily: 'Lora-Bold, serif', color:'#151515', lineHeight:1 }}>{bigLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('big')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'75px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#151515', lineHeight:1 }}>{bigLabel}</div>
           )}
         </div>
 
@@ -71,10 +71,10 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
               initialValue={mediumLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ mediumLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'60px', fontFamily: 'Lora-Bold, serif', color:'#ffffff', lineHeight:1 }}
+              style={{ fontSize:'60px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#ffffff', lineHeight:1 }}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('medium')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'60px', fontFamily: 'Lora-Bold, serif', color:'#ffffff', lineHeight:1 }}>{mediumLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('medium')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'60px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#ffffff', lineHeight:1 }}>{mediumLabel}</div>
           )}
         </div>
 
@@ -85,10 +85,10 @@ export const ConcentricPhishingRiseSlideTemplate: React.FC<ConcentricPhishingRis
               initialValue={smallLabel}
               onSave={(v)=>{ onUpdate && onUpdate({ smallLabel: v }); setEditingNumber(null); }}
               onCancel={()=>setEditingNumber(null)}
-              style={{ fontSize:'40px', fontFamily: 'Lora-Bold, serif', color:'#151515', lineHeight:1 }}
+              style={{ fontSize:'40px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#151515', lineHeight:1 }}
             />
           ) : (
-            <div onClick={()=> isEditable && setEditingNumber('small')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'40px', fontFamily: 'Lora-Bold, serif', color:'#151515', lineHeight:1 }}>{smallLabel}</div>
+            <div onClick={()=> isEditable && setEditingNumber('small')} style={{ cursor: isEditable ? 'pointer' : 'default', fontSize:'40px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#151515', lineHeight:1 }}>{smallLabel}</div>
           )}
         </div>
       </div>

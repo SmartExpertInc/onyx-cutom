@@ -51,7 +51,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -93,7 +93,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         top: '60px',
         left: '60px',
         fontSize: '48px',
-        fontFamily: 'Lora-Bold, serif',
+        fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
         color: '#1C1B1A', // Black text as per screenshot
         lineHeight: '1.1',
       }}>
@@ -105,7 +105,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             className="toc-title-editor"
             style={{
               fontSize: '48px',
-              fontFamily: 'Lora-Bold, serif',
+              fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
               color: '#1C1B1A',
               lineHeight: '1.1',
               width: '100%',
@@ -156,7 +156,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 className="toc-button-editor"
                 style={{
                   fontSize: '17px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#245D27',
                   width: '100%',
                   height: 'auto',
@@ -168,7 +168,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 onClick={() => isEditable && setEditingButtons({ index })}
                 style={{
                   fontSize: '17px',
-                  fontFamily: 'Lora-Bold, serif',
+                  fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                   color: '#245D27', // White text as per screenshot
                   textAlign: 'center',
                   userSelect: 'none'

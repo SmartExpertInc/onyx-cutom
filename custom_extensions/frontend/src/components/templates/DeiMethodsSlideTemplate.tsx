@@ -35,10 +35,10 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F6F6F2', color:'#0F172A', fontFamily: 'Lora-Bold, serif', position:'relative' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F6F6F2', color:'#0F172A', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', position:'relative' };
   const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
   const header: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', height:'160px', background:'#6CDC78', border:'1px solid #102412', borderBottom:'none', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'0', borderBottomRightRadius:'0' };
-  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'84px', fontSize:'42px', fontFamily: 'Lora-Bold, serif', color:'#102412' };
+  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'84px', fontSize:'42px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#102412' };
   
   // Content block wrapper with top radius
   const contentBlock: React.CSSProperties = { 
@@ -56,10 +56,10 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
     borderTop:'none' 
   };
 
-  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'45px', fontSize:'40px', fontFamily: 'Lora-Bold, serif', color:'#1E1E1C' };
+  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'45px', fontSize:'40px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#1E1E1C' };
   const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'115px', fontSize:'17px', color:'#454441', lineHeight:1.6, whiteSpace:'pre-line' };
 
-  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', fontSize:'40px', fontFamily: 'Lora-Bold, serif', color:'#1E1E1C' };
+  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', fontSize:'40px', fontFamily: 'Lora-Bold, serif', fontWeight: 'normal', color:'#1E1E1C' };
   const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', fontSize:'17px', color:'#595854', lineHeight:1.6, whiteSpace:'pre-line' };
 
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'72px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#C7D6FF', zIndex:2 };

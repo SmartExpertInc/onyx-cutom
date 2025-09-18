@@ -163,7 +163,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
-    fontFamily: 'Lora-Bold, serif',
+    fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
     padding: '60px 80px',
   };
 
@@ -313,7 +313,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             }}>
               <div style={{
                 fontSize: '32px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 color: '#EBDEF8',
                 lineHeight: '1.4',
               }}>
@@ -327,7 +327,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     style={{
                       fontSize: '32px',
                       maxWidth: '386px',
-                      fontFamily: 'Lora-Bold, serif',
+                      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       color: '#EBDEF8',
                       lineHeight: '1.4',
                       background: 'transparent',
@@ -367,7 +367,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             }}>
               <div style={{
                 fontSize: '18px',
-                fontFamily: 'Lora-Bold, serif',
+                fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                 color: themeBg,
                 lineHeight: '1.3',
                 textAlign: 'center'
@@ -381,7 +381,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     className="additional-tip-editor"
                     style={{
                       fontSize: '18px',
-                      fontFamily: 'Lora-Bold, serif',
+                      fontFamily: 'Lora-Bold, serif', fontWeight: 'normal',
                       color: themeBg,
                       lineHeight: '1.3',
                       textAlign: 'center',

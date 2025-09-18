@@ -80,6 +80,12 @@ export function SimpleRichTextEditor({
       fontWeight: isBold ? 'bold' : (style.fontWeight || 'normal'),
       fontStyle: isItalic ? 'italic' : (style.fontStyle || 'normal'),
     };
+    
+    // Если используется Lora-Bold, убеждаемся что fontWeight не конфликтует
+    if (baseStyle.fontFamily && baseStyle.fontFamily.includes('Lora-Bold')) {
+      baseStyle.fontWeight = isBold ? 'bold' : 'normal';
+    }
+    
     return baseStyle;
   };
 
