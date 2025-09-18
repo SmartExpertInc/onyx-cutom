@@ -1298,27 +1298,28 @@ function GenerateProductPicker() {
               icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
               label={t('interface.generate.modules', 'Modules')}
             />
-            <Select value={lessonsPerModule} onValueChange={setLessonsPerModule}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-                  <SelectItem key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white text-black">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
-                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
-                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
-                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
-              </SelectContent>
-            </Select>
+            <CustomPillSelector
+              value={lessonsPerModule}
+              onValueChange={setLessonsPerModule}
+              options={["1-2", "3-4", "5-7", "8-10"].map((rng) => ({
+                value: rng,
+                label: `${rng} ${t('interface.generate.perModule', 'per module')}`
+              }))}
+              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              label={t('interface.generate.lessons', 'Lessons')}
+            />
+            <CustomPillSelector
+              value={language}
+              onValueChange={setLanguage}
+              options={[
+                { value: "en", label: t('interface.english', 'English') },
+                { value: "uk", label: t('interface.ukrainian', 'Ukrainian') },
+                { value: "es", label: t('interface.spanish', 'Spanish') },
+                { value: "ru", label: t('interface.russian', 'Russian') }
+              ]}
+              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              label={t('interface.language', 'Language')}
+            />
           </div>
         )}
 

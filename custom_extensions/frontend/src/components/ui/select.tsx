@@ -212,6 +212,7 @@ function CustomPillSelector({
         className={cn(
           "flex items-center gap-3 px-4 py-2 rounded-md border-0 bg-white shadow-sm hover:shadow-md transition-shadow",
           "text-gray-700 font-medium text-sm",
+          "[&>svg]:hidden",
           className
         )}
       >
@@ -221,7 +222,10 @@ function CustomPillSelector({
               {icon}
             </div>
           )}
-          <span>{label}: {value}</span>
+          <span>
+            <span className="text-gray-600">{label}:</span> 
+            <span className="text-black ml-1">{value}</span>
+          </span>
           <ChevronDownIcon className="w-4 h-4 text-gray-500" />
         </div>
         <div className="w-px h-6 bg-gray-200 ml-2"></div>
