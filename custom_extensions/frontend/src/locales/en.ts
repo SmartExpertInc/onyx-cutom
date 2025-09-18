@@ -995,7 +995,7 @@ export const en = {
       sorting: "Sorting",
       openAnswer: "Open Answer",
       questions: "questions",
-      slides: "slides",
+      slides: "Slides",
       lesson: "Lesson",
       generatingLessonContent: "Generating lesson content...",
       applyingEdit: "Applying edit...",
