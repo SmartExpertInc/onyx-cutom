@@ -310,7 +310,7 @@ export default function DataSourceLanding() {
         <CreatePageHandler />
       </Suspense>
       <main
-        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-cyan-200 to-cyan-50"
+        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
       >
       {/* Top-left home button */}
       <Link
