@@ -1449,7 +1449,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white" sideOffset={20}>
+                          <SelectContent className="shadow-lg border-white" sideOffset={25}>
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1476,7 +1476,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white" sideOffset={20}>
+                          <SelectContent className="shadow-lg border-white" sideOffset={25}>
                             {lengthOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                             ))}
@@ -1511,9 +1511,9 @@ export default function TextPresentationClient() {
                                 </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent 
-                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto" 
-                            align="start"
-                            sideOffset={20}
+                            className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white shadow-lg" 
+                            align="center"
+                            sideOffset={25}
                             style={{ backgroundColor: 'white' }}
                           >
                             {styleOptions.map((option) => (
@@ -1634,9 +1634,9 @@ export default function TextPresentationClient() {
                             </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent 
-                            className="w-60 p-2 border border-gray-300 rounded-lg max-h-60 overflow-y-auto" 
-                        align="start"
-                        sideOffset={20}
+                            className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto shadow-lg" 
+                        align="center"
+                        sideOffset={25}
                         style={{ backgroundColor: 'white' }}
                       >
                         {styleOptions.map((option) => (
