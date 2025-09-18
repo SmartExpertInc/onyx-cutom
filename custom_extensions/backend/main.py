@@ -16150,7 +16150,29 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         logger.info(f"DEBUG: Available cache keys: {list(OUTLINE_PREVIEW_CACHE.keys())}")
     
     if raw_outline_cached:
-        parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        # Parse cached preview - try JSON first, fallback to markdown
+        try:
+            # Try to parse as JSON (new format)
+            cached_json = json.loads(raw_outline_cached.strip())
+            if isinstance(cached_json, dict) and "sections" in cached_json:
+                # Convert JSON sections to modules format for comparison
+                parsed_orig = []
+                for section in cached_json["sections"]:
+                    parsed_orig.append({
+                        "id": section.get("id", ""),
+                        "title": section.get("title", ""),
+                        "lessons": [lesson.get("title", "") for lesson in section.get("lessons", [])],
+                        "totalHours": section.get("totalHours", 0)
+                    })
+                logger.info(f"[FINALIZE_CACHE] Parsed {len(parsed_orig)} modules from JSON preview")
+            else:
+                # Fallback to markdown parsing
+                parsed_orig = _parse_outline_markdown(raw_outline_cached)
+                logger.info(f"[FINALIZE_CACHE] Used markdown fallback, parsed {len(parsed_orig)} modules")
+        except (json.JSONDecodeError, KeyError) as e:
+            # Fallback to markdown parsing for old format
+            parsed_orig = _parse_outline_markdown(raw_outline_cached)
+            logger.info(f"[FINALIZE_CACHE] JSON parse failed ({e}), used markdown fallback: {len(parsed_orig)} modules")
         
         # Debug: Log the data structures being compared
         logger.info(f"DEBUG: parsed_orig structure: {json.dumps(parsed_orig, indent=2)[:500]}...")
@@ -16180,7 +16202,22 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
         try:
             # Use cached outline directly since no changes were made
             template_id = await _ensure_training_plan_template(pool)
-            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            
+            # Extract project name from JSON or markdown
+            project_name_detected = None
+            try:
+                # Try JSON first
+                cached_json = json.loads(raw_outline_cached.strip())
+                if isinstance(cached_json, dict) and "mainTitle" in cached_json:
+                    project_name_detected = cached_json["mainTitle"]
+                    logger.info(f"[DIRECT_PATH] Extracted project name from JSON: {project_name_detected}")
+            except (json.JSONDecodeError, KeyError):
+                pass
+            
+            # Fallback to markdown extraction or payload prompt
+            if not project_name_detected:
+                project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+                logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name_detected}")
             
             logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
             
