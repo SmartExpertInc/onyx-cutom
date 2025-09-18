@@ -180,7 +180,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   );
   const [menuPosition, setMenuPosition] = useState<"above" | "below">("below");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const { isEnabled: qualityTierEnabled } = useFeaturePermission('quality_tier');
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
   const menuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
