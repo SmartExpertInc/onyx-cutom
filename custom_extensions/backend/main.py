@@ -16747,10 +16747,10 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
         if not new_content.strip():
             return progress_updates
         
-        # Look for module patterns in new content
-        # Use the working reverse pattern: "id" before "title" 
+        # Look for module patterns in FULL response (not just new content)
+        # This is key for incremental JSON building where patterns span multiple chunks
         module_pattern = r'"id":\s*"(№\d+)"[^}]*?"title":\s*"([^"]+)"'
-        module_matches = re.findall(module_pattern, new_content)
+        module_matches = re.findall(module_pattern, assistant_reply)
         
         # Convert to (title, id) format for consistency
         all_module_matches = [(title, module_id) for module_id, title in module_matches]
@@ -16764,12 +16764,12 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
                     "title": title.strip(),
                     "id": module_id
                 })
-                logger.debug(f"[LIVE_PROGRESS] Found new module: {title}")
+                logger.info(f"[LIVE_PROGRESS] Found new module: {title}")
         
-        # Look for lesson patterns in new content
-        # Simple pattern: "title": "Lesson content"
-        lesson_pattern = r'"title":\s*"([^"]+)"'
-        lesson_matches = re.findall(lesson_pattern, new_content)
+        # Look for lesson patterns in FULL response (not just new content)
+        # Use more specific pattern to find lessons within lesson arrays
+        lesson_pattern = r'"title":\s*"Lesson\s+\d+\.\d+:\s*([^"]+)"'
+        lesson_matches = re.findall(lesson_pattern, assistant_reply)
         
         # Get the most recent module for context
         current_module = "Unknown Module"
@@ -16780,23 +16780,23 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
             # Use the last module we sent
             current_module = list(sent_modules)[-1].split(":", 1)[1]
         
+        # Look for lesson patterns in FULL response using specific lesson pattern
+        lesson_pattern = r'"title":\s*"Lesson\s+\d+\.\d+:\s*([^"]+)"'
+        lesson_matches = re.findall(lesson_pattern, assistant_reply)
+        
         for lesson_title in lesson_matches:
-            # Skip if this looks like a module title (already processed)
-            if any(lesson_title == title for title, _ in all_module_matches):
-                continue
-                
-            # Clean lesson title (remove "Lesson X.Y:" prefix)
-            cleaned_title = re.sub(r'^Lesson\s+\d+\.\d+:\s*', '', lesson_title).strip()
+            # Clean lesson title (already extracted without prefix by regex)
+            cleaned_title = lesson_title.strip()
             
             lesson_key = f"{current_module}:{cleaned_title}"
             if lesson_key not in sent_lessons and cleaned_title:
                 sent_lessons.add(lesson_key)
                 progress_updates.append({
-                    "type": "lesson",
+                    "type": "lesson", 
                     "title": cleaned_title,
                     "module": current_module
                 })
-                logger.debug(f"[LIVE_PROGRESS] Found new lesson: {cleaned_title}")
+                logger.info(f"[LIVE_PROGRESS] Found new lesson: {cleaned_title}")
     
     except Exception as e:
         logger.debug(f"[LIVE_PROGRESS_EXTRACT] Error extracting progress: {e}")
