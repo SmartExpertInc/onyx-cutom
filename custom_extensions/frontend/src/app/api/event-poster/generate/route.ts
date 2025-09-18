@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Redirect to results page with session ID
-    return NextResponse.redirect(new URL(`/custom-projects-ui/create/event-poster/results?sessionId=${sessionId}`, request.url));
+    return NextResponse.redirect(new URL(`/create/event-poster/results?sessionId=${sessionId}`, request.url));
     
   } catch (error) {
     console.error('Error processing event poster data:', error);

@@ -55,11 +55,11 @@ function EventPosterResultsContent() {
   }, [searchParams]);
 
   const handleBackToQuestionnaire = () => {
-    router.push('/custom-projects-ui/create/event-poster/questionnaire');
+    router.push('/create/event-poster/questionnaire');
   };
 
   const handleBackToProjects = () => {
-    router.push('/custom-projects-ui/projects');
+    router.push('/projects');
   };
 
   if (loading) {
