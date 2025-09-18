@@ -15082,6 +15082,17 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
     
     logger.info(f"[PREVIEW_PAYLOAD] Final payload keys: {list(wiz_payload.keys())}")
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+    # Force JSON-ONLY preview output for Course Outline to enable immediate parsed preview
+    try:
+        json_preview_instructions = f"""
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Course Outline preview, strictly following this example structure:
+{DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+"""
+        wizard_message = wizard_message + "\n" + json_preview_instructions
+    except Exception as e:
+        logger.warning(f"[PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
     logger.info(f"[PREVIEW_PAYLOAD] Created wizard message ({len(wizard_message)} chars)")
 
     # ---------- StreamingResponse with keep-alive -----------
@@ -15288,41 +15299,61 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
                     yield (json.dumps(error_packet) + "\n").encode()
                     return
 
-                logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                # Try JSON-first parsing for immediate structured preview
+                def _extract_json_text(s: str) -> str:
+                    try:
+                        start = s.find('{')
+                        end = s.rfind('}')
+                        if start != -1 and end != -1 and start < end:
+                            return s[start:end+1]
+                        return s
+                    except Exception:
+                        return s
+
+                modules_preview = []
                 try:
-                    modules_preview = _parse_outline_markdown(assistant_reply)
-                    logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
-                    logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
-                    
-                    # Validate the parsed result meets basic requirements
-                    validation_passed = True
-                    validation_messages = []
-                    
-                    # Check if we have reasonable number of modules (not just 1 with many lessons)
-                    if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
-                        validation_passed = False
-                        validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
-                    
-                    # Check if we have expected module count (if specified in payload)
-                    expected_modules = getattr(payload, 'modules', None)
-                    if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
-                        validation_passed = False
-                        validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
-                    
-                    if not validation_passed:
-                        logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
-                        logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-                        # Continue anyway but log the issue - the intelligent fallback should have handled it
-                    else:
-                        logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
-                    
+                    json_text = _extract_json_text(assistant_reply)
+                    parsed = json.loads(json_text)
+                    sections = parsed.get('sections', []) if isinstance(parsed, dict) else []
+                    for i, sec in enumerate(sections):
+                        title = (sec.get('title') if isinstance(sec, dict) else str(sec)) or ''
+                        lessons_src = sec.get('lessons', []) if isinstance(sec, dict) else []
+                        lessons = []
+                        for ls in lessons_src:
+                            if isinstance(ls, dict):
+                                lessons.append(ls.get('title') or '')
+                            else:
+                                lessons.append(str(ls))
+                        modules_preview.append({
+                            "id": f"mod{i+1}",
+                            "title": title,
+                            "totalHours": (sec.get('totalHours') if isinstance(sec, dict) else 0.0) or 0.0,
+                            "lessons": lessons,
+                        })
+                    logger.info(f"[PREVIEW_JSON_PARSE] Parsed modules from JSON: {len(modules_preview)}")
                 except Exception as e:
-                    logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
-                    logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-                    error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
-                    yield (json.dumps(error_packet) + "\n").encode()
-                    return
-                
+                    logger.warning(f"[PREVIEW_JSON_PARSE] Failed to parse JSON preview ({e}); falling back to markdown parser")
+                    logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                    modules_preview = _parse_outline_markdown(assistant_reply)
+
+                # Validate the parsed result meets basic requirements
+                validation_passed = True
+                validation_messages = []
+                # Check if we have reasonable number of modules (not just 1 with many lessons)
+                if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                    validation_passed = False
+                    validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+                # Check if we have expected module count (if specified in payload)
+                expected_modules = getattr(payload, 'modules', None)
+                if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                    validation_passed = False
+                    validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+                if not validation_passed:
+                    logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                    logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                else:
+                    logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+
                 # Send completion packet with the parsed outline
                 logger.info(f"[PREVIEW_DONE] Creating completion packet")
                 done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
@@ -15340,17 +15371,13 @@ async def wizard_outline_preview(payload: OutlineWizardPreview, request: Request
             logger.info(f"[PREVIEW_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
             logger.info(f"[PREVIEW_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             
-            # Enhance the wizard message with formatting requirements for course outlines
-            enhanced_wizard_message = wizard_message
-            if "Course Outline" in wizard_message:
-                enhanced_wizard_message += """
+            # Force JSON-ONLY preview output for Course Outline in direct OpenAI path
+            enhanced_wizard_message = wizard_message + """
 
-CRITICAL FORMATTING REQUIREMENTS:
-1. Use exactly this structure: ## Module [Number]: [Module Title]
-2. Each module must be a separate H2 header starting with ##
-3. Lessons must be numbered list items (1. 2. 3.) under each module
-
-ENSURE: Create the requested number of modules, not a single module with all lessons.
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Course Outline preview, strictly following this example structure:
+""" + DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM + """
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
 """
             
             try:
@@ -15390,47 +15417,67 @@ ENSURE: Create the requested number of modules, not a single module with all les
             yield (json.dumps(error_packet) + "\n").encode()
             return
 
-        logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
-        try:
-            modules_preview = _parse_outline_markdown(assistant_reply)
-            logger.info(f"[PREVIEW_PARSING] Successfully parsed {len(modules_preview)} modules")
-            logger.info(f"[PREVIEW_PARSING] Module details: {[{'id': m.get('id'), 'title': m.get('title'), 'lessons_count': len(m.get('lessons', []))} for m in modules_preview]}")
-            
-            # Validate the parsed result meets basic requirements
-            validation_passed = True
-            validation_messages = []
-            
-            # Check if we have reasonable number of modules (not just 1 with many lessons)
-            if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
-                validation_passed = False
-                validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
-            
-            # Check if we have expected module count (if specified in payload)
-            expected_modules = getattr(payload, 'modules', None)
-            if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
-                validation_passed = False
-                validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
-            
-            if not validation_passed:
-                logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
-                logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-                # Continue anyway but log the issue - the intelligent fallback should have handled it
-            else:
-                logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
-            
-        except Exception as e:
-            logger.error(f"[PREVIEW_PARSING] CRITICAL: Failed to parse outline markdown: {e}", exc_info=True)
-            logger.error(f"[PREVIEW_PARSING] Raw content preview: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
-            error_packet = {"type": "error", "message": f"Failed to parse generated outline: {str(e)}"}
-            yield (json.dumps(error_packet) + "\n").encode()
-            return
-        
+                        # Try JSON-first parsing for immediate structured preview
+                def _extract_json_text(s: str) -> str:
+                    try:
+                        start = s.find('{')
+                        end = s.rfind('}')
+                        if start != -1 and end != -1 and start < end:
+                            return s[start:end+1]
+                        return s
+                    except Exception:
+                        return s
+
+                modules_preview = []
+                try:
+                    json_text = _extract_json_text(assistant_reply)
+                    parsed = json.loads(json_text)
+                    sections = parsed.get('sections', []) if isinstance(parsed, dict) else []
+                    for i, sec in enumerate(sections):
+                        title = (sec.get('title') if isinstance(sec, dict) else str(sec)) or ''
+                        lessons_src = sec.get('lessons', []) if isinstance(sec, dict) else []
+                        lessons = []
+                        for ls in lessons_src:
+                            if isinstance(ls, dict):
+                                lessons.append(ls.get('title') or '')
+                            else:
+                                lessons.append(str(ls))
+                        modules_preview.append({
+                            "id": f"mod{i+1}",
+                            "title": title,
+                            "totalHours": (sec.get('totalHours') if isinstance(sec, dict) else 0.0) or 0.0,
+                            "lessons": lessons,
+                        })
+                    logger.info(f"[PREVIEW_JSON_PARSE] Parsed modules from JSON: {len(modules_preview)}")
+                except Exception as e:
+                    logger.warning(f"[PREVIEW_JSON_PARSE] Failed to parse JSON preview ({e}); falling back to markdown parser")
+                    logger.info(f"[PREVIEW_PARSING] Starting markdown parsing of {len(assistant_reply)} chars")
+                    modules_preview = _parse_outline_markdown(assistant_reply)
+
+                # Validate the parsed result meets basic requirements
+                validation_passed = True
+                validation_messages = []
+                # Check if we have reasonable number of modules (not just 1 with many lessons)
+                if len(modules_preview) == 1 and len(modules_preview[0].get('lessons', [])) > 8:
+                    validation_passed = False
+                    validation_messages.append(f"Single module with {len(modules_preview[0].get('lessons', []))} lessons detected")
+                # Check if we have expected module count (if specified in payload)
+                expected_modules = getattr(payload, 'modules', None)
+                if expected_modules and abs(len(modules_preview) - expected_modules) > 1:  # Allow 1 module difference
+                    validation_passed = False
+                    validation_messages.append(f"Expected ~{expected_modules} modules, got {len(modules_preview)}")
+                if not validation_passed:
+                    logger.warning(f"[PREVIEW_VALIDATION] Outline structure validation failed: {'; '.join(validation_messages)}")
+                    logger.warning(f"[PREVIEW_VALIDATION] Raw content preview for debugging: {assistant_reply[:500]}{'...' if len(assistant_reply) > 500 else ''}")
+                else:
+                    logger.info(f"[PREVIEW_VALIDATION] Outline structure validation passed")
+
                 # Send completion packet with the parsed outline
-        logger.info(f"[PREVIEW_DONE] Creating completion packet")
-        done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
-        yield (json.dumps(done_packet) + "\n").encode()
-        logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
-        return
+                logger.info(f"[PREVIEW_DONE] Creating completion packet")
+                done_packet = {"type": "done", "modules": modules_preview, "raw": assistant_reply}
+                yield (json.dumps(done_packet) + "\n").encode()
+                logger.info(f"[PREVIEW_STREAM] Sent completion packet with {len(modules_preview)} modules")
+                return
                 
 
     return StreamingResponse(
