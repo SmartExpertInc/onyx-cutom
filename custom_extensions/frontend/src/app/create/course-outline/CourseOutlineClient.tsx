@@ -620,10 +620,6 @@ export default function CourseOutlineClient() {
           let buffer = "";
           let accumulatedRaw = "";
 
-          // Live preview accumulators based on 'module'/'lesson' packets
-          const liveModules: { id?: string; title: string; lessons: string[]; totalHours?: number }[] = [];
-          const moduleIndexByTitle = new Map<string, number>();
-
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
@@ -640,27 +636,40 @@ export default function CourseOutlineClient() {
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
               } else if (pkt.type === "module") {
-                const title: string = pkt.title || pkt.name || "";
-                if (title && !moduleIndexByTitle.has(title)) {
-                  moduleIndexByTitle.set(title, liveModules.length);
-                  liveModules.push({ id: pkt.id, title, lessons: [], totalHours: pkt.totalHours });
-                  setPreview([...liveModules]);
-                }
+                // Live module update - add new module to preview
+                setPreview(prev => {
+                  const existingModuleIndex = prev.findIndex(m => m.id === pkt.id);
+                  if (existingModuleIndex >= 0) {
+                    // Update existing module
+                    const updated = [...prev];
+                    updated[existingModuleIndex] = { ...updated[existingModuleIndex], title: pkt.title };
+                    return updated;
+                  } else {
+                    // Add new module
+                    return [...prev, { id: pkt.id, title: pkt.title, lessons: [] }];
+                  }
+                });
               } else if (pkt.type === "lesson") {
-                const modTitle: string = pkt.module || (liveModules[liveModules.length - 1]?.title || "");
-                const lessonTitle: string = pkt.title || pkt.name || "";
-                if (!lessonTitle) continue;
-                let idx = moduleIndexByTitle.get(modTitle);
-                if (idx === undefined) {
-                  idx = liveModules.length;
-                  moduleIndexByTitle.set(modTitle, idx);
-                  liveModules.push({ title: modTitle || "Module", lessons: [] });
-                }
-                const lessons = liveModules[idx].lessons;
-                if (!lessons.includes(lessonTitle)) {
-                  lessons.push(lessonTitle);
-                  setPreview([...liveModules]);
-                }
+                // Live lesson update - add lesson to the appropriate module
+                setPreview(prev => {
+                  const updated = [...prev];
+                  // Find the module this lesson belongs to
+                  const moduleIndex = updated.findIndex(m => m.title === pkt.module);
+                  if (moduleIndex >= 0) {
+                    // Check if lesson already exists to avoid duplicates
+                    const existingLessonIndex = updated[moduleIndex].lessons.findIndex(l => 
+                      l.split('\n')[0].trim() === pkt.title
+                    );
+                    if (existingLessonIndex < 0) {
+                      // Add new lesson
+                      updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, pkt.title];
+                    }
+                  }
+                  return updated;
+                });
+              } else if (pkt.type === "test") {
+                // Test/debug packet - can be ignored or logged
+                console.log("Stream test:", pkt.message);
               } else if (pkt.type === "done") {
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -690,28 +699,40 @@ export default function CourseOutlineClient() {
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
               } else if (pkt.type === "module") {
-                const title: string = pkt.title || pkt.name || "";
-                if (title && !moduleIndexByTitle.has(title)) {
-                  moduleIndexByTitle.set(title, liveModules.length);
-                  liveModules.push({ id: pkt.id, title, lessons: [], totalHours: pkt.totalHours });
-                  setPreview([...liveModules]);
-                }
+                // Live module update - add new module to preview
+                setPreview(prev => {
+                  const existingModuleIndex = prev.findIndex(m => m.id === pkt.id);
+                  if (existingModuleIndex >= 0) {
+                    // Update existing module
+                    const updated = [...prev];
+                    updated[existingModuleIndex] = { ...updated[existingModuleIndex], title: pkt.title };
+                    return updated;
+                  } else {
+                    // Add new module
+                    return [...prev, { id: pkt.id, title: pkt.title, lessons: [] }];
+                  }
+                });
               } else if (pkt.type === "lesson") {
-                const modTitle: string = pkt.module || (liveModules[liveModules.length - 1]?.title || "");
-                const lessonTitle: string = pkt.title || pkt.name || "";
-                if (lessonTitle) {
-                  let idx = moduleIndexByTitle.get(modTitle);
-                  if (idx === undefined) {
-                    idx = liveModules.length;
-                    moduleIndexByTitle.set(modTitle, idx);
-                    liveModules.push({ title: modTitle || "Module", lessons: [] });
+                // Live lesson update - add lesson to the appropriate module
+                setPreview(prev => {
+                  const updated = [...prev];
+                  // Find the module this lesson belongs to
+                  const moduleIndex = updated.findIndex(m => m.title === pkt.module);
+                  if (moduleIndex >= 0) {
+                    // Check if lesson already exists to avoid duplicates
+                    const existingLessonIndex = updated[moduleIndex].lessons.findIndex(l => 
+                      l.split('\n')[0].trim() === pkt.title
+                    );
+                    if (existingLessonIndex < 0) {
+                      // Add new lesson
+                      updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, pkt.title];
+                    }
                   }
-                  const lessons = liveModules[idx].lessons;
-                  if (!lessons.includes(lessonTitle)) {
-                    lessons.push(lessonTitle);
-                    setPreview([...liveModules]);
-                  }
-                }
+                  return updated;
+                });
+              } else if (pkt.type === "test") {
+                // Test/debug packet - can be ignored or logged
+                console.log("Stream test:", pkt.message);
               } else if (pkt.type === "done") {
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -1174,10 +1195,6 @@ export default function CourseOutlineClient() {
       let accRaw = "";
       let hasFirstData = false;
 
-      // Live preview accumulators for advanced edit stream
-      const liveModules2: { id?: string; title: string; lessons: string[]; totalHours?: number }[] = [];
-      const moduleIndexByTitle2 = new Map<string, number>();
-
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -1202,27 +1219,41 @@ export default function CourseOutlineClient() {
               setRawOutline(accRaw);
             }
           } else if (pkt.type === "module") {
-            const title: string = pkt.title || pkt.name || "";
-            if (title && !moduleIndexByTitle2.has(title)) {
-              moduleIndexByTitle2.set(title, liveModules2.length);
-              liveModules2.push({ id: pkt.id, title, lessons: [], totalHours: pkt.totalHours });
-              setPreview([...liveModules2]);
-            }
+            // Live module update - add new module to preview
+            setPreview(prev => {
+              const existingModuleIndex = prev.findIndex(m => m.id === pkt.id);
+              if (existingModuleIndex >= 0) {
+                // Update existing module
+                const updated = [...prev];
+                updated[existingModuleIndex] = { ...updated[existingModuleIndex], title: pkt.title };
+                return updated;
+              } else {
+                // Add new module
+                return [...prev, { id: pkt.id, title: pkt.title, lessons: [] }];
+              }
+            });
+            if (loadingPreview) setLoadingPreview(false); // hide overlay once we get live updates
           } else if (pkt.type === "lesson") {
-            const modTitle: string = pkt.module || (liveModules2[liveModules2.length - 1]?.title || "");
-            const lessonTitle: string = pkt.title || pkt.name || "";
-            if (!lessonTitle) continue;
-            let idx = moduleIndexByTitle2.get(modTitle);
-            if (idx === undefined) {
-              idx = liveModules2.length;
-              moduleIndexByTitle2.set(modTitle, idx);
-              liveModules2.push({ title: modTitle || "Module", lessons: [] });
-            }
-            const lessons = liveModules2[idx].lessons;
-            if (!lessons.includes(lessonTitle)) {
-              lessons.push(lessonTitle);
-              setPreview([...liveModules2]);
-            }
+            // Live lesson update - add lesson to the appropriate module
+            setPreview(prev => {
+              const updated = [...prev];
+              // Find the module this lesson belongs to
+              const moduleIndex = updated.findIndex(m => m.title === pkt.module);
+              if (moduleIndex >= 0) {
+                // Check if lesson already exists to avoid duplicates
+                const existingLessonIndex = updated[moduleIndex].lessons.findIndex(l => 
+                  l.split('\n')[0].trim() === pkt.title
+                );
+                if (existingLessonIndex < 0) {
+                  // Add new lesson
+                  updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, pkt.title];
+                }
+              }
+              return updated;
+            });
+          } else if (pkt.type === "test") {
+            // Test/debug packet - can be ignored or logged
+            console.log("Advanced edit stream test:", pkt.message);
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
