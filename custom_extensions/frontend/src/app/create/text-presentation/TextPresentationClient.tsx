@@ -1709,7 +1709,7 @@ export default function TextPresentationClient() {
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.presentationContent', 'Presentation Content')}</h2>
-              {hasUserEdits && (
+              {false && hasUserEdits && (
                 <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
                   User edits detected
                 </span>
