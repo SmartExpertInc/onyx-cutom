@@ -9081,9 +9081,6 @@ async def generate_poster_image(poster_data: PosterData):
     try:
         print(f"Poster generation request received: {poster_data.eventName}")
         
-        # Test endpoint registration
-        return {"message": "Endpoint is working", "eventName": poster_data.eventName}
-        
         # Import the service locally to avoid circular imports
         from app.services.html_to_image_service import HTMLToImageService
         print("HTMLToImageService imported successfully")
