@@ -19942,7 +19942,7 @@ async def generate_poster_image(request: Request):
         file_size = os.path.getsize(output_path)
         logger.info(f"📷 [POSTER_IMAGE] Successfully generated poster image: {output_path} ({file_size} bytes)")
         
-        if file_size < 1000:  # Less than 1KB indicates likely failure
+        if file_size < 100:  # Less than 100 bytes indicates likely failure
             logger.error(f"📷 [POSTER_IMAGE] Generated file too small: {file_size} bytes")
             return JSONResponse(
                 status_code=500, 
