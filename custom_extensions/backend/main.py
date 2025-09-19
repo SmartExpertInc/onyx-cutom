@@ -9075,11 +9075,14 @@ class PosterData(BaseModel):
     freeAccessConditions: str
     speakerImageSrc: Optional[str] = None
 
-@app.post("/api/custom-projects-backend/poster-image/generate")
+@app.post("/api/custom/poster-image/generate")
 async def generate_poster_image(poster_data: PosterData):
     """Generate downloadable PNG image from event poster data"""
     try:
         print(f"Poster generation request received: {poster_data.eventName}")
+        
+        # Test endpoint registration
+        return {"message": "Endpoint is working", "eventName": poster_data.eventName}
         
         # Import the service locally to avoid circular imports
         from app.services.html_to_image_service import HTMLToImageService
