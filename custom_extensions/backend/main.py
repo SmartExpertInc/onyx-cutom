@@ -18790,6 +18790,71 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 
     # Stream the response
     async def streamer():
+        # Fast path: request immediate JSON when there is no file context
+        if should_use_openai_direct(payload):
+            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT JSON (no file context)")
+            try:
+                client = get_openai_client()
+                model = LLM_DEFAULT_MODEL
+                component_specific_instructions = (
+                    "You are an expert editor for 'Training Plan' JSON. Given the ORIGINAL JSON and an EDIT INSTRUCTION, "
+                    "produce a NEW JSON object of the same schema, applying the edit consistently across modules and lessons. "
+                    "Return ONLY a single valid JSON object with keys: mainTitle, sections, detectedLanguage, theme. "
+                    "Preserve existing IDs, language and theme unless a change is explicitly required. "
+                    "The sections[].id MUST use the '№X' format."
+                )
+                original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
+                messages = [
+                    {"role": "system", "content": component_specific_instructions},
+                    {"role": "user", "content": (
+                        "ORIGINAL JSON:\n" + original_json_str + "\n\n" +
+                        "EDIT INSTRUCTION (language=" + (payload.language or "en") + "):\n" + payload.prompt + "\n\n" +
+                        "Output: Strict JSON object only."
+                    )}
+                ]
+                completion = await client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=0.2,
+                    max_tokens=6000,
+                    response_format={"type": "json_object"}
+                )
+                content_text = completion.choices[0].message.content or "{}"
+                updated_content_dict = json.loads(content_text)
+                try:
+                    if isinstance(existing_content, dict):
+                        original_language = existing_content.get("detectedLanguage", payload.language)
+                        original_theme = existing_content.get("theme", payload.theme or "cherry")
+                    else:
+                        original_language = payload.language or "en"
+                        original_theme = payload.theme or "cherry"
+                    updated_content_dict.setdefault("detectedLanguage", original_language)
+                    updated_content_dict.setdefault("theme", original_theme)
+                except Exception:
+                    pass
+                try:
+                    for section in updated_content_dict.get("sections", []):
+                        sid = section.get("id")
+                        if not sid:
+                            continue
+                        if isinstance(sid, str):
+                            if sid.isdigit():
+                                section["id"] = f"№{sid}"
+                            elif sid.startswith("#") and sid[1:].isdigit():
+                                section["id"] = f"№{sid[1:]}"
+                            elif not sid.startswith("№"):
+                                import re
+                                m = re.search(r"\d+", sid)
+                                if m:
+                                    section["id"] = f"№{m.group()}"
+                except Exception as e:
+                    logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
+                done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
+                yield (json.dumps(done_packet) + "\n").encode()
+                return
+            except Exception as e:
+                logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
+                # fall through to legacy path if JSON fast path fails
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
@@ -18799,35 +18864,80 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         
         # NEW: Check if we should use OpenAI directly instead of Onyx
         if should_use_openai_direct(payload):
-            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT STREAMING (no file context)")
+            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT JSON (no file context)")
             logger.info(f"[SMART_EDIT_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             try:
-                chunks_received = 0
-                async for chunk_data in stream_openai_response(wizard_message):
-                    if chunk_data["type"] == "delta":
-                        delta_text = chunk_data["text"]
-                        assistant_reply += delta_text
-                        chunks_received += 1
-                        logger.debug(f"[SMART_EDIT_OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
-                    elif chunk_data["type"] == "error":
-                        logger.error(f"[SMART_EDIT_OPENAI_ERROR] {chunk_data['text']}")
-                        yield (json.dumps(chunk_data) + "\n").encode()
-                        return
-                    
-                    # Send keep-alive every 8s
-                    now = asyncio.get_event_loop().time()
-                    if now - last_send > 8:
-                        yield b" "
-                        last_send = now
-                        logger.debug(f"[SMART_EDIT_OPENAI_STREAM] Sent keep-alive")
-                
-                logger.info(f"[SMART_EDIT_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
-                
-            except Exception as e:
-                logger.error(f"[SMART_EDIT_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)
-                yield (json.dumps({"type": "error", "text": str(e)}) + "\n").encode()
+                client = get_openai_client()
+                model = LLM_DEFAULT_MODEL
+
+                component_specific_instructions = (
+                    "You are an expert editor for 'Training Plan' JSON. Given the ORIGINAL JSON and an EDIT INSTRUCTION, "
+                    "produce a NEW JSON object of the same schema, applying the edit consistently across modules and lessons. "
+                    "Return ONLY a single valid JSON object with keys: mainTitle, sections, detectedLanguage, theme. "
+                    "Preserve existing IDs, language and theme unless a change is explicitly required. "
+                    "The sections[].id MUST use the '№X' format."
+                )
+
+                original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
+                messages = [
+                    {"role": "system", "content": component_specific_instructions},
+                    {"role": "user", "content": (
+                        "ORIGINAL JSON:\n" + original_json_str + "\n\n" +
+                        "EDIT INSTRUCTION (language=" + (payload.language or "en") + "):\n" + payload.prompt + "\n\n" +
+                        "Output: Strict JSON object only."
+                    )}
+                ]
+
+                completion = await client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=0.2,
+                    max_tokens=6000,
+                    response_format={"type": "json_object"}
+                )
+
+                content_text = completion.choices[0].message.content or "{}"
+                updated_content_dict = json.loads(content_text)
+
+                # Preserve language and theme defaults
+                try:
+                    if isinstance(existing_content, dict):
+                        original_language = existing_content.get("detectedLanguage", payload.language)
+                        original_theme = existing_content.get("theme", payload.theme or "cherry")
+                    else:
+                        original_language = payload.language or "en"
+                        original_theme = payload.theme or "cherry"
+
+                    updated_content_dict.setdefault("detectedLanguage", original_language)
+                    updated_content_dict.setdefault("theme", original_theme)
+                except Exception:
+                    pass
+
+                # Normalize module IDs to '№'
+                try:
+                    for section in updated_content_dict.get("sections", []):
+                        sid = section.get("id")
+                        if not sid:
+                            continue
+                        if isinstance(sid, str):
+                            if sid.isdigit():
+                                section["id"] = f"№{sid}"
+                            elif sid.startswith("#") and sid[1:].isdigit():
+                                section["id"] = f"№{sid[1:]}"
+                            elif not sid.startswith("№"):
+                                import re
+                                m = re.search(r"\d+", sid)
+                                if m:
+                                    section["id"] = f"№{m.group()}"
+                except Exception as e:
+                    logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
+
+                done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
+                yield (json.dumps(done_packet) + "\n").encode()
                 return
+            except Exception as e:
+                logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
+                # Fall back to legacy path below
         
         # EXISTING: Use Onyx when file context is present
         else:
