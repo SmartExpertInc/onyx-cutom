@@ -32,6 +32,7 @@ const SlideTypeUsageBarChart: React.FC = () => {
         });
         if (!res.ok) throw new Error(`Failed analytics: ${res.status}`);
         const data: SlidesAnalyticsResponse = await res.json();
+        console.log('Slides analytics response:', data);
         if (!cancelled) setAllUsersData(data);
       } catch (e: any) {
         if (!cancelled) setError(e?.message || 'Failed to load analytics');
@@ -81,7 +82,7 @@ const SlideTypeUsageBarChart: React.FC = () => {
             axisRight={null}
             axisBottom={{
               tickRotation: -30,
-              legend: "Template",
+              legend: "Template name",
               legendPosition: "middle",
               legendOffset: 40,
             }}
@@ -100,7 +101,7 @@ const SlideTypeUsageBarChart: React.FC = () => {
               <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
                 <div className="font-semibold text-gray-900">{indexValue}</div>
                 <div className="text-gray-600">
-                  {Number(value).toLocaleString()} credits
+                  {Number(value).toLocaleString()} slides generated
                 </div>
               </div>
             )}
