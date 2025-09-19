@@ -22714,8 +22714,6 @@ async def get_usage_analytics(
 @app.get("/api/custom/admin/slides-analytics", response_model=SlidesAnalyticsResponse)
 async def get_slides_analytics(
     request: Request,
-    start: datetime,
-    end: datetime,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     await verify_admin_user(request)
@@ -22733,13 +22731,11 @@ async def get_slides_analytics(
                     jsonb_array_elements(microproduct_content->'slides') AS slide
                 WHERE
                     microproduct_content ? 'slides'
-                    AND projects.created_at BETWEEN $1 AND $2
                 GROUP BY
                     template_id, slide_id
                 ORDER BY
                     total_generated DESC
-                """,
-                start, end
+                """
             )
             return [
                 SlidesAnalyticsResponse(
