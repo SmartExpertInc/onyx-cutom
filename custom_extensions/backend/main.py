@@ -16266,7 +16266,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.info(f"[FINALIZE_CACHE] Parsed {len(parsed_orig)} modules from JSON preview")
             else:
                 # Fallback to markdown parsing
-        parsed_orig = _parse_outline_markdown(raw_outline_cached)
+                parsed_orig = _parse_outline_markdown(raw_outline_cached)
                 logger.info(f"[FINALIZE_CACHE] Used markdown fallback, parsed {len(parsed_orig)} modules")
         except (json.JSONDecodeError, KeyError) as e:
             # Fallback to markdown parsing for old format
@@ -16315,7 +16315,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             
             # Fallback to markdown extraction or payload prompt
             if not project_name_detected:
-            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+                project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
                 logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name_detected}")
             
             logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")
