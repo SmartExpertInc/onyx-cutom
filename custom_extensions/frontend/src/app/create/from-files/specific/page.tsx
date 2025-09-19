@@ -236,11 +236,9 @@ export default function CreateFromSpecificFilesPage() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
+                  <Upload className="w-10 h-10 text-blue-600" />
+                <div>
+                    <h2 className="text-xl font-bold text-blue-600">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
                     <p className="text-sm text-gray-600 mt-1">{t('interface.browseAndSelectFiles', 'Browse and select files from your cloud storage')}</p>
                   </div>
                 </div>
