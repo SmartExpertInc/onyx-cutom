@@ -1306,7 +1306,7 @@ export default function QuizClient() {
                                         }}
                                         className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                                       />
-                                      <span className="text-sm">{type.label}</span>
+                                      <span className="text-sm text-[#09090B]">{type.label}</span>
                                     </div>
                                   </label>
                                 ))}
@@ -1432,7 +1432,7 @@ export default function QuizClient() {
                                     }}
                                     className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                                   />
-                                  <span className="text-sm">{type.label}</span>
+                                  <span className="text-sm text-[#09090B]">{type.label}</span>
                                 </div>
                               </label>
                             ))}

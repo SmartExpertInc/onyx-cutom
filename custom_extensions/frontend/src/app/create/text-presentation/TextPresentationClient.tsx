@@ -1531,7 +1531,7 @@ export default function TextPresentationClient() {
                                     }}
                                     className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                                   />
-                                  <span className="text-sm">{option.label}</span>
+                                  <span className="text-sm text-[#09090B]">{option.label}</span>
                                 </div>
                                 <div className="ml-6">
                                   <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
@@ -1654,7 +1654,7 @@ export default function TextPresentationClient() {
                                 }}
                                 className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
-                              <span className="text-sm">{option.label}</span>
+                              <span className="text-sm text-[#09090B]">{option.label}</span>
                             </div>
                             <div className="ml-6">
                               <CustomTooltip content={stylePurposes[option.value as keyof typeof stylePurposes]}>
