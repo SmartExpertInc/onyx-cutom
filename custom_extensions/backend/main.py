@@ -12323,6 +12323,15 @@ Return ONLY the JSON object.
                     logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(cached_json.get('slides', []))} slides")
                     logger.info(f"[FAST_PATH] Presentation JSON detected, bypassing LLM parsing for {project_data.projectName}")
                     
+                    # Strip preview-only fields before model construction
+                    try:
+                        slides_list = cached_json.get('slides') or []
+                        for s in slides_list:
+                            if isinstance(s, dict) and 'previewKeyPoints' in s:
+                                s.pop('previewKeyPoints', None)
+                    except Exception as _cleanup_err:
+                        logger.debug(f"[FAST_PATH_DEBUG] Failed to strip preview fields: {_cleanup_err}")
+                    
                     parsed_content_model_instance = SlideDeckDetails(**cached_json)
                     logger.info(f"[FAST_PATH_DEBUG] SlideDeckDetails created successfully with {len(parsed_content_model_instance.slides)} slides")
                 else:
@@ -17212,6 +17221,11 @@ You MUST output ONLY a single JSON object for the Presentation preview, strictly
 {json_example}
 Do NOT include code fences, markdown or extra commentary. Return JSON object only.
 This enables immediate parsing without additional LLM calls during finalization.
+
+Preview UI requirement:
+- For EACH slide, ALSO include a short array field "previewKeyPoints" (2-5 items) summarizing the main topics discussed on that slide.
+- Keep each bullet brief (5-12 words), informative, and free of extra punctuation.
+- These previewKeyPoints are for preview only and will be ignored/stripped on save.
 """
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")

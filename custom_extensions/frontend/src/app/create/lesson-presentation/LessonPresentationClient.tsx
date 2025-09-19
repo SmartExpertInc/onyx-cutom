@@ -1592,6 +1592,25 @@ export default function LessonPresentationClient() {
                             className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
                             placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                           />
+
+                          {/* Preview bullets under title (from original JSON if available) */}
+                          {(() => {
+                            try {
+                              if (!originalJsonResponse) return null;
+                              const obj = JSON.parse(originalJsonResponse);
+                              if (!obj || !Array.isArray(obj.slides)) return null;
+                              const slideObj = obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1));
+                              const bullets: string[] = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              if (!bullets.length) return null;
+                              return (
+                                <ul className="mt-1 ml-1 list-disc list-inside text-sm text-gray-700 space-y-0.5">
+                                  {bullets.slice(0, 5).map((b, i) => (
+                                    <li key={i}>{String(b)}</li>
+                                  ))}
+                                </ul>
+                              );
+                            } catch (_) { return null; }
+                          })()}
                         </div>
                       </div>
                     );
