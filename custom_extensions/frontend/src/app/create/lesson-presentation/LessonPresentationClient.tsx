@@ -689,6 +689,9 @@ export default function LessonPresentationClient() {
 
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
+      // Reset JSON tracking state for new preview
+      jsonConvertedRef.current = false;
+      setOriginalJsonResponse(null);
     };
   }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter]);
 
@@ -696,6 +699,8 @@ export default function LessonPresentationClient() {
 
   // Track if we've converted a JSON preview to markdown to avoid loops
   const jsonConvertedRef = useRef<boolean>(false);
+  // Store original JSON response to send during finalization instead of converted markdown
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string | null>(null);
 
   // Helper: detect if a string is a single JSON object with slides
   const tryParsePresentationJson = (text: string): any | null => {
@@ -780,6 +785,7 @@ export default function LessonPresentationClient() {
       const md = convertPresentationJsonToMarkdown(json);
       if (md && md.trim()) {
         jsonConvertedRef.current = true;
+        setOriginalJsonResponse(content); // Store original JSON for finalization
         setContent(md);
       }
     }
@@ -900,6 +906,11 @@ export default function LessonPresentationClient() {
       const promptQuery = currentPrompt?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
 
+      // Log what we're sending for debugging
+      const responseToSend = originalJsonResponse || content;
+      const isUsingJson = !!originalJsonResponse;
+      console.log(`[FINALIZE] Sending ${isUsingJson ? 'original JSON' : 'markdown'} response (${responseToSend.length} chars)`);
+
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -907,7 +918,8 @@ export default function LessonPresentationClient() {
           outlineProjectId: selectedOutlineId || undefined,
           lessonTitle: derivedTitle,
           lengthRange: lengthRangeForOption(lengthOption),
-          aiResponse: content,
+          // Send original JSON if available, otherwise send markdown content
+          aiResponse: originalJsonResponse || content,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           productType: productType, // Pass product type for video lesson vs regular presentation
