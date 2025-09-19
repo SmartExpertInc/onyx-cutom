@@ -593,7 +593,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full">
           {/* Search and Filter Row */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full">
-            <div className="relative flex-1 min-w-0">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
               <Input
                 type="text"
