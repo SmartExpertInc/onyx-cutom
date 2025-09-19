@@ -84,11 +84,9 @@ const SlidesAnalyticsTab: React.FC = () => {
     }
   };
 
-  /*
   useEffect(() => {
     fetchDashboard();
   }, [dateRange, appliedFilters, refreshKey]);
-  */
 
   const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
