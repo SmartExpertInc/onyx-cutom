@@ -22820,7 +22820,7 @@ async def get_slides_errors_analytics(
                     sce.props,
                     sce.error_message,
                     sce.created_at,
-                    sce.user_id,
+                    sce.user_id
                 FROM slide_creation_errors sce
                 WHERE sce.created_at BETWEEN $1 AND $2
                 ORDER BY sce.created_at DESC
