@@ -6594,6 +6594,17 @@ async def startup_event():
                                             ))
         async with DB_POOL.acquire() as connection:
             await connection.execute("""
+                CREATE TABLE IF NOT EXISTS slide_creation_errors (
+                    id SERIAL PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    template_id TEXT NOT NULL,
+                    props JSONB,
+                    error_message TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+            """)
+
+            await connection.execute("""
                 CREATE TABLE IF NOT EXISTS design_templates (
                     id SERIAL PRIMARY KEY,
                     template_name TEXT NOT NULL UNIQUE,
@@ -7373,6 +7384,16 @@ class TemplateTypeUsage(BaseModel):
 
 class SlidesAnalyticsResponse(BaseModel):
     usage_by_template: List[TemplateTypeUsage]
+
+class SlideGenerationError(BaseModel):
+    user_email: str
+    template_id: str
+    props: Dict[str, Any]
+    error_message: str
+    created_at: datetime
+
+class SlidesErrorsAnalyticsResponse(BaseModel):
+    errors: List[SlideGenerationError]
 
 class TimelineActivity(BaseModel):
     id: str
@@ -11067,6 +11088,25 @@ def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
         }
     
     return context_type, context_data
+
+async def save_slide_creation_error(
+    pool,
+    user_id: str,
+    template_id: str,
+    props: dict,
+    error_message: str
+):
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """
+            INSERT INTO slide_creation_errors (user_id, template_id, props, error_message)
+            VALUES ($1, $2, $3, $4)
+            """,
+            user_id,
+            template_id,
+            json.dumps(props, ensure_ascii=False),
+            error_message
+        )
 
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
@@ -22717,14 +22757,14 @@ async def get_usage_analytics(
 @app.get("/api/custom/admin/slides-analytics", response_model=SlidesAnalyticsResponse)
 async def get_slides_analytics(
     request: Request,
-    start: str,
-    end: str,
+    date_from: str,
+    date_to: str,
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
     await verify_admin_user(request)
     try:
-        start_date = date.fromisoformat(start)
-        end_date = date.fromisoformat(end)
+        start_date = date.fromisoformat(date_from)
+        end_date = date.fromisoformat(date_to)
 
         async with pool.acquire() as conn:
             rows = await conn.fetch(
@@ -22755,8 +22795,52 @@ async def get_slides_analytics(
             ]
             return SlidesAnalyticsResponse(usage_by_template=template_stats)
     except Exception as e:
-        logger.error(f"Error fetching usage analytics: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+        logger.error(f"Error fetching slides analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch slides analytics")
+
+@app.get("/api/custom/admin/slides-errors-analytics", response_model=SlidesErrorsAnalyticsResponse)
+async def get_slides_errors_analytics(
+    request: Request,
+    date_from: str,
+    date_to: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    try:
+        start_date = date.fromisoformat(date_from)
+        end_date = date.fromisoformat(date_to)
+
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT 
+                    sce.template_id,
+                    sce.props,
+                    sce.error_message,
+                    sce.created_at,
+                    sce.user_id,
+                    u.email as user_email
+                FROM slide_creation_errors sce
+                WHERE
+                    sce.created_at BETWEEN $1 AND $2
+                LEFT JOIN users u ON sce.user_id = u.id
+                ORDER BY sce.created_at DESC
+                """
+            , start_date, end_date)
+            errors = [
+                SlideGenerationError(
+                    user_email=row["user_email"],
+                    template_id=row["template_id"],
+                    props=row["props"],
+                    error_message=row["error_message"],
+                    created_at=row["created_at"]
+                )
+                for row in rows
+            ]
+            return SlidesErrorsAnalyticsResponse(errors=errors)
+    except Exception as e:
+        logger.error(f"Error fetching slides errors analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch slides errors analytics")
 
 @app.post("/api/custom/admin/credits/migrate-users")
 async def migrate_onyx_users_to_credits(

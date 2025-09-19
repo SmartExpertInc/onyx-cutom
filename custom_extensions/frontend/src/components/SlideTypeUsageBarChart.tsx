@@ -15,13 +15,13 @@ interface SlidesAnalyticsResponse {
 
 interface SlideTypeUsageBarChartProps {
   template_ids: string[];
-  start: string;
-  end: string;
+  date_from: string;
+  date_to: string;
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids, start, end }) => {
+const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids, date_from, date_to }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [allUsersData, setAllUsersData] = useState<SlidesAnalyticsResponse | null>(null);
@@ -34,8 +34,8 @@ const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ templat
       try {
         let url = `${CUSTOM_BACKEND_URL}/admin/slides-analytics`;
         const params = new URLSearchParams();
-        if (start) params.append('start', start);
-        if (end) params.append('end', end);
+        if (date_from) params.append('date_from', date_from);
+        if (date_to) params.append('date_to', date_to);
         if (params.toString()) url += `?${params.toString()}`;
 
         const res = await fetch(url, {
@@ -74,7 +74,7 @@ const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ templat
       return result;
     }
     return [];
-  }, [allUsersData, template_ids]);
+  }, [allUsersData, template_ids, date_from, date_to]);
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6 h-[480px]">

@@ -11,12 +11,11 @@ import { getAllTemplates } from '@/components/templates/registry';
 
 interface AnalyticsDashboard {
   recent_errors: Array<{
-    id: string;
-    slide_type: string;
+    id: number;
+    user_email: string;
+    template_id: string;
     props: string;
     error_message: string;
-    user_email: string;
-    user_id: string;
     created_at: string;
   }>;
 }
@@ -41,7 +40,7 @@ const SlidesAnalyticsTab: React.FC = () => {
 
   // Get available templates
   const availableTemplates = getAllTemplates().map(t => t.id);
-  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>(availableTemplates.slice(0, 22)); // Default to first 22 templates
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>(availableTemplates.slice(0, 23)); // Default to first 23 templates
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false);
 
   // Click outside handler for styles dropdown
@@ -79,26 +78,26 @@ const SlidesAnalyticsTab: React.FC = () => {
     setError(null);
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      const devUserId = "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === 'development') {
-        headers['X-Dev-Onyx-User-ID'] = devUserId;
-      }
-
+      let url = `${CUSTOM_BACKEND_URL}/admin/slides-errors-analytics`;
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
-      if (appliedFilters.endpoint) params.append('endpoint', appliedFilters.endpoint);
-
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/dashboard?${params}`, {
-        headers,
-        cache: 'no-store',
+      if (params.toString()) url += `?${params.toString()}`;
+      
+      const response = await fetch(url, {
         credentials: 'same-origin'
       });
       if (!response.ok) {
         throw new Error(`Failed to fetch analytics: ${response.status}`);
       }
       const data = await response.json();
+      // Ensure id is present and is a number for each error
+      if (data && Array.isArray(data.recent_errors)) {
+        data.recent_errors = data.recent_errors.map((err: any, idx: number) => ({
+          id: typeof err.id === 'number' ? err.id : idx + 1,
+          ...err
+        }));
+      }
       setDashboard(data);
     } catch (err) {
       console.error('Error fetching analytics:', err);
@@ -302,7 +301,7 @@ const SlidesAnalyticsTab: React.FC = () => {
                 onClick={() => {
                   setShowTemplatesDropdown(!showTemplatesDropdown);
                 }}
-                className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                className="flex items-center justify-between w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
               >
                 <span>{selectedTemplateIds.length > 0 ? `${selectedTemplateIds.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
                 <ChevronDown size={14} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
@@ -336,7 +335,7 @@ const SlidesAnalyticsTab: React.FC = () => {
       {/* Bar chart */}
       <div className="flex gap-6 mb-6">
         <div className="w-full">
-          <SlideTypeUsageBarChart template_ids={selectedTemplateIds} start={dateRange.from} end={dateRange.to} />
+          <SlideTypeUsageBarChart template_ids={selectedTemplateIds} date_from={dateRange.from} date_to={dateRange.to} />
         </div>
       </div>
 
@@ -360,8 +359,8 @@ const SlidesAnalyticsTab: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {format(new Date(error.created_at), 'MMM dd, HH:mm:ss')}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.slide_type}>
-                    {error.slide_type}
+                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.template_id }>
+                    {error.template_id }
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.props}>
                     {error.props}
