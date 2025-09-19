@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Card, CardContent } from "./card";
 import { Badge } from "./badge";
 import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   Icon?: React.ElementType;
@@ -15,6 +16,10 @@ interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   href?: string;
   onClick?: (e: React.MouseEvent) => void;
   useCSSVariables?: boolean;
+  // Selection props
+  isSelected?: boolean;
+  onSelect?: () => void;
+  selectable?: boolean;
 }
 
 const SparklesIcon: React.FC<{ size?: number }> = ({ size }) => (
@@ -38,6 +43,9 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
     href,
     onClick,
     useCSSVariables = false,
+    isSelected = false,
+    onSelect,
+    selectable = false,
     children,
     ...props 
   }, ref) => {
@@ -51,7 +59,13 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md shadow-lg hover:shadow-xl",
           disabled
             ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
-            : "cursor-pointer shadow-lg hover:shadow-xl",
+            : selectable 
+              ? `cursor-pointer ${
+                  isSelected 
+                    ? 'border-blue-300 shadow-xl bg-blue-50' 
+                    : 'border-gray-200 hover:shadow-2xl hover:border-blue-300'
+                }`
+              : "cursor-pointer shadow-lg hover:shadow-xl",
           className
         )}
         {...props}
@@ -59,6 +73,20 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {/* Subtle background circles */}
         <div className="absolute -top-20 -left-22 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
         <div className="absolute -top-12 -left-12 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
+        
+        {/* Selection Indicator */}
+        {selectable && (
+          <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
+            isSelected
+              ? 'bg-blue-600 border-blue-600'
+              : 'border-gray-300 group-hover:border-blue-400'
+          }`}>
+            {isSelected && (
+              <Check size={14} className="text-white" />
+            )}
+          </div>
+        )}
+        
         <CardContent className="relative p-6 h-full flex flex-col">
           {/* Badge positioned at top right */}
           {pillLabel && (
@@ -130,7 +158,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
     }
 
     return (
-      <div onClick={disabled ? undefined : onClick}>
+      <div onClick={disabled ? undefined : (selectable ? onSelect : onClick)}>
         {cardContent}
       </div>
     );

@@ -384,55 +384,6 @@ export default function CreateFromSpecificFilesPage() {
 
           {/* Content Creation Section */}
           <div className="mb-8">
-            <div className="bg-gradient-to-br from-white to-purple-100 rounded-xl border border-purple-200 p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">{t('interface.contentCreation', 'Content Creation')}</h3>
-                  <p className="text-sm text-purple-600">{t('interface.transformFilesToContent', 'Transform your files into AI-powered content')}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Settings className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{t('interface.selectedConnectors', 'Selected Connectors')}</p>
-                      <p className="text-xs text-gray-500">
-                        {selectedConnectors.length} {t('interface.connector', 'connector')}{selectedConnectors.length !== 1 ? 's' : ''} {t('interface.selected', 'selected')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-blue-600">
-                      {selectedConnectors.length} {selectedConnectors.length === 1 ? t('interface.connector', 'connector') : t('interface.connectorPlural', 'connectors')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-white/50 rounded-lg border border-purple-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{t('interface.selectedFiles', 'Selected Files')}</p>
-                      <p className="text-xs text-gray-500">{t('interface.filesFromSmartDrive', 'Files from Smart Drive')}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-green-600">
-                      {selectedFiles.length} {selectedFiles.length === 1 ? t('interface.file', 'file') : t('interface.filePlural', 'files')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               {/* Create Content Button */}
               <div className="mt-6">
                 <div className="flex justify-center">
@@ -442,8 +393,8 @@ export default function CreateFromSpecificFilesPage() {
                     disabled={!connectorSelectionValid}
                     className={`w-2/5 ${
                       !connectorSelectionValid
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-[#002865] to-[#609FFD] text-white hover:from-blue-700 hover:to-purple-700 transform hover:scale-[1.02]'
                     }`}
                   >
                     <div className="flex items-center justify-center gap-3">
@@ -459,7 +410,6 @@ export default function CreateFromSpecificFilesPage() {
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </main>
     </div>

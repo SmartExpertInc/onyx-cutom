@@ -346,7 +346,7 @@ export default function ConnectorManagementPage({
               title={t('interface.connectorStatus', 'Status')}
               value={ccPair.status}
               customIcon={({ size }: { size: number }) => (
-                <StatusIcon size={15} status={ccPair.status} />
+                <StatusIcon size={20} status={ccPair.status} />
               )}
               gradientColors={
                 isActive ? { from: 'green-300', to: 'emerald-200' } : 
@@ -385,7 +385,7 @@ export default function ConnectorManagementPage({
               title={t('interface.lastIndexed', 'Last Indexed')}
               value={ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
               customIcon={({ size }: { size: number }) => (
-                <Clock size={size} />
+                <Clock color="blue-600" size={size} />
               )}
               gradientColors={{ from: 'purple-300', to: 'pink-200' }}
               textColor="blue-600"

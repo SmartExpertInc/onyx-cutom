@@ -136,12 +136,9 @@ export default function PasteTextPage() {
               Icon={FileText}
               title={t('interface.pasteText.useAsContext', 'Use as Context')}
               description={t('interface.pasteText.useAsContextDescription', 'The AI will use your text as reference material and context to create new educational content. Best for notes, research, or background information.')}
-              onClick={() => setMode("context")}
-              className={`transition-all ${
-                mode === "context"
-                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
-                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
-              }`}
+              selectable={true}
+              isSelected={mode === "context"}
+              onSelect={() => setMode("context")}
               iconColor="text-blue-600"
               labelColor="text-blue-600"
             />
@@ -150,12 +147,9 @@ export default function PasteTextPage() {
               Icon={Sparkles}
               title={t('interface.pasteText.useAsBase', 'Use as Base')}
               description={t('interface.pasteText.useAsBaseDescription', 'The AI will enhance and format your existing text structure, preserving your content while making it into a proper educational product. Best for drafts or existing outlines.')}
-              onClick={() => setMode("base")}
-              className={`transition-all ${
-                mode === "base"
-                  ? "border-2 border-blue-500 shadow-lg ring-2 ring-blue-200"
-                  : "border border-gray-200 hover:border-gray-300 hover:shadow-md"
-              }`}
+              selectable={true}
+              isSelected={mode === "base"}
+              onSelect={() => setMode("base")}
               iconColor="text-purple-600"
               labelColor="text-purple-600"
             />
