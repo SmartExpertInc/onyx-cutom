@@ -19223,18 +19223,50 @@ async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: 
         logger.info(f"[SMART_EDIT_CONFIRM_CONTENT] Content structure: {type(payload.updatedContent)}")
         logger.info(f"[SMART_EDIT_CONFIRM_CONTENT] Content keys: {list(payload.updatedContent.keys()) if isinstance(payload.updatedContent, dict) else 'Not a dict'}")
         
+        # Validate & normalize JSON using TrainingPlanDetails
+        try:
+            validated: TrainingPlanDetails = TrainingPlanDetails.model_validate(payload.updatedContent)
+        except Exception as ve:
+            logger.error(f"[SMART_EDIT_CONFIRM_VALIDATION_ERROR] {ve}")
+            raise HTTPException(status_code=400, detail="Invalid training plan JSON structure")
+
+        if not validated.detectedLanguage:
+            validated.detectedLanguage = payload.language or "en"
+        if not validated.theme:
+            validated.theme = payload.theme or "cherry"
+
+        try:
+            for section in validated.sections:
+                sid = section.id
+                if sid:
+                    if sid.isdigit():
+                        section.id = f"№{sid}"
+                    elif sid.startswith("#") and sid[1:].isdigit():
+                        section.id = f"№{sid[1:]}"
+                    elif not sid.startswith("№"):
+                        import re
+                        m = re.search(r"\d+", sid)
+                        if m:
+                            section.id = f"№{m.group()}"
+        except Exception as e:
+            logger.warning(f"[SMART_EDIT_CONFIRM_ID_NORMALIZATION] {e}")
+
+        normalized_dict = validated.model_dump(mode='json', exclude_none=True)
+        
         # Save the confirmed changes to the database
         async with pool.acquire() as conn:
             await conn.execute("""
                 UPDATE projects 
                 SET microproduct_content = $1
                 WHERE id = $2 AND onyx_user_id = $3
-            """, payload.updatedContent, payload.projectId, onyx_user_id)
+            """, normalized_dict, payload.projectId, onyx_user_id)
         
         logger.info(f"[SMART_EDIT_CONFIRMED] Successfully saved changes for training plan projectId={payload.projectId}")
         
         return {"success": True, "message": "Changes confirmed and saved successfully"}
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"[SMART_EDIT_CONFIRM_ERROR] Error saving confirmed changes: {e}")
         raise HTTPException(status_code=500, detail="Failed to save changes")
