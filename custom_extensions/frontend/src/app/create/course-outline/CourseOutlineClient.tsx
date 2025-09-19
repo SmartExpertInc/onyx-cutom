@@ -1347,7 +1347,7 @@ export default function CourseOutlineClient() {
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
+              className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
               {loadingPreview && (
@@ -1431,13 +1431,13 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleAddModule}
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-[4px] text-white py-[19px] font-medium bg-[#0F58F9] hover:shadow-lg"
+                className="w-full flex items-center justify-center gap-2 rounded-[4px] text-white py-[19px] font-medium bg-[#0F58F9] hover:shadow-lg"
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
               </Button>
               {/* Status row – identical style mock */}
-              <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
+              <div className="mt-[30px] flex items-center justify-between text-sm text-[#858587]">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
                 <div className="flex-1 flex justify-center">
                   <span className="flex items-center gap-1 select-none">
