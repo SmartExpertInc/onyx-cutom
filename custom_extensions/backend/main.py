@@ -15327,17 +15327,19 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         if progress_updates:
                             logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
                         for update in progress_updates:
+                            # Keep JSON update for logs/debugging (frontend ignores non-delta)
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
+                            # Also send a markdown delta the frontend can parse incrementally
+                            md_line = f"## {update['title']}\n" if update.get('type') == 'module' else f"- {update['title']}\n"
+                            yield (json.dumps({"type": "delta", "text": md_line}) + "\n").encode()
+                            logger.info(f"[LIVE_STREAM_MD] Sent markdown delta for {update['type']}: {update['title']}")
                         
                         # Send simple test updates to verify streaming works
                         if chunks_received % 50 == 0:
                             test_update = {"type": "module", "title": f"Test Module {chunks_received//50}", "id": f"test{chunks_received//50}"}
                             yield (json.dumps(test_update) + "\n").encode()
                             logger.info(f"[STREAM_TEST] Sent test module for chunk {chunks_received}")
-                        
-                        # Always send the raw delta for fallback display
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[HYBRID_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -15459,21 +15461,24 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         chunks_received += 1
                         logger.info(f"[OPENAI_CHUNK] Chunk {chunks_received}: received {len(delta_text)} chars, total so far: {len(assistant_reply)}")
                         
-                        # Extract live progress updates using the same robust approach as hybrid
+                                                # Extract live progress updates using the same robust approach as hybrid
                         progress_updates = extract_live_progress(assistant_reply, chat_id)
                         if progress_updates:
                             logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
                         for update in progress_updates:
+                            # Keep JSON update for logs/debugging
                             yield (json.dumps(update) + "\n").encode()
                             logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
+                            # Also send a markdown delta the frontend can parse incrementally
+                            md_line = f"## {update['title']}\n" if update.get('type') == 'module' else f"- {update['title']}\n"
+                            yield (json.dumps({"type": "delta", "text": md_line}) + "\n").encode()
+                            logger.info(f"[LIVE_STREAM_MD] Sent markdown delta for {update['type']}: {update['title']}")
                         
                         # Send test update every 100 chunks to verify streaming works
                         if chunks_received % 100 == 0:
                             test_update = {"type": "test", "message": f"Processing chunk {chunks_received}"}
                             yield (json.dumps(test_update) + "\n").encode()
                             logger.info(f"[STREAM_TEST] Sent test update for chunk {chunks_received}")
-                        
-
                         
                         # Always send the raw delta for fallback display
                         yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
@@ -16261,7 +16266,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
                 logger.info(f"[FINALIZE_CACHE] Parsed {len(parsed_orig)} modules from JSON preview")
             else:
                 # Fallback to markdown parsing
-                parsed_orig = _parse_outline_markdown(raw_outline_cached)
+        parsed_orig = _parse_outline_markdown(raw_outline_cached)
                 logger.info(f"[FINALIZE_CACHE] Used markdown fallback, parsed {len(parsed_orig)} modules")
         except (json.JSONDecodeError, KeyError) as e:
             # Fallback to markdown parsing for old format
@@ -16310,7 +16315,7 @@ async def wizard_outline_finalize(payload: OutlineWizardFinalize, request: Reque
             
             # Fallback to markdown extraction or payload prompt
             if not project_name_detected:
-                project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
+            project_name_detected = _extract_project_name_from_markdown(raw_outline_cached) or payload.prompt
                 logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name_detected}")
             
             logger.info(f"Direct parser path: Using cached outline with {len(raw_outline_cached)} characters")

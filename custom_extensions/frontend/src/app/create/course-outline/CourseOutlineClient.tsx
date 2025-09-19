@@ -635,41 +635,6 @@ export default function CourseOutlineClient() {
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
-              } else if (pkt.type === "module") {
-                // Live module update - add new module to preview
-                setPreview(prev => {
-                  const existingModuleIndex = prev.findIndex(m => m.id === pkt.id);
-                  if (existingModuleIndex >= 0) {
-                    // Update existing module
-                    const updated = [...prev];
-                    updated[existingModuleIndex] = { ...updated[existingModuleIndex], title: pkt.title };
-                    return updated;
-                  } else {
-                    // Add new module
-                    return [...prev, { id: pkt.id, title: pkt.title, lessons: [] }];
-                  }
-                });
-              } else if (pkt.type === "lesson") {
-                // Live lesson update - add lesson to the appropriate module
-                setPreview(prev => {
-                  const updated = [...prev];
-                  // Find the module this lesson belongs to
-                  const moduleIndex = updated.findIndex(m => m.title === pkt.module);
-                  if (moduleIndex >= 0) {
-                    // Check if lesson already exists to avoid duplicates
-                    const existingLessonIndex = updated[moduleIndex].lessons.findIndex(l => 
-                      l.split('\n')[0].trim() === pkt.title
-                    );
-                    if (existingLessonIndex < 0) {
-                      // Add new lesson
-                      updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, pkt.title];
-                    }
-                  }
-                  return updated;
-                });
-              } else if (pkt.type === "test") {
-                // Test/debug packet - can be ignored or logged
-                console.log("Stream test:", pkt.message);
               } else if (pkt.type === "done") {
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -698,41 +663,6 @@ export default function CourseOutlineClient() {
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
-              } else if (pkt.type === "module") {
-                // Live module update - add new module to preview
-                setPreview(prev => {
-                  const existingModuleIndex = prev.findIndex(m => m.id === pkt.id);
-                  if (existingModuleIndex >= 0) {
-                    // Update existing module
-                    const updated = [...prev];
-                    updated[existingModuleIndex] = { ...updated[existingModuleIndex], title: pkt.title };
-                    return updated;
-                  } else {
-                    // Add new module
-                    return [...prev, { id: pkt.id, title: pkt.title, lessons: [] }];
-                  }
-                });
-              } else if (pkt.type === "lesson") {
-                // Live lesson update - add lesson to the appropriate module
-                setPreview(prev => {
-                  const updated = [...prev];
-                  // Find the module this lesson belongs to
-                  const moduleIndex = updated.findIndex(m => m.title === pkt.module);
-                  if (moduleIndex >= 0) {
-                    // Check if lesson already exists to avoid duplicates
-                    const existingLessonIndex = updated[moduleIndex].lessons.findIndex(l => 
-                      l.split('\n')[0].trim() === pkt.title
-                    );
-                    if (existingLessonIndex < 0) {
-                      // Add new lesson
-                      updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, pkt.title];
-                    }
-                  }
-                  return updated;
-                });
-              } else if (pkt.type === "test") {
-                // Test/debug packet - can be ignored or logged
-                console.log("Stream test:", pkt.message);
               } else if (pkt.type === "done") {
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -1218,42 +1148,6 @@ export default function CourseOutlineClient() {
               setPreview(parsed);
               setRawOutline(accRaw);
             }
-          } else if (pkt.type === "module") {
-            // Live module update - add new module to preview
-            setPreview(prev => {
-              const existingModuleIndex = prev.findIndex(m => m.id === pkt.id);
-              if (existingModuleIndex >= 0) {
-                // Update existing module
-                const updated = [...prev];
-                updated[existingModuleIndex] = { ...updated[existingModuleIndex], title: pkt.title };
-                return updated;
-              } else {
-                // Add new module
-                return [...prev, { id: pkt.id, title: pkt.title, lessons: [] }];
-              }
-            });
-            if (loadingPreview) setLoadingPreview(false); // hide overlay once we get live updates
-          } else if (pkt.type === "lesson") {
-            // Live lesson update - add lesson to the appropriate module
-            setPreview(prev => {
-              const updated = [...prev];
-              // Find the module this lesson belongs to
-              const moduleIndex = updated.findIndex(m => m.title === pkt.module);
-              if (moduleIndex >= 0) {
-                // Check if lesson already exists to avoid duplicates
-                const existingLessonIndex = updated[moduleIndex].lessons.findIndex(l => 
-                  l.split('\n')[0].trim() === pkt.title
-                );
-                if (existingLessonIndex < 0) {
-                  // Add new lesson
-                  updated[moduleIndex].lessons = [...updated[moduleIndex].lessons, pkt.title];
-                }
-              }
-              return updated;
-            });
-          } else if (pkt.type === "test") {
-            // Test/debug packet - can be ignored or logged
-            console.log("Advanced edit stream test:", pkt.message);
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
             const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
