@@ -269,11 +269,11 @@ export default function CreateFromSpecificFilesPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
-                  <Settings className="w-6 h-6 text-green-600" />
-                </div>
+                {/* <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center"> */}
+                  <Settings className="w-10 h-10 text-blue-600" />
+                {/* </div> */}
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{t('interface.selectConnectors', 'Select Connectors')}</h3>
+                  <h3 className="text-xl font-bold text-blue-600">{t('interface.selectConnectors', 'Select Connectors')}</h3>
                   <p className="text-sm text-gray-600 mt-1">{t('interface.chooseDataSources', 'Choose data sources to include in your content')}</p>
                 </div>
               </div>

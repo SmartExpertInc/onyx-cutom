@@ -885,7 +885,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
               style={{
                 backgroundColor: 'white',
-                background: `linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.18))`,
+                background: `linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.05))`,
                 borderWidth: '1px',
               }}>
                 <CardHeader>
@@ -983,7 +983,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
               <Card className="backdrop-blur-sm border border-gray-200/50 shadow-sm"
               style={{
                 backgroundColor: 'white',
-                background: `linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.18))`,
+                background: `linear-gradient(to top right, white, white,rgba(0, 187, 255, 0.05))`,
                 borderWidth: '1px',
               }}>
                 <CardHeader>
