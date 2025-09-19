@@ -1556,8 +1556,8 @@ export default function QuizClient() {
                         </div>
 
                         {/* Main content section */}
-                        <div className="flex-1">
-                          <div className="mb-4 flex-shrink-0">
+                        <div className="flex-1 flex-shrink-0">
+                          <div className="mb-4">
                             {editingQuestionId === idx ? (
                               <div className="relative group">
                                 <Input
