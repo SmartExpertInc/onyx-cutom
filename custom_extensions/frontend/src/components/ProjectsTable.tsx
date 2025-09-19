@@ -4377,8 +4377,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               {t("interface.sort", "Sort")}
             </Button>
 
-            {/* Columns Dropdown - only show in list view and when Course Outline products are present */}
-            {viewMode === "list" && visibleProjects.some(p => p.designMicroproductType === "Training Plan") && (
+            {/* Columns Dropdown - only show in list view */}
+            {viewMode === "list" && (
               <div className="relative" data-columns-dropdown>
                 <Button
                   onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}

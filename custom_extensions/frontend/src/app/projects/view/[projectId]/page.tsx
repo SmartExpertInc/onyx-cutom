@@ -1775,7 +1775,12 @@ export default function ProjectInstanceViewPage() {
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
   return (
-    <main className="p-4 md:p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen font-inter">
+    <main 
+      className="p-4 md:p-8 min-h-screen font-inter"
+      style={{
+        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
@@ -2234,8 +2239,8 @@ export default function ProjectInstanceViewPage() {
               </>
             )}
 
-            {/* Column Visibility Dropdown - for all component types */}
-            {projectInstanceData && (
+            {/* Column Visibility Dropdown - only for Course Outline (Training Plan) products */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
               <DropdownMenu open={showColumnDropdown} onOpenChange={setShowColumnDropdown}>
                 <DropdownMenuTrigger asChild>
                 <button
@@ -2382,7 +2387,7 @@ export default function ProjectInstanceViewPage() {
           />
         )}
 
-        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl">
+        <div className="bg-transparent p-4 sm:p-6 md:p-8 rounded-xl">
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
             {displayContent()}
           </Suspense>
