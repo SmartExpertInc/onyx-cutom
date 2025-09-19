@@ -1782,9 +1782,18 @@ export default function ProjectInstanceViewPage() {
           <div className="flex items-center gap-x-4">
             <button
               onClick={() => router.back()}
-              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              style={{
+                color: '#0F58F9',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
+              }}
             >
-              <ArrowLeft size={16} />
+              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               {t('interface.projectView.back', 'Back')}
             </button>
             
@@ -1793,9 +1802,16 @@ export default function ProjectInstanceViewPage() {
                 console.log('Open Products button clicked - navigating to /projects');
                 window.location.href = '/projects';
               }}
-              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              style={{
+                color: '#0F58F9',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
+              }}
             >
-              <FolderOpen size={16} />
+              <FolderOpen size={14} style={{ color: '#0F58F9' }} />
               {t('interface.projectView.openProducts', 'Open Products')}
             </button>
           </div>
