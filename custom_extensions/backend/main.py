@@ -9075,12 +9075,15 @@ class PosterData(BaseModel):
     freeAccessConditions: str
     speakerImageSrc: Optional[str] = None
 
-@app.post("/api/custom/poster-image/generate")
+@app.post("/api/custom-projects-backend/poster-image/generate")
 async def generate_poster_image(poster_data: PosterData):
     """Generate downloadable PNG image from event poster data"""
     try:
+        print(f"Poster generation request received: {poster_data.eventName}")
+        
         # Import the service locally to avoid circular imports
         from app.services.html_to_image_service import HTMLToImageService
+        print("HTMLToImageService imported successfully")
         
         # Validate required fields
         if not poster_data.eventName:
@@ -9095,15 +9098,19 @@ async def generate_poster_image(poster_data: PosterData):
         output_path = os.path.join(temp_dir, output_filename)
         
         # Generate HTML content for poster
+        print("Generating HTML content...")
         html_content = _generate_poster_html(poster_data.dict())
+        print(f"HTML content generated, length: {len(html_content)} characters")
         
         # Convert HTML to PNG (same as slide system)
+        print("Starting HTML to PNG conversion...")
         success = HTMLToImageService.convert_poster_to_png(
             html_content=html_content,
             output_path=output_path,
             width=1000,  # Square format as requested
             height=1000
         )
+        print(f"Conversion result: {success}")
         
         if not success or not os.path.exists(output_path):
             raise HTTPException(status_code=500, detail="Failed to generate poster image")
@@ -9119,6 +9126,7 @@ async def generate_poster_image(poster_data: PosterData):
         raise
     except Exception as e:
         logger.error(f"Error generating poster image: {str(e)}", exc_info=not IS_PRODUCTION)
+        print(f"Poster generation error: {str(e)}")  # Additional console logging
         detail_msg = "Internal server error" if IS_PRODUCTION else f"Internal server error: {str(e)}"
         raise HTTPException(status_code=500, detail=detail_msg)
 
