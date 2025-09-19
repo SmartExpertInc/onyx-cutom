@@ -18,7 +18,7 @@ interface ConnectorManagementPageProps {
   onConnectorDeleted?: () => void;
 }
 
-const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 25, status = 'active' }) => {
+const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 305, status = 'active' }) => {
   const getGradientId = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
@@ -346,7 +346,7 @@ export default function ConnectorManagementPage({
               title={t('interface.connectorStatus', 'Status')}
               value={ccPair.status}
               customIcon={({ size }: { size: number }) => (
-                <StatusIcon size={25} status={ccPair.status} />
+                <StatusIcon size={30} status={ccPair.status} />
               )}
               gradientColors={
                 isActive ? { from: 'green-300', to: 'emerald-200' } : 
@@ -372,7 +372,7 @@ export default function ConnectorManagementPage({
               title={t('interface.documentsIndexed', 'Documents Indexed')}
               value={ccPair.num_docs_indexed}
               customIcon={({ size }: { size: number }) => (
-                <TextIcon size={30} />
+                <TextIcon size={40} />
               )}
               gradientColors={{ from: 'blue-300', to: 'indigo-200' }}
               textColor="blue-600"
@@ -385,7 +385,7 @@ export default function ConnectorManagementPage({
               title={t('interface.lastIndexed', 'Last Indexed')}
               value={ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
               customIcon={({ size }: { size: number }) => (
-                <Clock color="blue-600" size={30} />
+                <Clock color="#2563eb" size={40} />
               )}
               gradientColors={{ from: 'purple-300', to: 'pink-200' }}
               textColor="blue-600"
@@ -477,9 +477,7 @@ export default function ConnectorManagementPage({
             borderWidth: '1px',
           }}>
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-100">
-              <Settings className="w-6 h-6 text-blue-600" />
-            </div>
+              <Settings className="w-10 h-10 text-blue-600" />
               <span className="text-blue-600">{t('interface.configuration', 'Configuration')}</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">

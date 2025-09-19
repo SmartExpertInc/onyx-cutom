@@ -1128,22 +1128,22 @@ function GenerateProductPicker() {
 
         {/* Text context indicator */}
         {isFromText && (
-          <Alert className="bg-green-50/80 backdrop-blur-sm border border-green-200/50 shadow-sm">
-            <AlertDescription className="text-green-700">
-              <div className="flex items-center gap-2 text-green-800 font-medium mb-2">
+          <Alert className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 backdrop-blur-sm border border-gray-100/50 shadow-md">
+            <AlertDescription className="text-blue-600">
+              <div className="flex items-center gap-2 text-blue-600 font-medium mb-2">
                 <FileText className="h-5 w-5" />
                 {t('interface.generate.creatingFromText', 'Creating from text')}
               </div>
-              <p className="font-medium">
+              <p className="font-medium text-gray-600">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
-              <p className="mt-1 text-green-600">
+              <p className="mt-1 text-gray-500">
                 {textMode === 'context' 
                   ? t('interface.generate.aiWillUseTextAsContext', 'The AI will use your text as reference material and context to create new educational content.')
                   : t('interface.generate.aiWillBuildUponText', 'The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.')}
               </p>
               {userText && (
-                <p className="mt-2 text-xs text-green-600 bg-green-100/80 p-2 rounded max-h-20 overflow-y-auto">
+                <p className="mt-2 text-xs text-gray-600 bg-gray-100 p-2 rounded max-h-20 overflow-y-auto">
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
