@@ -17425,6 +17425,8 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                             "WIZARD_REQUEST\n" + json.dumps(regen_payload) +
                             "\nCRITICAL: This is an edit. Regenerate ONLY this slide so that its content fully matches the updated title and prioritized topics. Prioritize previewKeyPoints over the title if both are present.\n"
                             "Follow the SAME rules and JSON schema as initial generation (component-based slides with appropriate templateId and props).\n"
+                            "Use the EXACT prop structure shown in these examples for each template:\n" + 
+                            json_example + "\n" +
                             "You MUST output ONLY a single JSON object of the slide with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + ".\n"
                             "Do NOT include code fences, markdown, or commentary. Return JSON object only.\n"
                         )
