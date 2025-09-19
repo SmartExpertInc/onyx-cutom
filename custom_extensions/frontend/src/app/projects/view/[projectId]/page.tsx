@@ -204,15 +204,13 @@ export default function ProjectInstanceViewPage() {
   const { t } = useLanguage();
 
   const handleBack = useCallback(() => {
-    if (typeof document !== 'undefined') {
-      const ref = document.referrer || '';
-      if (ref.includes('/create/') && !ref.includes('/create/generate')) {
-        router.push('/create/generate');
-        return;
-      }
+    const fromParam = searchParams?.get('from');
+    if (fromParam === 'create') {
+      router.push('/create/generate');
+      return;
     }
     router.back();
-  }, [router]);
+  }, [router, searchParams]);
 
   // Add CSS for hidden scrollbar
   useEffect(() => {

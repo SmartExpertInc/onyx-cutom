@@ -1099,6 +1099,9 @@ export default function TextPresentationClient() {
       setFinalProjectId(data.id);
 
       // Navigate immediately without delay to prevent cancellation
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
       router.push(`/projects/view/${data.id}`);
 
     } catch (error: any) {

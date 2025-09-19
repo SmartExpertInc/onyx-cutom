@@ -895,7 +895,11 @@ export default function CourseOutlineClient() {
       qp.set("contentAvailability", filters.contentAvailability ? "1" : "0");
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
+      qp.set("from", "create");
 
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
       // leave the custom frontend and hit the main app's /projects route.

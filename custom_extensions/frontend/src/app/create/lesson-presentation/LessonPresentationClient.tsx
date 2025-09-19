@@ -842,6 +842,9 @@ export default function LessonPresentationClient() {
       // Use new interface for Video Lessons, old interface for regular presentations
       const isVideoLesson = productType === "video_lesson_presentation";
       const redirectPath = isVideoLesson ? `/projects-2/view/${data.id}` : `/projects/view/${data.id}`;
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
       router.push(redirectPath);
 
     } catch (error: any) {
@@ -888,6 +891,9 @@ export default function LessonPresentationClient() {
                 // Use new interface for Video Lessons, old interface for regular presentations
                 const isVideoLesson = newestProject.design_microproduct_type === 'VideoLessonPresentationDisplay';
                 const redirectPath = isVideoLesson ? `/projects-2/view/${newestProject.id}` : `/projects/view/${newestProject.id}`;
+                if (typeof window !== 'undefined') {
+                  try { sessionStorage.setItem('last_created_product_id', String(newestProject.id)); } catch (_) {}
+                }
                 router.push(redirectPath);
               } else {
                 // No new slide deck found, redirect to products page
