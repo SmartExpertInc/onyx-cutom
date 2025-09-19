@@ -156,7 +156,7 @@ export const BarChartSlideTemplate: React.FC<BarChartSlideProps & {
 
   // Use theme colors instead of props - ensure we always have a valid theme
   const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
-  const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {

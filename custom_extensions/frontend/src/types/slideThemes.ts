@@ -156,7 +156,39 @@ export const DEFAULT_SLIDE_THEME = 'dark-purple';
 
 // Helper function to get theme
 export function getSlideTheme(themeId?: string): SlideTheme {
-  return SLIDE_THEMES[themeId || DEFAULT_SLIDE_THEME] || SLIDE_THEMES[DEFAULT_SLIDE_THEME];
+  const requestedTheme = themeId || DEFAULT_SLIDE_THEME;
+  const theme = SLIDE_THEMES[requestedTheme];
+  
+  if (theme && theme.colors) {
+    return theme;
+  }
+  
+  // Fallback to dark-purple theme
+  const fallbackTheme = SLIDE_THEMES[DEFAULT_SLIDE_THEME];
+  if (fallbackTheme && fallbackTheme.colors) {
+    console.warn(`Theme '${requestedTheme}' not found or invalid, using fallback theme '${DEFAULT_SLIDE_THEME}'`);
+    return fallbackTheme;
+  }
+  
+  // Last resort - return a hardcoded theme
+  console.error('All themes are invalid, using hardcoded fallback');
+  return {
+    id: 'fallback',
+    name: 'Fallback Theme',
+    colors: {
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
+      titleColor: '#ffffff',
+      subtitleColor: '#d9e1ff',
+      contentColor: '#d9e1ff',
+      accentColor: '#f35657'
+    },
+    fonts: {
+      titleFont: 'Kanit, sans-serif',
+      contentFont: 'Martel Sans, sans-serif',
+      titleSize: '45px',
+      contentSize: '18px'
+    }
+  };
 }
 
 // Helper function to get theme colors for a specific slide

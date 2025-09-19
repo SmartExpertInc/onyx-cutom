@@ -529,7 +529,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   
   // Add image ref for proper sizing
   const imageRef = useRef<HTMLDivElement>(null);

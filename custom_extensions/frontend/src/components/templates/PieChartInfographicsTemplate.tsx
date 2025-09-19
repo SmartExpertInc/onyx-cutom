@@ -144,7 +144,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   onUpdate,
   isEditable = false
 }: PieChartInfographicsTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
   // State for inline editing

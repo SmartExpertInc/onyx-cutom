@@ -139,7 +139,8 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   onUpdate,
   isEditable = false
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);

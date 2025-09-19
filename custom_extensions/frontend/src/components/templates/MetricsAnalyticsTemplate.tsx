@@ -133,7 +133,8 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
   isEditable = false,
   onUpdate
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const tColor = titleColor || currentTheme.colors.titleColor;
   const numColor = numberColor || currentTheme.colors.accentColor;
   const txtColor = textColor || currentTheme.colors.contentColor;

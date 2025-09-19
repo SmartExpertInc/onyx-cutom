@@ -518,7 +518,8 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   
   // Inline editing state for title only
   const [editingTitle, setEditingTitle] = useState(false);

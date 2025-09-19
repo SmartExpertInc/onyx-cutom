@@ -146,16 +146,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   // Use theme colors instead of props - ensure we always have a valid theme
   const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
-  
-  // Safety check for theme structure
-  let themeBg, titleColor, contentColor;
-  if (!currentTheme || !currentTheme.colors) {
-    console.error('ContentSlideTemplate - Invalid theme structure:', { theme, effectiveTheme, currentTheme });
-    const fallbackTheme = getSlideTheme(DEFAULT_SLIDE_THEME);
-    ({ backgroundColor: themeBg, titleColor, contentColor } = fallbackTheme.colors);
-  } else {
-    ({ backgroundColor: themeBg, titleColor, contentColor } = currentTheme.colors);
-  }
+  const { backgroundColor: themeBg, titleColor, contentColor } = currentTheme.colors;
   
   // Debug logging
   console.log('ContentSlideTemplate - theme:', theme, 'effectiveTheme:', effectiveTheme, 'currentTheme:', currentTheme, 'themeBg:', themeBg);

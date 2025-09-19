@@ -112,7 +112,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   isEditable = false,
   onUpdate
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
   
   // Smart color adaptation for better readability

@@ -149,7 +149,8 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   onUpdate,
   isEditable = false
 }: PyramidTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
   
   // Inline editing state

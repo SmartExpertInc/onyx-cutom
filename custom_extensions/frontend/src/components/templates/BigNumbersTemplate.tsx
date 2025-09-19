@@ -11,7 +11,7 @@ export interface BigNumbersTemplateProps {
   slideId: string;
   title: string;
   steps: BigNumberItem[];  // Changed from 'items' to 'steps'
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }
@@ -148,7 +148,8 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   onUpdate,
   isEditable = false
 }: BigNumbersTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
   // Inline editing state

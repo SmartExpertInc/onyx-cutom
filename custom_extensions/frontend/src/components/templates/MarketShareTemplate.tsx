@@ -151,7 +151,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps> = ({
   onUpdate,
   isEditable = false
 }: MarketShareTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
 
   // State for inline editing

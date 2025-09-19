@@ -134,7 +134,8 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   onUpdate,
   isEditable = false
 }: TimelineTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
   
   // Inline editing state

@@ -113,7 +113,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   isEditable = false,
   onUpdate
 }) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
   // State for inline editing

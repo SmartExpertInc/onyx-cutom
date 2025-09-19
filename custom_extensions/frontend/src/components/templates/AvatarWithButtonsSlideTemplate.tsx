@@ -146,7 +146,8 @@ export const AvatarWithButtonsSlideTemplate: React.FC<AvatarWithButtonsProps & {
   isEditable = false
 }) => {
   // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
   // Inline editing state
