@@ -1143,7 +1143,7 @@ function GenerateProductPicker() {
                   : t('interface.generate.aiWillBuildUponText', 'The AI will build upon your existing content structure, enhancing and formatting it into a comprehensive educational product.')}
               </p>
               {userText && (
-                <p className="mt-2 text-xs text-gray-600 bg-gray-100 p-2 rounded max-h-20 overflow-y-auto">
+                <p className="mt-2 text-xs text-gray-600 bg-gray-100 p-2 border border-gray-200 rounded max-h-20 overflow-y-auto">
                   {userText.length > 200 ? `${userText.substring(0, 200)}...` : userText}
                 </p>
               )}
@@ -1190,7 +1190,7 @@ function GenerateProductPicker() {
               {connectorContext.connectorSources.map((source, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
+                  className="px-3 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full text-sm font-medium"
                 >
                   {source}
                 </span>
@@ -1220,7 +1220,7 @@ function GenerateProductPicker() {
 
         {/* Connector context indicator */}
         {isFromConnectors && connectorContext && (
-          <div className="bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-sm">
+          <div className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
                 <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
@@ -1238,7 +1238,7 @@ function GenerateProductPicker() {
               {connectorContext.connectorSources.map((source, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
+                  className="px-3 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full text-sm font-medium"
                 >
                   {source}
                 </span>
@@ -1321,18 +1321,6 @@ function GenerateProductPicker() {
 
         {activeProduct === "Presentation" && (
           <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Back button */}
-            <div className="w-full max-w-3xl flex justify-start mb-2">
-              <Button
-                onClick={() => setActiveProduct("Course Outline")}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <ArrowLeft size={16} />
-                {t('interface.back', 'Back')}
-              </Button>
-            </div>
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1444,24 +1432,24 @@ function GenerateProductPicker() {
                     )}
                   </>
                 )}
+                <Button
+                  onClick={() => {
+                    setUseExistingOutline(null);
+                    setSelectedOutlineId(null);
+                    setSelectedModuleIndex(null);
+                    setLessonsForModule([]);
+                    setSelectedLesson("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </Button>
 
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
-                  <Button
-                    onClick={() => {
-                      setUseExistingOutline(null);
-                      setSelectedOutlineId(null);
-                      setSelectedModuleIndex(null);
-                      setLessonsForModule([]);
-                      setSelectedLesson("");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                  >
-                    ← Back
-                  </Button>
                     <CustomPillSelector
                       value={language}
                       onValueChange={setLanguage}
@@ -1494,18 +1482,6 @@ function GenerateProductPicker() {
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && (
           <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Back button */}
-            <div className="w-full max-w-3xl flex justify-start mb-2">
-              <Button
-                onClick={() => setActiveProduct("Course Outline")}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <ArrowLeft size={16} />
-                {t('interface.back', 'Back')}
-              </Button>
-            </div>
             {/* Step 1: Choose source */}
             {useExistingQuizOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1632,23 +1608,23 @@ function GenerateProductPicker() {
                   </>
                 )}
 
+                <Button
+                  onClick={() => {
+                    setUseExistingQuizOutline(null);
+                    setSelectedQuizOutlineId(null);
+                    setSelectedQuizModuleIndex(null);
+                    setQuizLessonsForModule([]);
+                    setSelectedQuizLesson("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </Button>
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
                   <>
-                  <Button
-                    onClick={() => {
-                      setUseExistingQuizOutline(null);
-                      setSelectedQuizOutlineId(null);
-                      setSelectedQuizModuleIndex(null);
-                      setQuizLessonsForModule([]);
-                      setSelectedQuizLesson("");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                  >
-                    ← Back
-                  </Button>
                     <CustomPillSelector
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
@@ -1695,18 +1671,6 @@ function GenerateProductPicker() {
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && (
           <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Back button */}
-            <div className="w-full max-w-3xl flex justify-start mb-2">
-              <Button
-                onClick={() => setActiveProduct("Course Outline")}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <ArrowLeft size={16} />
-                {t('interface.back', 'Back')}
-              </Button>
-            </div>
             {/* Step 1: Choose source */}
             {useExistingTextOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1837,24 +1801,24 @@ function GenerateProductPicker() {
                     )}
                   </>
                 )}
+                <Button
+                  onClick={() => {
+                    setUseExistingTextOutline(null);
+                    setSelectedTextOutlineId(null);
+                    setSelectedTextModuleIndex(null);
+                    setTextLessonsForModule([]);
+                    setSelectedTextLesson("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </Button>
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
                   <>
-                  <Button
-                    onClick={() => {
-                      setUseExistingTextOutline(null);
-                      setSelectedTextOutlineId(null);
-                      setSelectedTextModuleIndex(null);
-                      setTextLessonsForModule([]);
-                      setSelectedTextLesson("");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                  >
-                    ← Back
-                  </Button>
                     <CustomPillSelector
                       value={textLanguage}
                       onValueChange={setTextLanguage}
