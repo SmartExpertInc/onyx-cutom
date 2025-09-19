@@ -18,7 +18,7 @@ interface ConnectorManagementPageProps {
   onConnectorDeleted?: () => void;
 }
 
-const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 24, status = 'active' }) => {
+const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 25, status = 'active' }) => {
   const getGradientId = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
@@ -346,7 +346,7 @@ export default function ConnectorManagementPage({
               title={t('interface.connectorStatus', 'Status')}
               value={ccPair.status}
               customIcon={({ size }: { size: number }) => (
-                <StatusIcon size={20} status={ccPair.status} />
+                <StatusIcon size={25} status={ccPair.status} />
               )}
               gradientColors={
                 isActive ? { from: 'green-300', to: 'emerald-200' } : 
@@ -372,7 +372,7 @@ export default function ConnectorManagementPage({
               title={t('interface.documentsIndexed', 'Documents Indexed')}
               value={ccPair.num_docs_indexed}
               customIcon={({ size }: { size: number }) => (
-                <TextIcon size={size} />
+                <TextIcon size={30} />
               )}
               gradientColors={{ from: 'blue-300', to: 'indigo-200' }}
               textColor="blue-600"
@@ -385,7 +385,7 @@ export default function ConnectorManagementPage({
               title={t('interface.lastIndexed', 'Last Indexed')}
               value={ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
               customIcon={({ size }: { size: number }) => (
-                <Clock color="blue-600" size={size} />
+                <Clock color="blue-600" size={30} />
               )}
               gradientColors={{ from: 'purple-300', to: 'pink-200' }}
               textColor="blue-600"

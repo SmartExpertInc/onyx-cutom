@@ -12,11 +12,11 @@ const HeadTextCustom = React.forwardRef<HTMLDivElement, HeadTextCustomProps>(
   ({ className, text, description, textSize = "text-4xl sm:text-6xl", descriptionSize = "text-lg sm:text-xl", ...props }, ref) => {
     return (
       <div className={cn("flex flex-col gap-4 text-center items-center", className)} ref={ref} {...props}>
-        <h1 style={{fontWeight: '600'}} className={cn("text-gray-900 leading-tight", textSize)}>
+        <h1 className={cn("text-gray-900 leading-tight font-medium tracking-tight", textSize)}>
           {text}
         </h1>
         {description && (
-          <p className={cn("text-gray-500 text-md leading-relaxed text-center", descriptionSize)}>
+          <p className={cn("text-gray-600 text-md leading-relaxed text-center font-normal tracking-normal", descriptionSize)}>
             {description}
           </p>
         )}
