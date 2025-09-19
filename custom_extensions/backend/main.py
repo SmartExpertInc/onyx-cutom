@@ -7366,10 +7366,13 @@ class CreditUsageAnalyticsResponse(BaseModel):
     usage_by_product: List[ProductUsage]
     total_credits_used: int
 
-class SlidesAnalyticsResponse(BaseModel):
+class TemplateTypeUsage(BaseModel):
     template_id: str
     slide_id: str
     total_generated: int
+
+class SlidesAnalyticsResponse(BaseModel):
+    usage_by_template: List[TemplateTypeUsage]
 
 class TimelineActivity(BaseModel):
     id: str
@@ -22737,13 +22740,14 @@ async def get_slides_analytics(
                     total_generated DESC
                 """
             )
-            return [
-                SlidesAnalyticsResponse(
+            template_stats = [
+                TemplateTypeUsage(
                     template_id=row['template_id'],
                     slide_id=row['slide_id'],
                     total_generated=row['total_generated']
                 ) for row in rows
             ]
+            return SlidesAnalyticsResponse(usage_by_template=template_stats)
     except Exception as e:
         logger.error(f"Error fetching usage analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")

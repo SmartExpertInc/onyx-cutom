@@ -4,14 +4,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ResponsiveBar, BarTooltipProps } from '@nivo/bar';
 
 
-interface ProductUsage {
-  product_id: string;
+interface TemplateTypeUsage {
+  template_id: string;
   slide_id: string;
   total_generated: number;
 }
 
 interface SlidesAnalyticsResponse {
-  usage_by_product: ProductUsage[];
+  usage_by_template: TemplateTypeUsage[];
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -46,8 +46,8 @@ const SlideTypeUsageBarChart: React.FC = () => {
   // Prepare bar chart data
   const nivoData = useMemo(() => {
     if (allUsersData) {
-      return (allUsersData.usage_by_product || []).map(item => ({
-        product: item.product_id, // this becomes the "index"
+      return (allUsersData.usage_by_template || []).map(item => ({
+        template: item.template_id, // this becomes the "index"
         amount: item.total_generated, // this becomes the "bar value"
       }));
     }
@@ -67,7 +67,7 @@ const SlideTypeUsageBarChart: React.FC = () => {
           <ResponsiveBar
             data={nivoData}
             keys={["amount"]}
-            indexBy="product"
+            indexBy="template"
             margin={{ top: 40, right: 40, bottom: 60, left: 60 }}
             padding={0.3}
             valueScale={{ type: "linear" }}
@@ -81,7 +81,7 @@ const SlideTypeUsageBarChart: React.FC = () => {
             axisRight={null}
             axisBottom={{
               tickRotation: -30,
-              legend: "Product",
+              legend: "Template",
               legendPosition: "middle",
               legendOffset: 40,
             }}
