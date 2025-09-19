@@ -438,7 +438,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const isSearching = folderSearch.trim().length > 0;
 
   return (
-    <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm">
+    <aside className="w-64 bg-white p-4 flex flex-col fixed h-full border-r border-gray-200 text-sm z-40">
       <div className="relative mb-6">
         {deloitteBannerEnabled ? (
           <div className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 flex items-center justify-center shadow-sm">
