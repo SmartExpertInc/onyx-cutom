@@ -1449,7 +1449,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="border-white" sideOffset={15}>
+                          <SelectContent className="border-white shadow-lg" sideOffset={15}>
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1476,7 +1476,7 @@ export default function TextPresentationClient() {
                                   <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
                                 </div>
                           </SelectTrigger>
-                          <SelectContent className="border-white" sideOffset={15} align="center">
+                          <SelectContent className="border-white shadow-lg" sideOffset={15} align="center">
                             {lengthOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                             ))}
@@ -1572,7 +1572,7 @@ export default function TextPresentationClient() {
                               <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                             </div>
                       </SelectTrigger>
-                      <SelectContent className="shadow-none border-white">
+                      <SelectContent className="border-white shadow-lg">
                         <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                         <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                         <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1599,7 +1599,7 @@ export default function TextPresentationClient() {
                               <span className="text-[#09090B]">{lengthOptions.find(opt => opt.value === length)?.label}</span>
                             </div>
                       </SelectTrigger>
-                      <SelectContent className="shadow-none border-white">
+                      <SelectContent className="border-white shadow-lg">
                         {lengthOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                         ))}
