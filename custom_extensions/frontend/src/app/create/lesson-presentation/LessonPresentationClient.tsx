@@ -835,12 +835,12 @@ export default function LessonPresentationClient() {
       // Do not strip first line if this is JSON or was converted from JSON
       const looksLikeJson = (content || "").trim().startsWith("{");
       if (!looksLikeJson && !jsonConvertedRef.current) {
-      const parts = content.split('\n');
-      if (parts.length > 1) {
-        let trimmed = parts.slice(1).join('\n');
-        // Remove leading blank lines (one or more) at the very start
-        trimmed = trimmed.replace(/^(\s*\n)+/, '');
-        setContent(trimmed);
+        const parts = content.split('\n');
+        if (parts.length > 1) {
+          let trimmed = parts.slice(1).join('\n');
+          // Remove leading blank lines (one or more) at the very start
+          trimmed = trimmed.replace(/^(\s*\n)+/, '');
+          setContent(trimmed);
         }
       }
       setFirstLineRemoved(true);
@@ -1744,13 +1744,13 @@ export default function LessonPresentationClient() {
                                 <div className="mt-1 ml-1 flex flex-col gap-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                                   {bullets.slice(0, 5).map((b, i) => (
                                     <div key={i} className="flex items-center gap-2">
-                                      <span className="text-gray-500 select-none">•</span>
+                                      <span className="inline-block w-2 h-2 bg-gray-500 rounded-full" />
                                       <input
                                         type="text"
                                         value={String(b)}
                                         onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
                                         disabled={!streamDone}
-                                        className="flex-1 text-sm text-gray-800 border-0 px-0 py-1 focus:outline-none focus:ring-0"
+                                        className="text-sm text-gray-800 border-0 px-0 py-1 focus:outline-none focus:ring-0 flex-1"
                                         placeholder={t('interface.generate.topic', 'Topic') as string}
                                       />
                                     </div>

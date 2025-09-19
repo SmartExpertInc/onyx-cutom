@@ -1609,26 +1609,11 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
             
             # Ensure subtitle/content exists for templates that need it
             if template_id in ['big-image-left', 'big-image-top']:
-                # If AI returned an object for content, extract fields
-                if 'content' in normalized_props and isinstance(normalized_props['content'], dict):
-                    content_obj = normalized_props['content']
-                    # Title from heading if not set
-                    if not normalized_props.get('title') and isinstance(content_obj.get('heading'), str):
-                        normalized_props['title'] = content_obj['heading']
-                    # Subtitle from text
-                    if isinstance(content_obj.get('text'), str):
-                        normalized_props['subtitle'] = content_obj['text']
-                    # Map imagePlaceholder if present
-                    if isinstance(content_obj.get('imagePlaceholder'), dict):
-                        normalized_props['imagePlaceholder'] = content_obj['imagePlaceholder']
-                    # Remove object-shaped content to avoid React errors
-                    normalized_props.pop('content', None)
+                if 'subtitle' not in normalized_props and 'content' in normalized_props:
+                    normalized_props['subtitle'] = normalized_props['content']
                 # Ensure subtitle is different from title
-                if (
-                    isinstance(normalized_props.get('subtitle'), str) and 
-                    normalized_props.get('subtitle') == normalized_props.get('title') and 
-                    len(normalized_props.get('subtitle', '')) > 50
-                ):
+                if (normalized_props.get('subtitle') == normalized_props.get('title') and 
+                    len(normalized_props.get('subtitle', '')) > 50):
                     # If subtitle equals title and is long, use it as subtitle and create shorter title
                     full_text = normalized_props['subtitle']
                     # Extract first sentence as title
@@ -17435,25 +17420,24 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                             },
                             "context": {"lessonTitle": payload.lessonTitle}
                         }
-                        wizard_message = "WIZARD_REQUEST\n" + json.dumps(regen_payload) + "\nReturn ONLY the JSON of the single slide object with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + "."
+                        json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video_lesson_local else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
+wizard_message = (
+    "WIZARD_REQUEST\n" + json.dumps(regen_payload) +
+    "\nCRITICAL: This is an edit. Regenerate ONLY this slide so that its content fully matches the updated title and prioritized topics. Prioritize previewKeyPoints over the title if both are present.\n"
+    "Follow the SAME rules and JSON schema as initial generation (component-based slides with appropriate templateId and props).\n"
+    "You MUST output ONLY a single JSON object of the slide with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + ".\n"
+    "Do NOT include code fences, markdown, or commentary. Return JSON object only.\n"
+)
                         # Collect once-off response
                         regenerated_text = ""
                         async for chunk in stream_openai_response(wizard_message):
                             if chunk.get("type") == "delta":
                                 regenerated_text += chunk.get("text", "")
-                        parsed_text = regenerated_text.strip()
-                        # Strip markdown fences and isolate JSON object if present
-                        if parsed_text.startswith("```"):
-                            i1 = parsed_text.find("{")
-                            i2 = parsed_text.rfind("}")
-                            if i1 != -1 and i2 != -1:
-                                parsed_text = parsed_text[i1:i2+1]
-                        else:
-                            i1 = parsed_text.find("{")
-                            i2 = parsed_text.rfind("}")
-                            if i1 != -1 and i2 != -1:
-                                parsed_text = parsed_text[i1:i2+1]
-                        new_slide_obj = json.loads(parsed_text)
+                        cleaned = regenerated_text.strip()
+                        if cleaned.startswith("```"):
+                            cleaned = cleaned.strip('`')
+                            cleaned = cleaned.replace("json", "", 1).strip()
+                        new_slide_obj = json.loads(cleaned)
                         new_slide_obj["slideNumber"] = slide_num
                         slides[idx] = new_slide_obj
                     except Exception as regen_err:
