@@ -25,6 +25,9 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
 }) => {
   const template = getTemplate(slide.templateId);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME);
+  
+  // Debug theme information
+  console.log('ComponentBasedSlideRenderer - slide.templateId:', slide.templateId, 'theme:', theme, 'currentTheme:', currentTheme);
 
   // Handle template prop updates
   const handlePropsUpdate = (newProps: any) => {
