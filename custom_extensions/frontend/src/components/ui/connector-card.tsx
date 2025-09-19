@@ -7,6 +7,7 @@ export interface ConnectorCardProps {
   value?: string | number;
   icon?: LucideIcon;
   iconSrc?: string;
+  customIcon?: React.ComponentType<any>;
   gradientColors?: {
     from: string;
     to: string;
@@ -31,6 +32,7 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
   value,
   icon: Icon,
   iconSrc,
+  customIcon: CustomIcon,
   gradientColors = { from: 'blue-300', to: 'indigo-200' },
   textColor = 'blue-600',
   iconColor = 'blue-600',
@@ -103,13 +105,15 @@ export const ConnectorCard: React.FC<ConnectorCardProps> = ({
       )}
 
       {/* Gradient at top right corner */}
-      <div className="absolute -top-20 -left-22 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
-      <div className="absolute -top-12 -left-12 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
+      <div className="absolute -top-20 -left-22 w-90 h-90 bg-blue-50/50 rounded-full border-indigo-100/80" />
+      <div className="absolute -top-12 -left-12 w-60 h-60 bg-blue-100/30 rounded-full border-indigo-100/80" />
 
       <div className="relative p-6 h-full flex flex-col">
         {/* Icon section */}
         <div className="flex items-start justify-start h-16 relative mb-3">
-          {iconSrc ? (
+          {CustomIcon ? (
+            <CustomIcon size={40} />
+          ) : iconSrc ? (
             <div className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden">
               <Image
                 src={iconSrc}

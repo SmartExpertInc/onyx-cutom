@@ -479,7 +479,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     if (workspaces.length === 0) {
       return (
         <>
-          <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-#00BBFF66 flex items-center justify-center py-12">
+          <div className="min-h-screen flex items-center justify-center py-12">
             <div className="text-center">
               <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
@@ -590,10 +590,10 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           )}
           
           {/* Search, Filter, and Create Button Row */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full px-6">
           {/* Search and Filter Row */}
           <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full">
-            <div className="relative w-full">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
               <Input
                 type="text"

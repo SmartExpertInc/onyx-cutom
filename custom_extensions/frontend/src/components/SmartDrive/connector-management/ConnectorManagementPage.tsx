@@ -17,6 +17,72 @@ interface ConnectorManagementPageProps {
   onConnectorDeleted?: () => void;
 }
 
+const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 35, status = 'active' }) => {
+  const getGradientId = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'paint0_linear_green';
+      case 'paused':
+        return 'paint0_linear_yellow';
+      case 'invalid':
+        return 'paint0_linear_red';
+      default:
+        return 'paint0_linear_green';
+    }
+  };
+
+  const getGradientDefs = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return (
+          <linearGradient id="paint0_linear_green" x1="0.996595" y1="26.2681" x2="34.3582" y2="26.2681" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#10B981"/>
+            <stop offset="0.297014" stopColor="#059669"/>
+            <stop offset="0.666416" stopColor="#047857" stopOpacity="0.95"/>
+            <stop offset="1" stopColor="#065F46" stopOpacity="0.71"/>
+          </linearGradient>
+        );
+      case 'paused':
+        return (
+          <linearGradient id="paint0_linear_yellow" x1="0.996595" y1="26.2681" x2="34.3582" y2="26.2681" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#F59E0B"/>
+            <stop offset="0.297014" stopColor="#D97706"/>
+            <stop offset="0.666416" stopColor="#B45309" stopOpacity="0.95"/>
+            <stop offset="1" stopColor="#92400E" stopOpacity="0.71"/>
+          </linearGradient>
+        );
+      case 'invalid':
+        return (
+          <linearGradient id="paint0_linear_red" x1="0.996595" y1="26.2681" x2="34.3582" y2="26.2681" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#EF4444"/>
+            <stop offset="0.297014" stopColor="#DC2626"/>
+            <stop offset="0.666416" stopColor="#B91C1C" stopOpacity="0.95"/>
+            <stop offset="1" stopColor="#991B1B" stopOpacity="0.71"/>
+          </linearGradient>
+        );
+      default:
+        return (
+          <linearGradient id="paint0_linear_green" x1="0.996595" y1="26.2681" x2="34.3582" y2="26.2681" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#10B981"/>
+            <stop offset="0.297014" stopColor="#059669"/>
+            <stop offset="0.666416" stopColor="#047857" stopOpacity="0.95"/>
+            <stop offset="1" stopColor="#065F46" stopOpacity="0.71"/>
+          </linearGradient>
+        );
+    }
+  };
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="17.5" cy="17.5" r="16.5625" fill={`url(#${getGradientId(status)})`}/>
+      <defs>
+        {getGradientDefs(status)}
+      </defs>
+    </svg>
+  );
+};
+
+
 export default function ConnectorManagementPage({ 
   ccPairId, 
   onClose, 
@@ -254,8 +320,8 @@ export default function ConnectorManagementPage({
           {popup && (
             <div className={`mb-6 p-4 rounded-lg border ${
               popup.type === 'success' 
-                ? 'bg-gradient-to-tr from-white via-white to-emerald-100 text-green-800 border-green-200' 
-                : 'bg-gradient-to-tr from-white via-white to-red-100 text-red-800 border-red-200'
+                ? 'bg-gradient-to-t from-white to-emerald-100 text-green-800 border-green-200' 
+                : 'bg-gradient-to-t from-white to-red-100 text-red-800 border-red-200'
             }`}>
               <div className="flex items-center gap-2">
                 {popup.type === 'success' ? (
@@ -278,6 +344,9 @@ export default function ConnectorManagementPage({
             <ConnectorCard
               title={t('interface.connectorStatus', 'Status')}
               value={ccPair.status}
+              customIcon={({ size }: { size: number }) => (
+                <StatusIcon size={size} status={ccPair.status} />
+              )}
               gradientColors={
                 isActive ? { from: 'green-300', to: 'emerald-200' } : 
                 isPaused ? { from: 'yellow-300', to: 'amber-200' } : 
@@ -314,8 +383,8 @@ export default function ConnectorManagementPage({
               value={ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
               icon={Clock}
               gradientColors={{ from: 'purple-300', to: 'pink-200' }}
-              textColor="purple-600"
-              iconColor="purple-600"
+              textColor="blue-600"
+              iconColor="blue-600"
               showHoverEffect={false}
             />
           </div>
