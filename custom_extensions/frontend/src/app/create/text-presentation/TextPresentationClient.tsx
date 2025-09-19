@@ -1832,9 +1832,13 @@ export default function TextPresentationClient() {
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
                       onClick={handleApplyEdit}
-                      className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
+                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
+                      style={{
+                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                        fontWeight: 500
+                      }}
                     >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
+                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
                     </button>
                   </div>
                 </div>
