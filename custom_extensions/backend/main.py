@@ -15326,14 +15326,30 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         progress_updates = extract_live_progress(assistant_reply, chat_id)
                         if progress_updates:
                             logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
-                        for update in progress_updates:
-                            # Keep JSON update for logs/debugging (frontend ignores non-delta)
-                            yield (json.dumps(update) + "\n").encode()
-                            logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
-                            # Also send a markdown delta the frontend can parse incrementally
-                            md_line = f"## {update['title']}\n" if update.get('type') == 'module' else f"- {update['title']}\n"
-                            yield (json.dumps({"type": "delta", "text": md_line}) + "\n").encode()
-                            logger.info(f"[LIVE_STREAM_MD] Sent markdown delta for {update['type']}: {update['title']}")
+                            
+                            # Build a coherent markdown structure for the frontend parser
+                            # Initialize tracking for markdown accumulation if not exists
+                            if not hasattr(LIVE_STREAM_TRACKING[chat_id], 'markdown_structure'):
+                                LIVE_STREAM_TRACKING[chat_id]['markdown_structure'] = ""
+                            
+                            markdown_changed = False
+                            for update in progress_updates:
+                                # Keep JSON update for logs/debugging
+                                yield (json.dumps(update) + "\n").encode()
+                                logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
+                                
+                                # Build coherent markdown structure
+                                if update.get('type') == 'module':
+                                    LIVE_STREAM_TRACKING[chat_id]['markdown_structure'] += f"## {update['title']}\n"
+                                    markdown_changed = True
+                                elif update.get('type') == 'lesson':
+                                    LIVE_STREAM_TRACKING[chat_id]['markdown_structure'] += f"- {update['title']}\n"
+                                    markdown_changed = True
+                            
+                            # Send the complete markdown structure as a single delta
+                            if markdown_changed:
+                                yield (json.dumps({"type": "delta", "text": LIVE_STREAM_TRACKING[chat_id]['markdown_structure']}) + "\n").encode()
+                                logger.info(f"[LIVE_STREAM_MD] Sent complete markdown structure ({len(LIVE_STREAM_TRACKING[chat_id]['markdown_structure'])} chars)")
                         
                         # Send simple test updates to verify streaming works
                         if chunks_received % 50 == 0:
@@ -15465,14 +15481,30 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         progress_updates = extract_live_progress(assistant_reply, chat_id)
                         if progress_updates:
                             logger.info(f"[LIVE_STREAM_DEBUG] Found {len(progress_updates)} new updates")
-                        for update in progress_updates:
-                            # Keep JSON update for logs/debugging
-                            yield (json.dumps(update) + "\n").encode()
-                            logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
-                            # Also send a markdown delta the frontend can parse incrementally
-                            md_line = f"## {update['title']}\n" if update.get('type') == 'module' else f"- {update['title']}\n"
-                            yield (json.dumps({"type": "delta", "text": md_line}) + "\n").encode()
-                            logger.info(f"[LIVE_STREAM_MD] Sent markdown delta for {update['type']}: {update['title']}")
+                            
+                            # Build a coherent markdown structure for the frontend parser
+                            # Initialize tracking for markdown accumulation if not exists
+                            if 'markdown_structure' not in LIVE_STREAM_TRACKING[chat_id]:
+                                LIVE_STREAM_TRACKING[chat_id]['markdown_structure'] = ""
+                            
+                            markdown_changed = False
+                            for update in progress_updates:
+                                # Keep JSON update for logs/debugging
+                                yield (json.dumps(update) + "\n").encode()
+                                logger.info(f"[LIVE_STREAM] Sent {update['type']}: {update['title']}")
+                                
+                                # Build coherent markdown structure
+                                if update.get('type') == 'module':
+                                    LIVE_STREAM_TRACKING[chat_id]['markdown_structure'] += f"## {update['title']}\n"
+                                    markdown_changed = True
+                                elif update.get('type') == 'lesson':
+                                    LIVE_STREAM_TRACKING[chat_id]['markdown_structure'] += f"- {update['title']}\n"
+                                    markdown_changed = True
+                            
+                            # Send the complete markdown structure as a single delta
+                            if markdown_changed:
+                                yield (json.dumps({"type": "delta", "text": LIVE_STREAM_TRACKING[chat_id]['markdown_structure']}) + "\n").encode()
+                                logger.info(f"[LIVE_STREAM_MD] Sent complete markdown structure ({len(LIVE_STREAM_TRACKING[chat_id]['markdown_structure'])} chars)")
                         
                         # Send test update every 100 chunks to verify streaming works
                         if chunks_received % 100 == 0:
@@ -15480,8 +15512,8 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                             yield (json.dumps(test_update) + "\n").encode()
                             logger.info(f"[STREAM_TEST] Sent test update for chunk {chunks_received}")
                         
-                        # Always send the raw delta for fallback display
-                        yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
+                        # Raw delta fallback disabled - we now send structured markdown
+                        # yield (json.dumps({"type": "delta", "text": delta_text}) + "\n").encode()
                     elif chunk_data["type"] == "error":
                         logger.error(f"[OPENAI_ERROR] {chunk_data['text']}")
                         yield (json.dumps(chunk_data) + "\n").encode()
@@ -16737,7 +16769,7 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
     
     # Initialize tracking for this chat session
     if chat_id not in LIVE_STREAM_TRACKING:
-        LIVE_STREAM_TRACKING[chat_id] = {"modules": set(), "lessons": set(), "last_position": 0}
+        LIVE_STREAM_TRACKING[chat_id] = {"modules": set(), "lessons": set(), "last_position": 0, "markdown_structure": ""}
     
     sent_modules = LIVE_STREAM_TRACKING[chat_id]["modules"]
     sent_lessons = LIVE_STREAM_TRACKING[chat_id]["lessons"]
