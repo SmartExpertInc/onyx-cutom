@@ -17421,13 +17421,13 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                             "context": {"lessonTitle": payload.lessonTitle}
                         }
                         json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video_lesson_local else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
-wizard_message = (
-    "WIZARD_REQUEST\n" + json.dumps(regen_payload) +
-    "\nCRITICAL: This is an edit. Regenerate ONLY this slide so that its content fully matches the updated title and prioritized topics. Prioritize previewKeyPoints over the title if both are present.\n"
-    "Follow the SAME rules and JSON schema as initial generation (component-based slides with appropriate templateId and props).\n"
-    "You MUST output ONLY a single JSON object of the slide with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + ".\n"
-    "Do NOT include code fences, markdown, or commentary. Return JSON object only.\n"
-)
+                        wizard_message = (
+                            "WIZARD_REQUEST\n" + json.dumps(regen_payload) +
+                            "\nCRITICAL: This is an edit. Regenerate ONLY this slide so that its content fully matches the updated title and prioritized topics. Prioritize previewKeyPoints over the title if both are present.\n"
+                            "Follow the SAME rules and JSON schema as initial generation (component-based slides with appropriate templateId and props).\n"
+                            "You MUST output ONLY a single JSON object of the slide with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + ".\n"
+                            "Do NOT include code fences, markdown, or commentary. Return JSON object only.\n"
+                        )
                         # Collect once-off response
                         regenerated_text = ""
                         async for chunk in stream_openai_response(wizard_message):
