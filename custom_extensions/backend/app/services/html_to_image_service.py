@@ -175,12 +175,11 @@ class HTMLToImageService:
                 # Set content and wait for load
                 await page.set_content(html_content, wait_until='networkidle')
                 
-                # Take screenshot
+                # Take screenshot (fixed API - no width/height parameters)
                 await page.screenshot(
                     path=output_path,
-                    width=1000,
-                    height=1000,
-                    type='png'
+                    type='png',
+                    full_page=True
                 )
                 
                 await browser.close()
