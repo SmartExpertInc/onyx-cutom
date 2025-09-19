@@ -16794,37 +16794,48 @@ def extract_live_progress(assistant_reply: str, chat_id: str):
                 })
                 logger.info(f"[LIVE_PROGRESS] Found new module: {title}")
         
-        # Look for lesson patterns in FULL response (not just new content)
-        # Use more specific pattern to find lessons within lesson arrays
-        lesson_pattern = r'"title":\s*"Lesson\s+\d+\.\d+:\s*([^"]+)"'
-        lesson_matches = re.findall(lesson_pattern, assistant_reply)
+        # Parse lessons by finding them within their specific module context
+        # Use a more robust approach that tracks module context as we parse
         
-        # Get the most recent module for context
-        current_module = "Unknown Module"
-        if progress_updates:
-            # Use the module we just found
-            current_module = progress_updates[-1]["title"]
-        elif sent_modules:
-            # Use the last module we sent
-            current_module = list(sent_modules)[-1].split(":", 1)[1]
+        # First, create a mapping of all modules we know about
+        module_map = {}  # module_id -> module_title
+        for title, module_id in all_module_matches:
+            module_map[module_id] = title
         
-        # Look for lesson patterns in FULL response using specific lesson pattern
-        lesson_pattern = r'"title":\s*"Lesson\s+\d+\.\d+:\s*([^"]+)"'
-        lesson_matches = re.findall(lesson_pattern, assistant_reply)
+        # Find all lesson patterns with context about their position
+        lesson_pattern_with_context = r'"title":\s*"Lesson\s+\d+\.\d+:\s*([^"]+)"'
         
-        for lesson_title in lesson_matches:
-            # Clean lesson title (already extracted without prefix by regex)
-            cleaned_title = lesson_title.strip()
-            
-            lesson_key = f"{current_module}:{cleaned_title}"
-            if lesson_key not in sent_lessons and cleaned_title:
-                sent_lessons.add(lesson_key)
-                progress_updates.append({
-                    "type": "lesson", 
-                    "title": cleaned_title,
-                    "module": current_module
-                })
-                logger.info(f"[LIVE_PROGRESS] Found new lesson: {cleaned_title}")
+        # Split the response by modules to find lessons in each module
+        # Look for module starts: "id": "№X"
+        module_splits = re.split(r'"id":\s*"(№\d+)"', assistant_reply)
+        
+        logger.info(f"[LIVE_PROGRESS_DEBUG] Module splits: {len(module_splits)} sections, module_map: {module_map}")
+        
+        current_module_id = None
+        current_module_title = "Unknown Module"
+        
+        for i, section in enumerate(module_splits):
+            if i % 2 == 1:  # Odd indices are module IDs
+                current_module_id = section
+                current_module_title = module_map.get(current_module_id, "Unknown Module")
+            elif i % 2 == 0 and current_module_id:  # Even indices after a module ID are module content
+                # Look for lessons in this module section
+                lesson_matches = re.findall(lesson_pattern_with_context, section)
+                logger.info(f"[LIVE_PROGRESS_DEBUG] Module {current_module_id} ({current_module_title}): found {len(lesson_matches)} lessons in section")
+                
+                for lesson_title in lesson_matches:
+                    cleaned_title = lesson_title.strip()
+                    lesson_key = f"{current_module_id}:{current_module_title}:{cleaned_title}"
+                    
+                    if lesson_key not in sent_lessons and cleaned_title:
+                        sent_lessons.add(lesson_key)
+                        progress_updates.append({
+                            "type": "lesson",
+                            "title": cleaned_title,
+                            "module": current_module_title,
+                            "module_id": current_module_id
+                        })
+                        logger.info(f"[LIVE_PROGRESS] Found new lesson in {current_module_title}: {cleaned_title}")
     
     except Exception as e:
         logger.debug(f"[LIVE_PROGRESS_EXTRACT] Error extracting progress: {e}")
