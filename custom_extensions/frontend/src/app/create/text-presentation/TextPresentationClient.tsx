@@ -1913,50 +1913,52 @@ export default function TextPresentationClient() {
                     })}
                   </div>
 
-                  {/* Content section */}
-                  <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                    <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                    <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
+                  {/* Content section - Hidden */}
+                  {false && (
+                    <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
+                      <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
+                      <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
 
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
-                      <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
-                        {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
-                          <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
-                            {opt.icon} {opt.label}
-                          </button>
-                        ))}
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
+                        <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
+                          {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
+                            <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
+                              {opt.icon} {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                        <Select value={imageSource} onValueChange={setImageSource}>
+                          <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300" side="top">
+                            <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
+                            <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                            <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
+                        <Select value={aiModel} onValueChange={setAiModel}>
+                          <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="border-gray-300" side="top">
+                            <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
+                            <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
+                            <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                      <Select value={imageSource} onValueChange={setImageSource}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300" side="top">
-                          <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
-                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
-                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
-                      <Select value={aiModel} onValueChange={setAiModel}>
-                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-gray-300" side="top">
-                          <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
-                          <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
-                          <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </section>
