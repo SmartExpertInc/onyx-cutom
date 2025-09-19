@@ -2334,9 +2334,8 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const styledTextTitle = parseAndStyleText(dataToDisplay.textTitle);
 
   return (
-    <div className="min-h-screen bg-white p-4">
-        <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
-          <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
+    <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
+      <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
           {dataToDisplay.textTitle && (
             <header className="mb-4 text-left">
               {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>}
@@ -2548,7 +2547,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             })}
           </main>
         </div>
-      </div>
       
       {/* Floating Add Image Button - Only show in editing mode */}
       {isEditing && onTextChange && (
