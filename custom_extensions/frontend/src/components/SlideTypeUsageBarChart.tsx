@@ -44,15 +44,21 @@ const SlideTypeUsageBarChart: React.FC = () => {
     fetchAllUsers();
   }, []);
 
-  // Prepare bar chart data
+  // Prepare bar chart data: group by template_id and sum total_generated
   const nivoData = useMemo(() => {
     if (allUsersData) {
-      return (allUsersData.usage_by_template || []).map(item => ({
-        template: item.template_id, // this becomes the "index"
-        amount: item.total_generated, // this becomes the "bar value"
-      }));
+      // Debug: log raw response
+      console.debug('Raw usage_by_template:', allUsersData.usage_by_template);
+      const grouped: Record<string, number> = {};
+      for (const item of allUsersData.usage_by_template || []) {
+        if (!item.template_id) continue;
+        grouped[item.template_id] = (grouped[item.template_id] || 0) + (item.total_generated || 0);
+      }
+      const result = Object.entries(grouped).map(([template, amount]) => ({ template, amount }));
+      // Debug: log processed data
+      console.debug('Bar chart data:', result);
+      return result;
     }
-
     return [];
   }, [allUsersData]);
 
