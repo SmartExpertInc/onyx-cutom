@@ -45,14 +45,14 @@
             --font-family: 'Montserrat', sans-serif;
         }
         
-        /* Main background - exact copy from React component */
+        /* Main background - fixed for server-side rendering */
         .main-background {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_5.png");
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             background-repeat: no-repeat;
             background-position: center center;
             background-size: cover;
@@ -89,6 +89,7 @@
             grid-template-columns: 1fr auto;
             grid-template-rows: auto 1fr auto;
             padding: 53px;
+            box-sizing: border-box;
         }
         
         .header-section {
@@ -116,10 +117,11 @@
         .logo {
             width: 141px;
             height: 78px;
-            background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png");
+            background: linear-gradient(45deg, #5416af 0%, #764ba2 100%);
             background-repeat: no-repeat;
             background-position: center center;
             background-size: cover;
+            border-radius: 8px;
         }
         
         .second-row {
@@ -275,7 +277,7 @@
         {% if speakerImageSrc and speakerImageSrc.startswith('data:image') %}
         <div class="speaker-photo" style="background-image: url('{{ speakerImageSrc }}');"></div>
         {% else %}
-        <div class="speaker-photo" style="background-image: url('/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png');"></div>
+        <div class="speaker-photo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid var(--accent-color); border-radius: 10px;"></div>
         {% endif %}
         
         <div class="bottom-gradient"></div>
