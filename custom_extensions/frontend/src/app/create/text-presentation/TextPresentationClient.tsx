@@ -1749,7 +1749,7 @@ export default function TextPresentationClient() {
                                   type="text"
                                   value={editedTitles[idx] || lesson.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:ring-1 focus-visible:ring-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                                   onKeyDown={(e) => {
@@ -1767,7 +1767,7 @@ export default function TextPresentationClient() {
                             ) : (
                               <div className="relative group">
                                 <h4
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer pr-8"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] w-full h-9 px-3 py-1 pr-8"
                                   onMouseDown={() => {
                                     // Set the next editing ID before the blur event fires
                                     nextEditingIdRef.current = idx;
