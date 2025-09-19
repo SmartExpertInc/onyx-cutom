@@ -620,6 +620,10 @@ export default function CourseOutlineClient() {
           let buffer = "";
           let accumulatedRaw = "";
 
+          // Live preview accumulators based on 'module'/'lesson' packets
+          const liveModules: { id?: string; title: string; lessons: string[]; totalHours?: number }[] = [];
+          const moduleIndexByTitle = new Map<string, number>();
+
           while (true) {
             const { value, done } = await reader.read();
             if (done) break;
@@ -635,6 +639,28 @@ export default function CourseOutlineClient() {
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
+              } else if (pkt.type === "module") {
+                const title: string = pkt.title || pkt.name || "";
+                if (title && !moduleIndexByTitle.has(title)) {
+                  moduleIndexByTitle.set(title, liveModules.length);
+                  liveModules.push({ id: pkt.id, title, lessons: [], totalHours: pkt.totalHours });
+                  setPreview([...liveModules]);
+                }
+              } else if (pkt.type === "lesson") {
+                const modTitle: string = pkt.module || (liveModules[liveModules.length - 1]?.title || "");
+                const lessonTitle: string = pkt.title || pkt.name || "";
+                if (!lessonTitle) continue;
+                let idx = moduleIndexByTitle.get(modTitle);
+                if (idx === undefined) {
+                  idx = liveModules.length;
+                  moduleIndexByTitle.set(modTitle, idx);
+                  liveModules.push({ title: modTitle || "Module", lessons: [] });
+                }
+                const lessons = liveModules[idx].lessons;
+                if (!lessons.includes(lessonTitle)) {
+                  lessons.push(lessonTitle);
+                  setPreview([...liveModules]);
+                }
               } else if (pkt.type === "done") {
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -663,6 +689,29 @@ export default function CourseOutlineClient() {
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
+              } else if (pkt.type === "module") {
+                const title: string = pkt.title || pkt.name || "";
+                if (title && !moduleIndexByTitle.has(title)) {
+                  moduleIndexByTitle.set(title, liveModules.length);
+                  liveModules.push({ id: pkt.id, title, lessons: [], totalHours: pkt.totalHours });
+                  setPreview([...liveModules]);
+                }
+              } else if (pkt.type === "lesson") {
+                const modTitle: string = pkt.module || (liveModules[liveModules.length - 1]?.title || "");
+                const lessonTitle: string = pkt.title || pkt.name || "";
+                if (lessonTitle) {
+                  let idx = moduleIndexByTitle.get(modTitle);
+                  if (idx === undefined) {
+                    idx = liveModules.length;
+                    moduleIndexByTitle.set(modTitle, idx);
+                    liveModules.push({ title: modTitle || "Module", lessons: [] });
+                  }
+                  const lessons = liveModules[idx].lessons;
+                  if (!lessons.includes(lessonTitle)) {
+                    lessons.push(lessonTitle);
+                    setPreview([...liveModules]);
+                  }
+                }
               } else if (pkt.type === "done") {
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
@@ -1125,6 +1174,10 @@ export default function CourseOutlineClient() {
       let accRaw = "";
       let hasFirstData = false;
 
+      // Live preview accumulators for advanced edit stream
+      const liveModules2: { id?: string; title: string; lessons: string[]; totalHours?: number }[] = [];
+      const moduleIndexByTitle2 = new Map<string, number>();
+
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
@@ -1147,6 +1200,28 @@ export default function CourseOutlineClient() {
             } else if (hasFirstData) {
               setPreview(parsed);
               setRawOutline(accRaw);
+            }
+          } else if (pkt.type === "module") {
+            const title: string = pkt.title || pkt.name || "";
+            if (title && !moduleIndexByTitle2.has(title)) {
+              moduleIndexByTitle2.set(title, liveModules2.length);
+              liveModules2.push({ id: pkt.id, title, lessons: [], totalHours: pkt.totalHours });
+              setPreview([...liveModules2]);
+            }
+          } else if (pkt.type === "lesson") {
+            const modTitle: string = pkt.module || (liveModules2[liveModules2.length - 1]?.title || "");
+            const lessonTitle: string = pkt.title || pkt.name || "";
+            if (!lessonTitle) continue;
+            let idx = moduleIndexByTitle2.get(modTitle);
+            if (idx === undefined) {
+              idx = liveModules2.length;
+              moduleIndexByTitle2.set(modTitle, idx);
+              liveModules2.push({ title: modTitle || "Module", lessons: [] });
+            }
+            const lessons = liveModules2[idx].lessons;
+            if (!lessons.includes(lessonTitle)) {
+              lessons.push(lessonTitle);
+              setPreview([...liveModules2]);
             }
           } else if (pkt.type === "done") {
             const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accRaw);
