@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { format, subDays } from 'date-fns';
 import { 
-  Download, RefreshCw, TrendingUp, AlertTriangle, Clock, Users, Activity, Filter, X, Calendar, Search
+  Download, RefreshCw, ChevronDown, AlertTriangle, Filter, X, Calendar
 } from 'lucide-react';
 import SlideTypeUsageBarChart from '../../../../components/SlideTypeUsageBarChart';
 import { useLanguage } from '../../../../contexts/LanguageContext';
@@ -40,9 +40,29 @@ const SlidesAnalyticsTab: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Get available templates
-  const availableTemplates = getAllTemplates();
-  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>(availableTemplates.map(t => t.id));
+  const availableTemplates = getAllTemplates().map(t => t.id);
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>(availableTemplates.slice(0, 22)); // Default to first 22 templates
+  const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false);
 
+  // Click outside handler for styles dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.styles-dropdown')) {
+        setShowTemplatesDropdown(false);
+      }
+    };
+
+    if (showTemplatesDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showTemplatesDropdown]);
+
+  
   // Debounced filter application
   useEffect(() => {
     setIsFiltering(true);
@@ -276,30 +296,38 @@ const SlidesAnalyticsTab: React.FC = () => {
           {/* Template Type Checklist */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">Select Template Types</label>
-            <div className="flex flex-wrap gap-2">
-              {availableTemplates.map(tmpl => {
-                const isSelected = selectedTemplateIds.includes(tmpl.id);
-                return (
-                  <button
-                    key={tmpl.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedTemplateIds(ids =>
-                        isSelected
-                          ? ids.filter(id => id !== tmpl.id)
-                          : [...ids, tmpl.id]               
-                      );
-                    }}
-                    className={`px-3 py-1 rounded-full text-sm border transition
-                      ${isSelected 
-                        ? "bg-blue-600 text-white border-blue-600" 
-                        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
-                      }`}
-                  >
-                    {tmpl.name || tmpl.id}
-                  </button>
-                );
-              })}
+            <div className="relative styles-dropdown">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowTemplatesDropdown(!showTemplatesDropdown);
+                }}
+                className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+              >
+                <span>{selectedTemplateIds.length > 0 ? `${selectedTemplateIds.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                <ChevronDown size={14} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              {showTemplatesDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {availableTemplates.map((id) => (
+                    <label key={id} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedTemplateIds.includes(id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedTemplateIds([...selectedTemplateIds, id]);
+                          } else {
+                            setSelectedTemplateIds(selectedTemplateIds.filter(s => s !== id));
+                          }
+                        }}
+                        className="mr-3"
+                      />
+                      <span className="text-sm">{id}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
