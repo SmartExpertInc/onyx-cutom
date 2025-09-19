@@ -18697,22 +18697,110 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
             raise HTTPException(status_code=400, detail="Project is not a training plan")
 
-    # Get existing content first
+    # Fast path variables - delay initialization until needed
     existing_content = row["microproduct_content"]
-    
-    # Skip expensive operations for OpenAI direct path
-    if should_use_openai_direct(payload):
-        chat_id = None
-        current_outline = ""
-    else:
-        # Get or create chat session (only for Onyx path)
+
+    # Stream the response
+    async def streamer():
+        # Fast path: request immediate JSON when there is no file context
+        if should_use_openai_direct(payload):
+            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT FREE TEXT (no file context)")
+            try:
+                client = get_openai_client()
+                model = LLM_DEFAULT_MODEL
+                
+                # Use free text with forcing instructions like course outline preview
+                original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
+                
+                user_prompt = (
+                    f"ORIGINAL JSON:\n{original_json_str}\n\n" +
+                    f"EDIT INSTRUCTION (language={payload.language or 'en'}):\n{payload.prompt}\n\n" +
+                    f"CRITICAL OUTPUT FORMAT (JSON-ONLY):\n" +
+                    f"You MUST output ONLY a single JSON object for the Training Plan edit, strictly following this example structure:\n" +
+                    f"{DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM}\n" +
+                    f"Do NOT include code fences, markdown or extra commentary. Return JSON object only."
+                )
+                
+                messages = [
+                    {"role": "system", "content": "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."},
+                    {"role": "user", "content": user_prompt}
+                ]
+                
+                completion = await client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    temperature=0.2,
+                    max_tokens=6000
+                )
+                content_text = completion.choices[0].message.content or "{}"
+                
+                # Parse JSON from free text response
+                try:
+                    # Try to extract JSON if wrapped in code fences
+                    if "```json" in content_text:
+                        start = content_text.find("```json") + 7
+                        end = content_text.find("```", start)
+                        if end != -1:
+                            content_text = content_text[start:end].strip()
+                    elif "```" in content_text:
+                        start = content_text.find("```") + 3
+                        end = content_text.find("```", start)
+                        if end != -1:
+                            content_text = content_text[start:end].strip()
+                    
+                    updated_content_dict = json.loads(content_text)
+                except json.JSONDecodeError:
+                    # Fallback: try to find JSON object boundaries
+                    start = content_text.find("{")
+                    end = content_text.rfind("}") + 1
+                    if start >= 0 and end > start:
+                        try:
+                            updated_content_dict = json.loads(content_text[start:end])
+                        except:
+                            raise ValueError("Could not parse JSON from response")
+                try:
+                    if isinstance(existing_content, dict):
+                        original_language = existing_content.get("detectedLanguage", payload.language)
+                        original_theme = existing_content.get("theme", payload.theme or "cherry")
+                    else:
+                        original_language = payload.language or "en"
+                        original_theme = payload.theme or "cherry"
+                    updated_content_dict.setdefault("detectedLanguage", original_language)
+                    updated_content_dict.setdefault("theme", original_theme)
+                except Exception:
+                    pass
+                try:
+                    for section in updated_content_dict.get("sections", []):
+                        sid = section.get("id")
+                        if not sid:
+                            continue
+                        if isinstance(sid, str):
+                            if sid.isdigit():
+                                section["id"] = f"№{sid}"
+                            elif sid.startswith("#") and sid[1:].isdigit():
+                                section["id"] = f"№{sid[1:]}"
+                            elif not sid.startswith("№"):
+                                import re
+                                m = re.search(r"\d+", sid)
+                                if m:
+                                    section["id"] = f"№{m.group()}"
+                except Exception as e:
+                    logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
+                done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
+                yield (json.dumps(done_packet) + "\n").encode()
+                return
+            except Exception as e:
+                logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
+                # fall through to legacy path if JSON fast path fails
+        # Legacy path: initialize chat session and markdown outline for file context cases
+        # Get or create chat session
         if payload.chatSessionId:
             chat_id = payload.chatSessionId
         else:
             persona_id = await get_contentbuilder_persona_id(cookies)
             chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-        # Convert existing training plan to markdown format for AI processing (only for Onyx path)
+        # Convert existing training plan to markdown format for AI processing
         current_outline = ""
         
         if existing_content:
@@ -18784,212 +18872,23 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                         current_outline += "*No lessons defined*\n\n"
                     current_outline += "\n"
 
-    # Prepare wizard payload (only used for Onyx path)
-    wiz_payload = {
-        "product": "Training Plan Edit",
-        "prompt": payload.prompt,
-        "language": payload.language,
-        "originalOutline": current_outline,
-        "editMode": True
-    }
+        # Prepare wizard payload
+        wiz_payload = {
+            "product": "Training Plan Edit",
+            "prompt": payload.prompt,
+            "language": payload.language,
+            "originalOutline": current_outline,
+            "editMode": True
+        }
 
-    wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+        wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
 
-    # Stream the response
-    async def streamer():
-        # Fast path: request immediate JSON when there is no file context
-        if should_use_openai_direct(payload):
-            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT PARTIAL JSON (no file context)")
-            try:
-                client = get_openai_client()
-                model = LLM_DEFAULT_MODEL
-                
-                # Ask for only changed sections to reduce token usage and latency
-                component_specific_instructions = (
-                    "You are an expert editor for 'Training Plan' JSON. Given the ORIGINAL JSON and an EDIT INSTRUCTION, "
-                    "return ONLY the changes needed as a partial JSON object. "
-                    "Include: "
-                    "- 'mainTitle' if it should be changed "
-                    "- 'changedSections' array with only the sections that need modification (full section objects) "
-                    "- 'newSections' array if new sections should be added "
-                    "- 'deletedSectionIds' array if sections should be removed "
-                    "If only lesson-level changes within existing sections, include the full affected sections in 'changedSections'. "
-                    "Preserve section IDs in '№X' format. "
-                    "Return ONLY a valid JSON object with these keys."
-                )
-
-                original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
-                messages = [
-                    {"role": "system", "content": component_specific_instructions},
-                    {"role": "user", "content": (
-                        "ORIGINAL JSON:\n" + original_json_str + "\n\n" +
-                        "EDIT INSTRUCTION (language=" + (payload.language or "en") + "):\n" + payload.prompt + "\n\n" +
-                        "Output: Partial JSON with only changes needed."
-                    )}
-                ]
-
-                completion = await client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=0.2,
-                    max_tokens=4000,  # Reduced since we're only getting partial updates
-                    response_format={"type": "json_object"}
-                )
-
-                content_text = completion.choices[0].message.content or "{}"
-                changes = json.loads(content_text)
-
-                # Merge changes with existing content
-                if isinstance(existing_content, dict):
-                    merged_content = existing_content.copy()
-                else:
-                    merged_content = {"mainTitle": "Training Plan", "sections": [], "detectedLanguage": payload.language or "en", "theme": payload.theme or "cherry"}
-
-                # Apply title change if provided
-                if "mainTitle" in changes:
-                    merged_content["mainTitle"] = changes["mainTitle"]
-
-                # Apply section deletions
-                if "deletedSectionIds" in changes:
-                    deleted_ids = set(changes["deletedSectionIds"])
-                    merged_content["sections"] = [s for s in merged_content.get("sections", []) if s.get("id") not in deleted_ids]
-
-                # Apply section changes
-                if "changedSections" in changes:
-                    sections_by_id = {s.get("id"): s for s in merged_content.get("sections", [])}
-                    for changed_section in changes["changedSections"]:
-                        section_id = changed_section.get("id")
-                        if section_id:
-                            # Normalize ID to '№X' format
-                            if section_id.isdigit():
-                                section_id = f"№{section_id}"
-                                changed_section["id"] = section_id
-                            elif section_id.startswith("#") and section_id[1:].isdigit():
-                                section_id = f"№{section_id[1:]}"
-                                changed_section["id"] = section_id
-                            elif not section_id.startswith("№"):
-                                import re
-                                m = re.search(r"\d+", section_id)
-                                if m:
-                                    section_id = f"№{m.group()}"
-                                    changed_section["id"] = section_id
-                            
-                            sections_by_id[section_id] = changed_section
-                    
-                    merged_content["sections"] = list(sections_by_id.values())
-
-                # Add new sections
-                if "newSections" in changes:
-                    new_sections = changes["newSections"]
-                    for new_section in new_sections:
-                        # Normalize new section ID
-                        section_id = new_section.get("id", "")
-                        if section_id:
-                            if section_id.isdigit():
-                                new_section["id"] = f"№{section_id}"
-                            elif section_id.startswith("#") and section_id[1:].isdigit():
-                                new_section["id"] = f"№{section_id[1:]}"
-                            elif not section_id.startswith("№"):
-                                import re
-                                m = re.search(r"\d+", section_id)
-                                if m:
-                                    new_section["id"] = f"№{m.group()}"
-                    
-                    merged_content["sections"].extend(new_sections)
-
-                # Preserve language and theme
-                merged_content.setdefault("detectedLanguage", payload.language or "en")
-                merged_content.setdefault("theme", payload.theme or "cherry")
-
-                done_packet = {"type": "done", "updatedContent": merged_content, "isPreview": True}
-                yield (json.dumps(done_packet) + "\n").encode()
-                return
-            except Exception as e:
-                logger.error(f"[SMART_EDIT_PARTIAL_JSON_ERROR] {e}")
-                # fall through to legacy path if partial JSON fast path fails
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
         # Use longer timeout for large text processing to prevent AI memory issues
         timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
         logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
-        
-        # NEW: Check if we should use OpenAI directly instead of Onyx
-        if should_use_openai_direct(payload):
-            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT JSON (no file context)")
-            logger.info(f"[SMART_EDIT_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
-            try:
-                client = get_openai_client()
-                model = LLM_DEFAULT_MODEL
-
-                component_specific_instructions = (
-                    "You are an expert editor for 'Training Plan' JSON. Given the ORIGINAL JSON and an EDIT INSTRUCTION, "
-                    "produce a NEW JSON object of the same schema, applying the edit consistently across modules and lessons. "
-                    "Return ONLY a single valid JSON object with keys: mainTitle, sections, detectedLanguage, theme. "
-                    "Preserve existing IDs, language and theme unless a change is explicitly required. "
-                    "The sections[].id MUST use the '№X' format."
-                )
-
-                original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
-                messages = [
-                    {"role": "system", "content": component_specific_instructions},
-                    {"role": "user", "content": (
-                        "ORIGINAL JSON:\n" + original_json_str + "\n\n" +
-                        "EDIT INSTRUCTION (language=" + (payload.language or "en") + "):\n" + payload.prompt + "\n\n" +
-                        "Output: Strict JSON object only."
-                    )}
-                ]
-
-                completion = await client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=0.2,
-                    max_tokens=6000,
-                    response_format={"type": "json_object"}
-                )
-
-                content_text = completion.choices[0].message.content or "{}"
-                updated_content_dict = json.loads(content_text)
-
-                # Preserve language and theme defaults
-                try:
-                    if isinstance(existing_content, dict):
-                        original_language = existing_content.get("detectedLanguage", payload.language)
-                        original_theme = existing_content.get("theme", payload.theme or "cherry")
-                    else:
-                        original_language = payload.language or "en"
-                        original_theme = payload.theme or "cherry"
-
-                    updated_content_dict.setdefault("detectedLanguage", original_language)
-                    updated_content_dict.setdefault("theme", original_theme)
-                except Exception:
-                    pass
-
-                # Normalize module IDs to '№'
-                try:
-                    for section in updated_content_dict.get("sections", []):
-                        sid = section.get("id")
-                        if not sid:
-                            continue
-                        if isinstance(sid, str):
-                            if sid.isdigit():
-                                section["id"] = f"№{sid}"
-                            elif sid.startswith("#") and sid[1:].isdigit():
-                                section["id"] = f"№{sid[1:]}"
-                            elif not sid.startswith("№"):
-                                import re
-                                m = re.search(r"\d+", sid)
-                                if m:
-                                    section["id"] = f"№{m.group()}"
-                except Exception as e:
-                    logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
-
-                done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
-                yield (json.dumps(done_packet) + "\n").encode()
-                return
-            except Exception as e:
-                logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
-                # Fall back to legacy path below
         
         # EXISTING: Use Onyx when file context is present
         else:
