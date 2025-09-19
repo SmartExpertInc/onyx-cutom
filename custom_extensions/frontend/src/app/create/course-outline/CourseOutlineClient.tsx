@@ -1356,9 +1356,9 @@ export default function CourseOutlineClient() {
                 </div>
               )}
               {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
-                  {/* Left numbered section */}
-                  <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-100 to-blue-50 text-gray-700 font-semibold text-base select-none flex-shrink-0">
+                <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                  {/* Left blue square with number */}
+                  <div className="flex items-center justify-center w-12 h-12 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-base select-none flex-shrink-0">
                     {modIdx + 1}
                   </div>
 
@@ -1372,7 +1372,7 @@ export default function CourseOutlineClient() {
                           value={mod.title}
                           onChange={(e) => handleModuleChange(modIdx, e.target.value)}
                           data-modtitle={modIdx}
-                          className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
+                          className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
                           placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
                         />
                         {mod.title && (
@@ -1399,7 +1399,9 @@ export default function CourseOutlineClient() {
                          }
                          return (
                            <li key={lessonIdx} className="flex items-center gap-2 py-0.5">
-                             <span className="text-lg leading-none select-none mt-0.5">•</span>
+                             <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                               <path d="M5.78446 3.30541C6.32191 3.61252 6.32191 4.38748 5.78446 4.69459L1.19691 7.31605C0.663586 7.62081 1.60554e-07 7.23571 1.87404e-07 6.62146L4.16579e-07 1.37854C4.43429e-07 0.764285 0.663586 0.379192 1.19691 0.683949L5.78446 3.30541Z" fill="#0F58F9"/>
+                             </svg>
                              <div className="relative group flex-grow">
                                <Input
                                  type="text"
@@ -1408,7 +1410,7 @@ export default function CourseOutlineClient() {
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none shadow-none text-sm text-gray-700 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
+                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                />
                                {titleLine && (
