@@ -1356,14 +1356,14 @@ export default function CourseOutlineClient() {
                 </div>
               )}
               {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+                <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
                   {/* Left blue square with number */}
-                  <div className="flex items-center justify-center w-12 h-12 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-base select-none flex-shrink-0">
+                  <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0">
                     {modIdx + 1}
                   </div>
 
                   {/* Main content section */}
-                  <div className="flex-1 p-4">
+                  <div className="flex-1">
                     {/* Module title */}
                     <div className="mb-2">
                       <div className="relative group">
@@ -1372,7 +1372,7 @@ export default function CourseOutlineClient() {
                           value={mod.title}
                           onChange={(e) => handleModuleChange(modIdx, e.target.value)}
                           data-modtitle={modIdx}
-                          className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
+                          className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
                           placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
                         />
                         {mod.title && (
