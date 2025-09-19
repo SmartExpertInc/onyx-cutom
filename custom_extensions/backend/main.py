@@ -19882,93 +19882,251 @@ async def generate_poster_image(request: Request):
     Generate poster image using server-side HTML-to-image conversion
     Following the same architecture as video lesson slide image generation
     """
+    import time
+    start_time = time.time()
+    request_timestamp = datetime.now().isoformat()
+    
     try:
-        logger.info("📷 [POSTER_IMAGE] Starting poster image generation request")
+        logger.info(f"📷 [POSTER_IMAGE] ========== BACKEND POSTER GENERATION STARTED ==========")
+        logger.info(f"📷 [POSTER_IMAGE] Timestamp: {request_timestamp}")
+        logger.info(f"📷 [POSTER_IMAGE] Request method: {request.method}")
+        logger.info(f"📷 [POSTER_IMAGE] Request URL: {request.url}")
+        logger.info(f"📷 [POSTER_IMAGE] Client host: {request.client.host if request.client else 'unknown'}")
+        logger.info(f"📷 [POSTER_IMAGE] User agent: {request.headers.get('user-agent', 'unknown')}")
         
         # Parse request data
-        poster_data = await request.json()
-        logger.info("📷 [POSTER_IMAGE] Received poster data")
+        logger.info("📷 [POSTER_IMAGE] === PARSING REQUEST DATA ===")
+        try:
+            poster_data = await request.json()
+            logger.info("📷 [POSTER_IMAGE] ✅ Successfully parsed JSON request body")
+        except Exception as parse_error:
+            logger.error(f"📷 [POSTER_IMAGE] ❌ Failed to parse JSON: {parse_error}")
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Invalid JSON in request body: {str(parse_error)}"}
+            )
+        
+        # Log detailed request data
+        logger.info("📷 [POSTER_IMAGE] === REQUEST DATA ANALYSIS ===")
+        logger.info(f"📷 [POSTER_IMAGE] Total fields in request: {len(poster_data)}")
+        
+        # Log each field with type and length information
+        for key, value in poster_data.items():
+            if key == 'speakerImageSrc' and value and len(str(value)) > 100:
+                logger.info(f"📷 [POSTER_IMAGE]   - {key}: [base64 data, length: {len(str(value))} chars]")
+            else:
+                logger.info(f"📷 [POSTER_IMAGE]   - {key}: \"{str(value)[:100]}{'...' if len(str(value)) > 100 else ''}\" (type: {type(value).__name__}, length: {len(str(value))})")
+        
+        # Extract session ID if provided by frontend
+        session_id = poster_data.get('sessionId', f"backend-{int(time.time())}-{uuid.uuid4().hex[:8]}")
+        logger.info(f"📷 [POSTER_IMAGE] Session ID: {session_id}")
         
         # Validate required fields
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === FIELD VALIDATION ===")
         required_fields = ['eventName', 'mainSpeaker', 'date', 'topic']
-        missing_fields = [field for field in required_fields if not poster_data.get(field)]
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Required fields: {required_fields}")
+        
+        validation_results = {}
+        for field in required_fields:
+            value = poster_data.get(field)
+            is_valid = bool(value and str(value).strip())
+            validation_results[field] = {'value': value, 'valid': is_valid}
+            status = "✅ VALID" if is_valid else "❌ INVALID"
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - {field}: {status} (value: \"{str(value)[:50]}{'...' if len(str(value)) > 50 else ''}\")") 
+        
+        missing_fields = [field for field, result in validation_results.items() if not result['valid']]
         
         if missing_fields:
             error_msg = f"Missing required fields: {', '.join(missing_fields)}"
-            logger.error(f"📷 [POSTER_IMAGE] {error_msg}")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ VALIDATION FAILED: {error_msg}")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] Validation details: {validation_results}")
             return JSONResponse(
                 status_code=400, 
-                content={"error": error_msg}
+                content={"error": error_msg, "validation_details": validation_results}
             )
         
-        logger.info(f"📷 [POSTER_IMAGE] Validated required fields successfully")
-        logger.info(f"📷 [POSTER_IMAGE] Event: {poster_data.get('eventName')}")
-        logger.info(f"📷 [POSTER_IMAGE] Speaker: {poster_data.get('mainSpeaker')}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ All required fields validated successfully")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === KEY POSTER DATA ===")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Event: {poster_data.get('eventName')[:100]}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Speaker: {poster_data.get('mainSpeaker')[:100]}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Date: {poster_data.get('date')}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Topic: {poster_data.get('topic')[:100]}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Format: {poster_data.get('format', 'not specified')}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Dimensions: {poster_data.get('dimensions', 'not specified')}")
         
         # Generate unique filename
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === FILE SYSTEM SETUP ===")
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         poster_id = str(uuid.uuid4())[:8]
         output_filename = f"poster_image_{timestamp}_{poster_id}.png"
         
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Filename components:")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - timestamp: {timestamp}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - poster_id: {poster_id}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - output_filename: {output_filename}")
+        
         # Create output directory
         from pathlib import Path
         output_dir = Path("output/poster_images")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = str(output_dir / output_filename)
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Creating output directory: {output_dir.absolute()}")
         
-        logger.info(f"📷 [POSTER_IMAGE] Output path: {output_path}")
+        try:
+            output_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ Output directory created/verified")
+        except Exception as dir_error:
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ Failed to create output directory: {dir_error}")
+            raise
+        
+        output_path = str(output_dir / output_filename)
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Full output path: {output_path}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Directory exists: {output_dir.exists()}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Directory is writable: {os.access(output_dir, os.W_OK)}")
         
         # Use the proper template service (same pattern as slides)
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === HTML GENERATION ===")
+        html_generation_start = time.time()
+        
         try:
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Attempting to import template service...")
             from app.services.poster_template_service import poster_template_service
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ Template service imported successfully")
             
-            logger.info("📷 [POSTER_IMAGE] Using template service for HTML generation")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Calling template service to generate HTML...")
             html_content = poster_template_service.generate_poster_html(poster_data)
-            logger.info(f"📷 [POSTER_IMAGE] Generated HTML template ({len(html_content)} characters)")
             
-            # Convert HTML to PNG using the same service as slides
+            html_generation_end = time.time()
+            html_generation_duration = (html_generation_end - html_generation_start) * 1000
+            
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ HTML generated via template service")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] HTML generation duration: {html_generation_duration:.2f}ms")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] HTML content length: {len(html_content)} characters")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] HTML preview (first 200 chars): {html_content[:200]}...")
+        
+        # Convert HTML to PNG using the same service as slides
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === IMAGE CONVERSION ===")
+        conversion_start = time.time()
+        
+        try:
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Importing HTML-to-image service...")
             from app.services.html_to_image_service import html_to_image_service
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ HTML-to-image service imported")
+            
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Starting HTML-to-PNG conversion...")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Conversion parameters:")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - html_content length: {len(html_content)} chars")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - output_path: {output_path}")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - template_id: poster")
             
             success = await html_to_image_service.convert_html_to_png(
                 html_content=html_content,
                 output_path=output_path,
                 template_id="poster"
             )
+            
+            conversion_end = time.time()
+            conversion_duration = (conversion_end - conversion_start) * 1000
+            
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Image conversion completed in {conversion_duration:.2f}ms")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Conversion success: {success}")
             
         except Exception as template_error:
-            logger.error(f"📷 [POSTER_IMAGE] Template service error: {template_error}")
-            logger.info("📷 [POSTER_IMAGE] Falling back to inline HTML generation")
+            html_generation_end = time.time()
+            html_generation_duration = (html_generation_end - html_generation_start) * 1000
+            
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ Template service error after {html_generation_duration:.2f}ms: {template_error}")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] Template error type: {type(template_error).__name__}")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] Template error details: {str(template_error)}")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] 🔄 Falling back to inline HTML generation")
             
             # Fallback to original method if template service fails
+            fallback_start = time.time()
             html_content = generate_poster_html_template(poster_data)
-            logger.info(f"📷 [POSTER_IMAGE] Generated HTML template (fallback) ({len(html_content)} characters)")
+            fallback_end = time.time()
+            fallback_duration = (fallback_end - fallback_start) * 1000
             
-            from app.services.html_to_image_service import html_to_image_service
-            success = await html_to_image_service.convert_html_to_png(
-                html_content=html_content,
-                output_path=output_path,
-                template_id="poster"
-            )
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ Fallback HTML generated in {fallback_duration:.2f}ms")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Fallback HTML length: {len(html_content)} characters")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Fallback HTML preview: {html_content[:200]}...")
         
-        if not success or not os.path.exists(output_path):
-            logger.error("📷 [POSTER_IMAGE] Failed to generate poster image")
+        # File validation and analysis
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === FILE VALIDATION ===")
+        
+        if not success:
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ Image conversion reported failure")
             return JSONResponse(
                 status_code=500, 
-                content={"error": "Failed to generate poster image"}
+                content={"error": "Image conversion failed", "session_id": session_id}
             )
+            
+        if not os.path.exists(output_path):
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ Output file does not exist: {output_path}")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] Directory contents: {list(output_dir.iterdir()) if output_dir.exists() else 'directory does not exist'}")
+            return JSONResponse(
+                status_code=500, 
+                content={"error": "Generated file not found", "expected_path": output_path, "session_id": session_id}
+            )
+            
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ Output file exists: {output_path}")
         
-        # Verify file was created with reasonable size
-        file_size = os.path.getsize(output_path)
-        logger.info(f"📷 [POSTER_IMAGE] Successfully generated poster image: {output_path} ({file_size} bytes)")
+        # Comprehensive file analysis
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === FILE ANALYSIS ===")
+        
+        try:
+            file_stats = os.stat(output_path)
+            file_size = file_stats.st_size
+            file_mtime = datetime.fromtimestamp(file_stats.st_mtime).isoformat()
+            
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] File statistics:")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - size: {file_size} bytes")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - modified: {file_mtime}")
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - size category: {'VERY_SMALL' if file_size < 1000 else 'SMALL' if file_size < 10000 else 'MEDIUM' if file_size < 100000 else 'LARGE'}")
+            
+            # Try to read file header to verify it's a valid image
+            try:
+                with open(output_path, 'rb') as f:
+                    header = f.read(16)
+                    header_hex = header.hex()
+                    logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - file header (hex): {header_hex}")
+                    
+                    # Check PNG signature
+                    png_signature = b'\x89PNG\r\n\x1a\n'
+                    is_png = header.startswith(png_signature)
+                    logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - PNG signature valid: {is_png}")
+                    
+            except Exception as header_error:
+                logger.warning(f"📷 [POSTER_IMAGE] [{session_id}] Could not read file header: {header_error}")
+            
+        except Exception as stat_error:
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] Could not get file stats: {stat_error}")
+            file_size = 0
         
         if file_size < 100:  # Less than 100 bytes indicates likely failure
-            logger.error(f"📷 [POSTER_IMAGE] Generated file too small: {file_size} bytes")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ Generated file too small: {file_size} bytes")
+            logger.error(f"📷 [POSTER_IMAGE] [{session_id}] This likely indicates a conversion failure")
             return JSONResponse(
                 status_code=500, 
-                content={"error": "Generated image file is too small"}
+                content={"error": "Generated image file is too small", "file_size": file_size, "session_id": session_id}
             )
+            
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ File size validation passed: {file_size} bytes")
         
         # Return image file (same pattern as slide system)
+        end_time = time.time()
+        total_duration = (end_time - start_time) * 1000
+        
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === RESPONSE PREPARATION ===")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Preparing FileResponse...")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Response parameters:")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - path: {output_path}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - media_type: image/png")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - filename: {output_filename}")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - file_size: {file_size} bytes")
+        
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === PROCESS COMPLETED SUCCESSFULLY ===")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Total processing time: {total_duration:.2f}ms")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Final file: {output_filename} ({file_size} bytes)")
+        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Success: Returning FileResponse")
+        
         return FileResponse(
             path=output_path,
             media_type="image/png",
@@ -19976,10 +20134,28 @@ async def generate_poster_image(request: Request):
         )
         
     except Exception as e:
-        logger.error(f"📷 [POSTER_IMAGE] Error generating poster image: {str(e)}", exc_info=True)
+        end_time = time.time()
+        total_duration = (end_time - start_time) * 1000
+        
+        logger.error(f"📷 [POSTER_IMAGE] ========== BACKEND PROCESS FAILED ==========")
+        logger.error(f"📷 [POSTER_IMAGE] Error time: {datetime.now().isoformat()}")
+        logger.error(f"📷 [POSTER_IMAGE] Duration before error: {total_duration:.2f}ms")
+        logger.error(f"📷 [POSTER_IMAGE] Error type: {type(e).__name__}")
+        logger.error(f"📷 [POSTER_IMAGE] Error message: {str(e)}")
+        logger.error(f"📷 [POSTER_IMAGE] Error details:", exc_info=True)
+        
+        # Try to get session_id from local scope
+        session_id = locals().get('session_id', 'unknown')
+        
         return JSONResponse(
             status_code=500, 
-            content={"error": "Internal server error during image generation"}
+            content={
+                "error": "Internal server error during image generation",
+                "error_type": type(e).__name__,
+                "error_message": str(e),
+                "session_id": session_id,
+                "duration_ms": total_duration
+            }
         )
 
 
@@ -19988,6 +20164,10 @@ def generate_poster_html_template(poster_data: dict) -> str:
     Generate HTML template for poster - mirrors slide template generation logic
     Converts EventPoster React component styles to standard HTML/CSS
     """
+    logger.info("📷 [POSTER_HTML_TEMPLATE] === INLINE HTML GENERATION (FALLBACK) ===")
+    logger.info(f"📷 [POSTER_HTML_TEMPLATE] Input data keys: {list(poster_data.keys())}")
+    
+    template_start = time.time()
     # Extract all poster fields
     event_name = poster_data.get('eventName', '')
     main_speaker = poster_data.get('mainSpeaker', '')
@@ -20328,5 +20508,12 @@ def generate_poster_html_template(poster_data: dict) -> str:
     </body>
     </html>
     '''
+    
+    template_end = time.time()
+    template_duration = (template_end - template_start) * 1000
+    
+    logger.info(f"📷 [POSTER_HTML_TEMPLATE] HTML template generated in {template_duration:.2f}ms")
+    logger.info(f"📷 [POSTER_HTML_TEMPLATE] Template length: {len(html_template)} characters")
+    logger.info(f"📷 [POSTER_HTML_TEMPLATE] Template preview: {html_template[:200]}...")
     
     return html_template
