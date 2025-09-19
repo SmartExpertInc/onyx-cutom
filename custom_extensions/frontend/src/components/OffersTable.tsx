@@ -407,21 +407,19 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           </div>
 
           {/* Create Button */}
-          <div className="px-6">
-            <Button
-              variant="download"
-              onClick={() => {
-                // Dispatch event to open create offer modal in parent component
-                window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
-                  detail: { folder: null }
-                }));
-              }}
-              className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
-            >
-              <Plus size={16} />
-              {t('interface.createOffer', 'Create Offer')}
-            </Button>
-          </div>
+          <Button
+            variant="download"
+            onClick={() => {
+              // Dispatch event to open create offer modal in parent component
+              window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+                detail: { folder: null }
+              }));
+            }}
+            className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
+          >
+            <Plus size={16} />
+            {t('interface.createOffer', 'Create Offer')}
+          </Button>
         </div>
       </div>
 

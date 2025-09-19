@@ -618,7 +618,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2 px-6">
+          <div className="flex gap-2">
             <Button
               variant="download"
               onClick={() => setShowAddMember(true)}

@@ -71,7 +71,7 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   );
 
 const ClockIcon: React.FC<{ size?: number }> = ({ size }) => (
-<svg width={15} height={15} viewBox="0 0 53 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width={30} height={30} viewBox="0 0 53 53" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M14.5833 2.91675C16.1942 2.91675 17.5 4.22258 17.5 5.83341L17.5 46.6667C17.5 48.2776 16.1942 49.5834 14.5833 49.5834L5.83333 49.5834C2.61167 49.5834 -1.83564e-08 46.9717 1.22467e-07 43.7501L1.65237e-06 8.75008C1.79319e-06 5.52842 2.61167 2.91675 5.83333 2.91675L14.5833 2.91675Z" fill="url(#paint0_linear_886_2462)"/>
     <foreignObject x="5.83325" y="-8.75" width="55.4167" height="70"><div style={{backdropFilter:'blur(4.38px)',clipPath:'url(#bgblur_0_886_2462_clip_path)',height:'100%',width:'100%'}}></div></foreignObject><g filter="url(#filter0_i_886_2462)" data-figma-bg-blur-radius="8.75">
     </g>
