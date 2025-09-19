@@ -1609,11 +1609,26 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
             
             # Ensure subtitle/content exists for templates that need it
             if template_id in ['big-image-left', 'big-image-top']:
-                if 'subtitle' not in normalized_props and 'content' in normalized_props:
-                    normalized_props['subtitle'] = normalized_props['content']
+                # If AI returned an object for content, extract fields
+                if 'content' in normalized_props and isinstance(normalized_props['content'], dict):
+                    content_obj = normalized_props['content']
+                    # Title from heading if not set
+                    if not normalized_props.get('title') and isinstance(content_obj.get('heading'), str):
+                        normalized_props['title'] = content_obj['heading']
+                    # Subtitle from text
+                    if isinstance(content_obj.get('text'), str):
+                        normalized_props['subtitle'] = content_obj['text']
+                    # Map imagePlaceholder if present
+                    if isinstance(content_obj.get('imagePlaceholder'), dict):
+                        normalized_props['imagePlaceholder'] = content_obj['imagePlaceholder']
+                    # Remove object-shaped content to avoid React errors
+                    normalized_props.pop('content', None)
                 # Ensure subtitle is different from title
-                if (normalized_props.get('subtitle') == normalized_props.get('title') and 
-                    len(normalized_props.get('subtitle', '')) > 50):
+                if (
+                    isinstance(normalized_props.get('subtitle'), str) and 
+                    normalized_props.get('subtitle') == normalized_props.get('title') and 
+                    len(normalized_props.get('subtitle', '')) > 50
+                ):
                     # If subtitle equals title and is long, use it as subtitle and create shorter title
                     full_text = normalized_props['subtitle']
                     # Extract first sentence as title

@@ -835,12 +835,12 @@ export default function LessonPresentationClient() {
       // Do not strip first line if this is JSON or was converted from JSON
       const looksLikeJson = (content || "").trim().startsWith("{");
       if (!looksLikeJson && !jsonConvertedRef.current) {
-        const parts = content.split('\n');
-        if (parts.length > 1) {
-          let trimmed = parts.slice(1).join('\n');
-          // Remove leading blank lines (one or more) at the very start
-          trimmed = trimmed.replace(/^(\s*\n)+/, '');
-          setContent(trimmed);
+      const parts = content.split('\n');
+      if (parts.length > 1) {
+        let trimmed = parts.slice(1).join('\n');
+        // Remove leading blank lines (one or more) at the very start
+        trimmed = trimmed.replace(/^(\s*\n)+/, '');
+        setContent(trimmed);
         }
       }
       setFirstLineRemoved(true);
