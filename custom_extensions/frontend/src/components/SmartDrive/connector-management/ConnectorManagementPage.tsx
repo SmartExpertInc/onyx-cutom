@@ -46,10 +46,10 @@ const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 305, 
       case 'paused':
         return (
           <linearGradient id="paint0_linear_blue" x1="0.996595" y1="26.2681" x2="34.3582" y2="26.2681" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#145CC7"/>
-            <stop offset="0.297014" stopColor="#D97706"/>
-            <stop offset="0.666416" stopColor="#B45309" stopOpacity="0.95"/>
-            <stop offset="1" stopColor="#92400E" stopOpacity="0.71"/>
+            <stop stopColor="#3B82F6"/>
+            <stop offset="0.297014" stopColor="#2563EB"/>
+            <stop offset="0.666416" stopColor="#1D4ED8" stopOpacity="0.95"/>
+            <stop offset="1" stopColor="#1E40AF" stopOpacity="0.71"/>
           </linearGradient>
         );
       case 'invalid':
@@ -417,7 +417,7 @@ export default function ConnectorManagementPage({
               className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 tooltipMessage 
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                  : 'bg-yellow-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg'
+                  : 'bg-yellow-600 text-white hover:bg-yellow-700 shadow-md hover:shadow-lg'
               }`}
             >
               <RefreshCwIcon className="w-5 h-5" />
@@ -445,7 +445,7 @@ export default function ConnectorManagementPage({
               disabled={isDeleting || isIndexing}
               className={`px-6 py-3 rounded-full flex items-center gap-3 transition-all duration-200 ${
                 isActive 
-                  ? 'bg-blue-600 text-white hover:bg-yellow-700 shadow-md hover:shadow-lg' 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg' 
                   : 'bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg'
               }`}
             >
