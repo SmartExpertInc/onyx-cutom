@@ -27,10 +27,11 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     name: 'Dark Purple',
     colors: {
       backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
-      titleColor: '#ffffff',
-      subtitleColor: '#d9e1ff',
-      contentColor: '#d9e1ff',
-      accentColor: '#f35657'
+      titleColor: '#ffffff',        // Белый для заголовков на темном фоне
+      subtitleColor: '#ffffff',     // Белый для описаний на темном фоне  
+      contentColor: '#000000',      // Черный для обычного текста на белом фоне
+      accentColor: '#f35657',       // Красный акцент
+      borderColor: '#e5e7eb'        // Светло-серая граница
     },
     fonts: {
       titleFont: 'Lora, serif',

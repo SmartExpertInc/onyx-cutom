@@ -184,7 +184,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   // Header section styles (using dark purple theme background)
   const headerStyles: React.CSSProperties = {
     background: currentTheme.colors.backgroundColor, // Use theme background gradient
-    padding: '64px 64px 48px 64px',
+    padding: '48px 64px 48px 64px',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -251,7 +251,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   const labelStyles: React.CSSProperties = {
     fontSize: '1.5rem',
-    color: currentTheme.colors.titleColor, // Use theme title color
+    color: currentTheme.colors.contentColor, // Use content color (black) for labels on white background
     marginBottom: '12px',
     fontFamily: currentTheme.fonts.titleFont,
     wordWrap: 'break-word',
