@@ -694,15 +694,110 @@ export default function LessonPresentationClient() {
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
+  // Track if we've converted a JSON preview to markdown to avoid loops
+  const jsonConvertedRef = useRef<boolean>(false);
+
+  // Helper: detect if a string is a single JSON object with slides
+  const tryParsePresentationJson = (text: string): any | null => {
+    try {
+      const trimmed = (text || "").trim();
+      if (!trimmed.startsWith("{")) return null;
+      const obj = JSON.parse(trimmed);
+      if (obj && typeof obj === "object" && Array.isArray(obj.slides)) return obj;
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // Helper: convert JSON SlideDeckDetails to markdown for current preview UI
+  const convertPresentationJsonToMarkdown = (data: any): string => {
+    if (!data || !Array.isArray(data.slides)) return content;
+    const slidesMd: string[] = data.slides.map((s: any, idx: number) => {
+      const num = s?.slideNumber || idx + 1;
+      const title = (s?.slideTitle || `Slide ${num}`).toString();
+      const templateId = (s?.templateId || "content-slide").toString();
+      const props = s?.props || {};
+
+      const lines: string[] = [];
+      // Title line with layout hint
+      lines.push(`**Slide ${num}: ${title}** \`${templateId}\``);
+
+      // Minimal content reconstruction per common templates
+      if (props.title && typeof props.title === "string") {
+        lines.push(`## ${props.title}`);
+      }
+
+      if (Array.isArray(props.bullets) && props.bullets.length) {
+        lines.push(...props.bullets.map((b: any) => `- ${String(b)}`));
+      }
+
+      if ((props.leftTitle || props.rightTitle) || (props.leftContent || props.rightContent)) {
+        if (props.leftTitle) lines.push(`### ${props.leftTitle}`);
+        if (props.leftContent) lines.push(String(props.leftContent));
+        if (props.rightTitle) lines.push(`### ${props.rightTitle}`);
+        if (props.rightContent) lines.push(String(props.rightContent));
+      }
+
+      // Big numbers or metrics-like content
+      if (Array.isArray(props.boxes) && props.boxes.length) {
+        // four-box-grid style
+        props.boxes.forEach((box: any, i: number) => {
+          if (box?.title) lines.push(`- ${i + 1}. ${box.title}`);
+          if (box?.description) lines.push(`${box.description}`);
+        });
+      }
+
+      if (Array.isArray(props.steps) && props.steps.length) {
+        props.steps.forEach((step: any, i: number) => {
+          const t = step?.title || step?.label || `Step ${i + 1}`;
+          const d = step?.description || step?.text || "";
+          lines.push(`${i + 1}. ${t}${d ? ": " + d : ""}`);
+        });
+      }
+
+      if (props.subtitle && typeof props.subtitle === "string") {
+        lines.push(String(props.subtitle));
+      }
+
+      // Image placeholder hint if present
+      if (props.imagePrompt) {
+        lines.push(`[IMAGE_PLACEHOLDER: MEDIUM | CENTER | ${String(props.imagePrompt).slice(0, 140)}]`);
+      }
+
+      return lines.join("\n\n");
+    });
+
+    return slidesMd.join("\n\n---\n\n");
+  };
+
+  // If stream completed and preview is JSON, convert it to markdown once
+  useEffect(() => {
+    if (!streamDone) return;
+    if (jsonConvertedRef.current) return;
+    const json = tryParsePresentationJson(content);
+    if (json) {
+      const md = convertPresentationJsonToMarkdown(json);
+      if (md && md.trim()) {
+        jsonConvertedRef.current = true;
+        setContent(md);
+      }
+    }
+  }, [streamDone, content]);
+
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
-      const parts = content.split('\n');
-      if (parts.length > 1) {
-        let trimmed = parts.slice(1).join('\n');
-        // Remove leading blank lines (one or more) at the very start
-        trimmed = trimmed.replace(/^(\s*\n)+/, '');
-        setContent(trimmed);
+      // Do not strip first line if this is JSON or was converted from JSON
+      const looksLikeJson = (content || "").trim().startsWith("{");
+      if (!looksLikeJson && !jsonConvertedRef.current) {
+        const parts = content.split('\n');
+        if (parts.length > 1) {
+          let trimmed = parts.slice(1).join('\n');
+          // Remove leading blank lines (one or more) at the very start
+          trimmed = trimmed.replace(/^(\s*\n)+/, '');
+          setContent(trimmed);
+        }
       }
       setFirstLineRemoved(true);
     }
@@ -726,6 +821,12 @@ export default function LessonPresentationClient() {
     // Replicate slide parsing logic used in the UI to count slides
     const countParsedSlides = (text: string): number => {
       if (!text || !text.trim()) return 0;
+
+      // Handle JSON preview directly
+      const json = tryParsePresentationJson(text);
+      if (json && Array.isArray(json.slides)) {
+        return json.slides.length;
+      }
 
       // Clean the content first
       const cleanedText = cleanContent(text);
