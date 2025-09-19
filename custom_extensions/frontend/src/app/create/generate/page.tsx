@@ -1075,7 +1075,7 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-8 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
       <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
@@ -1172,18 +1172,16 @@ function GenerateProductPicker() {
 
         {/* Connector context indicator */}
         {isFromConnectors && connectorContext && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
+          <div className="bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-md">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
                 </svg>
-              </div>
               <div>
-                <h3 className="text-lg font-semibold text-purple-900">
+                <h3 className="text-lg font-semibold text-blue-600">
                   {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
                 </h3>
-                <p className="text-sm text-purple-700 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
                 </p>
               </div>
@@ -1192,7 +1190,7 @@ function GenerateProductPicker() {
               {connectorContext.connectorSources.map((source, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
                 >
                   {source}
                 </span>
@@ -1222,18 +1220,16 @@ function GenerateProductPicker() {
 
         {/* Connector context indicator */}
         {isFromConnectors && connectorContext && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6 mb-6 shadow-sm">
+          <div className="bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
                 </svg>
-              </div>
               <div>
-                <h3 className="text-lg font-semibold text-purple-900">
+                <h3 className="text-lg font-semibold text-blue-600">
                   {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
                 </h3>
-                <p className="text-sm text-purple-700 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
                 </p>
               </div>
@@ -1242,7 +1238,7 @@ function GenerateProductPicker() {
               {connectorContext.connectorSources.map((source, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
                 >
                   {source}
                 </span>
@@ -1252,7 +1248,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-1 md:gap-2 lg:gap-2 mb-1 px-2">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-2 sm:gap-2 md:gap-3 lg:gap-4 mb-1 px-2">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
@@ -1907,7 +1903,7 @@ function GenerateProductPicker() {
           (activeProduct === "Presentation" && useExistingOutline === false)) && (
           <div className="flex flex-col items-center gap-3 w-full max-w-3xl">
             {/* Simple prompt input */}
-            <div className="w-full">
+            <div className="w-full relative">
             <Textarea
               ref={promptRef}
               value={prompt}
@@ -1915,14 +1911,14 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 relative z-10"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={6}
             />
             </div>
 
             {/* Simple examples grid */}
-            <div className={`w-full mt-5 transition-opacity duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}>
+            <div className={`w-full mt-5 transition-all duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'opacity-100 max-h-screen'}`}>
             <div className="w-full relative z-0">
               <div className="flex items-center justify-center mb-2 relative">
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
@@ -1972,7 +1968,7 @@ function GenerateProductPicker() {
           (activeProduct === "Quiz" && useExistingQuizOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Presentation" && useExistingOutline === true && selectedOutlineId && selectedLesson) ||
           (activeProduct === "Presentation" && useExistingOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors))) && (
-          <div className="flex justify-center mt-3">
+          <div className="flex justify-center mt-3 mb-4">
             <Button
               onClick={() => {
                 switch (activeProduct) {

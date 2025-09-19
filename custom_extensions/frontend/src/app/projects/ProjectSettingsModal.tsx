@@ -516,7 +516,7 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
           </Button>
           <Button
             variant="download"
-            className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
+            className={`px-6 py-2 font-semibold transition-all rounded-full duration-200 ${
               saving
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'

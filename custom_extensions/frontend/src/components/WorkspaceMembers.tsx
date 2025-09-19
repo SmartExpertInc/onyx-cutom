@@ -562,7 +562,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
   return (
     <div className="min-h-screen space-y-3">
       {/* Workspace Header and Selector */}
-      <div className="rounded-lg p-4">
+      <div className="rounded-lg py-4">
         <div className="flex flex-col gap-4">
           {/* Workspace Selector (only show if no specific workspaceId provided) */}
           {!workspaceId && workspaces.length > 1 && (
