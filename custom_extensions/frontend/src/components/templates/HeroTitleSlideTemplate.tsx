@@ -150,7 +150,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   // Use theme colors instead of props - ensure we always have a valid theme
   const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
+  const { backgroundColor: themeBg, titleColor, subtitleColor, accentColor } = currentTheme.colors;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
@@ -169,7 +169,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    background: backgroundColor,
+    background: themeBg,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
