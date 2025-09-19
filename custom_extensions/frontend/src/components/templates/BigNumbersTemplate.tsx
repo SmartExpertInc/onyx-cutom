@@ -238,10 +238,6 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     alignItems: 'center',
     textAlign: 'center',
     padding: '32px 24px',
-    background: 'white',
-    borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: `1px solid ${currentTheme.colors.borderColor || '#e5e7eb'}`,
   };
 
   const valueStyles: React.CSSProperties = {

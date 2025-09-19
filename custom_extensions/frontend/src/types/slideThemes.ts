@@ -33,8 +33,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#f35657'
     },
     fonts: {
-      titleFont: 'Kanit, sans-serif',
-      contentFont: 'Martel Sans, sans-serif',
+      titleFont: 'Lora, serif',
+      contentFont: 'Lora, serif',
       titleSize: '45px',
       contentSize: '18px'
     }

@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @import "../styles/positioning.css";
 
+/* Lora Font Family - Used in Dark Purple Theme */
+@font-face {
+  font-family: 'Lora';
+  src: url('/fonts/Lora-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Mont Font Family - Used in Chudo Themes */
 @font-face {
   font-family: 'Mont Regular';
