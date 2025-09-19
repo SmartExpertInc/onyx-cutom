@@ -298,7 +298,11 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             <button
               onClick={handleApplyEdit}
               disabled={!editPrompt.trim() || loadingEdit}
-              className="px-6 py-2 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
+              className="px-6 py-3 rounded-full text-white text-sm font-medium shadow-lg hover:shadow-xl focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-all duration-200"
+              style={{
+                background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                fontWeight: 500
+              }}
             >
               {loadingEdit ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>

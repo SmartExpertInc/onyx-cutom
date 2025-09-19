@@ -1863,7 +1863,11 @@ export default function ProjectInstanceViewPage() {
                 <button
                   onClick={handlePdfDownload}
                   disabled={isSaving}
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-blue-600/40 backdrop-blur-sm border border-blue-500/20 hover:shadow-md focus:outline-none disabled:opacity-60 flex items-center transition-all duration-200 cursor-pointer"
+                  className="px-6 py-3 text-sm font-medium rounded-full text-white shadow-lg hover:shadow-xl focus:outline-none disabled:opacity-60 flex items-center transition-all duration-200 cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                    fontWeight: 500
+                  }}
                   title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
                 >
                  <Download size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
@@ -1875,7 +1879,11 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-purple-600/40 backdrop-blur-sm border border-purple-500/20 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                className="px-6 py-3 text-sm font-medium rounded-full text-white shadow-lg hover:shadow-xl focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                style={{
+                  background: 'linear-gradient(90deg, #8B5CF6 55.31%, #6D28D9 100%)',
+                  fontWeight: 500
+                }}
                 title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
               >
                 <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
