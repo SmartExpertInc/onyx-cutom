@@ -1285,31 +1285,27 @@ export default function LessonPresentationClient() {
 
   const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
 
-  // Build a live preview markdown from partial JSON during streaming
-  const getPreviewTextFromPartialJson = (text: string): string | null => {
+  // Extract slide objects from partial JSON streaming buffer
+  const extractSlidesFromPartialJson = (text: string): any[] => {
     try {
       const s = (text || "");
       const slidesKeyIdx = s.indexOf('"slides"');
-      if (slidesKeyIdx < 0) return null;
+      if (slidesKeyIdx < 0) return [];
       const arrayStart = s.indexOf('[', slidesKeyIdx);
-      if (arrayStart < 0) return null;
+      if (arrayStart < 0) return [];
 
-      // Collect complete slide objects from the slides array
       const slides: any[] = [];
       let i = arrayStart + 1;
       const n = s.length;
       while (i < n) {
-        // Skip whitespace and commas
         while (i < n && (s[i] === ' ' || s[i] === '\n' || s[i] === '\r' || s[i] === '\t' || s[i] === ',')) i++;
         if (i >= n) break;
-        if (s[i] === ']') break; // end of array
+        if (s[i] === ']') break;
         if (s[i] !== '{') {
-          // Not a slide object start; search forward for next '{' or end
           const nextObj = s.indexOf('{', i);
           if (nextObj < 0) break;
           i = nextObj;
         }
-        // Parse a balanced JSON object starting at i
         let depth = 0;
         let start = i;
         let end = -1;
@@ -1327,14 +1323,19 @@ export default function LessonPresentationClient() {
           try {
             const slideObj = JSON.parse(objStr);
             slides.push(slideObj);
-          } catch {
-            // ignore malformed partial
-          }
+          } catch { /* ignore */ }
         } else {
-          break; // incomplete object, wait for more
+          break;
         }
       }
+      return slides;
+    } catch { return []; }
+  };
 
+  // Build a live preview markdown from partial JSON during streaming
+  const getPreviewTextFromPartialJson = (text: string): string | null => {
+    try {
+      const slides = extractSlidesFromPartialJson(text);
       if (!slides.length) return null;
       const tmp = { slides };
       return convertPresentationJsonToMarkdown(tmp);
@@ -1345,9 +1346,7 @@ export default function LessonPresentationClient() {
 
   // Decide what to render in the preview during streaming
   const getLivePreviewText = (text: string): string => {
-    // If we already converted full JSON after stream end, content is markdown
     if (jsonConvertedRef.current) return text;
-    // Try to extract slides from partial JSON stream
     const md = getPreviewTextFromPartialJson(text);
     if (md && md.trim()) return md;
     return text;
@@ -1664,11 +1663,22 @@ export default function LessonPresentationClient() {
                           {/* Preview bullets under title (from original JSON if available) */}
                           {(() => {
                             try {
-                              if (!originalJsonResponse) return null;
-                              const obj = JSON.parse(originalJsonResponse);
-                              if (!obj || !Array.isArray(obj.slides)) return null;
-                              const slideObj = obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1));
-                              const bullets: string[] = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              // Prefer full original JSON (post-stream). Otherwise, use partial slides during stream
+                              let bullets: string[] = [];
+                              if (originalJsonResponse) {
+                                const obj = JSON.parse(originalJsonResponse);
+                                const slideObj = Array.isArray(obj?.slides)
+                                  ? obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                  : null;
+                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              }
+                              if (!bullets.length) {
+                                const partialSlides = extractSlidesFromPartialJson(content);
+                                const slideObj = Array.isArray(partialSlides)
+                                  ? partialSlides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                  : null;
+                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              }
                               if (!bullets.length) return null;
                               return (
                                 <ul className="mt-1 ml-1 list-disc list-inside text-sm text-gray-700 space-y-0.5">
