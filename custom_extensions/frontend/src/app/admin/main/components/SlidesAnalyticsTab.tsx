@@ -276,24 +276,30 @@ const SlidesAnalyticsTab: React.FC = () => {
           {/* Template Type Checklist */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">Select Template Types</label>
-            <div className="flex flex-wrap gap-3">
-              {availableTemplates.map(tmpl => (
-                <label key={tmpl.id} className="flex items-center space-x-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={selectedTemplateIds.includes(tmpl.id)}
-                    onChange={e => {
+            <div className="flex flex-wrap gap-2">
+              {availableTemplates.map(tmpl => {
+                const isSelected = selectedTemplateIds.includes(tmpl.id);
+                return (
+                  <button
+                    key={tmpl.id}
+                    type="button"
+                    onClick={() => {
                       setSelectedTemplateIds(ids =>
-                        e.target.checked
-                          ? [...ids, tmpl.id]
-                          : ids.filter(id => id !== tmpl.id)
+                        isSelected
+                          ? ids.filter(id => id !== tmpl.id)
+                          : [...ids, tmpl.id]               
                       );
                     }}
-                    className="form-checkbox text-blue-600"
-                  />
-                  <span>{tmpl.name || tmpl.id}</span>
-                </label>
-              ))}
+                    className={`px-3 py-1 rounded-full text-sm border transition
+                      ${isSelected 
+                        ? "bg-blue-600 text-white border-blue-600" 
+                        : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                      }`}
+                  >
+                    {tmpl.name || tmpl.id}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -302,7 +308,7 @@ const SlidesAnalyticsTab: React.FC = () => {
       {/* Bar chart */}
       <div className="flex gap-6 mb-6">
         <div className="w-full">
-          <SlideTypeUsageBarChart template_ids={selectedTemplateIds} />
+          <SlideTypeUsageBarChart template_ids={selectedTemplateIds} start={dateRange.from} end={dateRange.to} />
         </div>
       </div>
 

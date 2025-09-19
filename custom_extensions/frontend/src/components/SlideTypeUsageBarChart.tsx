@@ -15,11 +15,13 @@ interface SlidesAnalyticsResponse {
 
 interface SlideTypeUsageBarChartProps {
   template_ids: string[];
+  start: string;
+  end: string;
 }
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids }) => {
+const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids, start, end }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [allUsersData, setAllUsersData] = useState<SlidesAnalyticsResponse | null>(null);
@@ -30,7 +32,13 @@ const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ templat
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${CUSTOM_BACKEND_URL}/admin/slides-analytics`, {
+        let url = `${CUSTOM_BACKEND_URL}/admin/slides-analytics`;
+        const params = new URLSearchParams();
+        if (start) params.append('start', start);
+        if (end) params.append('end', end);
+        if (params.toString()) url += `?${params.toString()}`;
+
+        const res = await fetch(url, {
           credentials: 'same-origin',
         });
         if (!res.ok) throw new Error(`Failed analytics: ${res.status}`);
