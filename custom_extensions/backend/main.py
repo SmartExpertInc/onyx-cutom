@@ -12313,19 +12313,20 @@ Return ONLY the JSON object.
                     dynamic_instructions=component_specific_instructions,
                     target_json_example=llm_json_example
                 )
+        # Add fast path for presentations (Slide Deck and Video Lesson Presentation) 
         elif selected_design_template.component_name in [COMPONENT_NAME_SLIDE_DECK, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION]:
-            # Fast path: if aiResponse is already a valid slide deck JSON with 'slides', bypass LLM parsing
             try:
-                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Slide Deck: {str(project_data.aiResponse)[:200]}...")
-                cached_json = json.loads(project_data.aiResponse.strip()) if isinstance(project_data.aiResponse, str) else project_data.aiResponse
-                if isinstance(cached_json, dict) and 'slides' in cached_json and isinstance(cached_json['slides'], list):
-                    logger.info(f"[FAST_PATH] Slide Deck JSON detected with {len(cached_json['slides'])} slides, bypassing LLM parsing")
-                    cached_json['slides'] = normalize_slide_props(cached_json.get('slides', []), selected_design_template.component_name)
-                    if selected_design_template.component_name == COMPONENT_NAME_SLIDE_DECK and 'hasVoiceover' in cached_json:
-                        cached_json.pop('hasVoiceover', None)
+                logger.info(f"[FAST_PATH_DEBUG] Checking aiResponse for Presentation: {project_data.aiResponse[:200]}...")
+                cached_json = json.loads(project_data.aiResponse.strip())
+                logger.info(f"[FAST_PATH_DEBUG] JSON parsed successfully, type: {type(cached_json)}")
+                if isinstance(cached_json, dict) and "slides" in cached_json:
+                    logger.info(f"[FAST_PATH_DEBUG] JSON has slides field with {len(cached_json.get('slides', []))} slides")
+                    logger.info(f"[FAST_PATH] Presentation JSON detected, bypassing LLM parsing for {project_data.projectName}")
+                    
                     parsed_content_model_instance = SlideDeckDetails(**cached_json)
+                    logger.info(f"[FAST_PATH_DEBUG] SlideDeckDetails created successfully with {len(parsed_content_model_instance.slides)} slides")
                 else:
-                    logger.info(f"[FAST_PATH_DEBUG] Not a valid slide deck JSON, falling back to LLM parsing")
+                    logger.info(f"[FAST_PATH_DEBUG] JSON doesn't have slides, falling back to LLM parsing")
                     parsed_content_model_instance = await parse_ai_response_with_llm(
                         ai_response=project_data.aiResponse,
                         project_name=project_data.projectName,
@@ -12334,8 +12335,8 @@ Return ONLY the JSON object.
                         dynamic_instructions=component_specific_instructions,
                         target_json_example=llm_json_example
                     )
-            except Exception as e:
-                logger.info(f"[FAST_PATH] Slide deck JSON validation failed ({e}), falling back to LLM parsing")
+            except (json.JSONDecodeError, KeyError, Exception) as e:
+                logger.info(f"[FAST_PATH] Presentation JSON validation failed ({e}), falling back to LLM parsing")
                 parsed_content_model_instance = await parse_ai_response_with_llm(
                     ai_response=project_data.aiResponse,
                     project_name=project_data.projectName,
@@ -17197,6 +17198,25 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
             # Continue with original text if decompression fails
     
     wizard_message = "WIZARD_REQUEST\n" + json.dumps(wizard_dict) + "\n" + f"CRITICAL LANGUAGE INSTRUCTION: You MUST generate your ENTIRE response in {payload.language} language only. Ignore the language of any prompt text - respond ONLY in {payload.language}. This is a mandatory requirement that overrides all other considerations."
+    
+    # Force JSON-ONLY preview output for Presentation to enable immediate parsed preview (like Course Outline)
+    try:
+        # Get the appropriate JSON example based on whether this is a video lesson
+        is_video_lesson = payload.productType == "video_lesson_presentation"
+        json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video_lesson else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
+        
+        json_preview_instructions = f"""
+
+CRITICAL PREVIEW OUTPUT FORMAT (JSON-ONLY):
+You MUST output ONLY a single JSON object for the Presentation preview, strictly following this example structure:
+{json_example}
+Do NOT include code fences, markdown or extra commentary. Return JSON object only.
+This enables immediate parsing without additional LLM calls during finalization.
+"""
+        wizard_message = wizard_message + json_preview_instructions
+        logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
+    except Exception as e:
+        logger.warning(f"[PRESENTATION_PREVIEW_JSON_INSTR] Failed to append JSON-only preview instructions: {e}")
 
     async def streamer():
         assistant_reply: str = ""
@@ -17267,42 +17287,13 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
                 
                 logger.info(f"[HYBRID_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
                 
-                # Try to parse Slide Deck JSON for preview (so we can skip parsing on finalize)
-                try:
-                    is_video = is_video_lesson
-                    target_json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
-                    dynamic_instructions = "Parse the entire assistant text into a valid SlideDeckDetails JSON with a 'slides' array. Return ONLY JSON."
-
-                    parsed_instance = await parse_ai_response_with_llm(
-                        ai_response=assistant_reply,
-                        project_name=wizard_dict.get("lessonTitle") or "Lesson Presentation",
-                        target_model=SlideDeckDetails,
-                        default_error_model_instance=SlideDeckDetails(lessonTitle="LLM Parsing Error", slides=[]),
-                        dynamic_instructions=dynamic_instructions,
-                        target_json_example=target_json_example,
-                    )
-
-                    deck_dict = parsed_instance.model_dump(mode='json', exclude_none=True)
-                    if 'slides' in deck_dict and deck_dict['slides']:
-                        deck_dict['slides'] = normalize_slide_props(deck_dict['slides'], COMPONENT_NAME_VIDEO_LESSON_PRESENTATION if is_video else COMPONENT_NAME_SLIDE_DECK)
-                    if not is_video and 'hasVoiceover' in deck_dict:
-                        deck_dict.pop('hasVoiceover', None)
-
-                    # Cache JSON for finalize
-                    if chat_id:
-                        OUTLINE_PREVIEW_CACHE[chat_id] = json.dumps(deck_dict)
-                        logger.info(f"[LESSON_CACHE] Cached JSON preview for chat_id={chat_id}, slides={len(deck_dict.get('slides', []))}")
-
-                    yield (json.dumps({"type": "done", "slideDeck": deck_dict, "raw": assistant_reply}) + "\n").encode()
-                    return
-                except Exception as e:
-                    logger.error(f"[HYBRID_PREVIEW_PARSE_ERROR] Failed to parse SlideDeck JSON in preview: {e}", exc_info=True)
-                    # Cache raw for finalize fallback
-                    if chat_id:
-                        OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
-                        logger.info(f"[LESSON_CACHE] Cached raw preview for chat_id={chat_id}, length={len(assistant_reply)}")
-                    yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                    return
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
                 
             except Exception as e:
                 logger.error(f"[HYBRID_STREAM_ERROR] Error in hybrid streaming: {e}", exc_info=True)
@@ -17336,42 +17327,13 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
                 
                 logger.info(f"[LESSON_OPENAI_STREAM] Stream completed: {chunks_received} chunks, {len(assistant_reply)} chars total")
                 
-                # Try to parse Slide Deck JSON for preview (so we can skip parsing on finalize)
-                try:
-                    is_video = is_video_lesson
-                    target_json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
-                    dynamic_instructions = "Parse the entire assistant text into a valid SlideDeckDetails JSON with a 'slides' array. Return ONLY JSON."
-
-                    parsed_instance = await parse_ai_response_with_llm(
-                        ai_response=assistant_reply,
-                        project_name=wizard_dict.get("lessonTitle") or "Lesson Presentation",
-                        target_model=SlideDeckDetails,
-                        default_error_model_instance=SlideDeckDetails(lessonTitle="LLM Parsing Error", slides=[]),
-                        dynamic_instructions=dynamic_instructions,
-                        target_json_example=target_json_example,
-                    )
-
-                    deck_dict = parsed_instance.model_dump(mode='json', exclude_none=True)
-                    if 'slides' in deck_dict and deck_dict['slides']:
-                        deck_dict['slides'] = normalize_slide_props(deck_dict['slides'], COMPONENT_NAME_VIDEO_LESSON_PRESENTATION if is_video else COMPONENT_NAME_SLIDE_DECK)
-                    if not is_video and 'hasVoiceover' in deck_dict:
-                        deck_dict.pop('hasVoiceover', None)
-
-                    # Cache JSON for finalize
-                    if chat_id:
-                        OUTLINE_PREVIEW_CACHE[chat_id] = json.dumps(deck_dict)
-                        logger.info(f"[LESSON_CACHE] Cached JSON preview for chat_id={chat_id}, slides={len(deck_dict.get('slides', []))}")
-
-                    yield (json.dumps({"type": "done", "slideDeck": deck_dict, "raw": assistant_reply}) + "\n").encode()
-                    return
-                except Exception as e:
-                    logger.error(f"[OPENAI_PREVIEW_PARSE_ERROR] Failed to parse SlideDeck JSON in preview: {e}", exc_info=True)
-                    # Cache raw for finalize fallback
-                    if chat_id:
-                        OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
-                        logger.info(f"[LESSON_CACHE] Cached raw preview for chat_id={chat_id}, length={len(assistant_reply)}")
-                    yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
-                    return
+                # Cache for potential finalize step if needed
+                if chat_id:
+                    OUTLINE_PREVIEW_CACHE[chat_id] = assistant_reply
+                    logger.info(f"[LESSON_CACHE] Cached preview for chat_id={chat_id}, length={len(assistant_reply)}")
+                
+                yield (json.dumps({"type": "done", "content": assistant_reply}) + "\n").encode()
+                return
                 
             except Exception as e:
                 logger.error(f"[LESSON_OPENAI_STREAM_ERROR] Error in OpenAI streaming: {e}", exc_info=True)

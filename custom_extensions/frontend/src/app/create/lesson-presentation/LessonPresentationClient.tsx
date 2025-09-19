@@ -15,7 +15,6 @@ import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
-import { SmartSlideDeckViewer } from "../../../components/SmartSlideDeckViewer";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -225,7 +224,6 @@ export default function LessonPresentationClient() {
 
   // Core state for lesson generation
   const [content, setContent] = useState<string>("");
-  const [previewDeck, setPreviewDeck] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false); // Used for footer button state
@@ -527,7 +525,6 @@ export default function LessonPresentationClient() {
         setLoading(true);
         setError(null);
         setContent("");
-        setPreviewDeck(null);
         setTextareaVisible(true);
         let gotFirstChunk = false;
 
@@ -634,9 +631,6 @@ export default function LessonPresentationClient() {
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
                 } else if (pkt.type === "done") {
-                  if (pkt.slideDeck) {
-                    setPreviewDeck(pkt.slideDeck);
-                  }
                   setStreamDone(true);
                   break;
                 } else if (pkt.type === "error") {
@@ -702,7 +696,6 @@ export default function LessonPresentationClient() {
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
-    if (previewDeck) return; // when we have JSON deck, skip markdown cleanup
     if (streamDone && !firstLineRemoved) {
       const parts = content.split('\n');
       if (parts.length > 1) {
@@ -713,11 +706,10 @@ export default function LessonPresentationClient() {
       }
       setFirstLineRemoved(true);
     }
-  }, [streamDone, firstLineRemoved, content, previewDeck]);
+  }, [streamDone, firstLineRemoved, content]);
 
   // If the stream completed but no slides were parsed (preview empty), automatically restart generation
   useEffect(() => {
-    if (previewDeck) return; // JSON deck present; no restart needed
     if (!streamDone) return;
 
     // Don't trigger restart logic if we're already loading or generating
@@ -814,7 +806,7 @@ export default function LessonPresentationClient() {
           outlineProjectId: selectedOutlineId || undefined,
           lessonTitle: derivedTitle,
           lengthRange: lengthRangeForOption(lengthOption),
-          aiResponse: previewDeck ? JSON.stringify(previewDeck) : content,
+          aiResponse: content,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           productType: productType, // Pass product type for video lesson vs regular presentation
@@ -963,7 +955,6 @@ export default function LessonPresentationClient() {
     // Keep existing content visible during edit - only reset streaming states
     setFirstLineRemoved(false);
     setStreamDone(false);
-    setPreviewDeck(null);
     // Don't clear content - keep sections visible
 
     try {
@@ -1058,9 +1049,6 @@ export default function LessonPresentationClient() {
               accumulatedText += pkt.text;
               setContent(accumulatedText);
             } else if (pkt.type === "done") {
-              if (pkt.slideDeck) {
-                setPreviewDeck(pkt.slideDeck);
-              }
               setStreamDone(true);
               break;
             } else if (pkt.type === "error") {
@@ -1427,63 +1415,75 @@ export default function LessonPresentationClient() {
                   </div>
                 )}
 
-                {previewDeck ? (
-                  <SmartSlideDeckViewer deck={previewDeck} isEditable={false} showFormatInfo={false} theme={selectedTheme} />
-                ) : (
-                  <>
-                    {/* Parse and display slide titles in course outline format (markdown fallback) */}
-                    {(() => {
-                      const cleanContent = (text: string): string => {
-                        return text;
-                      };
-                      const cleanedContent = cleanContent(content);
-                      let slides = [] as string[];
-                      if (cleanedContent.includes('---')) {
-                        slides = cleanedContent.split(/^---\s*$/m).filter((s) => s.trim());
-                      } else {
-                        slides = cleanedContent.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter((s) => s.trim());
-                      }
-                      slides = slides.filter((slideContent) => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
+                {/* Parse and display slide titles in course outline format */}
+                {(() => {
+                  // Helper function to clean content (same as in restart logic)
+                  const cleanContent = (text: string): string => {
+                    return text;
+                  };
 
-                      return slides.map((slideContent, slideIdx) => {
-                        const titleMatch = slideContent.match(/\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/);
-                        let title = '';
-                        if (titleMatch) {
-                          title = titleMatch[1].trim();
-                        } else {
-                          const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
-                          title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
-                        }
+                  // Clean the content first to handle malformed AI responses
+                  const cleanedContent = cleanContent(content);
 
-                        return (
-                          <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
-                            <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                              <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{slideIdx + 1}</span>
-                            </div>
-                            <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
-                              <input
-                                type="text"
-                                value={title}
-                                onChange={(e) => {
-                                  const newTitle = e.target.value;
-                                  const slidePattern = titleMatch
-                                    ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\\` + "\\\\" + `\\n]+)`)
-                                    : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}\\*\\*`);
-                                  const updatedContent = content.replace(slidePattern,
-                                    titleMatch ? `$1${newTitle}` : `**${newTitle}**`
-                                  );
-                                  setContent(updatedContent);
-                                }}
-                                className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                                placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
-                              />
-                            </div>
-                          </div>
-                        );
-                      });
-                    })()}
-                  </>
-                )}
+                  // Split slides properly - first try by --- separators, then by language-agnostic patterns
+                  let slides = [];
+                  if (cleanedContent.includes('---')) {
+                    // Split by --- separators
+                    slides = cleanedContent.split(/^---\s*$/m).filter(slide => slide.trim());
+                  } else {
+                    // Split by language-agnostic pattern: **[anything] [number]: [title]
+                    slides = cleanedContent.split(/(?=\*\*[^*]+\s+\d+\s*:)/).filter(slide => slide.trim());
+                  }
+
+                  // Filter out slides that don't have proper numbered slide pattern (language-agnostic)
+                  slides = slides.filter(slideContent => /\*\*[^*]+\s+\d+\s*:/.test(slideContent));
+
+                  return slides.map((slideContent, slideIdx) => {
+                    // Extract slide title using language-agnostic pattern: **[word(s)] [number]: [title]
+                    const titleMatch = slideContent.match(/\*\*[^*]+\s+\d+\s*:\s*([^*`\n]+)/);
+                    let title = '';
+
+                    if (titleMatch) {
+                      title = titleMatch[1].trim();
+                    } else {
+                      // Fallback: look for any **text** pattern at the start
+                      const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
+                      title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                    }
+
+                    return (
+                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
+                        {/* Left colored bar with index - matching course outline styling */}
+                        <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
+                          <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{slideIdx + 1}</span>
+                        </div>
+
+                        {/* Main card - matching course outline styling */}
+                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                          {/* Slide title */}
+                          <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => {
+                              const newTitle = e.target.value;
+                              // Update the content with new title using language-agnostic pattern
+                              const slidePattern = titleMatch
+                                ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
+                                : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
+
+                              const updatedContent = content.replace(slidePattern,
+                                titleMatch ? `$1${newTitle}` : `**${newTitle}**`
+                              );
+                              setContent(updatedContent);
+                            }}
+                            className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
+                            placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             )}
           </section>
