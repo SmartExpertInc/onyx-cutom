@@ -1469,7 +1469,7 @@ export default function LessonPresentationClient() {
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
+                className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
                 style={{ animation: 'fadeInDown 0.25s ease-out both' }}
               >
                 {loadingEdit && (
@@ -1515,14 +1515,14 @@ export default function LessonPresentationClient() {
                     }
 
                     return (
-                      <div key={slideIdx} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
-                        {/* Left numbered section */}
-                        <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-100 to-blue-50 text-gray-700 font-semibold text-base select-none flex-shrink-0">
+                      <div key={slideIdx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                        {/* Left blue square with number */}
+                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                           {slideIdx + 1}
                         </div>
 
                         {/* Main content section */}
-                        <div className="flex-1 p-4">
+                        <div className="flex-1">
                           {/* Slide title */}
                           <div className="relative group">
                             <Input
@@ -1540,7 +1540,7 @@ export default function LessonPresentationClient() {
                                 );
                                 setContent(updatedContent);
                               }}
-                              className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
+                              className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
                               placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                             />
                             {title && (

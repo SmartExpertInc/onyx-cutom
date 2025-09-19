@@ -1557,14 +1557,14 @@ export default function QuizClient() {
 
                         {/* Main content section */}
                         <div className="flex-1">
-                          <div className="mb-2">
+                          <div className="mb-4">
                             {editingQuestionId === idx ? (
                               <div className="relative group">
                                 <Input
                                   type="text"
                                   value={editedTitles[idx] || question.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] pr-9"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, e.target.value)}
                                   onKeyDown={(e) => {
@@ -1582,7 +1582,7 @@ export default function QuizClient() {
                             ) : (
                               <div className="relative group">
                                 <h4
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] w-full h-9 px-3 py-1 pr-8"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] w-full h-9 px-3 py-1 pr-9"
                                   onMouseDown={() => {
                                     // Set the next editing ID before the blur event fires
                                     nextEditingIdRef.current = idx;
