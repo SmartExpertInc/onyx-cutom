@@ -9,14 +9,17 @@ interface TemplateTypeUsage {
   slide_id: string;
   total_generated: number;
 }
-
 interface SlidesAnalyticsResponse {
   usage_by_template: TemplateTypeUsage[];
 }
 
+interface SlideTypeUsageBarChartProps {
+  template_ids: string[];
+}
+
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
-const SlideTypeUsageBarChart: React.FC = () => {
+const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [allUsersData, setAllUsersData] = useState<SlidesAnalyticsResponse | null>(null);
@@ -44,7 +47,7 @@ const SlideTypeUsageBarChart: React.FC = () => {
     fetchAllUsers();
   }, []);
 
-  // Prepare bar chart data: group by template_id and sum total_generated
+  // Prepare bar chart data
   const nivoData = useMemo(() => {
     if (allUsersData) {
       // Debug: log raw response
@@ -52,15 +55,18 @@ const SlideTypeUsageBarChart: React.FC = () => {
       const grouped: Record<string, number> = {};
       for (const item of allUsersData.usage_by_template || []) {
         if (!item.template_id) continue;
+        if (template_ids.length > 0 && !template_ids.includes(item.template_id)) continue;
         grouped[item.template_id] = (grouped[item.template_id] || 0) + (item.total_generated || 0);
       }
-      const result = Object.entries(grouped).map(([template, amount]) => ({ template, amount }));
+      const result = Object.entries(grouped)
+        .map(([template, amount]) => ({ template, amount }))
+        .sort((a, b) => b.amount - a.amount);
       // Debug: log processed data
       console.debug('Bar chart data:', result);
       return result;
     }
     return [];
-  }, [allUsersData]);
+  }, [allUsersData, template_ids]);
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6 h-[480px]">

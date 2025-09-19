@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import SlideTypeUsageBarChart from '../../../../components/SlideTypeUsageBarChart';
 import { useLanguage } from '../../../../contexts/LanguageContext';
-
+import { getAllTemplates } from '@/components/templates/registry';
 
 interface AnalyticsDashboard {
   recent_errors: Array<{
@@ -38,6 +38,10 @@ const SlidesAnalyticsTab: React.FC = () => {
   });
   const [isFiltering, setIsFiltering] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Get available templates
+  const availableTemplates = getAllTemplates();
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>(availableTemplates.map(t => t.id));
 
   // Debounced filter application
   useEffect(() => {
@@ -269,18 +273,27 @@ const SlidesAnalyticsTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Type Filter */}
+          {/* Template Type Checklist */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{t('interface.analytics.endpoint', 'Type')}</label>
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder={t('interface.analytics.filterEndpoint', 'Filter slide type...')}
-                value={filters.endpoint}
-                onChange={(e) => setFilters(prev => ({ ...prev, endpoint: e.target.value }))}
-                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-              />
+            <label className="block text-xs font-medium text-gray-700 mb-1">Select Template Types</label>
+            <div className="flex flex-wrap gap-3">
+              {availableTemplates.map(tmpl => (
+                <label key={tmpl.id} className="flex items-center space-x-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedTemplateIds.includes(tmpl.id)}
+                    onChange={e => {
+                      setSelectedTemplateIds(ids =>
+                        e.target.checked
+                          ? [...ids, tmpl.id]
+                          : ids.filter(id => id !== tmpl.id)
+                      );
+                    }}
+                    className="form-checkbox text-blue-600"
+                  />
+                  <span>{tmpl.name || tmpl.id}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
@@ -289,7 +302,7 @@ const SlidesAnalyticsTab: React.FC = () => {
       {/* Bar chart */}
       <div className="flex gap-6 mb-6">
         <div className="w-full">
-          <SlideTypeUsageBarChart/>
+          <SlideTypeUsageBarChart template_ids={selectedTemplateIds} />
         </div>
       </div>
 
