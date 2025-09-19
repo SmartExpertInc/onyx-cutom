@@ -1358,7 +1358,7 @@ export default function CourseOutlineClient() {
               {preview.map((mod: ModulePreview, modIdx: number) => (
                 <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
                   {/* Left blue square with number */}
-                  <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[10px]">
+                  <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                     {modIdx + 1}
                   </div>
 
@@ -1431,7 +1431,7 @@ export default function CourseOutlineClient() {
               <Button
                 type="button"
                 onClick={handleAddModule}
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium bg-[#F0F0FF] hover:bg-[#F0F4FF] active:scale-95 transition"
+                className="w-full mt-4 flex items-center justify-center gap-2 rounded-[4px] text-white py-[19px] font-medium bg-[#0F58F9] hover:shadow-lg"
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
