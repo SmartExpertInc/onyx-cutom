@@ -1285,6 +1285,53 @@ export default function LessonPresentationClient() {
 
   const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
 
+  // Build a live preview markdown from partial JSON during streaming
+  const getPreviewTextFromPartialJson = (text: string): string | null => {
+    try {
+      const s = (text || "");
+      const firstBrace = s.indexOf("{");
+      if (firstBrace < 0) return null;
+      let depth = 0;
+      let started = false;
+      let start = -1;
+      let end = -1;
+      for (let i = firstBrace; i < s.length; i++) {
+        const ch = s[i];
+        if (ch === '{') {
+          if (!started) { started = true; start = i; }
+          depth++;
+        } else if (ch === '}') {
+          if (started) {
+            depth--;
+            if (depth === 0) { end = i + 1; }
+          }
+        }
+      }
+      if (!started || end < 0) return null;
+      const candidate = s.slice(start, end);
+      const obj = JSON.parse(candidate);
+      if (obj && Array.isArray(obj.slides)) {
+        return convertPresentationJsonToMarkdown(obj);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // Decide what to render in the preview during streaming
+  const getLivePreviewText = (text: string): string => {
+    // If we already converted full JSON after stream end, content is markdown
+    if (jsonConvertedRef.current) return text;
+    // If current buffer looks like JSON, try to extract parsable prefix and convert to markdown
+    const trimmed = (text || "").trim();
+    if (trimmed.startsWith("{") && trimmed.includes("\"slides\"")) {
+      const md = getPreviewTextFromPartialJson(text);
+      if (md && md.trim()) return md;
+    }
+    return text;
+  };
+
   return (
     <>
       <main
@@ -1536,7 +1583,7 @@ export default function LessonPresentationClient() {
                   };
 
                   // Clean the content first to handle malformed AI responses
-                  const cleanedContent = cleanContent(content);
+                  const cleanedContent = cleanContent(getLivePreviewText(content));
 
                   // Split slides properly - first try by --- separators, then by language-agnostic patterns
                   let slides = [];
