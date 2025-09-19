@@ -42,6 +42,36 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     return names.substring(0, maxLength) + '...';
   };
 
+  // Convert progress message with course numbers to course names
+  const convertProgressMessage = (message: string) => {
+    if (!message) return message;
+    
+    // Look for patterns like "Exporting course 8..." or "course 8" or "course ID 8"
+    let convertedMessage = message;
+    
+    // Replace "course 8" with actual course name
+    convertedMessage = convertedMessage.replace(/course\s+(\d+)/g, (match, courseId) => {
+      const product = products.find(p => p.id === parseInt(courseId));
+      if (product) {
+        const courseName = product.name || product.title || product.projectName || `Course ${courseId}`;
+        return courseName;
+      }
+      return match; // If not found, keep original
+    });
+    
+    // Replace "course ID 8" with actual course name
+    convertedMessage = convertedMessage.replace(/course\s+ID\s+(\d+)/gi, (match, courseId) => {
+      const product = products.find(p => p.id === parseInt(courseId));
+      if (product) {
+        const courseName = product.name || product.title || product.projectName || `Course ${courseId}`;
+        return courseName;
+      }
+      return match; // If not found, keep original
+    });
+    
+    return convertedMessage;
+  };
+
   const handleExport = async () => {
     if (!hasSelectedProducts || isExporting) return;
 
@@ -100,14 +130,17 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
               const packet = JSON.parse(trimmed);
               if (packet.type === 'progress') {
                 console.log('📦 LMS export progress:', packet.message || packet);
+                // Convert course numbers to course names in progress message
+                const convertedMessage = convertProgressMessage(packet.message || `Processing course export...`);
                 // Update toast with progress
                 updateToast(toastId, {
-                  description: packet.message || `Processing course export...`,
+                  description: convertedMessage,
                 });
               } else if (packet.type === 'start') {
                 console.log('🚀 LMS export started:', packet);
+                const convertedStartMessage = convertProgressMessage(packet.message || `Export in progress...`);
                 updateToast(toastId, {
-                  description: `Export in progress...`,
+                  description: convertedStartMessage,
                 });
               } else if (packet.type === 'done') {
                 finalPayload = packet.payload;
