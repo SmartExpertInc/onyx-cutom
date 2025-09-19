@@ -1603,10 +1603,14 @@ export default function LessonPresentationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAdvanced((prev) => !prev)}
-                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
+                  style={{
+                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                    fontWeight: 500
+                  }}
                 >
-                  {t('interface.generate.advancedMode', 'Advanced Mode')}
-                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                  <Sparkles size={16} />
+                  Smart Edit
                 </button>
               </div>
             </>

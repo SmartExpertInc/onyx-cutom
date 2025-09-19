@@ -988,7 +988,7 @@ export const en = {
       selectModule: "Select Module",
       selectLesson: "Select Lesson",
       selectQuestionTypes: "Select Question Types",
-      typesSelected: "types selected",
+      typesSelected: "Types selected",
       multipleChoice: "Multiple Choice",
       multiSelect: "Multi-Select",
       matching: "Matching",
