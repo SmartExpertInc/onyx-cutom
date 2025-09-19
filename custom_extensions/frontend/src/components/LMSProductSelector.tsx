@@ -241,7 +241,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
             {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
           </Button>
 
-          <LMSExportButton selectedProducts={selectedProducts} />
+          <LMSExportButton selectedProducts={selectedProducts} products={products} />
         </div>
 
         {/* Subtitle on the left */}

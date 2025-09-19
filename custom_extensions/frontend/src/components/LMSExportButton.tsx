@@ -5,14 +5,17 @@ import { Upload } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from './ui/button';
 import { useToast } from './ui/toast';
+import { Product } from '../types/lmsTypes';
 
 interface LMSExportButtonProps {
   selectedProducts: Set<number>;
+  products: Product[];
   onExportComplete?: (data?: any) => void;
 }
 
 const LMSExportButton: React.FC<LMSExportButtonProps> = ({
   selectedProducts,
+  products,
   onExportComplete,
 }) => {
   const { t } = useLanguage();
@@ -22,6 +25,20 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
 
   const hasSelectedProducts = selectedProducts.size > 0;
 
+  // Helper function to get course names from selected product IDs
+  const getSelectedCourseNames = () => {
+    const selectedProductsArray = Array.from(selectedProducts);
+    const courseNames = selectedProductsArray
+      .map(id => {
+        const product = products.find(p => p.id === id);
+        return product?.projectName || `Course ${id}`;
+      })
+      .filter(Boolean);
+    return courseNames;
+  };
+
+  const selectedCourseNames = getSelectedCourseNames();
+
   const handleExport = async () => {
     if (!hasSelectedProducts || isExporting) return;
 
@@ -29,10 +46,14 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     setExportStatus('idle');
 
     // Show initial export toast
+    const courseNamesText = selectedCourseNames.length > 0 
+      ? selectedCourseNames.join(', ')
+      : `${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}`;
+    
     const toastId = addToast({
       type: 'loading',
       title: 'Exporting Courses',
-      description: `Starting export of ${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}...`,
+      description: `Starting export of: ${courseNamesText}`,
       duration: 0, // Don't auto-dismiss loading toast
     });
 
@@ -104,10 +125,14 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
         console.log('✅ Export completed:', exportData.results);
         
         // Update toast to success
+        const successCourseNamesText = selectedCourseNames.length > 0 
+          ? selectedCourseNames.join(', ')
+          : `${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}`;
+          
         updateToast(toastId, {
           type: 'success',
           title: 'Export Successful!',
-          description: userMessage || `Successfully exported ${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}`,
+          description: userMessage || `Successfully exported: ${successCourseNamesText}`,
           duration: 7000,
         });
 
