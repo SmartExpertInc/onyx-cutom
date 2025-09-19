@@ -18793,105 +18793,105 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
                 # fall through to legacy path if JSON fast path fails
         # Legacy path: initialize chat session and markdown outline for file context cases
-        # Get or create chat session
-        if payload.chatSessionId:
-            chat_id = payload.chatSessionId
-        else:
-            persona_id = await get_contentbuilder_persona_id(cookies)
-            chat_id = await create_onyx_chat_session(persona_id, cookies)
+        if not should_use_openai_direct(payload):
+            # Get or create chat session
+            if payload.chatSessionId:
+                chat_id = payload.chatSessionId
+            else:
+                persona_id = await get_contentbuilder_persona_id(cookies)
+                chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-        # Convert existing training plan to markdown format for AI processing
-        current_outline = ""
-        
-        if existing_content:
-            # Convert existing training plan to markdown format with full details
-            content_data = existing_content
-            if isinstance(content_data, dict):
-                main_title = content_data.get("mainTitle", "Training Plan")
-                current_outline = f"# {main_title}\n\n"
-                
-                sections = content_data.get("sections", [])
-                for section in sections:
-                    section_id = section.get("id", "")
-                    section_title = section.get("title", "")
-                    total_hours = section.get("totalHours", 0.0)
-                    # Get module quality tier information for preservation
-                    section_quality_tier = section.get("quality_tier", "")
+            # Convert existing training plan to markdown format for AI processing
+            current_outline = ""
+            
+            if existing_content:
+                # Convert existing training plan to markdown format with full details
+                content_data = existing_content
+                if isinstance(content_data, dict):
+                    main_title = content_data.get("mainTitle", "Training Plan")
+                    current_outline = f"# {main_title}\n\n"
                     
-                    # Convert special characters to safe ASCII for AI processing
-                    # We'll convert back after AI response to preserve user-visible format
-                    if section_id and section_title:
-                        # Replace № with # for AI processing (encoding-safe)
-                        safe_section_id = section_id.replace("№", "#")
-                        if section_id != safe_section_id:
-                            logger.info(f"[SMART_EDIT_ENCODING] Converted '{section_id}' to '{safe_section_id}' for AI processing")
-                        # Check if section_id already contains "Module" keyword
-                        if "Module" in safe_section_id or "Модуль" in safe_section_id:
-                            current_outline += f"## {safe_section_id}: {section_title}\n"
+                    sections = content_data.get("sections", [])
+                    for section in sections:
+                        section_id = section.get("id", "")
+                        section_title = section.get("title", "")
+                        total_hours = section.get("totalHours", 0.0)
+                        # Get module quality tier information for preservation
+                        section_quality_tier = section.get("quality_tier", "")
+                        
+                        # Convert special characters to safe ASCII for AI processing
+                        # We'll convert back after AI response to preserve user-visible format
+                        if section_id and section_title:
+                            # Replace № with # for AI processing (encoding-safe)
+                            safe_section_id = section_id.replace("№", "#")
+                            if section_id != safe_section_id:
+                                logger.info(f"[SMART_EDIT_ENCODING] Converted '{section_id}' to '{safe_section_id}' for AI processing")
+                            # Check if section_id already contains "Module" keyword
+                            if "Module" in safe_section_id or "Модуль" in safe_section_id:
+                                current_outline += f"## {safe_section_id}: {section_title}\n"
+                            else:
+                                # For other formats (#1, mod1, etc.), preserve them exactly as they are
+                                current_outline += f"## {safe_section_id}: {section_title}\n"
                         else:
-                            # For other formats (#1, mod1, etc.), preserve them exactly as they are
-                            current_outline += f"## {safe_section_id}: {section_title}\n"
-                    else:
-                        # Fallback for empty IDs
-                        current_outline += f"## {section_title}\n"
-                    current_outline += f"**Total Hours:** {total_hours}\n"
-                    if section_quality_tier:
-                        current_outline += f"**Module Quality Tier:** {section_quality_tier}\n"
-                    current_outline += "\n"
-                    
-                    lessons = section.get("lessons", [])
-                    if lessons:
-                        current_outline += "### Lessons:\n"
-                        for idx, lesson in enumerate(lessons, 1):
-                            lesson_title = lesson.get("title", "")
-                            lesson_hours = lesson.get("hours", 1.0)
-                            lesson_source = lesson.get("source", "Create from scratch")
-                            
-                            # Get check details
-                            check = lesson.get("check", {})
-                            check_type = check.get("type", "none")
-                            check_text = check.get("text", "No")
-                            
-                            # Get content availability
-                            content_available = lesson.get("contentAvailable", {})
-                            content_type = content_available.get("type", "yes")
-                            content_text = content_available.get("text", "100%")
-                            
-                            # Get quality tier information for preservation
-                            lesson_quality_tier = lesson.get("quality_tier", "")
-                            
-                            current_outline += f"{idx}. **{lesson_title}**\n"
-                            current_outline += f"   - Hours: {lesson_hours}\n"
-                            current_outline += f"   - Source: {lesson_source}\n"
-                            current_outline += f"   - Assessment: {check_type} ({check_text})\n"
-                            current_outline += f"   - Content Available: {content_type} ({content_text})\n"
-                            if lesson_quality_tier:
-                                current_outline += f"   - Quality Tier: {lesson_quality_tier}\n"
-                            current_outline += "\n"
-                    else:
-                        current_outline += "*No lessons defined*\n\n"
-                    current_outline += "\n"
+                            # Fallback for empty IDs
+                            current_outline += f"## {section_title}\n"
+                        current_outline += f"**Total Hours:** {total_hours}\n"
+                        if section_quality_tier:
+                            current_outline += f"**Module Quality Tier:** {section_quality_tier}\n"
+                        current_outline += "\n"
+                        
+                        lessons = section.get("lessons", [])
+                        if lessons:
+                            current_outline += "### Lessons:\n"
+                            for idx, lesson in enumerate(lessons, 1):
+                                lesson_title = lesson.get("title", "")
+                                lesson_hours = lesson.get("hours", 1.0)
+                                lesson_source = lesson.get("source", "Create from scratch")
+                                
+                                # Get check details
+                                check = lesson.get("check", {})
+                                check_type = check.get("type", "none")
+                                check_text = check.get("text", "No")
+                                
+                                # Get content availability
+                                content_available = lesson.get("contentAvailable", {})
+                                content_type = content_available.get("type", "yes")
+                                content_text = content_available.get("text", "100%")
+                                
+                                # Get quality tier information for preservation
+                                lesson_quality_tier = lesson.get("quality_tier", "")
+                                
+                                current_outline += f"{idx}. **{lesson_title}**\n"
+                                current_outline += f"   - Hours: {lesson_hours}\n"
+                                current_outline += f"   - Source: {lesson_source}\n"
+                                current_outline += f"   - Assessment: {check_type} ({check_text})\n"
+                                current_outline += f"   - Content Available: {content_type} ({content_text})\n"
+                                if lesson_quality_tier:
+                                    current_outline += f"   - Quality Tier: {lesson_quality_tier}\n"
+                                current_outline += "\n"
+                        else:
+                            current_outline += "*No lessons defined*\n\n"
+                        current_outline += "\n"
 
-        # Prepare wizard payload
-        wiz_payload = {
-            "product": "Training Plan Edit",
-            "prompt": payload.prompt,
-            "language": payload.language,
-            "originalOutline": current_outline,
-            "editMode": True
-        }
+            # Prepare wizard payload
+            wiz_payload = {
+                "product": "Training Plan Edit",
+                "prompt": payload.prompt,
+                "language": payload.language,
+                "originalOutline": current_outline,
+                "editMode": True
+            }
 
-        wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
+            wizard_message = "WIZARD_REQUEST\n" + json.dumps(wiz_payload)
 
-        assistant_reply: str = ""
-        last_send = asyncio.get_event_loop().time()
+            assistant_reply: str = ""
+            last_send = asyncio.get_event_loop().time()
 
-        # Use longer timeout for large text processing to prevent AI memory issues
-        timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
-        logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
-        
-        # EXISTING: Use Onyx when file context is present
-        else:
+            # Use longer timeout for large text processing to prevent AI memory issues
+            timeout_duration = 300.0 if wiz_payload.get("virtualFileId") else None  # 5 minutes for large texts
+            logger.info(f"Using timeout duration: {timeout_duration} seconds for AI processing")
+            
+            # Use Onyx when file context is present
             logger.info(f"[SMART_EDIT_STREAM] ❌ USING ONYX API (file context detected)")
             logger.info(f"[SMART_EDIT_STREAM] Payload check: fromFiles={getattr(payload, 'fromFiles', None)}, fileIds={getattr(payload, 'fileIds', None)}, folderIds={getattr(payload, 'folderIds', None)}")
             
