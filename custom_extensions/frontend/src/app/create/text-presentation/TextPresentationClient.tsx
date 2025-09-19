@@ -1732,13 +1732,16 @@ export default function TextPresentationClient() {
 
                 {/* Display content in card format if lessons are available, otherwise show textarea */}
                 {lessonList.length > 0 && (
-                  <div className="flex flex-col gap-4">
+                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
                     {lessonList.map((lesson, idx: number) => (
-                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
-                        <div className="flex items-start justify-center pt-5 w-16 bg-gradient-to-b from-blue-100 to-blue-50 text-gray-700 font-semibold text-base select-none flex-shrink-0">
+                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                        {/* Left blue square with number */}
+                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                           {idx + 1}
                         </div>
-                        <div className="flex-1 p-4">
+
+                        {/* Main content section */}
+                        <div className="flex-1">
                           <div className="mb-2">
                             {editingLessonId === idx ? (
                               <div className="relative group">
@@ -1746,7 +1749,7 @@ export default function TextPresentationClient() {
                                   type="text"
                                   value={editedTitles[idx] || lesson.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] text-base font-semibold cursor-pointer border-transparent focus-visible:border-transparent shadow-none"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                                   onKeyDown={(e) => {
@@ -1764,7 +1767,7 @@ export default function TextPresentationClient() {
                             ) : (
                               <div className="relative group">
                                 <h4
-                                  className="text-[#20355D] text-base font-semibold cursor-pointer pr-8"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer pr-8"
                                   onMouseDown={() => {
                                     // Set the next editing ID before the blur event fires
                                     nextEditingIdRef.current = idx;
@@ -1778,14 +1781,14 @@ export default function TextPresentationClient() {
                                 {getTitleForLesson(lesson, idx) && (
                                   <Edit 
                                     size={16} 
-                                    className="absolute top-1 right-0 text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
                                   />
                                 )}
                               </div>
                             )}
                           </div>
                           {lesson.content && (
-                            <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                            <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
                               {lesson.content.substring(0, 100)}
                               {lesson.content.length > 100 && '...'}
                             </div>
