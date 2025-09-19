@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface PosterDownloadButtonProps {
   posterData: {
@@ -23,46 +23,77 @@ const PosterDownloadButton: React.FC<PosterDownloadButtonProps> = ({
   projectName = 'poster'
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const posterRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPoster = async () => {
     setIsGenerating(true);
     
     try {
-      // Extract poster data (same as slide system extracts slide data)
-      const posterPayload = {
-        eventName: posterData.eventName,
-        mainSpeaker: posterData.mainSpeaker,
-        speakerDescription: posterData.speakerDescription,
-        date: posterData.date,
-        topic: posterData.topic,
-        additionalSpeakers: posterData.additionalSpeakers,
-        ticketPrice: posterData.ticketPrice,
-        ticketType: posterData.ticketType,
-        freeAccessConditions: posterData.freeAccessConditions,
-        speakerImageSrc: posterData.speakerImageSrc,
-      };
-
-      console.log('Generating poster image with data:', posterPayload);
-
-      // API call (following slide system pattern)
-      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/poster-image/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(posterPayload)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      console.log('Starting client-side poster image generation...');
+      
+      // Wait for any pending images to load
+      await waitForImagesToLoad();
+      
+      // Find the poster component in the DOM
+      const posterElement = document.querySelector('[data-poster-component]') as HTMLElement;
+      
+      if (!posterElement) {
+        throw new Error('Poster component not found in DOM. Make sure the EventPoster component is rendered.');
       }
 
-      // Process download (exact same as slide system)
-      const blob = await response.blob();
+      console.log('Found poster element:', posterElement);
+
+      // Import html2canvas dynamically
+      const html2canvas = (await import('html2canvas')).default;
+      
+      // Configure html2canvas for high-quality capture
+      const canvas = await html2canvas(posterElement, {
+        width: 1000,
+        height: 1000,
+        scale: 2, // Higher resolution
+        useCORS: true, // Allow cross-origin images
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        removeContainer: true,
+        foreignObjectRendering: true,
+        onclone: (clonedDoc) => {
+          // Ensure fonts are loaded in the cloned document
+          const clonedElement = clonedDoc.querySelector('[data-poster-component]');
+          if (clonedElement) {
+            // Force font loading and ensure proper styling
+            clonedElement.style.fontFamily = 'Montserrat, sans-serif';
+            clonedElement.style.width = '1000px';
+            clonedElement.style.height = '1000px';
+            
+            // Ensure all background images are properly loaded in the clone
+            const backgroundElements = clonedElement.querySelectorAll('[style*="background-image"]');
+            backgroundElements.forEach((element) => {
+              const style = element.getAttribute('style');
+              if (style) {
+                element.setAttribute('style', style);
+              }
+            });
+          }
+        }
+      });
+
+      console.log('Canvas generated:', canvas.width, 'x', canvas.height);
+
+      // Convert canvas to blob
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            throw new Error('Failed to convert canvas to blob');
+          }
+        }, 'image/png', 1.0);
+      });
+
       console.log('Blob size:', blob.size, 'bytes');
 
+      // Create download link
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -84,10 +115,72 @@ const PosterDownloadButton: React.FC<PosterDownloadButtonProps> = ({
       
     } catch (error) {
       console.error('Error generating poster image:', error);
-      alert('Failed to generate poster image. Please try again.');
+      alert(`Failed to generate poster image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // Helper function to wait for images to load
+  const waitForImagesToLoad = (): Promise<void> => {
+    return new Promise((resolve) => {
+      const posterElement = document.querySelector('[data-poster-component]');
+      if (!posterElement) {
+        resolve();
+        return;
+      }
+
+      // Find all images and background images
+      const imgElements = posterElement.querySelectorAll('img');
+      const backgroundElements = posterElement.querySelectorAll('[style*="background-image"]');
+      
+      let loadedCount = 0;
+      const totalImages = imgElements.length + backgroundElements.length;
+
+      if (totalImages === 0) {
+        // No images to wait for, but still wait a bit for fonts and rendering
+        setTimeout(resolve, 300);
+        return;
+      }
+
+      const checkComplete = () => {
+        loadedCount++;
+        if (loadedCount >= totalImages) {
+          // Additional delay to ensure rendering is complete
+          setTimeout(resolve, 500);
+        }
+      };
+
+      // Wait for regular img elements
+      imgElements.forEach((img) => {
+        const imageElement = img as HTMLImageElement;
+        if (imageElement.complete && imageElement.naturalWidth > 0) {
+          checkComplete();
+        } else {
+          imageElement.onload = checkComplete;
+          imageElement.onerror = checkComplete;
+        }
+      });
+
+      // For background images, preload them to ensure they're ready
+      backgroundElements.forEach((element) => {
+        const style = element.getAttribute('style');
+        if (style && style.includes('background-image')) {
+          const urlMatch = style.match(/url\(['"]?([^'"]+)['"]?\)/);
+          if (urlMatch) {
+            const imageUrl = urlMatch[1];
+            const img = new Image();
+            img.onload = checkComplete;
+            img.onerror = checkComplete;
+            img.src = imageUrl;
+          } else {
+            checkComplete();
+          }
+        } else {
+          checkComplete();
+        }
+      });
+    });
   };
 
   return (
