@@ -22821,9 +22821,7 @@ async def get_slides_errors_analytics(
                     sce.error_message,
                     sce.created_at,
                     sce.user_id,
-                    u.email as user_email
                 FROM slide_creation_errors sce
-                LEFT JOIN "user" u ON sce.user_id = u.id
                 WHERE sce.created_at BETWEEN $1 AND $2
                 ORDER BY sce.created_at DESC
                 """,
@@ -22832,7 +22830,7 @@ async def get_slides_errors_analytics(
             errors = [
                 SlideGenerationError(
                     id=row["id"],
-                    user_email=row["user_email"] if "user_email" in row and row["user_email"] else "",
+                    user_email=row["user_id"],
                     template_id=row["template_id"],
                     props=row["props"],
                     error_message=row["error_message"],
