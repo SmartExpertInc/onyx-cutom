@@ -510,8 +510,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
                 )}
               </div>
             </div>
-          ))
-        )}
+          ))}
         </div>
       </div>
     </div>
