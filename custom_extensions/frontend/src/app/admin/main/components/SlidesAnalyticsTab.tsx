@@ -84,9 +84,11 @@ const SlidesAnalyticsTab: React.FC = () => {
     }
   };
 
+  /*
   useEffect(() => {
     fetchDashboard();
   }, [dateRange, appliedFilters, refreshKey]);
+  */
 
   const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
@@ -269,9 +271,9 @@ const SlidesAnalyticsTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Endpoint Filter */}
+          {/* Type Filter */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{t('interface.analytics.endpoint', 'Endpoint')}</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">{t('interface.analytics.endpoint', 'Type')}</label>
             <div className="relative">
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input

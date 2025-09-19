@@ -6,6 +6,7 @@ import { ResponsiveBar, BarTooltipProps } from '@nivo/bar';
 
 interface ProductUsage {
   product_id: string;
+  slide_id: string;
   total_generated: number;
 }
 

@@ -7366,6 +7366,11 @@ class CreditUsageAnalyticsResponse(BaseModel):
     usage_by_product: List[ProductUsage]
     total_credits_used: int
 
+class SlidesAnalyticsResponse(BaseModel):
+    template_id: str
+    slide_id: str
+    total_generated: int
+
 class TimelineActivity(BaseModel):
     id: str
     type: Literal['purchase', 'product_generation', 'admin_removal']
@@ -22701,6 +22706,48 @@ async def get_usage_analytics(
             usage_by_product = [ProductUsage(product_type=row["product_type"], credits_used=int(row["credits_used"] or 0)) for row in rows]
             total_credits = sum(u.credits_used for u in usage_by_product)
             return CreditUsageAnalyticsResponse(usage_by_product=usage_by_product, total_credits_used=total_credits)
+    except Exception as e:
+        logger.error(f"Error fetching usage analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+
+# Slide analytics across all users
+@app.get("/api/custom/admin/slides-analytics", response_model=SlidesAnalyticsResponse)
+async def get_slides_analytics(
+    request: Request,
+    start: datetime,
+    end: datetime,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT
+                    slide->>'templateId' AS template_id,
+                    slide->>'slideId' AS slide_id,
+                    COUNT(*) AS total_generated
+                FROM
+                    projects
+                CROSS JOIN LATERAL
+                    jsonb_array_elements(microproduct_content->'slides') AS slide
+                WHERE
+                    microproduct_content ? 'slides'
+                    AND projects.created_at BETWEEN $1 AND $2
+                GROUP BY
+                    template_id, slide_id
+                ORDER BY
+                    total_generated DESC
+                """,
+                start, end
+            )
+            return [
+                SlidesAnalyticsResponse(
+                    template_id=row['template_id'],
+                    slide_id=row['slide_id'],
+                    total_generated=row['total_generated']
+                ) for row in rows
+            ]
     except Exception as e:
         logger.error(f"Error fetching usage analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
