@@ -203,6 +203,17 @@ export default function ProjectInstanceViewPage() {
   const { projectId } = params || {};
   const { t } = useLanguage();
 
+  const handleBack = useCallback(() => {
+    if (typeof document !== 'undefined') {
+      const ref = document.referrer || '';
+      if (ref.includes('/create/') && !ref.includes('/create/generate')) {
+        router.push('/create/generate');
+        return;
+      }
+    }
+    router.back();
+  }, [router]);
+
   // Add CSS for hidden scrollbar
   useEffect(() => {
     const style = document.createElement('style');
@@ -1831,22 +1842,7 @@ export default function ProjectInstanceViewPage() {
 
           <div className="flex items-center gap-x-4">
             <button
-              onClick={() => {
-                try {
-                  const ref = typeof document !== 'undefined' ? document.referrer || '' : '';
-                  // If came from a specific product type generator like /create/generate/[product_type]
-                  // then go to the generic generate picker at /create/generate instead of going back
-                  const cameFromSpecificGenerate = /\/create\/generate\/.+/.test(ref);
-                  if (cameFromSpecificGenerate) {
-                    // Normalize to the generic generate page
-                    window.location.href = '/create/generate';
-                    return;
-                  }
-                } catch (e) {
-                  // noop fallback to router.back below
-                }
-                router.back();
-              }}
+              onClick={handleBack}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} className="mr-2" />
