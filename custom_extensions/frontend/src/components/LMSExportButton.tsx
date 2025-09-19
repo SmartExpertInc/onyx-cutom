@@ -24,20 +24,23 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
   const [exportStatus, setExportStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const hasSelectedProducts = selectedProducts.size > 0;
-
-  // Helper function to get course names from selected product IDs
+  
+  // Get selected course names
   const getSelectedCourseNames = () => {
-    const selectedProductsArray = Array.from(selectedProducts);
-    const courseNames = selectedProductsArray
-      .map(id => {
-        const product = products.find(p => p.id === id);
-        return product?.projectName || `Course ${id}`;
-      })
-      .filter(Boolean);
-    return courseNames;
+    return products
+      .filter(product => selectedProducts.has(product.id))
+      .map(product => product.name || product.title || product.projectName || `Course ${product.id}`)
+      .join(', ');
   };
 
-  const selectedCourseNames = getSelectedCourseNames();
+  // Get course names for display (truncated if too long)
+  const getDisplayCourseNames = (maxLength = 80) => {
+    const names = getSelectedCourseNames();
+    if (names.length <= maxLength) {
+      return names;
+    }
+    return names.substring(0, maxLength) + '...';
+  };
 
   const handleExport = async () => {
     if (!hasSelectedProducts || isExporting) return;
@@ -46,14 +49,13 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     setExportStatus('idle');
 
     // Show initial export toast
-    const courseNamesText = selectedCourseNames.length > 0 
-      ? selectedCourseNames.join(', ')
-      : `${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}`;
-    
+    const displayCourseNames = getDisplayCourseNames(60);
     const toastId = addToast({
       type: 'loading',
       title: 'Exporting Courses',
-      description: `Starting export of: ${courseNamesText}`,
+      description: selectedProducts.size <= 3 
+        ? `Starting export of: ${displayCourseNames}...`
+        : `Starting export of ${selectedProducts.size} courses: ${displayCourseNames}...`,
       duration: 0, // Don't auto-dismiss loading toast
     });
 
@@ -125,14 +127,11 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
         console.log('✅ Export completed:', exportData.results);
         
         // Update toast to success
-        const successCourseNamesText = selectedCourseNames.length > 0 
-          ? selectedCourseNames.join(', ')
-          : `${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}`;
-          
+        const successDisplayNames = getDisplayCourseNames(70);
         updateToast(toastId, {
           type: 'success',
           title: 'Export Successful!',
-          description: userMessage || `Successfully exported: ${successCourseNamesText}`,
+          description: userMessage || `Successfully exported: ${successDisplayNames}`,
           duration: 7000,
         });
 
