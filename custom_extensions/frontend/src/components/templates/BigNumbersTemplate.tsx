@@ -181,9 +181,9 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     fontFamily: currentTheme.fonts.contentFont,
   };
 
-  // Header section styles (dark blue background)
+  // Header section styles (using dark purple theme background)
   const headerStyles: React.CSSProperties = {
-    background: '#1e3a8a', // Dark blue background
+    background: currentTheme.colors.backgroundColor, // Use theme background gradient
     padding: '64px 64px 48px 64px',
     width: '100%',
     display: 'flex',
@@ -194,7 +194,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   const titleStyles: React.CSSProperties = {
     fontSize: '2.5rem',
     fontFamily: currentTheme.fonts.titleFont,
-    color: 'white', // White text on dark blue background
+    color: currentTheme.colors.titleColor, // Use theme title color
     textAlign: 'left',
     marginBottom: '24px',
     width: '100%',
@@ -206,7 +206,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   const subtitleStyles: React.CSSProperties = {
     fontSize: '1.1rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: 'white', // White text on dark blue background
+    color: currentTheme.colors.subtitleColor, // Use theme subtitle color
     textAlign: 'left',
     width: '100%',
     wordWrap: 'break-word',
@@ -241,12 +241,12 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     background: 'white',
     borderRadius: '12px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${currentTheme.colors.borderColor || '#e5e7eb'}`,
   };
 
   const valueStyles: React.CSSProperties = {
     fontSize: '3rem',
-    color: '#1e3a8a', // Dark blue color
+    color: currentTheme.colors.accentColor, // Use theme accent color
     marginBottom: '16px',
     fontFamily: currentTheme.fonts.titleFont,
     wordWrap: 'break-word',
@@ -255,7 +255,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   const labelStyles: React.CSSProperties = {
     fontSize: '1.5rem',
-    color: '#374151', // Dark gray color
+    color: currentTheme.colors.titleColor, // Use theme title color
     marginBottom: '12px',
     fontFamily: currentTheme.fonts.titleFont,
     wordWrap: 'break-word',
@@ -264,7 +264,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   const descriptionStyles: React.CSSProperties = {
     fontSize: '1rem',
-    color: '#6b7280', // Medium gray color
+    color: currentTheme.colors.contentColor, // Use theme content color
     fontFamily: currentTheme.fonts.contentFont,
     lineHeight: 1.5,
     wordWrap: 'break-word'
