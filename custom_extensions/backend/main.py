@@ -20001,34 +20001,40 @@ async def generate_poster_image(request: Request):
             logger.info(f"📷 [POSTER_IMAGE] [{session_id}] HTML generation duration: {html_generation_duration:.2f}ms")
             logger.info(f"📷 [POSTER_IMAGE] [{session_id}] HTML content length: {len(html_content)} characters")
             logger.info(f"📷 [POSTER_IMAGE] [{session_id}] HTML preview (first 200 chars): {html_content[:200]}...")
-        
-        # Convert HTML to PNG using the same service as slides
-        logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === IMAGE CONVERSION ===")
-        conversion_start = time.time()
-        
-        try:
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Importing HTML-to-image service...")
-            from app.services.html_to_image_service import html_to_image_service
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ HTML-to-image service imported")
             
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Starting HTML-to-PNG conversion...")
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Conversion parameters:")
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - html_content length: {len(html_content)} chars")
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - output_path: {output_path}")
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - template_id: poster")
+            # Convert HTML to PNG using the same service as slides
+            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === IMAGE CONVERSION ===")
+            conversion_start = time.time()
             
-            success = await html_to_image_service.convert_html_to_png(
-                html_content=html_content,
-                output_path=output_path,
-                template_id="poster"
-            )
-            
-            conversion_end = time.time()
-            conversion_duration = (conversion_end - conversion_start) * 1000
-            
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Image conversion completed in {conversion_duration:.2f}ms")
-            logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Conversion success: {success}")
-            
+            try:
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Importing HTML-to-image service...")
+                from app.services.html_to_image_service import html_to_image_service
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ HTML-to-image service imported")
+                
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Starting HTML-to-PNG conversion...")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Conversion parameters:")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - html_content length: {len(html_content)} chars")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - output_path: {output_path}")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}]   - template_id: poster")
+                
+                success = await html_to_image_service.convert_html_to_png(
+                    html_content=html_content,
+                    output_path=output_path,
+                    template_id="poster"
+                )
+                
+                conversion_end = time.time()
+                conversion_duration = (conversion_end - conversion_start) * 1000
+                
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Image conversion completed in {conversion_duration:.2f}ms")
+                logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Conversion success: {success}")
+                
+            except Exception as conversion_error:
+                conversion_end = time.time()
+                conversion_duration = (conversion_end - conversion_start) * 1000
+                logger.error(f"📷 [POSTER_IMAGE] [{session_id}] ❌ Conversion failed after {conversion_duration:.2f}ms: {conversion_error}")
+                success = False
+                
         except Exception as template_error:
             html_generation_end = time.time()
             html_generation_duration = (html_generation_end - html_generation_start) * 1000
@@ -20047,6 +20053,14 @@ async def generate_poster_image(request: Request):
             logger.info(f"📷 [POSTER_IMAGE] [{session_id}] ✅ Fallback HTML generated in {fallback_duration:.2f}ms")
             logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Fallback HTML length: {len(html_content)} characters")
             logger.info(f"📷 [POSTER_IMAGE] [{session_id}] Fallback HTML preview: {html_content[:200]}...")
+            
+            # Now try the conversion with fallback HTML
+            from app.services.html_to_image_service import html_to_image_service
+            success = await html_to_image_service.convert_html_to_png(
+                html_content=html_content,
+                output_path=output_path,
+                template_id="poster"
+            )
         
         # File validation and analysis
         logger.info(f"📷 [POSTER_IMAGE] [{session_id}] === FILE VALIDATION ===")
