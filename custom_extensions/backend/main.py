@@ -7386,6 +7386,7 @@ class SlidesAnalyticsResponse(BaseModel):
     usage_by_template: List[TemplateTypeUsage]
 
 class SlideGenerationError(BaseModel):
+    id: int
     user_email: str
     template_id: str
     props: Dict[str, Any]
@@ -22814,6 +22815,7 @@ async def get_slides_errors_analytics(
             rows = await conn.fetch(
                 """
                 SELECT 
+                    sce.id,
                     sce.template_id,
                     sce.props,
                     sce.error_message,
@@ -22821,14 +22823,16 @@ async def get_slides_errors_analytics(
                     sce.user_id,
                     u.email as user_email
                 FROM slide_creation_errors sce
-                LEFT JOIN "user" u ON sce.user_id = u.id
+                LEFT JOIN users u ON sce.user_id = u.id
                 WHERE sce.created_at BETWEEN $1 AND $2
                 ORDER BY sce.created_at DESC
-                """
-            , start_date, end_date)
+                """,
+                start_date, end_date
+            )
             errors = [
                 SlideGenerationError(
-                    user_email=row["user_email"],
+                    id=row["id"],
+                    user_email=row["user_email"] if "user_email" in row and row["user_email"] else "",
                     template_id=row["template_id"],
                     props=row["props"],
                     error_message=row["error_message"],
