@@ -1831,7 +1831,22 @@ export default function ProjectInstanceViewPage() {
 
           <div className="flex items-center gap-x-4">
             <button
-              onClick={() => router.back()}
+              onClick={() => {
+                try {
+                  const ref = typeof document !== 'undefined' ? document.referrer || '' : '';
+                  // If came from a specific product type generator like /create/generate/[product_type]
+                  // then go to the generic generate picker at /create/generate instead of going back
+                  const cameFromSpecificGenerate = /\/create\/generate\/.+/.test(ref);
+                  if (cameFromSpecificGenerate) {
+                    // Normalize to the generic generate page
+                    window.location.href = '/create/generate';
+                    return;
+                  }
+                } catch (e) {
+                  // noop fallback to router.back below
+                }
+                router.back();
+              }}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
               <ArrowLeft size={16} className="mr-2" />
