@@ -18697,87 +18697,94 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
         if row["component_name"] != COMPONENT_NAME_TRAINING_PLAN:
             raise HTTPException(status_code=400, detail="Project is not a training plan")
 
-    # Get or create chat session
-    if payload.chatSessionId:
-        chat_id = payload.chatSessionId
-    else:
-        persona_id = await get_contentbuilder_persona_id(cookies)
-        chat_id = await create_onyx_chat_session(persona_id, cookies)
-
-    # Convert existing training plan to markdown format for AI processing
+    # Get existing content first
     existing_content = row["microproduct_content"]
-    current_outline = ""
     
-    if existing_content:
-        # Convert existing training plan to markdown format with full details
-        content_data = existing_content
-        if isinstance(content_data, dict):
-            main_title = content_data.get("mainTitle", "Training Plan")
-            current_outline = f"# {main_title}\n\n"
-            
-            sections = content_data.get("sections", [])
-            for section in sections:
-                section_id = section.get("id", "")
-                section_title = section.get("title", "")
-                total_hours = section.get("totalHours", 0.0)
-                # Get module quality tier information for preservation
-                section_quality_tier = section.get("quality_tier", "")
-                
-                # Convert special characters to safe ASCII for AI processing
-                # We'll convert back after AI response to preserve user-visible format
-                if section_id and section_title:
-                    # Replace № with # for AI processing (encoding-safe)
-                    safe_section_id = section_id.replace("№", "#")
-                    if section_id != safe_section_id:
-                        logger.info(f"[SMART_EDIT_ENCODING] Converted '{section_id}' to '{safe_section_id}' for AI processing")
-                    # Check if section_id already contains "Module" keyword
-                    if "Module" in safe_section_id or "Модуль" in safe_section_id:
-                        current_outline += f"## {safe_section_id}: {section_title}\n"
-                    else:
-                        # For other formats (#1, mod1, etc.), preserve them exactly as they are
-                        current_outline += f"## {safe_section_id}: {section_title}\n"
-                else:
-                    # Fallback for empty IDs
-                    current_outline += f"## {section_title}\n"
-                current_outline += f"**Total Hours:** {total_hours}\n"
-                if section_quality_tier:
-                    current_outline += f"**Module Quality Tier:** {section_quality_tier}\n"
-                current_outline += "\n"
-                
-                lessons = section.get("lessons", [])
-                if lessons:
-                    current_outline += "### Lessons:\n"
-                    for idx, lesson in enumerate(lessons, 1):
-                        lesson_title = lesson.get("title", "")
-                        lesson_hours = lesson.get("hours", 1.0)
-                        lesson_source = lesson.get("source", "Create from scratch")
-                        
-                        # Get check details
-                        check = lesson.get("check", {})
-                        check_type = check.get("type", "none")
-                        check_text = check.get("text", "No")
-                        
-                        # Get content availability
-                        content_available = lesson.get("contentAvailable", {})
-                        content_type = content_available.get("type", "yes")
-                        content_text = content_available.get("text", "100%")
-                        
-                        # Get quality tier information for preservation
-                        lesson_quality_tier = lesson.get("quality_tier", "")
-                        
-                        current_outline += f"{idx}. **{lesson_title}**\n"
-                        current_outline += f"   - Hours: {lesson_hours}\n"
-                        current_outline += f"   - Source: {lesson_source}\n"
-                        current_outline += f"   - Assessment: {check_type} ({check_text})\n"
-                        current_outline += f"   - Content Available: {content_type} ({content_text})\n"
-                        if lesson_quality_tier:
-                            current_outline += f"   - Quality Tier: {lesson_quality_tier}\n"
-                        current_outline += "\n"
-                else:
-                    current_outline += "*No lessons defined*\n\n"
-                current_outline += "\n"
+    # Skip expensive operations for OpenAI direct path
+    if should_use_openai_direct(payload):
+        chat_id = None
+        current_outline = ""
+    else:
+        # Get or create chat session (only for Onyx path)
+        if payload.chatSessionId:
+            chat_id = payload.chatSessionId
+        else:
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
 
-    # Prepare wizard payload
+        # Convert existing training plan to markdown format for AI processing (only for Onyx path)
+        current_outline = ""
+        
+        if existing_content:
+            # Convert existing training plan to markdown format with full details
+            content_data = existing_content
+            if isinstance(content_data, dict):
+                main_title = content_data.get("mainTitle", "Training Plan")
+                current_outline = f"# {main_title}\n\n"
+                
+                sections = content_data.get("sections", [])
+                for section in sections:
+                    section_id = section.get("id", "")
+                    section_title = section.get("title", "")
+                    total_hours = section.get("totalHours", 0.0)
+                    # Get module quality tier information for preservation
+                    section_quality_tier = section.get("quality_tier", "")
+                    
+                    # Convert special characters to safe ASCII for AI processing
+                    # We'll convert back after AI response to preserve user-visible format
+                    if section_id and section_title:
+                        # Replace № with # for AI processing (encoding-safe)
+                        safe_section_id = section_id.replace("№", "#")
+                        if section_id != safe_section_id:
+                            logger.info(f"[SMART_EDIT_ENCODING] Converted '{section_id}' to '{safe_section_id}' for AI processing")
+                        # Check if section_id already contains "Module" keyword
+                        if "Module" in safe_section_id or "Модуль" in safe_section_id:
+                            current_outline += f"## {safe_section_id}: {section_title}\n"
+                        else:
+                            # For other formats (#1, mod1, etc.), preserve them exactly as they are
+                            current_outline += f"## {safe_section_id}: {section_title}\n"
+                    else:
+                        # Fallback for empty IDs
+                        current_outline += f"## {section_title}\n"
+                    current_outline += f"**Total Hours:** {total_hours}\n"
+                    if section_quality_tier:
+                        current_outline += f"**Module Quality Tier:** {section_quality_tier}\n"
+                    current_outline += "\n"
+                    
+                    lessons = section.get("lessons", [])
+                    if lessons:
+                        current_outline += "### Lessons:\n"
+                        for idx, lesson in enumerate(lessons, 1):
+                            lesson_title = lesson.get("title", "")
+                            lesson_hours = lesson.get("hours", 1.0)
+                            lesson_source = lesson.get("source", "Create from scratch")
+                            
+                            # Get check details
+                            check = lesson.get("check", {})
+                            check_type = check.get("type", "none")
+                            check_text = check.get("text", "No")
+                            
+                            # Get content availability
+                            content_available = lesson.get("contentAvailable", {})
+                            content_type = content_available.get("type", "yes")
+                            content_text = content_available.get("text", "100%")
+                            
+                            # Get quality tier information for preservation
+                            lesson_quality_tier = lesson.get("quality_tier", "")
+                            
+                            current_outline += f"{idx}. **{lesson_title}**\n"
+                            current_outline += f"   - Hours: {lesson_hours}\n"
+                            current_outline += f"   - Source: {lesson_source}\n"
+                            current_outline += f"   - Assessment: {check_type} ({check_text})\n"
+                            current_outline += f"   - Content Available: {content_type} ({content_text})\n"
+                            if lesson_quality_tier:
+                                current_outline += f"   - Quality Tier: {lesson_quality_tier}\n"
+                            current_outline += "\n"
+                    else:
+                        current_outline += "*No lessons defined*\n\n"
+                    current_outline += "\n"
+
+    # Prepare wizard payload (only used for Onyx path)
     wiz_payload = {
         "product": "Training Plan Edit",
         "prompt": payload.prompt,
@@ -18792,72 +18799,114 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
     async def streamer():
         # Fast path: request immediate JSON when there is no file context
         if should_use_openai_direct(payload):
-            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT JSON (no file context)")
+            logger.info(f"[SMART_EDIT_STREAM] ✅ USING OPENAI DIRECT PARTIAL JSON (no file context)")
             try:
                 client = get_openai_client()
                 model = LLM_DEFAULT_MODEL
+                
+                # Ask for only changed sections to reduce token usage and latency
                 component_specific_instructions = (
                     "You are an expert editor for 'Training Plan' JSON. Given the ORIGINAL JSON and an EDIT INSTRUCTION, "
-                    "produce a NEW JSON object of the same schema, applying the edit consistently across modules and lessons. "
-                    "Return ONLY a single valid JSON object with keys: mainTitle, sections, detectedLanguage, theme. "
-                    "Preserve existing IDs, language and theme unless a change is explicitly required. "
-                    "The sections[].id MUST use the '№X' format."
+                    "return ONLY the changes needed as a partial JSON object. "
+                    "Include: "
+                    "- 'mainTitle' if it should be changed "
+                    "- 'changedSections' array with only the sections that need modification (full section objects) "
+                    "- 'newSections' array if new sections should be added "
+                    "- 'deletedSectionIds' array if sections should be removed "
+                    "If only lesson-level changes within existing sections, include the full affected sections in 'changedSections'. "
+                    "Preserve section IDs in '№X' format. "
+                    "Return ONLY a valid JSON object with these keys."
                 )
+
                 original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
                 messages = [
                     {"role": "system", "content": component_specific_instructions},
                     {"role": "user", "content": (
                         "ORIGINAL JSON:\n" + original_json_str + "\n\n" +
                         "EDIT INSTRUCTION (language=" + (payload.language or "en") + "):\n" + payload.prompt + "\n\n" +
-                        "Output: Strict JSON object only."
+                        "Output: Partial JSON with only changes needed."
                     )}
                 ]
+
                 completion = await client.chat.completions.create(
                     model=model,
                     messages=messages,
                     temperature=0.2,
-                    max_tokens=6000,
+                    max_tokens=4000,  # Reduced since we're only getting partial updates
                     response_format={"type": "json_object"}
                 )
+
                 content_text = completion.choices[0].message.content or "{}"
-                print("CONTENT TEXT", content_text)
-                updated_content_dict = json.loads(content_text)
-                try:
-                    if isinstance(existing_content, dict):
-                        original_language = existing_content.get("detectedLanguage", payload.language)
-                        original_theme = existing_content.get("theme", payload.theme or "cherry")
-                    else:
-                        original_language = payload.language or "en"
-                        original_theme = payload.theme or "cherry"
-                    updated_content_dict.setdefault("detectedLanguage", original_language)
-                    updated_content_dict.setdefault("theme", original_theme)
-                except Exception:
-                    pass
-                try:
-                    for section in updated_content_dict.get("sections", []):
-                        sid = section.get("id")
-                        if not sid:
-                            continue
-                        if isinstance(sid, str):
-                            if sid.isdigit():
-                                section["id"] = f"№{sid}"
-                            elif sid.startswith("#") and sid[1:].isdigit():
-                                section["id"] = f"№{sid[1:]}"
-                            elif not sid.startswith("№"):
+                changes = json.loads(content_text)
+
+                # Merge changes with existing content
+                if isinstance(existing_content, dict):
+                    merged_content = existing_content.copy()
+                else:
+                    merged_content = {"mainTitle": "Training Plan", "sections": [], "detectedLanguage": payload.language or "en", "theme": payload.theme or "cherry"}
+
+                # Apply title change if provided
+                if "mainTitle" in changes:
+                    merged_content["mainTitle"] = changes["mainTitle"]
+
+                # Apply section deletions
+                if "deletedSectionIds" in changes:
+                    deleted_ids = set(changes["deletedSectionIds"])
+                    merged_content["sections"] = [s for s in merged_content.get("sections", []) if s.get("id") not in deleted_ids]
+
+                # Apply section changes
+                if "changedSections" in changes:
+                    sections_by_id = {s.get("id"): s for s in merged_content.get("sections", [])}
+                    for changed_section in changes["changedSections"]:
+                        section_id = changed_section.get("id")
+                        if section_id:
+                            # Normalize ID to '№X' format
+                            if section_id.isdigit():
+                                section_id = f"№{section_id}"
+                                changed_section["id"] = section_id
+                            elif section_id.startswith("#") and section_id[1:].isdigit():
+                                section_id = f"№{section_id[1:]}"
+                                changed_section["id"] = section_id
+                            elif not section_id.startswith("№"):
                                 import re
-                                m = re.search(r"\d+", sid)
+                                m = re.search(r"\d+", section_id)
                                 if m:
-                                    section["id"] = f"№{m.group()}"
-                except Exception as e:
-                    logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
-                done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
-                print("DONE PACKET", done_packet)
+                                    section_id = f"№{m.group()}"
+                                    changed_section["id"] = section_id
+                            
+                            sections_by_id[section_id] = changed_section
+                    
+                    merged_content["sections"] = list(sections_by_id.values())
+
+                # Add new sections
+                if "newSections" in changes:
+                    new_sections = changes["newSections"]
+                    for new_section in new_sections:
+                        # Normalize new section ID
+                        section_id = new_section.get("id", "")
+                        if section_id:
+                            if section_id.isdigit():
+                                new_section["id"] = f"№{section_id}"
+                            elif section_id.startswith("#") and section_id[1:].isdigit():
+                                new_section["id"] = f"№{section_id[1:]}"
+                            elif not section_id.startswith("№"):
+                                import re
+                                m = re.search(r"\d+", section_id)
+                                if m:
+                                    new_section["id"] = f"№{m.group()}"
+                    
+                    merged_content["sections"].extend(new_sections)
+
+                # Preserve language and theme
+                merged_content.setdefault("detectedLanguage", payload.language or "en")
+                merged_content.setdefault("theme", payload.theme or "cherry")
+
+                done_packet = {"type": "done", "updatedContent": merged_content, "isPreview": True}
                 yield (json.dumps(done_packet) + "\n").encode()
                 return
             except Exception as e:
-                logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
-                # fall through to legacy path if JSON fast path fails
-        print("FALLING THROUGH TO LEGACY PATH")
+                logger.error(f"[SMART_EDIT_PARTIAL_JSON_ERROR] {e}")
+                # fall through to legacy path if partial JSON fast path fails
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
