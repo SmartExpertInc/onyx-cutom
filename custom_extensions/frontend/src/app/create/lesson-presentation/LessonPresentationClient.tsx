@@ -1743,15 +1743,17 @@ export default function LessonPresentationClient() {
                               return (
                                 <div className="mt-1 ml-1 flex flex-col gap-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                                   {bullets.slice(0, 5).map((b, i) => (
-                                    <input
-                                      key={i}
-                                      type="text"
-                                      value={String(b)}
-                                      onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
-                                      disabled={!streamDone}
-                                      className="text-sm text-gray-800 border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#396EDF]"
-                                      placeholder={t('interface.generate.topic', 'Topic') as string}
-                                    />
+                                    <div key={i} className="flex items-center gap-2">
+                                      <span className="text-gray-500 select-none">•</span>
+                                      <input
+                                        type="text"
+                                        value={String(b)}
+                                        onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
+                                        disabled={!streamDone}
+                                        className="flex-1 text-sm text-gray-800 border-0 px-0 py-1 focus:outline-none focus:ring-0"
+                                        placeholder={t('interface.generate.topic', 'Topic') as string}
+                                      />
+                                    </div>
                                   ))}
                                   <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
                                     + {t('interface.generate.addBullet', 'Add bullet')}

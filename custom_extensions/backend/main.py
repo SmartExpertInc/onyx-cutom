@@ -17426,7 +17426,19 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         async for chunk in stream_openai_response(wizard_message):
                             if chunk.get("type") == "delta":
                                 regenerated_text += chunk.get("text", "")
-                        new_slide_obj = json.loads(regenerated_text.strip())
+                        parsed_text = regenerated_text.strip()
+                        # Strip markdown fences and isolate JSON object if present
+                        if parsed_text.startswith("```"):
+                            i1 = parsed_text.find("{")
+                            i2 = parsed_text.rfind("}")
+                            if i1 != -1 and i2 != -1:
+                                parsed_text = parsed_text[i1:i2+1]
+                        else:
+                            i1 = parsed_text.find("{")
+                            i2 = parsed_text.rfind("}")
+                            if i1 != -1 and i2 != -1:
+                                parsed_text = parsed_text[i1:i2+1]
+                        new_slide_obj = json.loads(parsed_text)
                         new_slide_obj["slideNumber"] = slide_num
                         slides[idx] = new_slide_obj
                     except Exception as regen_err:
