@@ -1341,7 +1341,7 @@ export default function TextPresentationClient() {
           <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px]">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col gap-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
