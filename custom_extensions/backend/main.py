@@ -18820,6 +18820,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                     response_format={"type": "json_object"}
                 )
                 content_text = completion.choices[0].message.content or "{}"
+                print("CONTENT TEXT", content_text)
                 updated_content_dict = json.loads(content_text)
                 try:
                     if isinstance(existing_content, dict):
@@ -18850,11 +18851,13 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 except Exception as e:
                     logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
                 done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
+                print("DONE PACKET", done_packet)
                 yield (json.dumps(done_packet) + "\n").encode()
                 return
             except Exception as e:
                 logger.error(f"[SMART_EDIT_JSON_ERROR] {e}")
                 # fall through to legacy path if JSON fast path fails
+        print("FALLING THROUGH TO LEGACY PATH")
         assistant_reply: str = ""
         last_send = asyncio.get_event_loop().time()
 
