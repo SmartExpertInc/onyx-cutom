@@ -1075,7 +1075,7 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-8 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
       <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
@@ -1172,7 +1172,7 @@ function GenerateProductPicker() {
 
         {/* Connector context indicator */}
         {isFromConnectors && connectorContext && (
-          <div className="bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-md">
+          <div className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-md">
             <div className="flex items-center gap-3 mb-3">
                 <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
@@ -1435,21 +1435,21 @@ function GenerateProductPicker() {
 
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <>
-                  <Button
-                    onClick={() => {
-                      setUseExistingOutline(null);
-                      setSelectedOutlineId(null);
-                      setSelectedModuleIndex(null);
-                      setLessonsForModule([]);
-                      setSelectedLesson("");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                  >
-                    ← Back
-                  </Button>
+                  <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-1 mb-1">
+                    <Button
+                      onClick={() => {
+                        setUseExistingOutline(null);
+                        setSelectedOutlineId(null);
+                        setSelectedModuleIndex(null);
+                        setLessonsForModule([]);
+                        setSelectedLesson("");
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
+                    >
+                      ← Back
+                    </Button>
                     <CustomPillSelector
                       value={language}
                       onValueChange={setLanguage}
@@ -1472,7 +1472,7 @@ function GenerateProductPicker() {
                       icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                       label="Slides"
                     />
-                  </>
+                  </div>
                 )}
               </div>
             )}
@@ -1610,21 +1610,21 @@ function GenerateProductPicker() {
 
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
-                  <>
-                  <Button
-                    onClick={() => {
-                      setUseExistingQuizOutline(null);
-                      setSelectedQuizOutlineId(null);
-                      setSelectedQuizModuleIndex(null);
-                      setQuizLessonsForModule([]);
-                      setSelectedQuizLesson("");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                  >
-                    ← Back
-                  </Button>
+                  <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-1 mb-1">
+                    <Button
+                      onClick={() => {
+                        setUseExistingQuizOutline(null);
+                        setSelectedQuizOutlineId(null);
+                        setSelectedQuizModuleIndex(null);
+                        setQuizLessonsForModule([]);
+                        setSelectedQuizLesson("");
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                    >
+                      ← Back
+                    </Button>
                     <CustomPillSelector
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
@@ -1661,7 +1661,7 @@ function GenerateProductPicker() {
                       icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
                       label="Questions"
                     />
-                  </>
+                  </div>
                 )}
               </div>
             )}
@@ -1804,21 +1804,21 @@ function GenerateProductPicker() {
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
-                  <>
-                  <Button
-                    onClick={() => {
-                      setUseExistingTextOutline(null);
-                      setSelectedTextOutlineId(null);
-                      setSelectedTextModuleIndex(null);
-                      setTextLessonsForModule([]);
-                      setSelectedTextLesson("");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                  >
-                    ← Back
-                  </Button>
+                  <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-1 mb-1">
+                    <Button
+                      onClick={() => {
+                        setUseExistingTextOutline(null);
+                        setSelectedTextOutlineId(null);
+                        setSelectedTextModuleIndex(null);
+                        setTextLessonsForModule([]);
+                        setSelectedTextLesson("");
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                    >
+                      ← Back
+                    </Button>
                     <CustomPillSelector
                       value={textLanguage}
                       onValueChange={setTextLanguage}
@@ -1860,7 +1860,7 @@ function GenerateProductPicker() {
                       label="Styles"
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
-                  </>
+                  </div>
                 )}
               </div>
             )}
