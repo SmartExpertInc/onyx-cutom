@@ -391,7 +391,7 @@ export default function CreateFromSpecificFilesPage() {
                     variant="create"
                     onClick={handleCreateContent}
                     disabled={!connectorSelectionValid}
-                    className={`w-2/5 py-2 ${
+                    className={`w-2/5 min-h-12 ${
                       !connectorSelectionValid
                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed transition-all duration-200'
                         : 'bg-gradient-to-r from-[#002865] to-[#609FFD] transition-all duration-200 text-white hover:from-[#609FFD] hover:to-[#002865] transform hover:scale-[1.02]'

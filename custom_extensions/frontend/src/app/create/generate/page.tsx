@@ -1348,6 +1348,22 @@ function GenerateProductPicker() {
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
               <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
+                {/* Back button at the start of the section */}
+                <Button
+                  onClick={() => {
+                    setUseExistingOutline(null);
+                    setSelectedOutlineId(null);
+                    setSelectedModuleIndex(null);
+                    setLessonsForModule([]);
+                    setSelectedLesson("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </Button>
+                
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1432,20 +1448,6 @@ function GenerateProductPicker() {
                     )}
                   </>
                 )}
-                <Button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
 
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
@@ -1509,6 +1511,22 @@ function GenerateProductPicker() {
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingQuizOutline !== null && (
               <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
+                {/* Back button at the start of the section */}
+                <Button
+                  onClick={() => {
+                    setUseExistingQuizOutline(null);
+                    setSelectedQuizOutlineId(null);
+                    setSelectedQuizModuleIndex(null);
+                    setQuizLessonsForModule([]);
+                    setSelectedQuizLesson("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </Button>
+                
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
@@ -1608,20 +1626,6 @@ function GenerateProductPicker() {
                   </>
                 )}
 
-                <Button
-                  onClick={() => {
-                    setUseExistingQuizOutline(null);
-                    setSelectedQuizOutlineId(null);
-                    setSelectedQuizModuleIndex(null);
-                    setQuizLessonsForModule([]);
-                    setSelectedQuizLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
                   <>
@@ -1698,6 +1702,22 @@ function GenerateProductPicker() {
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingTextOutline !== null && (
               <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
+                {/* Back button at the start of the section */}
+                <Button
+                  onClick={() => {
+                    setUseExistingTextOutline(null);
+                    setSelectedTextOutlineId(null);
+                    setSelectedTextModuleIndex(null);
+                    setTextLessonsForModule([]);
+                    setSelectedTextLesson("");
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                >
+                  ← Back
+                </Button>
+                
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
@@ -1801,20 +1821,6 @@ function GenerateProductPicker() {
                     )}
                   </>
                 )}
-                <Button
-                  onClick={() => {
-                    setUseExistingTextOutline(null);
-                    setSelectedTextOutlineId(null);
-                    setSelectedTextModuleIndex(null);
-                    setTextLessonsForModule([]);
-                    setSelectedTextLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
