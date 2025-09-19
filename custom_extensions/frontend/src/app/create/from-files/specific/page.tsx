@@ -383,9 +383,9 @@ export default function CreateFromSpecificFilesPage() {
           </div>
 
           {/* Content Creation Section */}
-          <div className="mb-8">
+          <div className="mb-7">
               {/* Create Content Button */}
-              <div className="mt-8">
+              <div className="mt-9">
                 <div className="flex justify-center">
                   <Button
                     variant="create"
@@ -393,8 +393,8 @@ export default function CreateFromSpecificFilesPage() {
                     disabled={!connectorSelectionValid}
                     className={`w-2/5 py-2 ${
                       !connectorSelectionValid
-                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-[#002865] to-[#609FFD] text-white hover:from-[#609FFD] hover:to-[#002865] transform hover:scale-[1.02]'
+                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed transition-all duration-200'
+                        : 'bg-gradient-to-r from-[#002865] to-[#609FFD] transition-all duration-200 text-white hover:from-[#609FFD] hover:to-[#002865] transform hover:scale-[1.02]'
                     }`}
                   >
                     <div className="flex items-center justify-center gap-3">

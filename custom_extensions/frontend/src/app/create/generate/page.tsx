@@ -1077,7 +1077,7 @@ function GenerateProductPicker() {
     <main
       className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
-      <div className="w-full max-w-4xl flex flex-col gap-10 items-center">
+      <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1252,7 +1252,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 mb-1 px-2">
+        <div className="w-full max-w-3xl flex flex-wrap justify-center gap-1 sm:gap-1 md:gap-2 lg:gap-2 mb-1 px-2">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course Outline')}
             Icon={CourseOutlineIcon}
@@ -1287,7 +1287,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-2 mb-1">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-1 mb-1">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1324,7 +1324,7 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && (
-          <div className="flex flex-col items-center gap-3 mb-1">
+          <div className="flex flex-col items-center gap-2 mb-1">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1351,7 +1351,7 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1485,7 +1485,7 @@ function GenerateProductPicker() {
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && (
-          <div className="flex flex-col items-center gap-3 mb-1">
+          <div className="flex flex-col items-center gap-2 mb-1">
             {/* Step 1: Choose source */}
             {useExistingQuizOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1512,7 +1512,7 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingQuizOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
@@ -1674,7 +1674,7 @@ function GenerateProductPicker() {
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && (
-          <div className="flex flex-col items-center gap-3 mb-1">
+          <div className="flex flex-col items-center gap-2 mb-1">
             {/* Step 1: Choose source */}
             {useExistingTextOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1701,7 +1701,7 @@ function GenerateProductPicker() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingTextOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2">
+              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
@@ -1873,7 +1873,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-2 mb-1">
+          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1 mb-1">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
@@ -1922,7 +1922,7 @@ function GenerateProductPicker() {
             </div>
 
             {/* Simple examples grid */}
-            <div className={`w-full transition-opacity duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}>
+            <div className={`w-full mt-5 transition-opacity duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}>
             <div className="w-full relative z-0">
               <div className="flex items-center justify-center mb-2 relative">
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">

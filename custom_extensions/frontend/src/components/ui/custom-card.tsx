@@ -126,7 +126,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             <div className="flex flex-col items-start gap-2 flex-1 justify-start">
               {title && (
                 <h3 className={cn(
-                  "text-2xl font-semibold text-left leading-tight",
+                  "text-2xl font-semibold text-left leading-tight tracking-tight",
                   useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : "text-blue-600"
                 )}>
                   {title}
