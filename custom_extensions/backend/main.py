@@ -22823,7 +22823,7 @@ async def get_slides_errors_analytics(
                     sce.user_id,
                     u.email as user_email
                 FROM slide_creation_errors sce
-                LEFT JOIN user u ON sce.user_id = u.id
+                LEFT JOIN "user" u ON sce.user_id = u.id
                 WHERE sce.created_at BETWEEN $1 AND $2
                 ORDER BY sce.created_at DESC
                 """,
