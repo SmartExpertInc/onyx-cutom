@@ -17090,6 +17090,10 @@ class LessonWizardFinalize(BaseModel):
     theme: Optional[str] = None            # Selected theme for presentation
     # NEW: folder context for creation from inside a folder
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
+    # NEW: user edits tracking
+    hasUserEdits: Optional[bool] = False
+    originalContent: Optional[str] = None
+    editedSlides: Optional[List[Dict[str, Any]]] = None
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -17382,9 +17386,58 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
     if not payload.aiResponse or not payload.aiResponse.strip():
         raise HTTPException(status_code=400, detail="AI response content is required")
 
+    # NEW: Regenerate changed slides if user made edits; produce updated JSON
+    regenerated_json: Optional[Dict[str, Any]] = None
+    try:
+        if getattr(payload, 'hasUserEdits', False) and getattr(payload, 'originalContent', None) and getattr(payload, 'editedSlides', None):
+            orig = json.loads(payload.originalContent)  # type: ignore[arg-type]
+            if isinstance(orig, dict) and isinstance(orig.get("slides"), list):
+                slides = orig["slides"]
+                is_video_lesson_local = payload.productType == "video_lesson_presentation"
+                for edit in payload.editedSlides:  # type: ignore[attr-defined]
+                    try:
+                        slide_num = int(edit.get("slideNumber"))
+                        # locate slide
+                        idx = None
+                        for i, s in enumerate(slides):
+                            n = s.get("slideNumber") if isinstance(s, dict) else None
+                            if (n or i + 1) == slide_num:
+                                idx = i; break
+                        if idx is None:
+                            continue
+                        target = slides[idx]
+                        new_title = edit.get("newTitle")
+                        new_points = edit.get("previewKeyPoints")
+                        regen_payload = {
+                            "product": "Video Lesson Slides Deck" if is_video_lesson_local else "Slides Deck",
+                            "action": "regenerate-slide",
+                            "language": "en",
+                            "regeneration": {
+                                "slideNumber": slide_num,
+                                "prioritizedTopics": new_points if isinstance(new_points, list) else None,
+                                "newTitle": new_title if isinstance(new_title, str) else None,
+                                "theme": payload.theme,
+                            },
+                            "context": {"lessonTitle": payload.lessonTitle}
+                        }
+                        wizard_message = "WIZARD_REQUEST\n" + json.dumps(regen_payload) + "\nReturn ONLY the JSON of the single slide object with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + "."
+                        # Collect once-off response
+                        regenerated_text = ""
+                        async for chunk in stream_openai_response(wizard_message):
+                            if chunk.get("type") == "delta":
+                                regenerated_text += chunk.get("text", "")
+                        new_slide_obj = json.loads(regenerated_text.strip())
+                        new_slide_obj["slideNumber"] = slide_num
+                        slides[idx] = new_slide_obj
+                    except Exception as regen_err:
+                        logger.warning(f"[REGEN_SLIDE] Failed to regenerate slide {edit}: {regen_err}")
+                regenerated_json = orig
+    except Exception as e:
+        logger.warning(f"[REGEN_EDITED_SLIDES] Skipping edits processing due to error: {e}")
+
     # Parse AI response to determine slide count for credit calculation
     try:
-        slides_data = json.loads(payload.aiResponse)
+        slides_data = json.loads((json.dumps(regenerated_json) if regenerated_json else payload.aiResponse))
         credits_needed = calculate_product_credits("lesson_presentation", slides_data)
     except:
         # If parsing fails, use default credit cost
@@ -17463,7 +17516,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             projectName=project_name,
             design_template_id=template_id,
             microProductName=None,
-            aiResponse=payload.aiResponse.strip(),
+            aiResponse=(json.dumps(regenerated_json) if regenerated_json else payload.aiResponse.strip()),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
             folder_id=int(payload.folderId) if payload.folderId else None,  # Add folder assignment

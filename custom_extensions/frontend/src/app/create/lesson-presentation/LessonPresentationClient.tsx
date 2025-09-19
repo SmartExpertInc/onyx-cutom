@@ -701,6 +701,29 @@ export default function LessonPresentationClient() {
   const jsonConvertedRef = useRef<boolean>(false);
   // Store original JSON response to send during finalization instead of converted markdown
   const [originalJsonResponse, setOriginalJsonResponse] = useState<string | null>(null);
+  // Editable state for titles and preview bullets
+  const [editedTitles, setEditedTitles] = useState<Record<number, string>>({});
+  const [editedBullets, setEditedBullets] = useState<Record<number, string[]>>({});
+
+  const setTitleForSlide = (idx: number, value: string) => {
+    setEditedTitles((prev) => ({ ...prev, [idx + 1]: value }));
+  };
+  const setBulletForSlide = (idx: number, bulletIdx: number, value: string) => {
+    setEditedBullets((prev) => {
+      const key = idx + 1;
+      const arr = Array.isArray(prev[key]) ? [...prev[key]] : [];
+      arr[bulletIdx] = value;
+      return { ...prev, [key]: arr };
+    });
+  };
+  const addBulletForSlide = (idx: number) => {
+    setEditedBullets((prev) => {
+      const key = idx + 1;
+      const arr = Array.isArray(prev[key]) ? [...prev[key]] : [];
+      arr.push("");
+      return { ...prev, [key]: arr };
+    });
+  };
 
   // Helper: detect if a string is a single JSON object with slides
   const tryParsePresentationJson = (text: string): any | null => {
@@ -787,6 +810,21 @@ export default function LessonPresentationClient() {
         jsonConvertedRef.current = true;
         setOriginalJsonResponse(content); // Store original JSON for finalization
         setContent(md);
+        // Initialize editable state from full JSON
+        try {
+          const obj = JSON.parse(content);
+          if (Array.isArray(obj?.slides)) {
+            const titles: Record<number, string> = {};
+            const bullets: Record<number, string[]> = {};
+            obj.slides.forEach((s: any, i: number) => {
+              const num = s?.slideNumber || i + 1;
+              if (typeof s?.slideTitle === 'string') titles[num] = s.slideTitle;
+              if (Array.isArray(s?.previewKeyPoints)) bullets[num] = [...s.previewKeyPoints];
+            });
+            setEditedTitles(titles);
+            setEditedBullets(bullets);
+          }
+        } catch {}
       }
     }
   }, [streamDone, content]);
@@ -911,6 +949,28 @@ export default function LessonPresentationClient() {
       const isUsingJson = !!originalJsonResponse;
       console.log(`[FINALIZE] Sending ${isUsingJson ? 'original JSON' : 'markdown'} response (${responseToSend.length} chars)`);
 
+      // Build edits payload if any
+      let edits: Array<{ slideNumber: number; newTitle?: string; previewKeyPoints?: string[] }> = [];
+      try {
+        if (originalJsonResponse) {
+          const obj = JSON.parse(originalJsonResponse);
+          if (Array.isArray(obj?.slides)) {
+            obj.slides.forEach((s: any, i: number) => {
+              const num = s?.slideNumber || i + 1;
+              const origTitle = typeof s?.slideTitle === 'string' ? s.slideTitle : '';
+              const origBullets: string[] = Array.isArray(s?.previewKeyPoints) ? s.previewKeyPoints : [];
+              const newTitle = editedTitles[num];
+              const newBullets = editedBullets[num];
+              const titleChanged = typeof newTitle === 'string' && newTitle !== '' && newTitle !== origTitle;
+              const bulletsChanged = Array.isArray(newBullets) && JSON.stringify(newBullets) !== JSON.stringify(origBullets);
+              if (titleChanged || bulletsChanged) {
+                edits.push({ slideNumber: num, ...(titleChanged ? { newTitle } : {}), ...(bulletsChanged ? { previewKeyPoints: newBullets } : {}) });
+              }
+            });
+          }
+        }
+      } catch {}
+
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -926,6 +986,10 @@ export default function LessonPresentationClient() {
           folderId: folderContext?.folderId || undefined,
           // Include selected theme
           theme: selectedTheme,
+          // Edits tracking
+          hasUserEdits: edits.length > 0,
+          originalContent: originalJsonResponse || null,
+          editedSlides: edits,
           // Add connector context if creating from connectors
           ...(isFromConnectors && {
             fromConnectors: true,
@@ -1624,11 +1688,11 @@ export default function LessonPresentationClient() {
                     let title = '';
 
                     if (titleMatch) {
-                      title = titleMatch[1].trim();
+                      title = titleMatch[1]; // do not trim to allow trailing spaces
                     } else {
                       // Fallback: look for any **text** pattern at the start
                       const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
-                      title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                      title = fallbackMatch ? fallbackMatch[1] : `Slide ${slideIdx + 1}`;
                     }
 
                     return (
@@ -1643,19 +1707,12 @@ export default function LessonPresentationClient() {
                           {/* Slide title */}
                           <input
                             type="text"
-                            value={title}
+                            value={editedTitles[slideIdx + 1] ?? title}
                             onChange={(e) => {
                               const newTitle = e.target.value;
-                              // Update the content with new title using language-agnostic pattern
-                              const slidePattern = titleMatch
-                                ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
-                                : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
-
-                              const updatedContent = content.replace(slidePattern,
-                                titleMatch ? `$1${newTitle}` : `**${newTitle}**`
-                              );
-                              setContent(updatedContent);
+                              setTitleForSlide(slideIdx, newTitle);
                             }}
+                            disabled={!streamDone}
                             className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
                             placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                           />
@@ -1679,13 +1736,27 @@ export default function LessonPresentationClient() {
                                   : null;
                                 bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
                               }
+                              // Use edited bullets if present
+                              const edited = editedBullets[slideIdx + 1];
+                              if (Array.isArray(edited) && edited.length) bullets = edited;
                               if (!bullets.length) return null;
                               return (
-                                <ul className="mt-1 ml-1 list-disc list-inside text-sm text-gray-700 space-y-0.5" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                                <div className="mt-1 ml-1 flex flex-col gap-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                                   {bullets.slice(0, 5).map((b, i) => (
-                                    <li key={i}>{String(b)}</li>
+                                    <input
+                                      key={i}
+                                      type="text"
+                                      value={String(b)}
+                                      onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
+                                      disabled={!streamDone}
+                                      className="text-sm text-gray-800 border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-[#396EDF]"
+                                      placeholder={t('interface.generate.topic', 'Topic') as string}
+                                    />
                                   ))}
-                                </ul>
+                                  <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
+                                    + {t('interface.generate.addBullet', 'Add bullet')}
+                                  </button>
+                                </div>
                               );
                             } catch (_) { return null; }
                           })()}
