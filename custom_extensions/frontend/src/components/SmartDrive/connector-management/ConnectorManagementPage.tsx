@@ -7,6 +7,7 @@ import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Setting
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { ConnectorCard } from "@/components/ui/connector-card";
+import TextIcon, { ClockIcon } from "@/components/ui/custom-icons";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -17,7 +18,7 @@ interface ConnectorManagementPageProps {
   onConnectorDeleted?: () => void;
 }
 
-const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 35, status = 'active' }) => {
+const StatusIcon: React.FC<{ size?: number; status?: string }> = ({ size = 24, status = 'active' }) => {
   const getGradientId = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
@@ -370,7 +371,9 @@ export default function ConnectorManagementPage({
             <ConnectorCard
               title={t('interface.documentsIndexed', 'Documents Indexed')}
               value={ccPair.num_docs_indexed}
-              icon={FileText}
+              customIcon={({ size }: { size: number }) => (
+                <TextIcon size={size} />
+              )}
               gradientColors={{ from: 'blue-300', to: 'indigo-200' }}
               textColor="blue-600"
               iconColor="blue-600"
@@ -381,7 +384,9 @@ export default function ConnectorManagementPage({
             <ConnectorCard
               title={t('interface.lastIndexed', 'Last Indexed')}
               value={ccPair.last_indexed ? new Date(ccPair.last_indexed).toLocaleDateString() : t('interface.never', 'Never')}
-              icon={Clock}
+              customIcon={({ size }: { size: number }) => (
+                <ClockIcon size={size} />
+              )}
               gradientColors={{ from: 'purple-300', to: 'pink-200' }}
               textColor="blue-600"
               iconColor="blue-600"
