@@ -1289,31 +1289,55 @@ export default function LessonPresentationClient() {
   const getPreviewTextFromPartialJson = (text: string): string | null => {
     try {
       const s = (text || "");
-      const firstBrace = s.indexOf("{");
-      if (firstBrace < 0) return null;
-      let depth = 0;
-      let started = false;
-      let start = -1;
-      let end = -1;
-      for (let i = firstBrace; i < s.length; i++) {
-        const ch = s[i];
-        if (ch === '{') {
-          if (!started) { started = true; start = i; }
-          depth++;
-        } else if (ch === '}') {
-          if (started) {
+      const slidesKeyIdx = s.indexOf('"slides"');
+      if (slidesKeyIdx < 0) return null;
+      const arrayStart = s.indexOf('[', slidesKeyIdx);
+      if (arrayStart < 0) return null;
+
+      // Collect complete slide objects from the slides array
+      const slides: any[] = [];
+      let i = arrayStart + 1;
+      const n = s.length;
+      while (i < n) {
+        // Skip whitespace and commas
+        while (i < n && (s[i] === ' ' || s[i] === '\n' || s[i] === '\r' || s[i] === '\t' || s[i] === ',')) i++;
+        if (i >= n) break;
+        if (s[i] === ']') break; // end of array
+        if (s[i] !== '{') {
+          // Not a slide object start; search forward for next '{' or end
+          const nextObj = s.indexOf('{', i);
+          if (nextObj < 0) break;
+          i = nextObj;
+        }
+        // Parse a balanced JSON object starting at i
+        let depth = 0;
+        let start = i;
+        let end = -1;
+        while (i < n) {
+          const ch = s[i];
+          if (ch === '{') depth++;
+          else if (ch === '}') {
             depth--;
-            if (depth === 0) { end = i + 1; }
+            if (depth === 0) { end = i + 1; break; }
           }
+          i++;
+        }
+        if (end > 0) {
+          const objStr = s.slice(start, end);
+          try {
+            const slideObj = JSON.parse(objStr);
+            slides.push(slideObj);
+          } catch {
+            // ignore malformed partial
+          }
+        } else {
+          break; // incomplete object, wait for more
         }
       }
-      if (!started || end < 0) return null;
-      const candidate = s.slice(start, end);
-      const obj = JSON.parse(candidate);
-      if (obj && Array.isArray(obj.slides)) {
-        return convertPresentationJsonToMarkdown(obj);
-      }
-      return null;
+
+      if (!slides.length) return null;
+      const tmp = { slides };
+      return convertPresentationJsonToMarkdown(tmp);
     } catch (_) {
       return null;
     }
@@ -1323,12 +1347,9 @@ export default function LessonPresentationClient() {
   const getLivePreviewText = (text: string): string => {
     // If we already converted full JSON after stream end, content is markdown
     if (jsonConvertedRef.current) return text;
-    // If current buffer looks like JSON, try to extract parsable prefix and convert to markdown
-    const trimmed = (text || "").trim();
-    if (trimmed.startsWith("{") && trimmed.includes("\"slides\"")) {
-      const md = getPreviewTextFromPartialJson(text);
-      if (md && md.trim()) return md;
-    }
+    // Try to extract slides from partial JSON stream
+    const md = getPreviewTextFromPartialJson(text);
+    if (md && md.trim()) return md;
     return text;
   };
 
