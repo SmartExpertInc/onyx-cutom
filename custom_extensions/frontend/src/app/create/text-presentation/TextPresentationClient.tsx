@@ -1736,7 +1736,7 @@ export default function TextPresentationClient() {
                     {lessonList.map((lesson, idx: number) => (
                       <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
                         {/* Left blue square with number */}
-                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
+                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0">
                           {idx + 1}
                         </div>
 
@@ -1749,7 +1749,7 @@ export default function TextPresentationClient() {
                                   type="text"
                                   value={editedTitles[idx] || lesson.title}
                                   onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:ring-1 focus-visible:ring-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
                                   autoFocus
                                   onBlur={(e) => handleTitleSave(idx, (e.target as HTMLInputElement).value)}
                                   onKeyDown={(e) => {
