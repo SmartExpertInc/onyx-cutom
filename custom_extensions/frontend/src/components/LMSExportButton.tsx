@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Upload } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Button } from './ui/button';
+import { useToast } from './ui/toast';
 
 interface LMSExportButtonProps {
   selectedProducts: Set<number>;
@@ -15,6 +16,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
   onExportComplete,
 }) => {
   const { t } = useLanguage();
+  const { addToast, updateToast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -25,6 +27,14 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
 
     setIsExporting(true);
     setExportStatus('idle');
+
+    // Show initial export toast
+    const toastId = addToast({
+      type: 'loading',
+      title: 'Exporting Courses',
+      description: `Starting export of ${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}...`,
+      duration: 0, // Don't auto-dismiss loading toast
+    });
 
     try {
       console.log('🎓 Starting LMS export for course outlines:', Array.from(selectedProducts));
@@ -67,8 +77,15 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
               const packet = JSON.parse(trimmed);
               if (packet.type === 'progress') {
                 console.log('📦 LMS export progress:', packet.message || packet);
+                // Update toast with progress
+                updateToast(toastId, {
+                  description: packet.message || `Processing course export...`,
+                });
               } else if (packet.type === 'start') {
                 console.log('🚀 LMS export started:', packet);
+                updateToast(toastId, {
+                  description: `Export in progress...`,
+                });
               } else if (packet.type === 'done') {
                 finalPayload = packet.payload;
                 userMessage = packet.userMessage;
@@ -85,19 +102,21 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       if (exportData?.success) {
       setExportStatus('success');
         console.log('✅ Export completed:', exportData.results);
+        
+        // Update toast to success
+        updateToast(toastId, {
+          type: 'success',
+          title: 'Export Successful!',
+          description: userMessage || `Successfully exported ${selectedProducts.size} course${selectedProducts.size === 1 ? '' : 's'}`,
+          duration: 7000,
+        });
+
         exportData.results?.forEach((result: any) => {
           if (result.downloadLink) {
             console.log(`📥 Course "${result.courseTitle}" available at: ${result.downloadLink}`);
           }
         });
-        if (userMessage) {
-          // Simple styled toast; replace with your toast system if available
-          const toast = document.createElement('div');
-          toast.textContent = userMessage;
-          toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50';
-          document.body.appendChild(toast);
-          setTimeout(() => { toast.remove(); }, 7000);
-        }
+        
         onExportComplete?.(exportData);
       } else {
         throw new Error('Export completed with errors');
@@ -105,6 +124,14 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     } catch (error) {
       console.error('❌ LMS export failed:', error);
       setExportStatus('error');
+      
+      // Update toast to error
+      updateToast(toastId, {
+        type: 'error',
+        title: 'Export Failed',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred during export',
+        duration: 8000,
+      });
     } finally {
       setIsExporting(false);
       setTimeout(() => {

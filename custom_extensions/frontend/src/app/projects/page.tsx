@@ -42,6 +42,7 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
+import { ToastProvider } from '../../components/ui/toast';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -995,12 +996,14 @@ const ProjectsPageInner: React.FC = () => {
                 <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
               )}
               {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
-                <LMSProductSelector
-                  selectedProducts={selectedProducts}
-                  onProductToggle={handleProductToggle}
-                  onSelectAll={handleSelectAllProducts}
-                  onDeselectAll={handleDeselectAllProducts}
-                />
+                <ToastProvider>
+                  <LMSProductSelector
+                    selectedProducts={selectedProducts}
+                    onProductToggle={handleProductToggle}
+                    onSelectAll={handleSelectAllProducts}
+                    onDeselectAll={handleDeselectAllProducts}
+                  />
+                </ToastProvider>
               )}
             </>
           ) : (

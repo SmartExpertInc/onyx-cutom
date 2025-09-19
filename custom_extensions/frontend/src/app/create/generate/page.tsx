@@ -1359,7 +1359,7 @@ function GenerateProductPicker() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 border rounded-full border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
                 </Button>
