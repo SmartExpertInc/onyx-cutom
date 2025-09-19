@@ -18770,22 +18770,32 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 except Exception:
                     pass
                 try:
+                    import re
                     for section in updated_content_dict.get("sections", []):
+                        # Normalize section IDs
                         sid = section.get("id")
-                        if not sid:
-                            continue
-                        if isinstance(sid, str):
+                        if sid and isinstance(sid, str):
                             if sid.isdigit():
                                 section["id"] = f"№{sid}"
                             elif sid.startswith("#") and sid[1:].isdigit():
                                 section["id"] = f"№{sid[1:]}"
                             elif not sid.startswith("№"):
-                                import re
                                 m = re.search(r"\d+", sid)
                                 if m:
                                     section["id"] = f"№{m.group()}"
+                        
+                        # Clean lesson titles - remove prefixes like "Lesson 1.1:", "1.2:", etc.
+                        lessons = section.get("lessons", [])
+                        for lesson in lessons:
+                            title = lesson.get("title", "")
+                            if title and isinstance(title, str):
+                                # Remove patterns like "Lesson 1.1:", "Lesson 1:", "1.1:", "1:", etc.
+                                cleaned_title = re.sub(r'^(Lesson\s+)?\d+(\.\d+)?:\s*', '', title, flags=re.IGNORECASE)
+                                if cleaned_title != title:
+                                    lesson["title"] = cleaned_title
+                                    logger.debug(f"[SMART_EDIT_LESSON_CLEANUP] '{title}' -> '{cleaned_title}'")
                 except Exception as e:
-                    logger.warning(f"[SMART_EDIT_ID_POST] ID normalization warning: {e}")
+                    logger.warning(f"[SMART_EDIT_NORMALIZATION] Normalization warning: {e}")
                 done_packet = {"type": "done", "updatedContent": updated_content_dict, "isPreview": True}
                 yield (json.dumps(done_packet) + "\n").encode()
                 return
@@ -19187,7 +19197,9 @@ async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: 
             validated.theme = payload.theme or "cherry"
 
         try:
+            import re
             for section in validated.sections:
+                # Normalize section IDs
                 sid = section.id
                 if sid:
                     if sid.isdigit():
@@ -19195,12 +19207,21 @@ async def confirm_training_plan_edit(payload: SmartEditConfirmRequest, request: 
                     elif sid.startswith("#") and sid[1:].isdigit():
                         section.id = f"№{sid[1:]}"
                     elif not sid.startswith("№"):
-                        import re
                         m = re.search(r"\d+", sid)
                         if m:
                             section.id = f"№{m.group()}"
+                
+                # Clean lesson titles - remove prefixes like "Lesson 1.1:", "1.2:", etc.
+                for lesson in section.lessons:
+                    title = lesson.title
+                    if title and isinstance(title, str):
+                        # Remove patterns like "Lesson 1.1:", "Lesson 1:", "1.1:", "1:", etc.
+                        cleaned_title = re.sub(r'^(Lesson\s+)?\d+(\.\d+)?:\s*', '', title, flags=re.IGNORECASE)
+                        if cleaned_title != title:
+                            lesson.title = cleaned_title
+                            logger.debug(f"[SMART_EDIT_CONFIRM_LESSON_CLEANUP] '{title}' -> '{cleaned_title}'")
         except Exception as e:
-            logger.warning(f"[SMART_EDIT_CONFIRM_ID_NORMALIZATION] {e}")
+            logger.warning(f"[SMART_EDIT_CONFIRM_NORMALIZATION] {e}")
 
         normalized_dict = validated.model_dump(mode='json', exclude_none=True)
         
