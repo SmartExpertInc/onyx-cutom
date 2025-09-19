@@ -584,8 +584,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  }}
                  onClick={() => handleConnectClick(connector.id, connector.name)}
                >
-                <div className="absolute -top-20 -left-22 w-100 h-100 bg-blue-50/50 rounded-full border-indigo-100/80" />
-                <div className="absolute -top-12 -left-12 w-70 h-70 bg-blue-100/30 rounded-full border-indigo-100/80" />
+                <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
+                <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
                  <CardContent className="p-6 relative z-10">
                    <div className="flex items-center gap-4 mb-4">
                        <Image
@@ -743,9 +743,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       }}
                       onClick={() => handleConnectClick(connector.id, connector.name)}
                     >
-                      <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
-                      <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
-                      <CardContent className="p-6 z-100">
+                      <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80 -z-10" />
+                      <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80 -z-10" />
+                      <CardContent className="p-6 relative z-10">
                         <div className="flex items-center gap-4 mb-4">
                             <Image
                               src={connector.logoPath}

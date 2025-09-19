@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe, FileQuestion, MessageCircleQuestion, PanelsLeftBottom, Paintbrush, ClipboardList } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
@@ -1370,7 +1370,7 @@ function GenerateProductPicker() {
                         value: o.name,
                         label: o.name
                       }))}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
                       label="Outline"
                     />
 
@@ -1429,7 +1429,7 @@ function GenerateProductPicker() {
                             value: (i + 2).toString(),
                             label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
                           }))}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                           label="Slides"
                         />
                       </>
@@ -1459,7 +1459,7 @@ function GenerateProductPicker() {
                         value: (i + 2).toString(),
                         label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
                       }))}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                       label="Slides"
                     />
                   </>
@@ -1532,7 +1532,7 @@ function GenerateProductPicker() {
                         value: outline.name,
                         label: outline.name
                       }))}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
                       label="Outline"
                     />
 
@@ -1594,7 +1594,7 @@ function GenerateProductPicker() {
                             { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                             { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
                           label="Question Types"
                           placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                         />
@@ -1605,7 +1605,7 @@ function GenerateProductPicker() {
                             value: count.toString(),
                             label: `${count} ${t('interface.generate.questions', 'questions')}`
                           }))}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
                           label="Questions"
                         />
                       </>
@@ -1638,7 +1638,7 @@ function GenerateProductPicker() {
                         { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                         { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
                       label="Question Types"
                       placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                     />
@@ -1649,7 +1649,7 @@ function GenerateProductPicker() {
                         value: count.toString(),
                         label: `${count} ${t('interface.generate.questions', 'questions')}`
                       }))}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
                       label="Questions"
                     />
                   </>
@@ -1722,7 +1722,7 @@ function GenerateProductPicker() {
                         value: o.name,
                         label: o.name
                       }))}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
                       label="Outline"
                     />
 
@@ -1799,7 +1799,7 @@ function GenerateProductPicker() {
                             { value: "icons", label: t('interface.generate.icons', 'Icons') },
                             { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
                           label="Styles"
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
                         />
@@ -1848,7 +1848,7 @@ function GenerateProductPicker() {
                         { value: "icons", label: t('interface.generate.icons', 'Icons') },
                         { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
                       label="Styles"
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
@@ -1884,7 +1884,7 @@ function GenerateProductPicker() {
                 value: count.toString(),
                 label: `${count} ${t('interface.generate.slides', 'slides')}`
               }))}
-              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
               label="Slides"
             />
             <CustomPillSelector
