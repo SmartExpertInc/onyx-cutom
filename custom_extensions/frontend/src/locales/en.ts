@@ -1016,6 +1016,7 @@ export const en = {
       finalizingQuiz: "Finalizing quiz...",
       words: "words",
       questionSingular: "question",
+      questionTypesSelected: "Types selected",
       // Additional keys for course outline
       courseOutline: "Course Outline",
       videoLesson: "Video Lesson",

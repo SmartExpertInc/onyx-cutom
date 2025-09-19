@@ -1336,6 +1336,7 @@ export const uk = {
       finalizingQuiz: "Завершення тесту...",
       words: "слів",
       questionSingular: "питання",
+      questionTypesSelected: "Типи вибрано",
       questionFew: "питання",
       questionMany: "питань",
       short: "Короткий",

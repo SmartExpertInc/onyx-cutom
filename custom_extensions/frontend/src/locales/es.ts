@@ -1357,6 +1357,7 @@ export const es = {
       finalizingQuiz: "Finalizando cuestionario...",
       words: "palabras",
       questionSingular: "pregunta",
+      questionTypesSelected: "Tipos seleccionados",
       short: "Corto",
       medium: "Medio",
       long: "Largo",

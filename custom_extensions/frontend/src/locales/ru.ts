@@ -1345,6 +1345,7 @@ export const ru = {
       finalizingQuiz: "Завершение теста...",
       words: "слов",
       questionSingular: "вопрос",
+      questionTypesSelected: "Типы выбрано",
       questionFew: "вопроса",
       questionMany: "вопросов",
       short: "Короткий",

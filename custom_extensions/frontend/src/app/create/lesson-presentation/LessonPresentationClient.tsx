@@ -1200,7 +1200,7 @@ export default function LessonPresentationClient() {
           <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px]">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col gap-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1224,7 +1224,7 @@ export default function LessonPresentationClient() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1376,7 +1376,7 @@ export default function LessonPresentationClient() {
                               <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
                             </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white">
+                          <SelectContent className="border-white">
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
                             <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
                             <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
@@ -1403,7 +1403,7 @@ export default function LessonPresentationClient() {
                               <span className="text-[#09090B]">{slidesCount}</span>
                             </div>
                           </SelectTrigger>
-                          <SelectContent className="shadow-none border-white max-h-[200px]" sideOffset={15}>
+                          <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
                             {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                               <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
                             ))}
