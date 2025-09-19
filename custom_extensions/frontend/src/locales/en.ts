@@ -994,7 +994,7 @@ export const en = {
       matching: "Matching",
       sorting: "Sorting",
       openAnswer: "Open Answer",
-      questions: "questions",
+      questions: "Questions",
       slides: "Slides",
       lesson: "Lesson",
       generatingLessonContent: "Generating lesson content...",

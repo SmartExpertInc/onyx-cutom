@@ -1217,7 +1217,7 @@ export default function CourseOutlineClient() {
       <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
 
         {/* Page title */}
-        <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px]">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Controls */}
         <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
