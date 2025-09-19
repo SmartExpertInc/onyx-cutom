@@ -71,45 +71,49 @@ function EventPosterResultsContent() {
         </div>
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
-              <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Poster</h1>
-                <p className="text-gray-600">Your event poster has been generated successfully</p>
-              </div>
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Poster</h1>
+            <p className="text-gray-600">Your event poster has been generated successfully</p>
+          </div>
 
-              {/* Download Button */}
-              <div className="mb-8 flex justify-center">
-                <PosterDownloadButton 
-                  posterData={{
-                    eventName,
-                    mainSpeaker,
-                    speakerDescription,
-                    date,
-                    topic,
-                    additionalSpeakers,
-                    ticketPrice,
-                    ticketType,
-                    freeAccessConditions,
-                    speakerImageSrc
-                  }}
-                  projectName={eventName || 'event-poster'}
-                />
-              </div>
+          {/* Download Button positioned above poster */}
+          <div className="mb-6 flex justify-center">
+            <PosterDownloadButton 
+              eventName={eventName}
+              mainSpeaker={mainSpeaker}
+              speakerDescription={speakerDescription}
+              date={date}
+              topic={topic}
+              additionalSpeakers={additionalSpeakers}
+              ticketPrice={ticketPrice}
+              ticketType={ticketType}
+              freeAccessConditions={freeAccessConditions}
+              speakerImageSrc={speakerImageSrc}
+              projectName={eventName || 'event-poster'}
+              onSuccess={(message: string) => {
+                console.log('✅ Poster download success:', message);
+              }}
+              onError={(error: string) => {
+                console.error('❌ Poster download error:', error);
+              }}
+            />
+          </div>
 
-              {/* Event Poster Component */}
-              <div className="flex justify-center">
-                <EventPoster
-                  eventName={eventName}
-                  mainSpeaker={mainSpeaker}
-                  speakerDescription={speakerDescription}
-                  date={date}
-                  topic={topic}
-                  additionalSpeakers={additionalSpeakers}
-                  ticketPrice={ticketPrice}
-                  ticketType={ticketType}
-                  freeAccessConditions={freeAccessConditions}
-                  speakerImageSrc={speakerImageSrc}
-                />
-              </div>
+          {/* Event Poster Component */}
+          <div className="flex justify-center">
+            <EventPoster
+              eventName={eventName}
+              mainSpeaker={mainSpeaker}
+              speakerDescription={speakerDescription}
+              date={date}
+              topic={topic}
+              additionalSpeakers={additionalSpeakers}
+              ticketPrice={ticketPrice}
+              ticketType={ticketType}
+              freeAccessConditions={freeAccessConditions}
+              speakerImageSrc={speakerImageSrc}
+            />
+          </div>
         </div>
       </div>
     </main>

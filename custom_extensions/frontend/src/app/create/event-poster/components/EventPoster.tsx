@@ -41,7 +41,6 @@ export default function EventPoster({
 
   return (
     <div 
-      data-poster-component
       className="relative overflow-hidden mx-auto"
       style={{ 
         width: '1000px',
