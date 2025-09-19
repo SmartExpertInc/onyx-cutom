@@ -1,31 +1,90 @@
-📷 [POSTER_DOWNLOAD] Starting server-side poster image generation...
-page-c1d7da528d654044.js:1 📷 [POSTER_DOWNLOAD] Sending poster data to server: {eventName: 'Велика онлайн-конференція', mainSpeaker: 'Денис Довгополий', speakerDescription: 'засновник QNICORN NEST (Luxemburg), першого штучно…я та автоматизує процес спілкування з інвесторами', date: '08.10.2025', topic: 'Тренди та пріоритети ринку VC у 2025-2026 роках', …}
-requests.js:1  POST https://dev4.contentbuilder.ai/api/custom-projects-backend/poster-image/generate 500 (Internal Server Error)
-(anonymous) @ requests.js:1
-(anonymous) @ traffic.js:1
-fetch @ traffic.js:1
-k @ page-c1d7da528d654044.js:1
-iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
-1684-77cc8bacad49b839.js:1 📷 [POSTER_DOWNLOAD] Error generating poster image: Error: Generated image file is too small
-    at k (page-c1d7da528d654044.js:1:8454)
-push.66905.window.console.error @ 1684-77cc8bacad49b839.js:1
-k @ page-c1d7da528d654044.js:1
-await in k
-iX @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-(anonymous) @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-nS @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-i2 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-s7 @ 4bd1b696-4fd0ea18c6d24e6e.js:1
-s5 @ 4bd1b696-4fd0ea18c6d24e6e.js:1Understand this error
-1684-77cc8bacad49b839.js:1 ❌ Poster download error: Generated image file is too small
+📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] ========== STARTING POSTER GENERATION PROCESS ==========
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Timestamp: 2025-09-19T12:13:02.329Z
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Window Size: 2054x1279
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === COMPONENT STATE EXTRACTION ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Raw Props Received:
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - eventName: "Велика онлайн-конференція" (string, length: 25)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - mainSpeaker: "Денис Довгополий" (string, length: 16)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - speakerDescription: "засновник QNICORN NEST (Luxemburg), першого штучного інтелекту, який вже 8 років шукає фінансування ..." (string, length: 147)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - date: "08.10.2025" (string)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - topic: "Тренди та пріоритети ринку VC у 2025-2026 роках..." (string, length: 47)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - additionalSpeakers: "Та ще 4 зіркових спікерів: Сергій Рабенко, Олексан..." (string, length: 97)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - ticketPrice: "150€" (string)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - ticketType: "STANDART" (string)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - freeAccessConditions: "безкоштовно для членів business club..." (string, length: 36)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - speakerImageSrc: [base64 data: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgcA... (total length: 864114)]
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - projectName: "Велика онлайн-конференція" (string)
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === PAYLOAD PREPARATION ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Payload size estimate: 864836 characters
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Target dimensions: 1000x1000
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Format: poster
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === DATA VALIDATION ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Checking required fields: eventName, mainSpeaker, date, topic
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - eventName: ✅ VALID (value: "Велика онлайн-конференція")
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - mainSpeaker: ✅ VALID (value: "Денис Довгополий")
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - date: ✅ VALID (value: "08.10.2025")
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - topic: ✅ VALID (value: "Тренди та пріоритети ринку VC у 2025-2026 роках")
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] ✅ All required fields validated successfully
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === SERVER REQUEST ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Backend URL: /api/custom-projects-backend/poster-image/generate
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Request method: POST
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Content-Type: application/json
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Credentials: same-origin
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Request body size: 864836 bytes
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Sending request at: 2025-09-19T12:13:02.336Z
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === SERVER RESPONSE ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Response received at: 2025-09-19T12:13:05.467Z
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Request duration: 3131ms
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Response status: 200 OK
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Response headers:
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - accept-ranges: bytes
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - access-control-allow-credentials: true
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - access-control-allow-origin: https://dev4.contentbuilder.ai
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - connection: keep-alive
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - content-disposition: attachment; filename="poster_image_20250919_121304_ca413c49.png"
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - content-length: 14968
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - content-type: image/png
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - date: Fri, 19 Sep 2025 12:13:05 GMT
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - etag: "0dbb1cd01e75b4b57720b9e855629874"
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - last-modified: Fri, 19 Sep 2025 12:13:05 GMT
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - server: nginx
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - vary: Origin
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === FILE PROCESSING ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Converting response to blob...
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Blob conversion completed in 175ms
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Blob properties:
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - size: 14968 bytes
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - type: image/png
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - size category: MEDIUM
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === DOWNLOAD PREPARATION ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Object URL created: blob:https://dev4.contentbuilder.ai/8796a404-dc9d-...
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Download link element created
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Filename generation:
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - timestamp: 2025-09-19T12-13-05
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - cleanProjectName: -------------------------
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il]   - final filename: poster---------------------------2025-09-19T12-13-05.png
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === DOWNLOAD TRIGGER ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Adding link to DOM...
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Triggering click event...
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Removing link from DOM...
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Revoking object URL...
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === PROCESS COMPLETED SUCCESSFULLY ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] End time: 2025-09-19T12:13:05.648Z
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Total duration: 3319ms
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Final filename: poster---------------------------2025-09-19T12-13-05.png
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Final blob size: 14968 bytes
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Success callback triggered
+page-06ccda3ed4c1294b.js:1 ✅ Poster download success: Poster image generated and downloaded: poster---------------------------2025-09-19T12-13-05.png
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] === CLEANUP COMPLETED ===
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Final cleanup time: 2025-09-19T12:13:05.648Z
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Total process duration: 3319ms
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] Setting isGenerating to false
+page-06ccda3ed4c1294b.js:1 📷 [POSTER_DOWNLOAD] [poster-1758283982329-bflyzq2il] ========== POSTER GENERATION PROCESS ENDED ==========
 
-backend logs:
-custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
+
+backend:
+custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/app/templates
 custom_backend-1  | INFO:     Started server process [1]
 custom_backend-1  | INFO:     Waiting for application startup.
 custom_backend-1  | INFO:main:Custom Backend starting...
@@ -74,51 +133,251 @@ custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NU
 custom_backend-1  | INFO:main:Database schema migration completed successfully.
 custom_backend-1  | INFO:     Application startup complete.
 custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:39992 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40000 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40014 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56666 - "GET /api/custom/health HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:34024 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34018 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40042 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40052 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:40026 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40066 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40068 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34044 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34030 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34050 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40076 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34060 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40090 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:34064 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:40100 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Starting poster image generation request
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Received poster data
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Validated required fields successfully
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Event: Велика онлайн-конференція
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Speaker: Денис Довгополий
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Output path: output/poster_images/poster_image_20250919_100548_0091579d.png
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Generated HTML template (874748 characters)
-custom_backend-1  | WARNING:app.services.html_to_image_service:No specialized HTML-to-image libraries found, using simple fallback method
-custom_backend-1  | INFO:app.services.html_to_image_service:HTML to Image Service initialized using: simple
-custom_backend-1  | INFO:app.services.html_to_image_service:Converting HTML to PNG for template: poster using simple
-custom_backend-1  | WARNING:app.services.html_to_image_service:Using simple fallback method - may not produce high quality results
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Successfully generated poster image: output/poster_images/poster_image_20250919_100548_0091579d.png (69 bytes)
-custom_backend-1  | ERROR:main:📷 [POSTER_IMAGE] Generated file too small: 69 bytes
-custom_backend-1  | INFO:     172.18.0.12:38230 - "POST /api/custom/poster-image/generate HTTP/1.1" 500 Internal Server Error
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Starting poster image generation request
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Received poster data
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Validated required fields successfully
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Event: Велика онлайн-конференція
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Speaker: Денис Довгополий
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Output path: output/poster_images/poster_image_20250919_100615_9d0dc6e7.png
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Generated HTML template (874748 characters)
-custom_backend-1  | INFO:app.services.html_to_image_service:Converting HTML to PNG for template: poster using simple
-custom_backend-1  | WARNING:app.services.html_to_image_service:Using simple fallback method - may not produce high quality results
-custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Successfully generated poster image: output/poster_images/poster_image_20250919_100615_9d0dc6e7.png (69 bytes)
-custom_backend-1  | ERROR:main:📷 [POSTER_IMAGE] Generated file too small: 69 bytes
-custom_backend-1  | INFO:     172.18.0.12:34510 - "POST /api/custom/poster-image/generate HTTP/1.1" 500 Internal Server Error
+custom_backend-1  | INFO:     172.18.0.12:34074 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:34076 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:34092 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:34098 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] ========== BACKEND POSTER GENERATION STARTED ==========
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Timestamp: 2025-09-19T12:13:04.265376
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Request method: POST
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Request URL: http://dev4.contentbuilder.ai/api/custom/poster-image/generate
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Client host: 172.18.0.12
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] User agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] === PARSING REQUEST DATA ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] ✅ Successfully parsed JSON request body
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] === REQUEST DATA ANALYSIS ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Total fields in request: 14
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - eventName: "Велика онлайн-конференція" (type: str, length: 25)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - mainSpeaker: "Денис Довгополий" (type: str, length: 16)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - speakerDescription: "засновник QNICORN NEST (Luxemburg), першого штучного інтелекту, який вже 8 років шукає фінансування ..." (type: str, length: 147)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - date: "08.10.2025" (type: str, length: 10)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - topic: "Тренди та пріоритети ринку VC у 2025-2026 роках" (type: str, length: 47)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - additionalSpeakers: "Та ще 4 зіркових спікерів: Сергій Рабенко, Олександр Борняков, Антон Вайсбурд та Андрій Лазоренко" (type: str, length: 97)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - ticketPrice: "150€" (type: str, length: 4)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - ticketType: "STANDART" (type: str, length: 8)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - freeAccessConditions: "безкоштовно для членів business club" (type: str, length: 36)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - speakerImageSrc: [base64 data, length: 864114 chars]
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - format: "poster" (type: str, length: 6)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - dimensions: "{'width': 1000, 'height': 1000}" (type: dict, length: 31)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - sessionId: "poster-1758283982329-bflyzq2il" (type: str, length: 30)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE]   - clientTimestamp: "2025-09-19T12:13:02.329Z" (type: str, length: 24)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] Session ID: poster-1758283982329-bflyzq2il
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === FIELD VALIDATION ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Required fields: ['eventName', 'mainSpeaker', 'date', 'topic']
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - eventName: ✅ VALID (value: "Велика онлайн-конференція")
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - mainSpeaker: ✅ VALID (value: "Денис Довгополий")
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - date: ✅ VALID (value: "08.10.2025")
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - topic: ✅ VALID (value: "Тренди та пріоритети ринку VC у 2025-2026 роках")
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ All required fields validated successfully
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === KEY POSTER DATA ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Event: Велика онлайн-конференція
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Speaker: Денис Довгополий
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Date: 08.10.2025
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Topic: Тренди та пріоритети ринку VC у 2025-2026 роках
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Format: poster
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Dimensions: {'width': 1000, 'height': 1000}
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === FILE SYSTEM SETUP ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Filename components:
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - timestamp: 20250919_121304
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - poster_id: ca413c49
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - output_filename: poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Creating output directory: /app/output/poster_images
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ Output directory created/verified
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Full output path: output/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Directory exists: True
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Directory is writable: True
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === HTML GENERATION ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Attempting to import template service...
+custom_backend-1  | INFO:app.services.poster_template_service:Poster Template Service initialized with Jinja2
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ Template service imported successfully
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Calling template service to generate HTML...
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] ========== TEMPLATE SERVICE STARTED ==========
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Timestamp: 2025-09-19 12:13:04
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Input data analysis:
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - Total fields: 14
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - Data keys: ['eventName', 'mainSpeaker', 'speakerDescription', 'date', 'topic', 'additionalSpeakers', 'ticketPrice', 'ticketType', 'freeAccessConditions', 'speakerImageSrc', 'format', 'dimensions', 'sessionId', 'clientTimestamp']
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - eventName: "Велика онлайн-конференція" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - mainSpeaker: "Денис Довгополий" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - speakerDescription: "засновник QNICORN NEST (Luxemburg), першого штучно..." (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - date: "08.10.2025" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - topic: "Тренди та пріоритети ринку VC у 2025-2026 роках" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - additionalSpeakers: "Та ще 4 зіркових спікерів: Сергій Рабенко, Олексан..." (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - ticketPrice: "150€" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - ticketType: "STANDART" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - freeAccessConditions: "безкоштовно для членів business club" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - speakerImageSrc: [base64 image data, 864114 chars]
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - format: "poster" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - dimensions: "{'width': 1000, 'height': 1000}" (type: dict)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - sessionId: "poster-1758283982329-bflyzq2il" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - clientTimestamp: "2025-09-19T12:13:02.329Z" (type: str)
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === ENVIRONMENT CHECK ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] ✅ Jinja2 environment is available
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Environment type: <class 'jinja2.environment.Environment'>
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === TEMPLATE LOADING ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] ✅ Template loaded successfully in 25.70ms
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Template name: event_poster_template.html
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Template object: <class 'jinja2.environment.Template'>
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === CONTEXT PREPARATION ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Context data prepared in 0.00ms
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Context fields: 11
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - eventName: "Велика онлайн-конференція"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - mainSpeaker: "Денис Довгополий"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - speakerDescription: "засновник QNICORN NEST (Luxemburg), першого штучно..."
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - date: "08.10.2025"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - topic: "Тренди та пріоритети ринку VC у 2025-2026 роках"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - additionalSpeakers: "Та ще 4 зіркових спікерів: Сергій Рабенко, Олексан..."
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - ticketPrice: "150€"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - ticketType: "STANDART"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - freeAccessConditions: "безкоштовно для членів business club"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - speakerImageSrc: [base64 data, 864114 chars]
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - theme: "event-poster"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === DATE PARSING ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Original date: "08.10.2025"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Date parts: ['08', '10', '2025']
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Date parsing completed in 0.06ms
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Parsed date components:
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - dayMonth: "08.10"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - year: "2025"
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === FINAL CONTEXT SUMMARY ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Event: Велика онлайн-конференція
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Speaker: Денис Довгополий
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Theme: event-poster
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Total context keys: 13
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === TEMPLATE RENDERING ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Starting template render with 13 context variables...
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] ✅ Template rendered successfully in 7.33ms
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] HTML content length: 874109 characters
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] HTML preview (first 200 chars): <!DOCTYPE html>
+custom_backend-1  | <html lang="en">
+custom_backend-1  | <head>
+custom_backend-1  |     <meta charset="UTF-8">
+custom_backend-1  |     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+custom_backend-1  |     <title>Event Poster</title>
+custom_backend-1  |
+custom_backend-1  |     <!-- Google Fonts...
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] HTML preview (last 100 chars): ...коштовно для членів business club</div>
+custom_backend-1  |             </div>
+custom_backend-1  |         </div>
+custom_backend-1  |     </div>
+custom_backend-1  | </body>
+custom_backend-1  | </html>
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Content validation:
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il]   - Found elements: ['event-poster', 'Montserrat', 'theme-event-poster', 'Велика онлайн-конфер']
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] === TEMPLATE SERVICE COMPLETED ===
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Total duration: 37.08ms
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Final HTML length: 874109 characters
+custom_backend-1  | INFO:app.services.poster_template_service:🎬 [POSTER_TEMPLATE] [poster-1758283982329-bflyzq2il] Success: Returning generated HTML
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ HTML generated via template service
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] HTML generation duration: 40.45ms
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] HTML content length: 874109 characters
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] HTML preview (first 200 chars): <!DOCTYPE html>
+custom_backend-1  | <html lang="en">
+custom_backend-1  | <head>
+custom_backend-1  |     <meta charset="UTF-8">
+custom_backend-1  |     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+custom_backend-1  |     <title>Event Poster</title>
+custom_backend-1  |
+custom_backend-1  |     <!-- Google Fonts...
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === IMAGE CONVERSION ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Importing HTML-to-image service...
+custom_backend-1  | INFO:app.services.html_to_image_service:Using Playwright for HTML to PNG conversion (most reliable)
+custom_backend-1  | INFO:app.services.html_to_image_service:HTML to Image Service initialized using: playwright
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ HTML-to-image service imported
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Starting HTML-to-PNG conversion...
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Conversion parameters:
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - html_content length: 874109 chars
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - output_path: output/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - template_id: poster
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] ========== HTML -TO-IMAGE CONVERSION STARTED ==========
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Timestamp: 2025 -09-19 12:13:04
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Template ID: po ster
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Conversion meth od: playwright
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Target dimensio ns: 1920x1080
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Output path: ou tput/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] HTML content le ngth: 874109 characters
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] HTML preview (f irst 150 chars): <!DOCTYPE html>
+custom_backend-1  | <html lang="en">
+custom_backend-1  | <head>
+custom_backend-1  |     <meta charset="UTF-8">
+custom_backend-1  |     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+custom_backend-1  |     <tit...
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] === CONVERSION  METHOD EXECUTION ===
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Attempting Play wright conversion...
+custom_backend-1  | INFO:app.services.html_to_image_service:Using Playwright for HTML to PNG conversion
+custom_backend-1  | ERROR:app.services.html_to_image_service:Playwright conversion error: BrowserType.launch: Executable doesn't exist at /root/.cache/ms-playwright/chromium-1129/chrome-linux/chrome
+custom_backend-1  | ╔════════════════════════════════════════════════════════════╗
+custom_backend-1  | ║ Looks like Playwright was just installed or updated.       ║
+custom_backend-1  | ║ Please run the following command to download new browsers: ║
+custom_backend-1  | ║                                                            ║
+custom_backend-1  | ║     playwright install                                     ║
+custom_backend-1  | ║                                                            ║
+custom_backend-1  | ║ <3 Playwright Team                                         ║
+custom_backend-1  | ╚════════════════════════════════════════════════════════════╝
+custom_backend-1  | WARNING:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] ❌ Playwright  failed after 1059.89ms, falling back to simple method
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] === SIMPLE FA LLBACK METHOD STARTED ===
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] Using enhance d fallback method for HTML to PNG conversion
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] HTML content  length: 874109 characters
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] Output path:  output/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] Attempting Pi llow-based rendering...
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] PIL modules i mported successfully
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] Created 1000x 1000 white background image
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] Saving image  to: output/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE_SIMPLE] [simple-1758283985] ✅ Pillow fall back conversion successful in 136.78ms: 14968 bytes
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Fallback comple ted in 140.76ms, success: True
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] === FINAL VERIF ICATION ===
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] ✅ Output file c reated successfully
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] File details:
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster]   - path: outpu t/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster]   - size: 14968  bytes
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster]   - modified: 2 025-09-19 12:13:05
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster]   - size catego ry: MEDIUM
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster]   - file header : 89504e470d0a1a0a0000000d49484452
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster]   - valid PNG:  True
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] === CONVERSION  COMPLETED ===
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Total processin g time: 1201.51ms
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Method used: pl aywright+simple
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] Success status:  True
+custom_backend-1  | INFO:app.services.html_to_image_service:🖼️ [HTML_TO_IMAGE] [conv-1758283984-poster] File size check : True
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Image conversion completed in 1477.03ms
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Conversion success: True
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === FILE VALIDATION ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ Output file exists: output/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === FILE ANALYSIS ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] File statistics:
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - size: 14968 bytes
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - modified: 2025-09-19T12:13:05.785750
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - size category: MEDIUM
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - file header (hex): 89504e470d0a1a0a0000000d49484452
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - PNG signature valid: True
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] ✅ File size validation passed: 14968 bytes
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === RESPONSE PREPARATION ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Preparing FileResponse...
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Response parameters:
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - path: output/poster_images/poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - media_type: image/png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - filename: poster_image_20250919_121304_ca413c49.png
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il]   - file_size: 14968 bytes
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] === PROCESS COMPLETED SUCCESSFULLY ===
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Total processing time: 1533.85ms
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Final file: poster_image_20250919_121304_ca413c49.png (14968 bytes)
+custom_backend-1  | INFO:main:📷 [POSTER_IMAGE] [poster-1758283982329-bflyzq2il] Success: Returning FileResponse
+custom_backend-1  | INFO:     172.18.0.12:32972 - "POST /api/custom/poster-image/generate HTTP/1.1" 200 OK

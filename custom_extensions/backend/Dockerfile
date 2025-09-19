@@ -3,7 +3,7 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies for Pyppeteer/Chromium
+# Install system dependencies for Pyppeteer/Chromium and HTML-to-image libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     fonts-liberation \
@@ -44,12 +44,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xdg-utils \
     chromium \
     fonts-inter \
+    # HTML-to-image system dependencies (compatible packages)
+    libffi-dev \
+    libxml2-dev \
+    libxslt-dev \
     # Clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Playwright browsers AFTER pip install (critical order)
+RUN python -m playwright install chromium --with-deps
 
 COPY . .
 
