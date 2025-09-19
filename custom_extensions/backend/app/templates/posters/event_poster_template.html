@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Poster</title>
+    
+    <!-- Google Fonts - Same as slide system -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset and base styles - Same pattern as slide system */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color, #110c35);
+            width: 1000px;
+            height: 1000px;
+            overflow: hidden;
+            font-size: 16px;
+        }
+        
+        /* Poster container - EXACT POSTER DIMENSIONS */
+        .poster-container {
+            width: 1000px;
+            height: 1000px;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            display: block;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+        
+        /* Theme color definitions - Following slide system pattern */
+        .theme-event-poster {
+            --bg-color: rgba(255,255,255,1);
+            --text-color: rgba(235,235,235,1);
+            --bright-text: rgba(255,255,255,1);
+            --accent-color: #5416af;
+            --font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Main background - exact copy from React component */
+        .main-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_5.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }
+        
+        /* Speaker Photo - exact copy from React component */
+        .speaker-photo {
+            position: absolute;
+            width: 519px;
+            height: 713px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            top: 329px;
+            left: 525px;
+        }
+        
+        /* Bottom gradient - exact copy from React component */
+        .bottom-gradient {
+            position: absolute;
+            width: 1000px;
+            height: 455px;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%);
+            top: 552px;
+            left: 1px;
+        }
+        
+        /* All other styles exactly matching EventPoster.tsx */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto 1fr auto;
+            padding: 53px;
+        }
+        
+        .header-section {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .first-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .event-name {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 400;
+            font-size: 33px;
+            text-align: left;
+            line-height: 1.2;
+        }
+        
+        .logo {
+            width: 141px;
+            height: 78px;
+            background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }
+        
+        .second-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .speaker-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 600px;
+        }
+        
+        .main-speaker {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: 41px;
+            text-align: left;
+            line-height: 1.2;
+        }
+        
+        .speaker-description {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 400;
+            font-size: 20px;
+            text-align: left;
+            line-height: 1.2;
+        }
+        
+        .date-section {
+            border: 3px solid var(--accent-color);
+            padding: 15px 20px;
+            display: inline-block;
+        }
+        
+        .day-month {
+            color: var(--bright-text);
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: 58px;
+            text-align: center;
+            line-height: 1;
+        }
+        
+        .year {
+            color: var(--bright-text);
+            font-family: var(--font-family);
+            font-weight: 300;
+            font-size: 52px;
+            text-align: center;
+            line-height: 1;
+            margin-top: 5px;
+        }
+        
+        .left-content {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            padding-right: 50px;
+        }
+        
+        .topic {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 600;
+            font-size: 50px;
+            text-align: left;
+            line-height: 1.2;
+            max-width: 480px;
+        }
+        
+        .additional-speakers {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 400;
+            font-size: 20px;
+            text-align: left;
+            line-height: 1.2;
+            max-width: 460px;
+        }
+        
+        .bottom-section {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 50px;
+        }
+        
+        .ticket-section {
+            border: 2px solid var(--accent-color);
+            border-radius: 40px;
+            padding: 15px 20px;
+            min-width: 200px;
+            line-height: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .ticket-label {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 400;
+            font-size: 25px;
+            text-align: center;
+        }
+        
+        .ticket-type {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 400;
+            font-size: 27px;
+            text-align: center;
+            margin-top: 4px;
+        }
+        
+        .ticket-price {
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-weight: 900;
+            font-size: 41px;
+            text-align: center;
+            margin-top: 2px;
+        }
+        
+        .free-access {
+            color: var(--text-color);
+            font-weight: 400;
+            font-size: 37px;
+            text-align: center;
+            line-height: 1.2;
+            background-color: var(--accent-color);
+            border-radius: 40px;
+            padding: 20px 30px;
+            box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
+            backdrop-filter: blur(5px);
+            max-width: 700px;
+            margin-left: 30px;
+        }
+    </style>
+</head>
+<body class="theme-event-poster">
+    <div class="poster-container">
+        <div class="main-background"></div>
+        
+        <!-- Dynamic speaker image -->
+        {% if speakerImageSrc and speakerImageSrc.startswith('data:image') %}
+        <div class="speaker-photo" style="background-image: url('{{ speakerImageSrc }}');"></div>
+        {% else %}
+        <div class="speaker-photo" style="background-image: url('/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png');"></div>
+        {% endif %}
+        
+        <div class="bottom-gradient"></div>
+        
+        <div class="main-content">
+            <div class="header-section">
+                <div class="first-row">
+                    <div class="event-name">{{ eventName }}:</div>
+                    <div class="logo"></div>
+                </div>
+                
+                <div class="second-row">
+                    <div class="speaker-info">
+                        <div class="main-speaker">{{ mainSpeaker }}</div>
+                        <div class="speaker-description">{{ speakerDescription }}</div>
+                    </div>
+                    
+                    <div class="date-section">
+                        <div class="day-month">{{ dayMonth }}</div>
+                        <div class="year">{{ year }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="left-content">
+                <div class="topic">{{ topic }}</div>
+                <div class="additional-speakers">{{ additionalSpeakers }}</div>
+            </div>
+            
+            <div></div>
+            
+            <div class="bottom-section">
+                <div class="ticket-section">
+                    <div class="ticket-label">Квиток</div>
+                    <div class="ticket-type">{{ ticketType }}</div>
+                    <div class="ticket-price">{{ ticketPrice }}</div>
+                </div>
+                
+                <div class="free-access">{{ freeAccessConditions }}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

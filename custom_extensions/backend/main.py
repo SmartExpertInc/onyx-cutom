@@ -19918,18 +19918,37 @@ async def generate_poster_image(request: Request):
         
         logger.info(f"📷 [POSTER_IMAGE] Output path: {output_path}")
         
-        # Generate HTML content using poster template
-        html_content = generate_poster_html_template(poster_data)
-        logger.info(f"📷 [POSTER_IMAGE] Generated HTML template ({len(html_content)} characters)")
-        
-        # Convert HTML to PNG using the same service as slides
-        from app.services.html_to_image_service import html_to_image_service
-        
-        success = await html_to_image_service.convert_html_to_png(
-            html_content=html_content,
-            output_path=output_path,
-            template_id="poster"
-        )
+        # Use the proper template service (same pattern as slides)
+        try:
+            from app.services.poster_template_service import poster_template_service
+            
+            logger.info("📷 [POSTER_IMAGE] Using template service for HTML generation")
+            html_content = poster_template_service.generate_poster_html(poster_data)
+            logger.info(f"📷 [POSTER_IMAGE] Generated HTML template ({len(html_content)} characters)")
+            
+            # Convert HTML to PNG using the same service as slides
+            from app.services.html_to_image_service import html_to_image_service
+            
+            success = await html_to_image_service.convert_html_to_png(
+                html_content=html_content,
+                output_path=output_path,
+                template_id="poster"
+            )
+            
+        except Exception as template_error:
+            logger.error(f"📷 [POSTER_IMAGE] Template service error: {template_error}")
+            logger.info("📷 [POSTER_IMAGE] Falling back to inline HTML generation")
+            
+            # Fallback to original method if template service fails
+            html_content = generate_poster_html_template(poster_data)
+            logger.info(f"📷 [POSTER_IMAGE] Generated HTML template (fallback) ({len(html_content)} characters)")
+            
+            from app.services.html_to_image_service import html_to_image_service
+            success = await html_to_image_service.convert_html_to_png(
+                html_content=html_content,
+                output_path=output_path,
+                template_id="poster"
+            )
         
         if not success or not os.path.exists(output_path):
             logger.error("📷 [POSTER_IMAGE] Failed to generate poster image")
