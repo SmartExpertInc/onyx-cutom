@@ -390,7 +390,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
     <div className="space-y-5">
       {/* Header with Search, Filter, and Create Button */}
       <div className="px-6 py-4">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+        <div className="flex flex-col gap-4">
           {/* Search and Filter Row */}
           <div className="flex items-center gap-4 w-full">
             <div className="relative flex-1">
@@ -401,7 +401,7 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
                 placeholder={t('interface.searchOffers', 'Search offers...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2"
+                className="w-full pl-10"
               />
             </div>
           </div>

@@ -590,7 +590,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           )}
           
           {/* Search, Filter, and Create Button Row */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full px-6">
+        <div className="flex flex-col gap-4">
           {/* Search and Filter Row */}
           <div className="flex items-center gap-4 w-full">
             <div className="relative flex-1">
@@ -601,7 +601,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
                 placeholder={t('interface.searchPlaceholder', 'Search members...')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-8"
+                className="w-full pl-10"
               />
             </div>
             <Select value={statusFilter || "all"} onValueChange={(value) => setStatusFilter(value === "all" ? "" : value)}>

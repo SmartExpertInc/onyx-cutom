@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Check, BookOpen, Zap, Award, Crown, BookText, Video, HelpCircle, FileText, Clock, Calculator, Settings } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { Button } from '@/components/ui/button';
 
 interface ProjectSettingsModalProps {
   open: boolean;
@@ -505,14 +506,16 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
 
         {/* Footer - Fixed */}
         <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 flex-shrink-0">
-          <button
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          <Button
+            variant="outline"
+            className="px-4 py-2 transition-colors"
             onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
             disabled={saving}
           >
             {t('modals.folderSettings.cancel', 'Cancel')}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="download"
             className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 ${
               saving
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -529,7 +532,7 @@ const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({
             ) : (
               t('modals.folderSettings.saveChanges', 'Save Changes')
             )}
-          </button>
+          </Button>
         </div>
       </div>
 
