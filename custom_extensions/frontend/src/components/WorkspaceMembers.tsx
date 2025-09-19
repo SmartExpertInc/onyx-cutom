@@ -590,9 +590,9 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           )}
           
           {/* Search, Filter, and Create Button Row */}
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full px-6">
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center w-full">
           {/* Search and Filter Row */}
-          <div className="flex items-center gap-4 w-full">
+          <div className="flex items-center gap-4 w-full px-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
               <Input
@@ -618,7 +618,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 px-6">
             <Button
               variant="download"
               onClick={() => setShowAddMember(true)}

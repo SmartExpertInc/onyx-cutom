@@ -7,7 +7,7 @@ import { PlayIcon, PauseIcon, Trash2Icon, RefreshCwIcon, AlertCircle, X, Setting
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { ConnectorCard } from "@/components/ui/connector-card";
-import TextIcon, { ClockIcon } from "@/components/ui/custom-icons";
+import {TextIcon, ClockIcon } from "@/components/ui/custom-icons";
 
 // Global counter to track component instances
 let componentInstanceCounter = 0;
@@ -345,7 +345,7 @@ export default function ConnectorManagementPage({
             <ConnectorCard
               title={t('interface.connectorStatus', 'Status')}
               value={ccPair.status}
-              customIcon={({ size }: { size: number }) => (
+              customIcon={({ size = 20 }: { size: number }) => (
                 <StatusIcon size={size} status={ccPair.status} />
               )}
               gradientColors={

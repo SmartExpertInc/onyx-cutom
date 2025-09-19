@@ -389,10 +389,10 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
   return (
     <div className="space-y-5">
       {/* Header with Search, Filter, and Create Button */}
-      <div className="px-6 py-4">
+      <div className="py-4">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           {/* Search and Filter Row */}
-          <div className="flex items-center gap-4 w-full">
+          <div className="flex items-center gap-4 w-full px-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
               <Input
@@ -407,19 +407,21 @@ const OffersTable: React.FC<OffersTableProps> = ({ companyId }) => {
           </div>
 
           {/* Create Button */}
-          <Button
-            variant="download"
-            onClick={() => {
-              // Dispatch event to open create offer modal in parent component
-              window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
-                detail: { folder: null }
-              }));
-            }}
-            className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
-          >
-            <Plus size={16} />
-            {t('interface.createOffer', 'Create Offer')}
-          </Button>
+          <div className="px-6">
+            <Button
+              variant="download"
+              onClick={() => {
+                // Dispatch event to open create offer modal in parent component
+                window.dispatchEvent(new CustomEvent('openCreateOfferModal', {
+                  detail: { folder: null }
+                }));
+              }}
+              className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
+            >
+              <Plus size={16} />
+              {t('interface.createOffer', 'Create Offer')}
+            </Button>
+          </div>
         </div>
       </div>
 

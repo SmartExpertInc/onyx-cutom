@@ -1440,6 +1440,20 @@ function GenerateProductPicker() {
                 {/* Show standalone presentation dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
                   <>
+                  <Button
+                    onClick={() => {
+                      setUseExistingOutline(null);
+                      setSelectedOutlineId(null);
+                      setSelectedModuleIndex(null);
+                      setLessonsForModule([]);
+                      setSelectedLesson("");
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
+                  >
+                    ← Back
+                  </Button>
                     <CustomPillSelector
                       value={language}
                       onValueChange={setLanguage}
@@ -1464,21 +1478,6 @@ function GenerateProductPicker() {
                     />
                   </>
                 )}
-
-                <Button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 border border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
               </div>
             )}
           </div>
@@ -1616,6 +1615,20 @@ function GenerateProductPicker() {
                 {/* Show standalone quiz dropdowns if user chose standalone */}
                 {useExistingQuizOutline === false && (
                   <>
+                  <Button
+                    onClick={() => {
+                      setUseExistingQuizOutline(null);
+                      setSelectedQuizOutlineId(null);
+                      setSelectedQuizModuleIndex(null);
+                      setQuizLessonsForModule([]);
+                      setSelectedQuizLesson("");
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  >
+                    ← Back
+                  </Button>
                     <CustomPillSelector
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
@@ -1654,21 +1667,6 @@ function GenerateProductPicker() {
                     />
                   </>
                 )}
-
-                <Button
-                  onClick={() => {
-                    setUseExistingQuizOutline(null);
-                    setSelectedQuizOutlineId(null);
-                    setSelectedQuizModuleIndex(null);
-                    setQuizLessonsForModule([]);
-                    setSelectedQuizLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
               </div>
             )}
           </div>
@@ -1811,6 +1809,20 @@ function GenerateProductPicker() {
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingTextOutline === false && (
                   <>
+                  <Button
+                    onClick={() => {
+                      setUseExistingTextOutline(null);
+                      setSelectedTextOutlineId(null);
+                      setSelectedTextModuleIndex(null);
+                      setTextLessonsForModule([]);
+                      setSelectedTextLesson("");
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  >
+                    ← Back
+                  </Button>
                     <CustomPillSelector
                       value={textLanguage}
                       onValueChange={setTextLanguage}
@@ -1854,21 +1866,6 @@ function GenerateProductPicker() {
                     />
                   </>
                 )}
-
-                <Button
-                  onClick={() => {
-                    setUseExistingTextOutline(null);
-                    setSelectedTextOutlineId(null);
-                    setSelectedTextModuleIndex(null);
-                    setTextLessonsForModule([]);
-                    setSelectedTextLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
               </div>
             )}
           </div>

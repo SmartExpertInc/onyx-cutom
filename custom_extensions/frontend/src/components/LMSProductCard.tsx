@@ -69,7 +69,27 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
 
   const bgColor = stringToColor(displayTitle);
   const avatarColor = stringToColor(product.user_id || 'user');
-
+  
+  // Function to darken a hex color
+  const darkenColor = (hex: string, amount: number = 0.3): string => {
+    // Remove # if present
+    hex = hex.replace('#', '');
+    
+    // Parse RGB values
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    
+    // Darken by reducing each component
+    const newR = Math.max(0, Math.floor(r * (1 - amount)));
+    const newG = Math.max(0, Math.floor(g * (1 - amount)));
+    const newB = Math.max(0, Math.floor(b * (1 - amount)));
+    
+    // Convert back to hex
+    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+  };
+  
+  const newAvatarColor = darkenColor(avatarColor);
   // Format date function - copied from ProjectsTable
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -154,7 +174,7 @@ const LMSProductCard: React.FC<LMSProductCardProps> = ({
               {/* Avatar */}
               <div
                 className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                style={{ backgroundColor: avatarColor }}
+                style={{ backgroundColor: newAvatarColor }}
               >
                 {(product.user_id || 'Y').slice(0, 1).toUpperCase()}
               </div>
