@@ -14,3 +14,8 @@ tiktoken
 openai
 Pillow # For pie chart image generation
 psutil
+# HTML-to-image conversion libraries (fixes poster generation bug)
+html2image
+imgkit
+weasyprint
+playwright
