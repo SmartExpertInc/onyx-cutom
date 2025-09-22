@@ -209,7 +209,6 @@ export default function DynamicAuditLandingPage() {
   
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -223,12 +222,10 @@ export default function DynamicAuditLandingPage() {
   // Text editing handlers
   const startEditing = (field: string) => {
     setEditingField(field)
-    setIsEditing(true)
   }
 
   const stopEditing = () => {
     setEditingField(null)
-    setIsEditing(false)
   }
 
   const handleTextSave = (field: string, newValue: string) => {
@@ -303,7 +300,7 @@ export default function DynamicAuditLandingPage() {
   // Click outside handler to stop editing
   useEffect(() => {
     const handleGlobalClick = (event: MouseEvent) => {
-      if (editingField && isEditing) {
+      if (editingField) {
         // Check if click is outside any editing input
         const target = event.target as HTMLElement;
         if (!target.closest('input, textarea')) {
@@ -316,7 +313,7 @@ export default function DynamicAuditLandingPage() {
     return () => {
       document.removeEventListener('mousedown', handleGlobalClick);
     };
-  }, [editingField, isEditing]);
+  }, [editingField]);
 
   // Helper function to generate random assessment type and duration
   const getRandomAssessment = () => {
@@ -546,9 +543,9 @@ export default function DynamicAuditLandingPage() {
         `}</style>
         
         <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
-          {/* Edit Mode Toggle and Save Button */}
-          <div className="fixed top-4 right-4 z-50 flex gap-2">
-            {hasUnsavedChanges && (
+          {/* Save Button */}
+          {hasUnsavedChanges && (
+            <div className="fixed top-4 right-4 z-50">
               <button
                 onClick={handleSaveChanges}
                 disabled={isSaving}
@@ -557,24 +554,6 @@ export default function DynamicAuditLandingPage() {
               >
                 {isSaving ? '💾 Saving...' : '💾 Save Changes'}
               </button>
-            )}
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg ${
-                isEditing 
-                  ? 'bg-green-600 text-white hover:bg-green-700' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-              title={isEditing ? 'Exit edit mode' : 'Enter edit mode'}
-            >
-              {isEditing ? '✓ Exit Edit' : '✏️ Edit Mode'}
-            </button>
-          </div>
-          
-          {/* Edit Mode Indicator */}
-          {isEditing && (
-            <div className="fixed top-4 left-4 z-50 bg-yellow-100 border border-yellow-300 rounded-md px-3 py-2 text-sm text-yellow-800 shadow-lg">
-              <span className="font-medium">✏️ Edit Mode Active</span> - Click on text to edit
             </div>
           )}
           
@@ -684,9 +663,9 @@ export default function DynamicAuditLandingPage() {
                     />
                   ) : (
                     <span 
-                      onClick={() => isEditing && startEditing('companyName')}
-                      className={`${isEditing ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded' : ''}`}
-                      title={isEditing ? "Click to edit company name" : ""}
+                      onClick={() => startEditing('companyName')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit company name"
                     >
                       {companyName}
                     </span>
@@ -713,9 +692,9 @@ export default function DynamicAuditLandingPage() {
                     />
                   ) : (
                     <span 
-                      onClick={() => isEditing && startEditing('companyDescription')}
-                      className={`${isEditing ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block' : 'block'}`}
-                      title={isEditing ? "Click to edit company description" : ""}
+                      onClick={() => startEditing('companyDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                      title="Click to edit company description"
                     >
                       {companyDescription}
                     </span>
@@ -889,9 +868,9 @@ export default function DynamicAuditLandingPage() {
                           />
                         ) : (
                           <span 
-                            onClick={() => isEditing && startEditing(`jobPosition_${index}`)}
-                            className={`font-medium text-[16px] xl:text-[18px] flex-1 ${isEditing ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded' : ''}`}
-                            title={isEditing ? "Click to edit job position" : ""}
+                            onClick={() => startEditing(`jobPosition_${index}`)}
+                            className="font-medium text-[16px] xl:text-[18px] flex-1 cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit job position"
                           >
                             {position.title}
                           </span>
