@@ -1,156 +1,149 @@
-🎨 Font styles applied to Chudo and Forta themes
-page-472b19b885830fb2.js:1 🚀 [FRONTEND DATA FLOW] Project ID available, starting fetch: 144
-page-472b19b885830fb2.js:1 🔍 [FRONTEND DATA FLOW] Starting data fetch for project ID: 144
-page-472b19b885830fb2.js:1 📡 [FRONTEND DATA FLOW] Making API request to: /api/custom-projects-backend/ai-audit/landing-page/144
-page-472b19b885830fb2.js:1 📡 [FRONTEND DATA FLOW] Backend URL: /api/custom-projects-backend
-page-472b19b885830fb2.js:1 📡 [FRONTEND DATA FLOW] API response status: 200
-page-472b19b885830fb2.js:1 📡 [FRONTEND DATA FLOW] API response ok: true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] Frontend received data - language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] Frontend received data keys: (9) ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] Frontend received data type: string
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] Data received from API:
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Project ID: 144
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Project Name: "AI-Аудит Landing Page: Mercedes-Benz Polska"
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Company Name: "Mercedes-Benz Polska"
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Company Description: "Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons."
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Job Positions Count: 11
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] Job Positions:
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 1: Electromechanic (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 2: Automotive Mechanic (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 3: Painter (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 4: Bodywork Technician (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 5: Diagnostic Technician (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 6: Parts Salesperson (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 7: Sales Consultant (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 8: Logistics Staff (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 9: Electric Vehicle Technician (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 10: Sales Consultant (👷)
-page-472b19b885830fb2.js:1 📥 [FRONTEND DATA FLOW] - Position 11: Quality Assurance Specialist (👷)
-page-472b19b885830fb2.js:1 ✅ [FRONTEND DATA FLOW] Landing page data set successfully
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering
-page-472b19b885830fb2.js:1 🏁 [FRONTEND DATA FLOW] Data fetch process completed
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering landing page with data:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Name: "Mercedes-Benz Polska"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Description: "Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons."
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Job Positions: 11 positions
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering job positions:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 1: "Electromechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 2: "Automotive Mechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 3: "Painter" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 4: "Bodywork Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 5: "Diagnostic Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 6: "Parts Salesperson" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 7: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 8: "Logistics Staff" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 9: "Electric Vehicle Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 10: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 11: "Quality Assurance Specialist" with icon "👷"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - landingPageData?.language: "en"
-page-472b19b885830fb2.js:1 🔍 [LANGUAGE FLOW DEBUG] getRandomAssessment - language === 'en': true
-page-472b19b885830fb2.js:1 📊 Chart Data Received: {trend: 'growth', industry: 'Automotive Manufacturing', chartData: Array(12), description: 'The automotive manufacturing industry is experienc… production needs and technological advancements.', totalShortage: 48700}
-page-472b19b885830fb2.js:1 📊 Chart Data Points: (12) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-page-472b19b885830fb2.js:1 📊 Total Shortage: 48700
-page-472b19b885830fb2.js:1 📊 Trend: growth
-page-472b19b885830fb2.js:1 📈 Yearly Shortage Data Received: {industry: 'Automotive Manufacturing', description: 'The automotive manufacturing industry in Poland is…on towards more advanced automotive technologies.', yearlyShortage: 60000}
-page-472b19b885830fb2.js:1 📈 Yearly Shortage Number: 60000
-page-472b19b885830fb2.js:1 📈 Industry: Automotive Manufacturing
-page-472b19b885830fb2.js:1 📈 Description: The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury vehicles and the expansion of production facilities. With the growth of electric and hybrid vehicle production, the need for skilled workers in areas such as engineering, mechanics, and electronics is critical. The estimated shortage of 60,000 specialists per year reflects the industry's scale and the ongoing transition towards more advanced automotive technologies.
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering landing page with data:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Name: "Mercedes-Benz Polska"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Description: "Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons."
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Job Positions: 11 positions
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering job positions:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 1: "Electromechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 2: "Automotive Mechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 3: "Painter" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 4: "Bodywork Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 5: "Diagnostic Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 6: "Parts Salesperson" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 7: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 8: "Logistics Staff" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 9: "Electric Vehicle Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 10: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 11: "Quality Assurance Specialist" with icon "👷"
-layout-2b772baf2b88c263.js:1 ✅ Mont regular font preloaded successfully
-layout-2b772baf2b88c263.js:1 ✅ Mont bold font preloaded successfully
-layout-2b772baf2b88c263.js:1 ✅ Mont thin font preloaded successfully
-layout-2b772baf2b88c263.js:1 🎉 All Mont fonts preloaded successfully
-layout-2b772baf2b88c263.js:1 🎨 Fonts initialized successfully for Chudo and Forta themes
-page-472b19b885830fb2.js:1 🚀 [TEXT EDIT] Starting edit for field: companyDescription
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering landing page with data:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Name: "Mercedes-Benz Polska"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Description: "Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons."
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Job Positions: 11 positions
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering job positions:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 1: "Electromechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 2: "Automotive Mechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 3: "Painter" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 4: "Bodywork Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 5: "Diagnostic Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 6: "Parts Salesperson" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 7: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 8: "Logistics Staff" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 9: "Electric Vehicle Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 10: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 11: "Quality Assurance Specialist" with icon "👷"
-page-472b19b885830fb2.js:1 🎯 [TEXT EDIT] Focus started - initial value: Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.
-144:1 The resource https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Bold.ttf was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
-144:1 The resource https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Regular.ttf was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
-144:1 The resource https://dev4.contentbuilder.ai/fonts/fonnts.com-Mont_Thin.ttf was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
-page-472b19b885830fb2.js:1 🖱️ [TEXT EDIT] Clicked outside - stopping edit for field: companyDescription
-page-472b19b885830fb2.js:1 🛑 [TEXT EDIT] Stopping edit for field: companyDescription
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering landing page with data:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Name: "Mercedes-Benz Polska"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Company Description: "Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons."
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Job Positions: 11 positions
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] Rendering job positions:
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 1: "Electromechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 2: "Automotive Mechanic" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 3: "Painter" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 4: "Bodywork Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 5: "Diagnostic Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 6: "Parts Salesperson" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 7: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 8: "Logistics Staff" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 9: "Electric Vehicle Technician" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 10: "Sales Consultant" with icon "👷"
-page-472b19b885830fb2.js:1 🎨 [FRONTEND DATA FLOW] - Position 11: "Quality Assurance Specialist" with icon "👷"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 145 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:43302 - "GET /api/custom/projects/view/145 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43318 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 145
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['language', 'companyName', 'jobPositions', 'courseTemplates', 'originalPayload', 'workforceCrisis', 'companyDescription', 'courseOutlineModules']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company providing luxury vehicles including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 11 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Job positions found in landing page data:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'icon': '👷', 'title': 'Electromechanic', 'description': 'Responsible for the maintenance and repair of electrical and mechanical systems in vehicles.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'icon': '👷', 'title': 'Automotive Mechanic', 'description': 'Diagnoses and repairs automotive systems and components.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'icon': '👷', 'title': 'Painter', 'description': 'Handles the painting and finishing of vehicles to ensure high-quality aesthetics.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'icon': '👷', 'title': 'Bodywork Technician', 'description': 'Repairs and restores the body structure of vehicles.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'icon': '👷', 'title': 'Parts Salesperson', 'description': 'Sells automotive parts and provides customer service in parts departments.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 6: {'icon': '👷', 'title': 'Sales Consultant', 'description': 'Advises customers on vehicle purchases and financing options.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 7: {'icon': '👷', 'title': 'Logistics Employee', 'description': 'Manages the supply chain and logistics operations for vehicle production.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 8: {'icon': '👷', 'title': 'Process Engineer', 'description': 'Implements and audits processes related to vehicle manufacturing and product quality.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'icon': '👷', 'title': 'Electric Vehicle Technician', 'description': 'Training in electric vehicle systems and maintenance.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'icon': '👷', 'title': 'Sales Consultant', 'description': 'Training in luxury vehicle sales and customer engagement.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'icon': '👷', 'title': 'Quality Assurance Specialist', 'description': 'Training in quality control processes and standards.'}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive manufacturing'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '20'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3000}, {'month': 'February', 'shortage': 2900}, {'month': 'March', 'shortage': 3200}, {'month': 'April', 'shortage': 3500}, {'month': 'May', 'shortage': 3400}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4200}, {'month': 'August', 'shortage': 3700}, {'month': 'September', 'shortage': 3900}, {'month': 'October', 'shortage': 4300}, {'month': 'November', 'shortage': 4100}, {'month': 'December', 'shortage': 4500}], 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 45,500 specialists over the past year. Seasonal fluctuations are evident, particularly with a decrease in August due to vacation periods, and a slight dip in February and May, likely influenced by economic cycles and market adjustments.', 'totalShortage': 45500}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': "The automotive manufacturing industry is experiencing a significant shortage of qualified specialists due to rapid technological advancements, increased production demands, and a growing focus on electric vehicles. With the industry's expansion and the need for skilled workers in areas such as engineering, production, and maintenance, a shortage of approximately 90,000 specialists per year is a realistic estimate, considering both local and regional market dynamics.", 'yearlyShortage': 90000}}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 4
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Introduction to Electromechanics at Mercedes-Benz', 'lessons': ['Understanding the Role of an Electromechanic', 'Overview of Mercedes-Benz Vehicle Systems', 'Safety Protocols in the Workshop', 'Introduction to Diagnostic Tools and Equipment', 'Corporate Culture and Values of Mercedes-Benz']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 2: {'title': 'Hands-On Skills Development', 'lessons': ['Basic Electrical Systems and Troubleshooting', 'Mechanical Systems: Assembly and Disassembly', 'Using Diagnostic Software for Vehicle Analysis', 'Understanding and Repairing Hybrid Systems', 'Practical Exercises in Vehicle Maintenance']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 3: {'title': 'Advanced Electromechanical Systems', 'lessons': ['Integration of Electronics in Modern Vehicles', 'Advanced Troubleshooting Techniques', 'Understanding Vehicle Communication Networks', 'Calibration and Programming of Electronic Components', 'Real-World Case Studies of Electromechanical Failures']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 4: {'title': 'Professional Development and Continuous Learning', 'lessons': ['Staying Updated with Industry Trends', 'Effective Communication with Team and Customers', 'Participating in Continuous Training Programs', 'Career Pathways within Mercedes-Benz', 'Feedback and Performance Evaluation Processes']}
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 6
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 1: Electromechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 2: Automotive Mechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 3: Painter
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 4: Bodywork Technician
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Parts Salesperson
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Sales Consultant
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 145
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company providing luxury vehicles including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 11
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive manufacturing'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '20'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3000}, {'month': 'February', 'shortage': 2900}, {'month': 'March', 'shortage': 3200}, {'month': 'April', 'shortage': 3500}, {'month': 'May', 'shortage': 3400}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4200}, {'month': 'August', 'shortage': 3700}, {'month': 'September', 'shortage': 3900}, {'month': 'October', 'shortage': 4300}, {'month': 'November', 'shortage': 4100}, {'month': 'December', 'shortage': 4500}], 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 45,500 specialists over the past year. Seasonal fluctuations are evident, particularly with a decrease in August due to vacation periods, and a slight dip in February and May, likely influenced by economic cycles and market adjustments.', 'totalShortage': 45500}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': "The automotive manufacturing industry is experiencing a significant shortage of qualified specialists due to rapid technological advancements, increased production demands, and a growing focus on electric vehicles. With the industry's expansion and the need for skilled workers in areas such as engineering, production, and maintenance, a shortage of approximately 90,000 specialists per year is a realistic estimate, considering both local and regional market dynamics.", 'yearlyShortage': 90000}}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
+custom_backend-1  | INFO:     172.18.0.12:43328 - "GET /api/custom/ai-audit/landing-page/145 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 145 - Storing content to DB: {
+custom_backend-1  |   "sections": [],
+custom_backend-1  |   "theme": "cherry"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 145 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "cherry",
+custom_backend-1  |   "sections": []
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 145 - About to validate with component: TextPresentationDisplay
+custom_backend-1  | ERROR:main:❌ [BACKEND VALIDATION ERROR] Project 145 - Error parsing updated content from DB: name 'project_name' is not defined
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 19842, in update_project_in_db
+custom_backend-1  |     if (project_name and "AI-Аудит Landing Page" in project_name) or \
+custom_backend-1  | NameError: name 'project_name' is not defined
+custom_backend-1  | INFO:     172.18.0.12:59986 - "PUT /api/custom/projects/update/145 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 145
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'NOT_FOUND'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['theme', 'sections']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Unknown Company'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company description not available'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 0 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 0
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 0
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 145
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Unknown Company'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company description not available'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 3
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'ru'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
+custom_backend-1  | INFO:     172.18.0.12:55640 - "GET /api/custom/ai-audit/landing-page/145 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 145
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'NOT_FOUND'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['theme', 'sections']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Unknown Company'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company description not available'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 0 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 0
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 0
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 145
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Unknown Company'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company description not available'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 3
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'ru'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
+custom_backend-1  | INFO:     172.18.0.12:44500 - "GET /api/custom/ai-audit/landing-page/145 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:44508 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47176 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47182 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47208 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47196 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47222 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47236 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47252 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47266 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47268 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47278 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK

@@ -19839,7 +19839,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     final_content_for_model = PdfLessonDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
                     # Check if this is an AI audit landing page project
-                    if (project_name and "AI-Аудит Landing Page" in project_name) or \
+                    if (old_project_name and "AI-Аудит Landing Page" in old_project_name) or \
                        (db_content and 'companyName' in db_content and 'jobPositions' in db_content):
                         logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page")
                         final_content_for_model = db_content  # Skip validation for AI audit data

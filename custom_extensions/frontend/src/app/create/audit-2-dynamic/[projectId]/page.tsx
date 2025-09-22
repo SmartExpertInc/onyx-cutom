@@ -284,6 +284,16 @@ export default function DynamicAuditLandingPage() {
     // Update local state first
     const updatedData = { ...landingPageData }
     
+    // 🔍 DEBUG: Log the data structure being sent
+    console.log('🔍 [DEBUG] landingPageData structure:', {
+      keys: Object.keys(landingPageData || {}),
+      hasCompanyName: 'companyName' in (landingPageData || {}),
+      hasJobPositions: 'jobPositions' in (landingPageData || {}),
+      hasSections: 'sections' in (landingPageData || {}),
+      hasTheme: 'theme' in (landingPageData || {}),
+      fullData: landingPageData
+    });
+    
     // Update specific fields based on the field name
     switch (field) {
       case 'companyName':
@@ -315,6 +325,17 @@ export default function DynamicAuditLandingPage() {
     
     // Automatically save to database
     console.log('💾 [AUTO SAVE] Starting automatic save to database');
+    
+    // 🔍 DEBUG: Log what we're about to send to backend
+    console.log('🔍 [DEBUG] Data being sent to backend:', {
+      microProductContent: updatedData,
+      microProductContentKeys: Object.keys(updatedData || {}),
+      hasCompanyName: 'companyName' in (updatedData || {}),
+      hasJobPositions: 'jobPositions' in (updatedData || {}),
+      hasSections: 'sections' in (updatedData || {}),
+      hasTheme: 'theme' in (updatedData || {})
+    });
+    
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
