@@ -1070,17 +1070,17 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           {
             "value": "4.8B",
             "label": "Internet Users Worldwide",
-            "color": "#3b82f6"
+            "description": "Global online audience size enabling massive reach across markets."
           },
           {
             "value": "68%",
             "label": "Of Online Experiences Start with Search",
-            "color": "#8b5cf6"
+            "description": "Search engines drive discovery, making SEO and SEM essential."
           },
           {
             "value": "$42",
             "label": "ROI for Every $1 Spent on Email Marketing",
-            "color": "#10b981"
+            "description": "Email remains a top-performing channel for measurable returns."
           }
         ]
       }
@@ -2127,12 +2127,48 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     }
         
             normalized_slide['props'] = normalized_props
+
+            # Enforce realistic image prompt style (convert minimalist to realistic scene descriptors)
+            def to_realistic(prompt: str) -> str:
+                if not isinstance(prompt, str) or not prompt.strip():
+                    return prompt
+                p = prompt
+                replacements = [
+                    ('Minimalist flat design illustration', 'Realistic cinematic scene'),
+                    ('modern corporate vector art', 'cinematic photography with natural lighting'),
+                    ('flat colors', 'physically-based materials and textures'),
+                    ('clean geometric shapes', 'real-world objects and surfaces'),
+                ]
+                for a, b in replacements:
+                    p = p.replace(a, b)
+                if '35mm' not in p and '50mm' not in p and 'low-angle' not in p and 'three-quarter' not in p:
+                    p += ' — cinematic 35mm lens, three-quarter view, soft rim light, shallow depth of field'
+                return p
+
+            if isinstance(normalized_props, dict):
+                if 'imagePrompt' in normalized_props and isinstance(normalized_props['imagePrompt'], str):
+                    normalized_props['imagePrompt'] = to_realistic(normalized_props['imagePrompt'])
+                if 'leftImagePrompt' in normalized_props and isinstance(normalized_props['leftImagePrompt'], str):
+                    normalized_props['leftImagePrompt'] = to_realistic(normalized_props['leftImagePrompt'])
+                if 'rightImagePrompt' in normalized_props and isinstance(normalized_props['rightImagePrompt'], str):
+                    normalized_props['rightImagePrompt'] = to_realistic(normalized_props['rightImagePrompt'])
+            normalized_slide['props'] = normalized_props
             
             # Remove voiceoverText for non-video presentations
             if (component_name == COMPONENT_NAME_SLIDE_DECK and 
                 'voiceoverText' in normalized_slide):
                 logger.info(f"Removing voiceoverText from slide {slide_index + 1} for regular slide deck")
                 normalized_slide.pop('voiceoverText', None)
+            
+            # Drop closing/what's next/resources slides entirely
+            title_lower = str(normalized_slide.get('slideTitle') or '').strip().lower()
+            closing_keywords = [
+                'conclusion', 'summary', 'wrap up', 'wrap-up', 'final thoughts', 'thanks', 'thank you',
+                "what's next", 'whats next', 'next steps', 'resources', 'further reading', 'q&a', 'questions'
+            ]
+            if any(k in title_lower for k in closing_keywords):
+                logger.info(f"Dropping closing-type slide {slide_index + 1} titled '{normalized_slide.get('slideTitle')}'")
+                continue
             
             normalized_slides.append(normalized_slide)
             
@@ -17227,8 +17263,8 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
 This enables immediate parsing without additional LLM calls during finalization.
 
 Preview UI requirement:
-- For EACH slide, ALSO include a short array field "previewKeyPoints" (2-5 items) summarizing the main topics discussed on that slide.
-- Keep each bullet brief (5-12 words), informative, and free of extra punctuation.
+- For EACH slide, ALSO include a short array field "previewKeyPoints" (3-6 items) summarizing the main topics discussed on that slide.
+- Make each bullet content-rich (8–16 words), specific, and free of extra punctuation.
 - These previewKeyPoints are for preview only and will be ignored/stripped on save.
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):

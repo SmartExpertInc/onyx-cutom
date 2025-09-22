@@ -751,6 +751,11 @@ export default function LessonPresentationClient() {
       // Title line with layout hint
       lines.push(`**Slide ${num}: ${title}** \`${templateId}\``);
 
+      // Preview key points (for preview UI only)
+      if (Array.isArray(s?.previewKeyPoints) && s.previewKeyPoints.length) {
+        lines.push(...s.previewKeyPoints.map((b: any) => `- ${String(b)}`));
+      }
+
       // Minimal content reconstruction per common templates
       if (props.title && typeof props.title === "string") {
         lines.push(`## ${props.title}`);
