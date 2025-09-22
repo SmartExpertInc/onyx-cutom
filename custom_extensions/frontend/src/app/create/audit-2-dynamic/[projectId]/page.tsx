@@ -249,6 +249,35 @@ export default function DynamicAuditLandingPage() {
   const handleTextSave = async (field: string, newValue: string) => {
     if (!landingPageData) return
     
+    // 🔍 CRITICAL: Validate that we have AI audit data structure, not slide deck data
+    if ('sections' in landingPageData && 'theme' in landingPageData && !('companyName' in landingPageData)) {
+      console.error('🚨 [DATA CORRUPTION] landingPageData has wrong structure - contains sections/theme instead of AI audit data');
+      console.error('🚨 [DATA CORRUPTION] Current data:', landingPageData);
+      console.error('🚨 [DATA CORRUPTION] Attempting to refetch correct data...');
+      
+      // Refetch the correct data from the server
+      try {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const apiUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`
+        const response = await fetch(apiUrl)
+        if (response.ok) {
+          const correctData = await response.json()
+          console.log('✅ [DATA RECOVERY] Successfully refetched correct AI audit data');
+          setLandingPageData(correctData)
+          // Retry the save with correct data
+          setTimeout(() => handleTextSave(field, newValue), 100);
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [DATA RECOVERY] Failed to refetch data:', error);
+      }
+      
+      // If refetch fails, abort the save to prevent data corruption
+      console.error('❌ [SAVE ABORTED] Cannot save with corrupted data structure');
+      stopEditing();
+      return;
+    }
+    
     // Get the current value for comparison
     let currentValue = '';
     switch (field) {
