@@ -227,7 +227,6 @@ export default function DynamicAuditLandingPage() {
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => ({
@@ -247,7 +246,7 @@ export default function DynamicAuditLandingPage() {
     setEditingField(null)
   }
 
-  const handleTextSave = (field: string, newValue: string) => {
+  const handleTextSave = async (field: string, newValue: string) => {
     if (!landingPageData) return
     
     // Get the current value for comparison
@@ -275,78 +274,74 @@ export default function DynamicAuditLandingPage() {
     console.log('📝 [TEXT SAVE] New value:', newValue);
     console.log('📝 [TEXT SAVE] Value changed:', currentValue !== newValue);
     
-    setLandingPageData(prev => {
-      if (!prev) return null
-      
-      const updated = { ...prev }
-      
-      // Update specific fields based on the field name
-      switch (field) {
-        case 'companyName':
-          updated.companyName = newValue
-          console.log('✅ [TEXT SAVE] Successfully updated companyName');
-          break
-        case 'companyDescription':
-          updated.companyDescription = newValue
-          console.log('✅ [TEXT SAVE] Successfully updated companyDescription');
-          break
-        case 'projectName':
-          updated.projectName = newValue
-          console.log('✅ [TEXT SAVE] Successfully updated projectName');
-          break
-        default:
-          // Handle nested fields like job positions
-          if (field.startsWith('jobPosition_')) {
-            const index = parseInt(field.split('_')[1])
-            if (updated.jobPositions && updated.jobPositions[index]) {
-              updated.jobPositions[index] = { ...updated.jobPositions[index], title: newValue }
-              console.log('✅ [TEXT SAVE] Successfully updated job position', index);
-            }
+    // Only proceed if the value actually changed
+    if (currentValue === newValue) {
+      console.log('⏭️ [TEXT SAVE] No change detected, skipping save');
+      stopEditing()
+      return
+    }
+    
+    // Update local state first
+    const updatedData = { ...landingPageData }
+    
+    // Update specific fields based on the field name
+    switch (field) {
+      case 'companyName':
+        updatedData.companyName = newValue
+        console.log('✅ [TEXT SAVE] Successfully updated companyName');
+        break
+      case 'companyDescription':
+        updatedData.companyDescription = newValue
+        console.log('✅ [TEXT SAVE] Successfully updated companyDescription');
+        break
+      case 'projectName':
+        updatedData.projectName = newValue
+        console.log('✅ [TEXT SAVE] Successfully updated projectName');
+        break
+      default:
+        // Handle nested fields like job positions
+        if (field.startsWith('jobPosition_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.jobPositions && updatedData.jobPositions[index]) {
+            updatedData.jobPositions[index] = { ...updatedData.jobPositions[index], title: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated job position', index);
           }
-          break
-      }
-      
-      return updated
-    })
+        }
+        break
+    }
     
-    setHasUnsavedChanges(true)
-    console.log('💾 [TEXT SAVE] Marked as having unsaved changes');
-    stopEditing()
-  }
-
-  const handleSaveChanges = async () => {
-    if (!landingPageData || !projectId) return
+    // Update local state
+    setLandingPageData(updatedData)
     
-    console.log('💾 [SAVE CHANGES] Starting save operation for project:', projectId);
-    console.log('💾 [SAVE CHANGES] Data being saved:', landingPageData);
-    
-    setIsSaving(true)
+    // Automatically save to database
+    console.log('💾 [AUTO SAVE] Starting automatic save to database');
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(landingPageData),
+        body: JSON.stringify({ microProductContent: updatedData }),
       })
       
       if (response.ok) {
+        console.log('✅ [AUTO SAVE] Successfully saved to database');
         setHasUnsavedChanges(false)
-        console.log('✅ [SAVE CHANGES] Successfully saved changes to backend');
-        alert('Changes saved successfully!')
       } else {
-        console.error('❌ [SAVE CHANGES] Backend save failed with status:', response.status);
-        throw new Error('Failed to save changes')
+        console.error('❌ [AUTO SAVE] Database save failed with status:', response.status);
+        const errorText = await response.text();
+        console.error('❌ [AUTO SAVE] Error details:', errorText);
+        setHasUnsavedChanges(true)
       }
     } catch (error) {
-      console.error('❌ [SAVE CHANGES] Error saving changes:', error)
-      alert('Failed to save changes. Please try again.')
-    } finally {
-      setIsSaving(false)
-      console.log('🏁 [SAVE CHANGES] Save operation completed');
+      console.error('❌ [AUTO SAVE] Error saving to database:', error)
+      setHasUnsavedChanges(true)
     }
+    
+    stopEditing()
   }
+
 
   const handleTextCancel = () => {
     console.log('❌ [TEXT EDIT] Edit canceled for field:', editingField);
@@ -608,19 +603,6 @@ export default function DynamicAuditLandingPage() {
         `}</style>
         
         <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
-          {/* Save Button */}
-          {hasUnsavedChanges && (
-            <div className="fixed top-4 right-4 z-50">
-              <button
-                onClick={handleSaveChanges}
-                disabled={isSaving}
-                className="px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
-                title="Save changes"
-              >
-                {isSaving ? '💾 Saving...' : '💾 Save Changes'}
-              </button>
-            </div>
-          )}
           
           {/* Header */}
           <header className="h-[50px] xl:h-[81px] mb-[33px] xl:hidden">
