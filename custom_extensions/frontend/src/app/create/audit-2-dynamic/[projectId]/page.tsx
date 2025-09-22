@@ -311,7 +311,7 @@ export default function DynamicAuditLandingPage() {
     }
     
     // Update local state first
-    const updatedData = { ...landingPageData }
+    let updatedData = { ...landingPageData }
     
     // 🔍 DEBUG: Log the data structure being sent
     console.log('🔍 [DEBUG] landingPageData structure:', {
