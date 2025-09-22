@@ -2,10 +2,35 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown, Info } from "lucide-react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+
+// Simple Tooltip Component
+const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  return (
+    <div 
+      className="relative inline-block"
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50">
+          <div className="bg-gray-900 text-white px-2 py-1 rounded text-xs whitespace-nowrap shadow-lg">
+            {content}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const selectTriggerVariants = cva(
   "flex w-fit items-center justify-between gap-2 rounded-md px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -246,7 +271,7 @@ function CustomPillSelector({
 interface CustomMultiSelectorProps {
   selectedValues: string[]
   onSelectionChange: (values: string[]) => void
-  options: { value: string; label: string }[]
+  options: { value: string; label: string; tooltip?: string }[]
   icon?: React.ReactNode
   label: string
   placeholder?: string
@@ -301,20 +326,29 @@ function CustomMultiSelector({
           {options.map((option) => (
             <div
               key={option.value}
-              className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+              className="flex items-center justify-between px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
               onClick={(e) => {
                 e.preventDefault()
                 handleToggle(option.value)
               }}
             >
-              <input
-                type="checkbox"
-                checked={selectedValues.includes(option.value)}
-                onChange={() => handleToggle(option.value)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                onClick={(e) => e.stopPropagation()}
-              />
-              {option.label}
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedValues.includes(option.value)}
+                  onChange={() => handleToggle(option.value)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                {option.label}
+              </div>
+              {option.tooltip && (
+                <div className="ml-2" onClick={(e) => e.stopPropagation()}>
+                  <SimpleTooltip content={option.tooltip}>
+                    <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
+                  </SimpleTooltip>
+                </div>
+              )}
             </div>
           ))}
         </SelectContent>

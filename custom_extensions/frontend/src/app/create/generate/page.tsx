@@ -166,6 +166,19 @@ function GenerateProductPicker() {
     "Customer journey mapping",
     "A guide to investing in real estate",
   ];
+
+  const stylePurposes = {
+    headlines: t('interface.generate.headlinesPurpose', 'Section titles and headings'),
+    paragraphs: t('interface.generate.paragraphsPurpose', 'Regular text blocks'),
+    bullet_lists: t('interface.generate.bulletListsPurpose', 'Unordered lists with bullet points'),
+    numbered_lists: t('interface.generate.numberedListsPurpose', 'Ordered lists with numbers'),
+    alerts: t('interface.generate.alertsPurpose', 'Important warnings or tips'),
+    recommendations: t('interface.generate.recommendationsPurpose', 'Actionable advice'),
+    section_breaks: t('interface.generate.sectionBreaksPurpose', 'Visual separators between sections'),
+    icons: t('interface.generate.iconsPurpose', 'Emojis and visual elements'),
+    important_sections: t('interface.generate.importantSectionsPurpose', 'Highlighted critical content')
+  };
+
   const getRandomExamples = () => {
     const shuffled = [...allExamples].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 6);
@@ -1077,7 +1090,7 @@ function GenerateProductPicker() {
     <main
       className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
-      <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
+      <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1254,7 +1267,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1294,7 +1307,7 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-2 mb-1">
             {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingOutline !== null && (
-              <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1417,7 +1430,7 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-2 mb-1">
             {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingQuizOutline !== null && (
-              <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1584,7 +1597,7 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-2 mb-1">
             {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingTextOutline !== null && (
-              <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1686,15 +1699,15 @@ function GenerateProductPicker() {
                           selectedValues={textStyles}
                           onSelectionChange={setTextStyles}
                           options={[
-                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                            { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
+                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
+                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists'), tooltip: stylePurposes.bullet_lists },
+                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists'), tooltip: stylePurposes.numbered_lists },
+                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts'), tooltip: stylePurposes.alerts },
+                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations'), tooltip: stylePurposes.recommendations },
+                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks'), tooltip: stylePurposes.section_breaks },
+                            { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
+                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                           ]}
                           icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
                           label="Styles"
@@ -1735,15 +1748,15 @@ function GenerateProductPicker() {
                       selectedValues={textStyles}
                       onSelectionChange={setTextStyles}
                       options={[
-                        { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                        { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                        { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                        { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                        { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                        { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                        { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                        { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                        { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                        { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
+                        { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
+                        { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists'), tooltip: stylePurposes.bullet_lists },
+                        { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists'), tooltip: stylePurposes.numbered_lists },
+                        { value: "alerts", label: t('interface.generate.alerts', 'Alerts'), tooltip: stylePurposes.alerts },
+                        { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations'), tooltip: stylePurposes.recommendations },
+                        { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks'), tooltip: stylePurposes.section_breaks },
+                        { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
+                        { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                       ]}
                       icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
                       label="Styles"
@@ -1758,7 +1771,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
