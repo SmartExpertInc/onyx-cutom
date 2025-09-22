@@ -321,8 +321,8 @@ export default function ConnectorManagementPage({
           {popup && (
             <div className={`mb-6 p-4 rounded-lg border ${
               popup.type === 'success' 
-                ? 'bg-gradient-to-t from-white to-emerald-100 text-green-800 border-green-200' 
-                : 'bg-gradient-to-t from-white to-red-100 text-red-800 border-red-200'
+                ? 'bg-gradient-to-t from-white to-emerald-100 text-green-800 border-green-100' 
+                : 'bg-gradient-to-t from-white to-red-100 text-red-800 border-red-100'
             }`}>
               <div className="flex items-center gap-2">
                 {popup.type === 'success' ? (
