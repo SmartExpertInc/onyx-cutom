@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Download, FolderOpen, Sparkles } from 'lucide-react';
-import { ProjectInstanceDetail } from '@/types/projectSpecificTypes';
+import { ProjectInstanceDetail, TrainingPlanData } from '@/types/projectSpecificTypes';
 
 type ProductViewNewParams = {
   productId: string;
@@ -171,52 +171,41 @@ export default function ProductViewNewPage() {
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-lg p-[25px]">
               <h1 className="text-[#191D30] font-semibold text-[30px] leading-[100%]">
                 {projectData.name || 'Course Outline'}
               </h1>
             </div>
 
-            {/* Module 1 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
-                Module 1: Introduction
-              </h2>
-              <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
-                5 lessons
-              </p>
-              <hr className="border-gray-200 mb-4" />
-              {/* Space for future content */}
-            </div>
+            {/* Render actual modules from the course outline data */}
+            {(() => {
+              const trainingPlanData = projectData.details as TrainingPlanData;
+              if (!trainingPlanData?.sections) {
+                return (
+                  <div className="bg-white rounded-lg p-[25px]">
+                    <p className="text-gray-500">No modules found in this course outline.</p>
+                  </div>
+                );
+              }
 
-            {/* Module 2 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
-                Module 2: Core Concepts
-              </h2>
-              <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
-                8 lessons
-              </p>
-              <hr className="border-gray-200 mb-4" />
-              {/* Space for future content */}
-            </div>
-
-            {/* Module 3 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
-                Module 3: Advanced Topics
-              </h2>
-              <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
-                6 lessons
-              </p>
-              <hr className="border-gray-200 mb-4" />
-              {/* Space for future content */}
-            </div>
+              return trainingPlanData.sections.map((section, index) => (
+                <div key={section.id || index} className="bg-white rounded-lg p-[25px]">
+                  <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
+                    Module {index + 1}: {section.title}
+                  </h2>
+                  <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
+                    {section.lessons?.length || 0} lessons
+                  </p>
+                  <hr className="border-gray-200 mb-4" />
+                  {/* Space for future content */}
+                </div>
+              ));
+            })()}
           </div>
 
           {/* Right Panel - Course Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-lg p-[25px]">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Summary</h3>
               <div className="text-gray-500">
                 Right panel for course summary will go here.
