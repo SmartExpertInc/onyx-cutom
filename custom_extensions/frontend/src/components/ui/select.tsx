@@ -215,28 +215,21 @@ function CustomPillSelector({
     <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger 
         className={cn(
-          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
-          "text-gray-700 font-medium text-sm",
-          "[&>svg]:hidden",
-          "shadow-none",
+          "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
           className
         )}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {icon && (
             <div className="flex items-center justify-center">
               {icon}
             </div>
           )}
-          <span>
-            <span className="text-gray-600">{label}:</span> 
-            <span className="text-black ml-1">{value}</span>
-          </span>
-          <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+          <span className="text-[#09090B] opacity-50">{label}:</span>
+          <span className="text-[#09090B]">{value}</span>
         </div>
-        <div className="w-px h-6 bg-gray-200 ml-2"></div>
       </SelectTrigger>
-      <SelectContent className="border-none">
+      <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
         {options.map((option) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
@@ -287,28 +280,21 @@ function CustomMultiSelector({
     <Select open={isOpen} onOpenChange={setIsOpen}>
       <SelectTrigger 
         className={cn(
-          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
-          "text-gray-700 font-medium text-sm cursor-pointer",
-          "[&>svg]:hidden",
-          "shadow-none",
+          "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
           className
         )}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {icon && (
             <div className="flex items-center justify-center">
               {icon}
             </div>
           )}
-          <span>
-            <span className="text-gray-600">{label}:</span> 
-            <span className="text-black ml-1">{displayText}</span>
-          </span>
-          <ChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", isOpen && "rotate-180")} />
+          <span className="text-[#09090B] opacity-50">{label}:</span>
+          <span className="text-[#09090B]">{displayText}</span>
         </div>
-        <div className="w-px h-6 bg-gray-200 ml-2"></div>
       </SelectTrigger>
-      <SelectContent className="border border-gray-300 shadow-lg">
+      <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
         {options.map((option) => (
           <div
             key={option.value}

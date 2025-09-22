@@ -348,7 +348,7 @@ function GenerateProductPicker() {
 
           // Clear lesson context when switching away from Presentation
     if (activeProduct !== "Presentation") {
-        setUseExistingOutline(null);
+        setUseExistingOutline(false);  // Default to standalone mode instead of null
         setSelectedOutlineId(null);
         setSelectedModuleIndex(null);
         setLessonsForModule([]);
@@ -357,7 +357,7 @@ function GenerateProductPicker() {
       
       // Clear quiz context when switching away from Quiz
       if (activeProduct !== "Quiz") {
-        setUseExistingQuizOutline(null);
+        setUseExistingQuizOutline(false);  // Default to standalone mode instead of null
         setSelectedQuizOutlineId(null);
         setSelectedQuizModuleIndex(null);
         setQuizLessonsForModule([]);
@@ -366,7 +366,7 @@ function GenerateProductPicker() {
       
       // Clear text presentation context when switching away from One-Pager
       if (activeProduct !== "One-Pager") {
-        setUseExistingTextOutline(null);
+        setUseExistingTextOutline(false);  // Default to standalone mode instead of null
         setSelectedTextOutlineId(null);
         setSelectedTextModuleIndex(null);
         setTextLessonsForModule([]);
@@ -1086,7 +1086,7 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-900 mt-8">{t('interface.generate.title', 'Generate')}</h1>
         <p className="text-center text-gray-600 text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 

@@ -145,7 +145,7 @@ export function UserDropdown({
                 {/* User Email Section */}
                 {user?.email && (
                   <>
-                    <div className="px-3 py-2 text-gray-700 text-xs font-medium border-b border-gray-100">
+                    <div className="px-3 py-2 text-gray-900 text-xs font-semibold border-b border-gray-100">
                       {user.email}
                     </div>
                   </>
