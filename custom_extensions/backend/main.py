@@ -17307,13 +17307,13 @@ Template-Specific Props Requirements (abbreviated):
 
 CRITICAL IMAGE PROMPT REQUIREMENTS (imagePrompt fields):
 - ALWAYS generate non-empty, detailed imagePrompt for templates that support images; NEVER leave imagePrompt empty.
-- MANDATORY STYLE: Realistic cinematic scenes (never flat design, minimalist, vector art, or illustrations).
+- MANDATORY STYLE: Realistic cinematic scenes (never flat design, minimalist, vector art, icons, isometric, painting, 3D render/CGI, cartoon, or illustrations).
 - Start with "Realistic cinematic scene of [specific subject and action]" - describe real people, objects, environments.
 - Include: SUBJECT (who/what), ACTION (doing what), ENVIRONMENT (where), LIGHTING (natural/artificial), CAMERA (35mm/50mm lens, angle), DEPTH OF FIELD, MATERIALS/TEXTURES.
 - End with technical specs: "Cinematic photography with natural lighting, [lens]mm lens, [angle] view, shallow depth of field."
 - Use color placeholders [COLOR1], [COLOR2], [COLOR3], [BACKGROUND] for theming.
 - NO readable text on screens/signs; use abstract shapes if needed.
-- Examples: "truck accelerating on highway at dusk", "software engineer coding at workstation", "business meeting in modern office".
+- Strictly forbidden phrases: illustration, flat, vector, icon(s), isometric, 3D render, CGI, painting, cartoon, infographic. Replace with realistic photographic equivalents.
 - For two-column, use leftImagePrompt/rightImagePrompt when applicable.
 
 CONTENT DENSITY AND LEARNING REQUIREMENTS:
@@ -17326,13 +17326,20 @@ CONTENT DENSITY AND LEARNING REQUIREMENTS:
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
 - Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
-- NO closing slides (thank you, next steps, resources) - focus on educational content only.
+- STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
 DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
 - For 10–15 slides, use a varied mix such as: 1 hero/title, 2–3 bullet-points, 1 two-column, 1 process-steps, 1 four-box-grid,
   1 timeline or event-list, 1 big-numbers (exactly 3 items), 1 challenges-solutions, 1 media (big-image-left/top), plus 1–2 specialty slides.
 - Prefer templates that best express the content; do not overuse bullet-points.
+
+ENFORCED TEMPLATE VARIANCE EXAMPLE (for 12–16 slides):
+- Required functional set (domain-agnostic): 1 hero/title, 1 agenda, 1 core concept overview (two-column), 1 process/workflow (process-steps),
+  1 data/input preparation or prerequisites (big-image-top + bullets), 1 evaluation/criteria (two-column or bullet-points-right),
+  1 timeline of milestones or evolution (timeline), 1 skills/capabilities grid (four-box-grid), 1 challenges vs solutions (challenges-solutions), 1 KPI/metrics snapshot (big-numbers),
+  1 applications/case studies (two-column or four-box-grid), 1 media/visual narrative (big-image-left/top).
+- Do not introduce closing/inspirational slides. Replace them with educational topics from the set above.
 
 UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
 - Style must be realistic scenes (cinematic photo or physically-based 3D render), not minimalist flat illustrations.
