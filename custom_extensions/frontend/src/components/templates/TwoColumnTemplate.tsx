@@ -316,7 +316,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     top: '0',
     bottom: '0',
     width: '1px',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Полупрозрачная белая линия
+    background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0),      /* верх — прозрачный */ rgba(255, 255, 255, 0.9) 50%,/* центр — ярко-белый */ rgba(255, 255, 255, 0)', // Полупрозрачная белая линия
     transform: 'translateX(-50%)',
     zIndex: 1
   };
