@@ -71,8 +71,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-22 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
-        <div className="absolute -top-12 -left-12 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
+        <div className="absolute -top-20 -left-24 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
+        <div className="absolute -top-12 -left-14 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
         
         {/* Selection Indicator */}
         {selectable && (
