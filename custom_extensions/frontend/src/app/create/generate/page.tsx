@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe, FileQuestion, MessageCircleQuestion, PanelsLeftBottom, Paintbrush, ClipboardList, Network } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe, FileQuestion, MessageCircleQuestion, PanelsLeftBottom, Paintbrush, ClipboardList, Network, RulerDimensionLine } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
@@ -1679,7 +1679,7 @@ function GenerateProductPicker() {
                             { value: "medium", label: t('interface.generate.medium', 'Medium') },
                             { value: "long", label: t('interface.generate.long', 'Long') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
                           label="Length"
                         />
                         <CustomMultiSelector
@@ -1728,7 +1728,7 @@ function GenerateProductPicker() {
                         { value: "medium", label: t('interface.generate.medium', 'Medium') },
                         { value: "long", label: t('interface.generate.long', 'Long') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
                       label="Length"
                     />
                     <CustomMultiSelector
