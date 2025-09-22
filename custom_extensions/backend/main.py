@@ -16525,7 +16525,33 @@ CRITICAL FORMATTING REQUIREMENTS FOR VIDEO LESSON PRESENTATION:
     try:
         # Get the appropriate JSON example based on whether this is a video lesson
         is_video_lesson = payload.productType == "video_lesson_presentation"
-        json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video_lesson else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
+        if is_video_lesson:
+            json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM
+        else:
+            # Use multiple diverse examples to encourage template variety
+            import random
+            import os
+            
+            # Load additional example files
+            example_files = [
+                DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM,
+            ]
+            
+            # Try to load additional example files
+            try:
+                with open('NEW_SLIDE_DECK_JSON_EXAMPLE_2.json', 'r', encoding='utf-8') as f:
+                    example_files.append(f.read())
+            except:
+                pass
+                
+            try:
+                with open('NEW_SLIDE_DECK_JSON_EXAMPLE_3.json', 'r', encoding='utf-8') as f:
+                    example_files.append(f.read())
+            except:
+                pass
+            
+            # Randomly select one example to reduce over-reliance on a single pattern
+            json_example = random.choice(example_files)
         
         json_preview_instructions = f"""
 
@@ -16566,17 +16592,55 @@ General Rules:
 - BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
-DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
-- For 10–15 slides, use a varied mix such as: 1 hero/title, 2 bullet-points, 1 two-column, 1 process-steps, 1 four-box-grid,
-  1 timeline or event-list, 1 big-numbers (exactly 3 items), 1 challenges-solutions, 1 media (big-image-left/top), plus 1–2 specialty slides.
-- Prefer templates that best express the content; do not overuse bullet-points.
+MANDATORY TEMPLATE DIVERSITY (CRITICAL - AVOID REPETITION):
+- You MUST use a wide variety of templates from the full catalog below. DO NOT repeat the same templates.
+- For 10-15 slides, use each template AT MOST ONCE, preferring: hero-title-slide (1), bullet-points variants (max 2), two-column (1), process-steps (1), four-box-grid (1), timeline OR event-list (1), big-numbers (1), challenges-solutions (1), big-image variants (1-2), metrics-analytics (1), market-share OR pie-chart-infographics (1), comparison-slide OR table variants (1), pyramid (1).
+- Prioritize templates that best express your content; avoid defaulting to bullet-points for everything.
+- Use specialty templates like metrics-analytics, pie-chart-infographics, event-list, pyramid, market-share when content fits.
+
+PROFESSIONAL IMAGE SELECTION GUIDELINES (CRITICAL FOR RELEVANCE):
+Based on presentation design best practices, follow these rules for selecting appropriate images:
+
+1. RELEVANCE OVER AESTHETICS: Images must directly support and enhance your slide's message, not just be decorative.
+   - For business concepts: Use workplace scenarios, professional environments, real business activities
+   - For technical topics: Show actual tools, interfaces, workflows, or realistic work environments
+   - For data/analytics: Use realistic data visualization scenarios, not abstract concepts
+   - For processes: Show people actually performing the process or realistic workflow environments
+
+2. AVOID OVERUSED STOCK PHOTO CLICHÉS:
+   - NO: Handshakes, chess pieces, lightbulbs, arrows hitting targets, people pointing at charts
+   - NO: Overly staged business meetings, fake-looking "diverse teams" in conference rooms
+   - NO: Generic "success" imagery (mountains, climbing, finish lines)
+   - YES: Authentic workplace moments, realistic technology use, genuine professional interactions
+
+3. CONTEXT-SPECIFIC IMAGE SELECTION:
+   - Marketing slides: Real marketing campaigns, authentic customer interactions, actual marketing tools in use
+   - Technology slides: Real developers coding, authentic tech environments, actual software interfaces
+   - Finance slides: Real financial professionals at work, authentic trading floors, actual financial data analysis
+   - Education slides: Real learning environments, authentic teaching moments, actual educational technology
+
+4. REALISTIC WORKPLACE SCENES:
+   - Show people actually using the tools/concepts being discussed
+   - Include authentic details: real computer screens, actual work materials, genuine work environments
+   - Avoid posed or overly perfect scenarios; prefer candid, realistic moments
+   - Include diverse but authentic representation without forced staging
+
+5. VISUAL METAPHORS THAT WORK:
+   - Use concrete, relatable metaphors that enhance understanding
+   - Construction/building for development processes, gardens for growth concepts
+   - Transportation for journey/progress concepts, but make them specific and realistic
+   - Avoid abstract or overused metaphors; prefer specific, actionable imagery
 
 UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
-- Style must be realistic scenes (cinematic photo or physically-based 3D render), not minimalist flat illustrations.
-- Describe SUBJECT, ACTION, ENVIRONMENT, LIGHTING, CAMERA (lens mm, angle), DEPTH OF FIELD, MATERIALS/TEXTURES, and MOTION.
-- Examples: "a long-haul truck accelerating out of a warehouse loading bay at dusk, headlights on, light rain mist, wet asphalt reflections, cinematic 35mm, low-angle shot, shallow depth of field"; 
-  "a software engineer coding at an ultra-wide monitor in a modern office at night, reflected city lights, soft rim lighting, visible keyboard and coffee mug, 50mm, three-quarter view".
-- Avoid readable text on screens; use abstract UI shapes if necessary. Keep prompts concrete and observational.
+- Style must be realistic scenes (cinematic photography or high-quality documentary style), not minimalist flat illustrations.
+- Describe SPECIFIC SUBJECT performing RELEVANT ACTION in APPROPRIATE ENVIRONMENT with PROFESSIONAL LIGHTING, CAMERA ANGLE (lens mm, perspective), DEPTH OF FIELD, MATERIALS/TEXTURES, and subtle MOTION.
+- Examples for different contexts:
+  * Business: "Professional business analysts collaborating around multiple monitors displaying real financial dashboards and KPI metrics in a modern open office. Natural lighting from large windows, diverse team members pointing at specific data points on screens, coffee cups and notebooks visible. Shot with 35mm lens, three-quarter view, shallow depth of field focusing on the data displays."
+  * Technology: "Software engineers debugging code on ultra-wide monitors in a tech company office at evening, ambient keyboard lighting, multiple code editors and terminal windows visible, one developer explaining a solution to another. Natural office lighting mixed with screen glow, 50mm lens, over-shoulder perspective, realistic depth of field."
+  * Marketing: "Marketing team analyzing campaign performance data on large wall-mounted displays in a creative agency space, colorful brand materials and mood boards on walls, team members discussing conversion metrics while reviewing mobile app interfaces. Natural studio lighting, 28mm wide-angle lens, environmental portrait style."
+- Keep prompts specific to slide content; avoid generic business imagery.
+- Never include readable text on screens; use realistic but abstract UI patterns.
+- Include authentic environmental details that support the professional context.
 
 Template Catalog with required props and usage:
 - hero-title-slide: title, subtitle, [author], [date]
@@ -16608,7 +16672,7 @@ Template Catalog with required props and usage:
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
   • Usage: problem/solution mapping; two facing columns.
 - metrics-analytics: title, metrics[] (number,text)
-  • Usage: EXACTLY SIX numbered analytics points; connected layout.
+  • Usage: EXACTLY 5-6 numbered analytics points; connected layout. Use when you have specific KPIs, measurements, or operational metrics. DO NOT convert to bullet-points.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
 - comparison-slide: title, [subtitle], tableData: headers[],rows[]
@@ -16619,6 +16683,19 @@ Template Catalog with required props and usage:
   • Usage: dense tabular data (light theme).
 - pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
   • Usage: distribution breakdown; pie with segment list and monthly notes.
+
+CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
+- Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
+- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points).
+- For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
+- Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
+- Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
+CRITICAL TEMPLATE DIVERSITY ENFORCEMENT:
+- Each template should appear AT MOST ONCE per presentation. Avoid template repetition at all costs.
+- When you have 5-8 metrics/KPIs, use metrics-analytics template (DO NOT convert to bullet-points).
+- For tabular data, always use table-dark or table-light templates (DO NOT use markdown tables).
+- Prioritize variety: if you've used bullet-points once, use bullet-points-right or other templates for subsequent content.
+- Select templates based on content structure, not convenience. Challenge yourself to use diverse templates.
 """
         if is_video_lesson:
             json_preview_instructions += """
