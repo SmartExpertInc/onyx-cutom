@@ -1424,94 +1424,71 @@ function GenerateProductPicker() {
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
-                    {/* White container with three dropdowns and vertical dividers */}
-                    <div className="bg-white rounded-lg border border-neutral-200 p-4 flex items-center gap-4">
-                      {/* Outline dropdown */}
-                      <div className="flex-1">
-                        <Select
-                          value={selectedOutlineId?.toString() ?? ""}
-                          onValueChange={(value) => {
-                            setSelectedOutlineId(value ? Number(value) : null);
-                            // clear module & lesson selections when outline changes
-                            setSelectedModuleIndex(null);
-                            setLessonsForModule([]);
-                            setSelectedLesson("");
-                          }}
-                        >
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                            <SelectValue placeholder="Select Outline" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {outlines.map((o) => (
-                              <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    {/* Outline dropdown */}
+                    <Select
+                      value={selectedOutlineId?.toString() ?? ""}
+                      onValueChange={(value) => {
+                        setSelectedOutlineId(value ? Number(value) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedModuleIndex(null);
+                        setLessonsForModule([]);
+                        setSelectedLesson("");
+                      }}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder="Select Outline" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {outlines.map((o) => (
+                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-neutral-200"></div>
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedOutlineId && (
+                      <Select
+                        value={selectedModuleIndex?.toString() ?? ""}
+                        onValueChange={(value) => {
+                          const idx = value ? Number(value) : null;
+                          setSelectedModuleIndex(idx);
+                          setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                          setSelectedLesson("");
+                        }}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder="Select Module" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {modulesForOutline.map((m, idx) => (
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                      {/* Module dropdown – appears once outline is selected */}
-                      <div className="flex-1">
-                        {selectedOutlineId ? (
-                          <Select
-                            value={selectedModuleIndex?.toString() ?? ""}
-                            onValueChange={(value) => {
-                              const idx = value ? Number(value) : null;
-                              setSelectedModuleIndex(idx);
-                              setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                              setSelectedLesson("");
-                            }}
-                          >
-                            <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                              <SelectValue placeholder="Select Module" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {modulesForOutline.map((m, idx) => (
-                                <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 flex items-center px-3 text-sm text-neutral-400">
-                            Select outline first
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-neutral-200"></div>
-
-                      {/* Lesson dropdown – appears when module chosen */}
-                      <div className="flex-1">
-                        {selectedModuleIndex !== null ? (
-                          <Select
-                            value={selectedLesson}
-                            onValueChange={setSelectedLesson}
-                          >
-                            <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                              <SelectValue placeholder="Select Lesson" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {lessonsForModule.map((l) => (
-                                <SelectItem key={l} value={l}>{l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 flex items-center px-3 text-sm text-neutral-400">
-                            Select module first
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedModuleIndex !== null && (
+                      <Select
+                        value={selectedLesson}
+                        onValueChange={setSelectedLesson}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder="Select Lesson" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lessonsForModule.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
                       <>
                         <Select value={language} onValueChange={setLanguage}>
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1522,7 +1499,7 @@ function GenerateProductPicker() {
                           </SelectContent>
                         </Select>
                         <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1540,7 +1517,7 @@ function GenerateProductPicker() {
                 {useExistingOutline === false && (
                   <>
                     <Select value={language} onValueChange={setLanguage}>
-                      <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1551,7 +1528,7 @@ function GenerateProductPicker() {
                       </SelectContent>
                     </Select>
                     <Select value={slidesCount.toString()} onValueChange={(value) => setSlidesCount(Number(value))}>
-                      <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1615,96 +1592,73 @@ function GenerateProductPicker() {
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
                   <>
-                    {/* White container with three dropdowns and vertical dividers */}
-                    <div className="bg-white rounded-lg border border-neutral-200 p-4 flex items-center gap-4">
-                      {/* Outline dropdown */}
-                      <div className="flex-1">
-                        <Select
-                          value={selectedQuizOutlineId?.toString() ?? ""}
-                          onValueChange={(value) => {
-                            setSelectedQuizOutlineId(value ? Number(value) : null);
-                            // clear module & lesson selections when outline changes
-                            setSelectedQuizModuleIndex(null);
-                            setQuizLessonsForModule([]);
-                            setSelectedQuizLesson("");
-                          }}
-                        >
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                            <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {quizOutlines.map((outline) => (
-                              <SelectItem key={outline.id} value={outline.id.toString()}>
-                                {outline.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    {/* Outline dropdown */}
+                    <Select
+                      value={selectedQuizOutlineId?.toString() ?? ""}
+                      onValueChange={(value) => {
+                        setSelectedQuizOutlineId(value ? Number(value) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedQuizModuleIndex(null);
+                        setQuizLessonsForModule([]);
+                        setSelectedQuizLesson("");
+                      }}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {quizOutlines.map((outline) => (
+                          <SelectItem key={outline.id} value={outline.id.toString()}>
+                            {outline.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-neutral-200"></div>
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedQuizOutlineId && (
+                      <Select
+                        value={selectedQuizModuleIndex?.toString() ?? ""}
+                        onValueChange={(value) => {
+                          const idx = value ? Number(value) : null;
+                          setSelectedQuizModuleIndex(idx);
+                          setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
+                          setSelectedQuizLesson("");
+                        }}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quizModulesForOutline.map((m, idx) => (
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                      {/* Module dropdown – appears once outline is selected */}
-                      <div className="flex-1">
-                        {selectedQuizOutlineId ? (
-                          <Select
-                            value={selectedQuizModuleIndex?.toString() ?? ""}
-                            onValueChange={(value) => {
-                              const idx = value ? Number(value) : null;
-                              setSelectedQuizModuleIndex(idx);
-                              setQuizLessonsForModule(idx !== null ? quizModulesForOutline[idx].lessons : []);
-                              setSelectedQuizLesson("");
-                            }}
-                          >
-                            <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                              <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {quizModulesForOutline.map((m, idx) => (
-                                <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 flex items-center px-3 text-sm text-neutral-400">
-                            Select outline first
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-neutral-200"></div>
-
-                      {/* Lesson dropdown – appears when module chosen */}
-                      <div className="flex-1">
-                        {selectedQuizModuleIndex !== null ? (
-                          <Select
-                            value={selectedQuizLesson}
-                            onValueChange={setSelectedQuizLesson}
-                          >
-                            <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                              <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {quizLessonsForModule.map((l) => (
-                                <SelectItem key={l} value={l}>{l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 flex items-center px-3 text-sm text-neutral-400">
-                            Select module first
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedQuizModuleIndex !== null && (
+                      <Select
+                        value={selectedQuizLesson}
+                        onValueChange={setSelectedQuizLesson}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {quizLessonsForModule.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedQuizLesson && (
                       <>
                         <Select value={quizLanguage} onValueChange={setQuizLanguage}>
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1787,7 +1741,7 @@ function GenerateProductPicker() {
                 {useExistingQuizOutline === false && (
                   <>
                     <Select value={quizLanguage} onValueChange={setQuizLanguage}>
-                      <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1916,94 +1870,71 @@ function GenerateProductPicker() {
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
                   <>
-                    {/* White container with three dropdowns and vertical dividers */}
-                    <div className="bg-white rounded-lg border border-neutral-200 p-4 flex items-center gap-4">
-                      {/* Outline dropdown */}
-                      <div className="flex-1">
-                        <Select
-                          value={selectedTextOutlineId?.toString() ?? ""}
-                          onValueChange={(value) => {
-                            setSelectedTextOutlineId(value ? Number(value) : null);
-                            // clear module & lesson selections when outline changes
-                            setSelectedTextModuleIndex(null);
-                            setTextLessonsForModule([]);
-                            setSelectedTextLesson("");
-                          }}
-                        >
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                            <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {textOutlines.map((o) => (
-                              <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    {/* Outline dropdown */}
+                    <Select
+                      value={selectedTextOutlineId?.toString() ?? ""}
+                      onValueChange={(value) => {
+                        setSelectedTextOutlineId(value ? Number(value) : null);
+                        // clear module & lesson selections when outline changes
+                        setSelectedTextModuleIndex(null);
+                        setTextLessonsForModule([]);
+                        setSelectedTextLesson("");
+                      }}
+                    >
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                        <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {textOutlines.map((o) => (
+                          <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-neutral-200"></div>
+                    {/* Module dropdown – appears once outline is selected */}
+                    {selectedTextOutlineId && (
+                      <Select
+                        value={selectedTextModuleIndex?.toString() ?? ""}
+                        onValueChange={(value) => {
+                          const idx = value ? Number(value) : null;
+                          setSelectedTextModuleIndex(idx);
+                          setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
+                          setSelectedTextLesson("");
+                        }}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {textModulesForOutline.map((m, idx) => (
+                            <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                      {/* Module dropdown – appears once outline is selected */}
-                      <div className="flex-1">
-                        {selectedTextOutlineId ? (
-                          <Select
-                            value={selectedTextModuleIndex?.toString() ?? ""}
-                            onValueChange={(value) => {
-                              const idx = value ? Number(value) : null;
-                              setSelectedTextModuleIndex(idx);
-                              setTextLessonsForModule(idx !== null ? textModulesForOutline[idx].lessons : []);
-                              setSelectedTextLesson("");
-                            }}
-                          >
-                            <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                              <SelectValue placeholder={t('interface.generate.selectModule', 'Select Module')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {textModulesForOutline.map((m, idx) => (
-                                <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 flex items-center px-3 text-sm text-neutral-400">
-                            Select outline first
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Vertical divider */}
-                      <div className="w-px h-8 bg-neutral-200"></div>
-
-                      {/* Lesson dropdown – appears when module chosen */}
-                      <div className="flex-1">
-                        {selectedTextModuleIndex !== null ? (
-                          <Select
-                            value={selectedTextLesson}
-                            onValueChange={setSelectedTextLesson}
-                          >
-                            <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
-                              <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {textLessonsForModule.map((l) => (
-                                <SelectItem key={l} value={l}>{l}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 flex items-center px-3 text-sm text-neutral-400">
-                            Select module first
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Lesson dropdown – appears when module chosen */}
+                    {selectedTextModuleIndex !== null && (
+                      <Select
+                        value={selectedTextLesson}
+                        onValueChange={setSelectedTextLesson}
+                      >
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
+                          <SelectValue placeholder={t('interface.generate.selectLesson', 'Select Lesson')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {textLessonsForModule.map((l) => (
+                            <SelectItem key={l} value={l}>{l}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedTextLesson && (
                       <>
                         <Select value={textLanguage} onValueChange={setTextLanguage}>
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -2014,7 +1945,7 @@ function GenerateProductPicker() {
                           </SelectContent>
                         </Select>
                         <Select value={textLength} onValueChange={setTextLength}>
-                          <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                          <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -2065,7 +1996,7 @@ function GenerateProductPicker() {
                 {useExistingTextOutline === false && (
                   <>
                     <Select value={textLanguage} onValueChange={setTextLanguage}>
-                      <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -2076,7 +2007,7 @@ function GenerateProductPicker() {
                       </SelectContent>
                     </Select>
                     <Select value={textLength} onValueChange={setTextLength}>
-                      <SelectTrigger className="h-10 w-full items-center justify-between rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-950 focus:outline-none focus:ring-2 focus:ring-neutral-950 focus:ring-offset-2">
+                      <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
