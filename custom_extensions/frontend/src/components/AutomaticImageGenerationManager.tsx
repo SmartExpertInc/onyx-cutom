@@ -262,7 +262,7 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
         width,
         height,
         quality: 'standard',
-        style: 'vivid',
+        style: 'natural',
         model: 'dall-e-3'
       };
 

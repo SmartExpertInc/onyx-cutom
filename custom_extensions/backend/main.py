@@ -1510,7 +1510,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
   ],
   "currentSlideId": "slide_1_intro",
   "detectedLanguage": "en"
-} 
+}
 """
 
 DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
@@ -16608,7 +16608,7 @@ Template Catalog with required props and usage:
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
   • Usage: problem/solution mapping; two facing columns.
 - metrics-analytics: title, metrics[] (number,text)
-  • Usage: EXACTLY SIX numbered analytics points; connected layout. Ensure to always provide at least 5 elements.
+  • Usage: EXACTLY SIX numbered analytics points; connected layout.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
 - comparison-slide: title, [subtitle], tableData: headers[],rows[]

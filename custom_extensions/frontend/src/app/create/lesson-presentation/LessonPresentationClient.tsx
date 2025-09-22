@@ -1433,8 +1433,8 @@ export default function LessonPresentationClient() {
         }}
       >
         {/* Back button */}
-        <Link
-          href="/create/generate"
+          <Link
+            href="/create/generate"
             className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
           style={{
             color: '#0F58F9',
@@ -1448,7 +1448,7 @@ export default function LessonPresentationClient() {
             <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           {t('interface.generate.back', 'Back')}
-        </Link>
+          </Link>
 
         <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
 
@@ -1487,18 +1487,18 @@ export default function LessonPresentationClient() {
                     {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
                       <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
                         <div className="flex items-center">
-                          {/* Outline dropdown */}
+                    {/* Outline dropdown */}
                           <div className="flex-1 flex items-center justify-center">
                             <Select
                               value={selectedOutlineId?.toString() ?? ""}
                               onValueChange={(value: string) => {
                                 const val = value ? Number(value) : null;
                                 setSelectedOutlineId(val);
-                                // clear module & lesson selections when outline changes
-                                setSelectedModuleIndex(null);
-                                setLessonsForModule([]);
-                                setSelectedLesson("");
-                              }}
+                          // clear module & lesson selections when outline changes
+                          setSelectedModuleIndex(null);
+                          setLessonsForModule([]);
+                          setSelectedLesson("");
+                        }}
                             >
                               <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
                                 <div className="flex items-center gap-2">
@@ -1512,12 +1512,12 @@ export default function LessonPresentationClient() {
                                 </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
-                                {outlines.map((o) => (
+                        {outlines.map((o) => (
                                   <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                                ))}
+                        ))}
                               </SelectContent>
                             </Select>
-                          </div>
+                    </div>
 
                           {/* Divider */}
                           <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
@@ -1528,11 +1528,11 @@ export default function LessonPresentationClient() {
                               value={selectedModuleIndex?.toString() ?? ""}
                               onValueChange={(value: string) => {
                                 const idx = value ? Number(value) : null;
-                                setSelectedModuleIndex(idx);
-                                setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                                setSelectedLesson("");
-                              }}
-                              disabled={modulesForOutline.length === 0}
+                            setSelectedModuleIndex(idx);
+                            setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                            setSelectedLesson("");
+                          }}
+                          disabled={modulesForOutline.length === 0}
                             >
                               <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
                                 <div className="flex items-center gap-2">
@@ -1546,12 +1546,12 @@ export default function LessonPresentationClient() {
                                 </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
-                                {modulesForOutline.map((m, idx) => (
+                          {modulesForOutline.map((m, idx) => (
                                   <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                                ))}
+                          ))}
                               </SelectContent>
                             </Select>
-                          </div>
+                      </div>
 
                           {/* Divider */}
                           <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
@@ -1559,7 +1559,7 @@ export default function LessonPresentationClient() {
                           {/* Lesson dropdown */}
                           <div className="flex-1 flex items-center justify-center">
                             <Select
-                              value={selectedLesson}
+                          value={selectedLesson}
                               onValueChange={setSelectedLesson}
                             >
                               <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
@@ -1574,7 +1574,7 @@ export default function LessonPresentationClient() {
                                 </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
-                                {lessonsForModule.map((l) => (
+                          {lessonsForModule.map((l) => (
                                   <SelectItem key={l} value={l}>{l}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -1615,7 +1615,7 @@ export default function LessonPresentationClient() {
                           {/* Language dropdown */}
                           <div className="flex-1 flex items-center justify-center">
                             <Select
-                              value={language}
+                            value={language}
                               onValueChange={setLanguage}
                             >
                               <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
@@ -1629,7 +1629,7 @@ export default function LessonPresentationClient() {
                                   </svg>
                                   <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
                                   <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
-                                </div>
+                        </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
                                 <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
@@ -1659,12 +1659,12 @@ export default function LessonPresentationClient() {
                                 </div>
                               </SelectTrigger>
                               <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
-                                {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                                   <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
-                                ))}
+                            ))}
                               </SelectContent>
                             </Select>
-                          </div>
+                        </div>
                         </div>
                       </div>
                     )}
@@ -1678,7 +1678,7 @@ export default function LessonPresentationClient() {
                       {/* Language dropdown */}
                       <div className="flex-1 flex items-center justify-center">
                         <Select
-                          value={language}
+                        value={language}
                           onValueChange={setLanguage}
                         >
                           <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
@@ -1692,7 +1692,7 @@ export default function LessonPresentationClient() {
                               </svg>
                               <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
                               <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
-                            </div>
+                    </div>
                           </SelectTrigger>
                           <SelectContent className="border-white">
                             <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
@@ -1722,12 +1722,12 @@ export default function LessonPresentationClient() {
                             </div>
                           </SelectTrigger>
                           <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
-                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
                               <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
-                            ))}
+                        ))}
                           </SelectContent>
                         </Select>
-                      </div>
+                    </div>
                     </div>
                   </div>
                 )}
@@ -1740,27 +1740,27 @@ export default function LessonPresentationClient() {
           {useExistingOutline === false && (
             <div className="relative group">
               <Textarea
-                value={currentPrompt || ""}
-                onChange={(e) => {
-                  const newPrompt = e.target.value;
-                  setCurrentPrompt(newPrompt);
-                  
-                  // Handle prompt storage for long prompts
-                  const sp = new URLSearchParams(params?.toString() || "");
-                  if (newPrompt.length > 500) {
-                    const promptId = generatePromptId();
-                    sessionStorage.setItem(promptId, newPrompt);
-                    sp.set("prompt", promptId);
-                  } else {
-                    sp.set("prompt", newPrompt);
-                  }
-                  router.replace(`?${sp.toString()}`, { scroll: false });
-                }}
-                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-                rows={1}
+              value={currentPrompt || ""}
+              onChange={(e) => {
+                const newPrompt = e.target.value;
+                setCurrentPrompt(newPrompt);
+                
+                // Handle prompt storage for long prompts
+                const sp = new URLSearchParams(params?.toString() || "");
+                if (newPrompt.length > 500) {
+                  const promptId = generatePromptId();
+                  sessionStorage.setItem(promptId, newPrompt);
+                  sp.set("prompt", promptId);
+                } else {
+                  sp.set("prompt", newPrompt);
+                }
+                router.replace(`?${sp.toString()}`, { scroll: false });
+              }}
+              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+              rows={1}
                 className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
-              />
+            />
               <Edit 
                 size={16} 
                 className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
