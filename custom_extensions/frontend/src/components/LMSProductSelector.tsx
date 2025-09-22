@@ -213,7 +213,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         {/* Search Controls with Export Button */}
-        <div className="flex items-center gap-4 p-4">
+        <div className="flex items-center gap-4 w-full">
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 z-10" />
             <Input
@@ -241,7 +241,7 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
             {allFilteredSelected ? 'Deselect All' : t('interface.selectAll', 'Select All')}
           </Button>
 
-          <LMSExportButton selectedProducts={selectedProducts} />
+          <LMSExportButton selectedProducts={selectedProducts} products={products} />
         </div>
 
         {/* Subtitle on the left */}

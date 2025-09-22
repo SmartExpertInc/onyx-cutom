@@ -390,6 +390,8 @@ export const en = {
       "Organize your products by topic and share them with your team",
     templates: "Templates",
     themes: "Themes",
+    createFirstFolder: "Create First Folder",
+    organizeCourses: "Organize your courses into folders, keep them structured and work more efficiently",
 
     // Smart Drive content
     smartDriveBrowser: "Smart Drive Browser",
@@ -646,7 +648,12 @@ export const en = {
     renameFolder: "Rename Folder",
     deleteFolder: "Delete Folder",
     moveFolder: "Move Folder",
-
+    creatingFolders: "Creating Folders...",
+    createFolders: "Create Folder",
+    createNewFolder: "Create New Folder",
+    enterFolderNamePlaceholder: "Enter folder name...",
+    organizeProjectsByFolder: "Organize your projects by folder for better management",
+    
     // Modals
     createFolder: "Create or join a folder",
     createFolderDescription:
@@ -922,7 +929,7 @@ export const en = {
     importFileOrUrl: "Create from files",
     importFileOrUrlDescription:
       "Enhance existing docs, presentations, or webpages",
-    popular: "POPULAR",
+    popular: "Popular",
 
     // Projects table toolbar
     createNew: "Create new",

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { Plus, Users, X } from 'lucide-react';
+import { FolderPlus, Plus, Users, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface FolderModalProps {
   open: boolean;
@@ -80,7 +83,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
 
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/50" onClick={handleBackdropClick}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm" onClick={handleBackdropClick}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
         <button 
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors" 
@@ -90,12 +93,10 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         </button>
         
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-            <Users size={24} className="text-white" />
-          </div>
+            <FolderPlus size={35} className="text-blue-600" />
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h2>
-            <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByClient', 'Organize your projects by client for better management')}</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewFolder', 'Create New Folder')}</h2>
+            <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByFolder', 'Organize your projects by folder for better management')}</p>
           </div>
         </div>
 
@@ -104,15 +105,16 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Plus size={16} className="text-blue-600" />
-              <h3 className="font-semibold text-gray-900">{t('interface.createNewClient', 'Create New Client')}</h3>
+              <h3 className="font-semibold text-gray-900">{t('interface.createNewFolder', 'Create New Folder')}</h3>
             </div>
             
             <div className="space-y-3">
               <div className="relative">
-                <input
+                <Input
+                  variant="shadow"
                   type="text"
-                  placeholder={t('interface.enterClientNamePlaceholder', 'Enter client name...')}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                  placeholder={t('interface.enterFolderNamePlaceholder', 'Enter folder name...')}
+                  className="w-full"
                   value={folderName}
                   onChange={e => setFolderName(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
@@ -121,38 +123,43 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
               
               {existingFolders.length > 0 && (
                 <div className="relative">
-                  <select
-                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
-                    value={selectedParentId || ''}
-                    onChange={(e) => setSelectedParentId(e.target.value ? parseInt(e.target.value) : null)}
+                  <Select
+                    value={selectedParentId ? selectedParentId.toString() : 'none'}
+                    onValueChange={(value) => setSelectedParentId(value === 'none' ? null : parseInt(value))}
                   >
-                    <option value="">{t('interface.createAtTopLevel', 'Create at top level (no parent client)')}</option>
-                    {existingFolders.map(folder => (
-                      <option key={folder.id} value={folder.id} title={folder.name}>
-                        {folder.name.length > 40 ? `${folder.name.substring(0, 40)}...` : folder.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white">
+                      <SelectValue placeholder={t('interface.createAtTopLevel', 'Create at top level (no parent client)')} />
+                    </SelectTrigger>
+                    <SelectContent className="z-[10000] border-none">
+                      <SelectItem value="none">{t('interface.createAtTopLevel', 'Create at top level (no parent client)')}</SelectItem>
+                      {existingFolders.map(folder => (
+                        <SelectItem key={folder.id} value={folder.id.toString()}>
+                          {folder.name.length > 40 ? `${folder.name.substring(0, 40)}...` : folder.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
               
-              <button
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl px-4 py-3 font-semibold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+              <Button
+                variant="download"
+                className="w-full"
                 onClick={handleCreate}
                 disabled={creating || !folderName.trim()}
               >
                 {creating ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    {t('interface.creatingClient', 'Creating Client...')}
+                    {t('interface.creatingFolders', 'Creating Folders...')}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
                     <Plus size={16} />
-                    {t('interface.createClient', 'Create Client')}
+                    {t('interface.createFolders', 'Create Folder')}
                   </div>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -165,14 +172,14 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
 
         </div>
 
-        <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">
+        {/* <div className="flex justify-end mt-8 pt-6 border-t border-gray-200">
           <button 
             className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors" 
             onClick={() => { if (typeof window !== 'undefined') (window as any).__modalOpen = false; onClose(); }}
           >
             Done
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

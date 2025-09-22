@@ -1490,7 +1490,7 @@ const ProjectRowMenu: React.FC<{
     <div ref={menuRef} className="inline-block">
       <Button
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+        className="text-gray-400 shadow-none border-none hover:text-gray-600 cursor-pointer"
         onClick={handleMenuToggle}
       >
         <MoreHorizontal size={20} />
@@ -1552,7 +1552,7 @@ const ProjectRowMenu: React.FC<{
             ) : (
               <>
                 <div className="py-1">
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
                   </Button>
@@ -1563,12 +1563,12 @@ const ProjectRowMenu: React.FC<{
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
                   </Button>
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
@@ -1576,12 +1576,12 @@ const ProjectRowMenu: React.FC<{
                   </Button>
                   <Button
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
                   </Button>
-                  <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
                   </Button>
@@ -1593,7 +1593,7 @@ const ProjectRowMenu: React.FC<{
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
@@ -1607,7 +1607,7 @@ const ProjectRowMenu: React.FC<{
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
                       <FolderMinus size={16} className="text-orange-500" />
                       <span>
@@ -1616,7 +1616,7 @@ const ProjectRowMenu: React.FC<{
                     </Button>
                   )}
                 </div>
-                <div className="py-1 border-t border-gray-100">
+                <div className="py-1">
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1624,7 +1624,7 @@ const ProjectRowMenu: React.FC<{
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
@@ -1737,13 +1737,13 @@ const ProjectRowMenu: React.FC<{
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
+            <h4 className="font-semibold text-lg mb-4 text-gray-900 text-left">{t("actions.rename", "Rename")}</h4>
             <div className="mb-6">
               <Label
                 htmlFor="newName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 text-left"
               >
-                New Name:
+                {t("actions.newName", "New Name:")}
               </Label>
               <Input
                 id="newName"
@@ -1754,7 +1754,7 @@ const ProjectRowMenu: React.FC<{
                 className="w-full px-3 py-2"
               />
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-start gap-3">
               <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
@@ -2063,13 +2063,13 @@ const FolderRowMenu: React.FC<{
                 </p>
               </div>
               <div className="py-1">
-                <Button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <Button className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none">
                   <Share2 size={16} className="text-gray-500" />
                   <span>{t("actions.share", "Share")}</span>
                 </Button>
                 <Button
                   onClick={handleRenameClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
@@ -2077,7 +2077,7 @@ const FolderRowMenu: React.FC<{
                 {qualityTierEnabled && (
                   <Button
                     onClick={handleSettingsClick}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Settings size={16} className="text-gray-500" />
                     <span>{t("actions.settings", "Settings")}</span>
@@ -2085,7 +2085,7 @@ const FolderRowMenu: React.FC<{
                 )}
                 <Button
                   onClick={handleExportFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
@@ -2094,7 +2094,7 @@ const FolderRowMenu: React.FC<{
               <div className="py-1 border-t border-gray-100">
                 <Button
                   onClick={handleDeleteFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.delete", "Delete")}</span>
@@ -2117,14 +2117,14 @@ const FolderRowMenu: React.FC<{
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">
+            <h4 className="font-semibold text-lg mb-4 text-gray-900 text-left">
               {t("actions.renameFolder", "Rename Folder")}
             </h4>
 
             <div className="mb-6">
               <Label
                 htmlFor="newFolderName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 text-left"
               >
                 {t("actions.newName", "New Name:")}
               </Label>
@@ -2200,7 +2200,7 @@ const FolderRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                variant="default"
+                variant="download"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming

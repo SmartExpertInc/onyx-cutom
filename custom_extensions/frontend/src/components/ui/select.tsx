@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown } from "lucide-react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -193,6 +193,146 @@ function SelectScrollDownButton({
   )
 }
 
+// Custom Pill Selector Component
+interface CustomPillSelectorProps {
+  value: string
+  onValueChange: (value: string) => void
+  options: { value: string; label: string }[]
+  icon?: React.ReactNode
+  label: string
+  className?: string
+}
+
+function CustomPillSelector({
+  value,
+  onValueChange,
+  options,
+  icon,
+  label,
+  className
+}: CustomPillSelectorProps) {
+  return (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger 
+        className={cn(
+          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
+          "text-gray-700 font-medium text-sm",
+          "[&>svg]:hidden",
+          "shadow-none",
+          className
+        )}
+      >
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="flex items-center justify-center">
+              {icon}
+            </div>
+          )}
+          <span>
+            <span className="text-gray-600">{label}:</span> 
+            <span className="text-black ml-1">{value}</span>
+          </span>
+          <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+        </div>
+        <div className="w-px h-6 bg-gray-200 ml-2"></div>
+      </SelectTrigger>
+      <SelectContent className="border-none">
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
+// Custom Multi-Selector Component
+interface CustomMultiSelectorProps {
+  selectedValues: string[]
+  onSelectionChange: (values: string[]) => void
+  options: { value: string; label: string }[]
+  icon?: React.ReactNode
+  label: string
+  placeholder?: string
+  className?: string
+}
+
+function CustomMultiSelector({
+  selectedValues,
+  onSelectionChange,
+  options,
+  icon,
+  label,
+  placeholder,
+  className
+}: CustomMultiSelectorProps) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
+  const handleToggle = (value: string) => {
+    if (selectedValues.includes(value)) {
+      onSelectionChange(selectedValues.filter(v => v !== value))
+    } else {
+      onSelectionChange([...selectedValues, value])
+    }
+  }
+
+  const displayText = selectedValues.length === 0
+    ? placeholder || `Select ${label}`
+    : selectedValues.length === 1
+    ? options.find(opt => opt.value === selectedValues[0])?.label || selectedValues[0]
+    : `${selectedValues.length} types selected`
+
+  return (
+    <Select open={isOpen} onOpenChange={setIsOpen}>
+      <SelectTrigger 
+        className={cn(
+          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
+          "text-gray-700 font-medium text-sm cursor-pointer",
+          "[&>svg]:hidden",
+          "shadow-none",
+          className
+        )}
+      >
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="flex items-center justify-center">
+              {icon}
+            </div>
+          )}
+          <span>
+            <span className="text-gray-600">{label}:</span> 
+            <span className="text-black ml-1">{displayText}</span>
+          </span>
+          <ChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", isOpen && "rotate-180")} />
+        </div>
+        <div className="w-px h-6 bg-gray-200 ml-2"></div>
+      </SelectTrigger>
+      <SelectContent className="border border-gray-300 shadow-lg">
+        {options.map((option) => (
+          <div
+            key={option.value}
+            className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+            onClick={(e) => {
+              e.preventDefault()
+              handleToggle(option.value)
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={selectedValues.includes(option.value)}
+              onChange={() => handleToggle(option.value)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              onClick={(e) => e.stopPropagation()}
+            />
+            {option.label}
+          </div>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}
+
 export {
   Select,
   SelectContent,
@@ -204,4 +344,6 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
+  CustomPillSelector,
+  CustomMultiSelector,
 }

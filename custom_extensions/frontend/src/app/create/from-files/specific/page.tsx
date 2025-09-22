@@ -7,6 +7,10 @@ import Image from 'next/image';
 import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
+import { Input } from '@/components/ui/input';
+import { ConnectorCard } from '@/components/ui/connector-card';
+import { Button } from '@/components/ui/button';
+import { HeadTextCustom } from '@/components/ui/head-text-custom';
 
 interface Connector {
   id: number;
@@ -319,7 +323,7 @@ export default function CreateFromSpecificFilesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F7F7] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">{t('interface.loadingConnectors', 'Loading connectors...')}</p>
@@ -329,22 +333,27 @@ export default function CreateFromSpecificFilesPage() {
   }
 
   return (
-    <div className="bg-[#F7F7F7] min-h-screen font-sans">
+    <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/create"
-            className="group flex items-center gap-3 px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-700 hover:text-blue-800 rounded-lg border border-blue-200 hover:border-blue-300 transition-all duration-200 font-medium text-sm shadow-sm hover:shadow-md"
+      <header className="relative flex items-center justify-center p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="absolute left-8 top-1/2 -mt-10  transform -translate-y-1/2 flex items-center gap-4">
+          <Button
+            variant="back"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
-            {t('interface.back', 'Back')}
-          </Link>
+            <Link
+              href="/create"
+              className="group flex items-center gap-3 px-4 py-2.5"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200" />
+              {t('interface.back', 'Back')}
+            </Link>
+          </Button>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          {t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
-        </h1>
-        <div className="w-24"></div> {/* Spacer for centering */}
+        <HeadTextCustom
+          text={t('interface.fromFiles.createFromSpecificFiles', 'Create from Specific Files')}
+          textSize="text-2xl sm:text-3xl"
+          className="text-center"
+        />
       </header>
 
       <main className="flex-1 overflow-y-auto p-8">
@@ -354,17 +363,19 @@ export default function CreateFromSpecificFilesPage() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
+                  <Upload className="w-10 h-10 text-blue-600" />
+                <div>
+                    <h2 className="text-xl font-bold text-blue-600">{t('interface.smartDriveBrowser', 'Smart Drive Browser')}</h2>
                     <p className="text-sm text-gray-600 mt-1">{t('interface.browseAndSelectFiles', 'Browse and select files from your cloud storage')}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowFileBrowser(!showFileBrowser)}
-                  className="group p-2.5 bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-600 rounded-lg border border-gray-200 hover:border-blue-200 transition-all duration-200 hover:shadow-md"
+                  className={`group p-2.5 rounded-lg border transition-all duration-200 hover:shadow-md ${
+                    showFileBrowser 
+                      ? 'bg-blue-100 hover:bg-blue-200 text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-700 border-gray-200 hover:border-gray-300'
+                  }`}
                   title={showFileBrowser ? t('interface.hideBrowser', 'Hide Browser') : t('interface.showBrowser', 'Show Browser')}
                 >
                   <FolderOpen className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
@@ -386,11 +397,11 @@ export default function CreateFromSpecificFilesPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
-                  <Settings className="w-6 h-6 text-green-600" />
-                </div>
+                {/* <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center"> */}
+                  <Settings className="w-10 h-10 text-blue-600" />
+                {/* </div> */}
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{t('interface.selectConnectors', 'Select Connectors')}</h3>
+                  <h3 className="text-xl font-bold text-blue-600">{t('interface.selectConnectors', 'Select Connectors')}</h3>
                   <p className="text-sm text-gray-600 mt-1">{t('interface.chooseDataSources', 'Choose data sources to include in your content')}</p>
                 </div>
               </div>
@@ -406,12 +417,13 @@ export default function CreateFromSpecificFilesPage() {
             <div className="mb-6">
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                <input
+                <Input
+                  variant="shadow"
                   type="text"
                   placeholder={t('interface.searchConnectors', 'Search connectors...')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm"
+                  className="w-full pl-10 pr-4 py-3"
                 />
               </div>
             </div>
@@ -431,52 +443,71 @@ export default function CreateFromSpecificFilesPage() {
                   </p>
                 </div>
               ) : (
-                filteredConnectors.map((connector) => (
-                  <div
-                    key={connector.id}
-                    className={`group relative bg-gradient-to-br from-white to-gray-50 rounded-xl border p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer ${
-                      selectedConnectors.includes(connector.id)
-                        ? 'border-blue-300 shadow-lg bg-blue-50'
-                        : 'border-gray-200'
-                    }`}
-                    onClick={() => handleConnectorToggle(connector.id)}
-                  >
-                    {/* Selection Indicator */}
-                    <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                      selectedConnectors.includes(connector.id)
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-300 group-hover:border-blue-400'
-                    }`}>
-                      {selectedConnectors.includes(connector.id) && (
-                        <Check size={14} className="text-white" />
-                      )}
-                    </div>
+                filteredConnectors.map((connector, index) => {
+                  // Different gradient colors for different connectors
+                  const getConnectorGradient = (source: string) => {
+                    // Map specific connector sources to specific gradients for consistency
+                    const connectorGradients: Record<string, { from: string; to: string }> = {
+                      'google_drive': { from: 'orange-300', to: 'amber-200' },      // orange for Google Drive
+                      'dropbox': { from: 'blue-300', to: 'indigo-200' },            // Blue for Dropbox
+                      'notion': { from: 'purple-300', to: 'pink-200' },             // Purple for Notion
+                      'salesforce': { from: 'cyan-300', to: 'blue-200' },           // Cyan for Salesforce
+                      'slack': { from: 'violet-300', to: 'purple-200' },            // Violet for Slack
+                      'github': { from: 'gray-300', to: 'slate-200' },              // Gray for GitHub
+                      'confluence': { from: 'green-300', to: 'emerald-200' },        // Orange for Confluence
+                      'sharepoint': { from: 'teal-300', to: 'cyan-200' },           // Teal for SharePoint
+                      'onedrive': { from: 'indigo-300', to: 'blue-200' },           // Indigo for OneDrive
+                      'box': { from: 'yellow-300', to: 'orange-200' },              // Yellow for Box
+                      'gmail': { from: 'red-300', to: 'rose-200' },                 // Red for Gmail
+                      'outlook': { from: 'pink-300', to: 'rose-200' }               // Pink for Outlook
+                    };
+                    
+                    // Return specific gradient for known connectors, or fallback to index-based selection
+                    return connectorGradients[source] || {
+                      from: ['blue-300', 'purple-300', 'green-300', 'orange-300', 'red-300', 'teal-300'][source.length % 6],
+                      to: ['indigo-200', 'pink-200', 'emerald-200', 'amber-200', 'rose-200', 'cyan-200'][source.length % 6]
+                    };
+                  };
 
-                    {/* Connector Icon */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mb-4 overflow-hidden">
-                      <Image
-                        src={getConnectorIcon(connector.source)}
-                        alt={`${connector.name} logo`}
-                        width={32}
-                        height={32}
-                        className="object-contain w-8 h-8"
-                        priority={false}
-                        unoptimized={true}
-                      />
-                    </div>
+                  const getTextColorFromGradient = (gradientColors: { from: string; to: string }) => {
+                    // Map gradient colors to their darker text equivalents
+                    const colorMap: Record<string, string> = {
+                      'orange-300': 'orange-700',
+                      'blue-300': 'blue-700',
+                      'purple-300': 'purple-700',
+                      'cyan-300': 'cyan-700',
+                      'violet-300': 'violet-700',
+                      'gray-300': 'gray-700',
+                      'green-300': 'green-700',
+                      'teal-300': 'teal-700',
+                      'indigo-300': 'indigo-700',
+                      'yellow-300': 'yellow-700',
+                      'red-300': 'red-700',
+                      'pink-300': 'pink-700'
+                    };
+                    return colorMap[gradientColors.from] || 'gray-700';
+                  };
 
-                    {/* Connector Info */}
-                    <div className="space-y-3">
-                      <div>
-                        <h3 className="font-semibold text-gray-900 text-lg truncate">{connector.name}</h3>
-                        <p className="text-sm text-gray-500">{connector.source}</p>
-                      </div>
-                    </div>
-
-                    {/* Hover Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  </div>
-                ))
+                  const connectorGradient = getConnectorGradient(connector.source);
+                  const textColor = getTextColorFromGradient(connectorGradient);
+                  
+                  return (
+                    <ConnectorCard
+                      key={connector.id}
+                      title={connector.name}
+                      value={connector.source}
+                      iconSrc={getConnectorIcon(connector.source)}
+                      gradientColors={connectorGradient}
+                      textColor={textColor}
+                      iconColor="gray-600"
+                      selectable={true}
+                      isSelected={selectedConnectors.includes(connector.id)}
+                      onSelect={() => handleConnectorToggle(connector.id)}
+                      showHoverEffect={true}
+                      hoverGradientColors={{ from: 'blue-500', to: 'purple-500' }}
+                    />
+                  );
+                })
               )}
             </div>
           </div>

@@ -370,6 +370,8 @@ export const ru = {
       "Организуйте свои продукты по темам и делитесь ими с командой",
     templates: "Шаблоны",
     themes: "Темы",
+    createFirstFolder: "Создать первую папку",
+    organizeCourses: "Организуйте свои курсы в папки, структурируйте их и работайте более эффективно",
 
     // Smart Drive content
     smartDriveBrowser: "Браузер Умного диска",
@@ -607,6 +609,11 @@ export const ru = {
     renameFolder: "Переименовать папку",
     deleteFolder: "Удалить папку",
     moveFolder: "Переместить папку",
+    creatingFolders: "Создание папок...",
+    createFolders: "Создать папку",
+    createNewFolder: "Создать новую папку",
+    enterFolderNamePlaceholder: "Введите название папки...",
+    organizeProjectsByFolder: "Организуйте ваши проекты по папкам для лучшего управления",
 
     // Modals
     createFolder: "Создать или присоединиться к папке",
@@ -887,7 +894,7 @@ export const ru = {
     importFileOrUrl: "Создать из файлов",
     importFileOrUrlDescription:
       "Улучшить существующие документы, презентации или веб-страницы",
-    popular: "ПОПУЛЯРНО",
+    popular: "Популярно",
 
     // Projects table toolbar
     createNew: "Создать новое",

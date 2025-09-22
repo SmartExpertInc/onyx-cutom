@@ -566,7 +566,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  style={{
                    backgroundColor: 'white',
                    borderColor: '#e2e8f0',
-                   background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                   background: 'white',
                    borderWidth: '1px',
                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                  }}
@@ -578,9 +578,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                  }}
                  onClick={() => handleConnectClick(connector.id, connector.name)}
                >
-                 <CardContent className="p-6">
+                <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
+                <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
+                 <CardContent className="p-6 relative z-10">
                    <div className="flex items-center gap-4 mb-4">
-                     <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                        <Image
                          src={connector.logoPath}
                          alt={`${connector.name} logo`}
@@ -590,9 +591,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                          priority={false}
                          unoptimized={true}
                        />
-                     </div>
                      <div className="flex-1 min-w-0">
-                       <h3 className="text-lg font-semibold text-gray-900 truncate">
+                       <h3 className="text-lg font-semibold text-blue-600 truncate">
                          {connector.name}
                        </h3>
                      </div>
@@ -725,7 +725,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       style={{
                         backgroundColor: 'white',
                         borderColor: '#e2e8f0',
-                        background: 'linear-gradient(to top right, white, white, #E8F0FE)',
+                        background: 'white',
                         borderWidth: '1px',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
@@ -737,9 +737,10 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                       }}
                       onClick={() => handleConnectClick(connector.id, connector.name)}
                     >
-                      <CardContent className="p-6">
+                      <div className="absolute -top-20 -left-22 w-80 h-80 bg-blue-50/50 rounded-full border-indigo-100/80" />
+                      <div className="absolute -top-12 -left-12 w-50 h-50 bg-blue-100/30 rounded-full border-indigo-100/80" />
+                      <CardContent className="p-6 relative z-10">
                         <div className="flex items-center gap-4 mb-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                             <Image
                               src={connector.logoPath}
                               alt={`${connector.name} logo`}
@@ -749,9 +750,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               priority={false}
                               unoptimized={true}
                             />
-                          </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">
+                            <h3 className="text-lg font-semibold text-blue-600 truncate">
                               {connector.name}
                             </h3>
                           </div>
@@ -764,7 +764,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                               handleConnectClick(connector.id, connector.name);
                             }}
                             variant="download"
-                            className="flex-1 rounded-full bg-green-600 hover:bg-green-700"
+                            className="flex-1 rounded-full"
                           >
                             {t('interface.connect', 'Connect')}
                           </Button>

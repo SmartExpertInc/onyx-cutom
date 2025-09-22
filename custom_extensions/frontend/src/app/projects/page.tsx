@@ -27,7 +27,8 @@ import {
   LayoutTemplate,
   HardDrive,
   FileText,
-  Upload
+  Upload,
+  Coins
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -42,6 +43,7 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
+import { ToastProvider } from '../../components/ui/toast';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -518,9 +520,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         </div>
 
         {folders.length === 0 ? (
-          <div className="bg-gray-100 p-4 rounded-lg text-center">
-            <p className="mb-2 text-gray-700">{t('interface.organizeProducts', 'Organize your products by topic and share them with your team')}</p>
-            <button className="font-semibold text-blue-600 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>{t('interface.createOrJoinFolder', 'Create or join a folder')}</button>
+          <div className="bg-gray-100 border border-gray-200 p-5 rounded-lg text-center transition-shadow duration-200">
+            <p className="mb-3 text-gray-700 text-sm leading-relaxed">{t('interface.organizeCourses', 'Organize your courses into folders, keep them structured and work more efficiently')}</p>
+            <button className="inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t('interface.createFirstFolder', 'Create First Folder')}
+            </button>
           </div>
         ) : filteredFolders.length === 0 ? (
           <div className="bg-gray-50 p-3 rounded-lg text-center">
@@ -609,6 +616,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, wor
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
         <span className="text-sm font-semibold text-gray-800">
+          <Coins size={20} className="text-gray-600" />
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
         </span>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
@@ -1001,7 +1009,7 @@ const ProjectsPageInner: React.FC = () => {
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
-        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
           {isSmartDrive ? (
             <SmartDriveConnectors />
           ) : isOffersAllowed ? (
@@ -1014,12 +1022,14 @@ const ProjectsPageInner: React.FC = () => {
                 <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
               )}
               {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
-                <LMSProductSelector
-                  selectedProducts={selectedProducts}
-                  onProductToggle={handleProductToggle}
-                  onSelectAll={handleSelectAllProducts}
-                  onDeselectAll={handleDeselectAllProducts}
-                />
+                <ToastProvider>
+                  <LMSProductSelector
+                    selectedProducts={selectedProducts}
+                    onProductToggle={handleProductToggle}
+                    onSelectAll={handleSelectAllProducts}
+                    onDeselectAll={handleDeselectAllProducts}
+                  />
+                </ToastProvider>
               )}
             </>
           ) : (

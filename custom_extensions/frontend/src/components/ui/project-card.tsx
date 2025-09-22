@@ -364,6 +364,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return t("interface.today", "Today");
+    if (diffDays === 2) return t("interface.yesterday", "Yesterday");
+    if (diffDays <= 7)
+      return t("interface.daysAgo", "{days} days ago").replace(
+        "{days}",
+        (diffDays - 1).toString()
+      );
+    if (diffDays <= 30)
+      return t("interface.weeksAgo", "{weeks} weeks ago").replace(
+        "{weeks}",
+        Math.floor(diffDays / 7).toString()
+      );
+    if (diffDays <= 365)
+      return t("interface.monthsAgo", "{months} months ago").replace(
+        "{months}",
+        Math.floor(diffDays / 30).toString()
+      );
+
     const options: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
@@ -426,7 +449,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             {project.isPrivate && (
               <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-gray-200">
                 <Lock size={8} className="text-gray-600" />
-                <span className="text-xs font-medium text-gray-700">
+                <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
                 </span>
               </div>
@@ -452,9 +475,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
+              className="inline-flex items-center gap-1 bg-gray-50 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
             >
-              <span className="text-xs font-medium text-gray-700">
+              <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
               </span>
             </div>
@@ -508,10 +531,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     {project.title}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {t("actions.created", "Created {date}").replace(
-                      "{date}",
-                      formatDate(project.createdAt)
-                    )}
+                    {t("actions.created", "Created")} {formatDate(project.createdAt)}
                   </p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

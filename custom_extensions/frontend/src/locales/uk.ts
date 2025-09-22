@@ -356,6 +356,8 @@ export const uk = {
       "Організуйте свої продукти за темами та діліться ними з командою",
     templates: "Шаблони",
     themes: "Теми",
+    createFirstFolder: "Створити першу папку",
+    organizeCourses: "Організуйте свої курси в папки, структуруйте їх і працюйте ефективніше",
 
     // Smart Drive content
     smartDriveBrowser: "Браузер Розумного диска",
@@ -593,6 +595,11 @@ export const uk = {
     renameFolder: "Перейменувати папку",
     deleteFolder: "Видалити папку",
     moveFolder: "Перемістити папку",
+    creatingFolders: "Створення папок...",
+    createFolders: "Створити папку",
+    createNewFolder: "Створити нову папку",
+    enterFolderNamePlaceholder: "Введіть назву папки...",
+    organizeProjectsByFolder: "Організуйте ваші проекти за папками для кращого управління",
 
     // Modals
     createFolder: "Створити або приєднатися до папки",
@@ -872,7 +879,7 @@ export const uk = {
     importFileOrUrl: "Створити з файлів",
     importFileOrUrlDescription:
       "Покращити існуючі документи, презентації або веб-сторінки",
-    popular: "ПОПУЛЯРНО",
+    popular: "Популярно",
 
     // Projects table toolbar
     createNew: "Створити нове",
