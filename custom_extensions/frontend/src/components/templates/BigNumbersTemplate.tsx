@@ -10,6 +10,7 @@ export interface BigNumberItem {
 export interface BigNumbersTemplateProps {
   slideId: string;
   title: string;
+  subtitle?: string;  // Added subtitle prop
   steps: BigNumberItem[];  // Changed from 'items' to 'steps'
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
@@ -143,6 +144,7 @@ function InlineEditor({
 export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   slideId,
   title,
+  subtitle,  // Added subtitle prop
   steps,  // Changed from 'items' to 'steps'
   theme,
   onUpdate,
@@ -153,6 +155,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);  // Added subtitle editing state
   const [editingItemValues, setEditingItemValues] = useState<number[]>([]);
   const [editingItemLabels, setEditingItemLabels] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
@@ -236,7 +239,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    textAlign: 'center',
+    textAlign: 'start',
     padding: '32px 24px',
   };
 
@@ -276,6 +279,18 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
 
   const handleTitleCancel = () => {
     setEditingTitle(false);
+  };
+
+  // Handle subtitle editing
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (onUpdate) {
+      onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
+  };
+
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
   };
 
   // Handle item value editing
@@ -393,9 +408,48 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
           data-draggable="true" 
           style={{ display: 'inline-block', width: '100%' }}
         >
-          <p style={subtitleStyles}>
-            Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.
-          </p>
+          {isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={subtitle || 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.'}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={true}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                // Ensure subtitle behaves exactly like p element
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <p 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {subtitle || 'Maria can help you identify the sources of your stress and provide strategies for managing it in a healthy way. Learn the tools to handle stress effectively and be productive in the workplace.'}
+            </p>
+          )}
         </div>
       </div>
 
