@@ -1546,7 +1546,7 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
-          <div className="w-full bg-white rounded-xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
+          <div>
             <TrainingPlanTableComponent
               dataToDisplay={trainingPlanData}
               onTextChange={handleTextChange}
@@ -2435,7 +2435,12 @@ export default function ProjectInstanceViewPage() {
           />
         )}
 
-        <div className="bg-transparent p-4 sm:p-6 md:p-8 rounded-xl">
+        <div className={`p-4 sm:p-6 md:p-8 rounded-xl ${
+          projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
+          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
+            ? 'bg-white' 
+            : 'bg-transparent'
+        }`}>
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
             {displayContent()}
           </Suspense>
