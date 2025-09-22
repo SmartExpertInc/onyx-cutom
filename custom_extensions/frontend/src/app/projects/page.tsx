@@ -507,9 +507,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         </div>
 
         {folders.length === 0 ? (
-          <div className="bg-gray-100 border border-gray-200 p-5 rounded-lg text-center transition-shadow duration-200">
+          <div className="bg-gray-50 border border-gray-100 p-4 rounded-lg text-center transition-shadow duration-200">
             <p className="mb-3 text-gray-700 text-sm leading-relaxed">{t('interface.organizeCourses', 'Organize your courses into folders, keep them structured and work more efficiently')}</p>
-            <button className="inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>
+            <button className="inline-flex text-blue-600 items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200 hover:underline" onClick={() => window.dispatchEvent(new CustomEvent('openFolderModal'))}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -602,7 +602,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, wor
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <span className="text-sm font-semibold text-gray-800">
+        <span className="flex items-center gap-2 text-sm font-semibold text-gray-800">
           <Coins size={20} className="text-gray-600" />
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
         </span>
