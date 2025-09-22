@@ -88,7 +88,7 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="py-4 md:py-8 px-[120px] min-h-screen font-inter"
+      className="p-4 md:p-8 min-h-screen font-inter"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
@@ -167,13 +167,16 @@ export default function ProductViewNewPage() {
         </div>
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
               <h1 className="text-[#191D30] font-semibold text-[30px] leading-[100%]">
-                {projectData.name || 'Course Outline'}
+                {(() => {
+                  const trainingPlanData = projectData.details as TrainingPlanData;
+                  return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                })()}
               </h1>
             </div>
 
