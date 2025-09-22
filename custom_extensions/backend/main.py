@@ -2138,6 +2138,16 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                     ('modern corporate vector art', 'cinematic photography with natural lighting'),
                     ('flat colors', 'physically-based materials and textures'),
                     ('clean geometric shapes', 'real-world objects and surfaces'),
+                    ('infographic', 'realistic scene'),
+                    ('illustration', 'cinematic photography'),
+                    ('vector', 'photographic'),
+                    ('icon', 'object'),
+                    ('isometric', 'cinematic'),
+                    ('3D render', 'realistic photography'),
+                    ('CGI', 'natural photography'),
+                    ('cartoon', 'photographic'),
+                    ('flat design', 'realistic scene'),
+                    ('modern design', 'cinematic scene'),
                 ]
                 for a, b in replacements:
                     p = p.replace(a, b)
@@ -17318,15 +17328,17 @@ CRITICAL IMAGE PROMPT REQUIREMENTS (imagePrompt fields):
 
 CONTENT DENSITY AND LEARNING REQUIREMENTS:
 - MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
-- Bullet points must be comprehensive (15-25 words each), explaining HOW and WHY, not just WHAT.
-- Include specific examples, techniques, methodologies, and actionable insights in every slide.
+- Bullet points must be EXTREMELY comprehensive (60-100 words each), explaining HOW, WHY, WHEN, and WHERE with specific examples, tools, methodologies, step-by-step processes, common pitfalls, and actionable insights.
+- Process steps must be detailed (30-50 words each), including context, prerequisites, expected outcomes, and practical implementation guidance.
 - Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
+- Include concrete examples, real-world applications, specific tools/technologies, and measurable outcomes in every slide.
 - Ensure learners gain deep understanding of the topic after reading the complete presentation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
 - Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
 - STRICTLY NO closing/inspirational slides — do not generate: thank you, next steps, resources, looking ahead, embracing [anything], wrap-up, conclusion, summary, what's next, future directions, acknowledgments. Focus ONLY on educational content slides.
+- BANNED AGENDA SLIDES: Do NOT generate "What We'll Cover", "Training Agenda", "Learning Objectives", or similar overview slides. Start directly with educational content.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
 DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
@@ -17334,12 +17346,11 @@ DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
   1 timeline or event-list, 1 big-numbers (exactly 3 items), 1 challenges-solutions, 1 media (big-image-left/top), plus 1–2 specialty slides.
 - Prefer templates that best express the content; do not overuse bullet-points.
 
-ENFORCED TEMPLATE VARIANCE EXAMPLE (for 12–16 slides):
-- Required functional set (domain-agnostic): 1 hero/title, 1 agenda, 1 core concept overview (two-column), 1 process/workflow (process-steps),
-  1 data/input preparation or prerequisites (big-image-top + bullets), 1 evaluation/criteria (two-column or bullet-points-right),
-  1 timeline of milestones or evolution (timeline), 1 skills/capabilities grid (four-box-grid), 1 challenges vs solutions (challenges-solutions), 1 KPI/metrics snapshot (big-numbers),
-  1 applications/case studies (two-column or four-box-grid), 1 media/visual narrative (big-image-left/top).
-- Do not introduce closing/inspirational slides. Replace them with educational topics from the set above.
+MANDATORY TEMPLATE ROTATION (for 12–16 slides):
+- NEVER repeat the same template more than twice in a presentation.
+- Required diverse mix: 1 hero/title, 1-2 core concepts (two-column), 1-2 workflows (process-steps), 1-2 detailed explanations (big-image-top/left + rich content), 1 evaluation/criteria (bullet-points-right with 60-100 word bullets), 1 timeline of evolution (timeline), 1 capabilities/components grid (four-box-grid), 1 challenges vs solutions (challenges-solutions), 1 KPI/metrics snapshot (big-numbers), 1-2 applications/case studies (varied templates).
+- STRICT ROTATION: After using bullet-points, next slide must be two-column, process-steps, four-box-grid, or big-image template.
+- Do not introduce closing/inspirational/agenda slides. Replace them with educational content from the diverse template set above.
 
 UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
 - Style must be realistic scenes (cinematic photo or physically-based 3D render), not minimalist flat illustrations.
