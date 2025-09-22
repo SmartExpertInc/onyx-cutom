@@ -319,7 +319,11 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
         width: '100%'
       }}>
         {/* Main Title - wrapped */}
-        <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+        <div data-draggable="true" style={{ 
+          display: 'inline-block', 
+          width: '100%',
+          textAlign: textAlign as any
+        }}>
           {isEditable && editingTitle ? (
             <InlineEditor
               initialValue={title || ''}
@@ -365,7 +369,11 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
         </div>
 
         {/* Subtitle - wrapped */}
-        <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+        <div data-draggable="true" style={{ 
+          display: 'inline-block', 
+          width: '100%',
+          textAlign: textAlign as any
+        }}>
           {isEditable && editingSubtitle ? (
             <InlineEditor
               initialValue={subtitle || ''}
