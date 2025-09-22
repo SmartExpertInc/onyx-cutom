@@ -1212,7 +1212,9 @@ const FolderRow: React.FC<{
                     href={trashMode ? "#" : (
                       p.designMicroproductType === "Video Lesson Presentation" 
                         ? `/projects-2/view/${p.id}`
-                        : `/projects/view/${p.id}`
+                        : (p.designMicroproductType === "Training Plan"
+                          ? `/projects/view-new/${p.id}`
+                          : `/projects/view/${p.id}`)
                     )}
                     title={p.title}
                   />

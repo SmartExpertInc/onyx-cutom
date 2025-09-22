@@ -429,7 +429,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
             ? `/projects-2/view/${project.id}`
-            : `/projects/view/${project.id}`
+            : (project.designMicroproductType === "Training Plan"
+              ? `/projects/view-new/${project.id}`
+              : `/projects/view/${project.id}`)
         )}
         onClick={handleCardClick}
         className="block h-full"
