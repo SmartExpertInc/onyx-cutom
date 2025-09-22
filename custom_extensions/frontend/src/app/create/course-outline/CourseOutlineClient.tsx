@@ -207,6 +207,14 @@ export default function CourseOutlineClient() {
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
   const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3 - 4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
+  
+  // Derive filters from URL params with defaults to true if not explicitly set to "0"
+  const filters = useMemo(() => ({
+    knowledgeCheck: params?.get("knowledgeCheck") === "0" ? false : true,
+    contentAvailability: params?.get("contentAvailability") === "0" ? false : true,
+    informationSource: params?.get("informationSource") === "0" ? false : true,
+    time: params?.get("time") === "0" ? false : true,
+  }), [params]);
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
