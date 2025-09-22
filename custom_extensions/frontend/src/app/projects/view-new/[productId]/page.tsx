@@ -1,18 +1,25 @@
 // custom_extensions/frontend/src/app/projects/view-new/[productId]/page.tsx
 "use client";
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Download, FolderOpen, Sparkles } from 'lucide-react';
+import { ProjectInstanceDetail } from '@/types/projectSpecificTypes';
 
 type ProductViewNewParams = {
   productId: string;
 };
 
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
 export default function ProductViewNewPage() {
   const params = useParams<ProductViewNewParams>();
   const productId = params?.productId;
   const router = useRouter();
+  
+  const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const handleBack = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -20,6 +27,64 @@ export default function ProductViewNewPage() {
       else router.push('/projects');
     }
   }, [router]);
+
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      if (!productId) return;
+      
+      try {
+        setLoading(true);
+        const commonHeaders: HeadersInit = {};
+        const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+        if (devUserId && process.env.NODE_ENV === 'development') {
+          commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+        }
+
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+          cache: 'no-store',
+          headers: commonHeaders
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch project data: ${response.status}`);
+        }
+
+        const data: ProjectInstanceDetail = await response.json();
+        setProjectData(data);
+      } catch (err) {
+        console.error('Error fetching project data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load project');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjectData();
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="p-8 text-center text-lg text-gray-600">Loading project details...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-red-50">
+        <div className="p-8 text-center text-red-700 text-lg">Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (!projectData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="p-8 text-center text-gray-500">Project not found or data unavailable.</div>
+      </div>
+    );
+  }
 
   return (
     <main 
@@ -101,9 +166,63 @@ export default function ProductViewNewPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-dashed p-8 text-gray-500 bg-white">
-          <div className="text-sm text-gray-600 mb-2">Product ID: <span className="font-mono">{String(productId)}</span></div>
-          This is the new projects view page for Course Outline products. Replace this placeholder with the intended UI.
+        {/* Main Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content Area - Course Outline and Modules */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Course Outline Title */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h1 className="text-[#191D30] font-semibold text-[30px] leading-[100%]">
+                {projectData.name || 'Course Outline'}
+              </h1>
+            </div>
+
+            {/* Module 1 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
+                Module 1: Introduction
+              </h2>
+              <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
+                5 lessons
+              </p>
+              <hr className="border-gray-200 mb-4" />
+              {/* Space for future content */}
+            </div>
+
+            {/* Module 2 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
+                Module 2: Core Concepts
+              </h2>
+              <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
+                8 lessons
+              </p>
+              <hr className="border-gray-200 mb-4" />
+              {/* Space for future content */}
+            </div>
+
+            {/* Module 3 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
+                Module 3: Advanced Topics
+              </h2>
+              <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
+                6 lessons
+              </p>
+              <hr className="border-gray-200 mb-4" />
+              {/* Space for future content */}
+            </div>
+          </div>
+
+          {/* Right Panel - Course Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Summary</h3>
+              <div className="text-gray-500">
+                Right panel for course summary will go here.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
