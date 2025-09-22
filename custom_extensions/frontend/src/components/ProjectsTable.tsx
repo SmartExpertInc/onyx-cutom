@@ -1508,7 +1508,7 @@ const ProjectRowMenu: React.FC<{
                 : 0,
               top: buttonRef.current
                 ? menuPosition === "above"
-                  ? buttonRef.current.getBoundingClientRect().top - 320
+                  ? buttonRef.current.getBoundingClientRect().top - 200
                   : buttonRef.current.getBoundingClientRect().bottom + 8
                 : 0,
             }}
@@ -2047,7 +2047,7 @@ const FolderRowMenu: React.FC<{
                   : 0,
                 top: buttonRef.current
                   ? menuPosition === "above"
-                    ? buttonRef.current.getBoundingClientRect().top - 220
+                    ? buttonRef.current.getBoundingClientRect().top - 200
                     : buttonRef.current.getBoundingClientRect().bottom + 8
                   : 0,
               }}
