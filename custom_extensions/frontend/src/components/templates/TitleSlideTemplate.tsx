@@ -178,7 +178,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     backgroundRepeat: 'no-repeat',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
     padding: '60px 80px',
     position: 'relative',
