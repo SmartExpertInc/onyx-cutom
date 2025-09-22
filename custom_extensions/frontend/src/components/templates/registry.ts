@@ -4,6 +4,7 @@ import { TemplateRegistry, TemplateComponentInfo, PropDefinition } from '@/types
 
 // Template components (will import these after creating them)
 import { TitleSlideTemplate } from './TitleSlideTemplate';
+import { SimpleTitleSlideTemplate } from './SimpleTitleSlideTemplate';
 import { ContentSlideTemplate } from './ContentSlideTemplate';
 import { BigImageLeftTemplate } from './BigImageLeftTemplate';
 import { BulletPointsTemplate } from './BulletPointsTemplate';
@@ -112,6 +113,52 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         type: 'image',
         label: 'Background Image',
         description: 'Optional background image URL'
+      }
+    }
+  },
+
+  'simple-title-slide': {
+    id: 'simple-title-slide',
+    name: 'Simple Title Slide',
+    description: 'Minimalist title slide with logo, title and subtitle on gradient background',
+    category: 'title',
+    icon: '🎨',
+    component: SimpleTitleSlideTemplate,
+    defaultProps: {
+      title: 'Your title here',
+      subtitle: 'Add a short description.',
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
+      titleColor: '#ffffff',
+      subtitleColor: '#ffffff'
+    },
+    propSchema: {
+      title: {
+        type: 'text',
+        label: 'Title',
+        description: 'Main presentation title',
+        required: true,
+        maxLength: 100
+      },
+      subtitle: {
+        type: 'text',
+        label: 'Subtitle',
+        description: 'Supporting subtitle or tagline',
+        maxLength: 200
+      },
+      backgroundColor: {
+        type: 'color',
+        label: 'Background Color',
+        default: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)'
+      },
+      titleColor: {
+        type: 'color',
+        label: 'Title Color',
+        default: '#ffffff'
+      },
+      subtitleColor: {
+        type: 'color',
+        label: 'Subtitle Color',
+        default: '#ffffff'
       }
     }
   },
