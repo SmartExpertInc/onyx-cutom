@@ -361,7 +361,15 @@ export default function DynamicAuditLandingPage() {
         const target = event.target as HTMLElement;
         if (!target.closest('input, textarea')) {
           console.log('🖱️ [TEXT EDIT] Clicked outside - stopping edit for field:', editingField);
-          stopEditing();
+          
+          // Find the currently editing input/textarea and save its value before stopping
+          const editingElement = document.querySelector('input.inline-editor-input, textarea.inline-editor-textarea') as HTMLInputElement | HTMLTextAreaElement;
+          if (editingElement && editingElement.value !== undefined) {
+            console.log('💾 [TEXT EDIT] Saving value from click outside:', editingElement.value);
+            handleTextSave(editingField, editingElement.value);
+          } else {
+            stopEditing();
+          }
         }
       }
     };
