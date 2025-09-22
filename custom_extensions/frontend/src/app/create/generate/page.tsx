@@ -1303,11 +1303,8 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {activeProduct === "Presentation" && (
-          <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Show dropdowns directly (defaulting to standalone mode) */}
-            {useExistingOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+        {activeProduct === "Presentation" && useExistingOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1421,16 +1418,11 @@ function GenerateProductPicker() {
                   </>
                 )}
               </div>
-            )}
-          </div>
         )}
 
         {/* Quiz Configuration */}
-        {activeProduct === "Quiz" && (
-          <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Show dropdowns directly (defaulting to standalone mode) */}
-            {useExistingQuizOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+        {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1588,16 +1580,11 @@ function GenerateProductPicker() {
                   </>
                 )}
               </div>
-            )}
-          </div>
         )}
 
         {/* One-Pager Configuration */}
-        {activeProduct === "One-Pager" && (
-          <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Show dropdowns directly (defaulting to standalone mode) */}
-            {useExistingTextOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+        {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1765,8 +1752,6 @@ function GenerateProductPicker() {
                   </>
                 )}
               </div>
-            )}
-          </div>
         )}
 
         {/* Video Lesson Configuration */}
