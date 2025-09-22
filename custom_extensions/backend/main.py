@@ -1698,7 +1698,7 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                         else:
                             source_list = []
 
-                                # Validate and coerce each item
+                # Validate and coerce each item
                 fixed_items = []
                 for item in source_list:
                     if isinstance(item, dict):
@@ -1709,17 +1709,7 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                         }
                         if fixed_item['value'] and fixed_item['label']:
                             fixed_items.append(fixed_item)
-                # Enrich missing descriptions to ensure explanatory text
-                if fixed_items:
-                    slide_title_for_context = str(normalized_props.get('title') or normalized_slide.get('slideTitle') or '').strip()
-                    for i in range(len(fixed_items)):
-                        if not fixed_items[i].get('description'):
-                            label_lower = fixed_items[i]['label'].rstrip('.').lower()
-                            context_part = f" about {slide_title_for_context.lower()}" if slide_title_for_context else ""
-                            fixed_items[i]['description'] = (
-                                f"What this metric indicates{context_part}: {label_lower}."
-                            )
-                
+
                 # Pad/trim to exactly 3 items to preserve slide instead of skipping
                 if len(fixed_items) != 3:
                     logger.warning(f"Coercing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
@@ -2170,15 +2160,20 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                 logger.info(f"Removing voiceoverText from slide {slide_index + 1} for regular slide deck")
                 normalized_slide.pop('voiceoverText', None)
             
-            # Drop closing/what's next/resources slides entirely
+            # Drop only obvious closing/thank you slides - be more specific to avoid dropping content
             title_lower = str(normalized_slide.get('slideTitle') or '').strip().lower()
             closing_keywords = [
-                'conclusion', 'summary', 'wrap up', 'wrap-up', 'final thoughts', 'thanks', 'thank you',
-                "what's next", 'whats next', 'next steps', 'resources', 'further reading', 'q&a', 'questions'
+                'thank you', 'thanks for', 'final thoughts', 'wrap up', 'wrap-up',
+                "what's next", 'whats next', 'next steps for implementation'
             ]
-            if any(k in title_lower for k in closing_keywords):
-                logger.info(f"Dropping closing-type slide {slide_index + 1} titled '{normalized_slide.get('slideTitle')}'")
-                continue
+            # Only drop if title starts with or exactly matches closing patterns
+            should_drop = any(
+                title_lower.startswith(k) or title_lower == k or 
+                (k in ['thank you', 'thanks for'] and k in title_lower)
+                for k in closing_keywords
+            )
+            if should_drop:
+                logger.info(f"[NOTICE] Closing-type slide detected (not dropped): {slide_index + 1} titled '{normalized_slide.get('slideTitle')}'")
             
             normalized_slides.append(normalized_slide)
             
@@ -17272,10 +17267,11 @@ You MUST output ONLY a single JSON object for the Presentation preview, strictly
 Do NOT include code fences, markdown or extra commentary. Return JSON object only.
 This enables immediate parsing without additional LLM calls during finalization.
 
-Preview UI requirement:
-- For EACH slide, ALSO include a short array field "previewKeyPoints" (3-6 items) summarizing the main topics discussed on that slide.
-- Make each bullet content-rich (8–16 words), specific, and free of extra punctuation.
+MANDATORY PREVIEW UI REQUIREMENT:
+- EVERY slide MUST include "previewKeyPoints": [...] field at the root level (same level as slideId, slideNumber, etc).
+- Include 4-6 content-rich bullets (10–18 words each), specific and informative.
 - These previewKeyPoints are for preview only and will be ignored/stripped on save.
+- Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
@@ -17311,16 +17307,26 @@ Template-Specific Props Requirements (abbreviated):
 
 CRITICAL IMAGE PROMPT REQUIREMENTS (imagePrompt fields):
 - ALWAYS generate non-empty, detailed imagePrompt for templates that support images; NEVER leave imagePrompt empty.
-- Style: Realistic scenes (cinematic photography or physically-based 3D render), not flat/minimalist illustrations.
-- Describe SUBJECT, ACTION, ENVIRONMENT, LIGHTING (time of day, key/rim light), CAMERA (lens mm, angle), DEPTH OF FIELD, MATERIALS/TEXTURES, and MOTION where relevant.
-- Avoid readable text on screens or signage; use abstract UI shapes if needed.
-- Do NOT create infographics or icon collages; produce concrete, observational scenes.
-- Keep prompts specific and verifiable; avoid vague adjectives. Prefer who/what/where/how.
+- MANDATORY STYLE: Realistic cinematic scenes (never flat design, minimalist, vector art, or illustrations).
+- Start with "Realistic cinematic scene of [specific subject and action]" - describe real people, objects, environments.
+- Include: SUBJECT (who/what), ACTION (doing what), ENVIRONMENT (where), LIGHTING (natural/artificial), CAMERA (35mm/50mm lens, angle), DEPTH OF FIELD, MATERIALS/TEXTURES.
+- End with technical specs: "Cinematic photography with natural lighting, [lens]mm lens, [angle] view, shallow depth of field."
+- Use color placeholders [COLOR1], [COLOR2], [COLOR3], [BACKGROUND] for theming.
+- NO readable text on screens/signs; use abstract shapes if needed.
+- Examples: "truck accelerating on highway at dusk", "software engineer coding at workstation", "business meeting in modern office".
 - For two-column, use leftImagePrompt/rightImagePrompt when applicable.
+
+CONTENT DENSITY AND LEARNING REQUIREMENTS:
+- MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
+- Bullet points must be comprehensive (15-25 words each), explaining HOW and WHY, not just WHAT.
+- Include specific examples, techniques, methodologies, and actionable insights in every slide.
+- Big-numbers slides MUST have meaningful descriptions explaining the significance of each statistic.
+- Ensure learners gain deep understanding of the topic after reading the complete presentation.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
 - Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- NO closing slides (thank you, next steps, resources) - focus on educational content only.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
 DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
@@ -17358,8 +17364,8 @@ Template Catalog with required props and usage:
   • Usage: chronological milestones; left-to-right progression.
 - event-list: events[] (date,description), [titleColor], [descriptionColor], [backgroundColor]
   • Usage: dated event list; stacked date + description.
-- big-numbers: title, steps[] (EXACTLY 3 items: value,label,description)
-  • Usage: three headline metrics; large values with labels.
+- big-numbers: title, steps[] (EXACTLY 3 items: value,label,description - NEVER use "numbers" key)
+  • Usage: three headline metrics; large values with descriptive labels and MANDATORY descriptions explaining significance.
 - pyramid: title, [subtitle], steps[] (heading,description)
   • Usage: hierarchical structure; 3-level pyramid visual.
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]

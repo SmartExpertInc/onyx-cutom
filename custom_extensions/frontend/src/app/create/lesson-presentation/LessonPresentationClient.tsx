@@ -754,24 +754,6 @@ export default function LessonPresentationClient() {
       // Preview key points (for preview UI only)
       if (Array.isArray(s?.previewKeyPoints) && s.previewKeyPoints.length) {
         lines.push(...s.previewKeyPoints.map((b: any) => `- ${String(b)}`));
-      } else {
-        // Fallback: derive quick preview bullets from props when none provided
-        const derived: string[] = [];
-        if (Array.isArray(props.bullets) && props.bullets.length) {
-          derived.push(...props.bullets.slice(0, 5).map((b: any) => String(b)));
-        } else if (Array.isArray(props.steps) && props.steps.length) {
-          derived.push(...props.steps.slice(0, 5).map((st: any, i: number) => String(st?.title || st?.label || st?.heading || st || `Step ${i + 1}`)));
-        } else if (Array.isArray(props.boxes) && props.boxes.length) {
-          derived.push(...props.boxes.slice(0, 4).map((bx: any, i: number) => String(bx?.title || bx?.heading || `Point ${i + 1}`)));
-        } else if (props.leftTitle || props.rightTitle) {
-          if (props.leftTitle) derived.push(String(props.leftTitle));
-          if (props.rightTitle) derived.push(String(props.rightTitle));
-        } else if (props.title) {
-          derived.push(String(props.title));
-        }
-        if (derived.length) {
-          lines.push(...derived.map((t: string) => `- ${t}`));
-        }
       }
 
       // Minimal content reconstruction per common templates
