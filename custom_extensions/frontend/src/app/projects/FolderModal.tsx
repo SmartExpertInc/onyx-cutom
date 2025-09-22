@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { Plus, Users, X } from 'lucide-react';
+import { FolderPlus, Plus, Users, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -93,7 +93,7 @@ const FolderModal: React.FC<FolderModalProps> = ({ open, onClose, onFolderCreate
         </button>
         
         <div className="flex items-center gap-3 mb-6">
-            <Users size={35} className="text-blue-600" />
+            <FolderPlus size={35} className="text-blue-600" />
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{t('interface.createNewFolder', 'Create New Folder')}</h2>
             <p className="text-gray-600 text-sm">{t('interface.organizeProjectsByFolder', 'Organize your projects by folder for better management')}</p>

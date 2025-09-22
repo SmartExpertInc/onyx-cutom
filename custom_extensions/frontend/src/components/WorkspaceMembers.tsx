@@ -479,7 +479,7 @@ const WorkspaceMembers: React.FC<WorkspaceMembersProps> = ({ workspaceId }) => {
     if (workspaces.length === 0) {
       return (
         <>
-          <div className="min-h-screen flex items-center justify-center py-12">
+          <div className="min-h-screen flex items-center justify-center py-8">
             <div className="text-center">
               <FolderPlus className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Workspaces Found</h3>
