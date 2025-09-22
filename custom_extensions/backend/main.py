@@ -68,7 +68,6 @@ COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
 COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
-COMPONENT_NAME_AI_AUDIT_LANDING = "AIAuditLandingDisplay"
 
 # --- LLM Configuration for JSON Parsing ---
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
@@ -13499,8 +13498,8 @@ async def insert_ai_audit_onepager_to_db(
 ) -> int:
     """Insert AI-audit one-pager into database with correct template and component"""
     
-    # First, ensure we have an AI Audit Landing Page template
-    template_id = await _ensure_ai_audit_landing_template(pool)
+    # First, ensure we have a Text Presentation template
+    template_id = await _ensure_text_presentation_template(pool)
     
     insert_query = """
     INSERT INTO projects (
@@ -13517,11 +13516,11 @@ async def insert_ai_audit_onepager_to_db(
             insert_query,
             onyx_user_id,
             project_name,
-            "AI Audit Landing Page",  # product_type
-            "AI Audit Landing Page",  # microproduct_type
+            "Text Presentation",  # product_type
+            "Text Presentation",  # microproduct_type
             project_name,  # microproduct_name
             microproduct_content,  # parsed content from AI parser
-            template_id,  # design_template_id (from _ensure_ai_audit_landing_template)
+            template_id,  # design_template_id (from _ensure_text_presentation_template)
             chat_session_id,  # source_chat_session_id
             None,  # folder_id - AI audit doesn't support folder assignment yet
         )
@@ -17991,37 +17990,6 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
             "/text-presentation.png"
         )
         return template_id
-
-async def _ensure_ai_audit_landing_template(pool: asyncpg.Pool) -> int:
-    """Ensure AI audit landing page template exists and return its ID"""
-    try:
-        # Check if AI audit landing template exists
-        template_query = """
-            SELECT id FROM design_templates 
-            WHERE microproduct_type = 'AI Audit Landing Page' 
-            LIMIT 1
-        """
-        template_result = await pool.fetchval(template_query)
-        
-        if template_result:
-            return template_result
-        
-        # Create AI audit landing template if it doesn't exist
-        insert_query = """
-            INSERT INTO design_templates 
-            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING id
-        """
-        template_id = await pool.fetchval(
-            insert_query,
-            "AI Audit Landing Page Template",
-            "Create a comprehensive AI audit landing page with company information, job positions, workforce crisis data, and course templates.",
-            "AI Audit Landing Page",
-            COMPONENT_NAME_AI_AUDIT_LANDING,
-            "/ai-audit-landing.png"
-        )
-        return template_id
         
     except Exception as e:
         logger.error(f"Error ensuring text presentation template: {e}", exc_info=not IS_PRODUCTION)
@@ -19640,6 +19608,18 @@ class ProjectFolderUpdateRequest(BaseModel):
 
 @app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
 async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    logger.info(f"🔄 [PROJECT UPDATE START] ===========================================")
+    logger.info(f"🔄 [PROJECT UPDATE START] Project ID: {project_id}")
+    logger.info(f"🔄 [PROJECT UPDATE START] User ID: {onyx_user_id}")
+    logger.info(f"🔄 [PROJECT UPDATE START] Timestamp: {datetime.now().isoformat()}")
+    logger.info(f"🔄 [PROJECT UPDATE START] Request data type: {type(project_update_data)}")
+    logger.info(f"🔄 [PROJECT UPDATE START] MicroProductName: {project_update_data.microProductName}")
+    logger.info(f"🔄 [PROJECT UPDATE START] MicroProductContent type: {type(project_update_data.microProductContent)}")
+    if project_update_data.microProductContent:
+        logger.info(f"🔄 [PROJECT UPDATE START] MicroProductContent data: {project_update_data.microProductContent}")
+        if hasattr(project_update_data.microProductContent, '__dict__'):
+            logger.info(f"🔄 [PROJECT UPDATE START] MicroProductContent keys: {list(project_update_data.microProductContent.__dict__.keys())}")
+    
     try:
         db_microproduct_name_to_store = project_update_data.microProductName
         current_component_name = None
@@ -19664,22 +19644,8 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
         
         # 🚨 CRITICAL: Validate that the data structure matches the component type
-        if current_component_name == COMPONENT_NAME_AI_AUDIT_LANDING and content_to_store_for_db:
-            # For AI audit landing page projects, ensure we're not receiving slide deck/text presentation data
-            if isinstance(content_to_store_for_db, dict):
-                has_wrong_structure = ('sections' in content_to_store_for_db and 'theme' in content_to_store_for_db) and \
-                                    not ('companyName' in content_to_store_for_db or 'jobPositions' in content_to_store_for_db)
-                
-                if has_wrong_structure:
-                    logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit landing page project!")
-                    logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Rejecting save to prevent data corruption")
-                    logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received data: {json.dumps(content_to_store_for_db, indent=2)}")
-                    raise HTTPException(
-                        status_code=400, 
-                        detail=f"Invalid data structure for AI audit landing page project. Expected AI audit data but received slide deck/text presentation data."
-                    )
-        elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
-            # Check if this is an AI audit landing page project (legacy support)
+        if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
+            # Check if this is an AI audit landing page project
             is_ai_audit_project = (old_project_name and "AI-Аудит Landing Page" in old_project_name)
             
             if is_ai_audit_project:
@@ -19689,7 +19655,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                                         not ('companyName' in content_to_store_for_db or 'jobPositions' in content_to_store_for_db)
                     
                     if has_wrong_structure:
-                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit project (legacy)!")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit project!")
                         logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Rejecting save to prevent data corruption")
                         logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received data: {json.dumps(content_to_store_for_db, indent=2)}")
                         raise HTTPException(
@@ -19771,7 +19737,24 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         update_values.extend([project_id, onyx_user_id])
         update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} AND onyx_user_id = ${arg_idx + 1} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier;"
 
-        async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
+        logger.info(f"💾 [DATABASE TRANSACTION START] ===========================================")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Project ID: {project_id}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] User ID: {onyx_user_id}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Query type: UPDATE")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Table: projects")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Update clauses: {update_clauses}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Update values: {update_values}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Full query: {update_query}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Timestamp: {datetime.now().isoformat()}")
+
+        async with pool.acquire() as conn: 
+            row = await conn.fetchrow(update_query, *update_values)
+            
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] ===========================================")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Query executed successfully")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Rows affected: {row is not None}")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Returned data: {dict(row) if row else 'None'}")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Timestamp: {datetime.now().isoformat()}")
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
 
@@ -19903,14 +19886,11 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - About to validate with component: {current_component_name}")
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
-                elif current_component_name == COMPONENT_NAME_AI_AUDIT_LANDING:
-                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page (dedicated component)")
-                    final_content_for_model = db_content  # Skip validation for AI audit data
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    # Check if this is an AI audit landing page project (legacy support)
+                    # Check if this is an AI audit landing page project
                     if (old_project_name and "AI-Аудит Landing Page" in old_project_name) or \
                        (db_content and 'companyName' in db_content and 'jobPositions' in db_content):
-                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page (legacy)")
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page")
                         final_content_for_model = db_content  # Skip validation for AI audit data
                     else:
                         logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
@@ -19941,17 +19921,33 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             except Exception as e_parse:
                 logger.error(f"❌ [BACKEND VALIDATION ERROR] Project {project_id} - Error parsing updated content from DB: {e_parse}", exc_info=not IS_PRODUCTION)
 
-        return ProjectDB(
+        response_data = ProjectDB(
             id=row["id"], onyx_user_id=row["onyx_user_id"], project_name=row["project_name"],
             product_type=row["product_type"], microproduct_type=row["microproduct_type"],
             microproduct_name=row["microproduct_name"], microproduct_content=final_content_for_model,
             design_template_id=row["design_template_id"], created_at=row["created_at"],
             custom_rate=row["custom_rate"], quality_tier=row["quality_tier"]
         )
-    except HTTPException:
+        
+        logger.info(f"📤 [API RESPONSE] ===========================================")
+        logger.info(f"📤 [API RESPONSE] Project ID: {project_id}")
+        logger.info(f"📤 [API RESPONSE] Response status: 200 OK")
+        logger.info(f"📤 [API RESPONSE] Response data: {response_data}")
+        logger.info(f"📤 [API RESPONSE] Timestamp: {datetime.now().isoformat()}")
+        
+        return response_data
+    except HTTPException as http_e:
+        logger.error(f"❌ [API ERROR] HTTP Exception for project {project_id}: {http_e.detail}")
+        logger.error(f"❌ [API ERROR] Status code: {http_e.status_code}")
+        logger.error(f"❌ [API ERROR] Timestamp: {datetime.now().isoformat()}")
         raise
     except Exception as e:
-        logger.error(f"Error updating project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        logger.error(f"❌ [API ERROR] ===========================================")
+        logger.error(f"❌ [API ERROR] Project ID: {project_id}")
+        logger.error(f"❌ [API ERROR] Error type: {type(e).__name__}")
+        logger.error(f"❌ [API ERROR] Error message: {str(e)}")
+        logger.error(f"❌ [API ERROR] Error details: {e}", exc_info=not IS_PRODUCTION)
+        logger.error(f"❌ [API ERROR] Timestamp: {datetime.now().isoformat()}")
         detail_msg = "An error occurred while updating project." if IS_PRODUCTION else f"DB error on project update: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 

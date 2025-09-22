@@ -64,6 +64,15 @@ function InlineEditor({
     // Ensure we save the current value from the input/textarea
     const currentValue = inputRef.current?.value || value;
     console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
+    console.log('🔍 [BLUR DETAILED] Element details:', {
+      elementType: inputRef.current?.tagName,
+      elementId: inputRef.current?.id,
+      elementClass: inputRef.current?.className,
+      initialValue: initialValue,
+      currentValue: currentValue,
+      valueChanged: initialValue !== currentValue,
+      timestamp: new Date().toISOString()
+    });
     onSave(currentValue);
   };
 
@@ -247,7 +256,25 @@ export default function DynamicAuditLandingPage() {
   }
 
   const handleTextSave = async (field: string, newValue: string) => {
-    if (!landingPageData) return
+    console.log('🚀 [TEXT SAVE START] ===========================================');
+    console.log('🚀 [TEXT SAVE START] Field:', field);
+    console.log('🚀 [TEXT SAVE START] New value:', newValue);
+    console.log('🚀 [TEXT SAVE START] Timestamp:', new Date().toISOString());
+    console.log('🚀 [TEXT SAVE START] Project ID:', projectId);
+    
+    if (!landingPageData) {
+      console.error('❌ [TEXT SAVE ERROR] landingPageData is null or undefined');
+      return;
+    }
+    
+    console.log('🔍 [TEXT SAVE] Current landingPageData structure:', {
+      keys: Object.keys(landingPageData),
+      hasCompanyName: 'companyName' in landingPageData,
+      hasJobPositions: 'jobPositions' in landingPageData,
+      hasSections: 'sections' in landingPageData,
+      hasTheme: 'theme' in landingPageData,
+      fullData: landingPageData
+    });
     
     // 🔍 CRITICAL: Validate that we have AI audit data structure, not slide deck data
     if ('sections' in landingPageData && 'theme' in landingPageData && !('companyName' in landingPageData)) {
@@ -444,24 +471,53 @@ export default function DynamicAuditLandingPage() {
     
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
+      const apiEndpoint = `${CUSTOM_BACKEND_URL}/projects/update/${projectId}`;
+      const requestPayload = { microProductContent: updatedData };
+      
+      console.log('🌐 [API CALL START] ===========================================');
+      console.log('🌐 [API CALL START] Endpoint:', apiEndpoint);
+      console.log('🌐 [API CALL START] Method: PUT');
+      console.log('🌐 [API CALL START] Headers:', {
+        'Content-Type': 'application/json'
+      });
+      console.log('🌐 [API CALL START] Request payload:', JSON.stringify(requestPayload, null, 2));
+      console.log('🌐 [API CALL START] Payload size:', JSON.stringify(requestPayload).length, 'bytes');
+      console.log('🌐 [API CALL START] Timestamp:', new Date().toISOString());
+      
+      const response = await fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ microProductContent: updatedData }),
+        body: JSON.stringify(requestPayload),
       })
       
+      console.log('📡 [API RESPONSE] ===========================================');
+      console.log('📡 [API RESPONSE] Status:', response.status);
+      console.log('📡 [API RESPONSE] Status Text:', response.statusText);
+      console.log('📡 [API RESPONSE] Headers:', Object.fromEntries(response.headers.entries()));
+      console.log('📡 [API RESPONSE] Timestamp:', new Date().toISOString());
+      
       if (response.ok) {
+        console.log('✅ [API SUCCESS] Request successful');
+        const responseData = await response.json();
+        console.log('✅ [API SUCCESS] Response data:', JSON.stringify(responseData, null, 2));
         console.log('✅ [AUTO SAVE] Successfully saved to database');
         setHasUnsavedChanges(false)
       } else {
-        console.error('❌ [AUTO SAVE] Database save failed with status:', response.status);
+        console.error('❌ [API ERROR] Request failed');
         const errorText = await response.text();
+        console.error('❌ [API ERROR] Error response body:', errorText);
+        console.error('❌ [AUTO SAVE] Database save failed with status:', response.status);
         console.error('❌ [AUTO SAVE] Error details:', errorText);
         setHasUnsavedChanges(true)
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ [NETWORK ERROR] ===========================================');
+      console.error('❌ [NETWORK ERROR] Error type:', error?.constructor?.name || 'Unknown');
+      console.error('❌ [NETWORK ERROR] Error message:', error?.message || 'Unknown error');
+      console.error('❌ [NETWORK ERROR] Error stack:', error?.stack || 'No stack trace');
+      console.error('❌ [NETWORK ERROR] Timestamp:', new Date().toISOString());
       console.error('❌ [AUTO SAVE] Error saving to database:', error)
       setHasUnsavedChanges(true)
     }
@@ -870,7 +926,7 @@ export default function DynamicAuditLandingPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
                       title="Click to edit company description"
                     >
-                      {companyDescription}
+                  {companyDescription}
                     </span>
                   )}
                 </p>
