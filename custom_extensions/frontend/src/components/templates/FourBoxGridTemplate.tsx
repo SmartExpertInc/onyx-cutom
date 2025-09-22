@@ -167,7 +167,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     background: '#ffffff', // Белый фон
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: '60px 80px',
     fontFamily: currentTheme.fonts.contentFont
   };
@@ -176,7 +176,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     fontSize: '2.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: '#000000', // Черный цвет для заголовка на белом фоне
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: '40px',
     wordWrap: 'break-word',
     fontWeight: 'bold'
@@ -187,19 +187,18 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
     gridTemplateColumns: '1fr 1fr',
     gridTemplateRows: '1fr 1fr',
     gap: '24px',
-    width: '100%',
-    maxWidth: '800px'
+    width: '100%'
   };
 
   const boxStyles: React.CSSProperties = {
     background: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)', // Синий градиент как в теме
     borderRadius: '8px',
-    padding: '24px',
+    padding: '32px',
     color: '#ffffff', // Белый цвет текста
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    minHeight: '160px',
+    minHeight: '200px',
     boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
   };
 
