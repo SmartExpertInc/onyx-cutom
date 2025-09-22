@@ -76,6 +76,7 @@ const COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay";
 const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay";
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
+const COMPONENT_NAME_AI_AUDIT_LANDING = "AIAuditLandingDisplay";
 
 type ProjectViewParams = {
   projectId: string;
@@ -370,6 +371,18 @@ export default function ProjectInstanceViewPage() {
           setEditableData({ quizTitle: instanceData.name || t('interface.projectView.newQuizTitle', 'New Quiz'), questions: [], detectedLanguage: lang });
         } else if (instanceData.component_name === COMPONENT_NAME_TEXT_PRESENTATION) {
           setEditableData({ textTitle: instanceData.name || t('interface.projectView.newTextPresentationTitle', 'New Text Presentation'), contentBlocks: [], detectedLanguage: lang });
+        } else if (instanceData.component_name === COMPONENT_NAME_AI_AUDIT_LANDING) {
+          setEditableData({ 
+            projectId: parseInt(String(instanceData.project_id || '0')), 
+            projectName: instanceData.name || t('interface.projectView.newAIAuditLandingTitle', 'New AI Audit Landing Page'), 
+            companyName: '', 
+            companyDescription: '', 
+            jobPositions: [], 
+            workforceCrisis: {}, 
+            courseOutlineModules: [], 
+            courseTemplates: [], 
+            language: lang 
+          } as any);
         } else {
           setEditableData(null);
         }
@@ -567,6 +580,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_VIDEO_LESSON,
       COMPONENT_NAME_QUIZ,
       COMPONENT_NAME_TEXT_PRESENTATION,
+      COMPONENT_NAME_AI_AUDIT_LANDING,
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
       setSaveError(t('interface.projectView.contentEditingNotSupported', 'Content editing is not supported for this component type on this page.'));
@@ -694,6 +708,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_VIDEO_LESSON,
       COMPONENT_NAME_QUIZ,
       COMPONENT_NAME_TEXT_PRESENTATION,
+      COMPONENT_NAME_AI_AUDIT_LANDING,
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
       console.log('Auto-save: Unsupported component type', projectInstanceData.component_name);
@@ -909,6 +924,7 @@ export default function ProjectInstanceViewPage() {
       COMPONENT_NAME_VIDEO_LESSON,
       COMPONENT_NAME_QUIZ,
       COMPONENT_NAME_TEXT_PRESENTATION,
+      COMPONENT_NAME_AI_AUDIT_LANDING,
     ];
     if (!editableComponentTypes.includes(projectInstanceData.component_name)) {
       alert(`${t('interface.projectView.contentEditingSupported', 'Content editing is currently supported for')} ${editableComponentTypes.join(', ')} ${t('interface.projectView.typesOnThisPage', 'types on this page.')}`);
@@ -1398,6 +1414,13 @@ export default function ProjectInstanceViewPage() {
             parentProjectName={parentProjectName}
           />
         );
+      case COMPONENT_NAME_AI_AUDIT_LANDING:
+        // For AI audit landing pages, redirect to the dedicated page
+        if (projectId) {
+          router.push(`/create/audit-2-dynamic/${projectId}`);
+          return <div className="p-6 text-center text-gray-500">Redirecting to AI audit landing page...</div>;
+        }
+        return <div className="p-6 text-center text-gray-500">AI audit landing page not found</div>;
       case COMPONENT_NAME_VIDEO_LESSON:
         const videoData = editableData as VideoLessonData | null;
         return (
@@ -1427,7 +1450,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION].includes(projectInstanceData.component_name);
+                          [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_AI_AUDIT_LANDING].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';

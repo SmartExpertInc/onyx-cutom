@@ -68,6 +68,7 @@ COMPONENT_NAME_VIDEO_LESSON = "VideoLessonDisplay"
 COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # New component for video lesson presentations
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
+COMPONENT_NAME_AI_AUDIT_LANDING = "AIAuditLandingDisplay"
 
 # --- LLM Configuration for JSON Parsing ---
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
@@ -13498,8 +13499,8 @@ async def insert_ai_audit_onepager_to_db(
 ) -> int:
     """Insert AI-audit one-pager into database with correct template and component"""
     
-    # First, ensure we have a Text Presentation template
-    template_id = await _ensure_text_presentation_template(pool)
+    # First, ensure we have an AI Audit Landing Page template
+    template_id = await _ensure_ai_audit_landing_template(pool)
     
     insert_query = """
     INSERT INTO projects (
@@ -13516,11 +13517,11 @@ async def insert_ai_audit_onepager_to_db(
             insert_query,
             onyx_user_id,
             project_name,
-            "Text Presentation",  # product_type
-            "Text Presentation",  # microproduct_type
+            "AI Audit Landing Page",  # product_type
+            "AI Audit Landing Page",  # microproduct_type
             project_name,  # microproduct_name
             microproduct_content,  # parsed content from AI parser
-            template_id,  # design_template_id (from _ensure_text_presentation_template)
+            template_id,  # design_template_id (from _ensure_ai_audit_landing_template)
             chat_session_id,  # source_chat_session_id
             None,  # folder_id - AI audit doesn't support folder assignment yet
         )
@@ -17990,6 +17991,37 @@ async def _ensure_text_presentation_template(pool: asyncpg.Pool) -> int:
             "/text-presentation.png"
         )
         return template_id
+
+async def _ensure_ai_audit_landing_template(pool: asyncpg.Pool) -> int:
+    """Ensure AI audit landing page template exists and return its ID"""
+    try:
+        # Check if AI audit landing template exists
+        template_query = """
+            SELECT id FROM design_templates 
+            WHERE microproduct_type = 'AI Audit Landing Page' 
+            LIMIT 1
+        """
+        template_result = await pool.fetchval(template_query)
+        
+        if template_result:
+            return template_result
+        
+        # Create AI audit landing template if it doesn't exist
+        insert_query = """
+            INSERT INTO design_templates 
+            (template_name, template_structuring_prompt, microproduct_type, component_name, design_image_path)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id
+        """
+        template_id = await pool.fetchval(
+            insert_query,
+            "AI Audit Landing Page Template",
+            "Create a comprehensive AI audit landing page with company information, job positions, workforce crisis data, and course templates.",
+            "AI Audit Landing Page",
+            COMPONENT_NAME_AI_AUDIT_LANDING,
+            "/ai-audit-landing.png"
+        )
+        return template_id
         
     except Exception as e:
         logger.error(f"Error ensuring text presentation template: {e}", exc_info=not IS_PRODUCTION)
@@ -19631,6 +19663,40 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
 
         content_to_store_for_db = project_update_data.microProductContent.model_dump(mode='json', exclude_none=True) if project_update_data.microProductContent else None
         
+        # 🚨 CRITICAL: Validate that the data structure matches the component type
+        if current_component_name == COMPONENT_NAME_AI_AUDIT_LANDING and content_to_store_for_db:
+            # For AI audit landing page projects, ensure we're not receiving slide deck/text presentation data
+            if isinstance(content_to_store_for_db, dict):
+                has_wrong_structure = ('sections' in content_to_store_for_db and 'theme' in content_to_store_for_db) and \
+                                    not ('companyName' in content_to_store_for_db or 'jobPositions' in content_to_store_for_db)
+                
+                if has_wrong_structure:
+                    logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit landing page project!")
+                    logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Rejecting save to prevent data corruption")
+                    logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received data: {json.dumps(content_to_store_for_db, indent=2)}")
+                    raise HTTPException(
+                        status_code=400, 
+                        detail=f"Invalid data structure for AI audit landing page project. Expected AI audit data but received slide deck/text presentation data."
+                    )
+        elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
+            # Check if this is an AI audit landing page project (legacy support)
+            is_ai_audit_project = (old_project_name and "AI-Аудит Landing Page" in old_project_name)
+            
+            if is_ai_audit_project:
+                # For AI audit projects, ensure we're not receiving slide deck/text presentation data
+                if isinstance(content_to_store_for_db, dict):
+                    has_wrong_structure = ('sections' in content_to_store_for_db and 'theme' in content_to_store_for_db) and \
+                                        not ('companyName' in content_to_store_for_db or 'jobPositions' in content_to_store_for_db)
+                    
+                    if has_wrong_structure:
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit project (legacy)!")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Rejecting save to prevent data corruption")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received data: {json.dumps(content_to_store_for_db, indent=2)}")
+                        raise HTTPException(
+                            status_code=400, 
+                            detail=f"Invalid data structure for AI audit project. Expected AI audit data but received slide deck/text presentation data."
+                        )
+        
         # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
         if content_to_store_for_db:
             logger.info(f"💾 [BACKEND SAVE] Project {project_id} - Storing content to DB: {json.dumps(content_to_store_for_db, indent=2)}")
@@ -19837,11 +19903,14 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - About to validate with component: {current_component_name}")
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
+                elif current_component_name == COMPONENT_NAME_AI_AUDIT_LANDING:
+                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page (dedicated component)")
+                    final_content_for_model = db_content  # Skip validation for AI audit data
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    # Check if this is an AI audit landing page project
+                    # Check if this is an AI audit landing page project (legacy support)
                     if (old_project_name and "AI-Аудит Landing Page" in old_project_name) or \
                        (db_content and 'companyName' in db_content and 'jobPositions' in db_content):
-                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page")
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page (legacy)")
                         final_content_for_model = db_content  # Skip validation for AI audit data
                     else:
                         logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
