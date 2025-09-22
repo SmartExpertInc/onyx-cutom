@@ -1829,7 +1829,7 @@ export default function ProjectInstanceViewPage() {
                 disabled={isSaving}
                 className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
                 style={{
-                  color: isEditing ? '#059669' : '#0F58F9',
+                  color: '#0F58F9',
                   fontSize: '14px',
                   fontWeight: '600',
                   lineHeight: '140%',
@@ -1839,7 +1839,7 @@ export default function ProjectInstanceViewPage() {
               >
                 {isEditing ? (
                   <>
-                    <Save size={14} style={{ color: '#059669' }} />
+                    <Save size={14} style={{ color: '#0F58F9' }} />
                     {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
                   </>
                 ) : (
@@ -1887,14 +1887,18 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="px-6 py-3 text-sm font-medium rounded-full text-white shadow-lg hover:shadow-xl focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                 style={{
-                  background: 'linear-gradient(90deg, #8B5CF6 55.31%, #6D28D9 100%)',
-                  fontWeight: 500
+                  backgroundColor: '#8B5CF6',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
                 }}
                 title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
               >
-                <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
+                <Sparkles size={14} style={{ color: 'white' }} /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
 
@@ -1903,11 +1907,18 @@ export default function ProjectInstanceViewPage() {
               <DropdownMenu open={showTrainingPlanThemePicker} onOpenChange={setShowTrainingPlanThemePicker}>
                 <DropdownMenuTrigger asChild>
                 <button
-                    className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      color: '#0F58F9',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
                   title="Change theme"
                 >
-                  <Palette size={16} className="mr-2" /> Theme
-                  <ChevronDown size={16} className="ml-1" />
+                  <Palette size={14} style={{ color: '#0F58F9' }} /> Theme
+                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
                 </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-20" style={{ backgroundColor: 'white' }}>
@@ -1953,10 +1964,17 @@ export default function ProjectInstanceViewPage() {
               <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
-                  className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-sky-200/40 backdrop-blur-sm border border-sky-300/30 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                  style={{
+                    color: '#0F58F9',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    lineHeight: '140%',
+                    letterSpacing: '0.05em'
+                  }}
                   title={t('interface.projectView.configureAccessControl', 'Configure access control')}
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   {t('interface.projectView.ManageAccess', 'Manage Access')}
@@ -2260,12 +2278,19 @@ export default function ProjectInstanceViewPage() {
               <DropdownMenu open={showColumnDropdown} onOpenChange={setShowColumnDropdown}>
                 <DropdownMenuTrigger asChild>
                 <button
-                    className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      color: '#0F58F9',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
                   title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
                 >
-                  <Info size={16} className="mr-2" />
+                  <Info size={14} style={{ color: '#0F58F9' }} />
                   {t('interface.projectView.columns', 'Columns')}
-                  <ChevronDown size={16} className="ml-1" />
+                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
                 </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
