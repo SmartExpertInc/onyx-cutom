@@ -1827,20 +1827,24 @@ export default function ProjectInstanceViewPage() {
               <button
                 onClick={handleToggleEdit}
                 disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-full shadow-sm focus:outline-none disabled:opacity-60 flex items-center transition-all duration-200 cursor-pointer ${isEditing
-                  ? 'text-gray-700 bg-green-600/40 backdrop-blur-sm border border-green-500/20 hover:shadow-md'
-                  : 'text-gray-700 bg-white/60 backdrop-blur-sm border border-gray-200 hover:bg-white/80 hover:shadow-md'
-                  }`}
+                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
+                style={{
+                  color: isEditing ? '#059669' : '#0F58F9',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
                 title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
               >
                 {isEditing ? (
                   <>
-                    <Save size={16} className="mr-2" />
+                    <Save size={14} style={{ color: '#059669' }} />
                     {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
                   </>
                 ) : (
                   <>
-                    <Edit size={16} className="mr-2" />
+                    <Edit size={14} style={{ color: '#0F58F9' }} />
                     {t('interface.projectView.editContent', 'Edit Content')}
                   </>
                 )}
@@ -1863,14 +1867,18 @@ export default function ProjectInstanceViewPage() {
                 <button
                   onClick={handlePdfDownload}
                   disabled={isSaving}
-                  className="px-6 py-3 text-sm font-medium rounded-full text-white shadow-lg hover:shadow-xl focus:outline-none disabled:opacity-60 flex items-center transition-all duration-200 cursor-pointer"
+                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
                   style={{
-                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                    fontWeight: 500
+                    backgroundColor: '#0F58F9',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    lineHeight: '140%',
+                    letterSpacing: '0.05em'
                   }}
                   title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
                 >
-                 <Download size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                 <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
                 </button>
               )
             )}
@@ -2367,10 +2375,17 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
               <button
                 onClick={handleMoveToTrash}
-                className="px-4 py-2 text-sm font-medium rounded-full shadow-sm text-red-700 bg-red-50/40 backdrop-blur-sm border border-red-400/30 hover:shadow-md focus:outline-none flex items-center transition-all duration-200 cursor-pointer"
+                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  color: '#DC2626',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
                 title={t('interface.projectView.moveToTrashTooltip', 'Move this product to Trash')}
               >
-                <Trash2 size={16} className="mr-2" /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
+                <Trash2 size={14} style={{ color: '#DC2626' }} /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
               </button>
             )}
           </div>
