@@ -785,7 +785,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { heading: 'Add box 3', text: 'Add box description' },
         { heading: 'Add box 4', text: 'Add box description' }
       ],
-      companyName: 'Company name'
+      backgroundColor: '#ffffff',
+      titleColor: '#000000',
+      contentColor: '#ffffff'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
