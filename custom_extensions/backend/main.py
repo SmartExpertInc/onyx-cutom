@@ -17265,18 +17265,71 @@ Template-Specific Props Requirements (abbreviated):
 
 CRITICAL IMAGE PROMPT REQUIREMENTS (imagePrompt fields):
 - ALWAYS generate non-empty, detailed imagePrompt for templates that support images; NEVER leave imagePrompt empty.
-- Style: Minimalist flat design illustration of [detailed subject/scene].
-- Include specific visual elements (objects/people/layout), composition (positioning, relationships, perspective), character details (demographics, clothing, pose), environment, and color placeholders [PRIMARY], [SECONDARY], [TERTIARY], [BACKGROUND].
-- Create scenic illustrations (NOT infographics/icons/text labels). Avoid phrases like "featuring icons", "infographic", or "with clear labels"; describe real scenes and objects.
-- Simplicity: 1-2 people max; 1-3 focal elements; uncluttered composition; plenty of whitespace.
-- Text and labeling: minimize readable text; prefer symbols/shapes; avoid textual labels on screens/documents.
-- Forbidden vague language: do not use "playful design", "colorful illustration", or "depicting [concept]". Replace with concrete scenes describing WHO/WHERE/WHAT/SETTING/LAYOUT.
+- Style: Realistic scenes (cinematic photography or physically-based 3D render), not flat/minimalist illustrations.
+- Describe SUBJECT, ACTION, ENVIRONMENT, LIGHTING (time of day, key/rim light), CAMERA (lens mm, angle), DEPTH OF FIELD, MATERIALS/TEXTURES, and MOTION where relevant.
+- Avoid readable text on screens or signage; use abstract UI shapes if needed.
+- Do NOT create infographics or icon collages; produce concrete, observational scenes.
+- Keep prompts specific and verifiable; avoid vague adjectives. Prefer who/what/where/how.
 - For two-column, use leftImagePrompt/rightImagePrompt when applicable.
 
 General Rules:
 - Do NOT duplicate title and subtitle content; keep them distinct.
 - Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
+
+DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
+- For 10–15 slides, use a varied mix such as: 1 hero/title, 2–3 bullet-points, 1 two-column, 1 process-steps, 1 four-box-grid,
+  1 timeline or event-list, 1 big-numbers (exactly 3 items), 1 challenges-solutions, 1 media (big-image-left/top), plus 1–2 specialty slides.
+- Prefer templates that best express the content; do not overuse bullet-points.
+
+UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
+- Style must be realistic scenes (cinematic photo or physically-based 3D render), not minimalist flat illustrations.
+- Describe SUBJECT, ACTION, ENVIRONMENT, LIGHTING, CAMERA (lens mm, angle), DEPTH OF FIELD, MATERIALS/TEXTURES, and MOTION.
+- Examples: "a long-haul truck accelerating out of a warehouse loading bay at dusk, headlights on, light rain mist, wet asphalt reflections, cinematic 35mm, low-angle shot, shallow depth of field"; 
+  "a software engineer coding at an ultra-wide monitor in a modern office at night, reflected city lights, soft rim lighting, visible keyboard and coffee mug, 50mm, three-quarter view".
+- Avoid readable text on screens; use abstract UI shapes if necessary. Keep prompts concrete and observational.
+
+Template Catalog with required props and usage:
+- hero-title-slide: title, subtitle, [author], [date]
+  • Usage: opening/section title; large title with supporting subtitle.
+- title-slide: title, subtitle, [author], [date]
+  • Usage: simple title/introduction; heading + short subtitle.
+- big-image-left: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
+  • Usage: narrative with large image on the left; text on the right.
+- big-image-top: title, subtitle, imagePrompt, [imageAlt], [imageUrl], [imageSize]
+  • Usage: hero image across top; explanatory text below.
+- bullet-points: title, bullets[], imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
+  • Usage: key takeaways; 1–2 columns of bullets with supporting image.
+- bullet-points-right: title, bullets[] or (title+subtitle+bullets[]), imagePrompt, [imageAlt], [bulletStyle], [maxColumns]
+  • Usage: bullets with brief intro; list on left, image area on right.
+- two-column: title, leftTitle, leftContent, rightTitle, rightContent, [leftImagePrompt], [rightImagePrompt]
+  • Usage: compare/contrast or split content; balanced two columns.
+- process-steps: title, steps[]
+  • Usage: sequential workflow; 3–5 labeled steps in a row.
+- four-box-grid: title, boxes[] (heading,text or title,content)
+  • Usage: 2×2 grid of highlights; four concise boxes.
+- timeline: title, steps[] (heading,description) or events[] (date,title,description)
+  • Usage: chronological milestones; left-to-right progression.
+- event-list: events[] (date,description), [titleColor], [descriptionColor], [backgroundColor]
+  • Usage: dated event list; stacked date + description.
+- big-numbers: title, steps[] (EXACTLY 3 items: value,label,description)
+  • Usage: three headline metrics; large values with labels.
+- pyramid: title, [subtitle], steps[] (heading,description)
+  • Usage: hierarchical structure; 3-level pyramid visual.
+- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
+  • Usage: problem/solution mapping; two facing columns.
+- metrics-analytics: title, metrics[] (number,text)
+  • Usage: six numbered analytics points; connected layout.
+- market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
+  • Usage: bar/ratio comparison; legend-style notes.
+- comparison-slide: title, [subtitle], tableData: headers[],rows[]
+  • Usage: side-by-side comparison; multi-column table.
+- table-dark: title, tableData: headers[],rows[][], [showCheckmarks], [colors]
+  • Usage: dense tabular data (dark theme); optional checkmarks.
+- table-light: title, tableData: headers[],rows[][], [colors]
+  • Usage: dense tabular data (light theme).
+- pie-chart-infographics: title, chartData.segments[], monthlyData[], [chartSize], [colors]
+  • Usage: distribution breakdown; pie with segment list and monthly notes.
 """
         if is_video_lesson:
             json_preview_instructions += """
