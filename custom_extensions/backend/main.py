@@ -16542,6 +16542,7 @@ MANDATORY PREVIEW UI REQUIREMENT:
 - Example format: "previewKeyPoints": ["Comprehensive overview of digital marketing fundamentals", "Target audience analysis and segmentation strategies", ...]
 
 CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Generate exact amout of slides you asked to generate.
 - Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
 - The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
@@ -16607,7 +16608,7 @@ Template Catalog with required props and usage:
 - challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
   • Usage: problem/solution mapping; two facing columns.
 - metrics-analytics: title, metrics[] (number,text)
-  • Usage: six numbered analytics points; connected layout.
+  • Usage: EXACTLY SIX numbered analytics points; connected layout. Ensure to always provide at least 5 elements.
 - market-share: title, [subtitle], chartData[] (label,description,percentage,color,year), [bottomText]
   • Usage: bar/ratio comparison; legend-style notes.
 - comparison-slide: title, [subtitle], tableData: headers[],rows[]
