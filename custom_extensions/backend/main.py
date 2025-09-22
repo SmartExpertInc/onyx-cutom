@@ -1058,9 +1058,9 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Core Mathematical and Statistical Foundations",
         "leftTitle": "Statistical Concepts",
-        "leftContent": "• Probability distributions including normal, binomial, and Poisson distributions with real-world applications in modeling uncertainty and variability in data science projects, enabling accurate predictions and confidence intervals for business decision-making processes\n• Hypothesis testing methodologies including t-tests, chi-square tests, and ANOVA for validating assumptions and drawing statistically significant conclusions from experimental data and A/B testing scenarios in production environments\n• Bayesian statistics and inference techniques for updating beliefs with new evidence, particularly valuable in recommendation systems, fraud detection, and personalized marketing campaigns where prior knowledge enhances model performance",
+        "leftContent": "• Probability distributions (normal, binomial, Poisson) used to model uncertainty and variability in data, enabling confident predictions and sound decisions\n• Hypothesis testing (t-tests, chi-square, ANOVA) to validate assumptions and measure effects in experiments and A/B tests\n• Bayesian inference to update beliefs with new evidence for recommendations, fraud detection, and personalized marketing",
         "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "• Linear algebra fundamentals including matrix operations, eigenvalues, and eigenvectors essential for understanding principal component analysis, singular value decomposition, and neural network architectures used in deep learning applications\n• Calculus concepts including derivatives and gradients crucial for optimization algorithms like gradient descent, backpropagation, and understanding how machine learning models learn from data through iterative parameter updates\n• Discrete mathematics and combinatorics for algorithm analysis, complexity theory, and understanding probabilistic algorithms used in sampling techniques, Monte Carlo methods, and randomized optimization approaches"
+        "rightContent": "• Linear algebra (matrices, eigenvalues, eigenvectors) powering PCA, SVD, and neural network computations\n• Calculus (derivatives and gradients) for optimization in gradient descent, backpropagation, and regularization\n• Discrete math and combinatorics for algorithm analysis, sampling, Monte Carlo methods, and randomized optimization"
       }
     },
     {
@@ -1077,11 +1077,11 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Building Production-Ready Data Pipelines",
         "steps": [
-          "Data ingestion and extraction from multiple heterogeneous sources including databases, APIs, streaming platforms, and file systems, implementing robust error handling, retry mechanisms, and data validation checks to ensure data quality and completeness throughout the ingestion process while maintaining optimal performance and scalability",
-          "Data transformation and cleaning processes using advanced techniques like outlier detection, missing value imputation, feature engineering, and data normalization, leveraging tools like Apache Spark, Pandas, and dbt to create reusable, testable, and maintainable transformation logic that scales with growing data volumes",
-          "Data quality monitoring and validation frameworks implementing automated data profiling, schema validation, statistical tests, and anomaly detection to catch data drift, quality issues, and pipeline failures early, using tools like Great Expectations, Monte Carlo, or custom validation frameworks",
-          "Model serving and deployment infrastructure including containerization with Docker, orchestration with Kubernetes, and serving platforms like MLflow, Seldon, or custom REST APIs that provide scalable, reliable, and monitored endpoints for real-time and batch prediction serving",
-          "Monitoring and observability systems tracking data pipeline performance, model accuracy, prediction latency, and business metrics using tools like Prometheus, Grafana, and custom dashboards to ensure system reliability and enable proactive issue resolution"
+          "Ingest data from databases, APIs, streams, and files with retries, validation, and error handling to ensure completeness and reliability at scale",
+          "Transform and clean data using outlier handling, imputation, feature engineering, and normalization with Spark, Pandas, or dbt for reusable pipelines",
+          "Monitor data quality via profiling, schema checks, statistical tests, and drift detection to catch issues early and maintain trustworthy inputs",
+          "Serve models with Docker/Kubernetes and ML platforms (e.g., MLflow, Seldon) for reliable real-time and batch prediction endpoints",
+          "Track latency, accuracy, throughput, and business KPIs with dashboards and alerts to keep pipelines healthy and actionable"
         ]
       }
     },
@@ -1099,11 +1099,11 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "props": {
         "title": "Comprehensive Machine Learning Algorithm Toolkit",
         "bullets": [
-          "Supervised learning algorithms spanning from traditional linear and logistic regression to advanced ensemble methods like Random Forest, Gradient Boosting Machines (XGBoost, LightGBM), and Support Vector Machines, with detailed understanding of when to apply each algorithm based on data characteristics, interpretability requirements, and computational constraints in production environments",
-          "Unsupervised learning techniques including clustering algorithms (K-means, DBSCAN, hierarchical clustering), dimensionality reduction methods (PCA, t-SNE, UMAP), and anomaly detection approaches for exploratory data analysis, feature engineering, and identifying outliers or fraudulent behavior in business applications",
-          "Deep learning architectures covering Convolutional Neural Networks for computer vision tasks, Recurrent Neural Networks and Transformers for natural language processing, and advanced techniques like transfer learning, attention mechanisms, and generative adversarial networks for complex pattern recognition and content generation",
-          "Model selection and evaluation strategies including proper cross-validation techniques, hyperparameter optimization using grid search, random search, and Bayesian optimization, along with comprehensive evaluation metrics for classification, regression, and ranking problems to ensure robust model performance assessment",
-          "Ensemble methods and model stacking techniques that combine multiple algorithms to improve prediction accuracy and reduce overfitting, including voting classifiers, bagging, boosting, and advanced stacking approaches that leverage the strengths of different algorithms for optimal performance"
+          "Supervised learning from linear/logistic regression to ensembles (Random Forest, XGBoost, LightGBM, SVM) with guidance on when to use which and key tradeoffs",
+          "Unsupervised learning: clustering (K-means, DBSCAN, hierarchical), dimensionality reduction (PCA, t-SNE, UMAP), and anomaly detection for EDA and features",
+          "Deep learning: CNNs for vision, RNNs/Transformers for NLP, plus transfer learning and attention to tackle complex patterns and limited labeled data",
+          "Model selection and evaluation: proper cross-validation, hyperparameter tuning (grid/random/Bayesian), and metrics for classification, regression, ranking",
+          "Ensembles and stacking to boost accuracy and robustness via voting, bagging, boosting, and layered learners that combine model strengths"
         ],
         "imagePrompt": "Realistic cinematic scene of data scientists collaborating in a modern machine learning lab with multiple monitors displaying algorithm visualizations, code, and model performance metrics. The scene features diverse professionals analyzing complex data patterns on large screens while discussing model architectures. Monitors and visualizations are [COLOR1], data scientists and workstations are [COLOR2], and lab environment is [COLOR3]. Cinematic photography with natural lighting, 50mm lens, three-quarter view, shallow depth of field.",
         "imageAlt": "Data scientists working on machine learning algorithms"
@@ -1122,7 +1122,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "Mastering Feature Engineering for Maximum Model Performance",
-        "subtitle": "Feature engineering is often the key differentiator between good and exceptional machine learning models. This comprehensive approach covers systematic methodologies for extracting meaningful patterns from raw data, including automated feature generation, selection techniques, and domain-specific transformations that significantly improve model accuracy and interpretability while reducing computational complexity and overfitting risks.",
+        "subtitle": "Feature engineering often separates good from great models. Use systematic methods, automated generation, selection, and domain-specific transforms to improve accuracy and interpretability while managing complexity and overfitting risks.",
         "imagePrompt": "Realistic cinematic scene of a feature engineering workflow in a modern data science workspace. Multiple screens display data transformations, correlation matrices, and feature importance plots while data scientists analyze patterns and create new variables. The workspace includes whiteboards with feature engineering diagrams and notebooks with code. Data visualizations and screens are [COLOR1], professionals and workstations are [COLOR2], workspace and equipment are [COLOR3]. Cinematic photography with natural lighting, 35mm lens, wide angle, shallow depth of field.",
         "imageAlt": "Feature engineering workflow in data science workspace",
         "imageSize": "large"
@@ -1144,17 +1144,17 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           {
             "value": "95%+",
             "label": "Model Accuracy Threshold",
-            "description": "Industry-standard accuracy benchmarks for production models, considering precision-recall tradeoffs, class imbalance impacts, and business cost implications. High accuracy alone is insufficient; models must demonstrate consistent performance across different data segments, temporal periods, and edge cases while maintaining interpretability and fairness across demographic groups."
+            "description": "Accuracy targets with attention to precision–recall balance, class imbalance, and business costs; ensure consistent performance across segments and time."
           },
           {
             "value": "0.85+",
             "label": "AUC-ROC Score Target",
-            "description": "Area Under the Curve - Receiver Operating Characteristic score indicating excellent discrimination ability between classes, essential for binary classification tasks like fraud detection, medical diagnosis, and customer churn prediction. Values above 0.85 demonstrate strong predictive power while scores above 0.9 indicate exceptional model performance suitable for critical business applications."
+            "description": "Excellent class separation for binary tasks like fraud or churn. >0.85 is strong; >0.9 is exceptional for high-stakes applications."
           },
           {
             "value": "<5%",
             "label": "Acceptable Error Rate",
-            "description": "Maximum tolerable error rate for production systems, varying by application domain and business impact. Critical systems like medical diagnosis or financial transactions require error rates below 1%, while recommendation systems may tolerate higher error rates. Error analysis should include false positive and false negative costs to optimize business outcomes."
+            "description": "Error budgets vary by domain. Critical systems demand <1%; recommendations can tolerate more. Consider FP/FN costs in tradeoffs."
           }
         ]
       }
@@ -1175,19 +1175,19 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "boxes": [
           {
             "heading": "Containerized Deployment",
-            "text": "Docker containerization with Kubernetes orchestration enabling scalable, reproducible model serving across cloud environments. Includes auto-scaling, load balancing, health checks, and zero-downtime deployments with proper resource allocation and monitoring for production workloads."
+            "text": "Docker + Kubernetes for scalable, reproducible serving with autoscaling, health checks, and zero-downtime rollouts."
           },
           {
-            "heading": "A/B Testing Framework", 
-            "text": "Statistical experiment design for gradual model rollouts with control groups, significance testing, and business metric tracking. Enables safe deployment of new models while measuring impact on key performance indicators and user experience metrics."
+            "heading": "A/B Testing Framework",
+            "text": "Controlled rollouts with significance testing and KPI tracking to validate model impact before full deployment."
           },
           {
             "heading": "CI/CD Pipelines",
-            "text": "Automated testing, validation, and deployment workflows using tools like GitHub Actions, Jenkins, or MLflow. Includes unit tests, integration tests, model performance validation, and automated rollback mechanisms for failed deployments."
+            "text": "Automated testing, validation, and deployments (e.g., GitHub Actions, Jenkins, MLflow) with safe rollback."
           },
           {
             "heading": "Monitoring & Alerting",
-            "text": "Comprehensive monitoring of model performance, data drift, prediction latency, and system health using Prometheus, Grafana, and custom dashboards. Automated alerting for performance degradation and anomaly detection in production systems."
+            "text": "Track performance, drift, latency, and health with dashboards and alerts for quick remediation."
           }
         ]
       }
@@ -1208,14 +1208,14 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
         "challengesTitle": "Industry Challenges",
         "solutionsTitle": "Proven Solutions",
         "challenges": [
-          "Data quality and consistency issues across multiple source systems, including missing values, outliers, schema changes, and data drift that can significantly impact model performance and reliability in production environments",
-          "Scalability bottlenecks when transitioning from prototype models to production systems handling millions of predictions per day, requiring infrastructure optimization and algorithm efficiency improvements",
-          "Model interpretability and explainability requirements for regulatory compliance, stakeholder trust, and debugging model decisions in high-stakes applications like healthcare, finance, and criminal justice"
+          "Inconsistent, drifting, or missing data across sources can degrade model reliability and decisions",
+          "Scaling prototypes to high-throughput, low-latency production systems is difficult",
+          "Regulatory and stakeholder needs require interpretable, explainable models"
         ],
         "solutions": [
-          "Implement comprehensive data validation frameworks using tools like Great Expectations, automated data profiling, statistical monitoring, and data lineage tracking to ensure consistent, high-quality data throughout the pipeline lifecycle",
-          "Design scalable architecture from the beginning using cloud-native technologies, microservices patterns, caching strategies, and efficient algorithms optimized for production workloads with proper load testing and performance monitoring",
-          "Utilize explainable AI techniques including LIME, SHAP, feature importance analysis, and model-agnostic interpretation methods while maintaining detailed documentation and visualization tools for stakeholder communication"
+          "Adopt data validation, profiling, lineage, and automated quality checks throughout pipelines",
+          "Design with cloud-native patterns, efficient algorithms, and performance testing from the start",
+          "Use XAI tools (LIME, SHAP), document decisions, and provide clear visual explanations"
         ]
       }
     },
@@ -1236,22 +1236,22 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
           {
             "date": "Year 1-2",
             "title": "Foundation Building",
-            "description": "Master core statistical concepts, programming skills in Python/R, and basic machine learning algorithms while working on supervised projects and building a strong portfolio of data science work."
+            "description": "Build stats, Python/R, and ML basics; complete projects and assemble a strong portfolio."
           },
           {
-            "date": "Year 2-4", 
+            "date": "Year 2-4",
             "title": "Specialization Focus",
-            "description": "Choose specialization area such as machine learning engineering, data engineering, or business analytics while developing expertise in advanced algorithms, cloud platforms, and domain knowledge."
+            "description": "Choose ML eng., data eng., or analytics; deepen algorithms, cloud, and domain expertise."
           },
           {
             "date": "Year 4-6",
             "title": "Senior Individual Contributor",
-            "description": "Lead complex projects, mentor junior team members, and develop expertise in model deployment, MLOps, and cross-functional collaboration while contributing to strategic business decisions."
+            "description": "Lead complex projects, mentor others, and drive MLOps and cross-functional outcomes."
           },
           {
             "date": "Year 6+",
-            "title": "Leadership and Strategy", 
-            "description": "Transition to management roles, research positions, or senior technical leadership focusing on team building, strategic planning, and driving organizational data science maturity and innovation."
+            "title": "Leadership and Strategy",
+            "description": "Move into management, research, or senior technical leadership; scale teams and impact."
           }
         ]
       }
@@ -1269,7 +1269,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       ],
       "props": {
         "title": "Cutting-Edge Innovations Shaping Data Science Future",
-        "subtitle": "The data science landscape is rapidly evolving with breakthrough technologies that are transforming how we approach machine learning, data processing, and artificial intelligence. From large language models revolutionizing natural language processing to quantum computing promising exponential speedups for optimization problems, these emerging technologies are creating new opportunities and challenges for data science professionals. Understanding these trends is crucial for staying competitive and making strategic career decisions in the rapidly advancing field of data science and artificial intelligence.",
+        "subtitle": "The field evolves quickly with breakthroughs in models, compute, and deployment. Large language models, quantum-inspired methods, federated learning, and responsible AI will shape the next generation of solutions.",
         "imagePrompt": "Realistic cinematic scene of a futuristic AI research laboratory with scientists working on cutting-edge technologies. Multiple large screens display neural network architectures, quantum computing visualizations, and advanced AI models. Researchers collaborate around holographic displays and high-tech workstations with quantum computers and advanced GPUs visible. Laboratory equipment and displays are [COLOR1], researchers and workstations are [COLOR2], futuristic lab environment is [COLOR3]. Cinematic photography with natural lighting, 35mm lens, low angle, shallow depth of field.",
         "imageAlt": "Futuristic AI research laboratory with advanced technologies",
         "imageSize": "large"
@@ -16547,42 +16547,8 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
 - Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
 - Preserve original language across all text.
 
-Template Assignment Guidelines:
-- hero-title-slide or title-slide: large title + subtitle format
-- bullet-points / bullet-points-right: slides with lists
-- two-column: two distinct sections of content
-- process-steps: numbered or sequential steps
-- four-box-grid: 4 distinct points/boxes
-- big-numbers: 2-3 numerical metrics/statistics with values and labels
-- pyramid: hierarchical content
-- timeline: chronological content/events
-- challenges-solutions: paired problems vs solutions
-- metrics-analytics: ONLY when slide is about analytics/performance metrics
-- Standard text content: content-slide
-
 CRITICAL TABLE RULE:
 - If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
-
-Template-Specific Props Requirements (abbreviated):
-- big-image-left / big-image-top: title, subtitle/content, imagePrompt (REQUIRED), imageAlt, optional imageUrl/imageSize
-- bullet-points / bullet-points-right: title, bullets[], imagePrompt (REQUIRED), imageAlt, optional bulletStyle/maxColumns
-- two-column: title, leftTitle, leftContent, rightTitle, rightContent, optional leftImagePrompt/rightImagePrompt
-- big-numbers: title, steps[] with EXACTLY 3 items; each item has value, label, description (USE "steps" key, not "numbers")
-- four-box-grid: title, boxes[] with heading/text (or title/content based on schema)
-- process-steps: title, steps[]
-- timeline: title, steps[] or events[] depending on schema example; keep consistent across slides
-- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
-
-CRITICAL IMAGE PROMPT REQUIREMENTS (imagePrompt fields):
-- ALWAYS generate non-empty, detailed imagePrompt for templates that support images; NEVER leave imagePrompt empty.
-- MANDATORY STYLE: Realistic cinematic scenes (never flat design, minimalist, vector art, icons, isometric, painting, 3D render/CGI, cartoon, or illustrations).
-- Start with "Realistic cinematic scene of [specific subject and action]" - describe real people, objects, environments.
-- Include: SUBJECT (who/what), ACTION (doing what), ENVIRONMENT (where), LIGHTING (natural/artificial), CAMERA (35mm/50mm lens, angle), DEPTH OF FIELD, MATERIALS/TEXTURES.
-- End with technical specs: "Cinematic photography with natural lighting, [lens]mm lens, [angle] view, shallow depth of field."
-- Use color placeholders [COLOR1], [COLOR2], [COLOR3], [BACKGROUND] for theming.
-- NO readable text on screens/signs; use abstract shapes if needed.
-- Strictly forbidden phrases: illustration, flat, vector, icon(s), isometric, 3D render, CGI, painting, cartoon, infographic. Replace with realistic photographic equivalents.
-- For two-column, use leftImagePrompt/rightImagePrompt when applicable.
 
 CONTENT DENSITY AND LEARNING REQUIREMENTS:
 - MAXIMIZE educational value: each slide should teach substantial concepts, not just overview points.
@@ -16600,15 +16566,9 @@ General Rules:
 - Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
 
 DIVERSE TEMPLATE MIX (avoid repeating only 2-3 templates):
-- For 10–15 slides, use a varied mix such as: 1 hero/title, 2–3 bullet-points, 1 two-column, 1 process-steps, 1 four-box-grid,
+- For 10–15 slides, use a varied mix such as: 1 hero/title, 2 bullet-points, 1 two-column, 1 process-steps, 1 four-box-grid,
   1 timeline or event-list, 1 big-numbers (exactly 3 items), 1 challenges-solutions, 1 media (big-image-left/top), plus 1–2 specialty slides.
 - Prefer templates that best express the content; do not overuse bullet-points.
-
-MANDATORY TEMPLATE ROTATION (for 12–16 slides):
-- NEVER repeat the same template more than twice in a presentation.
-- Required diverse mix: 1 hero/title, 1-2 core concepts (two-column), 1-2 workflows (process-steps), 1-2 detailed explanations (big-image-top/left + rich content), 1 evaluation/criteria (bullet-points-right with 60-100 word bullets), 1 timeline of evolution (timeline), 1 capabilities/components grid (four-box-grid), 1 challenges vs solutions (challenges-solutions), 1 KPI/metrics snapshot (big-numbers), 1-2 applications/case studies (varied templates).
-- STRICT ROTATION: After using bullet-points, next slide must be two-column, process-steps, four-box-grid, or big-image template.
-- Do not introduce closing/inspirational/agenda slides. Replace them with educational content from the diverse template set above.
 
 UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
 - Style must be realistic scenes (cinematic photo or physically-based 3D render), not minimalist flat illustrations.
