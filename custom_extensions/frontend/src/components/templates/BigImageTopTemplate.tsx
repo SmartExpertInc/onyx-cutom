@@ -200,7 +200,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
+    height: '600px', // Фиксированная высота
     background: '#ffffff', // Белый фон как на фото
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
@@ -224,13 +224,14 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   const imageContainerStyles: React.CSSProperties = {
     width: '100%', // Полная ширина
-    height: '50%', // 50% высоты
+    height: '300px', // Точная высота 50% от 600px
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     background: '#ffffff',
     minWidth: 0,
-    marginBottom: '0'
+    marginBottom: '0',
+    flexShrink: 0 // Предотвращаем сжатие
   };
 
   const placeholderStyles: React.CSSProperties = {
@@ -244,13 +245,15 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   const contentContainerStyles: React.CSSProperties = {
     width: '100%', // Полная ширина
-    height: '50%', // 50% высоты
+    height: '300px', // Точная высота 50% от 600px
     padding: '60px 80px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'center', // Центрируем по вертикали
-    minWidth: 0
+    minWidth: 0,
+    flexShrink: 0, // Предотвращаем сжатие
+    overflow: 'hidden' // Скрываем переполнение
   };
 
   const titleStyles: React.CSSProperties = {
