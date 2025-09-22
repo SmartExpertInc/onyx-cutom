@@ -1867,7 +1867,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   };
 
   return (
-    <div className="font-['Inter',_sans-serif] bg-gray-50">
+    <div className="font-['Inter',_sans-serif]">
       <CreateContentTypeModal
         isOpen={contentModalState.isOpen}
         onClose={() => setContentModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, lessonRecommendations: [] })}
