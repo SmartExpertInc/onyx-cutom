@@ -1160,111 +1160,101 @@ export default function QuizClient() {
                       <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
                         <div className="flex items-center">
                           {/* Outline dropdown */}
-                          {selectedOutlineId && (
-                            <div className="flex-1 flex items-center justify-center">
-                              <Select
-                                value={selectedOutlineId?.toString() ?? ""}
-                                onValueChange={(value: string) => {
-                                  const val = value ? Number(value) : null;
-                                  setSelectedOutlineId(val);
-                                  // clear module & lesson selections when outline changes
-                                  setSelectedModuleIndex(null);
-                                  setLessonsForModule([]);
-                                  setSelectedLesson("");
-                                }}
-                                onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                              >
-                                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                  <div className="flex items-center gap-2">
-                                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                    <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
-                                    <span className="text-[#09090B] truncate max-w-[120px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
-                                  </div>
-                                </SelectTrigger>
-                                <SelectContent className="border-white" sideOffset={15}>
-                                  {outlines.map((o) => (
-                                    <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedOutlineId?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const val = value ? Number(value) : null;
+                                setSelectedOutlineId(val);
+                                // clear module & lesson selections when outline changes
+                                setSelectedModuleIndex(null);
+                                setLessonsForModule([]);
+                                setSelectedLesson("");
+                              }}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {outlines.map((o) => (
+                                  <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
 
                           {/* Divider */}
-                          {selectedOutlineId && selectedModuleIndex !== null && (
-                            <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          )}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
 
-                          {/* Module dropdown – appears once outline is selected */}
-                          {selectedModuleIndex !== null && (
-                            <div className="flex-1 flex items-center justify-center">
-                              <Select
-                                value={selectedModuleIndex?.toString() ?? ""}
-                                onValueChange={(value: string) => {
-                                  const idx = value ? Number(value) : null;
-                                  setSelectedModuleIndex(idx);
-                                  setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                                  setSelectedLesson("");
-                                }}
-                                onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                                disabled={modulesForOutline.length === 0}
-                              >
-                                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                  <div className="flex items-center gap-2">
-                                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                    <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
-                                    <span className="text-[#09090B] truncate max-w-[120px]">{modulesForOutline[selectedModuleIndex]?.name || ''}</span>
-                                  </div>
-                                </SelectTrigger>
-                                <SelectContent className="border-white" sideOffset={15}>
-                                  {modulesForOutline.map((m, idx) => (
-                                    <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
+                          {/* Module dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedModuleIndex?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const idx = value ? Number(value) : null;
+                                setSelectedModuleIndex(idx);
+                                setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                                setSelectedLesson("");
+                              }}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                              disabled={modulesForOutline.length === 0}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{modulesForOutline[selectedModuleIndex]?.name || ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {modulesForOutline.map((m, idx) => (
+                                  <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
 
                           {/* Divider */}
-                          {selectedModuleIndex !== null && selectedLesson && (
-                            <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
-                          )}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
 
-                          {/* Lesson dropdown – appears when module chosen */}
-                          {selectedLesson && (
-                            <div className="flex-1 flex items-center justify-center">
-                              <Select
-                                value={selectedLesson}
-                                onValueChange={setSelectedLesson}
-                                onOpenChange={() => setShowQuestionTypesDropdown(false)}
-                              >
-                                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
-                                  <div className="flex items-center gap-2">
-                                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                      <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                    <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
-                                    <span className="text-[#09090B] truncate max-w-[120px]">{selectedLesson}</span>
-                                  </div>
-                                </SelectTrigger>
-                                <SelectContent className="border-white" sideOffset={15}>
-                                  {lessonsForModule.map((l) => (
-                                    <SelectItem key={l} value={l}>{l}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
+                          {/* Lesson dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedLesson}
+                              onValueChange={setSelectedLesson}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {lessonsForModule.map((l) => (
+                                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       </div>
                     )}
