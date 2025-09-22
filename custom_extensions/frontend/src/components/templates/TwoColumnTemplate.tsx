@@ -241,7 +241,6 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    background: currentTheme.colors.backgroundColor,
     padding: '40px 30px',
     borderRadius: '8px'
   };
