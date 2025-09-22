@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -213,6 +214,20 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     setEditingRightContent(false);
   };
 
+  // Handle left image upload
+  const handleLeftImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ leftImagePath: newImagePath });
+    }
+  };
+
+  // Handle right image upload
+  const handleRightImageUploaded = (newImagePath: string) => {
+    if (onUpdate) {
+      onUpdate({ rightImagePath: newImagePath });
+    }
+  };
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
@@ -389,28 +404,23 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
 
           {/* Left Image */}
           <div style={imageContainerStyles}>
-            {leftImagePath ? (
-              <img 
-                src={leftImagePath} 
-                alt={leftImageAlt || 'Left column image'} 
-                style={imageStyles}
-              />
-            ) : (
-              <div style={{
+            <ClickableImagePlaceholder
+              imagePath={leftImagePath}
+              onImageUploaded={handleLeftImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt="relevant illustration for the left column"
+              isEditable={isEditable}
+              style={{
                 width: '100%',
                 height: '100%',
-                background: '#f0f0f0',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#666',
-                fontSize: '14px',
-                textAlign: 'center'
-              }}>
-                {isEditable ? 'Click to upload image' : 'No image'}
-              </div>
-            )}
+                borderRadius: '4px'
+              }}
+              elementId="left-image"
+              cropMode="cover"
+              slideContainerRef={slideContainerRef}
+            />
           </div>
         </div>
 
@@ -508,28 +518,23 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
 
           {/* Right Image */}
           <div style={imageContainerStyles}>
-            {rightImagePath ? (
-              <img 
-                src={rightImagePath} 
-                alt={rightImageAlt || 'Right column image'} 
-                style={imageStyles}
-              />
-            ) : (
-              <div style={{
+            <ClickableImagePlaceholder
+              imagePath={rightImagePath}
+              onImageUploaded={handleRightImageUploaded}
+              size="LARGE"
+              position="CENTER"
+              description="Click to upload image"
+              prompt="relevant illustration for the right column"
+              isEditable={isEditable}
+              style={{
                 width: '100%',
                 height: '100%',
-                background: '#f0f0f0',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#666',
-                fontSize: '14px',
-                textAlign: 'center'
-              }}>
-                {isEditable ? 'Click to upload image' : 'No image'}
-              </div>
-            )}
+                borderRadius: '4px'
+              }}
+              elementId="right-image"
+              cropMode="cover"
+              slideContainerRef={slideContainerRef}
+            />
           </div>
         </div>
       </div>
