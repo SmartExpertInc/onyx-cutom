@@ -178,7 +178,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     backgroundRepeat: 'no-repeat',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     padding: '60px 80px',
     position: 'relative',
     fontFamily: currentTheme.fonts.contentFont
@@ -216,8 +217,8 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     fontSize: '3rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
-    textAlign: 'center',
-    marginTop: '130px',
+    textAlign: 'left',
+    marginTop: '60px',
     marginBottom: '24px',
     lineHeight: 1.2,
     maxWidth: '900px',
@@ -230,7 +231,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: subtitleColor,
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: '40px',
     lineHeight: 1.4,
     maxWidth: '700px',
@@ -301,28 +302,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
 
   return (
     <div className="title-slide-template" style={slideStyles}>
-      {/* Logo at the top */}
-      <div style={logoStyles}>
-        <div style={logoIconStyles}>
-          <div style={{
-            width: '12px',
-            height: '2px',
-            backgroundColor: titleColor,
-            position: 'absolute'
-          }} />
-          <div style={{
-            width: '2px',
-            height: '12px',
-            backgroundColor: titleColor,
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)'
-          }} />
-        </div>
-        <span style={logoTextStyles}>Your Logo</span>
-      </div>
-
       {/* Main Title - wrapped */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (

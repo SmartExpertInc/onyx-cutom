@@ -181,26 +181,28 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: alignment,
-    marginBottom: '40px',
-    lineHeight: 1.3,
+    marginBottom: '24px',
+    lineHeight: 1.2,
     maxWidth: '900px',
     textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const contentStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
+    fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: contentColor,
     textAlign: alignment,
-    lineHeight: 1.6,
+    lineHeight: 1.4,
     maxWidth: '800px',
     wordWrap: 'break-word',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
+    opacity: 0.9
     };
 
   const editOverlayStyles: React.CSSProperties = {

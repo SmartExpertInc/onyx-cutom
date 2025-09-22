@@ -124,11 +124,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📝',
     component: ContentSlideTemplate,
     defaultProps: {
-      title: 'Add title',
-      content: 'Add content here',
-      backgroundColor: '#261c4e',
+      title: 'Spring picnic meetup',
+      content: 'Join us for an afternoon of fun!',
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
       titleColor: '#ffffff',
-      contentColor: '#d9e1ff',
+      contentColor: '#ffffff',
       alignment: 'left',
       backgroundImage: ''
     },
