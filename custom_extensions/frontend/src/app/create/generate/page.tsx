@@ -144,8 +144,8 @@ function GenerateProductPicker() {
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
-  const [lessonsPerModule, setLessonsPerModule] = useState("3-4");
-  const [language, setLanguage] = useState("en");
+  const [lessonsPerModule, setLessonsPerModule] = useState("3-4 per module");
+  const [language, setLanguage] = useState("English");
 
   // All filters are always true (removed dropdown functionality)
   const filters = {
@@ -414,7 +414,7 @@ function GenerateProductPicker() {
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
-  const [quizLanguage, setQuizLanguage] = useState("en");
+  const [quizLanguage, setQuizLanguage] = useState("English");
   const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
@@ -811,7 +811,7 @@ function GenerateProductPicker() {
   const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
-  const [textLanguage, setTextLanguage] = useState<string>("en");
+  const [textLanguage, setTextLanguage] = useState<string>("English");
   const [textLength, setTextLength] = useState<string>("medium");
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
