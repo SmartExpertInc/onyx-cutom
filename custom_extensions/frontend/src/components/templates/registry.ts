@@ -745,15 +745,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🖼️',
     component: BigImageTopTemplate,
     defaultProps: {
-      title: 'Add title',
-      subtitle: 'Add subtitle',
+      title: 'What Do You Know About Our Studio?',
+      subtitle: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit',
       imageUrl: '',
       imageAlt: '',
-      imagePrompt: '',
+      imagePrompt: 'modern office workspace with plants and computers',
       imageSize: 'large',
-      backgroundColor: '#261c4e',
-      titleColor: '#ffffff',
-      contentColor: '#d9e1ff',
+      backgroundColor: '#ffffff',
+      titleColor: '#000000',
+      contentColor: '#333333',
       companyName: 'Company name'
     },
     propSchema: {

@@ -201,13 +201,13 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    background: backgroundColor,
+    background: '#ffffff', // Белый фон как на фото
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
-    justifyContent: 'space-between',
-    paddingBottom: '50px',
+    justifyContent: 'flex-start',
+    padding: '0',
     position: 'relative'
   };
 
@@ -227,45 +227,51 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: backgroundColor,
+    background: '#ffffff',
     minWidth: 0,
-    marginBottom: '32px'
+    marginBottom: '0'
   };
 
   const placeholderStyles: React.CSSProperties = {
     // FIXED: Always maintain full width consistency between display and saved dimensions
     width: '100%',
     // Only apply default height if no saved height exists, but keep full width
-    ...(heightPx ? { height: `${heightPx}px` } : { height: '240px' }),
-    margin: '0 auto'
+    ...(heightPx ? { height: `${heightPx}px` } : { height: '400px' }),
+    margin: '0',
+    borderRadius: '0' // Убираем скругления для полной ширины
   };
 
   const contentContainerStyles: React.CSSProperties = {
     width: '100%',
-    padding: '60px 60px 60px 60px',
+    padding: '60px 80px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     minWidth: 0,
+    maxWidth: '800px', // Ограничиваем ширину текста как на фото
+    margin: '0 auto' // Центрируем контент
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '2.5rem', // Крупный шрифт как на фото
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: '#000000', // Черный цвет как на фото
     marginBottom: '24px',
     lineHeight: '1.2',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    textAlign: 'left'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
+    fontSize: '1.1rem', // Чуть больше для читаемости
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: '#333333', // Темно-серый цвет как на фото
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    textAlign: 'left'
   };
 
   // Handle title editing
