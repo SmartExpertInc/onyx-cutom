@@ -1130,9 +1130,9 @@ function GenerateProductPicker() {
         {isFromText && (
           <Alert className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 backdrop-blur-sm border border-gray-100/50 shadow-md">
             <AlertDescription className="text-blue-600">
-              <div className="flex items-center gap-2 text-blue-600 text-md font-semibold mb-2">
+              <div className="flex items-center gap-2 text-blue-600 mb-2">
                 <FileText className="h-7 w-7" />
-                {t('interface.generate.creatingFromText', 'Creating from text')}
+                <span className="text-lg font-semibold">{t('interface.generate.creatingFromText', 'Creating from text')}</span>
               </div>
               <p className="font-medium text-gray-600">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
@@ -1205,9 +1205,7 @@ function GenerateProductPicker() {
         {isFromConnectors && connectorContext && (
           <div className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center gap-3 mb-3">
-                <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14-7l2 2-2 2m-2 8l2 2-2 2" />
-                </svg>
+               <Network className="h-10 w-10 text-blue-600" />
               <div>
                 <h3 className="text-lg font-semibold text-blue-600">
                   {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
@@ -1216,16 +1214,6 @@ function GenerateProductPicker() {
                   {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
                 </p>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {connectorContext.connectorSources.map((source, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full text-sm font-medium"
-                >
-                  {source}
-                </span>
-              ))}
             </div>
           </div>
         )}
