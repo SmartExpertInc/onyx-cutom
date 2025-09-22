@@ -1698,7 +1698,7 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                         else:
                             source_list = []
 
-                # Validate and coerce each item
+                                # Validate and coerce each item
                 fixed_items = []
                 for item in source_list:
                     if isinstance(item, dict):
@@ -1709,7 +1709,17 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
                         }
                         if fixed_item['value'] and fixed_item['label']:
                             fixed_items.append(fixed_item)
-
+                # Enrich missing descriptions to ensure explanatory text
+                if fixed_items:
+                    slide_title_for_context = str(normalized_props.get('title') or normalized_slide.get('slideTitle') or '').strip()
+                    for i in range(len(fixed_items)):
+                        if not fixed_items[i].get('description'):
+                            label_lower = fixed_items[i]['label'].rstrip('.').lower()
+                            context_part = f" about {slide_title_for_context.lower()}" if slide_title_for_context else ""
+                            fixed_items[i]['description'] = (
+                                f"What this metric indicates{context_part}: {label_lower}."
+                            )
+                
                 # Pad/trim to exactly 3 items to preserve slide instead of skipping
                 if len(fixed_items) != 3:
                     logger.warning(f"Coercing slide {slide_index + 1} with template 'big-numbers': Expected 3 items, got {len(fixed_items)}")
