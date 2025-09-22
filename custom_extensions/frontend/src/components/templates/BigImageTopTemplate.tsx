@@ -204,7 +204,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     background: '#ffffff', // Белый фон как на фото
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column', // Вертикальный макет
     alignItems: 'stretch',
     justifyContent: 'flex-start',
     padding: '0',
@@ -223,7 +223,8 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const imageDimensions = getImageDimensions();
 
   const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: '100%', // Полная ширина
+    height: '50%', // 50% высоты
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -236,21 +237,20 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     // FIXED: Always maintain full width consistency between display and saved dimensions
     width: '100%',
     // Only apply default height if no saved height exists, but keep full width
-    ...(heightPx ? { height: `${heightPx}px` } : { height: '400px' }),
+    ...(heightPx ? { height: `${heightPx}px` } : { height: '100%' }),
     margin: '0',
     borderRadius: '0' // Убираем скругления для полной ширины
   };
 
   const contentContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: '100%', // Полная ширина
+    height: '50%', // 50% высоты
     padding: '60px 80px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    minWidth: 0,
-    maxWidth: '800px', // Ограничиваем ширину текста как на фото
-    margin: '0 auto' // Центрируем контент
+    justifyContent: 'center', // Центрируем по вертикали
+    minWidth: 0
   };
 
   const titleStyles: React.CSSProperties = {
