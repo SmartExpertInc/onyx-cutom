@@ -28,6 +28,11 @@ function InlineEditor({
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
+  // Update local state when initialValue changes
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -49,7 +54,9 @@ function InlineEditor({
   };
 
   const handleBlur = () => {
-    onSave(value);
+    // Ensure we save the current value from the input/textarea
+    const currentValue = inputRef.current?.value || value;
+    onSave(currentValue);
   };
 
   // Auto-resize textarea to fit content
@@ -231,6 +238,8 @@ export default function DynamicAuditLandingPage() {
   const handleTextSave = (field: string, newValue: string) => {
     if (!landingPageData) return
     
+    console.log('🔄 [TEXT SAVE] Saving field:', field, 'with value:', newValue);
+    
     setLandingPageData(prev => {
       if (!prev) return null
       
@@ -240,12 +249,15 @@ export default function DynamicAuditLandingPage() {
       switch (field) {
         case 'companyName':
           updated.companyName = newValue
+          console.log('🔄 [TEXT SAVE] Updated companyName to:', newValue);
           break
         case 'companyDescription':
           updated.companyDescription = newValue
+          console.log('🔄 [TEXT SAVE] Updated companyDescription to:', newValue);
           break
         case 'projectName':
           updated.projectName = newValue
+          console.log('🔄 [TEXT SAVE] Updated projectName to:', newValue);
           break
         default:
           // Handle nested fields like job positions
@@ -253,6 +265,7 @@ export default function DynamicAuditLandingPage() {
             const index = parseInt(field.split('_')[1])
             if (updated.jobPositions && updated.jobPositions[index]) {
               updated.jobPositions[index] = { ...updated.jobPositions[index], title: newValue }
+              console.log('🔄 [TEXT SAVE] Updated job position', index, 'to:', newValue);
             }
           }
           break
