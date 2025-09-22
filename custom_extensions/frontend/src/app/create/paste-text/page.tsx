@@ -83,16 +83,12 @@ export default function PasteTextPage() {
       className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
     >
       {/* back button absolute top-left */}
-      <Button
-        asChild
-        variant="back"
-        size="sm"
-        className="rounded-full"
+      <Link
+        href="/create"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
       >
-        <Link href="/create">
-          <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
-        </Link>
-      </Button>
+        <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
+      </Link>
 
       {/* Main content */}
       <div className="w-full max-w-4xl flex flex-col gap-8 items-center">

@@ -3,7 +3,12 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
+import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus, Edit } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
@@ -32,7 +37,7 @@ const LoadingAnimation: React.FC<{ message?: string }> = ({ message }) => {
 };
 
 export default function QuizClient() {
-  const { t } = useLanguage();
+  const { t, language: currentLanguage } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -129,6 +134,7 @@ export default function QuizClient() {
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const previewAbortRef = useRef<AbortController | null>(null);
+  const nextEditingIdRef = useRef<number | null>(null);
 
   // ---- Inline Advanced Mode ----
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -259,6 +265,42 @@ export default function QuizClient() {
   };
 
   const questionList = parseQuizIntoQuestions(quizData);
+
+  // Function to get the correct plural form for questions
+  const getQuestionPluralForm = (count: number) => {
+    if (currentLanguage === 'ru') {
+      // Russian pluralization rules
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      
+      // Special case for 11-14 (always use "many" form)
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+        return t('interface.generate.questionMany', 'вопросов');
+      }
+      
+      // Regular rules based on last digit
+      if (lastDigit === 1) return t('interface.generate.questionSingular', 'вопрос');
+      if (lastDigit >= 2 && lastDigit <= 4) return t('interface.generate.questionFew', 'вопроса');
+      return t('interface.generate.questionMany', 'вопросов');
+    } else if (currentLanguage === 'uk') {
+      // Ukrainian pluralization rules
+      const lastDigit = count % 10;
+      const lastTwoDigits = count % 100;
+      
+      // Special case for 11-14 (always use "many" form)
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+        return t('interface.generate.questionMany', 'питань');
+      }
+      
+      // Regular rules based on last digit
+      if (lastDigit === 1) return t('interface.generate.questionSingular', 'питання');
+      if (lastDigit >= 2 && lastDigit <= 4) return t('interface.generate.questionFew', 'питання');
+      return t('interface.generate.questionMany', 'питань');
+    } else {
+      // English and Spanish use simple pluralization
+      return count === 1 ? t('interface.generate.questionSingular', 'question') : t('interface.generate.questions', 'Questions');
+    }
+  };
 
   // Handle question title editing
   const handleTitleEdit = (questionIndex: number, newTitle: string) => {
@@ -605,7 +647,7 @@ export default function QuizClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, selectedQuestionCount, selectedQuestionTypes, prompt, language]);
 
   // Fetch lessons when a course outline is selected
@@ -858,22 +900,6 @@ export default function QuizClient() {
     }
   }, [streamDone, firstLineRemoved, quizData]);
 
-  // Click outside handler for question types dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showQuestionTypesDropdown) {
-        const target = event.target as Element;
-        if (!target.closest('.question-types-dropdown')) {
-          setShowQuestionTypesDropdown(false);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showQuestionTypesDropdown]);
 
   const handleCreateFinal = async () => {
     if (!quizData.trim()) return;
@@ -1078,21 +1104,33 @@ export default function QuizClient() {
       <main
         className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
         style={{
-          background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
       >
-        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
-          <Link
-            href="/create/generate"
-            className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
-          >
-            <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
-          </Link>
+        {/* Back button */}
+        <Link
+          href="/create/generate"
+            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+          style={{
+            color: '#0F58F9',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
+          }}
+        >
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {t('interface.generate.back', 'Back')}
+        </Link>
 
-          <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
+        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+
+          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col gap-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1106,7 +1144,7 @@ export default function QuizClient() {
                   </button>
                   <button
                     onClick={() => setUseExistingOutline(false)}
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                    className="px-6 py-2 rounded-full border border-gray-100 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
                   >
                     {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
                   </button>
@@ -1116,112 +1154,339 @@ export default function QuizClient() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <div className="relative">
-                      <select
-                        value={selectedOutlineId ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedOutlineId(val ? Number(val) : null);
+                    {/* Course Structure dropdowns - Outline, Module, Lesson */}
+                    {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
+                        <div className="flex items-center">
+                          {/* Outline dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedOutlineId?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const val = value ? Number(value) : null;
+                                setSelectedOutlineId(val);
+                                // clear module & lesson selections when outline changes
+                                setSelectedModuleIndex(null);
+                                setLessonsForModule([]);
+                                setSelectedLesson("");
+                              }}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {outlines.map((o) => (
+                                  <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+
+                          {/* Module dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedModuleIndex?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const idx = value ? Number(value) : null;
+                                setSelectedModuleIndex(idx);
+                                setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                                setSelectedLesson("");
+                              }}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                              disabled={modulesForOutline.length === 0}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {modulesForOutline.map((m, idx) => (
+                                  <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+
+                          {/* Lesson dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedLesson}
+                              onValueChange={setSelectedLesson}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {lessonsForModule.map((l) => (
+                                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Initial Outline dropdown - shows when no outline is selected yet */}
+                    {!selectedOutlineId && (
+                      <Select
+                        value={selectedOutlineId?.toString() ?? ""}
+                        onValueChange={(value: string) => {
+                          const val = value ? Number(value) : null;
+                          setSelectedOutlineId(val);
                           // clear module & lesson selections when outline changes
                           setSelectedModuleIndex(null);
                           setLessonsForModule([]);
                           setSelectedLesson("");
                         }}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                        onOpenChange={() => setShowQuestionTypesDropdown(false)}
                       >
-                        <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
-                        {outlines.map((o) => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedOutlineId && (
-                      <div className="relative">
-                        <select
-                          value={selectedModuleIndex ?? ""}
-                          onChange={(e) => {
-                            const idx = e.target.value ? Number(e.target.value) : null;
-                            setSelectedModuleIndex(idx);
-                            setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                            setSelectedLesson("");
-                          }}
-                          disabled={modulesForOutline.length === 0}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
-                          {modulesForOutline.map((m, idx) => (
-                            <option key={idx} value={idx}>{m.name}</option>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300">
+                          {outlines.map((o) => (
+                            <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
-                    )}
-
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedModuleIndex !== null && (
-                      <div className="relative">
-                        <select
-                          value={selectedLesson}
-                          onChange={(e) => setSelectedLesson(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
-                          {lessonsForModule.map((l) => (
-                            <option key={l} value={l}>{l}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <>
-                        <div className="relative">
-                          <select
-                            value={selectedLanguage}
-                            onChange={(e) => setSelectedLanguage(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            <option value="en">{t('interface.english', 'English')}</option>
-                            <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                            <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                            <option value="ru">{t('interface.russian', 'Russian')}</option>
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center">
+                          {/* Language dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedLanguage}
+                              onValueChange={setSelectedLanguage}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                                  <span className="text-[#09090B]">{selectedLanguage === 'en' ? 'English' : selectedLanguage === 'uk' ? 'Ukrainian' : selectedLanguage === 'es' ? 'Spanish' : 'Russian'}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                          
+                          {/* Question Types dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <DropdownMenu open={showQuestionTypesDropdown} onOpenChange={setShowQuestionTypesDropdown}>
+                              <DropdownMenuTrigger asChild>
+                                <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                  <div className="flex items-center gap-2">
+                                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path fillRule="evenodd" clipRule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
+                                    </svg>
+                                    <span className="text-[#09090B] opacity-50 text-sm">{t('interface.generate.questionTypesSelected', 'Types selected')}:</span>
+                                    <span className="text-[#09090B]">
+                                      {selectedQuestionTypes.length === 0
+                                        ? '0'
+                                        : selectedQuestionTypes.length > 9
+                                          ? '9'
+                                          : selectedQuestionTypes.length.toString()}
+                                    </span>
+                                    <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M9.5 1L5.5 5L1.5 1" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                  </div>
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent 
+                                className="w-60 p-2 rounded-lg max-h-60 overflow-y-auto border-white" 
+                                align="center"
+                                sideOffset={25}
+                                style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+                              >
+                                {[
+                                  { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                                  { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                                  { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                                  { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                                  { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                                ].map((type) => (
+                                  <label key={type.value} className="flex items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                    <div className="flex items-center gap-2 flex-1">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedQuestionTypes.includes(type.value)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            setSelectedQuestionTypes(prev => [...prev, type.value]);
+                                          } else {
+                                            setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
+                                          }
+                                        }}
+                                        className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
+                                      />
+                                      <span className="text-sm text-[#09090B]">{type.label}</span>
+                                    </div>
+                                  </label>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                          
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                          
+                          {/* Question Count dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedQuestionCount.toString()}
+                              onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
+                              onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.questions', 'Questions')}:</span>
+                                  <span className="text-[#09090B]">{selectedQuestionCount}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
+                                {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
+                                  <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                        <div className="relative">
-                          <button
-                            onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                            className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Show standalone quiz dropdowns if user chose standalone */}
+                {useExistingOutline === false && (
+                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                    <div className="flex items-center">
+                      {/* Language dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={selectedLanguage}
+                          onValueChange={setSelectedLanguage}
+                          onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                              <span className="text-[#09090B]">{selectedLanguage === 'en' ? 'English' : selectedLanguage === 'uk' ? 'Ukrainian' : selectedLanguage === 'es' ? 'Spanish' : 'Russian'}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="border-white" sideOffset={15}>
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                      
+                      {/* Question Types dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <DropdownMenu open={showQuestionTypesDropdown} onOpenChange={setShowQuestionTypesDropdown}>
+                          <DropdownMenuTrigger asChild>
+                            <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                              <div className="flex items-center gap-2">
+                                <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path fillRule="evenodd" clipRule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
+                                </svg>
+                                <span className="text-[#09090B] opacity-50 text-sm">{t('interface.generate.questionTypesSelected', 'Types selected')}:</span>
+                                <span className="text-[#09090B]">
+                                  {selectedQuestionTypes.length === 0
+                                    ? '0'
+                                    : selectedQuestionTypes.length > 9
+                                      ? '9'
+                                      : selectedQuestionTypes.length.toString()}
+                                </span>
+                                <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M9.5 1L5.5 5L1.5 1" stroke="#09090B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </div>
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent 
+                            className="w-60 p-2 border border-white rounded-lg max-h-60 overflow-y-auto" 
+                            align="center"
+                            sideOffset={25}
+                            style={{ backgroundColor: 'white', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
                           >
-                            <span>
-                              {selectedQuestionTypes.length === 0
-                                ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                                : selectedQuestionTypes.length === 1
-                                  ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                                  : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                            </span>
-                            <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                          </button>
-                          {showQuestionTypesDropdown && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
-                              {[
-                                { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                                { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                                { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                                { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                                { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                              ].map((type) => (
-                                <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            {[
+                              { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
+                              { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
+                              { value: "matching", label: t('interface.generate.matching', 'Matching') },
+                              { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
+                              { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
+                            ].map((type) => (
+                              <label key={type.value} className="flex justify-between flex-1 items-center py-1.5 pr-2 pl-2 hover:bg-gray-50 rounded cursor-pointer">
+                                <div className="flex items-center gap-[10px]">
                                   <input
                                     type="checkbox"
                                     checked={selectedQuestionTypes.includes(type.value)}
@@ -1232,144 +1497,80 @@ export default function QuizClient() {
                                         setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
                                       }
                                     }}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                                   />
-                                  <span className="text-sm">{type.label}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={selectedQuestionCount}
-                            onChange={(e) => setSelectedQuestionCount(Number(e.target.value))}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                              <option key={n} value={n}>{n} {t('interface.generate.questions', 'questions')}</option>
+                                  <span className="text-sm text-[#09090B]">{type.label}</span>
+                                </div>
+                              </label>
                             ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
-                      </>
-                    )}
-                  </>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                      
+                      {/* Question Count dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={selectedQuestionCount.toString()}
+                          onValueChange={(value: string) => setSelectedQuestionCount(Number(value))}
+                          onOpenChange={() => setShowQuestionTypesDropdown(false)}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.generate.questions', 'Questions')}:</span>
+                              <span className="text-[#09090B]">{selectedQuestionCount}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
+                            {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
+                              <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
-                {/* Show standalone quiz dropdowns if user chose standalone */}
-                {useExistingOutline === false && (
-                  <>
-                    <div className="relative">
-                      <select
-                        value={selectedLanguage}
-                        onChange={(e) => setSelectedLanguage(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">{t('interface.english', 'English')}</option>
-                        <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                        <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                        <option value="ru">{t('interface.russian', 'Russian')}</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowQuestionTypesDropdown(!showQuestionTypesDropdown)}
-                        className="flex items-center justify-between w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <span>
-                          {selectedQuestionTypes.length === 0
-                            ? t('interface.generate.selectQuestionTypes', 'Select Question Types')
-                            : selectedQuestionTypes.length === 1
-                              ? selectedQuestionTypes[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
-                              : `${selectedQuestionTypes.length} ${t('interface.generate.typesSelected', 'types selected')}`}
-                        </span>
-                        <ChevronDown size={14} className={`transition-transform ${showQuestionTypesDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-                      {showQuestionTypesDropdown && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 p-2 question-types-dropdown">
-                          {[
-                            { value: "multiple-choice", label: t('interface.generate.multipleChoice', 'Multiple Choice') },
-                            { value: "multi-select", label: t('interface.generate.multiSelect', 'Multi-Select') },
-                            { value: "matching", label: t('interface.generate.matching', 'Matching') },
-                            { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
-                            { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
-                          ].map((type) => (
-                            <label key={type.value} className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={selectedQuestionTypes.includes(type.value)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedQuestionTypes(prev => [...prev, type.value]);
-                                  } else {
-                                    setSelectedQuestionTypes(prev => prev.filter(t => t !== type.value));
-                                  }
-                                }}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                              />
-                              <span className="text-sm">{type.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <select
-                        value={selectedQuestionCount}
-                        onChange={(e) => setSelectedQuestionCount(Number(e.target.value))}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        {Array.from({ length: 20 }, (_, i) => i + 5).map((n) => (
-                          <option key={n} value={n}>{n} {t('interface.generate.questions', 'questions')}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                  </>
-                )}
-
-                {/* Reset button */}
-                <button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  {t('interface.generate.backButton', '← Back')}
-                </button>
               </div>
             )}
           </div>
 
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
-            <textarea
-              value={currentPrompt || ""}
-              onChange={(e) => {
-                const newPrompt = e.target.value;
-                setCurrentPrompt(newPrompt);
-                
-                // Handle prompt storage for long prompts
-                const sp = new URLSearchParams(searchParams?.toString() || "");
-                if (newPrompt.length > 500) {
-                  const promptId = generatePromptId();
-                  sessionStorage.setItem(promptId, newPrompt);
-                  sp.set("prompt", promptId);
-                } else {
-                  sp.set("prompt", newPrompt);
-                }
-                router.replace(`?${sp.toString()}`, { scroll: false });
-              }}
-              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              rows={1}
-              className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-            />
+            <div className="relative group">
+              <Textarea
+                value={currentPrompt || ""}
+                onChange={(e) => {
+                  const newPrompt = e.target.value;
+                  setCurrentPrompt(newPrompt);
+                  
+                  // Handle prompt storage for long prompts
+                  const sp = new URLSearchParams(searchParams?.toString() || "");
+                  if (newPrompt.length > 500) {
+                    const promptId = generatePromptId();
+                    sessionStorage.setItem(promptId, newPrompt);
+                    sp.set("prompt", promptId);
+                  } else {
+                    sp.set("prompt", newPrompt);
+                  }
+                  router.replace(`?${sp.toString()}`, { scroll: false });
+                }}
+                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                rows={1}
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                style={{ background: "rgba(255,255,255,0.95)" }}
+              />
+              <Edit 
+                size={16} 
+                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+              />
+            </div>
           )}
 
           <section className="flex flex-col gap-3">
@@ -1413,43 +1614,65 @@ export default function QuizClient() {
 
                 {/* Display content in card format if questions are available, otherwise show textarea */}
                 {questionList.length > 0 && (
-                  <div className="flex flex-col gap-4">
+                  <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
                     {questionList.map((question, idx: number) => (
-                      <div key={idx} className="flex bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="flex items-start justify-center pt-5 w-16 bg-[#E5EEFF] text-gray-600 font-semibold text-base select-none flex-shrink-0">
+                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                        {/* Left blue square with number */}
+                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                           {idx + 1}
                         </div>
-                        <div className="flex-1 p-4">
-                          <div className="mb-2">
+
+                        {/* Main content section */}
+                        <div className="flex-1 flex-shrink-0">
+                          <div className="mb-4">
                             {editingQuestionId === idx ? (
-                              <input
-                                type="text"
-                                value={editedTitles[idx] || question.title}
-                                onChange={(e) => handleTitleEdit(idx, e.target.value)}
-                                className="w-full text-[#20355D] text-base font-semibold bg-gray-50 border border-gray-200 rounded px-2 py-1"
-                                autoFocus
-                                onBlur={(e) => handleTitleSave(idx, e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
-                                  if (e.key === 'Escape') handleTitleCancel(idx);
-                                }}
-                              />
+                              <div className="relative group">
+                                <Input
+                                  type="text"
+                                  value={editedTitles[idx] || question.title}
+                                  onChange={(e) => handleTitleEdit(idx, e.target.value)}
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] pr-9"
+                                  autoFocus
+                                  onBlur={(e) => handleTitleSave(idx, e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
+                                    if (e.key === 'Escape') handleTitleCancel(idx);
+                                  }}
+                                />
+                                {(editedTitles[idx] || question.title) && (
+                                  <Edit 
+                                    size={16} 
+                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                  />
+                                )}
+                              </div>
                             ) : (
-                              <h4
-                                className="text-[#20355D] text-base font-semibold cursor-pointer"
-                                onClick={() => setEditingQuestionId(idx)}
-                              >
-                                {getTitleForQuestion(question, idx)}
-                              </h4>
+                              <div className="relative group">
+                                <h4
+                                  className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF] w-full h-9 px-3 py-1 pr-9"
+                                  onMouseDown={() => {
+                                    // Set the next editing ID before the blur event fires
+                                    nextEditingIdRef.current = idx;
+                                  }}
+                                  onClick={() => {
+                                    setEditingQuestionId(idx);
+                                  }}
+                                >
+                                  {getTitleForQuestion(question, idx)}
+                                </h4>
+                                {getTitleForQuestion(question, idx) && (
+                                  <Edit 
+                                    size={16} 
+                                    className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                                  />
+                                )}
+                              </div>
                             )}
                           </div>
                           {question.content && (
-                            <div className={`text-gray-700 text-sm leading-relaxed whitespace-pre-wrap ${(() => {
-                              const shouldBlur = editedTitleIds.has(idx);
-
-                              return shouldBlur ? 'filter blur-[2px]' : '';
-                            })()}`}>
-                              {question.content}
+                            <div className={`text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 whitespace-pre-wrap ${editedTitleIds.has(idx) ? 'filter blur-[2px]' : ''}`}>
+                              {question.content.substring(0, 100)}
+                              {question.content.length > 100 && '...'}
                             </div>
                           )}
                         </div>
@@ -1476,12 +1699,13 @@ export default function QuizClient() {
           {streamDone && quizData && (
             <>
               {showAdvanced && (
-                <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <textarea
+                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <Textarea
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
                   {/* Example prompts */}
@@ -1491,7 +1715,7 @@ export default function QuizClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
                           }`}
                       >
                         {ex.short}
@@ -1504,9 +1728,13 @@ export default function QuizClient() {
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
                       onClick={handleApplyQuizEdit}
-                      className="px-6 py-2 rounded-full bg-[#0540AB] text-white text-sm font-medium hover:bg-[#043a99] disabled:opacity-50 flex items-center gap-1"
+                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
+                      style={{
+                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                        fontWeight: 500
+                      }}
                     >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
+                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
                     </button>
                   </div>
                 </div>
@@ -1515,53 +1743,64 @@ export default function QuizClient() {
                 <button
                   type="button"
                   onClick={() => setShowAdvanced((prev) => !prev)}
-                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
+                  style={{
+                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                    fontWeight: 500
+                  }}
                 >
-                  {t('interface.generate.advancedMode', 'Advanced Mode')}
-                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                  <Sparkles size={16} />
+                  Smart Edit
                 </button>
               </div>
             </>
           )}
 
           {streamDone && quizData && (
-            <section className="bg-white rounded-xl p-6 flex flex-col gap-5 shadow-sm" style={{ animation: 'fadeInDown 0.35s ease-out both' }}>
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <h2 className="text-xl font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
-                  <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+            <section className="flex flex-col gap-3">
+              <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
+              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
+                    <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+                    <span>{t('interface.generate.viewMore', 'View more')}</span>
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 text-sm font-medium text-[#0540AB]"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
-                  <span>{t('interface.generate.viewMore', 'View more')}</span>
-                </button>
-              </div>
 
-              <div className="flex flex-col gap-5">
-                {/* Themes grid */}
-                <div className="grid grid-cols-3 gap-5 justify-items-center">
-                  {themeOptions.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => setSelectedTheme(t.id)}
-                      className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
-                    >
-                      <div className="w-[214px] h-[116px] flex items-center justify-center">
-                        {(() => {
-                          const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                          return <Svg />;
-                        })()}
-                      </div>
-                      <div className="flex items-center gap-1 px-2">
-                        <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
-                        <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
-                      </div>
-                    </button>
-                  ))}
+                <div className="flex flex-col gap-5">
+                  {/* Themes grid */}
+                  <div className="grid grid-cols-3 gap-5 justify-items-center">
+                    {themeOptions.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setSelectedTheme(t.id)}
+                        className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : 'hover:shadow-lg'}`}
+                      >
+                        <div className="w-[214px] h-[116px] flex items-center justify-center">
+                          {(() => {
+                            const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                            return <Svg />;
+                          })()}
+                        </div>
+                        <div className="flex items-center gap-1 px-2">
+                          <span className={`w-4 text-[#0540AB] ${selectedTheme === t.id ? '' : 'opacity-0'}`}>
+                            ✔
+                          </span>
+                          <span className="text-sm text-[#20355D] font-medium select-none">
+                            {t.label}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
@@ -1574,8 +1813,8 @@ export default function QuizClient() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 <span>5 {t('interface.credits', 'credits')}</span>
 
-                {/* NEW: Show user edits indicator */}
-                {hasUserEdits && (
+                {/* NEW: Show user edits indicator - HIDDEN */}
+                {false && hasUserEdits && (
                   <div className="flex items-center gap-1 text-sm text-orange-600">
                     <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
                     <span>{t('interface.generate.userEdits', 'User edits detected')}</span>
@@ -1584,8 +1823,8 @@ export default function QuizClient() {
               </div>
               <div className="flex items-center gap-[7.5rem]">
                 <span className="text-lg text-gray-700 font-medium select-none">
-                  {/* This can be word count or removed */}
-                  {quizData.split(/\s+/).length} {t('interface.generate.words', 'words')}
+                  {/* Show question count with proper pluralization */}
+                  {questionList.length} {getQuestionPluralForm(questionList.length)}
                 </span>
                 <button
                   type="button"

@@ -38,6 +38,7 @@ import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 
 // Localization config for column labels based on product language
@@ -1595,17 +1596,6 @@ export default function ProjectInstanceViewPage() {
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
           <div>
-            {/* Smart Prompt Editor - show when smart editing is enabled */}
-            {showSmartEditor && (
-              <SmartPromptEditor
-                projectId={projectInstanceData.project_id}
-                onContentUpdate={handleSmartEditContentUpdate}
-                onError={handleSmartEditError}
-                onRevert={handleSmartEditRevert}
-                currentLanguage={trainingPlanData?.detectedLanguage}
-                currentTheme={trainingPlanData?.theme}
-              />
-            )}
             <TrainingPlanTableComponent
               dataToDisplay={trainingPlanData}
               onTextChange={handleTextChange}
@@ -1834,16 +1824,30 @@ export default function ProjectInstanceViewPage() {
   const columnLabels = columnLabelLocalization[productLanguage as keyof typeof columnLabelLocalization] || columnLabelLocalization.en;
 
   return (
-    <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-inter">
+    <main 
+      className="p-4 md:p-8 min-h-screen font-inter"
+      style={{
+        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 
           <div className="flex items-center gap-x-4">
             <button
               onClick={handleBack}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              style={{
+                color: '#0F58F9',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
+              }}
             >
-              <ArrowLeft size={16} className="mr-2" />
+              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
               {t('interface.projectView.back', 'Back')}
             </button>
             
@@ -1852,9 +1856,16 @@ export default function ProjectInstanceViewPage() {
                 console.log('Open Products button clicked - navigating to /projects');
                 window.location.href = '/projects';
               }}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              style={{
+                color: '#0F58F9',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
+              }}
             >
-              <FolderOpen size={16} className="mr-2" />
+              <FolderOpen size={14} style={{ color: '#0F58F9' }} />
               {t('interface.projectView.openProducts', 'Open Products')}
             </button>
           </div>
@@ -1865,20 +1876,24 @@ export default function ProjectInstanceViewPage() {
               <button
                 onClick={handleToggleEdit}
                 disabled={isSaving}
-                className={`px-4 py-2 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 flex items-center ${isEditing
-                  ? 'text-white bg-green-600 hover:bg-green-700 focus:ring-green-500'
-                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:ring-blue-500'
-                  }`}
+                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
+                style={{
+                  color: '#0F58F9',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
                 title={isEditing ? t('interface.projectView.saveChanges', 'Save changes') : t('interface.projectView.editContent', 'Edit content')}
               >
                 {isEditing ? (
                   <>
-                    <Save size={16} className="mr-2" />
+                    <Save size={14} style={{ color: '#0F58F9' }} />
                     {isSaving ? t('interface.projectView.saving', 'Saving...') : t('interface.projectView.save', 'Save')}
                   </>
                 ) : (
                   <>
-                    <Edit size={16} className="mr-2" />
+                    <Edit size={14} style={{ color: '#0F58F9' }} />
                     {t('interface.projectView.editContent', 'Edit Content')}
                   </>
                 )}
@@ -1901,10 +1916,18 @@ export default function ProjectInstanceViewPage() {
                 <button
                   onClick={handlePdfDownload}
                   disabled={isSaving}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 flex items-center"
+                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
+                  style={{
+                    backgroundColor: '#0F58F9',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    lineHeight: '140%',
+                    letterSpacing: '0.05em'
+                  }}
                   title={t('interface.projectView.downloadPdf', 'Download content as PDF')}
                 >
-                 <Download size={16} className="mr-2" /> {t('interface.projectView.downloadPdf', 'Download PDF')}
+                 <Download size={14} style={{ color: 'white' }} /> {t('interface.projectView.downloadPdf', 'Download PDF')}
                 </button>
               )
             )}
@@ -1913,31 +1936,43 @@ export default function ProjectInstanceViewPage() {
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && (
               <button
                 onClick={() => setShowSmartEditor(!showSmartEditor)}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 flex items-center"
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#8B5CF6',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
                 title={t('interface.projectView.smartEdit', 'Smart edit with AI')}
               >
-                <Sparkles size={16} className="mr-2" /> {t('interface.projectView.smartEdit', 'Smart Edit')}
+                <Sparkles size={14} style={{ color: 'white' }} /> {t('interface.projectView.smartEdit', 'Smart Edit')}
               </button>
             )}
 
             {/* Theme Picker button for Training Plans */}
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
-              <div className="relative" data-theme-picker-section>
+              <DropdownMenu open={showTrainingPlanThemePicker} onOpenChange={setShowTrainingPlanThemePicker}>
+                <DropdownMenuTrigger asChild>
                 <button
-                  onClick={() => setShowTrainingPlanThemePicker(!showTrainingPlanThemePicker)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      color: '#0F58F9',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
                   title="Change theme"
                 >
-                  <Palette size={16} className="mr-2" /> Theme
-                  <ChevronDown size={16} className="ml-1" />
+                  <Palette size={14} style={{ color: '#0F58F9' }} /> Theme
+                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
                 </button>
-
-                {showTrainingPlanThemePicker && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-20 py-2">
-                    <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">
-                      Select Theme
-                    </div>
-                    {[
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-20" style={{ backgroundColor: 'white' }}>
+                  <div className="space-y-1">
+                  {[
                       { id: 'cherry', label: 'Cherry (Default)', color: '#0540AB' },
                       { id: 'lunaria', label: 'Lunaria', color: '#85749E' },
                       { id: 'wine', label: 'Wine', color: '#0540AB' },
@@ -1953,9 +1988,7 @@ export default function ProjectInstanceViewPage() {
                         <button
                           key={theme.id}
                           onClick={() => handleTrainingPlanThemeChange(theme.id)}
-                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-3 ${
-                            isSelected ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-700'
-                          }`}
+                        className={`w-full py-1.5 pr-8 pl-2 text-left text-sm hover:bg-gray-50 rounded cursor-pointer flex items-center gap-2 ${isSelected ? 'bg-gray-100 text-gray-900 font-medium' : 'text-gray-700'}`}
                         >
                           <div
                             className="w-4 h-4 rounded-full border border-gray-300"
@@ -1963,7 +1996,7 @@ export default function ProjectInstanceViewPage() {
                           />
                           <span className="flex-1">{theme.label}</span>
                           {isSelected && (
-                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                           )}
@@ -1971,8 +2004,8 @@ export default function ProjectInstanceViewPage() {
                       );
                     })}
                   </div>
-                )}
-              </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* Role Visibility Dropdown - only for Training Plans */}
@@ -1980,10 +2013,17 @@ export default function ProjectInstanceViewPage() {
               <>
                 <button
                   onClick={() => setRoleAccess(!roleAccess)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-sky-200 border border-sky-300 hover:bg-sky-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 flex items-center"
+                  className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                  style={{
+                    color: '#0F58F9',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    lineHeight: '140%',
+                    letterSpacing: '0.05em'
+                  }}
                   title={t('interface.projectView.configureAccessControl', 'Configure access control')}
                 >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#0F58F9' }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   {t('interface.projectView.ManageAccess', 'Manage Access')}
@@ -2001,7 +2041,7 @@ export default function ProjectInstanceViewPage() {
                     >
                       {/* Header */}
                       <div className="flex items-center justify-between p-6 pb-4">
-                        <h2 className="text-2xl font-regular text-gray-900">{t('interface.projectView.addMember', 'Add member to product')}</h2>
+                        <h2 className="text-xl font-regular text-gray-900">{t('interface.projectView.addMember', 'Add member to product')}</h2>
                         <button
                           onClick={() => setRoleAccess(false)}
                           className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -2022,7 +2062,7 @@ export default function ProjectInstanceViewPage() {
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
                               placeholder={t('interface.projectView.addMembersToProduct', 'Add members to product')}
-                              className="flex-1 px-4 py-3 text-sm placeholder-gray-400 text-gray-400 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="flex-1 px-4 py-3 text-sm placeholder-gray-400 text-gray-400 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
                             <button
@@ -2267,7 +2307,7 @@ export default function ProjectInstanceViewPage() {
 
                         {/* Copy link button */}
                         <div className="flex justify-start">
-                          <button className="px-6 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-3xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                          <button className="px-6 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                             </svg>
@@ -2282,89 +2322,93 @@ export default function ProjectInstanceViewPage() {
               </>
             )}
 
-            {/* Column Visibility Dropdown - for all component types */}
-            {projectInstanceData && (
-              <div className="relative" ref={columnDropdownRef}>
+            {/* Column Visibility Dropdown - only for Course Outline (Training Plan) products */}
+            {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+              <DropdownMenu open={showColumnDropdown} onOpenChange={setShowColumnDropdown}>
+                <DropdownMenuTrigger asChild>
                 <button
-                  onClick={() => setShowColumnDropdown(!showColumnDropdown)}
-                  className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                    className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                    style={{
+                      color: '#0F58F9',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em'
+                    }}
                   title={t('interface.projectView.configureVisibleColumns', 'Configure visible columns')}
                 >
-                  <Info size={16} className="mr-2" />
+                  <Info size={14} style={{ color: '#0F58F9' }} />
                   {t('interface.projectView.columns', 'Columns')}
-                  <ChevronDown size={16} className="ml-1" />
+                  <ChevronDown size={14} style={{ color: '#0F58F9' }} />
                 </button>
-
-                {showColumnDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-10 p-4">
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('interface.projectView.visibleColumns', 'Visible Columns')}</h3>
-
-                    <div className="space-y-2">
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 p-2 border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10" style={{ backgroundColor: 'white' }}>
+                  <div className="space-y-1">
                       {/* Training Plan specific columns */}
                       {projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
                         <>
                           {colAssessmentTypeEnabled && (
-                            <label className="flex items-center">
+                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={columnVisibility.knowledgeCheck}
                                 onChange={(e) => handleColumnVisibilityChange('knowledgeCheck', e.target.checked)}
-                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
                               <span className="text-sm text-gray-700">{columnLabels.assessmentType}</span>
                             </label>
                           )}
                           {colContentVolumeEnabled && (
-                            <label className="flex items-center">
+                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={columnVisibility.contentAvailability}
                                 onChange={(e) => handleColumnVisibilityChange('contentAvailability', e.target.checked)}
-                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
                               <span className="text-sm text-gray-700">{columnLabels.contentVolume}</span>
                             </label>
                           )}
                           {colSourceEnabled && (
-                            <label className="flex items-center">
+                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={columnVisibility.informationSource}
                                 onChange={(e) => handleColumnVisibilityChange('informationSource', e.target.checked)}
-                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
                               <span className="text-sm text-gray-700">{columnLabels.source}</span>
                             </label>
                           )}
                           {colEstCreationTimeEnabled && (
-                            <label className="flex items-center">
+                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={columnVisibility.estCreationTime}
                                 onChange={(e) => handleColumnVisibilityChange('estCreationTime', e.target.checked)}
-                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
                               <span className="text-sm text-gray-700">{columnLabels.estCreationTime}</span>
                             </label>
                           )}
                           {colEstCompletionTimeEnabled && (
-                            <label className="flex items-center">
+                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={columnVisibility.estCompletionTime}
                                 onChange={(e) => handleColumnVisibilityChange('estCompletionTime', e.target.checked)}
-                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
                               <span className="text-sm text-gray-700">{columnLabels.estCompletionTime}</span>
                             </label>
                           )}
                           {colQualityTierEnabled && (
-                            <label className="flex items-center">
+                          <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={columnVisibility.qualityTier}
                                 onChange={(e) => handleColumnVisibilityChange('qualityTier', e.target.checked)}
-                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                              className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                               />
                               <span className="text-sm text-gray-700">{columnLabels.qualityTier}</span>
                             </label>
@@ -2374,62 +2418,68 @@ export default function ProjectInstanceViewPage() {
 
                       {/* Common columns for all component types */}
                       {colQuizEnabled && (
-                        <label className="flex items-center">
+                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                           <input
                             type="checkbox"
                             checked={columnVisibility.quiz}
                             onChange={(e) => handleColumnVisibilityChange('quiz', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-700">Quiz</span>
                         </label>
                       )}
                       {colOnePagerEnabled && (
-                        <label className="flex items-center">
+                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                           <input
                             type="checkbox"
                             checked={columnVisibility.onePager}
                             onChange={(e) => handleColumnVisibilityChange('onePager', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-700">One-Pager</span>
                         </label>
                       )}
                       {colVideoPresentationEnabled && (
-                        <label className="flex items-center">
+                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                           <input
                             type="checkbox"
                             checked={columnVisibility.videoPresentation}
                             onChange={(e) => handleColumnVisibilityChange('videoPresentation', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-700">Video Lesson</span>
                         </label>
                       )}
                       {colLessonPresentationEnabled && (
-                        <label className="flex items-center">
+                      <label className="flex items-center gap-2 py-1.5 pr-8 pl-2 hover:bg-gray-50 rounded cursor-pointer">
                           <input
                             type="checkbox"
                             checked={columnVisibility.lessonPresentation}
                             onChange={(e) => handleColumnVisibilityChange('lessonPresentation', e.target.checked)}
-                            className="mr-2 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-100 text-blue-600 focus:ring-blue-500"
                           />
                           <span className="text-sm text-gray-700">Presentation</span>
                         </label>
                       )}
                     </div>
-                  </div>
-                )}
-              </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
             {/* Move to Trash button for non-outline microproducts placed as right-most */}
             {projectInstanceData && projectInstanceData.component_name !== COMPONENT_NAME_TRAINING_PLAN && (
               <button
                 onClick={handleMoveToTrash}
-                className="px-4 py-2 text-sm font-medium rounded-md shadow-sm text-red-700 bg-white border border-red-400 hover:bg-red-50 focus:outline-none flex items-center"
+                className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  color: '#DC2626',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
                 title={t('interface.projectView.moveToTrashTooltip', 'Move this product to Trash')}
               >
-                <Trash2 size={16} className="mr-2" /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
+                <Trash2 size={14} style={{ color: '#DC2626' }} /> {t('interface.projectView.moveToTrash', 'Move to Trash')}
               </button>
             )}
           </div>
@@ -2442,7 +2492,24 @@ export default function ProjectInstanceViewPage() {
           </div>
         }
 
-        <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
+        {/* Smart Prompt Editor - render outside the white content container */}
+        {showSmartEditor && projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && (
+          <SmartPromptEditor
+            projectId={projectInstanceData.project_id}
+            onContentUpdate={handleSmartEditContentUpdate}
+            onError={handleSmartEditError}
+            onRevert={handleSmartEditRevert}
+            currentLanguage={(editableData as TrainingPlanData | null)?.detectedLanguage}
+            currentTheme={(editableData as TrainingPlanData | null)?.theme}
+          />
+        )}
+
+        <div className={`p-4 sm:p-6 md:p-8 rounded-xl ${
+          projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN || 
+          projectInstanceData?.component_name === COMPONENT_NAME_QUIZ 
+            ? 'bg-white' 
+            : 'bg-transparent'
+        }`}>
           <Suspense fallback={<div className="py-10 text-center text-gray-500">{t('interface.projectView.loadingContentDisplay', 'Loading content display...')}</div>}>
             {displayContent()}
           </Suspense>

@@ -6,7 +6,10 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
@@ -442,7 +445,7 @@ export default function LessonPresentationClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, slidesCount, lengthOption, params, language]);
 
   // Fetch lessons when a course outline is selected
@@ -1426,21 +1429,33 @@ export default function LessonPresentationClient() {
       <main
         className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
         style={{
-          background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+          background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
         }}
       >
-        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
-          <Link
-            href="/create/generate"
-            className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
-          >
-            <ArrowLeft size={14} /> {t('interface.generate.back', 'Back')}
-          </Link>
+        {/* Back button */}
+        <Link
+          href="/create/generate"
+            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+          style={{
+            color: '#0F58F9',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
+          }}
+        >
+          <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          {t('interface.generate.back', 'Back')}
+        </Link>
 
-          <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
+        <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
+
+          <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
 
           {/* Step-by-step process */}
-          <div className="flex flex-col items-center gap-4 mb-4">
+          <div className="flex flex-col gap-4">
             {/* Step 1: Choose source */}
             {useExistingOutline === null && (
               <div className="flex flex-col items-center gap-3">
@@ -1464,176 +1479,293 @@ export default function LessonPresentationClient() {
 
             {/* Step 2+: Show dropdowns based on choice */}
             {useExistingOutline !== null && (
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="w-full">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
-                    {/* Outline dropdown */}
-                    <div className="relative">
-                      <select
-                        value={selectedOutlineId ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedOutlineId(val ? Number(val) : null);
+                    {/* Course Structure dropdowns - Outline, Module, Lesson */}
+                    {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
+                        <div className="flex items-center">
+                          {/* Outline dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedOutlineId?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const val = value ? Number(value) : null;
+                                setSelectedOutlineId(val);
+                                // clear module & lesson selections when outline changes
+                                setSelectedModuleIndex(null);
+                                setLessonsForModule([]);
+                                setSelectedLesson("");
+                              }}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {outlines.map((o) => (
+                                  <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+
+                          {/* Module dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedModuleIndex?.toString() ?? ""}
+                              onValueChange={(value: string) => {
+                                const idx = value ? Number(value) : null;
+                                setSelectedModuleIndex(idx);
+                                setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
+                                setSelectedLesson("");
+                              }}
+                              disabled={modulesForOutline.length === 0}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {modulesForOutline.map((m, idx) => (
+                                  <SelectItem key={idx} value={idx.toString()}>{m.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+
+                          {/* Lesson dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={selectedLesson}
+                              onValueChange={setSelectedLesson}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3H16C16.5523 3 17 3.44772 17 4V14C17 14.5523 16.5523 15 16 15H3C2.44772 15 2 14.5523 2 14V4C2 3.44772 2.44772 3 3 3Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedLesson}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                {lessonsForModule.map((l) => (
+                                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Initial Outline dropdown - shows when no outline is selected yet */}
+                    {!selectedOutlineId && (
+                      <Select
+                        value={selectedOutlineId?.toString() ?? ""}
+                        onValueChange={(value: string) => {
+                          const val = value ? Number(value) : null;
+                          setSelectedOutlineId(val);
                           // clear module & lesson selections when outline changes
                           setSelectedModuleIndex(null);
                           setLessonsForModule([]);
                           setSelectedLesson("");
                         }}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
                       >
-                        <option value="">{t('interface.generate.selectOutline', 'Select Outline')}</option>
-                        {outlines.map((o) => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-
-                    {/* Module dropdown – appears once outline is selected */}
-                    {selectedOutlineId && (
-                      <div className="relative">
-                        <select
-                          value={selectedModuleIndex ?? ""}
-                          onChange={(e) => {
-                            const idx = e.target.value ? Number(e.target.value) : null;
-                            setSelectedModuleIndex(idx);
-                            setLessonsForModule(idx !== null ? modulesForOutline[idx].lessons : []);
-                            setSelectedLesson("");
-                          }}
-                          disabled={modulesForOutline.length === 0}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectModule', 'Select Module')}</option>
-                          {modulesForOutline.map((m, idx) => (
-                            <option key={idx} value={idx}>{m.name}</option>
+                        <SelectTrigger className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue placeholder={t('interface.generate.selectOutline', 'Select Outline')} />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300">
+                          {outlines.map((o) => (
+                            <SelectItem key={o.id} value={o.id.toString()}>{o.name}</SelectItem>
                           ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
-                    )}
-
-                    {/* Lesson dropdown – appears when module chosen */}
-                    {selectedModuleIndex !== null && (
-                      <div className="relative">
-                        <select
-                          value={selectedLesson}
-                          onChange={(e) => setSelectedLesson(e.target.value)}
-                          className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                        >
-                          <option value="">{t('interface.generate.selectLesson', 'Select Lesson')}</option>
-                          {lessonsForModule.map((l) => (
-                            <option key={l} value={l}>{l}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                        </SelectContent>
+                      </Select>
                     )}
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <>
-                        <div className="relative">
-                          <select
-                            value={language}
-                            onChange={(e) => setLanguage(e.target.value)}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            <option value="en">{t('interface.english', 'English')}</option>
-                            <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                            <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                            <option value="ru">{t('interface.russian', 'Russian')}</option>
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center">
+                          {/* Language dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={language}
+                              onValueChange={setLanguage}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                                  <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white" sideOffset={15}>
+                                <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                                <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                                <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                                <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          {/* Divider */}
+                          <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                          
+                          {/* Slides count dropdown */}
+                          <div className="flex-1 flex items-center justify-center">
+                            <Select
+                              value={slidesCount.toString()}
+                              onValueChange={(value: string) => setSlidesCount(Number(value))}
+                            >
+                              <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                                <div className="flex items-center gap-2">
+                                  <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                                  </svg>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
+                                  <span className="text-[#09090B]">{slidesCount}</span>
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
+                                {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                                  <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                        <div className="relative">
-                          <select
-                            value={slidesCount}
-                            onChange={(e) => setSlidesCount(Number(e.target.value))}
-                            className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                          >
-                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                              <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
-                            ))}
-                          </select>
-                          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                        </div>
-                      </>
+                      </div>
                     )}
                   </>
                 )}
 
                 {/* Show standalone lesson dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <>
-                    <div className="relative">
-                      <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        <option value="en">{t('interface.english', 'English')}</option>
-                        <option value="uk">{t('interface.ukrainian', 'Ukrainian')}</option>
-                        <option value="es">{t('interface.spanish', 'Spanish')}</option>
-                        <option value="ru">{t('interface.russian', 'Russian')}</option>
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                    <div className="flex items-center">
+                      {/* Language dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={language}
+                          onValueChange={setLanguage}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 9C2 13.1421 5.35786 16.5 9.5 16.5C13.6421 16.5 17 13.1421 17 9C17 4.85786 13.6421 1.5 9.5 1.5C5.35786 1.5 2 4.85786 2 9Z" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M10.25 1.53711C10.25 1.53711 12.5 4.50007 12.5 9.00004C12.5 13.5 10.25 16.4631 10.25 16.4631" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M8.75 16.4631C8.75 16.4631 6.5 13.5 6.5 9.00004C6.5 4.50007 8.75 1.53711 8.75 1.53711" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 11.625H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                              <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="border-white">
+                            <SelectItem value="en">{t('interface.english', 'English')}</SelectItem>
+                            <SelectItem value="uk">{t('interface.ukrainian', 'Ukrainian')}</SelectItem>
+                            <SelectItem value="es">{t('interface.spanish', 'Spanish')}</SelectItem>
+                            <SelectItem value="ru">{t('interface.russian', 'Russian')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+                      
+                      {/* Slides count dropdown */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <Select
+                          value={slidesCount.toString()}
+                          onValueChange={(value: string) => setSlidesCount(Number(value))}
+                        >
+                          <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                            <div className="flex items-center gap-2">
+                              <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                              </svg>
+                              <span className="text-[#09090B] opacity-50">{t('interface.generate.slides', 'Slides')}:</span>
+                              <span className="text-[#09090B]">{slidesCount}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+                            {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
+                              <SelectItem key={n} value={n.toString()} className="px-2">{n}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="relative">
-                      <select
-                        value={slidesCount}
-                        onChange={(e) => setSlidesCount(Number(e.target.value))}
-                        className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-                      >
-                        {Array.from({ length: 14 }, (_, i) => i + 2).map((n) => (
-                          <option key={n} value={n}>{n} {t('interface.generate.slides', 'slides')}</option>
-                        ))}
-                      </select>
-                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                    </div>
-                  </>
+                  </div>
                 )}
 
-                {/* Reset button */}
-                <button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
-                >
-                  {t('interface.generate.backButton', '← Back')}
-                </button>
               </div>
             )}
           </div>
 
           {/* Prompt input for standalone lessons */}
           {useExistingOutline === false && (
-            <textarea
-              value={currentPrompt || ""}
-              onChange={(e) => {
-                const newPrompt = e.target.value;
-                setCurrentPrompt(newPrompt);
-                
-                // Handle prompt storage for long prompts
-                const sp = new URLSearchParams(params?.toString() || "");
-                if (newPrompt.length > 500) {
-                  const promptId = generatePromptId();
-                  sessionStorage.setItem(promptId, newPrompt);
-                  sp.set("prompt", promptId);
-                } else {
-                  sp.set("prompt", newPrompt);
-                }
-                router.replace(`?${sp.toString()}`, { scroll: false });
-              }}
-              placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              rows={1}
-              className="w-full border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-            />
+            <div className="relative group">
+              <Textarea
+                value={currentPrompt || ""}
+                onChange={(e) => {
+                  const newPrompt = e.target.value;
+                  setCurrentPrompt(newPrompt);
+                  
+                  // Handle prompt storage for long prompts
+                  const sp = new URLSearchParams(params?.toString() || "");
+                  if (newPrompt.length > 500) {
+                    const promptId = generatePromptId();
+                    sessionStorage.setItem(promptId, newPrompt);
+                    sp.set("prompt", promptId);
+                  } else {
+                    sp.set("prompt", newPrompt);
+                  }
+                  router.replace(`?${sp.toString()}`, { scroll: false });
+                }}
+                placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
+                rows={1}
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                style={{ background: "rgba(255,255,255,0.95)" }}
+              />
+              <Edit 
+                size={16} 
+                className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+              />
+            </div>
           )}
 
           <section className="flex flex-col gap-3">
@@ -1655,7 +1787,7 @@ export default function LessonPresentationClient() {
             {/* Main content display - Custom slide titles display matching course outline format */}
             {textareaVisible && (
               <div
-                className="bg-white border border-gray-300 rounded-xl p-6 flex flex-col gap-6 relative"
+                className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
                 style={{ animation: 'fadeInDown 0.25s ease-out both' }}
               >
                 {loadingEdit && (
@@ -1701,14 +1833,14 @@ export default function LessonPresentationClient() {
                     }
 
                     return (
-                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                        {/* Left colored bar with index - matching course outline styling */}
-                        <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                          <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{slideIdx + 1}</span>
+                      <div key={slideIdx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                        {/* Left blue square with number */}
+                        <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[7px]">
+                          {slideIdx + 1}
                         </div>
 
-                        {/* Main card - matching course outline styling */}
-                        <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                        {/* Main content section */}
+                        <div className="flex-1">
                           {/* Slide title */}
                           <input
                             type="text"
@@ -1780,12 +1912,13 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <>
               {showAdvanced && (
-                <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                  <textarea
+                <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                  <Textarea
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                    className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
                   {/* Example prompts */}
@@ -1795,7 +1928,7 @@ export default function LessonPresentationClient() {
                         key={ex.short}
                         type="button"
                         onClick={() => toggleExample(ex)}
-                        className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${selectedExamples.includes(ex.short) ? 'bg-white shadow' : 'bg-[#D9ECFF] hover:bg-white'
+                        className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${selectedExamples.includes(ex.short) ? 'bg-[#B8D4F0]' : 'bg-[#D9ECFF] hover:shadow-lg'
                           }`}
                       >
                         {ex.short}
@@ -1808,9 +1941,13 @@ export default function LessonPresentationClient() {
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
                       onClick={handleApplyLessonEdit}
-                      className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
+                      className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
+                      style={{
+                        background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                        fontWeight: 500
+                      }}
                     >
-                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : (<>{t('interface.edit', 'Edit')} <Sparkles size={14} /></>)}
+                      {loadingEdit ? <LoadingAnimation message={t('interface.generate.applying', 'Applying...')} /> : t('interface.edit', 'Edit')}
                     </button>
                   </div>
                 </div>
@@ -1819,10 +1956,14 @@ export default function LessonPresentationClient() {
                 <button
                   type="button"
                   onClick={() => setShowAdvanced((prev) => !prev)}
-                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
+                  style={{
+                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                    fontWeight: 500
+                  }}
                 >
-                  {t('interface.generate.advancedMode', 'Advanced Mode')}
-                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                  <Sparkles size={16} />
+                  Smart Edit
                 </button>
               </div>
             </>
@@ -1831,7 +1972,7 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-              <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.6s ease-out both' }}>
+              <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
@@ -1858,9 +1999,9 @@ export default function LessonPresentationClient() {
                           key={theme.id}
                           type="button"
                           onClick={() => setSelectedTheme(theme.id)}
-                          className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${isSelected
+                          className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
                             ? 'bg-[#cee2fd]'
-                            : ''
+                            : 'hover:shadow-lg'
                             }`}
                         >
                           <div className="w-[214px] h-[116px] flex items-center justify-center">
@@ -1897,22 +2038,30 @@ export default function LessonPresentationClient() {
 
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
-                      <div className="relative w-full">
-                        <select value={imageSource} onChange={(e) => setImageSource(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <option value="ai">{t('interface.generate.aiImages', 'AI images')}</option><option value="stock">{t('interface.generate.stockImages', 'Stock images')}</option><option value="none">{t('interface.generate.noImages', 'No images')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                      <Select value={imageSource} onValueChange={setImageSource}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300" side="top">
+                          <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
+                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
-                      <div className="relative w-full">
-                        <select value={aiModel} onChange={(e) => setAiModel(e.target.value)} className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black">
-                          <option value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</option><option value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</option><option value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                        </select>
-                        <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                      </div>
+                      <Select value={aiModel} onValueChange={setAiModel}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300" side="top">
+                          <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
+                          <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
+                          <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
