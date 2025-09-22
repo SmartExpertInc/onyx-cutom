@@ -1216,7 +1216,7 @@ export default function QuizClient() {
                                     <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                   <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
-                                  <span className="text-[#09090B] truncate max-w-[100px]">{modulesForOutline[selectedModuleIndex]?.name || ''}</span>
+                                  <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
                                 </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
