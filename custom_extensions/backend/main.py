@@ -7223,7 +7223,21 @@ class TextPresentationDetails(BaseModel):
     model_config = {"from_attributes": True}
 # +++ END NEW MODEL +++
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+# +++ NEW MODEL FOR AI AUDIT LANDING +++
+class AIAuditLandingDetails(BaseModel):
+    projectId: int
+    projectName: str
+    companyName: str
+    companyDescription: str
+    jobPositions: List[dict] = Field(default_factory=list)
+    workforceCrisis: dict = Field(default_factory=dict)
+    courseOutlineModules: List[dict] = Field(default_factory=list)
+    courseTemplates: List[dict] = Field(default_factory=list)
+    language: Optional[str] = None
+    model_config = {"from_attributes": True}
+# +++ END NEW MODEL +++
+
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, AIAuditLandingDetails, None]
 
 class DesignTemplateBase(BaseModel):
     template_name: str
@@ -19890,8 +19904,9 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                     # Check if this is an AI audit landing page project
                     if (old_project_name and "AI-Аудит Landing Page" in old_project_name) or \
                        (db_content and 'companyName' in db_content and 'jobPositions' in db_content):
-                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page")
-                        final_content_for_model = db_content  # Skip validation for AI audit data
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as AIAuditLandingDetails")
+                        final_content_for_model = AIAuditLandingDetails(**db_content)
+                        logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - AIAuditLandingDetails validation successful")
                     else:
                         logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
                         final_content_for_model = TextPresentationDetails(**db_content)
