@@ -88,7 +88,7 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 min-h-screen font-inter"
+      className="py-4 md:py-8 px-[120px] min-h-screen font-inter"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
@@ -193,7 +193,7 @@ export default function ProductViewNewPage() {
                   <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
                     Module {index + 1}: {section.title}
                   </h2>
-                  <p className="text-[#191D30] font-normal text-[14px] leading-[100%] mb-4">
+                  <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-4">
                     {section.lessons?.length || 0} lessons
                   </p>
                   <hr className="border-gray-200 mb-4" />
@@ -206,7 +206,7 @@ export default function ProductViewNewPage() {
           {/* Right Panel - Course Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg p-[25px]">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Summary</h3>
+              <h3 className="text-[#191D30] text-[18px] leading-[100%] font-normal mb-4">Course Summary</h3>
               <div className="text-gray-500">
                 Right panel for course summary will go here.
               </div>
