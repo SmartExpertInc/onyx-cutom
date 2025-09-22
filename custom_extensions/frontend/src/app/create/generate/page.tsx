@@ -1131,7 +1131,7 @@ function GenerateProductPicker() {
           <Alert className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 backdrop-blur-sm border border-gray-100/50 shadow-md">
             <AlertDescription className="text-blue-600">
               <div className="flex items-center gap-2 text-blue-600 mb-2">
-                <FileText className="h-7 w-7" />
+                <FileText className="h-6 w-6" />
                 <span className="text-lg font-semibold">{t('interface.generate.creatingFromText', 'Creating from text')}</span>
               </div>
               <p className="font-medium text-gray-600">
