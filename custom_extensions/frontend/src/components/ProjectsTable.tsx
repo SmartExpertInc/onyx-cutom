@@ -1009,6 +1009,11 @@ const FolderRow: React.FC<{
         }}
         onClick={() => toggleFolder(folder.id)}
       >
+        {columnVisibility.type && (
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            -
+          </TableCell>
+        )}
         {columnVisibility.title && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             <span
@@ -1061,11 +1066,6 @@ const FolderRow: React.FC<{
                   : t("interface.items", "items")}
               </Badge>
             </span>
-          </TableCell>
-        )}
-        {columnVisibility.type && (
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            -
           </TableCell>
         )}
         {columnVisibility.created && (
@@ -1176,6 +1176,17 @@ const FolderRow: React.FC<{
               handleDragEnd(e);
             }}
           >
+            {columnVisibility.type && (
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {p.designMicroproductType ? (
+                  <span className="text-gray-500 font-medium">
+                    {getProductTypeDisplayName(p.designMicroproductType)}
+                  </span>
+                ) : (
+                  "-"
+                )}
+              </TableCell>
+            )}
             {columnVisibility.title && (
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <span
@@ -1217,17 +1228,6 @@ const FolderRow: React.FC<{
                     title={p.title}
                   />
                 </span>
-              </TableCell>
-            )}
-            {columnVisibility.type && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {p.designMicroproductType ? (
-                  <span className="text-gray-500 font-medium">
-                    {getProductTypeDisplayName(p.designMicroproductType)}
-                  </span>
-                ) : (
-                  "-"
-                )}
               </TableCell>
             )}
             {columnVisibility.created && (
@@ -3893,21 +3893,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       />
                     </TableHead>
                   )}
-                  {columnVisibility.creator && (
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.creator}%` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CreatorIcon size={15} />
-                        {t("interface.creator", "Creator")}
-                      </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "creator")}
-                      />
-                    </TableHead>
-                  )}
                   {columnVisibility.created && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
@@ -3920,6 +3905,21 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       <div
                         className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
                         onMouseDown={(e) => handleResizeStart(e, "created")}
+                      />
+                    </TableHead>
+                  )}
+                  {columnVisibility.creator && (
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.creator}%` }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CreatorIcon size={15} />
+                        {t("interface.creator", "Creator")}
+                      </div>
+                      <div
+                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
+                        onMouseDown={(e) => handleResizeStart(e, "creator")}
                       />
                     </TableHead>
                   )}
@@ -4080,23 +4080,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           )}
                         </TableCell>
                       )}
-                      {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </TableCell>
-                      )}
-                      {columnVisibility.creator && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
-                            You
-                          </span>
-                        </TableCell>
-                      )}
                       {columnVisibility.title && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
@@ -4133,6 +4116,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               )}
                               title={p.title}
                             />
+                          </span>
+                        </TableCell>
+                      )}
+                      {columnVisibility.created && (
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(p.createdAt)}
+                        </TableCell>
+                      )}
+                      {columnVisibility.creator && (
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="inline-flex items-center">
+                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                              <span className="text-xs font-bold text-gray-700">
+                                Y
+                              </span>
+                            </span>
+                            You
                           </span>
                         </TableCell>
                       )}
@@ -4283,6 +4283,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               title={p.title}
                             />
                           </span>
+                        </TableCell>
+                      )}
+                      {columnVisibility.created && (
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(p.createdAt)}
                         </TableCell>
                       )}
                       {columnVisibility.creator && (

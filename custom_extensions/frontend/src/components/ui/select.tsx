@@ -212,31 +212,33 @@ function CustomPillSelector({
   className
 }: CustomPillSelectorProps) {
   return (
-    <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger 
-        className={cn(
-          "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
-          className
-        )}
-      >
-        <div className="flex items-center gap-2">
-          {icon && (
-            <div className="flex items-center justify-center">
-              {icon}
-            </div>
+    <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger 
+          className={cn(
+            "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
+            className
           )}
-          <span className="text-[#09090B] opacity-50">{label}:</span>
-          <span className="text-[#09090B]">{value}</span>
-        </div>
-      </SelectTrigger>
-      <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        >
+          <div className="flex items-center gap-2">
+            {icon && (
+              <div className="flex items-center justify-center">
+                {icon}
+              </div>
+            )}
+            <span className="text-[#09090B] opacity-50">{label}:</span>
+            <span className="text-[#09090B]">{value}</span>
+          </div>
+        </SelectTrigger>
+        <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
@@ -277,45 +279,47 @@ function CustomMultiSelector({
     : `${selectedValues.length} types selected`
 
   return (
-    <Select open={isOpen} onOpenChange={setIsOpen}>
-      <SelectTrigger 
-        className={cn(
-          "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
-          className
-        )}
-      >
-        <div className="flex items-center gap-2">
-          {icon && (
-            <div className="flex items-center justify-center">
-              {icon}
-            </div>
+    <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+      <Select open={isOpen} onOpenChange={setIsOpen}>
+        <SelectTrigger 
+          className={cn(
+            "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
+            className
           )}
-          <span className="text-[#09090B] opacity-50">{label}:</span>
-          <span className="text-[#09090B]">{displayText}</span>
-        </div>
-      </SelectTrigger>
-      <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
-        {options.map((option) => (
-          <div
-            key={option.value}
-            className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
-            onClick={(e) => {
-              e.preventDefault()
-              handleToggle(option.value)
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={selectedValues.includes(option.value)}
-              onChange={() => handleToggle(option.value)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              onClick={(e) => e.stopPropagation()}
-            />
-            {option.label}
+        >
+          <div className="flex items-center gap-2">
+            {icon && (
+              <div className="flex items-center justify-center">
+                {icon}
+              </div>
+            )}
+            <span className="text-[#09090B] opacity-50">{label}:</span>
+            <span className="text-[#09090B]">{displayText}</span>
           </div>
-        ))}
-      </SelectContent>
-    </Select>
+        </SelectTrigger>
+        <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+          {options.map((option) => (
+            <div
+              key={option.value}
+              className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+              onClick={(e) => {
+                e.preventDefault()
+                handleToggle(option.value)
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={selectedValues.includes(option.value)}
+                onChange={() => handleToggle(option.value)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                onClick={(e) => e.stopPropagation()}
+              />
+              {option.label}
+            </div>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
