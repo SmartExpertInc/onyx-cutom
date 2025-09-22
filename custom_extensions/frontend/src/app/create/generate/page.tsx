@@ -391,7 +391,7 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(null);
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(false);
 
   // --- Quiz specific state ---
   const [quizOutlines, setQuizOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -402,7 +402,7 @@ function GenerateProductPicker() {
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
   const [quizLanguage, setQuizLanguage] = useState("en");
-  const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(null);
+  const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
     "multi-select", 
@@ -791,7 +791,7 @@ function GenerateProductPicker() {
   };
 
   // Text Presentation state (mimicking quiz pattern)
-  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(null);
+  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(false);
   const [textOutlines, setTextOutlines] = useState<{ id: number; name: string }[]>([]);
   const [textModulesForOutline, setTextModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
   const [selectedTextModuleIndex, setSelectedTextModuleIndex] = useState<number | null>(null);
@@ -1292,49 +1292,9 @@ function GenerateProductPicker() {
 
         {activeProduct === "Presentation" && (
           <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Step 1: Choose source */}
-            {useExistingOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentFromOutline', 'Yes, content for the presentation from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandalone', 'No, I want standalone presentation')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
+            {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingOutline !== null && (
               <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
-                {/* Back button at the start of the section */}
-                <Button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 border rounded-full border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
-                
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1455,35 +1415,11 @@ function GenerateProductPicker() {
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && (
           <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Step 1: Choose source */}
-            {useExistingQuizOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingQuizOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingQuizOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
+            {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingQuizOutline !== null && (
               <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
                 {/* Back button at the start of the section */}
-                <Button
+                {/* <Button
                   onClick={() => {
                     setUseExistingQuizOutline(null);
                     setSelectedQuizOutlineId(null);
@@ -1496,7 +1432,7 @@ function GenerateProductPicker() {
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </Button>
+                </Button> */}
                 
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
@@ -1646,35 +1582,11 @@ function GenerateProductPicker() {
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && (
           <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Step 1: Choose source */}
-            {useExistingTextOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingTextOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingTextOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
+            {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingTextOutline !== null && (
               <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
                 {/* Back button at the start of the section */}
-                <Button
+                {/* <Button
                   onClick={() => {
                     setUseExistingTextOutline(null);
                     setSelectedTextOutlineId(null);
@@ -1687,7 +1599,7 @@ function GenerateProductPicker() {
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </Button>
+                </Button> */}
                 
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (

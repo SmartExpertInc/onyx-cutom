@@ -1205,7 +1205,7 @@ const FolderRow: React.FC<{
                     </svg>
                   </div>
                   <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
-                  <Star size={16} className="text-gray-300 mr-2" />
+                  {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                   <DynamicText
                     text={p.title}
                     columnWidthPercent={columnWidths.title}
@@ -1568,12 +1568,12 @@ const ProjectRowMenu: React.FC<{
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
                   </Button>
-                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
+                  {/* <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </Button>
+                  </Button> */}
                   <Button
                     onClick={handleDuplicateProject}
                     className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
@@ -1581,10 +1581,10 @@ const ProjectRowMenu: React.FC<{
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
                   </Button>
-                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
+                  {/* <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </Button>
+                  </Button> */}
                   {isOutline && qualityTierEnabled && (
                     <Button
                       onClick={(e) => {
@@ -3511,13 +3511,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     t("interface.all", "All"),
     t("interface.recentlyViewed", "Recently viewed"),
     t("interface.createdByYou", "Created by you"),
-    t("interface.favorites", "Favorites"),
+    // t("interface.favorites", "Favorites"),
   ];
   const filterIcons: Record<string, LucideIcon> = {
     [t("interface.all", "All")]: Home,
     [t("interface.recentlyViewed", "Recently viewed")]: Clock,
     [t("interface.createdByYou", "Created by you")]: User,
-    [t("interface.favorites", "Favorites")]: Star,
+    // [t("interface.favorites", "Favorites")]: Star,
   };
 
   // Add PDF download function
@@ -4094,7 +4094,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 <circle cx="15" cy="19" r="2" />
                               </svg>
                             </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
+                            {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
                               text={p.title}
                               columnWidthPercent={columnWidths.title}
@@ -4260,7 +4260,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 <circle cx="15" cy="19" r="2" />
                               </svg>
                             </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
+                            {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
                               text={p.title}
                               columnWidthPercent={columnWidths.title}
