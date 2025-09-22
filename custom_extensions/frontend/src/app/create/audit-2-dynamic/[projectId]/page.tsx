@@ -1,9 +1,117 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import PersonnelShortageChart from '../../../../components/PersonnelShortageChart'
+
+// InlineEditor component for text editing
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  // Auto-resize textarea to fit content
+  useEffect(() => {
+    if (multiline && inputRef.current) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [value, multiline]);
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        className={`inline-editor-textarea ${className}`}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        style={{
+          ...style,
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          resize: 'none',
+          overflow: 'hidden',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: '1.6'
+        }}
+        rows={4}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      className={`inline-editor-input ${className}`}
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      style={{
+        ...style,
+        background: 'transparent',
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none',
+        width: '100%',
+        boxSizing: 'border-box',
+        display: 'block'
+      }}
+    />
+  );
+}
 
 interface JobPosition {
   title: string
@@ -98,6 +206,12 @@ export default function DynamicAuditLandingPage() {
   const [error, setError] = useState<string | null>(null)
   const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({})
   const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
+  
+  // Text editing state
+  const [editingField, setEditingField] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => ({
@@ -105,6 +219,104 @@ export default function DynamicAuditLandingPage() {
       [moduleId]: !prev[moduleId]
     }))
   }
+
+  // Text editing handlers
+  const startEditing = (field: string) => {
+    setEditingField(field)
+    setIsEditing(true)
+  }
+
+  const stopEditing = () => {
+    setEditingField(null)
+    setIsEditing(false)
+  }
+
+  const handleTextSave = (field: string, newValue: string) => {
+    if (!landingPageData) return
+    
+    setLandingPageData(prev => {
+      if (!prev) return null
+      
+      const updated = { ...prev }
+      
+      // Update specific fields based on the field name
+      switch (field) {
+        case 'companyName':
+          updated.companyName = newValue
+          break
+        case 'companyDescription':
+          updated.companyDescription = newValue
+          break
+        case 'projectName':
+          updated.projectName = newValue
+          break
+        default:
+          // Handle nested fields like job positions
+          if (field.startsWith('jobPosition_')) {
+            const index = parseInt(field.split('_')[1])
+            if (updated.jobPositions && updated.jobPositions[index]) {
+              updated.jobPositions[index] = { ...updated.jobPositions[index], title: newValue }
+            }
+          }
+          break
+      }
+      
+      return updated
+    })
+    
+    setHasUnsavedChanges(true)
+    stopEditing()
+  }
+
+  const handleSaveChanges = async () => {
+    if (!landingPageData || !projectId) return
+    
+    setIsSaving(true)
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(landingPageData),
+      })
+      
+      if (response.ok) {
+        setHasUnsavedChanges(false)
+        alert('Changes saved successfully!')
+      } else {
+        throw new Error('Failed to save changes')
+      }
+    } catch (error) {
+      console.error('Error saving changes:', error)
+      alert('Failed to save changes. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleTextCancel = () => {
+    stopEditing()
+  }
+
+  // Click outside handler to stop editing
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      if (editingField && isEditing) {
+        // Check if click is outside any editing input
+        const target = event.target as HTMLElement;
+        if (!target.closest('input, textarea')) {
+          stopEditing();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, [editingField, isEditing]);
 
   // Helper function to generate random assessment type and duration
   const getRandomAssessment = () => {
@@ -334,6 +546,38 @@ export default function DynamicAuditLandingPage() {
         `}</style>
         
         <div className="min-h-screen bg-[#FAFAFA] flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
+          {/* Edit Mode Toggle and Save Button */}
+          <div className="fixed top-4 right-4 z-50 flex gap-2">
+            {hasUnsavedChanges && (
+              <button
+                onClick={handleSaveChanges}
+                disabled={isSaving}
+                className="px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
+                title="Save changes"
+              >
+                {isSaving ? '💾 Saving...' : '💾 Save Changes'}
+              </button>
+            )}
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-lg ${
+                isEditing 
+                  ? 'bg-green-600 text-white hover:bg-green-700' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
+              title={isEditing ? 'Exit edit mode' : 'Enter edit mode'}
+            >
+              {isEditing ? '✓ Exit Edit' : '✏️ Edit Mode'}
+            </button>
+          </div>
+          
+          {/* Edit Mode Indicator */}
+          {isEditing && (
+            <div className="fixed top-4 left-4 z-50 bg-yellow-100 border border-yellow-300 rounded-md px-3 py-2 text-sm text-yellow-800 shadow-lg">
+              <span className="font-medium">✏️ Edit Mode Active</span> - Click on text to edit
+            </div>
+          )}
+          
           {/* Header */}
           <header className="h-[50px] xl:h-[81px] mb-[33px] xl:hidden">
             <div className="w-[360px] mx-auto px-[20px] pt-[10px] xl:w-[1440px] xl:px-[120px] xl:pt-[22px] h-full">
@@ -424,12 +668,58 @@ export default function DynamicAuditLandingPage() {
                     es: 'para empresa',
                     ua: 'для компанії',
                     ru: 'для компании'
-                  })} {companyName}</span>
+                  }                  )} {editingField === 'companyName' ? (
+                    <InlineEditor
+                      initialValue={companyName}
+                      onSave={(value) => handleTextSave('companyName', value)}
+                      onCancel={handleTextCancel}
+                      className="inline-block"
+                      style={{ 
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                        lineHeight: 'inherit'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => isEditing && startEditing('companyName')}
+                      className={`${isEditing ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded' : ''}`}
+                      title={isEditing ? "Click to edit company name" : ""}
+                    >
+                      {companyName}
+                    </span>
+                  )}</span>
                 </h1>
                 
                 {/* Description text */}
                 <p className="font-normal text-[18px] xl:text-[20px] text-[#71717A] tracking-[0%]">
-                  {companyDescription}
+                  {editingField === 'companyDescription' ? (
+                    <InlineEditor
+                      initialValue={companyDescription}
+                      onSave={(value) => handleTextSave('companyDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      placeholder="Enter company description..."
+                      style={{ 
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                        lineHeight: 'inherit',
+                        width: '100%'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => isEditing && startEditing('companyDescription')}
+                      className={`${isEditing ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block' : 'block'}`}
+                      title={isEditing ? "Click to edit company description" : ""}
+                    >
+                      {companyDescription}
+                    </span>
+                  )}
                 </p>
               </div>
               
@@ -584,7 +874,28 @@ export default function DynamicAuditLandingPage() {
                             <circle cx="12" cy="7" r="4"/>
                           </svg>
                         </div>
-                        <span className="font-medium text-[16px] xl:text-[18px]">{position.title}</span>
+                        {editingField === `jobPosition_${index}` ? (
+                          <InlineEditor
+                            initialValue={position.title}
+                            onSave={(value) => handleTextSave(`jobPosition_${index}`, value)}
+                            onCancel={handleTextCancel}
+                            className="flex-1"
+                            style={{ 
+                              fontSize: 'inherit',
+                              fontWeight: 'inherit',
+                              color: 'inherit',
+                              fontFamily: 'inherit'
+                            }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => isEditing && startEditing(`jobPosition_${index}`)}
+                            className={`font-medium text-[16px] xl:text-[18px] flex-1 ${isEditing ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded' : ''}`}
+                            title={isEditing ? "Click to edit job position" : ""}
+                          >
+                            {position.title}
+                          </span>
+                        )}
                       </div>
                     ))
                   )}
