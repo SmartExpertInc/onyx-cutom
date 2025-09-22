@@ -1757,7 +1757,7 @@ export default function QuizClient() {
           )}
 
           {streamDone && quizData && (
-            <section className="flex flex-col gap-3">
+            <section className="flex flex-col gap-3" style={{ display: 'none' }}>
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
               <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                 <div className="flex items-center justify-between">
