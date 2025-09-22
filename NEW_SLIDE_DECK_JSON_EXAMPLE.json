@@ -1,0 +1,491 @@
+{
+  "lessonTitle": "Advanced Data Science Mastery: From Theory to Production",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Advanced Data Science Mastery",
+      "templateId": "hero-title-slide",
+      "previewKeyPoints": [
+        "Comprehensive data science training program covering theory and practical applications",
+        "Advanced techniques for real-world data challenges and production deployment",
+        "Industry-standard tools and methodologies for professional data scientists",
+        "Career development pathways and specialization opportunities in data science"
+      ],
+      "props": {
+        "title": "Advanced Data Science Mastery",
+        "subtitle": "From theoretical foundations to production-ready solutions and career advancement",
+        "author": "Data Science Excellence Institute",
+        "date": "2024",
+        "backgroundColor": "#1e40af",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
+      }
+    },
+    {
+      "slideId": "slide_2_statistical_foundations",
+      "slideNumber": 2,
+      "slideTitle": "Statistical Foundations and Mathematical Prerequisites",
+      "templateId": "two-column",
+      "previewKeyPoints": [
+        "Essential statistical concepts including probability distributions and hypothesis testing",
+        "Linear algebra fundamentals for machine learning algorithms and dimensionality reduction",
+        "Calculus applications in optimization and gradient-based learning methods",
+        "Practical implementation using Python libraries like NumPy, SciPy, and statsmodels"
+      ],
+      "props": {
+        "title": "Core Mathematical and Statistical Foundations",
+        "leftTitle": "Statistical Concepts",
+        "leftContent": "• Probability distributions including normal, binomial, and Poisson distributions with real-world applications in modeling uncertainty and variability in data science projects, enabling accurate predictions and confidence intervals for business decision-making processes\n• Hypothesis testing methodologies including t-tests, chi-square tests, and ANOVA for validating assumptions and drawing statistically significant conclusions from experimental data and A/B testing scenarios in production environments\n• Bayesian statistics and inference techniques for updating beliefs with new evidence, particularly valuable in recommendation systems, fraud detection, and personalized marketing campaigns where prior knowledge enhances model performance",
+        "rightTitle": "Mathematical Prerequisites",
+        "rightContent": "• Linear algebra fundamentals including matrix operations, eigenvalues, and eigenvectors essential for understanding principal component analysis, singular value decomposition, and neural network architectures used in deep learning applications\n• Calculus concepts including derivatives and gradients crucial for optimization algorithms like gradient descent, backpropagation, and understanding how machine learning models learn from data through iterative parameter updates\n• Discrete mathematics and combinatorics for algorithm analysis, complexity theory, and understanding probabilistic algorithms used in sampling techniques, Monte Carlo methods, and randomized optimization approaches"
+      }
+    },
+    {
+      "slideId": "slide_3_data_pipeline_architecture",
+      "slideNumber": 3,
+      "slideTitle": "Enterprise Data Pipeline Architecture and ETL Processes",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "End-to-end data pipeline design from ingestion to serving predictions at scale",
+        "ETL and ELT processes with modern tools like Apache Airflow and dbt for workflow orchestration",
+        "Data quality monitoring and validation frameworks to ensure reliable model inputs",
+        "Scalable architecture patterns for handling big data processing and real-time streaming"
+      ],
+      "props": {
+        "title": "Building Production-Ready Data Pipelines",
+        "steps": [
+          "Data ingestion and extraction from multiple heterogeneous sources including databases, APIs, streaming platforms, and file systems, implementing robust error handling, retry mechanisms, and data validation checks to ensure data quality and completeness throughout the ingestion process while maintaining optimal performance and scalability",
+          "Data transformation and cleaning processes using advanced techniques like outlier detection, missing value imputation, feature engineering, and data normalization, leveraging tools like Apache Spark, Pandas, and dbt to create reusable, testable, and maintainable transformation logic that scales with growing data volumes",
+          "Data quality monitoring and validation frameworks implementing automated data profiling, schema validation, statistical tests, and anomaly detection to catch data drift, quality issues, and pipeline failures early, using tools like Great Expectations, Monte Carlo, or custom validation frameworks",
+          "Model serving and deployment infrastructure including containerization with Docker, orchestration with Kubernetes, and serving platforms like MLflow, Seldon, or custom REST APIs that provide scalable, reliable, and monitored endpoints for real-time and batch prediction serving",
+          "Monitoring and observability systems tracking data pipeline performance, model accuracy, prediction latency, and business metrics using tools like Prometheus, Grafana, and custom dashboards to ensure system reliability and enable proactive issue resolution"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_machine_learning_algorithms",
+      "slideNumber": 4,
+      "slideTitle": "Advanced Machine Learning Algorithms and Model Selection",
+      "templateId": "bullet-points-right",
+      "previewKeyPoints": [
+        "Comprehensive overview of supervised learning algorithms from linear models to ensemble methods",
+        "Unsupervised learning techniques for clustering, dimensionality reduction, and anomaly detection",
+        "Deep learning architectures including CNNs, RNNs, and Transformers for various data types",
+        "Model selection strategies, hyperparameter tuning, and cross-validation best practices"
+      ],
+      "props": {
+        "title": "Comprehensive Machine Learning Algorithm Toolkit",
+        "bullets": [
+          "Supervised learning algorithms spanning from traditional linear and logistic regression to advanced ensemble methods like Random Forest, Gradient Boosting Machines (XGBoost, LightGBM), and Support Vector Machines, with detailed understanding of when to apply each algorithm based on data characteristics, interpretability requirements, and computational constraints in production environments",
+          "Unsupervised learning techniques including clustering algorithms (K-means, DBSCAN, hierarchical clustering), dimensionality reduction methods (PCA, t-SNE, UMAP), and anomaly detection approaches for exploratory data analysis, feature engineering, and identifying outliers or fraudulent behavior in business applications",
+          "Deep learning architectures covering Convolutional Neural Networks for computer vision tasks, Recurrent Neural Networks and Transformers for natural language processing, and advanced techniques like transfer learning, attention mechanisms, and generative adversarial networks for complex pattern recognition and content generation",
+          "Model selection and evaluation strategies including proper cross-validation techniques, hyperparameter optimization using grid search, random search, and Bayesian optimization, along with comprehensive evaluation metrics for classification, regression, and ranking problems to ensure robust model performance assessment",
+          "Ensemble methods and model stacking techniques that combine multiple algorithms to improve prediction accuracy and reduce overfitting, including voting classifiers, bagging, boosting, and advanced stacking approaches that leverage the strengths of different algorithms for optimal performance"
+        ],
+        "imagePrompt": "Realistic cinematic scene of data scientists collaborating in a modern machine learning lab with multiple monitors displaying algorithm visualizations, code, and model performance metrics. The scene features diverse professionals analyzing complex data patterns on large screens while discussing model architectures. Monitors and visualizations are [COLOR1], data scientists and workstations are [COLOR2], and lab environment is [COLOR3]. Cinematic photography with natural lighting, 50mm lens, three-quarter view, shallow depth of field.",
+        "imageAlt": "Data scientists working on machine learning algorithms"
+      }
+    },
+    {
+      "slideId": "slide_5_feature_engineering",
+      "slideNumber": 5,
+      "slideTitle": "Advanced Feature Engineering and Selection Techniques",
+      "templateId": "big-image-top",
+      "previewKeyPoints": [
+        "Systematic approaches to creating meaningful features from raw data across different domains",
+        "Automated feature engineering tools and techniques for scaling feature creation processes",
+        "Feature selection methods to identify most relevant variables and reduce dimensionality",
+        "Domain-specific feature engineering for text, images, time series, and categorical data"
+      ],
+      "props": {
+        "title": "Mastering Feature Engineering for Maximum Model Performance",
+        "subtitle": "Feature engineering is often the key differentiator between good and exceptional machine learning models. This comprehensive approach covers systematic methodologies for extracting meaningful patterns from raw data, including automated feature generation, selection techniques, and domain-specific transformations that significantly improve model accuracy and interpretability while reducing computational complexity and overfitting risks.",
+        "imagePrompt": "Realistic cinematic scene of a feature engineering workflow in a modern data science workspace. Multiple screens display data transformations, correlation matrices, and feature importance plots while data scientists analyze patterns and create new variables. The workspace includes whiteboards with feature engineering diagrams and notebooks with code. Data visualizations and screens are [COLOR1], professionals and workstations are [COLOR2], workspace and equipment are [COLOR3]. Cinematic photography with natural lighting, 35mm lens, wide angle, shallow depth of field.",
+        "imageAlt": "Feature engineering workflow in data science workspace",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_6_model_performance_metrics",
+      "slideNumber": 6,
+      "slideTitle": "Comprehensive Model Evaluation and Performance Metrics",
+      "templateId": "big-numbers",
+      "previewKeyPoints": [
+        "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation",
+        "Regression evaluation methods with RMSE, MAE, and R-squared for different use cases",
+        "Advanced metrics for imbalanced datasets and multi-class classification problems"
+      ],
+      "props": {
+        "title": "Critical Performance Metrics for Model Evaluation",
+        "steps": [
+          {
+            "value": "95%+",
+            "label": "Model Accuracy Threshold",
+            "description": "Industry-standard accuracy benchmarks for production models, considering precision-recall tradeoffs, class imbalance impacts, and business cost implications. High accuracy alone is insufficient; models must demonstrate consistent performance across different data segments, temporal periods, and edge cases while maintaining interpretability and fairness across demographic groups."
+          },
+          {
+            "value": "0.85+",
+            "label": "AUC-ROC Score Target",
+            "description": "Area Under the Curve - Receiver Operating Characteristic score indicating excellent discrimination ability between classes, essential for binary classification tasks like fraud detection, medical diagnosis, and customer churn prediction. Values above 0.85 demonstrate strong predictive power while scores above 0.9 indicate exceptional model performance suitable for critical business applications."
+          },
+          {
+            "value": "<5%",
+            "label": "Acceptable Error Rate",
+            "description": "Maximum tolerable error rate for production systems, varying by application domain and business impact. Critical systems like medical diagnosis or financial transactions require error rates below 1%, while recommendation systems may tolerate higher error rates. Error analysis should include false positive and false negative costs to optimize business outcomes."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_7_deployment_strategies",
+      "slideNumber": 7,
+      "slideTitle": "Model Deployment Strategies and MLOps Best Practices",
+      "templateId": "four-box-grid",
+      "previewKeyPoints": [
+        "Containerization and orchestration strategies for scalable model deployment",
+        "A/B testing frameworks for gradual model rollouts and performance monitoring",
+        "Continuous integration and deployment pipelines for machine learning workflows",
+        "Model versioning, monitoring, and automated retraining processes"
+      ],
+      "props": {
+        "title": "Production Deployment and MLOps Excellence",
+        "boxes": [
+          {
+            "heading": "Containerized Deployment",
+            "text": "Docker containerization with Kubernetes orchestration enabling scalable, reproducible model serving across cloud environments. Includes auto-scaling, load balancing, health checks, and zero-downtime deployments with proper resource allocation and monitoring for production workloads."
+          },
+          {
+            "heading": "A/B Testing Framework", 
+            "text": "Statistical experiment design for gradual model rollouts with control groups, significance testing, and business metric tracking. Enables safe deployment of new models while measuring impact on key performance indicators and user experience metrics."
+          },
+          {
+            "heading": "CI/CD Pipelines",
+            "text": "Automated testing, validation, and deployment workflows using tools like GitHub Actions, Jenkins, or MLflow. Includes unit tests, integration tests, model performance validation, and automated rollback mechanisms for failed deployments."
+          },
+          {
+            "heading": "Monitoring & Alerting",
+            "text": "Comprehensive monitoring of model performance, data drift, prediction latency, and system health using Prometheus, Grafana, and custom dashboards. Automated alerting for performance degradation and anomaly detection in production systems."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_industry_challenges",
+      "slideNumber": 8,
+      "slideTitle": "Common Industry Challenges and Proven Solutions",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Data quality issues and systematic approaches to data validation and cleaning",
+        "Scalability challenges when moving from prototype to production systems",
+        "Model interpretability requirements for regulated industries and stakeholder buy-in",
+        "Talent acquisition and team building strategies for successful data science organizations"
+      ],
+      "props": {
+        "title": "Overcoming Real-World Data Science Obstacles",
+        "challengesTitle": "Industry Challenges",
+        "solutionsTitle": "Proven Solutions",
+        "challenges": [
+          "Data quality and consistency issues across multiple source systems, including missing values, outliers, schema changes, and data drift that can significantly impact model performance and reliability in production environments",
+          "Scalability bottlenecks when transitioning from prototype models to production systems handling millions of predictions per day, requiring infrastructure optimization and algorithm efficiency improvements",
+          "Model interpretability and explainability requirements for regulatory compliance, stakeholder trust, and debugging model decisions in high-stakes applications like healthcare, finance, and criminal justice"
+        ],
+        "solutions": [
+          "Implement comprehensive data validation frameworks using tools like Great Expectations, automated data profiling, statistical monitoring, and data lineage tracking to ensure consistent, high-quality data throughout the pipeline lifecycle",
+          "Design scalable architecture from the beginning using cloud-native technologies, microservices patterns, caching strategies, and efficient algorithms optimized for production workloads with proper load testing and performance monitoring",
+          "Utilize explainable AI techniques including LIME, SHAP, feature importance analysis, and model-agnostic interpretation methods while maintaining detailed documentation and visualization tools for stakeholder communication"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_career_advancement",
+      "slideNumber": 9,
+      "slideTitle": "Data Science Career Paths and Specialization Areas",
+      "templateId": "timeline",
+      "previewKeyPoints": [
+        "Career progression from junior data scientist to senior leadership roles",
+        "Specialization opportunities in machine learning engineering, research, and business analytics",
+        "Skills development roadmap for advancing in different data science career tracks",
+        "Industry trends and emerging roles in artificial intelligence and data science"
+      ],
+      "props": {
+        "title": "Professional Development Timeline and Career Specializations",
+        "events": [
+          {
+            "date": "Year 1-2",
+            "title": "Foundation Building",
+            "description": "Master core statistical concepts, programming skills in Python/R, and basic machine learning algorithms while working on supervised projects and building a strong portfolio of data science work."
+          },
+          {
+            "date": "Year 2-4", 
+            "title": "Specialization Focus",
+            "description": "Choose specialization area such as machine learning engineering, data engineering, or business analytics while developing expertise in advanced algorithms, cloud platforms, and domain knowledge."
+          },
+          {
+            "date": "Year 4-6",
+            "title": "Senior Individual Contributor",
+            "description": "Lead complex projects, mentor junior team members, and develop expertise in model deployment, MLOps, and cross-functional collaboration while contributing to strategic business decisions."
+          },
+          {
+            "date": "Year 6+",
+            "title": "Leadership and Strategy", 
+            "description": "Transition to management roles, research positions, or senior technical leadership focusing on team building, strategic planning, and driving organizational data science maturity and innovation."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_emerging_technologies",
+      "slideNumber": 10,
+      "slideTitle": "Emerging Technologies and Future Trends",
+      "templateId": "big-image-left",
+      "previewKeyPoints": [
+        "Latest developments in artificial intelligence including large language models and generative AI",
+        "Quantum computing applications in machine learning and optimization problems",
+        "Edge computing and federated learning for distributed AI systems",
+        "Ethical AI considerations and responsible machine learning practices"
+      ],
+      "props": {
+        "title": "Cutting-Edge Innovations Shaping Data Science Future",
+        "subtitle": "The data science landscape is rapidly evolving with breakthrough technologies that are transforming how we approach machine learning, data processing, and artificial intelligence. From large language models revolutionizing natural language processing to quantum computing promising exponential speedups for optimization problems, these emerging technologies are creating new opportunities and challenges for data science professionals. Understanding these trends is crucial for staying competitive and making strategic career decisions in the rapidly advancing field of data science and artificial intelligence.",
+        "imagePrompt": "Realistic cinematic scene of a futuristic AI research laboratory with scientists working on cutting-edge technologies. Multiple large screens display neural network architectures, quantum computing visualizations, and advanced AI models. Researchers collaborate around holographic displays and high-tech workstations with quantum computers and advanced GPUs visible. Laboratory equipment and displays are [COLOR1], researchers and workstations are [COLOR2], futuristic lab environment is [COLOR3]. Cinematic photography with natural lighting, 35mm lens, low angle, shallow depth of field.",
+        "imageAlt": "Futuristic AI research laboratory with advanced technologies",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_11_metrics_analytics",
+      "slideNumber": 11,
+      "slideTitle": "Operational Analytics Dashboard Highlights",
+      "templateId": "metrics-analytics",
+      "previewKeyPoints": [
+        "Key performance indicators tracked in day-to-day operations",
+        "Link between analytics and business actions taken",
+        "Alert thresholds and on-call procedures for anomalies",
+        "Ownership and review cadence for metrics dashboards"
+      ],
+      "props": {
+        "title": "Daily Metrics and Operational Insights",
+        "metrics": [
+          { "number": "12.3k", "text": "Daily active users across core products with 7-day rolling trend monitoring and threshold alerts for significant deviations from expected usage patterns." },
+          { "number": "98.6%", "text": "Uptime for model-serving endpoints measured via synthetic probes, SLO mapping, and automatic incident creation when SLAs are breached." },
+          { "number": "320ms", "text": "Median prediction latency for real-time inference with p95 and p99 tracked and auto-scaling triggers configured based on sustained load." },
+          { "number": "0.7%", "text": "Error rate on requests including timeouts and failed responses; categorized by cause and mitigated via retry logic and circuit breakers." },
+          { "number": "0.3", "text": "Data drift score computed nightly using PSI/KS metrics; alerts fire when exceeding thresholds prompting retraining investigations." },
+          { "number": "42", "text": "Open data quality issues prioritized by severity, assigned owners, and target resolution dates to ensure pipeline reliability." }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_12_market_share",
+      "slideNumber": 12,
+      "slideTitle": "Market Share by Segment and Year",
+      "templateId": "market-share",
+      "previewKeyPoints": [
+        "Year-over-year changes in market penetration by segment",
+        "Competitive positioning relative to primary rivals",
+        "Regions and products driving overall growth"
+      ],
+      "props": {
+        "title": "Market Share Overview",
+        "subtitle": "Comparative view across segments and years",
+        "chartData": [
+          { "label": "Segment A", "description": "Enterprise customers in regulated industries", "percentage": 37, "color": "#3b82f6", "year": 2024 },
+          { "label": "Segment B", "description": "Mid-market technology companies", "percentage": 28, "color": "#8b5cf6", "year": 2024 },
+          { "label": "Segment C", "description": "SMB retail and services", "percentage": 22, "color": "#10b981", "year": 2024 },
+          { "label": "Other", "description": "Long-tail customers", "percentage": 13, "color": "#f59e0b", "year": 2024 }
+        ],
+        "bottomText": "Expanding presence in enterprise while maintaining growth in mid-market."
+      }
+    },
+    {
+      "slideId": "slide_13_comparison",
+      "slideNumber": 13,
+      "slideTitle": "Solution Comparison Matrix",
+      "templateId": "comparison-slide",
+      "previewKeyPoints": [
+        "Side-by-side evaluation of key features",
+        "Pricing and support considerations",
+        "Recommended options by use case"
+      ],
+      "props": {
+        "title": "Feature Comparison",
+        "subtitle": "Selecting the right approach by capability",
+        "tableData": {
+          "headers": ["Capability", "Option A", "Option B"],
+          "rows": [
+            ["Deployment Model", "Managed cloud service", "Self-hosted Kubernetes"],
+            ["Latency (p95)", "< 400 ms", "< 250 ms"],
+            ["Maintenance", "Low (SaaS managed)", "Medium (DevOps required)"],
+            ["Cost Profile", "Usage-based pricing", "Fixed infra + ops"],
+            ["Best For", "Fast time-to-value", "Full control & customization"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_14_table_dark",
+      "slideNumber": 14,
+      "slideTitle": "Security Controls (Dark Theme)",
+      "templateId": "table-dark",
+      "previewKeyPoints": [
+        "Core security measures across the platform",
+        "Ownership and audit frequency",
+        "Compliance mapping overview"
+      ],
+      "props": {
+        "title": "Security Controls Overview",
+        "tableData": {
+          "headers": ["Control", "Owner", "Audit"],
+          "rows": [
+            ["Access Control", "Security Team", "Quarterly"],
+            ["Encryption at Rest", "Infra Team", "Bi-annually"],
+            ["Network Segmentation", "Ops Team", "Annually"],
+            ["Secrets Management", "Platform Team", "Quarterly"]
+          ]
+        },
+        "showCheckmarks": true,
+        "colors": {
+          "headerBg": "#0f172a",
+          "rowAltBg": "#111827"
+        }
+      }
+    },
+    {
+      "slideId": "slide_15_table_light",
+      "slideNumber": 15,
+      "slideTitle": "Project Milestones (Light Theme)",
+      "templateId": "table-light",
+      "previewKeyPoints": [
+        "Upcoming deliverables and responsible teams",
+        "Dependencies and risk notes",
+        "Tentative timelines"
+      ],
+      "props": {
+        "title": "Milestone Plan",
+        "tableData": {
+          "headers": ["Milestone", "Owner", "Due"],
+          "rows": [
+            ["MVP Release", "Platform", "2024-11-15"],
+            ["Security Review", "SecOps", "2024-12-01"],
+            ["GA Launch", "Go-To-Market", "2025-01-10"]
+          ]
+        },
+        "colors": {
+          "headerBg": "#f3f4f6",
+          "rowAltBg": "#ffffff"
+        }
+      }
+    },
+    {
+      "slideId": "slide_16_event_list",
+      "slideNumber": 16,
+      "slideTitle": "Upcoming Events and Key Dates",
+      "templateId": "event-list",
+      "previewKeyPoints": [
+        "Major internal and external events in the next quarter",
+        "Deadlines that impact delivery timelines",
+        "Engagement opportunities with stakeholders"
+      ],
+      "props": {
+        "events": [
+          { "date": "2024-11-05", "description": "Architecture review with platform council to validate scalability and security design decisions." },
+          { "date": "2024-11-20", "description": "Customer advisory board session to gather feedback on beta features and onboarding experience." },
+          { "date": "2024-12-03", "description": "Internal enablement workshop for support and success teams on new workflows and tooling." },
+          { "date": "2024-12-17", "description": "Public webinar on best practices and lessons learned from early adopters across industries." }
+        ],
+        "titleColor": "#ffffff",
+        "descriptionColor": "#d1d5db",
+        "backgroundColor": "#111827"
+      }
+    },
+    {
+      "slideId": "slide_17_pyramid",
+      "slideNumber": 17,
+      "slideTitle": "Capability Maturity Pyramid",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Progression from foundational to advanced capabilities",
+        "Focus areas by maturity level",
+        "Recommended next steps for improvement"
+      ],
+      "props": {
+        "title": "Maturity Stages",
+        "levels": [
+          { "text": "Strategic Optimization", "description": "Automated retraining, causal inference, and decision optimization integrated with business processes and KPIs." },
+          { "text": "Production Excellence", "description": "Robust MLOps practices, monitoring, alerting, and governance across multiple teams and models." },
+          { "text": "Operationalization", "description": "Reliable pipelines, CI/CD, and standardized feature stores enabling consistent deployments." },
+          { "text": "Prototyping", "description": "Experimentation, evaluation, and iteration with reproducible research workflows and documentation." },
+          { "text": "Foundations", "description": "Data quality, access controls, and core statistical/ML competencies across the team." }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_18_pie_chart",
+      "slideNumber": 18,
+      "slideTitle": "Resource Allocation Breakdown",
+      "templateId": "pie-chart-infographics",
+      "previewKeyPoints": [
+        "Distribution of time and budget across activities",
+        "Monthly movement and seasonal trends",
+        "Areas for optimization and rebalancing"
+      ],
+      "props": {
+        "title": "Team Allocation Overview",
+        "chartData": {
+          "segments": [
+            { "label": "Data Engineering", "value": 35, "color": "#3b82f6" },
+            { "label": "Modeling", "value": 30, "color": "#8b5cf6" },
+            { "label": "MLOps", "value": 20, "color": "#10b981" },
+            { "label": "Enablement", "value": 15, "color": "#f59e0b" }
+          ]
+        },
+        "monthlyData": [62, 70, 65, 68, 72, 75, 73, 78, 80, 77, 74, 79],
+        "chartSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_19_comparison_table_dark",
+      "slideNumber": 19,
+      "slideTitle": "Feature Parity (Dark)",
+      "templateId": "comparison-slide",
+      "previewKeyPoints": [
+        "Detailed parity view across vendors",
+        "Critical features for shortlisting",
+        "Notes for follow-up demos"
+      ],
+      "props": {
+        "title": "Vendor Feature Parity",
+        "tableData": {
+          "headers": ["Feature", "Vendor X", "Vendor Y"],
+          "rows": [
+            ["RBAC", "Yes", "Partial"],
+            ["Audit Logs", "Yes", "Yes"],
+            ["SLA", "99.9%", "99.5%"],
+            ["Hybrid Deploy", "No", "Yes"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_20_title",
+      "slideNumber": 20,
+      "slideTitle": "Section Transition: Case Studies",
+      "templateId": "title-slide",
+      "previewKeyPoints": [
+        "Transition into applied examples",
+        "What the audience will gain from case studies"
+      ],
+      "props": {
+        "title": "Case Studies",
+        "subtitle": "Applying the principles to real-world scenarios",
+        "author": "Data Science Excellence Institute",
+        "backgroundColor": "#1e293b",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
+      }
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+} 
