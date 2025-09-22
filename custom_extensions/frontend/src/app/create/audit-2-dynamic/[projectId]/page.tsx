@@ -355,14 +355,91 @@ export default function DynamicAuditLandingPage() {
     // Automatically save to database
     console.log('💾 [AUTO SAVE] Starting automatic save to database');
     
-    // 🔍 DEBUG: Log what we're about to send to backend
-    console.log('🔍 [DEBUG] Data being sent to backend:', {
+    // 🚨 CRITICAL DATA VALIDATION: Ensure we're not sending corrupted data
+    if (!updatedData || typeof updatedData !== 'object') {
+      console.error('❌ [CRITICAL ERROR] updatedData is null or not an object:', updatedData);
+      return;
+    }
+    
+    // Check if the data has the wrong structure (slide deck/text presentation instead of AI audit)
+    const hasWrongStructure = ('sections' in updatedData && 'theme' in updatedData) && 
+                              !('companyName' in updatedData || 'jobPositions' in updatedData);
+    
+    if (hasWrongStructure) {
+      console.error('❌ [CRITICAL ERROR] Detected corrupted data structure - has slide deck/text presentation fields instead of AI audit fields');
+      console.error('❌ [CRITICAL ERROR] Corrupted data:', updatedData);
+      console.error('❌ [CRITICAL ERROR] Attempting to recover from original landingPageData...');
+      
+      // Try to recover by refetching the data
+      console.log('🔄 [RECOVERY] Refetching landing page data to recover from corruption...');
+      try {
+        const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const freshData = await response.json();
+          console.log('✅ [RECOVERY] Successfully recovered fresh data:', freshData);
+          
+          // Update the recovered data with the user's change
+          const recoveredData = { ...freshData };
+          switch (field) {
+            case 'companyName':
+              recoveredData.companyName = newValue;
+              break;
+            case 'companyDescription':
+              recoveredData.companyDescription = newValue;
+              break;
+            case 'projectName':
+              recoveredData.projectName = newValue;
+              break;
+            default:
+              if (field.startsWith('jobPosition_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.jobPositions && recoveredData.jobPositions[index]) {
+                  recoveredData.jobPositions[index] = { ...recoveredData.jobPositions[index], title: newValue };
+                }
+              }
+              break;
+          }
+          
+          // Update local state with recovered data
+          setLandingPageData(recoveredData);
+          updatedData = recoveredData;
+          console.log('✅ [RECOVERY] Updated local state with recovered data');
+        } else {
+          console.error('❌ [RECOVERY FAILED] Could not fetch fresh data, aborting save');
+          return;
+        }
+      } catch (error) {
+        console.error('❌ [RECOVERY FAILED] Error during data recovery:', error);
+        return;
+      }
+    }
+    
+    // Final validation before sending
+    const isValidAuditData = updatedData && 
+                            (typeof updatedData.companyName === 'string' || 
+                             Array.isArray(updatedData.jobPositions) ||
+                             typeof updatedData.companyDescription === 'string');
+    
+    if (!isValidAuditData) {
+      console.error('❌ [CRITICAL ERROR] Data validation failed - not valid AI audit data structure');
+      console.error('❌ [CRITICAL ERROR] Invalid data:', updatedData);
+      return;
+    }
+    
+    console.log('✅ [VALIDATION PASSED] Data structure validated as AI audit data');
+    console.log('🔍 [DEBUG] Final data being sent to backend:', {
       microProductContent: updatedData,
       microProductContentKeys: Object.keys(updatedData || {}),
       hasCompanyName: 'companyName' in (updatedData || {}),
       hasJobPositions: 'jobPositions' in (updatedData || {}),
-      hasSections: 'sections' in (updatedData || {}),
-      hasTheme: 'theme' in (updatedData || {})
+      dataStructureValid: isValidAuditData
     });
     
     try {

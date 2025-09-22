@@ -1,7 +1,1756 @@
-custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 145 - No contentBlocks in parsed_details or parsed_details is None
-custom_backend-1  | INFO:     172.18.0.12:43302 - "GET /api/custom/projects/view/145 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:43318 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 145
+custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
+custom_backend-1  | INFO:     Started server process [1]
+custom_backend-1  | INFO:     Waiting for application startup.
+custom_backend-1  | INFO:main:Custom Backend starting...
+custom_backend-1  | INFO:main:'projects' table ensured and updated.
+custom_backend-1  | INFO:main:'microproduct_pipelines' table ensured.
+custom_backend-1  | INFO:main:'projects' table ensured and updated with 'source_chat_session_id'.
+custom_backend-1  | INFO:main:'design_templates' table ensured.
+custom_backend-1  | INFO:main:'trashed_projects' table ensured (soft-delete).
+custom_backend-1  | INFO:main:'user_credits' table ensured.
+custom_backend-1  | INFO:main:Updated credit_transactions table to support admin_removal type
+custom_backend-1  | INFO:main:'credit_transactions' table ensured.
+custom_backend-1  | INFO:main:Attempting to connect to Onyx database: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db
+custom_backend-1  | WARNING:main:Failed to connect to postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/onyx_db: database "onyx_db" does not exist
+custom_backend-1  | INFO:main:Trying to connect to: postgresql://postgres:ookBossyauptyetPaxTy@relational_db:5432/postgres
+custom_backend-1  | INFO:main:Found 3 Onyx users to migrate
+custom_backend-1  | INFO:main:Populated user_credits table with 3 existing Onyx users (100 credits each).
+custom_backend-1  | INFO:main:Added quality_tier column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default 'medium' tier
+custom_backend-1  | INFO:main:Created index for quality_tier column
+custom_backend-1  | INFO:main:Added custom_rate column to project_folders table
+custom_backend-1  | INFO:main:Updated existing folders with default custom_rate
+custom_backend-1  | INFO:main:Created index for custom_rate column
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to projects table
+custom_backend-1  | INFO:main:Created indexes for project-level custom_rate and quality_tier columns
+custom_backend-1  | INFO:main:Added custom_rate and quality_tier columns to trashed_projects table
+custom_backend-1  | INFO:main:Applying critical fix: Ensuring order and completion_time columns are TEXT type
+custom_backend-1  | INFO:main:Successfully set projects.order and projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set trashed_projects.order and trashed_projects.completion_time to TEXT type
+custom_backend-1  | INFO:main:Successfully set default values for empty order and completion_time fields
+custom_backend-1  | INFO:main:Projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:Trashed_projects table schema verification:
+custom_backend-1  | INFO:main:  completion_time: text (nullable: YES)
+custom_backend-1  | INFO:main:  folder_id: integer (nullable: YES)
+custom_backend-1  | INFO:main:  order: text (nullable: YES)
+custom_backend-1  | INFO:main:  source_chat_session_id: uuid (nullable: YES)
+custom_backend-1  | INFO:main:'request_analytics' table ensured.
+custom_backend-1  | INFO:main:AI parser tracking columns added to request_analytics table.
+custom_backend-1  | INFO:main:Added is_standalone column to projects table.
+custom_backend-1  | INFO:main:Added is_standalone column to trashed_projects table.
+custom_backend-1  | INFO:main:Legacy support: is_standalone field defaults to NULL for existing products.
+custom_backend-1  | INFO:main:Database schema migration completed successfully.
+custom_backend-1  | INFO:     Application startup complete.
+custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 146
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'NOT_FOUND'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['theme', 'sections']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Unknown Company'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company description not available'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 0 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 0
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 0
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 146
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Unknown Company'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company description not available'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 3
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'ru'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
+custom_backend-1  | INFO:     172.18.0.12:57178 - "GET /api/custom/ai-audit/landing-page/146 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 146 - Storing content to DB: {
+custom_backend-1  |   "sections": [],
+custom_backend-1  |   "theme": "cherry"
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 146 - Retrieved content from DB: {
+custom_backend-1  |   "theme": "cherry",
+custom_backend-1  |   "sections": []
+custom_backend-1  | }
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 146 - About to validate with component: TextPresentationDisplay
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 146 - Skipping validation for AI audit landing page
+custom_backend-1  | INFO:     172.18.0.12:57184 - "PUT /api/custom/projects/update/146 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 146
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'NOT_FOUND'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['theme', 'sections']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Unknown Company'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company description not available'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 0 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 0
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 0
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 146
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Unknown Company'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company description not available'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 3
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'ru'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
+custom_backend-1  | INFO:     172.18.0.12:37824 - "GET /api/custom/ai-audit/landing-page/146 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37828 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37846 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37832 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37858 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37868 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37872 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37876 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37880 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37888 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37890 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:37892 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50406 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Backend received payload: {'companyWebsite': 'https://www.mercedes-benz.pl/', 'language': 'en'}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Backend received language: en
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Backend received companyWebsite: https://www.mercedes-benz.pl/
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Starting landing page generation for job 034a7e44-e1b0-4011-b4f2-9837186c3c8e
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Initial payload: {'companyWebsite': 'https://www.mercedes-benz.pl/', 'language': 'en'}
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Starting to scrape: https://www.mercedes-benz.pl/
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Using domain name for search: mercedes-benz.pl
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Received content length: 2286 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2734 chars
+custom_backend-1  | INFO:     172.18.0.12:50410 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36686 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36700 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36712 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36728 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36730 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59890 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59900 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59908 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 20 characters
+custom_backend-1  | INFO:main:🏢 [WEBSITE SCRAPING] Extracted company name: Mercedes-Benz Polska
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2954 chars
+custom_backend-1  | INFO:     172.18.0.12:59916 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59932 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36050 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36058 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36070 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36072 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36078 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41514 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41516 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41530 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 139 characters
+custom_backend-1  | INFO:main:📝 [WEBSITE SCRAPING] Extracted company description: Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3474 chars
+custom_backend-1  | INFO:     172.18.0.12:41542 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41558 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42654 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42664 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42676 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42692 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42694 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37758 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37764 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 319 characters
+custom_backend-1  | WARNING:main:⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Successfully scraped data for: Mercedes-Benz Polska
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Scraped company data: Mercedes-Benz Polska
+custom_backend-1  | INFO:     172.18.0.12:37768 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+Company+providing+services+in+luxury+and+performance+vehicles%2C+including+sedans%2C+coupes%2C+convertibles%2C+roadsters%2C+SUVs%2C+and+station+wagons.&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+Company+providing+services+in+luxury+and+performance+vehicles%2C+including+sedans%2C+coupes%2C+convertibles%2C+roadsters%2C+SUVs%2C+and+station+wagons.&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] SERPAPI summary: [SerpAPI General Info]
+custom_backend-1  | Mercedes-Benz combines luxury with performance across the full line of models including luxury sedans, SUVs, coupes, roadsters, convertibles & more.
+custom_backend-1  | See the entire lineup of Mercedes-Benz sedans & wagons. Explore specific classes and models, and compare features and pricing.
+custom_backend-1  | S
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data length: 2357 characters
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data preview: [SerpAPI General Info]
+custom_backend-1  | Mercedes-Benz combines luxury with performance across the full line of models including luxury sedans, SUVs, coupes, roadsters, convertibles & more.
+custom_backend-1  | See the entire lineup of Mercedes-Benz sedans & wagons. Explore specific classes and models, and compare features and pricing.
+custom_backend-1  | See the lineup of Mercedes-Benz luxury sports car convertibles. Explore classes, models, features & pricing for convertibles, roadsters & cabriolets.
+custom_backend-1  |
+custom_backend-1  | [Website Info]
+custom_backend-1  | (Нет информации по сайту)
+custom_backend-1  |
+custom_backend-1  | [Open Po...
+custom_backend-1  | INFO:main:🏢 [AUDIT DATA FLOW] Generated company name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📝 [AUDIT DATA FLOW] Generated company description: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Scraped data length: 2357 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3320 chars
+custom_backend-1  | INFO:     172.18.0.12:37774 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37780 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60654 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60658 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60666 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60680 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1061 characters
+custom_backend-1  | INFO:main:💼 [WEBSITE SCRAPING] Extracted 8 job positions from website
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted 8 raw positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Formatted 8 positions for frontend
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Need 3 additional positions to reach 11 total
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - will use English prompts
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3905 chars
+custom_backend-1  | INFO:     172.18.0.12:60684 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 380 characters
+custom_backend-1  | INFO:main:[COURSE TEMPLATES] Raw additional positions response: '```json
+custom_backend-1  | [
+custom_backend-1  |     {"title": "Electric Vehicle Technician", "description": "Training in electric vehicle systems and maintenance."},
+custom_backend-1  |     {"title": "Luxury Sales Consultant", "description": "Training in luxury sales techniques and customer engagement."},
+custom_backend-1  |     {"title": "Automotive Quality Assurance Engineer", "description": "Training in quality control processes and standards."}
+custom_backend-1  | ]
+custom_backend-1  | ```'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - raw response length: 380
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language used: English
+custom_backend-1  | INFO:main:[COURSE TEMPLATES] Successfully parsed 3 additional positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Added 3 additional positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Final result: 11 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Generated 11 job positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'title': 'Electromechanic', 'description': 'Responsible for the maintenance and repair of electrical and mechanical systems in vehicles.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'title': 'Automotive Mechanic', 'description': 'Performs diagnostics, repairs, and maintenance on various vehicle models.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'title': 'Painter', 'description': 'Handles the painting and finishing of vehicles to ensure high-quality aesthetics.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'title': 'Bodywork Technician', 'description': 'Repairs and restores vehicle body structures and panels.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'title': 'Diagnostic Technician', 'description': 'Utilizes diagnostic tools to identify and resolve vehicle issues.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 6: {'title': 'Parts Salesperson', 'description': 'Sells automotive parts and accessories to customers and provides product knowledge.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 7: {'title': 'Sales Advisor', 'description': 'Engages with customers to understand their needs and promote vehicle sales.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 8: {'title': 'Logistics Staff', 'description': 'Manages the logistics and supply chain processes within the company.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'title': 'Electric Vehicle Technician', 'description': 'Training in electric vehicle systems and maintenance.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'title': 'Luxury Sales Consultant', 'description': 'Training in luxury sales techniques and customer engagement.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'title': 'Automotive Quality Assurance Engineer', 'description': 'Training in quality control processes and standards.', 'icon': '👷'}
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3366 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3598 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3622 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3398 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3313 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 5430 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 4318 chars
+custom_backend-1  | INFO:     172.18.0.12:36668 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 29 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted search time data: {'days': '30–60'}
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 82 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted turnover data: {'percentage': '15', 'earlyExit': {'percentage': '30', 'months': '3'}}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 19 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted industry: automotive industry
+custom_backend-1  | INFO:     172.18.0.12:36676 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 68 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Raw burnout response: '```json
+custom_backend-1  | {"months": "24", "industryName": "automotive companies"}
+custom_backend-1  | ```'
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted burnout data: {'months': '24', 'industryName': 'automotive companies'}
+custom_backend-1  | INFO:     172.18.0.12:36684 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 35 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted losses data: {'amount': '$10K–$20K'}
+custom_backend-1  | INFO:     172.18.0.12:36692 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:36696 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1126 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated personnel shortage chart data:
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Industry: Automotive Manufacturing
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Total shortage: 48700
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Trend: growth
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Chart data points: 12
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 1: January - 3200 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 2: February - 3100 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 3: March - 3500 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 4: April - 3700 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 5: May - 3600 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 6: June - 4000 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 7: July - 4300 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 8: August - 3900 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 9: September - 4100 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 10: October - 4400 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 11: November - 4200 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 12: December - 4500 specialists
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 645 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated yearly shortage data:
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Industry: Automotive Manufacturing
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Yearly Shortage: 60000 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Description: The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury and performance vehicles. With the growth of electric and hybrid vehicle production, the need for skilled workers such as automotive electricians, process engineers, and mechanics has surged. This shortage is exacerbated by the retirement of existing workers and the limited number of training programs available, leading to an estimated annual shortage of around 60,000 specialists.
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated workforce crisis data: {'industry': 'automotive industry', 'industryForms': {'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'crisis_in': 'в automotive industry отрасли', 'shortage_in': 'в automotive industry секторе', 'of_industry': 'automotive industry отрасли'}, 'burnout': {'months': '24', 'industryName': 'automotive companies'}, 'turnover': {'percentage': '15', 'earlyExit': {'percentage': '30', 'months': '3'}}, 'losses': {'amount': '$10K–$20K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3700}, {'month': 'May', 'shortage': 3600}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4400}, {'month': 'November', 'shortage': 4200}, {'month': 'December', 'shortage': 4500}], 'totalShortage': 48700, 'trend': 'growth', 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 48,700 specialists over the past year. The trend shows consistent growth, particularly in the summer months, as demand for vehicle production increases. However, there are slight decreases in February and August, likely due to seasonal factors such as winter slowdowns and summer vacations.'}, 'yearlyShortage': {'yearlyShortage': 60000, 'industry': 'Automotive Manufacturing', 'description': 'The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury and performance vehicles. With the growth of electric and hybrid vehicle production, the need for skilled workers such as automotive electricians, process engineers, and mechanics has surged. This shortage is exacerbated by the retirement of existing workers and the limited number of training programs available, leading to an estimated annual shortage of around 60,000 specialists.'}}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Generated workforce crisis data: {'industry': 'automotive industry', 'industryForms': {'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'crisis_in': 'в automotive industry отрасли', 'shortage_in': 'в automotive industry секторе', 'of_industry': 'automotive industry отрасли'}, 'burnout': {'months': '24', 'industryName': 'automotive companies'}, 'turnover': {'percentage': '15', 'earlyExit': {'percentage': '30', 'months': '3'}}, 'losses': {'amount': '$10K–$20K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3700}, {'month': 'May', 'shortage': 3600}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4400}, {'month': 'November', 'shortage': 4200}, {'month': 'December', 'shortage': 4500}], 'totalShortage': 48700, 'trend': 'growth', 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 48,700 specialists over the past year. The trend shows consistent growth, particularly in the summer months, as demand for vehicle production increases. However, there are slight decreases in February and August, likely due to seasonal factors such as winter slowdowns and summer vacations.'}, 'yearlyShortage': {'yearlyShortage': 60000, 'industry': 'Automotive Manufacturing', 'description': 'The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury and performance vehicles. With the growth of electric and hybrid vehicle production, the need for skilled workers such as automotive electricians, process engineers, and mechanics has surged. This shortage is exacerbated by the retirement of existing workers and the limited number of training programs available, leading to an estimated annual shortage of around 60,000 specialists.'}}
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Generating course outline for position: Electromechanic
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3915 chars
+custom_backend-1  | INFO:     172.18.0.12:43860 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43864 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:43876 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1750 characters
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 1: Introduction to Mercedes-Benz Electromechanics with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Understanding the Mercedes-Benz Brand and Culture
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Overview of Electromechanical Systems in Luxury Vehicles
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Safety Protocols and Best Practices in the Workshop
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Introduction to Diagnostic Tools and Equipment
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Basic Electrical Principles for Electromechanics
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 2: Advanced Diagnostics and Troubleshooting with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Using Diagnostic Software for Vehicle Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Identifying and Resolving Electrical Faults
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Understanding CAN Bus and Communication Protocols
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Troubleshooting Common Electromechanical Issues
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Case Studies: Real-World Problem Solving
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 3: Hands-On Electromechanical Skills with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Performing Electrical Repairs and Replacements
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Working with Hybrid and Electric Vehicle Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Calibration and Configuration of Electromechanical Components
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Routine Maintenance Procedures for Optimal Performance
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Quality Control and Assurance in Repairs
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 4: Professional Development and Customer Interaction with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Effective Communication with Customers and Team Members
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Understanding Customer Expectations in Luxury Services
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Time Management and Workflow Optimization
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Continuous Learning and Staying Updated with Industry Trends
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Building a Career Path in Electromechanics at Mercedes-Benz
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Generated 4 modules with lessons for landing page
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Generated course outline with 4 modules
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Introduction to Mercedes-Benz Electromechanics', 'lessons': ['Understanding the Mercedes-Benz Brand and Culture', 'Overview of Electromechanical Systems in Luxury Vehicles', 'Safety Protocols and Best Practices in the Workshop', 'Introduction to Diagnostic Tools and Equipment', 'Basic Electrical Principles for Electromechanics']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 2: {'title': 'Advanced Diagnostics and Troubleshooting', 'lessons': ['Using Diagnostic Software for Vehicle Systems', 'Identifying and Resolving Electrical Faults', 'Understanding CAN Bus and Communication Protocols', 'Troubleshooting Common Electromechanical Issues', 'Case Studies: Real-World Problem Solving']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 3: {'title': 'Hands-On Electromechanical Skills', 'lessons': ['Performing Electrical Repairs and Replacements', 'Working with Hybrid and Electric Vehicle Systems', 'Calibration and Configuration of Electromechanical Components', 'Routine Maintenance Procedures for Optimal Performance', 'Quality Control and Assurance in Repairs']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 4: {'title': 'Professional Development and Customer Interaction', 'lessons': ['Effective Communication with Customers and Team Members', 'Understanding Customer Expectations in Luxury Services', 'Time Management and Workflow Optimization', 'Continuous Learning and Staying Updated with Industry Trends', 'Building a Career Path in Electromechanics at Mercedes-Benz']}
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Starting course templates generation
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Real job positions: 11
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Course outline data: 4 modules, 20 lessons
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3326 chars
+custom_backend-1  | INFO:     172.18.0.12:43886 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 58 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Electromechanic
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Electromechanic act...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+custom_backend-1  | E0000 00:00:1758563778.154324       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 41.729738002s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 41
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 8900, in generate_ai_image
+custom_backend-1  |     response = model.generate_content(request.prompt)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+custom_backend-1  |     response = self._client.generate_content(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+custom_backend-1  |     response = rpc(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+custom_backend-1  |     return wrapped_func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+custom_backend-1  |     return retry_target(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+custom_backend-1  |     next_sleep = _retry_error_helper(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+custom_backend-1  |     raise final_exc from source_exc
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+custom_backend-1  |     result = target()
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+custom_backend-1  |     return func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+custom_backend-1  |     raise exceptions.from_grpc_error(exc) from exc
+custom_backend-1  | google.api_core.exceptions.ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 41.729738002s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 41
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Electromechanic: 500: AI image generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 41.729738002s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 41
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3330 chars
+custom_backend-1  | INFO:     172.18.0.12:43898 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 44 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Automotive Mechanic
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Automotive Mechanic...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758563780.178968       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 39.718920275s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 39
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 8900, in generate_ai_image
+custom_backend-1  |     response = model.generate_content(request.prompt)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+custom_backend-1  |     response = self._client.generate_content(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+custom_backend-1  |     response = rpc(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+custom_backend-1  |     return wrapped_func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+custom_backend-1  |     return retry_target(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+custom_backend-1  |     next_sleep = _retry_error_helper(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+custom_backend-1  |     raise final_exc from source_exc
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+custom_backend-1  |     result = target()
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+custom_backend-1  |     return func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+custom_backend-1  |     raise exceptions.from_grpc_error(exc) from exc
+custom_backend-1  | google.api_core.exceptions.ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 39.718920275s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 39
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Automotive Mechanic: 500: AI image generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 39.718920275s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 39
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3318 chars
+custom_backend-1  | INFO:     172.18.0.12:40002 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 44 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Painter
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Painter actively wo...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758563781.927456       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | Please retry in 37.985630915s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 37
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 8900, in generate_ai_image
+custom_backend-1  |     response = model.generate_content(request.prompt)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+custom_backend-1  |     response = self._client.generate_content(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+custom_backend-1  |     response = rpc(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+custom_backend-1  |     return wrapped_func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+custom_backend-1  |     return retry_target(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+custom_backend-1  |     next_sleep = _retry_error_helper(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+custom_backend-1  |     raise final_exc from source_exc
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+custom_backend-1  |     result = target()
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+custom_backend-1  |     return func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+custom_backend-1  |     raise exceptions.from_grpc_error(exc) from exc
+custom_backend-1  | google.api_core.exceptions.ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | Please retry in 37.985630915s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 37
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Painter: 500: AI image generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | Please retry in 37.985630915s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 37
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3330 chars
+custom_backend-1  | INFO:     172.18.0.12:40006 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 59 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Bodywork Technician
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Bodywork Technician...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758563783.361340       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 36.555975815s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 36
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 8900, in generate_ai_image
+custom_backend-1  |     response = model.generate_content(request.prompt)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+custom_backend-1  |     response = self._client.generate_content(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+custom_backend-1  |     response = rpc(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+custom_backend-1  |     return wrapped_func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+custom_backend-1  |     return retry_target(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+custom_backend-1  |     next_sleep = _retry_error_helper(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+custom_backend-1  |     raise final_exc from source_exc
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+custom_backend-1  |     result = target()
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+custom_backend-1  |     return func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+custom_backend-1  |     raise exceptions.from_grpc_error(exc) from exc
+custom_backend-1  | google.api_core.exceptions.ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 36.555975815s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 36
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Bodywork Technician: 500: AI image generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 36.555975815s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 36
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3332 chars
+custom_backend-1  | INFO:     172.18.0.12:40008 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:40016 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 49 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Diagnostic Technician
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Diagnostic Technici...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758563787.125780       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 32.783443328s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 32
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 8900, in generate_ai_image
+custom_backend-1  |     response = model.generate_content(request.prompt)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+custom_backend-1  |     response = self._client.generate_content(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+custom_backend-1  |     response = rpc(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+custom_backend-1  |     return wrapped_func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+custom_backend-1  |     return retry_target(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+custom_backend-1  |     next_sleep = _retry_error_helper(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+custom_backend-1  |     raise final_exc from source_exc
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+custom_backend-1  |     result = target()
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+custom_backend-1  |     return func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+custom_backend-1  |     raise exceptions.from_grpc_error(exc) from exc
+custom_backend-1  | google.api_core.exceptions.ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 32.783443328s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 32
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Diagnostic Technician: 500: AI image generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | Please retry in 32.783443328s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 32
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3328 chars
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 67 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Parts Salesperson
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Parts Salesperson a...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758563788.523252       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | Please retry in 31.394831077s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 31
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 8900, in generate_ai_image
+custom_backend-1  |     response = model.generate_content(request.prompt)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/generativeai/generative_models.py", line 331, in generate_content
+custom_backend-1  |     response = self._client.generate_content(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/ai/generativelanguage_v1beta/services/generative_service/client.py", line 835, in generate_content
+custom_backend-1  |     response = rpc(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/gapic_v1/method.py", line 131, in __call__
+custom_backend-1  |     return wrapped_func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 294, in retry_wrapped_func
+custom_backend-1  |     return retry_target(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 156, in retry_target
+custom_backend-1  |     next_sleep = _retry_error_helper(
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_base.py", line 214, in _retry_error_helper
+custom_backend-1  |     raise final_exc from source_exc
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/retry/retry_unary.py", line 147, in retry_target
+custom_backend-1  |     result = target()
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+custom_backend-1  |     return func(*args, **kwargs)
+custom_backend-1  |   File "/usr/local/lib/python3.9/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+custom_backend-1  |     raise exceptions.from_grpc_error(exc) from exc
+custom_backend-1  | google.api_core.exceptions.ResourceExhausted: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | Please retry in 31.394831077s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 31
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Parts Salesperson: 500: AI image generation failed: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits.
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0
+custom_backend-1  | Please retry in 31.394831077s. [violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count"
+custom_backend-1  |   quota_id: "GenerateContentInputTokensPerModelPerMinute-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerMinutePerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | violations {
+custom_backend-1  |   quota_metric: "generativelanguage.googleapis.com/generate_content_free_tier_requests"
+custom_backend-1  |   quota_id: "GenerateRequestsPerDayPerProjectPerModel-FreeTier"
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "model"
+custom_backend-1  |     value: "gemini-2.5-flash-preview-image"
+custom_backend-1  |   }
+custom_backend-1  |   quota_dimensions {
+custom_backend-1  |     key: "location"
+custom_backend-1  |     value: "global"
+custom_backend-1  |   }
+custom_backend-1  | }
+custom_backend-1  | , links {
+custom_backend-1  |   description: "Learn more about Gemini API quotas"
+custom_backend-1  |   url: "https://ai.google.dev/gemini-api/docs/rate-limits"
+custom_backend-1  | }
+custom_backend-1  | , retry_delay {
+custom_backend-1  |   seconds: 31
+custom_backend-1  | }
+custom_backend-1  | ]
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Generated 6 course templates
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 1: Electromechanic
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 2: Automotive Mechanic
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 3: Painter
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 4: Bodywork Technician
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 5: Diagnostic Technician
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 6: Parts Salesperson
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Generated 6 course templates
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 1: Electromechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 2: Automotive Mechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 3: Painter
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 4: Bodywork Technician
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Diagnostic Technician
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Parts Salesperson
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Landing page data - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Landing page data - payload.language: 'en'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] Landing page data structure created:
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyName: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyDescription: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - originalPayload keys: ['companyWebsite', 'language']
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Successfully created project with ID: 147
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project saved to database with ID: 147
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:🔧 [AUDIT DATA FLOW] Assigned landing page to existing folder: 21
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Finished the Landing Page Generation
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data: {'id': 147, 'name': 'AI-Аудит Landing Page: Mercedes-Benz Polska', 'companyName': 'Mercedes-Benz Polska', 'companyDescription': 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'}
+custom_backend-1  | INFO:     172.18.0.12:40024 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55240 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55244 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55246 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55260 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55264 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44794 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44798 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44812 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44814 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44822 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49572 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49574 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49582 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49596 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:49604 - "GET /api/custom/ai-audit/progress?jobId=034a7e44-e1b0-4011-b4f2-9837186c3c8e HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60676 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60690 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60692 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60696 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60712 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60724 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60736 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60744 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60748 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60764 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60774 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60806 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60798 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60784 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60816 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:60824 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 147 - Raw details_data type: <class 'dict'>
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 147 - Already dict, after round_hours: {
+custom_backend-1  |   "language": "en",
+custom_backend-1  |   "companyName": "Mercedes-Benz Polska",
+custom_backend-1  |   "jobPositions": [
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Electromechanic",
+custom_backend-1  |       "description": "Responsible for the maintenance and repair of electrical and mechanical systems in vehicles."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Automotive Mechanic",
+custom_backend-1  |       "description": "Performs diagnostics, repairs, and maintenance on various vehicle models."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Painter",
+custom_backend-1  |       "description": "Handles the painting and finishing of vehicles to ensure high-quality aesthetics."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Bodywork Technician",
+custom_backend-1  |       "description": "Repairs and restores vehicle body structures and panels."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Diagnostic Technician",
+custom_backend-1  |       "description": "Utilizes diagnostic tools to identify and resolve vehicle issues."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Parts Salesperson",
+custom_backend-1  |       "description": "Sells automotive parts and accessories to customers and provides product knowledge."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Sales Advisor",
+custom_backend-1  |       "description": "Engages with customers to understand their needs and promote vehicle sales."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Logistics Staff",
+custom_backend-1  |       "description": "Manages the logistics and supply chain processes within the company."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Electric Vehicle Technician",
+custom_backend-1  |       "description": "Training in electric vehicle systems and maintenance."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Luxury Sales Consultant",
+custom_backend-1  |       "description": "Training in luxury sales techniques and customer engagement."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "icon": "\ud83d\udc77",
+custom_backend-1  |       "title": "Automotive Quality Assurance Engineer",
+custom_backend-1  |       "description": "Training in quality control processes and standards."
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "courseTemplates": [
+custom_backend-1  |     {
+custom_backend-1  |       "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png",
+custom_backend-1  |       "title": "Electromechanic",
+custom_backend-1  |       "rating": "5.0",
+custom_backend-1  |       "lessons": 20,
+custom_backend-1  |       "modules": 4,
+custom_backend-1  |       "description": "Training in electromechanical systems for electromechanic."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png",
+custom_backend-1  |       "title": "Automotive Mechanic",
+custom_backend-1  |       "rating": "5.0",
+custom_backend-1  |       "lessons": 20,
+custom_backend-1  |       "modules": 4,
+custom_backend-1  |       "description": "Training in automotive systems for mechanic."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png",
+custom_backend-1  |       "title": "Painter",
+custom_backend-1  |       "rating": "5.0",
+custom_backend-1  |       "lessons": 20,
+custom_backend-1  |       "modules": 4,
+custom_backend-1  |       "description": "Training in painting techniques for painter."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png",
+custom_backend-1  |       "title": "Bodywork Technician",
+custom_backend-1  |       "rating": "5.0",
+custom_backend-1  |       "lessons": 20,
+custom_backend-1  |       "modules": 4,
+custom_backend-1  |       "description": "Training in body repair techniques for Bodywork Technician."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png",
+custom_backend-1  |       "title": "Diagnostic Technician",
+custom_backend-1  |       "rating": "5.0",
+custom_backend-1  |       "lessons": 20,
+custom_backend-1  |       "modules": 4,
+custom_backend-1  |       "description": "Training in diagnostic techniques for technician."
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png",
+custom_backend-1  |       "title": "Parts Salesperson",
+custom_backend-1  |       "rating": "5.0",
+custom_backend-1  |       "lessons": 20,
+custom_backend-1  |       "modules": 4,
+custom_backend-1  |       "description": "Training in parts sales and customer service for Parts Salesperson."
+custom_backend-1  |     }
+custom_backend-1  |   ],
+custom_backend-1  |   "originalPayload": {
+custom_backend-1  |     "language": "en",
+custom_backend-1  |     "companyWebsite": "https://www.mercedes-benz.pl/"
+custom_backend-1  |   },
+custom_backend-1  |   "workforceCrisis": {
+custom_backend-1  |     "losses": {
+custom_backend-1  |       "amount": "$10K\u2013$20K"
+custom_backend-1  |     },
+custom_backend-1  |     "burnout": {
+custom_backend-1  |       "months": "24",
+custom_backend-1  |       "industryName": "automotive companies"
+custom_backend-1  |     },
+custom_backend-1  |     "industry": "automotive industry",
+custom_backend-1  |     "turnover": {
+custom_backend-1  |       "earlyExit": {
+custom_backend-1  |         "months": "3",
+custom_backend-1  |         "percentage": "30"
+custom_backend-1  |       },
+custom_backend-1  |       "percentage": "15"
+custom_backend-1  |     },
+custom_backend-1  |     "chartData": {
+custom_backend-1  |       "trend": "growth",
+custom_backend-1  |       "industry": "Automotive Manufacturing",
+custom_backend-1  |       "chartData": [
+custom_backend-1  |         {
+custom_backend-1  |           "month": "January",
+custom_backend-1  |           "shortage": 3200
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "February",
+custom_backend-1  |           "shortage": 3100
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "March",
+custom_backend-1  |           "shortage": 3500
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "April",
+custom_backend-1  |           "shortage": 3700
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "May",
+custom_backend-1  |           "shortage": 3600
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "June",
+custom_backend-1  |           "shortage": 4000
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "July",
+custom_backend-1  |           "shortage": 4300
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "August",
+custom_backend-1  |           "shortage": 3900
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "September",
+custom_backend-1  |           "shortage": 4100
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "October",
+custom_backend-1  |           "shortage": 4400
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "November",
+custom_backend-1  |           "shortage": 4200
+custom_backend-1  |         },
+custom_backend-1  |         {
+custom_backend-1  |           "month": "December",
+custom_backend-1  |           "shortage": 4500
+custom_backend-1  |         }
+custom_backend-1  |       ],
+custom_backend-1  |       "description": "The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 48,700 specialists over the past year. The trend shows consistent growth, particularly in the summer months, as demand for vehicle production increases. However, there are slight decreases in February and August, likely due to seasonal factors such as winter slowdowns and summer vacations.",
+custom_backend-1  |       "totalShortage": 48700
+custom_backend-1  |     },
+custom_backend-1  |     "searchTime": {
+custom_backend-1  |       "days": "30\u201360"
+custom_backend-1  |     },
+custom_backend-1  |     "industryForms": {
+custom_backend-1  |       "crisis_in": "\u0432 automotive industry \u043e\u0442\u0440\u0430\u0441\u043b\u0438",
+custom_backend-1  |       "in_sector": "\u0432 automotive industry \u0441\u0435\u043a\u0442\u043e\u0440\u0435",
+custom_backend-1  |       "in_industry": "\u0432 automotive industry \u043e\u0442\u0440\u0430\u0441\u043b\u0438",
+custom_backend-1  |       "of_industry": "automotive industry \u043e\u0442\u0440\u0430\u0441\u043b\u0438",
+custom_backend-1  |       "shortage_in": "\u0432 automotive industry \u0441\u0435\u043a\u0442\u043e\u0440\u0435"
+custom_backend-1  |     },
+custom_backend-1  |     "yearlyShortage": {
+custom_backend-1  |       "industry": "Automotive Manufacturing",
+custom_backend-1  |       "description": "The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury and performance vehicles. With the growth of electric and hybrid vehicle production, the need for skilled workers such as automotive electricians, process engineers, and mechanics has surged. This shortage is exacerbated by the retirement of existing workers and the limited number of training programs available, leading to an estimated annual shortage of around 60,000 specialists.",
+custom_backend-1  |       "yearlyShortage": 60000
+custom_backend-1  |     }
+custom_backend-1  |   },
+custom_backend-1  |   "companyDescription": "Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.",
+custom_backend-1  |   "courseOutlineModules": [
+custom_backend-1  |     {
+custom_backend-1  |       "title": "Introduction to Mercedes-Benz Electromechanics",
+custom_backend-1  |       "lessons": [
+custom_backend-1  |         "Understanding the Mercedes-Benz Brand and Culture",
+custom_backend-1  |         "Overview of Electromechanical Systems in Luxury Vehicles",
+custom_backend-1  |         "Safety Protocols and Best Practices in the Workshop",
+custom_backend-1  |         "Introduction to Diagnostic Tools and Equipment",
+custom_backend-1  |         "Basic Electrical Principles for Electromechanics"
+custom_backend-1  |       ]
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "title": "Advanced Diagnostics and Troubleshooting",
+custom_backend-1  |       "lessons": [
+custom_backend-1  |         "Using Diagnostic Software for Vehicle Systems",
+custom_backend-1  |         "Identifying and Resolving Electrical Faults",
+custom_backend-1  |         "Understanding CAN Bus and Communication Protocols",
+custom_backend-1  |         "Troubleshooting Common Electromechanical Issues",
+custom_backend-1  |         "Case Studies: Real-World Problem Solving"
+custom_backend-1  |       ]
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "title": "Hands-On Electromechanical Skills",
+custom_backend-1  |       "lessons": [
+custom_backend-1  |         "Performing Electrical Repairs and Replacements",
+custom_backend-1  |         "Working with Hybrid and Electric Vehicle Systems",
+custom_backend-1  |         "Calibration and Configuration of Electromechanical Components",
+custom_backend-1  |         "Routine Maintenance Procedures for Optimal Performance",
+custom_backend-1  |         "Quality Control and Assurance in Repairs"
+custom_backend-1  |       ]
+custom_backend-1  |     },
+custom_backend-1  |     {
+custom_backend-1  |       "title": "Professional Development and Customer Interaction",
+custom_backend-1  |       "lessons": [
+custom_backend-1  |         "Effective Communication with Customers and Team Members",
+custom_backend-1  |         "Understanding Customer Expectations in Luxury Services",
+custom_backend-1  |         "Time Management and Workflow Optimization",
+custom_backend-1  |         "Continuous Learning and Staying Updated with Industry Trends",
+custom_backend-1  |         "Building a Career Path in Electromechanics at Mercedes-Benz"
+custom_backend-1  |       ]
+custom_backend-1  |     }
+custom_backend-1  |   ]
+custom_backend-1  | }
+custom_backend-1  | INFO:main:📋 [BACKEND VIEW] Project 147 - No contentBlocks in parsed_details or parsed_details is None
+custom_backend-1  | INFO:     172.18.0.12:60838 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60830 - "GET /api/custom/projects/view/147 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 147
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'en'
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
@@ -10,64 +1759,60 @@ custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Ауд�
 custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['language', 'companyName', 'jobPositions', 'courseTemplates', 'originalPayload', 'workforceCrisis', 'companyDescription', 'courseOutlineModules']
 custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
 custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Mercedes-Benz Polska'
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company providing luxury vehicles including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 11 positions
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Job positions found in landing page data:
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'icon': '👷', 'title': 'Electromechanic', 'description': 'Responsible for the maintenance and repair of electrical and mechanical systems in vehicles.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'icon': '👷', 'title': 'Automotive Mechanic', 'description': 'Diagnoses and repairs automotive systems and components.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'icon': '👷', 'title': 'Automotive Mechanic', 'description': 'Performs diagnostics, repairs, and maintenance on various vehicle models.'}
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'icon': '👷', 'title': 'Painter', 'description': 'Handles the painting and finishing of vehicles to ensure high-quality aesthetics.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'icon': '👷', 'title': 'Bodywork Technician', 'description': 'Repairs and restores the body structure of vehicles.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'icon': '👷', 'title': 'Parts Salesperson', 'description': 'Sells automotive parts and provides customer service in parts departments.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 6: {'icon': '👷', 'title': 'Sales Consultant', 'description': 'Advises customers on vehicle purchases and financing options.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 7: {'icon': '👷', 'title': 'Logistics Employee', 'description': 'Manages the supply chain and logistics operations for vehicle production.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 8: {'icon': '👷', 'title': 'Process Engineer', 'description': 'Implements and audits processes related to vehicle manufacturing and product quality.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'icon': '👷', 'title': 'Bodywork Technician', 'description': 'Repairs and restores vehicle body structures and panels.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'icon': '👷', 'title': 'Diagnostic Technician', 'description': 'Utilizes diagnostic tools to identify and resolve vehicle issues.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 6: {'icon': '👷', 'title': 'Parts Salesperson', 'description': 'Sells automotive parts and accessories to customers and provides product knowledge.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 7: {'icon': '👷', 'title': 'Sales Advisor', 'description': 'Engages with customers to understand their needs and promote vehicle sales.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 8: {'icon': '👷', 'title': 'Logistics Staff', 'description': 'Manages the logistics and supply chain processes within the company.'}
 custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'icon': '👷', 'title': 'Electric Vehicle Technician', 'description': 'Training in electric vehicle systems and maintenance.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'icon': '👷', 'title': 'Sales Consultant', 'description': 'Training in luxury vehicle sales and customer engagement.'}
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'icon': '👷', 'title': 'Quality Assurance Specialist', 'description': 'Training in quality control processes and standards.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'icon': '👷', 'title': 'Luxury Sales Consultant', 'description': 'Training in luxury sales techniques and customer engagement.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'icon': '👷', 'title': 'Automotive Quality Assurance Engineer', 'description': 'Training in quality control processes and standards.'}
 custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
-custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive manufacturing'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '20'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3000}, {'month': 'February', 'shortage': 2900}, {'month': 'March', 'shortage': 3200}, {'month': 'April', 'shortage': 3500}, {'month': 'May', 'shortage': 3400}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4200}, {'month': 'August', 'shortage': 3700}, {'month': 'September', 'shortage': 3900}, {'month': 'October', 'shortage': 4300}, {'month': 'November', 'shortage': 4100}, {'month': 'December', 'shortage': 4500}], 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 45,500 specialists over the past year. Seasonal fluctuations are evident, particularly with a decrease in August due to vacation periods, and a slight dip in February and May, likely influenced by economic cycles and market adjustments.', 'totalShortage': 45500}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': "The automotive manufacturing industry is experiencing a significant shortage of qualified specialists due to rapid technological advancements, increased production demands, and a growing focus on electric vehicles. With the industry's expansion and the need for skilled workers in areas such as engineering, production, and maintenance, a shortage of approximately 90,000 specialists per year is a realistic estimate, considering both local and regional market dynamics.", 'yearlyShortage': 90000}}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive companies'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '30'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3700}, {'month': 'May', 'shortage': 3600}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4400}, {'month': 'November', 'shortage': 4200}, {'month': 'December', 'shortage': 4500}], 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 48,700 specialists over the past year. The trend shows consistent growth, particularly in the summer months, as demand for vehicle production increases. However, there are slight decreases in February and August, likely due to seasonal factors such as winter slowdowns and summer vacations.', 'totalShortage': 48700}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': 'The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury and performance vehicles. With the growth of electric and hybrid vehicle production, the need for skilled workers such as automotive electricians, process engineers, and mechanics has surged. This shortage is exacerbated by the retirement of existing workers and the limited number of training programs available, leading to an estimated annual shortage of around 60,000 specialists.', 'yearlyShortage': 60000}}
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
 custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 4
-custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Introduction to Electromechanics at Mercedes-Benz', 'lessons': ['Understanding the Role of an Electromechanic', 'Overview of Mercedes-Benz Vehicle Systems', 'Safety Protocols in the Workshop', 'Introduction to Diagnostic Tools and Equipment', 'Corporate Culture and Values of Mercedes-Benz']}
-custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 2: {'title': 'Hands-On Skills Development', 'lessons': ['Basic Electrical Systems and Troubleshooting', 'Mechanical Systems: Assembly and Disassembly', 'Using Diagnostic Software for Vehicle Analysis', 'Understanding and Repairing Hybrid Systems', 'Practical Exercises in Vehicle Maintenance']}
-custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 3: {'title': 'Advanced Electromechanical Systems', 'lessons': ['Integration of Electronics in Modern Vehicles', 'Advanced Troubleshooting Techniques', 'Understanding Vehicle Communication Networks', 'Calibration and Programming of Electronic Components', 'Real-World Case Studies of Electromechanical Failures']}
-custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 4: {'title': 'Professional Development and Continuous Learning', 'lessons': ['Staying Updated with Industry Trends', 'Effective Communication with Team and Customers', 'Participating in Continuous Training Programs', 'Career Pathways within Mercedes-Benz', 'Feedback and Performance Evaluation Processes']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Introduction to Mercedes-Benz Electromechanics', 'lessons': ['Understanding the Mercedes-Benz Brand and Culture', 'Overview of Electromechanical Systems in Luxury Vehicles', 'Safety Protocols and Best Practices in the Workshop', 'Introduction to Diagnostic Tools and Equipment', 'Basic Electrical Principles for Electromechanics']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 2: {'title': 'Advanced Diagnostics and Troubleshooting', 'lessons': ['Using Diagnostic Software for Vehicle Systems', 'Identifying and Resolving Electrical Faults', 'Understanding CAN Bus and Communication Protocols', 'Troubleshooting Common Electromechanical Issues', 'Case Studies: Real-World Problem Solving']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 3: {'title': 'Hands-On Electromechanical Skills', 'lessons': ['Performing Electrical Repairs and Replacements', 'Working with Hybrid and Electric Vehicle Systems', 'Calibration and Configuration of Electromechanical Components', 'Routine Maintenance Procedures for Optimal Performance', 'Quality Control and Assurance in Repairs']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 4: {'title': 'Professional Development and Customer Interaction', 'lessons': ['Effective Communication with Customers and Team Members', 'Understanding Customer Expectations in Luxury Services', 'Time Management and Workflow Optimization', 'Continuous Learning and Staying Updated with Industry Trends', 'Building a Career Path in Electromechanics at Mercedes-Benz']}
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 6
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 1: Electromechanic
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 2: Automotive Mechanic
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 3: Painter
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 4: Bodywork Technician
-custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Parts Salesperson
-custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Sales Consultant
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Diagnostic Technician
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Parts Salesperson
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 145
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 147
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Mercedes-Benz Polska'
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company providing luxury vehicles including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and station wagons.'
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 11
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive manufacturing'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '20'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3000}, {'month': 'February', 'shortage': 2900}, {'month': 'March', 'shortage': 3200}, {'month': 'April', 'shortage': 3500}, {'month': 'May', 'shortage': 3400}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4200}, {'month': 'August', 'shortage': 3700}, {'month': 'September', 'shortage': 3900}, {'month': 'October', 'shortage': 4300}, {'month': 'November', 'shortage': 4100}, {'month': 'December', 'shortage': 4500}], 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 45,500 specialists over the past year. Seasonal fluctuations are evident, particularly with a decrease in August due to vacation periods, and a slight dip in February and May, likely influenced by economic cycles and market adjustments.', 'totalShortage': 45500}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': "The automotive manufacturing industry is experiencing a significant shortage of qualified specialists due to rapid technological advancements, increased production demands, and a growing focus on electric vehicles. With the industry's expansion and the need for skilled workers in areas such as engineering, production, and maintenance, a shortage of approximately 90,000 specialists per year is a realistic estimate, considering both local and regional market dynamics.", 'yearlyShortage': 90000}}
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive companies'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '30'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3700}, {'month': 'May', 'shortage': 3600}, {'month': 'June', 'shortage': 4000}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4400}, {'month': 'November', 'shortage': 4200}, {'month': 'December', 'shortage': 4500}], 'description': 'The automotive manufacturing industry is experiencing a significant personnel shortage, with a total shortage of 48,700 specialists over the past year. The trend shows consistent growth, particularly in the summer months, as demand for vehicle production increases. However, there are slight decreases in February and August, likely due to seasonal factors such as winter slowdowns and summer vacations.', 'totalShortage': 48700}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': 'The automotive manufacturing industry in Poland is experiencing a significant shortage of qualified specialists due to the increasing demand for luxury and performance vehicles. With the growth of electric and hybrid vehicle production, the need for skilled workers such as automotive electricians, process engineers, and mechanics has surged. This shortage is exacerbated by the retirement of existing workers and the limited number of training programs available, leading to an estimated annual shortage of around 60,000 specialists.', 'yearlyShortage': 60000}}
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'en'
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
-custom_backend-1  | INFO:     172.18.0.12:43328 - "GET /api/custom/ai-audit/landing-page/145 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60852 - "GET /api/custom/ai-audit/landing-page/147 HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 145 - Storing content to DB: {
+custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 147 - Storing content to DB: {
 custom_backend-1  |   "sections": [],
 custom_backend-1  |   "theme": "cherry"
 custom_backend-1  | }
-custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 145 - Retrieved content from DB: {
+custom_backend-1  | INFO:main:📥 [BACKEND RETRIEVE] Project 147 - Retrieved content from DB: {
 custom_backend-1  |   "theme": "cherry",
 custom_backend-1  |   "sections": []
 custom_backend-1  | }
-custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 145 - About to validate with component: TextPresentationDisplay
-custom_backend-1  | ERROR:main:❌ [BACKEND VALIDATION ERROR] Project 145 - Error parsing updated content from DB: name 'project_name' is not defined
-custom_backend-1  | Traceback (most recent call last):
-custom_backend-1  |   File "/app/main.py", line 19842, in update_project_in_db
-custom_backend-1  |     if (project_name and "AI-Аудит Landing Page" in project_name) or \
-custom_backend-1  | NameError: name 'project_name' is not defined
-custom_backend-1  | INFO:     172.18.0.12:59986 - "PUT /api/custom/projects/update/145 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 145
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 147 - About to validate with component: TextPresentationDisplay
+custom_backend-1  | INFO:main:🔧 [BACKEND VALIDATION] Project 147 - Skipping validation for AI audit landing page
+custom_backend-1  | INFO:     172.18.0.12:38388 - "PUT /api/custom/projects/update/147 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 147
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'NOT_FOUND'
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
@@ -87,7 +1832,7 @@ custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules co
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
 custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 0
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 145
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 147
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Unknown Company'
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company description not available'
@@ -95,55 +1840,4 @@ custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 3
 custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {}
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'ru'
 custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
-custom_backend-1  | INFO:     172.18.0.12:55640 - "GET /api/custom/ai-audit/landing-page/145 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 145
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'NOT_FOUND'
-custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
-custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
-custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
-custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['theme', 'sections']
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Unknown Company'
-custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company description not available'
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 0 positions
-custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions
-custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
-custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {}
-custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
-custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 0
-custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
-custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 0
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 145
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Unknown Company'
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company description not available'
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 3
-custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {}
-custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'ru'
-custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
-custom_backend-1  | INFO:     172.18.0.12:44500 - "GET /api/custom/ai-audit/landing-page/145 HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:44508 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47176 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47182 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47208 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:47196 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47222 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47236 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47252 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47266 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47268 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47278 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:38404 - "GET /api/custom/ai-audit/landing-page/147 HTTP/1.1" 200 OK
