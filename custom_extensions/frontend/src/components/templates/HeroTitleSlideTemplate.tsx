@@ -320,7 +320,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
       }}>
         {/* Main Title - wrapped */}
         <div data-draggable="true" style={{ 
-          display: 'inline-block', 
+          display: 'block', 
           width: '100%',
           textAlign: textAlign as any
         }}>
@@ -370,7 +370,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
 
         {/* Subtitle - wrapped */}
         <div data-draggable="true" style={{ 
-          display: 'inline-block', 
+          display: 'block', 
           width: '100%',
           textAlign: textAlign as any
         }}>
