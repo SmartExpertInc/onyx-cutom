@@ -1182,7 +1182,7 @@ export default function QuizClient() {
                                       <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                     <span className="text-[#09090B] opacity-50">{t('interface.generate.outline', 'Outline')}:</span>
-                                    <span className="text-[#09090B]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
+                                    <span className="text-[#09090B] truncate max-w-[120px]">{outlines.find(o => o.id === selectedOutlineId)?.name || ''}</span>
                                   </div>
                                 </SelectTrigger>
                                 <SelectContent className="border-white" sideOffset={15}>
@@ -1221,7 +1221,7 @@ export default function QuizClient() {
                                       <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                     <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
-                                    <span className="text-[#09090B]">{modulesForOutline[selectedModuleIndex]?.name || ''}</span>
+                                    <span className="text-[#09090B] truncate max-w-[120px]">{modulesForOutline[selectedModuleIndex]?.name || ''}</span>
                                   </div>
                                 </SelectTrigger>
                                 <SelectContent className="border-white" sideOffset={15}>
@@ -1254,7 +1254,7 @@ export default function QuizClient() {
                                       <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                     <span className="text-[#09090B] opacity-50">{t('interface.generate.lesson', 'Lesson')}:</span>
-                                    <span className="text-[#09090B]">{selectedLesson}</span>
+                                    <span className="text-[#09090B] truncate max-w-[120px]">{selectedLesson}</span>
                                   </div>
                                 </SelectTrigger>
                                 <SelectContent className="border-white" sideOffset={15}>
