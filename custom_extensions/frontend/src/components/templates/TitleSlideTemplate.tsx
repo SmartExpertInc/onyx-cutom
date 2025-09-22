@@ -178,7 +178,6 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     backgroundRepeat: 'no-repeat',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
     alignItems: 'center',
     padding: '60px 80px',
     position: 'relative',
@@ -208,7 +207,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   };
 
   const logoTextStyles: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '17px',
     fontWeight: '300',
     color: titleColor
   };
@@ -218,6 +217,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: 'center',
+    marginTop: '130px',
     marginBottom: '24px',
     lineHeight: 1.2,
     maxWidth: '900px',
