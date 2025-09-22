@@ -157,6 +157,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   const [editingAuthor, setEditingAuthor] = useState(false);
   const [editingDate, setEditingDate] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -302,7 +303,12 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   return (
     <div className="title-slide-template" style={slideStyles}>
       {/* Logo at the top */}
-      <div style={logoStyles}>
+      <div 
+        ref={logoRef}
+        data-moveable-element={`${slideId}-logo`}
+        data-draggable="true" 
+        style={logoStyles}
+      >
         <div style={logoIconStyles}>
           <div style={{
             width: '12px',
