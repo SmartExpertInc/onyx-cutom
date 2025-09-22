@@ -1254,7 +1254,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-1 mb-1">
+          <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1294,7 +1294,7 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-2 mb-1">
             {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+              <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1417,7 +1417,7 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-2 mb-1">
             {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingQuizOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+              <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1584,7 +1584,7 @@ function GenerateProductPicker() {
           <div className="flex flex-col items-center gap-2 mb-1">
             {/* Show dropdowns directly (defaulting to standalone mode) */}
             {useExistingTextOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
+              <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1758,7 +1758,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1 mb-1">
+          <div className="w-full max-w-4xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
