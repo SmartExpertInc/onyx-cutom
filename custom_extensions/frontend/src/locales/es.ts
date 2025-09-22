@@ -366,6 +366,8 @@ export const es = {
       "Organiza tus productos por tema y compártelos con tu equipo",
     templates: "Plantillas",
     themes: "Temas",
+    createFirstFolder: "Crear primera carpeta",
+    organizeCourses: "Organiza tus cursos en carpetas, manténlos estructurados y trabaja más eficientemente",
 
     // Smart Drive content
     smartDriveBrowser: "Navegador de Disco Inteligente",

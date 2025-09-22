@@ -356,6 +356,8 @@ export const uk = {
       "Організуйте свої продукти за темами та діліться ними з командою",
     templates: "Шаблони",
     themes: "Теми",
+    createFirstFolder: "Створити першу папку",
+    organizeCourses: "Організуйте свої курси в папки, структуруйте їх і працюйте ефективніше",
 
     // Smart Drive content
     smartDriveBrowser: "Браузер Розумного диска",

@@ -370,6 +370,8 @@ export const ru = {
       "Организуйте свои продукты по темам и делитесь ими с командой",
     templates: "Шаблоны",
     themes: "Темы",
+    createFirstFolder: "Создать первую папку",
+    organizeCourses: "Организуйте свои курсы в папки, структурируйте их и работайте более эффективно",
 
     // Smart Drive content
     smartDriveBrowser: "Браузер Умного диска",

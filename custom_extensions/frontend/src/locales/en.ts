@@ -390,6 +390,8 @@ export const en = {
       "Organize your products by topic and share them with your team",
     templates: "Templates",
     themes: "Themes",
+    createFirstFolder: "Create First Folder",
+    organizeCourses: "Organize your courses into folders, keep them structured and work more efficiently",
 
     // Smart Drive content
     smartDriveBrowser: "Smart Drive Browser",
