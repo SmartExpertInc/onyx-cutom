@@ -43,19 +43,27 @@ function InlineEditor({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !multiline) {
       e.preventDefault();
+      console.log('⌨️ [TEXT EDIT] Enter key pressed - saving value:', value);
       onSave(value);
     } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
       e.preventDefault();
+      console.log('⌨️ [TEXT EDIT] Ctrl+Enter pressed - saving value:', value);
       onSave(value);
     } else if (e.key === 'Escape') {
       e.preventDefault();
+      console.log('⌨️ [TEXT EDIT] Escape key pressed - canceling edit');
       onCancel();
     }
+  };
+
+  const handleFocus = () => {
+    console.log('🎯 [TEXT EDIT] Focus started - initial value:', initialValue);
   };
 
   const handleBlur = () => {
     // Ensure we save the current value from the input/textarea
     const currentValue = inputRef.current?.value || value;
+    console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
     onSave(currentValue);
   };
 
@@ -76,6 +84,7 @@ function InlineEditor({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
         onBlur={handleBlur}
         placeholder={placeholder}
         style={{
@@ -104,6 +113,7 @@ function InlineEditor({
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
+      onFocus={handleFocus}
       onBlur={handleBlur}
       placeholder={placeholder}
       style={{
@@ -228,17 +238,42 @@ export default function DynamicAuditLandingPage() {
 
   // Text editing handlers
   const startEditing = (field: string) => {
+    console.log('🚀 [TEXT EDIT] Starting edit for field:', field);
     setEditingField(field)
   }
 
   const stopEditing = () => {
+    console.log('🛑 [TEXT EDIT] Stopping edit for field:', editingField);
     setEditingField(null)
   }
 
   const handleTextSave = (field: string, newValue: string) => {
     if (!landingPageData) return
     
-    console.log('🔄 [TEXT SAVE] Saving field:', field, 'with value:', newValue);
+    // Get the current value for comparison
+    let currentValue = '';
+    switch (field) {
+      case 'companyName':
+        currentValue = landingPageData.companyName || '';
+        break
+      case 'companyDescription':
+        currentValue = landingPageData.companyDescription || '';
+        break
+      case 'projectName':
+        currentValue = landingPageData.projectName || '';
+        break
+      default:
+        if (field.startsWith('jobPosition_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.jobPositions?.[index]?.title || '';
+        }
+        break
+    }
+    
+    console.log('🔄 [TEXT SAVE] Saving field:', field);
+    console.log('📝 [TEXT SAVE] Previous value:', currentValue);
+    console.log('📝 [TEXT SAVE] New value:', newValue);
+    console.log('📝 [TEXT SAVE] Value changed:', currentValue !== newValue);
     
     setLandingPageData(prev => {
       if (!prev) return null
@@ -249,15 +284,15 @@ export default function DynamicAuditLandingPage() {
       switch (field) {
         case 'companyName':
           updated.companyName = newValue
-          console.log('🔄 [TEXT SAVE] Updated companyName to:', newValue);
+          console.log('✅ [TEXT SAVE] Successfully updated companyName');
           break
         case 'companyDescription':
           updated.companyDescription = newValue
-          console.log('🔄 [TEXT SAVE] Updated companyDescription to:', newValue);
+          console.log('✅ [TEXT SAVE] Successfully updated companyDescription');
           break
         case 'projectName':
           updated.projectName = newValue
-          console.log('🔄 [TEXT SAVE] Updated projectName to:', newValue);
+          console.log('✅ [TEXT SAVE] Successfully updated projectName');
           break
         default:
           // Handle nested fields like job positions
@@ -265,7 +300,7 @@ export default function DynamicAuditLandingPage() {
             const index = parseInt(field.split('_')[1])
             if (updated.jobPositions && updated.jobPositions[index]) {
               updated.jobPositions[index] = { ...updated.jobPositions[index], title: newValue }
-              console.log('🔄 [TEXT SAVE] Updated job position', index, 'to:', newValue);
+              console.log('✅ [TEXT SAVE] Successfully updated job position', index);
             }
           }
           break
@@ -275,11 +310,15 @@ export default function DynamicAuditLandingPage() {
     })
     
     setHasUnsavedChanges(true)
+    console.log('💾 [TEXT SAVE] Marked as having unsaved changes');
     stopEditing()
   }
 
   const handleSaveChanges = async () => {
     if (!landingPageData || !projectId) return
+    
+    console.log('💾 [SAVE CHANGES] Starting save operation for project:', projectId);
+    console.log('💾 [SAVE CHANGES] Data being saved:', landingPageData);
     
     setIsSaving(true)
     try {
@@ -294,19 +333,23 @@ export default function DynamicAuditLandingPage() {
       
       if (response.ok) {
         setHasUnsavedChanges(false)
+        console.log('✅ [SAVE CHANGES] Successfully saved changes to backend');
         alert('Changes saved successfully!')
       } else {
+        console.error('❌ [SAVE CHANGES] Backend save failed with status:', response.status);
         throw new Error('Failed to save changes')
       }
     } catch (error) {
-      console.error('Error saving changes:', error)
+      console.error('❌ [SAVE CHANGES] Error saving changes:', error)
       alert('Failed to save changes. Please try again.')
     } finally {
       setIsSaving(false)
+      console.log('🏁 [SAVE CHANGES] Save operation completed');
     }
   }
 
   const handleTextCancel = () => {
+    console.log('❌ [TEXT EDIT] Edit canceled for field:', editingField);
     stopEditing()
   }
 
@@ -317,6 +360,7 @@ export default function DynamicAuditLandingPage() {
         // Check if click is outside any editing input
         const target = event.target as HTMLElement;
         if (!target.closest('input, textarea')) {
+          console.log('🖱️ [TEXT EDIT] Clicked outside - stopping edit for field:', editingField);
           stopEditing();
         }
       }
