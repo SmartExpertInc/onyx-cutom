@@ -33,6 +33,8 @@ import inspect
 # NEW: OpenAI imports for direct usage
 import openai
 from openai import AsyncOpenAI
+# NEW: Google Gemini imports for image generation
+import google.generativeai as genai
 from uuid import uuid4
 # NEW: PDF manipulation imports
 try:
@@ -71,6 +73,9 @@ COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
 LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+
+# NEW: Google Gemini API configuration
+GEMINI_API_KEY = "AIzaSyCq__52NDggCpRnXbIv2RiCR5MU8S4-tmE"
 
 SERPAPI_KEY = "ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7"
 
@@ -8855,7 +8860,7 @@ class AIImageGenerationRequest(BaseModel):
     height: int = Field(..., description="Image height in pixels", ge=256, le=1792)
     quality: str = Field(default="standard", description="Image quality: standard or hd")
     style: str = Field(default="vivid", description="Image style: vivid or natural")
-    model: str = Field(default="dall-e-3", description="DALL-E model to use")
+    model: str = Field(default="gemini-2.5-flash-image-preview", description="Image generation model to use")
 
 @app.post("/api/custom/presentation/generate_image", responses={
     200: {"description": "Image generated successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/ai_generated_image.png"}}}},
@@ -8863,12 +8868,12 @@ class AIImageGenerationRequest(BaseModel):
     500: {"description": "AI generation failed", "model": ErrorDetail}
 })
 async def generate_ai_image(request: AIImageGenerationRequest):
-    """Generate an image using DALL-E AI"""
+    """Generate an image using Google Gemini AI"""
     try:
         logger.info(f"[AI_IMAGE_GENERATION] Starting generation with prompt: '{request.prompt[:50]}...'")
         logger.info(f"[AI_IMAGE_GENERATION] Dimensions: {request.width}x{request.height}, Quality: {request.quality}, Style: {request.style}")
         
-        # Validate dimensions (DALL-E 3 requirements)
+        # Validate dimensions (Gemini supports flexible dimensions, but we'll keep the same validation for consistency)
         valid_sizes = [(1024, 1024), (1792, 1024), (1024, 1792)]
         current_size = (request.width, request.height)
         
@@ -8885,34 +8890,33 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                 
             logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions from {current_size} to {request.width}x{request.height}")
         
-        # Get OpenAI client
-        client = get_openai_client()
+        # Get Gemini client
+        if not GEMINI_API_KEY:
+            raise ValueError("No Gemini API key configured. Set GEMINI_API_KEY environment variable.")
+        genai.configure(api_key=GEMINI_API_KEY)
         
-        # Generate image using DALL-E
-        response = await client.images.generate(
-            model=request.model,
-            prompt=request.prompt,
-            size=f"{request.width}x{request.height}",
-            quality=request.quality,
-            style=request.style,
-            n=1
-        )
+        # Generate image using Gemini
+        model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
+        response = model.generate_content(request.prompt)
         
-        if not response.data or len(response.data) == 0:
-            raise Exception("No image data received from DALL-E")
+        if not response.candidates or len(response.candidates) == 0:
+            raise Exception("No image data received from Gemini")
         
-        # Get the generated image URL
-        image_url = response.data[0].url
-        if not image_url:
-            raise Exception("No image URL received from DALL-E")
+        # Get the generated image data (base64)
+        image_data_b64 = None
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, 'inline_data') and part.inline_data:
+                image_data_b64 = part.inline_data.data
+                break
         
-        logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, downloading from: {image_url[:50]}...")
+        if not image_data_b64:
+            raise Exception("No image data received from Gemini")
         
-        # Download the image
-        async with httpx.AsyncClient() as http_client:
-            image_response = await http_client.get(image_url)
-            image_response.raise_for_status()
-            image_data = image_response.content
+        logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...")
+        
+        # Convert base64 to bytes
+        import base64
+        image_data = base64.b64decode(image_data_b64)
         
         # Save the image to disk
         safe_filename_base = str(uuid.uuid4())

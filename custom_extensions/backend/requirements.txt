@@ -12,5 +12,6 @@ python-dotenv # To load .env variables
 python-multipart
 tiktoken
 openai
+google-generativeai # For Gemini image generation
 Pillow # For pie chart image generation
 psutil

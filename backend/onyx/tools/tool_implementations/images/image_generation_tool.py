@@ -90,7 +90,7 @@ class ImageGenerationTool(Tool[None]):
         api_key: str,
         api_base: str | None,
         api_version: str | None,
-        model: str = "dall-e-3",
+        model: str = "gemini-2.5-flash-image-preview",
         num_imgs: int = 2,
         additional_headers: dict[str, str] | None = None,
         output_format: ImageFormat = _DEFAULT_OUTPUT_FORMAT,
