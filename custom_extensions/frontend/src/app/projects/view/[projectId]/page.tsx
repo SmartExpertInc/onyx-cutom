@@ -1992,7 +1992,7 @@ export default function ProjectInstanceViewPage() {
                     >
                       {/* Header */}
                       <div className="flex items-center justify-between p-6 pb-4">
-                        <h2 className="text-2xl font-regular text-gray-900">{t('interface.projectView.addMember', 'Add member to product')}</h2>
+                        <h2 className="text-xl font-regular text-gray-900">{t('interface.projectView.addMember', 'Add member to product')}</h2>
                         <button
                           onClick={() => setRoleAccess(false)}
                           className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -2013,7 +2013,7 @@ export default function ProjectInstanceViewPage() {
                               value={newEmail}
                               onChange={(e) => setNewEmail(e.target.value)}
                               placeholder={t('interface.projectView.addMembersToProduct', 'Add members to product')}
-                              className="flex-1 px-4 py-3 text-sm placeholder-gray-400 text-gray-400 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="flex-1 px-4 py-3 text-sm placeholder-gray-400 text-gray-400 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               onKeyPress={(e) => e.key === 'Enter' && handleAddEmail()}
                             />
                             <button
@@ -2258,7 +2258,7 @@ export default function ProjectInstanceViewPage() {
 
                         {/* Copy link button */}
                         <div className="flex justify-start">
-                          <button className="px-6 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-3xl hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                          <button className="px-6 py-3 text-sm font-medium text-blue-600 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                             </svg>
