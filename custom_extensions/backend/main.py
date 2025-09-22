@@ -1066,7 +1066,7 @@ DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = """
       "templateId": "big-numbers",
       "props": {
         "title": "Digital Marketing Impact",
-        "numbers": [
+        "steps": [
           {
             "value": "4.8B",
             "label": "Internet Users Worldwide",
@@ -17230,6 +17230,61 @@ Preview UI requirement:
 - For EACH slide, ALSO include a short array field "previewKeyPoints" (2-5 items) summarizing the main topics discussed on that slide.
 - Keep each bullet brief (5-12 words), informative, and free of extra punctuation.
 - These previewKeyPoints are for preview only and will be ignored/stripped on save.
+
+CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
+- Use component-based slides with exact fields: slideId, slideNumber, slideTitle, templateId, props{', voiceoverText' if is_video_lesson else ''}.
+- The root must include lessonTitle, slides[], currentSlideId (optional), detectedLanguage; { 'hasVoiceover: true (MANDATORY)' if is_video_lesson else 'hasVoiceover is not required' }.
+- Generate sequential slideNumber values (1..N) and descriptive slideId values (e.g., "slide_3_topic").
+- Preserve original language across all text.
+
+Template Assignment Guidelines:
+- hero-title-slide or title-slide: large title + subtitle format
+- bullet-points / bullet-points-right: slides with lists
+- two-column: two distinct sections of content
+- process-steps: numbered or sequential steps
+- four-box-grid: 4 distinct points/boxes
+- big-numbers: 2-3 numerical metrics/statistics with values and labels
+- pyramid: hierarchical content
+- timeline: chronological content/events
+- challenges-solutions: paired problems vs solutions
+- metrics-analytics: ONLY when slide is about analytics/performance metrics
+- Standard text content: content-slide
+
+CRITICAL TABLE RULE:
+- If prompt/content implies tabular comparison (e.g., table, comparison, vs, side by side, data comparison, statistics, performance table, табличные данные), you MUST use table-dark or table-light with JSON props: tableData.headers[] and tableData.rows[]; NEVER markdown tables.
+
+Template-Specific Props Requirements (abbreviated):
+- big-image-left / big-image-top: title, subtitle/content, imagePrompt (REQUIRED), imageAlt, optional imageUrl/imageSize
+- bullet-points / bullet-points-right: title, bullets[], imagePrompt (REQUIRED), imageAlt, optional bulletStyle/maxColumns
+- two-column: title, leftTitle, leftContent, rightTitle, rightContent, optional leftImagePrompt/rightImagePrompt
+- big-numbers: title, steps[] with EXACTLY 3 items; each item has value, label, description (USE "steps" key, not "numbers")
+- four-box-grid: title, boxes[] with heading/text (or title/content based on schema)
+- process-steps: title, steps[]
+- timeline: title, steps[] or events[] depending on schema example; keep consistent across slides
+- challenges-solutions: title, challengesTitle, solutionsTitle, challenges[], solutions[]
+
+CRITICAL IMAGE PROMPT REQUIREMENTS (imagePrompt fields):
+- ALWAYS generate non-empty, detailed imagePrompt for templates that support images; NEVER leave imagePrompt empty.
+- Style: Minimalist flat design illustration of [detailed subject/scene].
+- Include specific visual elements (objects/people/layout), composition (positioning, relationships, perspective), character details (demographics, clothing, pose), environment, and color placeholders [PRIMARY], [SECONDARY], [TERTIARY], [BACKGROUND].
+- Create scenic illustrations (NOT infographics/icons/text labels). Avoid phrases like "featuring icons", "infographic", or "with clear labels"; describe real scenes and objects.
+- Simplicity: 1-2 people max; 1-3 focal elements; uncluttered composition; plenty of whitespace.
+- Text and labeling: minimize readable text; prefer symbols/shapes; avoid textual labels on screens/documents.
+- Forbidden vague language: do not use "playful design", "colorful illustration", or "depicting [concept]". Replace with concrete scenes describing WHO/WHERE/WHAT/SETTING/LAYOUT.
+- For two-column, use leftImagePrompt/rightImagePrompt when applicable.
+
+General Rules:
+- Do NOT duplicate title and subtitle content; keep them distinct.
+- Maintain the input-intended number of slides if implied; otherwise, respect slidesCount.
+- Localization: auxiliary keywords like Recommendation/Conclusion must match content language when used within props text.
+"""
+        if is_video_lesson:
+            json_preview_instructions += """
+
+VIDEO LESSON SPECIFIC REQUIREMENTS:
+- Every slide MUST include voiceoverText with 2-4 sentences of conversational explanation that expands on the visual content.
+- Use inclusive language ("we", "you", "let's"), smooth transitions, and approximately 30–60 seconds speaking time per slide.
+- The root object MUST include hasVoiceover: true.
 """
         wizard_message = wizard_message + json_preview_instructions
         logger.info(f"[PRESENTATION_PREVIEW] Added JSON-only preview instructions for {'video lesson' if is_video_lesson else 'slide deck'}")
