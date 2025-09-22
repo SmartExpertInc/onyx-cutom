@@ -19838,15 +19838,15 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
-                    try:
+                    # Check if this is an AI audit landing page project
+                    if (project_name and "AI-Аудит Landing Page" in project_name) or \
+                       (db_content and 'companyName' in db_content and 'jobPositions' in db_content):
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for AI audit landing page")
+                        final_content_for_model = db_content  # Skip validation for AI audit data
+                    else:
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
                         final_content_for_model = TextPresentationDetails(**db_content)
                         logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
-                    except Exception as text_presentation_error:
-                        logger.warning(f"⚠️ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation failed, data may not match expected structure: {text_presentation_error}")
-                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Skipping validation for incompatible data structure")
-                        # Skip validation for this case - the data will be stored as-is
-                        final_content_for_model = None
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
@@ -20006,12 +20006,7 @@ async def update_project_folder(project_id: int, update_data: ProjectFolderUpdat
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    try:
-                        final_content_for_model = TextPresentationDetails(**db_content)
-                    except Exception as text_presentation_error:
-                        logger.warning(f"⚠️ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation failed, data may not match expected structure: {text_presentation_error}")
-                        # Skip validation for this case - the data will be stored as-is
-                        final_content_for_model = None
+                    final_content_for_model = TextPresentationDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
@@ -20162,12 +20157,7 @@ async def update_project_tier(project_id: int, req: ProjectTierRequest, onyx_use
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    try:
-                        final_content_for_model = TextPresentationDetails(**db_content)
-                    except Exception as text_presentation_error:
-                        logger.warning(f"⚠️ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation failed, data may not match expected structure: {text_presentation_error}")
-                        # Skip validation for this case - the data will be stored as-is
-                        final_content_for_model = None
+                    final_content_for_model = TextPresentationDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
                     final_content_for_model = TrainingPlanDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_VIDEO_LESSON:
