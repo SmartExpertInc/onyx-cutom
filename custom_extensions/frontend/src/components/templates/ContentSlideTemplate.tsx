@@ -196,7 +196,7 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   const contentStyles: React.CSSProperties = {
     fontSize: '1.2rem',
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: subtitleColor,
     textAlign: alignment,
     lineHeight: 1.4,
     maxWidth: '800px',
