@@ -1546,7 +1546,7 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
-          <div className="w-full bg-white rounded-xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
+          <div className="w-full max-w-4xl mx-auto bg-white rounded-xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
             <TrainingPlanTableComponent
               dataToDisplay={trainingPlanData}
               onTextChange={handleTextChange}
