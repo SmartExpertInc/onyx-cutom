@@ -244,10 +244,11 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
 
   const columnsContainerStyles: React.CSSProperties = {
     display: 'flex',
-    gap: '40px',
+    gap: '0px',
     width: '100%',
     maxWidth: '1200px',
-    height: '100%'
+    height: '100%',
+    position: 'relative'
   };
 
   const columnStyles: React.CSSProperties = {
@@ -261,40 +262,45 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
+    fontSize: '2.9rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: currentTheme.colors.titleColor,
     textAlign: 'center',
     marginBottom: '20px',
     lineHeight: 1.2,
-    maxWidth: '500px',
+    maxWidth: '340px',
     wordWrap: 'break-word',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    position: 'relative',
+    left: '50%',
+    transform: 'translateX(-50%)'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    width: '325px',
+    fontSize: '1.4rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: currentTheme.colors.subtitleColor,
     textAlign: 'center',
     marginBottom: '40px',
+    marginTop: '10px',
     lineHeight: 1.4,
     maxWidth: '500px',
     wordWrap: 'break-word',
-    opacity: 0.9
+    opacity: 0.9,
+    position: 'relative',
+    left: '50%',
+    transform: 'translateX(-50%)'
   };
 
   const imageContainerStyles: React.CSSProperties = {
     width: '100%',
-    maxWidth: '400px',
-    height: '250px',
+    height: '290px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    background: 'white',
     borderRadius: '8px',
-    padding: '10px',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+    marginTop: '35px'
   };
 
   const imageStyles: React.CSSProperties = {
@@ -304,12 +310,26 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     borderRadius: '4px'
   };
 
+  const dividerLineStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '0',
+    bottom: '0',
+    width: '1px',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Полупрозрачная белая линия
+    transform: 'translateX(-50%)',
+    zIndex: 1
+  };
+
   return (
     <div
       ref={slideContainerRef}
       style={slideStyles}
     >
       <div style={columnsContainerStyles}>
+        {/* Divider Line */}
+        <div style={dividerLineStyles}></div>
+        
         {/* Left Column */}
         <div style={columnStyles}>
           {/* Left Title */}
