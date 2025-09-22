@@ -193,7 +193,7 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   const boxStyles: React.CSSProperties = {
     background: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)', // Синий градиент как в теме
     borderRadius: '8px',
-    padding: '32px',
+    padding: '20px',
     color: '#ffffff', // Белый цвет текста
     display: 'flex',
     flexDirection: 'column',
