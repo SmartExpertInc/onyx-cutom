@@ -291,7 +291,7 @@ export default function ProductViewNewPage() {
           <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
-              <h1 className="text-[#191D30] font-semibold text-[30px] leading-[100%]">
+              <h1 className="text-[#191D30] font-regular text-[30px] leading-[100%]">
                 {(() => {
                   const trainingPlanData = projectData.details as TrainingPlanData;
                   return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
@@ -346,7 +346,7 @@ export default function ProductViewNewPage() {
                             </div>
                             <div className="relative">
                               <button
-                                onClick={() => setOpenDropdown(openDropdown === lesson.id ? null : lesson.id || lessonIndex.toString())}
+                                onClick={() => setOpenDropdown(openDropdown === (lesson.id || `${index}-${lessonIndex}`) ? null : (lesson.id || `${index}-${lessonIndex}`))}
                                 className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                                 style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
                                 title="Create content"
@@ -355,30 +355,30 @@ export default function ProductViewNewPage() {
                                 <ChevronDown size={12} className="ml-1" />
                               </button>
                               
-                              {openDropdown === (lesson.id || lessonIndex.toString()) && (
+                              {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
                                 <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
                                   <div className="p-2">
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
                                     >
                                       Presentation
                                     </button>
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
                                     >
                                       One-Pager
                                     </button>
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
                                     >
                                       Quiz
                                     </button>
                                     <button
                                       disabled
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2"
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
                                     >
                                       Video Lesson
                                     </button>
