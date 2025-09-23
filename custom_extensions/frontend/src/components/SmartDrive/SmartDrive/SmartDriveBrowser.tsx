@@ -301,9 +301,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	}, [mode, selected, onFilesSelected]);
 
 	return (
-		<div className={`space-y-3 text-black ${className}`}>
+		<div className={`space-y-3 text-gray-900 ${className}`}>
 			{/* Toolbar */}
-			<div className="flex items-center justify-between rounded-md border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
+			<div className="flex items-center justify-between rounded-md border border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
 				<div className="flex items-center gap-2 text-sm">
 					{breadcrumbs.map((b, idx) => (
 						<Button key={b.path} variant="link" className="px-0 h-auto" onClick={() => setCurrentPath(b.path)}>
@@ -338,7 +338,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				</div>
 			)}
 
-			<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border rounded-md overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
+			<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border border-gray-200 rounded-md overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
 				{loading ? (
 					<div className="p-10 text-center text-gray-700">Loading…</div>
 				) : error ? (
@@ -349,7 +349,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					<>
 						{previewItem ? (
 							<div className="grid grid-cols-12">
-								<div className="col-span-12 lg:col-span-7 divide-y">
+								<div className="col-span-12 lg:col-span-7 divide-y divide-gray-200">
 									<div className="flex items-center px-3 py-2 text-xs uppercase text-blue-700/80">
 										<div className="w-8"/>
 										<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
@@ -365,7 +365,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									{filtered.map((it, idx) => (
 										<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
 											<div className="w-8">
-												<Checkbox checked={selected.has(it.path)} onCheckedChange={(checked)=> setSelected(checked ? new Set([it.path]) : new Set())} />
+												<Checkbox checked={selected.has(it.path)} onCheckedChange={(checked: boolean) => setSelected(checked ? new Set([it.path]) : new Set())} />
 											</div>
 											<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
 												{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-600"/> : <File className="w-5 h-5 text-gray-700"/>}
@@ -379,35 +379,35 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											<div className="w-8 flex justify-end">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e)=>e.stopPropagation()}>
+														<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
 															<MoreHorizontal className="w-4 h-4 text-gray-600" />
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
-														<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); rename();}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-														<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); doMoveCopy('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-														<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); doMoveCopy('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-														<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); del();}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-														<DropdownMenuItem disabled={it.type !== 'file'} onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); download();}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+														<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); rename();}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+														<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); doMoveCopy('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+														<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); doMoveCopy('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+														<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); del();}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+														<DropdownMenuItem disabled={it.type !== 'file'} onClick={() => {setSelected(new Set([it.path])); download();}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
 													</DropdownMenuContent>
 												</DropdownMenu>
 											</div>
 										</div>
 									))}
 								</div>
-								<div className="hidden lg:block col-span-5 border-l min-h-[420px] bg-gradient-to-b from-white/80 to-blue-50">
+								<div className="hidden lg:block col-span-5 border-l border-gray-200 min-h-[420px] bg-gradient-to-b from-white/80 to-blue-50">
 									<div className="p-4 space-y-2">
 										<div className="text-sm text-gray-600">Preview</div>
-										<div className="font-semibold text-black">{previewItem?.name}</div>
-										<div className="rounded-md border overflow-hidden">
+										<div className="font-semibold text-gray-900">{previewItem?.name}</div>
+										<div className="rounded-md border border-gray-200 overflow-hidden">
 											{previewItem && renderPreview(previewItem)}
 										</div>
 									</div>
 								</div>
 							</div>
 						) : (
-																<div className="divide-y bg-white/40 backdrop-blur-sm">
-								<div className="flex items-center px-3 py-2 text-xs uppercase text-gray-600">
+							<div className="divide-y divide-gray-200 bg-white/40 backdrop-blur-sm">
+								<div className="flex items-center px-3 py-2 text-xs uppercase text-gray-500">
 									<div className="w-8"/>
 									<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
 										Name <ArrowUpDown className="w-3 h-3 ml-1"/>
@@ -422,7 +422,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								{filtered.map((it, idx) => (
 									<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
 										<div className="w-8">
-											<Checkbox checked={selected.has(it.path)} onCheckedChange={(checked)=> setSelected(checked ? new Set([it.path]) : new Set())} />
+											<Checkbox checked={selected.has(it.path)} onCheckedChange={(checked: boolean) => setSelected(checked ? new Set([it.path]) : new Set())} />
 										</div>
 										<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
 											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-600"/> : <File className="w-5 h-5 text-gray-700"/>}
@@ -436,16 +436,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										<div className="w-8 flex justify-end">
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e)=>e.stopPropagation()}>
+													<Button variant="ghost" className="h-8 w-8 p-0" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
 														<MoreHorizontal className="w-4 h-4 text-gray-600" />
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end">
-													<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); rename();}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-													<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); doMoveCopy('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-													<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); doMoveCopy('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-													<DropdownMenuItem onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); del();}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-													<DropdownMenuItem disabled={it.type !== 'file'} onClick={(e)=>{e.stopPropagation(); setSelected(new Set([it.path])); download();}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+													<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); rename();}}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+													<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); doMoveCopy('move');}}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+													<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); doMoveCopy('copy');}}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+													<DropdownMenuItem onClick={() => {setSelected(new Set([it.path])); del();}}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+													<DropdownMenuItem disabled={it.type !== 'file'} onClick={() => {setSelected(new Set([it.path])); download();}}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
 										</div>
