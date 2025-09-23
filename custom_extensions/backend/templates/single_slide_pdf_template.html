@@ -199,40 +199,40 @@
             width: 100%;
             height: 100%;
             min-height: 600px;
-            background-color: var(--bg-color);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: flex-start;
-            padding: 80px;
+            padding: 60px 80px;
             position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
         }
         
         .content-slide .slide-title {
-            font-family: var(--title-font);
-            font-size: 45px;
-            color: var(--title-color);
+            font-family: 'serif', serif;
+            font-size: 60px;
+            color: #ffffff;
             text-align: left;
+            margin-top: 60px;
             margin-bottom: 40px;
-            line-height: 1.3;
+            line-height: 1.1;
             max-width: 900px;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .content-slide .content-text {
             font-family: var(--content-font);
-            font-size: 18px;
-            color: var(--content-color);
+            font-size: 20px;
+            color: #ffffff;
             text-align: left;
             line-height: 1.6;
             max-width: 800px;
             word-wrap: break-word;
             white-space: pre-wrap;
+            opacity: 0.9;
         }
         
         /* Big Image Top Template - EXACT FRONTEND MATCH */
@@ -581,38 +581,85 @@
         
         /* Title Slide Template - EXACT FRONTEND MATCH */
         .title-slide {
-            background-color: var(--bg-color);
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
+            padding: 0;
             width: 100%;
-            height: 100%; /* Fill the entire slide content area */
+            height: 100%;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .title-slide .logo {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .title-slide .logo-icon {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        .title-slide .logo-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 2px;
+            background: #002D91;
+        }
+        
+        .title-slide .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 8px;
+            background: #002D91;
         }
         
         .title-slide .slide-title {
-            font-family: var(--title-font);
-            font-size: 45px; /* Exact frontend match */
-            color: var(--title-color);
+            font-family: 'serif', serif;
+            font-size: 60px;
+            color: #ffffff;
             text-align: center;
-            margin-bottom: 24px; /* Exact frontend match */
-            line-height: 1.2;
-            max-width: 1174px; /* Updated to match new slide width */
+            margin-top: 130px;
+            margin-bottom: 24px;
+            line-height: 1.1;
+            max-width: 1174px;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .title-slide .slide-subtitle {
             font-family: var(--content-font);
-            font-size: 26px; /* Exact frontend match */
-            color: var(--subtitle-color);
+            font-size: 20px;
+            color: #ffffff;
             text-align: center;
-            margin-bottom: 40px; /* Exact frontend match */
+            margin-bottom: 40px;
             line-height: 1.4;
-            max-width: 700px; /* Exact frontend match */
+            max-width: 700px;
             word-wrap: break-word;
+            opacity: 0.9;
         }
         
         .title-slide .metadata {
@@ -771,24 +818,67 @@
         .bullet-points-right {
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
+            background: #ffffff;
             display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: stretch;
-            padding: 80px;
+            flex-direction: row;
             position: relative;
             font-family: var(--content-font);
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            overflow: hidden;
+        }
+        
+        .bullet-points-right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            clip-path: polygon(0 0, 85% 0, 100% 100%, 0 85%);
+            z-index: 1;
+        }
+        
+        .bullet-points-right::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 45%;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, #ffffff 20%, #ffffff 80%, transparent 100%);
+            transform: skewX(-15deg);
+            transform-origin: top left;
+            z-index: 2;
+        }
+        
+        .bullet-points-right .left-section {
+            width: 45%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+        
+        .bullet-points-right .right-section {
+            width: 55%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 80px 60px;
+            background: #ffffff;
         }
         
         .bullet-points-right .slide-title {
-            font-size: 45px;
-            font-family: var(--title-font);
-            color: var(--title-color);
-            margin-bottom: 32px;
+            font-size: 56px;
+            font-family: 'serif', serif;
+            color: #000000;
+            margin-bottom: 40px;
             text-align: left;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .bullet-points-right .content-row {
@@ -804,7 +894,7 @@
             flex: 1 1 60% !important;
             font-size: 18px !important;
             font-family: var(--content-font);
-            color: var(--content-color);
+            color: #333333;
             display: flex !important;
             flex-direction: column !important;
             min-width: 0 !important;
@@ -1033,14 +1123,14 @@
         /* Two Column Template - EXACT FRONTEND MATCH */
         .two-column {
             width: 100%;
-             height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
+            height: 100%;
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
             font-family: var(--content-font);
-             display: flex;
-             flex-direction: column;
-             padding: 40px;
-             min-height: 600px;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            display: flex;
+            flex-direction: column;
+            padding: 60px 40px;
+            min-height: 600px;
+            overflow: hidden;
         }
         
         .two-column .slide-title {
@@ -1048,20 +1138,52 @@
             margin-bottom: 40px;
             font-family: var(--title-font);
             font-size: 45px;
-            color: var(--title-color);
+            color: #ffffff;
             word-wrap: break-word;
         }
         
         .two-column-layout {
             display: flex;
-            gap: 40px; /* Exact frontend match */
+            gap: 0px;
             width: 100%;
+            position: relative;
+        }
+        
+        .two-column-layout::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0));
+            transform: translateX(-50%);
+            z-index: 2;
         }
         
         .column {
             flex: 1;
             display: flex;
             flex-direction: column;
+            background: linear-gradient(90deg, #002D91 0%, #000C5B 100%);
+            padding: 40px 30px;
+            border-radius: 8px;
+        }
+        
+        .column-title {
+            font-size: 40px;
+            color: #ffffff;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .column-content {
+            font-size: 18px;
+            color: #ffffff;
+            text-align: center;
+            opacity: 0.9;
+            line-height: 1.4;
         }
         
         /* Global placeholder styles removed - each template now has its own scoped styles */
@@ -1993,43 +2115,29 @@
         <div class="slide-content theme-{{ theme or 'dark-purple' }}">
             {% if slide.templateId == 'title-slide' %}
                 <div class="title-slide">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element" 
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
+                    <!-- Logo at the top -->
+                    <div class="logo">
+                        <div class="logo-icon"></div>
+                        <span>Your Logo</span>
+                    </div>
+                    
+                    <h1 class="slide-title positioned-element" 
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set titleId = slide.slideId + '-title' %}
+                            {% if slide.metadata.elementPositions[titleId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    {% if slide.props.subtitle and slide.props.subtitle != 'Click to add content' %}
-                        <h2 class="slide-subtitle positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[subtitleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                {% endif %}
+                        {% endif %}
+                    >{{ slide.props.title or 'Add title' }}</h1>
+                    
+                    <h2 class="slide-subtitle positioned-element"
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set subtitleId = slide.slideId + '-subtitle' %}
+                            {% if slide.metadata.elementPositions[subtitleId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
                             {% endif %}
-                        >{{ slide.props.subtitle }}</h2>
-                    {% endif %}
-                    {% if slide.props.author or slide.props.date %}
-                        <div class="metadata positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set metadataId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[metadataId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[metadataId].x }}px, {{ slide.metadata.elementPositions[metadataId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            {% if slide.props.author %}
-                                <div>{{ slide.props.author }}</div>
-                            {% endif %}
-                            {% if slide.props.date %}
-                                <div>{{ slide.props.date }}</div>
-                            {% endif %}
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    >{{ slide.props.subtitle or 'Add subtitle' }}</h2>
                 </div>
                 
                 {% elif slide.templateId == 'big-image-left' %}
@@ -2228,16 +2336,26 @@
                 
             {% elif slide.templateId == 'bullet-points-right' %}
                 <div class="bullet-points-right">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
+                    <!-- Left section with image -->
+                    <div class="left-section">
+                        {% if slide.props.imagePath %}
+                            <img src="{{ slide.props.imagePath }}" 
+                                 alt="Uploaded image" 
+                                 style="
+                                    width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                 " />
+                            {% else %}
+                                <div class="placeholder" style="width: 100%; height: 100%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #666;">
+                                    🖼️ Add image
+                                </div>
                             {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
+                    </div>
+
+                    <!-- Right section with text content -->
+                    <div class="right-section">
+                        <h1 class="slide-title">{{ slide.props.title or 'Add title' }}</h1>
                     
                     <div class="content-row">
                     
@@ -2260,21 +2378,25 @@
                                 >{{ slide.props.subtitle }}</div>
                             {% endif %}
                             <ul class="bullet-list">
-                                {% for bullet in slide.props.bullets %}
-                                    {% if bullet and bullet != 'Click to add bullet point' %}
+                                {% if slide.props.bullets and slide.props.bullets|length > 0 %}
+                                    {% for bullet in slide.props.bullets %}
                                         <li class="bullet-item">
-                                            <span class="bullet-icon">
-                                                {% if slide.props.bulletStyle == 'arrow' %}→
-                                                {% elif slide.props.bulletStyle == 'check' %}✓
-                                                {% elif slide.props.bulletStyle == 'star' %}★
-                                                {% elif slide.props.bulletStyle == 'number' %}{{ loop.index }}.
-                                                {% else %}•
-                                                {% endif %}
+                                            <span class="bullet-icon" style="background-color: #8b5cf6; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; flex-shrink: 0;">
+                                                {{ loop.index }}
                                             </span>
-                                            <span class="bullet-text">{{ bullet }}</span>
+                                            <span class="bullet-text">{{ bullet or 'Add bullet point' }}</span>
                                         </li>
-                                    {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% for i in range(4) %}
+                                        <li class="bullet-item">
+                                            <span class="bullet-icon" style="background-color: #8b5cf6; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; flex-shrink: 0;">
+                                                {{ i + 1 }}
+                                            </span>
+                                            <span class="bullet-text">Add bullet point</span>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
                             </ul>
                         </div>
                         <div class="placeholder-container">
@@ -2388,107 +2510,46 @@
                 
             {% elif slide.templateId == 'two-column' %}
                 <div class="two-column">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
                     <div class="two-column-layout">
+                        <!-- Left Column -->
                         <div class="column">
+                            <h2 class="column-title">{{ slide.props.leftTitle or 'Add title' }}</h2>
+                            <p class="column-content">{{ slide.props.leftContent or 'Add text' }}</p>
                             {% if slide.props.leftImagePath %}
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '100%' }};
-                                        height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else 'auto' }};
-                                        max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; 
-                                        object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
-                                        transform-origin: center center;
-                                        border-radius: 8px; max-width: none; max-height: none;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                <div class="placeholder" style="display: none;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.leftImagePrompt or slide.props.leftImageAlt or 'man sitting on a chair' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                                </div>
+                                        width: 100%;
+                                        height: 250px;
+                                        object-fit: cover;
+                                        border-radius: 4px;
+                                        margin-top: 20px;
+                                     " />
                             {% else %}
-                                <div class="placeholder" style="width: 100%; max-height: 200px; max-width: 320px; height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-bottom: 24px;">
-                                    <!-- Empty placeholder - maintains layout -->
+                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                    🖼️ Add image
                                 </div>
-                            {% endif %}
-                            {% if slide.props.leftTitle and slide.props.leftTitle != 'Click to add left title' %}
-                                <h2 class="column-title positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set leftTitleId = 'draggable-' + slide.slideId + '-1' %}
-                                        {% if slide.metadata.elementPositions[leftTitleId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[leftTitleId].x }}px, {{ slide.metadata.elementPositions[leftTitleId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.leftTitle }}</h2>
-                            {% endif %}
-                            {% if slide.props.leftContent and slide.props.leftContent != 'Click to add left content' %}
-                                <p class="column-content positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set leftContentId = 'draggable-' + slide.slideId + '-2' %}
-                                        {% if slide.metadata.elementPositions[leftContentId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[leftContentId].x }}px, {{ slide.metadata.elementPositions[leftContentId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.leftContent }}</p>
                             {% endif %}
                         </div>
+                        
+                        <!-- Right Column -->
                         <div class="column">
+                            <h2 class="column-title">{{ slide.props.rightTitle or 'Add title' }}</h2>
+                            <p class="column-content">{{ slide.props.rightContent or 'Add text' }}</p>
                             {% if slide.props.rightImagePath %}
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '100%' }};
-                                        height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else 'auto' }};
-                                        max-height: 200px; max-width: 320px; margin: 0; margin-bottom: 24px !important; 
-                                        object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
-                                        transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
-                                        transform-origin: center center;
-                                        border-radius: 8px; max-width: none; max-height: none;
-                                     "
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                <div class="placeholder" style="display: none;">
-                                    <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
-                                    <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Image Placeholder</div>
-                                    <div style="font-size: 14px; font-style: italic; margin-bottom: 12px;">AI Prompt: "{{ slide.props.rightImagePrompt or slide.props.rightImageAlt or 'man sitting on a chair' }}"</div>
-                                    <div style="font-size: 12px; color: #868e96;">320px × 320px</div>
-                                </div>
+                                        width: 100%;
+                                        height: 250px;
+                                        object-fit: cover;
+                                        border-radius: 4px;
+                                        margin-top: 20px;
+                                     " />
                             {% else %}
-                                <div class="placeholder" style="width: 100%; max-height: 200px; max-width: 320px; height: 200px; display: flex; align-items: center; justify-content: center; border: 2px dashed #e0e0e0; border-radius: 8px; background-color: #f8f9fa; margin-bottom: 24px;">
-                                    <!-- Empty placeholder - maintains layout -->
+                                <div class="placeholder" style="width: 100%; height: 250px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 4px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                    🖼️ Add image
                                 </div>
-                            {% endif %}
-                            {% if slide.props.rightTitle and slide.props.rightTitle != 'Click to add right title' %}
-                                <h2 class="column-title positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set rightTitleId = 'draggable-' + slide.slideId + '-3' %}
-                                        {% if slide.metadata.elementPositions[rightTitleId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[rightTitleId].x }}px, {{ slide.metadata.elementPositions[rightTitleId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.rightTitle }}</h2>
-                            {% endif %}
-                            {% if slide.props.rightContent and slide.props.rightContent != 'Click to add right content' %}
-                                <p class="column-content positioned-element"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set rightContentId = 'draggable-' + slide.slideId + '-4' %}
-                                        {% if slide.metadata.elementPositions[rightContentId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[rightContentId].x }}px, {{ slide.metadata.elementPositions[rightContentId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >{{ slide.props.rightContent }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -2720,34 +2781,24 @@
                 </div>
                 
             {% elif slide.templateId == 'content-slide' %}
-                <div class="content-slide" style="
-                    background-image: {% if slide.props.backgroundImage %}url('{{ slide.props.backgroundImage }}'){% else %}none{% endif %};
-                    align-items: {% if slide.props.alignment == 'center' %}center{% elif slide.props.alignment == 'right' %}flex-end{% else %}flex-start{% endif %};
-                ">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element" style="
-                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}2px 2px 4px rgba(0,0,0,0.3){% else %}none{% endif %};
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);
-                                {% endif %}
+                <div class="content-slide">
+                    <h1 class="slide-title positioned-element" 
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set titleId = slide.slideId + '-title' %}
+                            {% if slide.metadata.elementPositions[titleId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
-                        ">{{ slide.props.title }}</h1>
-                    {% endif %}
-                    {% if slide.props.content and slide.props.content != 'Click to add content' %}
-                        <div class="content-text positioned-element" style="
-                            text-align: {% if slide.props.alignment %}{{ slide.props.alignment }}{% else %}left{% endif %};
-                            text-shadow: {% if slide.props.backgroundImage %}1px 1px 2px rgba(0,0,0,0.2){% else %}none{% endif %};
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set contentId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[contentId] %}
-                                    transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);
-                                {% endif %}
+                        {% endif %}
+                    >{{ slide.props.title or 'Add title' }}</h1>
+                    
+                    <div class="content-text positioned-element"
+                        {% if slide.metadata and slide.metadata.elementPositions %}
+                            {% set contentId = slide.slideId + '-content' %}
+                            {% if slide.metadata.elementPositions[contentId] %}
+                                style="transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);"
                             {% endif %}
-                        ">{{ slide.props.content }}</div>
-                    {% endif %}
+                        {% endif %}
+                    >{{ slide.props.content or 'Add text' }}</div>
                 </div>
                 
             {% elif slide.templateId == 'hero-title-slide' %}
