@@ -16642,6 +16642,22 @@ UPDATED IMAGE PROMPT STYLE (REALISTIC SCENES):
 - Never include readable text on screens; use realistic but abstract UI patterns.
 - Include authentic environmental details that support the professional context.
 
+SECTION FLOW & SLIDE ORDER LOGIC (MANDATORY):
+- Treat hero-title-slide, big-image-top, and big-image-left as SECTION START slides.
+- After any SECTION START slide, include 3–5 immediately following slides that DEEPEN THAT SAME TOPIC before moving to a new section.
+- Use a clear naming convention so users see continuity:
+  • On the section start slide, set slideTitle to "Section: <Section Name>".
+  • On the next 3–5 slides in that section, prefix slideTitle with "<Section Name> — <Subtopic>".
+- Recommended per-section progression (adapt as appropriate):
+  1) SECTION START (hero-title-slide or big-image-* introducing the topic)
+  2) bullet-points or two-column to frame the problem/opportunity
+  3) process-steps or four-box-grid to explain how/strategy/components
+  4) metrics-analytics, table-*, market-share, or pie-chart-infographics to quantify
+  5) challenges-solutions or comparison/table to address tradeoffs/alternatives
+- Do not insert unrelated slides immediately after a section start.
+- Never end a presentation with a section start. A section must include its 3–5 child slides.
+- Micro-summaries are allowed BETWEEN sections using four-box-grid or two-column, but NOT a global closing slide.
+
 Template Catalog with required props and usage:
 - hero-title-slide: title, subtitle, [author], [date]
   • Usage: opening/section title; large title with supporting subtitle.

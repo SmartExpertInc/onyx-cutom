@@ -4,7 +4,7 @@
     {
       "slideId": "slide_1_cloud_intro",
       "slideNumber": 1,
-      "slideTitle": "Modern Cloud Infrastructure Excellence",
+      "slideTitle": "Section: Modern Cloud Infrastructure Excellence",
       "templateId": "hero-title-slide",
       "previewKeyPoints": [
         "Comprehensive cloud infrastructure strategy for scalable, secure, and cost-effective operations",
@@ -22,7 +22,7 @@
     {
       "slideId": "slide_2_architecture_principles",
       "slideNumber": 2,
-      "slideTitle": "Cloud Architecture Design Principles and Patterns",
+      "slideTitle": "Modern Cloud Infrastructure — Cloud Architecture Design Principles and Patterns",
       "templateId": "four-box-grid",
       "previewKeyPoints": [
         "Fundamental design principles for building resilient cloud-native applications",

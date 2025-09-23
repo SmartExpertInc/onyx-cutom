@@ -4,7 +4,7 @@
     {
       "slideId": "slide_1_marketing_intro",
       "slideNumber": 1,
-      "slideTitle": "Digital Marketing Strategy Excellence",
+      "slideTitle": "Section: Digital Marketing Strategy Excellence",
       "templateId": "title-slide",
       "previewKeyPoints": [
         "Comprehensive digital marketing framework for customer acquisition and retention",
@@ -21,7 +21,7 @@
     {
       "slideId": "slide_2_customer_journey",
       "slideNumber": 2,
-      "slideTitle": "Customer Journey Mapping and Touchpoint Analysis",
+      "slideTitle": "Digital Marketing Strategy — Customer Journey Mapping and Touchpoint Analysis",
       "templateId": "timeline",
       "previewKeyPoints": [
         "Complete customer journey from awareness to advocacy with key decision points",
@@ -58,7 +58,7 @@
     {
       "slideId": "slide_3_channel_performance",
       "slideNumber": 3,
-      "slideTitle": "Marketing Channel Performance Analysis",
+      "slideTitle": "Digital Marketing Strategy — Marketing Channel Performance Analysis",
       "templateId": "metrics-analytics",
       "previewKeyPoints": [
         "Performance metrics across all digital marketing channels with trend analysis",

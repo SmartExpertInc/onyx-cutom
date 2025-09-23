@@ -4,7 +4,7 @@
     {
       "slideId": "slide_1_intro",
       "slideNumber": 1,
-      "slideTitle": "Advanced Data Science Mastery",
+      "slideTitle": "Section: Advanced Data Science Mastery",
       "templateId": "hero-title-slide",
       "previewKeyPoints": [
         "Comprehensive data science training program covering theory and practical applications",
@@ -25,7 +25,7 @@
     {
       "slideId": "slide_2_statistical_foundations",
       "slideNumber": 2,
-      "slideTitle": "Statistical Foundations and Mathematical Prerequisites",
+      "slideTitle": "Advanced Data Science Mastery — Statistical Foundations and Mathematical Prerequisites",
       "templateId": "two-column",
       "previewKeyPoints": [
         "Essential statistical concepts including probability distributions and hypothesis testing",
@@ -44,7 +44,7 @@
     {
       "slideId": "slide_3_data_pipeline_architecture",
       "slideNumber": 3,
-      "slideTitle": "Enterprise Data Pipeline Architecture and ETL Processes",
+      "slideTitle": "Advanced Data Science Mastery — Enterprise Data Pipeline Architecture and ETL Processes",
       "templateId": "process-steps",
       "previewKeyPoints": [
         "End-to-end data pipeline design from ingestion to serving predictions at scale",
@@ -66,7 +66,7 @@
     {
       "slideId": "slide_4_machine_learning_algorithms",
       "slideNumber": 4,
-      "slideTitle": "Advanced Machine Learning Algorithms and Model Selection",
+      "slideTitle": "Advanced Data Science Mastery — Advanced Machine Learning Algorithms and Model Selection",
       "templateId": "bullet-points-right",
       "previewKeyPoints": [
         "Comprehensive overview of supervised learning algorithms from linear models to ensemble methods",
@@ -90,7 +90,7 @@
     {
       "slideId": "slide_5_feature_engineering",
       "slideNumber": 5,
-      "slideTitle": "Advanced Feature Engineering and Selection Techniques",
+      "slideTitle": "Advanced Data Science Mastery — Advanced Feature Engineering and Selection Techniques",
       "templateId": "big-image-top",
       "previewKeyPoints": [
         "Systematic approaches to creating meaningful features from raw data across different domains",
@@ -109,7 +109,7 @@
     {
       "slideId": "slide_6_model_performance_metrics",
       "slideNumber": 6,
-      "slideTitle": "Comprehensive Model Evaluation and Performance Metrics",
+      "slideTitle": "Advanced Data Science Mastery — Comprehensive Model Evaluation and Performance Metrics",
       "templateId": "big-numbers",
       "previewKeyPoints": [
         "Essential classification metrics including precision, recall, F1-score, and AUC-ROC interpretation",
@@ -237,7 +237,9 @@
     {
       "slideId": "slide_10_emerging_technologies",
       "slideNumber": 10,
-      "slideTitle": "Emerging Technologies and Future Trends",
+      "slideTitle": "Section: Emerging Technologies and Future Trends",
+      "slideNumber": 10,
+      "slideTitle": "Section: Emerging Technologies and Future Trends",
       "templateId": "big-image-left",
       "previewKeyPoints": [
         "Latest developments in artificial intelligence including large language models and generative AI",
@@ -256,7 +258,7 @@
     {
       "slideId": "slide_11_metrics_analytics",
       "slideNumber": 11,
-      "slideTitle": "Operational Analytics Dashboard Highlights",
+      "slideTitle": "Emerging Technologies and Future Trends — Operational Analytics Dashboard Highlights",
       "templateId": "metrics-analytics",
       "previewKeyPoints": [
         "Key performance indicators tracked in day-to-day operations",
@@ -279,7 +281,7 @@
     {
       "slideId": "slide_12_market_share",
       "slideNumber": 12,
-      "slideTitle": "Market Share by Segment and Year",
+      "slideTitle": "Emerging Technologies and Future Trends — Market Share by Segment and Year",
       "templateId": "market-share",
       "previewKeyPoints": [
         "Year-over-year changes in market penetration by segment",
