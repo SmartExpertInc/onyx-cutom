@@ -251,6 +251,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	const uploadFiles = async (files: File[]) => {
 		if (files.length === 0) return;
+		console.log('[SmartDrive] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
+		
 		const progress: UploadProgress[] = files.map(f => ({ filename: f.name, progress: 0 }));
 		setUploading(progress);
 		setBusy(true);
@@ -263,21 +265,66 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				credentials: 'same-origin',
 				body: form,
 			});
-			if (!res.ok && res.status !== 207) throw new Error(await res.text());
+			
+			console.log('[SmartDrive] Upload response status:', res.status);
+			
+			if (!res.ok && res.status !== 207) {
+				const errorText = await res.text();
+				console.error('[SmartDrive] Upload failed:', { status: res.status, error: errorText });
+				throw new Error(errorText);
+			}
+			
 			const data = await res.json();
+			console.log('[SmartDrive] Upload response data:', data);
+			
 			// Initialize indexing tracking for uploaded files using response mapping (onyx_file_id when present)
 			if (data && Array.isArray(data.results)) {
+				console.log('[SmartDrive] Processing upload results:', data.results);
+				
 				const next: IndexingState = { ...indexing };
+				const pathsToTrack: string[] = [];
+				
 				for (const r of data.results) {
-					const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${r.file}`;
-					next[p] = { status: 'pending', etaPct: 5, onyxFileId: r.onyx_file_id };
+					console.log('[SmartDrive] Processing result:', r);
+					
+					// Use filename instead of file property
+					const filename = r.filename || r.file;
+					if (!filename) {
+						console.warn('[SmartDrive] No filename found in result:', r);
+						continue;
+					}
+					
+					const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${filename}`.replace(/\/+/g, '/');
+					console.log(`[SmartDrive] Creating path: ${p} from currentPath=${currentPath}, filename=${filename}`);
+					
+					if (r.onyx_file_id) {
+						next[p] = { status: 'pending', etaPct: 5, onyxFileId: r.onyx_file_id };
+						pathsToTrack.push(p);
+						console.log(`[SmartDrive] Added to indexing tracking:`, { path: p, onyxFileId: r.onyx_file_id });
+					} else {
+						console.warn(`[SmartDrive] No onyx_file_id for ${filename}:`, r);
+					}
 				}
+				
+				console.log('[SmartDrive] New indexing state:', next);
+				console.log('[SmartDrive] Paths to track:', pathsToTrack);
+				
 				setIndexing(next);
+				
 				// Start polling indexing status
-				pollIndexingStatus(Object.keys(next));
+				if (pathsToTrack.length > 0) {
+					console.log('[SmartDrive] Starting polling for uploaded files');
+					setTimeout(() => pollIndexingStatus(pathsToTrack), 100);
+				} else {
+					console.log('[SmartDrive] No files to track for indexing');
+				}
+			} else {
+				console.warn('[SmartDrive] No results array in upload response:', data);
 			}
+			
 			await fetchList(currentPath);
 		} catch (e) {
+			console.error('[SmartDrive] Upload error:', e);
 			alert('Upload failed');
 		} finally {
 			setUploading([]);
@@ -286,30 +333,78 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	};
 
 	const pollIndexingStatus = async (paths: string[]) => {
-		if (!paths || paths.length === 0) return;
+		if (!paths || paths.length === 0) {
+			console.log('[SmartDrive] pollIndexingStatus: no paths provided');
+			return;
+		}
+		
+		console.log('[SmartDrive] pollIndexingStatus: starting poll for paths:', paths);
+		
 		try {
 			const params = new URLSearchParams();
-			for (const p of paths) params.append('paths', p);
-			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/indexing-status?${params.toString()}`, { credentials: 'same-origin' });
-			if (!res.ok) return;
+			for (const p of paths) {
+				params.append('paths', p);
+			}
+			
+			const url = `${CUSTOM_BACKEND_URL}/smartdrive/indexing-status?${params.toString()}`;
+			console.log('[SmartDrive] pollIndexingStatus: fetching URL:', url);
+			
+			const res = await fetch(url, { credentials: 'same-origin' });
+			console.log('[SmartDrive] pollIndexingStatus: response status:', res.status);
+			
+			if (!res.ok) {
+				console.error('[SmartDrive] pollIndexingStatus: request failed:', { status: res.status, statusText: res.statusText });
+				return;
+			}
+			
 			const data = await res.json();
+			console.log('[SmartDrive] pollIndexingStatus: response data:', data);
+			
 			const statuses = data?.statuses || {};
+			console.log('[SmartDrive] pollIndexingStatus: extracted statuses:', statuses);
+			
 			let nextRemaining = 0;
 			setIndexing(prev => {
+				console.log('[SmartDrive] pollIndexingStatus: current indexing state:', prev);
 				const out: IndexingState = { ...prev };
+				
 				for (const p of Object.keys(out)) {
 					// Support encoded/decoded mapping
 					const done = statuses[p] === true || statuses[encodeURI(p)] === true || statuses[decodeURIComponent(p)] === true;
-					out[p] = { ...(out[p] || { status: 'unknown', etaPct: 0 }), status: done ? 'done' : 'pending', etaPct: done ? 100 : Math.min(95, (out[p]?.etaPct ?? 5) + 10) };
+					console.log(`[SmartDrive] pollIndexingStatus: checking path '${p}':`, {
+						statusForPath: statuses[p],
+						statusForEncoded: statuses[encodeURI(p)],
+						statusForDecoded: statuses[decodeURIComponent(p)],
+						finalDone: done
+					});
+					
+					const oldState = out[p] || { status: 'unknown', etaPct: 0 };
+					out[p] = { 
+						...oldState, 
+						status: done ? 'done' : 'pending', 
+						etaPct: done ? 100 : Math.min(95, (oldState.etaPct ?? 5) + 10) 
+					};
+					
+					console.log(`[SmartDrive] pollIndexingStatus: updated state for '${p}':`, { old: oldState, new: out[p] });
+					
 					if (!done) nextRemaining += 1;
 				}
+				
+				console.log('[SmartDrive] pollIndexingStatus: final indexing state:', out);
+				console.log('[SmartDrive] pollIndexingStatus: remaining files:', nextRemaining);
 				return out;
 			});
+			
 			// Continue polling until all done
 			if (nextRemaining > 0) {
+				console.log('[SmartDrive] pollIndexingStatus: continuing polling in 1.5s, remaining:', nextRemaining);
 				setTimeout(() => pollIndexingStatus(paths), 1500);
+			} else {
+				console.log('[SmartDrive] pollIndexingStatus: all files indexed, stopping polling');
 			}
-		} catch {}
+		} catch (error) {
+			console.error('[SmartDrive] pollIndexingStatus: error:', error);
+		}
 	};
 
 	const onDrop = async (e: React.DragEvent) => {
@@ -450,7 +545,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<div className="flex-1">
 													<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
 													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-													{it.type === 'file' && (() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return s && s.status !== 'done'; })() && (
+													{it.type === 'file' && (() => { 
+												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+												const shouldShow = s && s.status !== 'done';
+												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
+													indexingState: s,
+													shouldShow,
+													allIndexing: indexing
+												});
+												return shouldShow;
+											})() && (
 														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
 															{(() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return <Progress value={s?.etaPct ?? 10} className="h-1.5" />; })()}
 														</div>
@@ -528,7 +632,16 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<div className="flex-1">
 													<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
 													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-													{it.type === 'file' && (() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return s && s.status !== 'done'; })() && (
+													{it.type === 'file' && (() => { 
+												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+												const shouldShow = s && s.status !== 'done';
+												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
+													indexingState: s,
+													shouldShow,
+													allIndexing: indexing
+												});
+												return shouldShow;
+											})() && (
 														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
 															{(() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return <Progress value={s?.etaPct ?? 10} className="h-1.5" />; })()}
 														</div>

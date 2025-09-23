@@ -25414,7 +25414,7 @@ async def list_smartdrive_files(
                         raise HTTPException(status_code=401, detail="SmartDrive account not connected")
 
                     # Ensure placeholder row exists
-                    if not account:
+            if not account:
                         await conn.execute(
                             """
                             INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
@@ -25861,19 +25861,27 @@ async def smartdrive_indexing_status(
 ):
     try:
         onyx_user_id = await get_current_onyx_user_id(request)
+        logger.info(f"[SmartDrive] IndexingStatus: user_id={onyx_user_id}, raw_paths={paths}")
+        
         # Normalize paths
         norm_paths: List[str] = []
         for p in paths:
             try:
-                norm_paths.append(await _normalize_smartdrive_path(p))
-            except Exception:
+                norm_p = await _normalize_smartdrive_path(p)
+                norm_paths.append(norm_p)
+                logger.info(f"[SmartDrive] IndexingStatus: normalized '{p}' -> '{norm_p}'")
+            except Exception as e:
+                logger.error(f"[SmartDrive] IndexingStatus: failed to normalize path '{p}': {e}")
                 continue
+        
         if not norm_paths:
+            logger.warning(f"[SmartDrive] IndexingStatus: no valid normalized paths")
             return {"statuses": {}}
 
         # Lookup Onyx file IDs
         path_to_file_id: Dict[str, str] = {}
         async with pool.acquire() as conn:
+            logger.info(f"[SmartDrive] IndexingStatus: querying database for user_id={onyx_user_id}, paths={norm_paths}")
             rows = await conn.fetch(
                 """
                 SELECT smartdrive_path, onyx_file_id
@@ -25883,10 +25891,16 @@ async def smartdrive_indexing_status(
                 str(onyx_user_id),
                 norm_paths,
             )
+            logger.info(f"[SmartDrive] IndexingStatus: found {len(rows)} records in database")
+            
         for r in rows:
-            path_to_file_id[r["smartdrive_path"]] = str(r["onyx_file_id"])  # always string
+            path = r["smartdrive_path"]
+            file_id = str(r["onyx_file_id"])
+            path_to_file_id[path] = file_id
+            logger.info(f"[SmartDrive] IndexingStatus: mapping path='{path}' -> onyx_file_id='{file_id}'")
 
         if not path_to_file_id:
+            logger.warning(f"[SmartDrive] IndexingStatus: no file mappings found")
             return {"statuses": {p: None for p in norm_paths}}
 
         # Query Onyx for indexing status
@@ -25894,33 +25908,39 @@ async def smartdrive_indexing_status(
         query_params = []
         for fid in file_ids:
             query_params.append(("file_ids", fid))
+        
+        onyx_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status"
+        logger.info(f"[SmartDrive] IndexingStatus: querying Onyx at {onyx_url} with file_ids={file_ids}")
+        
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(
-                f"{ONYX_API_SERVER_URL}/user/file/indexing-status",
+                onyx_url,
                 params=query_params,
                 cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
             )
+        
+        logger.info(f"[SmartDrive] IndexingStatus: Onyx response status={resp.status_code}")
+        
         if not resp.is_success:
-            logger.warning(f"Indexing status fetch failed: {resp.status_code} {resp.text[:200]}")
+            logger.error(f"[SmartDrive] IndexingStatus: Onyx request failed: {resp.status_code} - {resp.text[:500]}")
             return {"statuses": {p: None for p in norm_paths}}
+        
         status_map = resp.json()  # {file_id: bool}
+        logger.info(f"[SmartDrive] IndexingStatus: Onyx response data={status_map}")
 
         # Map back to paths
         out: Dict[str, Any] = {}
         for p, fid in path_to_file_id.items():
-            out[p] = bool(status_map.get(str(fid)))
+            indexed = bool(status_map.get(str(fid)))
+            out[p] = indexed
+            logger.info(f"[SmartDrive] IndexingStatus: final mapping path='{p}' (file_id={fid}) -> indexed={indexed}")
+        
         for p in norm_paths:
             if p not in out:
                 out[p] = None
-        # Also include URL-encoded aliases for robustness
-        try:
-            from urllib.parse import quote
-            alias: Dict[str, Any] = {}
-            for k, v in out.items():
-                alias[quote(k, safe='/')] = v
-            out.update(alias)
-        except Exception:
-            pass
+                logger.info(f"[SmartDrive] IndexingStatus: no mapping found for path='{p}' -> None")
+        
+        logger.info(f"[SmartDrive] IndexingStatus: returning statuses={out}")
         return {"statuses": out}
     except HTTPException:
         raise
