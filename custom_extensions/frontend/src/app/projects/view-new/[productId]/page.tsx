@@ -293,6 +293,7 @@ export default function ProductViewNewPage() {
           {/* Right Panel - Course Summary */}
           <div className="lg:col-span-1">
             <CustomViewCard
+              projectId={productId}
               metrics={{
                 totalModules: totalModules,
                 totalLessons: totalLessons,

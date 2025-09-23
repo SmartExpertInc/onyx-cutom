@@ -23,6 +23,7 @@ interface CustomViewCardProps {
   metrics: CourseMetrics;
   contentTypes?: ContentType[];
   className?: string;
+  projectId?: string | number;
 }
 
 const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
@@ -41,12 +42,45 @@ const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
     <svg className='text-green-600' width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
   );
 
+  const timeUnits = {
+    en: { minuteUnit: "m" },
+    ru: { minuteUnit: "м" },
+    uk: { minuteUnit: "хв" }
+  };
+
+  const formatCompletionTimeLocalized = (
+    completionTime: string | number,
+    language?: "ru" | "en" | "uk"
+  ): string => {
+    if (typeof completionTime === "string" || completionTime === 0) {
+      return completionTime.toString();
+    }
+  
+    const minutes = Number(completionTime);
+    if (isNaN(minutes)) return "-";
+  
+    // Default to English if no language specified
+    const lang = language || "en";
+  
+    if (minutes < 60) {
+      return `${minutes}${timeUnits[lang].minuteUnit}`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      if (remainingMinutes === 0) {
+        return `${hours}h`;
+      } else {
+        return `${hours}h ${remainingMinutes}${timeUnits[lang].minuteUnit}`;
+      }
+    }
+  };
 
 const CustomViewCard: React.FC<CustomViewCardProps> = ({
   title = "Course Summary",
   metrics,
   contentTypes = defaultContentTypes,
-  className = ""
+  className = "",
+  projectId
 }) => {
   const {
     totalModules,
@@ -55,9 +89,21 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
     estimatedDuration,
     estimatedCompletionTime,
     creditsUsed,
+    
     creditsTotal,
     progress
   } = metrics;
+
+  const [lessonDataCache, setLessonDataCache] = useState<
+    Record<
+      number,
+      {
+        lessonCount: number | string;
+        totalHours: number | string;
+        completionTime: number | string;
+      }
+    >
+  >({});
 
   return (
     <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
@@ -85,7 +131,15 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
         
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500">Estimated Duration</span>
-          <span className="text-sm font-medium text-gray-800">{estimatedCompletionTime}</span>
+          <span className="text-sm font-medium text-gray-800">{(() => {
+                            if (!projectId) return "-";
+                            const lessonData = lessonDataCache[Number(projectId)];
+                            return lessonData
+                              ? formatCompletionTimeLocalized(
+                                  lessonData.completionTime
+                                )
+                              : "-";
+                          })()}</span>
         </div>
         
         <div className="flex justify-between items-center">
