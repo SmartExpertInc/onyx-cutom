@@ -218,9 +218,9 @@ export default function ProductViewNewPage() {
                   </p>
                   <hr className="border-gray-200 mb-4" />
                   {section.lessons && section.lessons.length > 0 && (
-                    <div className="space-y-2">
+                    <div>
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => (
-                        <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6">
+                        <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
                           <div className="flex items-center gap-2">
                             <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M5.78446 3.30541C6.32191 3.61252 6.32191 4.38748 5.78446 4.69459L1.19691 7.31605C0.663586 7.62081 1.60554e-07 7.23571 1.87404e-07 6.62146L4.16579e-07 1.37854C4.43429e-07 0.764285 0.663586 0.379192 1.19691 0.683949L5.78446 3.30541Z" fill="#0F58F9"/>
