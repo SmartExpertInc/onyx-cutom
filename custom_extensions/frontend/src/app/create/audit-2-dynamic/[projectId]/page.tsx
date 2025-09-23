@@ -236,7 +236,7 @@ export default function DynamicAuditLandingPage() {
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  
+
   // Share modal state
   const [showShareModal, setShowShareModal] = useState(false)
   const [shareData, setShareData] = useState<{
