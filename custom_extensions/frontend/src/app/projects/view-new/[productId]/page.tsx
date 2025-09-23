@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Download, FolderOpen, Sparkles } from 'lucide-react';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
+import CustomViewCard from '@/components/ui/custom-view-card';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
@@ -37,6 +38,16 @@ export default function ProductViewNewPage() {
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate metrics from project data
+  const trainingPlanData = projectData?.details as TrainingPlanData;
+  const totalModules = trainingPlanData?.sections?.length || 0;
+  const totalLessons = trainingPlanData?.sections?.reduce((acc, section) => acc + (section.lessons?.length || 0), 0) || 0;
+  const completed = 0; // Placeholder - would need actual completion data
+  const estimatedDuration = "2h 30m"; // Placeholder
+  const creditsUsed = 45; // Placeholder
+  const creditsTotal = 100; // Placeholder
+  const progress = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
 
   const handleBack = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -253,12 +264,17 @@ export default function ProductViewNewPage() {
 
           {/* Right Panel - Course Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg p-[25px]">
-              <h3 className="text-[#191D30] text-[18px] leading-[100%] font-normal mb-4">Course Summary</h3>
-              <div className="text-gray-500">
-                Right panel for course summary will go here.
-              </div>
-            </div>
+            <CustomViewCard
+              metrics={{
+                totalModules: totalModules,
+                totalLessons: totalLessons,
+                completed: completed,
+                estimatedDuration: estimatedDuration,
+                creditsUsed: creditsUsed,
+                creditsTotal: creditsTotal,
+                progress: progress
+              }}
+            />
           </div>
         </div>
       </div>
