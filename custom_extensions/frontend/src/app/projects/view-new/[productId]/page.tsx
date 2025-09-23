@@ -357,33 +357,29 @@ export default function ProductViewNewPage() {
                               
                               {openDropdown === (lesson.id || lessonIndex.toString()) && (
                                 <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
-                                  <div className="py-1">
+                                  <div className="p-2">
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                       className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                      <LessonPresentationIcon size={16} />
                                       Presentation
                                     </button>
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                       className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                      <TextPresentationIcon size={16} />
                                       One-Pager
                                     </button>
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                       className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                      <QuizIcon size={16} />
                                       Quiz
                                     </button>
                                     <button
                                       disabled
                                       className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2"
                                     >
-                                      <VideoScriptIcon size={16} />
                                       Video Lesson
                                     </button>
                                   </div>
