@@ -283,14 +283,14 @@ export default function CreateFromSpecificFilesPage() {
       sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
     } catch {}
 
-    const finalUrl = `/create/generate?${searchParams.toString()}`;
+    const finalUrl = `/custom-projects-ui/create/generate?${searchParams.toString()}`;
     console.log('[CreateFromSpecificFiles DEBUG] Redirecting to:', finalUrl);
 
     try {
       await Promise.resolve(router.push(finalUrl));
       // Fallback in case client routing is blocked for any reason
       setTimeout(() => {
-        if (typeof window !== 'undefined' && window.location.pathname !== '/create/generate') {
+        if (typeof window !== 'undefined' && window.location.pathname !== 'custom-projects-ui/create/generate') {
           window.location.assign(finalUrl);
         }
       }, 50);
