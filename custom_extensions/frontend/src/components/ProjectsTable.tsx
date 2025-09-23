@@ -2494,13 +2494,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 (proj as any).is_standalone !== undefined &&
                 (proj as any).is_standalone !== null;
 
-              // If product has explicit standalone flag, use it to determine visibility
+              // If product has explicit standalone flag, use it selectively:
+              // Hide only outline-linked quizzes; keep non-quiz products visible even if linked to an outline
               if (hasStandaloneFlag) {
-                // For products with explicit standalone flag: show only if standalone=true
-                if ((proj as any).is_standalone === false) {
+                if (isQuiz && (proj as any).is_standalone === false) {
                   belongsToOutline = true;
                   console.log(
-                    `🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false)`
+                    `🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false for quiz)`
                   );
                 }
               } else if (isQuiz) {
