@@ -2353,49 +2353,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         source_chat_session_id: p.source_chat_session_id,
       }));
 
-      // Sort projects based on selected column and order
-      const sortedProjects = processedProjects.sort((a: Project, b: Project) => {
-        let aValue: any;
-        let bValue: any;
-
-        switch (sortBy) {
-          case 'title':
-            aValue = a.title.toLowerCase();
-            bValue = b.title.toLowerCase();
-            break;
-          case 'created':
-            aValue = new Date(a.createdAt);
-            bValue = new Date(b.createdAt);
-            break;
-          case 'lastViewed':
-            aValue = a.lastViewed === "Never" ? new Date(0) : new Date(a.lastViewed);
-            bValue = b.lastViewed === "Never" ? new Date(0) : new Date(b.lastViewed);
-            break;
-          case 'creator':
-            aValue = a.createdBy.toLowerCase();
-            bValue = b.createdBy.toLowerCase();
-            break;
-          case 'numberOfLessons':
-            aValue = lessonDataCache[a.id]?.lessonCount || 0;
-            bValue = lessonDataCache[b.id]?.lessonCount || 0;
-            break;
-          case 'estCreationTime':
-            aValue = lessonDataCache[a.id]?.totalHours || 0;
-            bValue = lessonDataCache[b.id]?.totalHours || 0;
-            break;
-          case 'estCompletionTime':
-            aValue = lessonDataCache[a.id]?.completionTime || 0;
-            bValue = lessonDataCache[b.id]?.completionTime || 0;
-            break;
-          default:
-            aValue = a.order || 0;
-            bValue = b.order || 0;
-        }
-
-        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-      });
+      // Sort projects by order field (default sorting)
+      const sortedProjects = processedProjects.sort(
+        (a: Project, b: Project) => (a.order || 0) - (b.order || 0)
+      );
 
       // ---- Filter lessons that belong to outlines from the main products page ----
       const deduplicateProjects = (projectsArr: Project[]): Project[] => {
@@ -2731,8 +2692,52 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         });
       }
 
+      // Apply sorting to filtered projects
+      const sortedFilteredProjects = filteredProjects.sort((a: Project, b: Project) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortBy) {
+          case 'title':
+            aValue = a.title.toLowerCase();
+            bValue = b.title.toLowerCase();
+            break;
+          case 'created':
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+            break;
+          case 'lastViewed':
+            aValue = a.lastViewed === "Never" ? new Date(0) : new Date(a.lastViewed);
+            bValue = b.lastViewed === "Never" ? new Date(0) : new Date(b.lastViewed);
+            break;
+          case 'creator':
+            aValue = a.createdBy.toLowerCase();
+            bValue = b.createdBy.toLowerCase();
+            break;
+          case 'numberOfLessons':
+            aValue = lessonDataCache[a.id]?.lessonCount || 0;
+            bValue = lessonDataCache[b.id]?.lessonCount || 0;
+            break;
+          case 'estCreationTime':
+            aValue = lessonDataCache[a.id]?.totalHours || 0;
+            bValue = lessonDataCache[b.id]?.totalHours || 0;
+            break;
+          case 'estCompletionTime':
+            aValue = lessonDataCache[a.id]?.completionTime || 0;
+            bValue = lessonDataCache[b.id]?.completionTime || 0;
+            break;
+          default:
+            aValue = a.order || 0;
+            bValue = b.order || 0;
+        }
+
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+
       if (targetFolderId === null) {
-        return filteredProjects;
+        return sortedFilteredProjects;
       }
 
       // Get all projects that belong to this folder or any of its subfolders
@@ -2748,11 +2753,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       };
 
       const folderIds = getFolderAndSubfolderIds(targetFolderId);
-      return filteredProjects.filter(
+      return sortedFilteredProjects.filter(
         (p) => p.folderId && folderIds.includes(p.folderId)
       );
     },
-    [projects, folders, searchTerm]
+    [projects, folders, searchTerm, sortBy, sortOrder, lessonDataCache]
   );
 
   // Helper function to calculate lesson data for a project
