@@ -129,12 +129,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (it.type === 'directory') {
 			setCurrentPath(it.path.endsWith('/') ? it.path : `${it.path}/`);
 			setPreviewPath(null);
-			setSelected(new Set());
 			setLastIndex(null);
 			return;
 		}
-		// single-select on row click
-		setSelected(new Set([it.path]));
+		// toggle selection on row click (multi-select)
+		toggle(it.path);
 		setLastIndex(idx);
 		// no preview on row click
 	};
@@ -379,7 +378,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 											return (
 											<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer border-b border-slate-100 last:border-0" onClick={(e)=>onRowClick(idx, it, e)}>
 												<div className="w-8">
-													<Checkbox checked={selected.has(it.path)} onCheckedChange={(checked: boolean) => setSelected(checked ? new Set([it.path]) : new Set())} />
+													<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
 												</div>
 												<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
 													{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
@@ -452,7 +451,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										return (
 											<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
 												<div className="w-8">
-													<Checkbox checked={selected.has(it.path)} onCheckedChange={(checked: boolean) => setSelected(checked ? new Set([it.path]) : new Set())} />
+													<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
 												</div>
 												<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
 													{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
@@ -489,15 +488,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				)}
 			</div>
 
-			{mode === 'select' && (
-				<div className="flex justify-between items-center">
-					<div className="text-sm text-slate-600">{selected.size > 0 ? `${selected.size} selected` : ''}</div>
-					<div className="flex gap-2">
-						<Button variant="outline" onClick={clearSel} className="border-slate-200 hover:border-blue-300">Clear</Button>
-						<Button onClick={()=>onFilesSelected && onFilesSelected(Array.from(selected))} disabled={selected.size===0} className="bg-blue-600 hover:bg-blue-700">Select {selected.size || ''}</Button>
-					</div>
-				</div>
-			)}
+			{/* Footer buttons removed in select mode; selection is communicated live via onFilesSelected */}
 		</div>
 	);
 };

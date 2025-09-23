@@ -216,7 +216,7 @@ export default function CreateFromSpecificFilesPage() {
     connector.source.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleCreateContent = () => {
+  const handleCreateContent = async () => {
     // DEBUG: Log current state
     console.log('[CreateFromSpecificFiles DEBUG] handleCreateContent called with:', {
       selectedConnectors,
@@ -250,18 +250,8 @@ export default function CreateFromSpecificFilesPage() {
       console.log('[CreateFromSpecificFiles DEBUG] Processing both connectors and files');
       combinedContext.fromConnectors = true;
       combinedContext.connectorIds = selectedConnectors;
-      
-      // Debug connector mapping
-      console.log('[CreateFromSpecificFiles DEBUG] Mapping connectors:', selectedConnectors);
-      combinedContext.connectorSources = selectedConnectors.map(id => {
-        const connector = connectors.find(c => c.id === id);
-        console.log(`[CreateFromSpecificFiles DEBUG] Mapping ID ${id}:`, connector ? { id: connector.id, source: connector.source } : 'NOT FOUND');
-        return connector?.source || 'unknown';
-      });
-      console.log('[CreateFromSpecificFiles DEBUG] Final connector sources:', combinedContext.connectorSources);
-      
+      combinedContext.connectorSources = selectedConnectors.map(id => connectors.find(c => c.id === id)?.source || 'unknown');
       combinedContext.selectedFiles = selectedFiles;
-      
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
@@ -271,26 +261,16 @@ export default function CreateFromSpecificFilesPage() {
       console.log('[CreateFromSpecificFiles DEBUG] Processing connectors only');
       combinedContext.fromConnectors = true;
       combinedContext.connectorIds = selectedConnectors;
-      
-      // Debug connector mapping
-      console.log('[CreateFromSpecificFiles DEBUG] Mapping connectors:', selectedConnectors);
-      combinedContext.connectorSources = selectedConnectors.map(id => {
-        const connector = connectors.find(c => c.id === id);
-        console.log(`[CreateFromSpecificFiles DEBUG] Mapping ID ${id}:`, connector ? { id: connector.id, source: connector.source } : 'NOT FOUND');
-        return connector?.source || 'unknown';
-      });
-      console.log('[CreateFromSpecificFiles DEBUG] Final connector sources:', combinedContext.connectorSources);
-      
+      combinedContext.connectorSources = selectedConnectors.map(id => connectors.find(c => c.id === id)?.source || 'unknown');
       searchParams.set('fromConnectors', 'true');
       searchParams.set('connectorIds', selectedConnectors.join(','));
       searchParams.set('connectorSources', combinedContext.connectorSources.join(','));
     } else if (hasFiles) {
       // Only files selected (from SmartDrive)
-      combinedContext.fromConnectors = true; // Still use connector flow since files come from SmartDrive
+      combinedContext.fromConnectors = true; // Keep consistent
       combinedContext.selectedFiles = selectedFiles;
-      combinedContext.connectorIds = []; // Empty connector list
+      combinedContext.connectorIds = [];
       combinedContext.connectorSources = [];
-      
       searchParams.set('fromConnectors', 'true');
       searchParams.set('selectedFiles', selectedFiles.join(','));
     }
@@ -298,13 +278,25 @@ export default function CreateFromSpecificFilesPage() {
     // Store in sessionStorage for the generate page
     console.log('[CreateFromSpecificFiles DEBUG] Final combinedContext:', combinedContext);
     console.log('[CreateFromSpecificFiles DEBUG] Final URL params:', searchParams.toString());
-    
-    sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
-    
+
+    try {
+      sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
+    } catch {}
+
     const finalUrl = `/create/generate?${searchParams.toString()}`;
     console.log('[CreateFromSpecificFiles DEBUG] Redirecting to:', finalUrl);
-    
-    router.push(finalUrl);
+
+    try {
+      await Promise.resolve(router.push(finalUrl));
+      // Fallback in case client routing is blocked for any reason
+      setTimeout(() => {
+        if (typeof window !== 'undefined' && window.location.pathname !== '/create/generate') {
+          window.location.assign(finalUrl);
+        }
+      }, 50);
+    } catch (e) {
+      if (typeof window !== 'undefined') window.location.assign(finalUrl);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -434,7 +426,6 @@ export default function CreateFromSpecificFilesPage() {
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                 <Input
-                  variant="shadow"
                   type="text"
                   placeholder={t('interface.searchConnectors', 'Search connectors...')}
                   value={searchTerm}
