@@ -441,7 +441,7 @@ export default function ProductViewNewPage() {
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
-                  <hr className="border-gray-200 mb-4" />
+                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   {section.lessons && section.lessons.length > 0 && (
                     <div>
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => (

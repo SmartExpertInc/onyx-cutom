@@ -259,11 +259,6 @@ export default function LessonPresentationClient() {
   const handleSlidesCountChange = (value: string) => {
     const newCount = Number(value);
     setSlidesCount(newCount);
-    // Clear content to force regeneration with new slides count
-    if (content && !loading) {
-      setContent("");
-      setStreamDone(false);
-    }
   };
 
   // State for conditional dropdown logic
@@ -707,7 +702,7 @@ export default function LessonPresentationClient() {
       jsonConvertedRef.current = false;
       setOriginalJsonResponse(null);
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
