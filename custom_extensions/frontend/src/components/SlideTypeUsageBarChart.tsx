@@ -1,67 +1,29 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { ResponsiveBar, BarTooltipProps } from '@nivo/bar';
 
 
-interface TemplateTypeUsage {
-  template_id: string;
-  slide_id: string;
-  total_generated: number;
-}
-interface SlidesAnalyticsResponse {
-  usage_by_template: TemplateTypeUsage[];
-}
-
 interface SlideTypeUsageBarChartProps {
   template_ids: string[];
-  date_from: string;
-  date_to: string;
+  usage_by_template: Array<{
+    template_id: string;
+    slide_id: string;
+    total_generated: number;
+  }>;
+  loading?: boolean;
+  error?: string | null;
 }
 
-const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-
-const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids, date_from, date_to }) => {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [allUsersData, setAllUsersData] = useState<SlidesAnalyticsResponse | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    const fetchAllUsers = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        let url = `${CUSTOM_BACKEND_URL}/admin/slides-analytics`;
-        const params = new URLSearchParams();
-        if (date_from) params.append('date_from', date_from);
-        if (date_to) params.append('date_to', date_to);
-        if (params.toString()) url += `?${params.toString()}`;
-
-        const res = await fetch(url, {
-          credentials: 'same-origin',
-        });
-        if (!res.ok) throw new Error(`Failed analytics: ${res.status}`);
-        const data: SlidesAnalyticsResponse = await res.json();
-        console.log('Slides analytics response:', data);
-        if (!cancelled) setAllUsersData(data);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message || 'Failed to load analytics');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    fetchAllUsers();
-  }, []);
-
+const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ template_ids, usage_by_template, loading = false, error = null }) => {
   // Prepare bar chart data
   const nivoData = useMemo(() => {
-    if (allUsersData) {
+    if (usage_by_template) {
       // Debug: log raw response
-      console.debug('Raw usage_by_template:', allUsersData.usage_by_template);
+      console.debug('Raw usage_by_template:', usage_by_template);
+
       const grouped: Record<string, number> = {};
-      for (const item of allUsersData.usage_by_template || []) {
+      for (const item of usage_by_template || []) {
         if (!item.template_id) continue;
         if (template_ids.length > 0 && !template_ids.includes(item.template_id)) continue;
         grouped[item.template_id] = (grouped[item.template_id] || 0) + (item.total_generated || 0);
@@ -69,12 +31,13 @@ const SlideTypeUsageBarChart: React.FC<SlideTypeUsageBarChartProps> = ({ templat
       const result = Object.entries(grouped)
         .map(([template, amount]) => ({ template, amount }))
         .sort((a, b) => b.amount - a.amount);
+
       // Debug: log processed data
       console.debug('Bar chart data:', result);
       return result;
     }
     return [];
-  }, [allUsersData, template_ids, date_from, date_to]);
+  }, [usage_by_template, template_ids]);
 
   return (
     <div className="bg-white shadow rounded-lg p-6 mb-6 h-[480px]">

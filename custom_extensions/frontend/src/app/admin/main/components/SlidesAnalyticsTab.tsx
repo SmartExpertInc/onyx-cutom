@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { format, subDays } from 'date-fns';
 import { 
-  Download, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Filter, X, Calendar
+  Download, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Filter, X, Calendar, ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 import SlideTypeUsageBarChart from '../../../../components/SlideTypeUsageBarChart';
 import { useLanguage } from '../../../../contexts/LanguageContext';
@@ -12,11 +12,20 @@ import { getAllTemplates } from '@/components/templates/registry';
 interface AnalyticsDashboard {
   recent_errors: Array<{
     id: number;
-    user_email: string;
+    user_id: string;
     template_id: string;
     props: string;
     error_message: string;
     created_at: string;
+  }>;
+  usage_by_template: Array<{
+    template_id: string;
+    slide_id: string;
+    total_generated: number;
+    client_count: number;
+    error_count: number;
+    last_usage: string;
+    preview_link: string;
   }>;
 }
 
@@ -29,18 +38,20 @@ const SlidesAnalyticsTab: React.FC = () => {
     from: format(subDays(new Date(), 7), 'yyyy-MM-dd'),
     to: format(new Date(), 'yyyy-MM-dd')
   });
-  const [filters, setFilters] = useState({
-    endpoint: ''
-  });
-  const [appliedFilters, setAppliedFilters] = useState({
-    endpoint: ''
-  });
-  const [isFiltering, setIsFiltering] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Expandable sections state
-  const [isChartExpanded, setIsChartExpanded] = useState(true);
-  const [isFallbacksExpanded, setIsFallbacksExpanded] = useState(true);
+  const [isChartExpanded, setIsChartExpanded] = useState(false);
+  const [isUsageTableExpanded, setIsUsageTableExpanded] = useState(true);
+  const [isFallbacksExpanded, setIsFallbacksExpanded] = useState(false);
+
+  // Table sorting state
+  const [sortField, setSortField] = useState<keyof AnalyticsDashboard['usage_by_template'][0] | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  
+  // Modal state
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [selectedTemplateForErrors, setSelectedTemplateForErrors] = useState<string | null>(null);
 
   // Get available templates
   const availableTemplates = getAllTemplates().map(t => t.id);
@@ -65,44 +76,53 @@ const SlidesAnalyticsTab: React.FC = () => {
     };
   }, [showTemplatesDropdown]);
 
-  
-  // Debounced filter application
-  useEffect(() => {
-    setIsFiltering(true);
-    const timer = setTimeout(() => {
-      setAppliedFilters(filters);
-      setIsFiltering(false);
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timer);
-  }, [filters]);
-
   const fetchDashboard = async () => {
     setLoading(true);
     setError(null);
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-      let url = `${CUSTOM_BACKEND_URL}/admin/slides-errors-analytics`;
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
-      if (params.toString()) url += `?${params.toString()}`;
       
-      const response = await fetch(url, {
-        credentials: 'same-origin'
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch analytics: ${response.status}`);
+      // Fetch both endpoints
+      const [errorsResponse, slidesResponse] = await Promise.all([
+        fetch(`${CUSTOM_BACKEND_URL}/admin/analytics/slides-errors${params.toString() ? `?${params.toString()}` : ''}`, {
+          credentials: 'same-origin'
+        }),
+        fetch(`${CUSTOM_BACKEND_URL}/admin/analytics/slides${params.toString() ? `?${params.toString()}` : ''}`, {
+          credentials: 'same-origin'
+        })
+      ]);
+      
+      if (!errorsResponse.ok) {
+        throw new Error(`Failed to fetch errors analytics: ${errorsResponse.status}`);
       }
-      const data = await response.json();
+      if (!slidesResponse.ok) {
+        throw new Error(`Failed to fetch slides analytics: ${slidesResponse.status}`);
+      }
+      
+      const errorsData = await errorsResponse.json();
+      const slidesData = await slidesResponse.json();
+      
       // Ensure id is present and is a number for each error
-      if (data && Array.isArray(data.recent_errors)) {
-        data.recent_errors = data.recent_errors.map((err: any, idx: number) => ({
+      if (errorsData && Array.isArray(errorsData.recent_errors)) {
+        errorsData.recent_errors = errorsData.recent_errors.map((err: any, idx: number) => ({
           id: typeof err.id === 'number' ? err.id : idx + 1,
           ...err
         }));
       }
-      setDashboard(data);
+
+      // Filter out items with total_generated === 0
+      const filteredUsageData = (slidesData.usage_by_template || []).filter((item: any) => item.total_generated > 0);
+      
+      // Combine the data
+      const combinedData: AnalyticsDashboard = {
+        recent_errors: errorsData.recent_errors || [],
+        usage_by_template: filteredUsageData
+      };
+      
+      setDashboard(combinedData);
     } catch (err) {
       console.error('Error fetching analytics:', err);
       setError(err instanceof Error ? err.message : 'An error occurred while fetching analytics');
@@ -113,8 +133,46 @@ const SlidesAnalyticsTab: React.FC = () => {
 
   useEffect(() => {
     fetchDashboard();
-  }, [dateRange, appliedFilters, refreshKey]);
+  }, [dateRange, refreshKey]);
 
+  // Sorting function
+  const handleSort = (field: keyof AnalyticsDashboard['usage_by_template'][0]) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  // Sorted usage data
+  const sortedUsageData = useMemo(() => {
+    if (!dashboard?.usage_by_template) return [];
+    
+    const sorted = [...dashboard.usage_by_template];
+    if (sortField) {
+      sorted.sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+        
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+        }
+        
+        const aStr = String(aValue).toLowerCase();
+        const bStr = String(bValue).toLowerCase();
+        
+        if (sortDirection === 'asc') {
+          return aStr.localeCompare(bStr);
+        } else {
+          return bStr.localeCompare(aStr);
+        }
+      });
+    }
+    return sorted;
+  }, [dashboard?.usage_by_template, sortField, sortDirection]);
+
+  // TODO: Implement export functionality
   const handleExport = async (exportFormat: 'csv' | 'json') => {
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -127,7 +185,6 @@ const SlidesAnalyticsTab: React.FC = () => {
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
       if (dateRange.to) params.append('date_to', dateRange.to);
-      if (appliedFilters.endpoint) params.append('endpoint', appliedFilters.endpoint);
       params.append('format', exportFormat);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/analytics/export?${params}`, {
@@ -153,11 +210,6 @@ const SlidesAnalyticsTab: React.FC = () => {
       alert('Failed to export data');
     }
   };
-
-  const clearAllFilters = useCallback(() => {
-    setFilters({ endpoint: ''});
-    setAppliedFilters({ endpoint: ''});
-  }, []);
 
   if (loading) {
     return (
@@ -230,37 +282,6 @@ const SlidesAnalyticsTab: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Active Filters Display */}
-      {(appliedFilters.endpoint) && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Filter className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">
-                {t('interface.analytics.activeFilters', 'Active Filters:')}
-                {isFiltering && (
-                  <span className="ml-2 inline-flex items-center">
-                    <RefreshCw className="w-3 h-3 animate-spin text-blue-600" />
-                  </span>
-                )}
-              </span>
-              {appliedFilters.endpoint && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {t('interface.analytics.endpoint', 'Slide type')}: {appliedFilters.endpoint}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={clearAllFilters}
-              className="text-blue-600 hover:text-blue-800 transition-colors"
-              title={t('interface.analytics.clearAllFilters', 'Clear all filters')}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Chart and Filters Section */}
       <div className="bg-white rounded-lg border border-gray-200 mb-6">
@@ -358,8 +379,159 @@ const SlidesAnalyticsTab: React.FC = () => {
             {/* Bar chart */}
             <div className="flex gap-6">
               <div className="w-full">
-                <SlideTypeUsageBarChart template_ids={selectedTemplateIds} date_from={dateRange.from} date_to={dateRange.to} />
+                <SlideTypeUsageBarChart 
+                  template_ids={selectedTemplateIds} 
+                  usage_by_template={dashboard?.usage_by_template || []}
+                  loading={loading}
+                  error={error}
+                />
               </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Usage Table Section */}
+      <div className="bg-white rounded-lg border border-gray-200 mb-6">
+        <button
+          onClick={() => setIsUsageTableExpanded(!isUsageTableExpanded)}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="text-lg font-semibold text-gray-900">Usage by Template</div>
+            <span className="text-sm text-gray-500">Detailed usage statistics for each template</span>
+          </div>
+          {isUsageTableExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-500" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-500" />
+          )}
+        </button>
+        
+        {isUsageTableExpanded && (
+          <div className="px-6 pb-6">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('template_id')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Template ID</span>
+                        {sortField === 'template_id' ? (
+                          sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('total_generated')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Total Generated</span>
+                        {sortField === 'total_generated' ? (
+                          sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('client_count')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Client Count</span>
+                        {sortField === 'client_count' ? (
+                          sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('error_count')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Errors</span>
+                        {sortField === 'error_count' ? (
+                          sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('last_usage')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Last Usage</span>
+                        {sortField === 'last_usage' ? (
+                          sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Preview
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {sortedUsageData.map((item, index) => (
+                    <tr key={`${item.template_id}-${index}`} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={item.template_id}>
+                        {item.template_id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {item.total_generated.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {item.client_count.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {item.error_count > 0 ? (
+                          <button
+                            onClick={() => {
+                              setSelectedTemplateForErrors(item.template_id);
+                              setShowErrorModal(true);
+                            }}
+                            className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
+                          >
+                            {item.error_count} errors
+                          </button>
+                        ) : (
+                          <span className="text-gray-500">0 errors</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {item.last_usage ? format(new Date(item.last_usage), 'MMM dd, yyyy HH:mm') : 'Never'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {item.preview_link ? (
+                          <a
+                            href={item.preview_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-xs"
+                          >
+                            Preview
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 text-xs">No preview</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -408,9 +580,9 @@ const SlidesAnalyticsTab: React.FC = () => {
                         {error.props}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {error.user_email ? (
+                        {error.user_id ? (
                           <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                            {error.user_email.substring(0, 8)}...
+                            {error.user_id.substring(0, 8)}...
                           </span>
                         ) : (
                           <span className="text-gray-400">{t('interface.analytics.anonymous', 'Anonymous')}</span>
@@ -432,6 +604,70 @@ const SlidesAnalyticsTab: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Error Modal */}
+      {showErrorModal && selectedTemplateForErrors && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Errors for {selectedTemplateForErrors}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowErrorModal(false);
+                  setSelectedTemplateForErrors(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Props</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Error</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {(dashboard?.recent_errors || [])
+                    .filter(error => error.template_id === selectedTemplateForErrors)
+                    .map((error) => (
+                    <tr key={error.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {format(new Date(error.created_at), 'MMM dd, HH:mm:ss')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {error.user_id ? (
+                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                            {error.user_id.substring(0, 8)}...
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">Anonymous</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs" title={error.props}>
+                        <div className="truncate">
+                          {error.props}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-md">
+                        <div className="text-red-600 text-xs break-words" title={error.error_message}>
+                          {error.error_message || 'No error message'}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

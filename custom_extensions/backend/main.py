@@ -7381,13 +7381,17 @@ class TemplateTypeUsage(BaseModel):
     template_id: str
     slide_id: str
     total_generated: int
+    client_count: int
+    error_count: int
+    last_usage: str
+    preview_link: str
 
 class SlidesAnalyticsResponse(BaseModel):
     usage_by_template: List[TemplateTypeUsage]
 
 class SlideGenerationError(BaseModel):
     id: int
-    user_email: str
+    user_id: str
     template_id: str
     props: Dict[str, Any]
     error_message: str
@@ -22755,7 +22759,7 @@ async def get_usage_analytics(
         raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
 
 # Slide analytics across all users
-@app.get("/api/custom/admin/slides-analytics", response_model=SlidesAnalyticsResponse)
+@app.get("/api/custom/admin/analytics/slides", response_model=SlidesAnalyticsResponse)
 async def get_slides_analytics(
     request: Request,
     date_from: str,
@@ -22770,19 +22774,45 @@ async def get_slides_analytics(
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 """
+                WITH last_usages AS (
+                    SELECT
+                        slide->>'templateId' AS template_id,
+                        MAX(projects.created_at) AS last_usage
+                    FROM
+                        projects
+                    CROSS JOIN LATERAL
+                        jsonb_array_elements(microproduct_content->'slides') AS slide
+                    WHERE
+                        microproduct_content ? 'slides'
+                        AND projects.created_at BETWEEN $1 AND $2
+                    GROUP BY
+                        template_id
+                )
                 SELECT
                     slide->>'templateId' AS template_id,
                     slide->>'slideId' AS slide_id,
-                    COUNT(*) AS total_generated
+                    COUNT(*) AS total_generated,
+                    COUNT(DISTINCT projects.onyx_user_id) AS client_count,
+                    COALESCE(error_counts.error_count, 0) AS error_count,
+                    COALESCE(last_usages.last_usage, NULL) AS last_usage
                 FROM
                     projects
                 CROSS JOIN LATERAL
                     jsonb_array_elements(microproduct_content->'slides') AS slide
+                LEFT JOIN (
+                    SELECT template_id, COUNT(*) AS error_count
+                    FROM slide_creation_errors
+                    WHERE created_at BETWEEN $1 AND $2
+                    GROUP BY template_id
+                ) AS error_counts
+                ON slide->>'templateId' = error_counts.template_id
+                LEFT JOIN last_usages
+                ON slide->>'templateId' = last_usages.template_id
                 WHERE
                     microproduct_content ? 'slides'
                     AND projects.created_at BETWEEN $1 AND $2
                 GROUP BY
-                    template_id, slide_id
+                    template_id, slide_id, error_counts.error_count, last_usages.last_usage
                 ORDER BY
                     total_generated DESC
                 """
@@ -22791,7 +22821,11 @@ async def get_slides_analytics(
                 TemplateTypeUsage(
                     template_id=row['template_id'],
                     slide_id=row['slide_id'],
-                    total_generated=row['total_generated']
+                    total_generated=row['total_generated'],
+                    client_count=row['client_count'],
+                    error_count=row['error_count'],
+                    last_usage=row['last_usage'].isoformat() if row['last_usage'] else "",
+                    preview_link=""
                 ) for row in rows
             ]
             return SlidesAnalyticsResponse(usage_by_template=template_stats)
@@ -22799,7 +22833,7 @@ async def get_slides_analytics(
         logger.error(f"Error fetching slides analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch slides analytics")
 
-@app.get("/api/custom/admin/slides-errors-analytics", response_model=SlidesErrorsAnalyticsResponse)
+@app.get("/api/custom/admin/analytics/slides-errors", response_model=SlidesErrorsAnalyticsResponse)
 async def get_slides_errors_analytics(
     request: Request,
     date_from: str,
@@ -22816,11 +22850,11 @@ async def get_slides_errors_analytics(
                 """
                 SELECT 
                     sce.id,
+                    sce.user_id,
                     sce.template_id,
                     sce.props,
                     sce.error_message,
-                    sce.created_at,
-                    sce.user_id
+                    sce.created_at
                 FROM slide_creation_errors sce
                 WHERE sce.created_at BETWEEN $1 AND $2
                 ORDER BY sce.created_at DESC
@@ -22830,7 +22864,7 @@ async def get_slides_errors_analytics(
             errors = [
                 SlideGenerationError(
                     id=row["id"],
-                    user_email=row["user_id"],
+                    user_id=row["user_id"],
                     template_id=row["template_id"],
                     props=row["props"],
                     error_message=row["error_message"],
