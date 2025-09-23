@@ -698,7 +698,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 onKeyDown={handleHeaderKeyDown}
                 ref={headerInputRef}
                 style={{
-                  width: 'auto',
+                  width: '100%',
                   fontSize: '24px',
                   fontWeight: 'bold',
                   color: '#111827',
@@ -707,8 +707,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   background: 'transparent',
                   padding: '0',
                   margin: '0',
-                  display: 'inline-block',
-                  verticalAlign: 'middle'
+                  display: 'block',
+                  boxSizing: 'border-box'
                 }}
               />
             ) : (
