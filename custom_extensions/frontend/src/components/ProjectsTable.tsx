@@ -31,8 +31,6 @@ import {
   Link as LinkIcon,
   RefreshCw,
   AlertTriangle,
-  FolderMinus,
-  Folder,
   ChevronRight,
   ChevronDown,
   CheckSquare,
@@ -48,7 +46,6 @@ import {
   TableOfContents,
   Search
 } from "lucide-react";
-import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { ProjectCard as CustomProjectCard } from "./ui/project-card";
@@ -1048,11 +1045,16 @@ const FolderRow: React.FC<{
                   }`}
                 />
               </Button>
-              <Folder
-                size={16}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
                 style={{ color: getFolderTierColor(folder, allFolders) }}
                 className="mr-2"
-              />
+              >
+                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+              </svg>
               <DynamicText
                 text={folder.name}
                 columnWidthPercent={columnWidths.title}
@@ -1609,7 +1611,10 @@ const ProjectRowMenu: React.FC<{
                       }}
                       className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
-                      <FolderMinus size={16} className="text-orange-500" />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-orange-500">
+                        <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        <path d="M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
@@ -1870,7 +1875,7 @@ const ProjectRowMenu: React.FC<{
           onClose={() => setShowSettingsModal(false)}
           projectName={project.title}
           projectId={project.id}
-          onTierChange={(tier) => {
+          onTierChange={(tier: string) => {
             console.log("Project tier changed to:", tier);
           }}
         />
@@ -2212,16 +2217,6 @@ const FolderRowMenu: React.FC<{
         </div>
       )}
 
-      <FolderSettingsModal
-        open={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
-        folderName={folder.name}
-        folderId={folder.id}
-        currentTier={folder.quality_tier || "medium"}
-        onTierChange={(tier) => {
-          console.log("Folder tier changed to:", tier);
-        }}
-      />
 
       {/* Loading Modal for Folder Export */}
       <FolderExportLoadingModal isOpen={isExporting} folderName={folder.name} />
@@ -3865,7 +3860,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <TableRow>
                  {columnVisibility.type && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3880,7 +3875,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.title && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.title}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3895,7 +3890,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.created && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.created}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3910,7 +3905,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.creator && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.creator}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3925,7 +3920,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.numberOfLessons && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3941,7 +3936,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.estCreationTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.estCreationTime}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3957,7 +3952,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.estCompletionTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
                     >
                       <div className="flex items-center gap-2">
@@ -3972,7 +3967,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     </TableHead>
                   )}
                   <TableHead
-                    className="px-6 py-3 text-right text-xs font-semibold text-gray-500 tracking-wider"
+                    className="px-6 py-3 text-right text-xs font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
                     {/* {t("interface.actions", "Actions")} */}
@@ -3980,212 +3975,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white divide-y divide-gray-100">
-                {/* Show nested folders as expandable rows when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  buildFolderTree(folders).map((folder, folderIndex) => (
-                    <FolderRow
-                      key={`folder-${folder.id}`}
-                      folder={folder}
-                      level={0}
-                      index={folderIndex}
-                      trashMode={trashMode}
-                      columnVisibility={columnVisibility}
-                      columnWidths={columnWidths}
-                      expandedFolders={expandedFolders}
-                      folderProjects={filteredFolderProjects}
-                      lessonDataCache={lessonDataCache}
-                      draggedFolder={draggedFolder}
-                      draggedProject={draggedProject}
-                      dragOverIndex={dragOverIndex}
-                      isDragging={isDragging}
-                      isReordering={isReordering}
-                      formatDate={formatDate}
-                      formatCompletionTime={formatCompletionTimeLocalized}
-                      toggleFolder={toggleFolder}
-                      handleDragStart={handleDragStart}
-                      handleDragOver={handleDragOver}
-                      handleDragLeave={handleDragLeave}
-                      handleDrop={handleDrop}
-                      handleDragEnd={handleDragEnd}
-                      handleDeleteProject={handleDeleteProject}
-                      handleRestoreProject={handleRestoreProject}
-                      handleDeletePermanently={handleDeletePermanently}
-                      handleDeleteFolder={handleDeleteFolder}
-                      allFolders={folders}
-                    />
-                  ))}
-
-                {/* Show unassigned projects when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  visibleUnassignedProjects.map((p: Project, index: number) => (
-                    <TableRow
-                      key={p.id}
-                      className={`hover:bg-gray-50 transition group ${
-                        !getModalState()
-                          ? "cursor-grab active:cursor-grabbing"
-                          : "cursor-default"
-                      } ${
-                        dragOverIndex === index
-                          ? "bg-blue-50 border-t-2 border-blue-300"
-                          : ""
-                      } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-                      draggable={!trashMode && !getModalState()}
-                      onDragStart={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          return;
-                        }
-                        handleDragStart(e, p, "project");
-                      }}
-                      onDragOver={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragOver(e, index);
-                      }}
-                      onDragLeave={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragLeave(e);
-                      }}
-                      onDrop={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDrop(e, index);
-                      }}
-                      onDragEnd={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragEnd(e);
-                      }}
-                    >
-                      {columnVisibility.type && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <span className="text-gray-500 font-medium">
-                              {getProductTypeDisplayName(p.designMicroproductType)}
-                            </span>
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                      )}
-                      {columnVisibility.title && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            {/* <Star size={16} className="text-gray-300 mr-2" /> */}
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : (
-                                p.designMicroproductType === "Video Lesson Presentation" 
-                                  ? `/projects-2/view/${p.id}`
-                                  : `/projects/view/${p.id}`
-                              )}
-                              title={p.title}
-                            />
-                          </span>
-                        </TableCell>
-                      )}
-                      {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </TableCell>
-                      )}
-                      {columnVisibility.creator && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
-                            You
-                          </span>
-                        </TableCell>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </TableCell>
-                      )}
-                      <TableCell
-                        className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ProjectRowMenu
-                          project={p}
-                          formatDate={formatDate}
-                          trashMode={trashMode}
-                          onDelete={handleDeleteProject}
-                          onRestore={handleRestoreProject}
-                          onDeletePermanently={handleDeletePermanently}
-                          folderId={folderId}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-
-                {/* Show projects for specific folder or all projects in trash mode */}
-                {(trashMode || folderId !== null) &&
-                  visibleProjects.map((p: Project, index: number) => (
+                {/* Show all projects in a flat list */}
+                {projects.map((p: Project, index: number) => (
                     <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
