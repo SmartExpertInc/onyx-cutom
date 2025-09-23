@@ -64,7 +64,7 @@ export function updateUserProfile(email: string) {
     return;
   }
   try {
-    mixpanel.people.set_once({ "email": email });
+    mixpanel.people.set_once({ "$email": email });
   } catch (error) {
     console.error("[analytics] Mixpanel identify failed", error);
   }
