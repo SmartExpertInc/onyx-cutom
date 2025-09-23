@@ -190,13 +190,13 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   // Use props.steps if available, otherwise use defaultSteps
   const steps = props.steps && props.steps.length > 0 ? props.steps : defaultSteps;
 
-  // Define colors for each step (matching the photo exactly)
+  // Define colors for each step (new colors as requested)
   const stepColors = [
-    '#002D91', // Deep blue for PROBLEM
-    '#3B82F6', // Medium blue for READ  
-    '#06B6D4', // Teal for HYPOTHESIZE
-    '#60A5FA', // Lighter sky blue for RESEARCH (lighter than READ)
-    '#1E3A8A'  // Deep blue for CONCLUSION
+    '#0F58F9', // Blue for PROBLEM
+    '#2A7CFF', // Light blue for READ  
+    '#09ACD8', // Cyan for HYPOTHESIZE
+    '#1B94E8', // Sky blue for RESEARCH
+    '#01298A'  // Dark blue for CONCLUSION
   ];
 
   const slideStyles: React.CSSProperties = {
@@ -217,7 +217,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const rightColumnStyles: React.CSSProperties = {
-    flex: '2', // Увеличиваем flex для большей ширины
+    flex: '1.8', // Увеличиваем flex для большей ширины
     display: 'flex',
     flexDirection: 'column',
     gap: '7px'
@@ -225,20 +225,21 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3.8rem',
+    width: '230px',
+    fontSize: '3rem',
     fontFamily: 'serif', // Serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'bold',
     lineHeight: '0.85',
-    marginBottom: '16px',
+    marginBottom: '20px',
     textAlign: 'left',
     letterSpacing: '-0.04em'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.3rem',
+    fontSize: '1.4rem',
     fontFamily: 'sans-serif', // Sans-serif font as in photo
-    color: '#000000', // Black color as in photo
+    color: '#09090B', // Black color as in photo
     fontWeight: 'normal',
     textAlign: 'left',
     opacity: 0.9,
@@ -249,7 +250,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     display: 'flex',
     alignItems: 'center',
     gap: '24px',
-    padding: '32px 36px',
+    padding: '25px 36px',
     borderRadius: '12px',
     minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -298,7 +299,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
 
   const stepContentStyles: React.CSSProperties = {
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
     gap: '6px',
     flex: 1
   };
@@ -318,7 +319,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     margin: 0,
     opacity: 0.95,
     lineHeight: '1.4',
-    fontFamily: 'sans-serif'
+    fontFamily: 'sans-serif',
+    width: '210px',
   };
 
   // Handle title editing
