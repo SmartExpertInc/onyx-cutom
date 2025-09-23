@@ -555,10 +555,18 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												});
 												return shouldShow;
 											})() && (
-														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
-															{(() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return <Progress value={s?.etaPct ?? 10} className="h-1.5" />; })()}
-														</div>
-													)}
+												<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
+													{(() => { 
+														const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+														const pct = s?.etaPct ?? 10; 
+														return (
+															<div className="h-1.5 w-56 md:w-64 bg-slate-200 rounded overflow-hidden">
+																<div className="h-full bg-blue-500" style={{ width: `${pct}%` }} />
+															</div>
+														);
+													})()}
+												</div>
+											)}
 												</div>
 												<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
 												<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
@@ -642,10 +650,18 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												});
 												return shouldShow;
 											})() && (
-														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
-															{(() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return <Progress value={s?.etaPct ?? 10} className="h-1.5" />; })()}
-														</div>
-													)}
+												<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
+													{(() => { 
+														const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
+														const pct = s?.etaPct ?? 10; 
+														return (
+															<div className="h-1.5 w-56 md:w-64 bg-slate-200 rounded overflow-hidden">
+																<div className="h-full bg-blue-500" style={{ width: `${pct}%` }} />
+															</div>
+														);
+													})()}
+												</div>
+											)}
 												</div>
 												<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
 												<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
