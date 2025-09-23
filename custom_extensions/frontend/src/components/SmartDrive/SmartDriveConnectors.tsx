@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
+import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -532,7 +533,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           </div>
         </div>
         
-        <SmartDriveFrame />
+        {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+          <SmartDriveFrame />
+        ) : (
+          <SmartDriveBrowser mode="manage" />
+        )}
       </div>
     );
   }
@@ -542,7 +547,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {/* Smart Drive Browser Section */}
       <div className="mb-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <SmartDriveFrame />
+          {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
+            <SmartDriveFrame />
+          ) : (
+            <SmartDriveBrowser mode="manage" />
+          )}
         </div>
       </div>
 

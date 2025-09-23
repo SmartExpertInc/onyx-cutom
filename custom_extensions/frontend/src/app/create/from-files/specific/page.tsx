@@ -98,6 +98,7 @@ export default function CreateFromSpecificFilesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFileBrowser, setShowFileBrowser] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   // Load connectors from the backend API
   const loadConnectors = async () => {
@@ -157,7 +158,7 @@ export default function CreateFromSpecificFilesPage() {
     setConnectorSelectionValid(selectedConnectors.length > 0 || selectedFiles.length > 0);
   }, [selectedConnectors, selectedFiles]);
 
-  // Handle file selection from SmartDrive iframe
+  // Handle file selection from SmartDrive (native or iframe)
   const handleFilesSelected = (files: string[]) => {
     console.log('[CreateFromSpecificFiles DEBUG] handleFilesSelected called with:', {
       fileCount: files.length,
@@ -165,9 +166,19 @@ export default function CreateFromSpecificFilesPage() {
       previousSelectedFiles: selectedFiles.length,
       timestamp: new Date().toISOString()
     });
-    
+
     setSelectedFiles(files);
-    
+
+    // Optionally push the first file's name into query/state for downstream use
+    try {
+      const first = files[0] || '';
+      const fileName = first ? (first.split('/').pop() || first) : '';
+      if (fileName) {
+        // Store in local state to be included later in request payloads or navigation
+        setSelectedFileName?.(fileName);
+      }
+    } catch {}
+
     console.log('[CreateFromSpecificFiles DEBUG] selectedFiles state updated');
   };
 

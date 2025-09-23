@@ -144,11 +144,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		} else if (mode === 'select') {
 			setSelected(new Set([it.path]));
 			setLastIndex(idx);
-			setPreviewPath(it.path);
+			// no preview on row click
 		} else {
 			toggle(it.path);
 			setLastIndex(idx);
-			setPreviewPath(it.path);
+			// no preview on row click
 		}
 	};
 
@@ -387,19 +387,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 									<div className="w-8">
 										<Checkbox checked={selected.has(it.path)} onCheckedChange={()=>toggle(it.path)} />
 									</div>
-									<div className="w-5 h-5">
+									<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
 										{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-600"/> : <File className="w-5 h-5 text-muted-foreground"/>}
 									</div>
 									<div className="flex-1">
-										<div className="font-medium">{it.name}</div>
+										<div className="font-medium text-foreground">{it.name}</div>
 										<div className="text-xs text-muted-foreground">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
 									</div>
-									<div className="w-24 text-right text-sm">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-									<div className="w-44 text-right text-sm">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+									<div className="w-24 text-right text-sm text-foreground">{it.type === 'file' ? formatSize(it.size) : ''}</div>
+									<div className="w-44 text-right text-sm text-foreground">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
 								</div>
 							))}
 						</div>
-						<div className="hidden lg:block col-span-5 border-l min-h-[420px]">
+						<div className="hidden lg:block col-span-5 border-l min-h-[420px] bg-white">
 							{previewItem ? (
 								<div className="p-4 space-y-2">
 									<div className="text-sm text-muted-foreground">Preview</div>
