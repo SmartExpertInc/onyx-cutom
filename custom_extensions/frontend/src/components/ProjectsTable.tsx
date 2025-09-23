@@ -1017,22 +1017,6 @@ const FolderRow: React.FC<{
               className="inline-flex items-center"
               style={{ paddingLeft: `${level * 20}px` }}
             >
-              <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="opacity-60 group-hover:opacity-100"
-                >
-                  <circle cx="9" cy="5" r="2" />
-                  <circle cx="9" cy="12" r="2" />
-                  <circle cx="9" cy="19" r="2" />
-                  <circle cx="15" cy="5" r="2" />
-                  <circle cx="15" cy="12" r="2" />
-                  <circle cx="15" cy="19" r="2" />
-                </svg>
-              </div>
               <Button 
                 variant="ghost" 
                 size="icon"
@@ -1057,7 +1041,7 @@ const FolderRow: React.FC<{
               </svg>
               <DynamicText
                 text={folder.name}
-                columnWidthPercent={columnWidths.title}
+                columnWidthPercent={100}
                 className="font-semibold text-blue-700"
                 title={folder.name}
               />
@@ -1195,33 +1179,11 @@ const FolderRow: React.FC<{
                   className="inline-flex items-center"
                   style={{ paddingLeft: `${(level + 1) * 20}px` }}
                 >
-                  <div
-                    className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                      getModalState()
-                        ? "cursor-grab active:cursor-grabbing"
-                        : "cursor-default opacity-30"
-                    }`}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="opacity-60 group-hover:opacity-100"
-                    >
-                      <circle cx="9" cy="5" r="2" />
-                      <circle cx="9" cy="12" r="2" />
-                      <circle cx="9" cy="19" r="2" />
-                      <circle cx="15" cy="5" r="2" />
-                      <circle cx="15" cy="12" r="2" />
-                      <circle cx="15" cy="19" r="2" />
-                    </svg>
-                  </div>
                   <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
                   {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                   <DynamicText
                     text={p.title}
-                    columnWidthPercent={columnWidths.title}
+                    columnWidthPercent={100}
                     href={trashMode ? "#" : (
                       p.designMicroproductType === "Video Lesson Presentation" 
                         ? `/projects-2/view/${p.id}`
@@ -2278,17 +2240,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     estCompletionTime: false,
     type: true,
   });
-  const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
-    title: 48,
-    created: 15,
-    creator: 15,
-    numberOfLessons: 13,
-    estCreationTime: 13.5,
-    estCompletionTime: 13.5,
-    type: 5,
-  });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
-  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
 
   // Drag and drop reordering state
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
@@ -2300,39 +2252,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
 
-  // Column resizing functionality
-  const handleColumnResize = (columnKey: string, newWidth: number) => {
-    setColumnWidths((prev) => ({
-      ...prev,
-      [columnKey]: Math.max(10, Math.min(80, newWidth)), // Min 10%, Max 80%
-    }));
-  };
-
-  const handleResizeStart = (e: React.MouseEvent, columnKey: string) => {
-    e.preventDefault();
-    setResizingColumn(columnKey);
-
-    const startX = e.clientX;
-    const startWidth = columnWidths[columnKey as keyof ColumnWidths];
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startX;
-      const containerWidth =
-        (e.target as Element).closest("table")?.clientWidth || 1000;
-      const deltaPercent = (deltaX / containerWidth) * 100;
-      const newWidth = startWidth + deltaPercent;
-      handleColumnResize(columnKey, newWidth);
-    };
-
-    const handleMouseUp = () => {
-      setResizingColumn(null);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -3543,8 +3462,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     // Add column visibility settings
     queryParams.append("column_visibility", JSON.stringify(columnVisibility));
 
-    // Add column widths settings
-    queryParams.append("column_widths", JSON.stringify(columnWidths));
 
     // Add client name if provided
     if (clientName) {
@@ -3839,131 +3756,78 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
+            style={{ minWidth: "800px" }}
           >
-            <style jsx>{`
-              .cursor-col-resize {
-                cursor: col-resize !important;
-              }
-              .cursor-col-resize:hover {
-                background-color: #3b82f6 !important;
-              }
-              .resizing {
-                user-select: none;
-              }
-            `}</style>
             <Table
-              className={`min-w-full divide-y divide-gray-200 ${
-                resizingColumn ? "resizing" : ""
-              }`}
+              className="min-w-full divide-y divide-gray-200 table-auto"
             >
               <TableHeader className="bg-white">
                 <TableRow>
                  {columnVisibility.type && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.type}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-20"
                     >
                       <div className="flex items-center gap-2">
                         <TypeIcon size={15} />
                         {t("interface.type", "Type")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "type")}
-                      />
                     </TableHead>
                   )}
                   {columnVisibility.title && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.title}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative min-w-0 flex-1"
                     >
                       <div className="flex items-center gap-2">
                         <TitleIcon size={15} />
                         {t("interface.title", "Title")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "title")}
-                      />
                     </TableHead>
                   )}
                   {columnVisibility.created && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.created}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-32"
                     >
                       <div className="flex items-center gap-2">
                         <CreatedIcon size={15} />
                         {t("interface.created", "Created")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "created")}
-                      />
                     </TableHead>
                   )}
                   {columnVisibility.creator && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.creator}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-32"
                     >
                       <div className="flex items-center gap-2">
                         <CreatorIcon size={15} />
                         {t("interface.creator", "Creator")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "creator")}
-                      />
                     </TableHead>
                   )}
                   {columnVisibility.numberOfLessons && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.numberOfLessons}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-36"
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.numberOfLessons", "Number of Lessons")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "numberOfLessons")
-                        }
-                      />
                     </TableHead>
                   )}
                   {columnVisibility.estCreationTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.estCreationTime}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-36"
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.estCreationTime", "Est. Creation Time")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCreationTime")
-                        }
-                      />
                     </TableHead>
                   )}
                   {columnVisibility.estCompletionTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.estCompletionTime}%` }}
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-36"
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.estCompletionTime", "Est. Completion Time")}
                       </div>
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCompletionTime")
-                        }
-                      />
                     </TableHead>
                   )}
                   <TableHead
@@ -4027,7 +3891,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.type && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-20">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -4038,34 +3902,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.title && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <TableCell className="px-6 py-4 text-sm font-medium text-gray-900 min-w-0 flex-1">
                           <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
                               text={p.title}
-                              columnWidthPercent={columnWidths.title}
+                              columnWidthPercent={100}
                               href={trashMode ? "#" : (
                                 p.designMicroproductType === "Video Lesson Presentation" 
                                   ? `/projects-2/view/${p.id}`
@@ -4077,12 +3919,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-32">
                           {formatDate(p.createdAt)}
                         </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-32">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
@@ -4093,13 +3935,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </TableCell>
                       )}
-                      {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </TableCell>
-                      )}
                       {columnVisibility.numberOfLessons && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-36">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
@@ -4107,7 +3944,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.estCreationTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-36">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData && lessonData.totalHours
@@ -4117,7 +3954,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.estCompletionTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-36">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData
