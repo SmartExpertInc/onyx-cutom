@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ArrowLeft, Check, Search, FileText, Upload, Globe, Settings, Plus, FolderOpen, Users, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import SmartDriveFrame from '../../../../components/SmartDrive/SmartDriveFrame';
+import SmartDriveBrowser from '../../../../components/SmartDrive/SmartDrive/SmartDriveBrowser';
 import { Input } from '@/components/ui/input';
 import { ConnectorCard } from '@/components/ui/connector-card';
 import { Button } from '@/components/ui/button';
@@ -384,10 +385,14 @@ export default function CreateFromSpecificFilesPage() {
               
               {showFileBrowser && (
                 <div className="mt-6 pt-6 border-t border-gray-100">
-                  <SmartDriveFrame 
-                    onFilesSelected={handleFilesSelected}
-                    selectedFiles={selectedFiles}
-                  />
+                  {process.env.NEXT_PUBLIC_SMARTDRIVE_NATIVE_UI_ENABLED === 'true' ? (
+                    <SmartDriveBrowser mode="select" onFilesSelected={handleFilesSelected} />
+                  ) : (
+                    <SmartDriveFrame 
+                      onFilesSelected={handleFilesSelected}
+                      selectedFiles={selectedFiles}
+                    />
+                  )}
                 </div>
               )}
             </div>

@@ -25405,20 +25405,10 @@ async def list_smartdrive_files(
             if not account:
                 raise HTTPException(status_code=404, detail="SmartDrive account not found")
 
-            # Use Nextcloud WebDAV API to list files
-            # Use a shared Nextcloud account for all Smart Drive access
-            nextcloud_username = os.getenv("NEXTCLOUD_USERNAME", "smart_drive_user")
-            nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD", "nextcloud_password")
-            
-            # Create user-specific folder path within the shared account
-            nextcloud_user_folder = account['nextcloud_user_id']  # This becomes the folder name
-            
-            # Ensure user folder exists
-            await ensure_user_folder_exists(nextcloud_username, nextcloud_password, nextcloud_user_folder)
-            
-            webdav_url = f"http://nc1.contentbuilder.ai:8080/remote.php/dav/files/{nextcloud_username}/{nextcloud_user_folder}{path}"
-            
-            auth = (nextcloud_username, nextcloud_password)
+            # Use Nextcloud WebDAV API to list files with the user's individual credentials
+            username, password, base_url, _ = await _get_nextcloud_credentials(conn, onyx_user_id)
+            webdav_url = f"{base_url}/remote.php/dav/files/{username}{path}"
+            auth = (username, password)
             
             try:
                 async with httpx.AsyncClient() as client:
@@ -25621,6 +25611,355 @@ async def get_mock_files_response(path: str) -> Dict:
         "path": path,
         "total_count": len(mock_files)
     }
+
+@app.post("/api/custom/smartdrive/mkdir")
+async def smartdrive_mkdir(
+    request: Request,
+    payload: Dict[str, str] = Body(...),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a new directory via WebDAV (MKCOL). Ensures parent directories exist."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        await _check_rate_limit("mkdir", str(onyx_user_id))
+        raw_path = (payload.get("path") or "/").strip()
+        path = await _normalize_smartdrive_path(raw_path)
+
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+
+        webdav_user_base = f"{base_url}/remote.php/dav/files/{username}"
+        # Ensure parent directories
+        await _ensure_folder_tree(webdav_user_base, user_root_prefix + path, auth=(username, password))
+
+        # Create target folder (MKCOL)
+        target = _ensure_trailing_slash(user_root_prefix + path)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.request("MKCOL", f"{webdav_user_base}{target}", auth=(username, password))
+        if resp.status_code in (201, 405):  # created or already exists
+            return {"success": True}
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] mkdir error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to create folder")
+
+
+@app.post("/api/custom/smartdrive/upload")
+async def smartdrive_upload(
+    request: Request,
+    path: str = Query("/", description="Destination directory path"),
+    files: List[UploadFile] = File(...),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Upload one or more files via WebDAV PUT using streaming (no full file buffering)."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        norm_dir = await _normalize_smartdrive_path(path)
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        webdav_user_base = f"{base_url}/remote.php/dav/files/{username}"
+
+        # Ensure destination folder exists
+        await _ensure_folder_tree(webdav_user_base, _ensure_trailing_slash(user_root_prefix + norm_dir), auth=(username, password))
+
+        results: List[Dict[str, Any]] = []
+        async with httpx.AsyncClient(timeout=None) as client:
+            for f in files:
+                safe_name = _sanitize_filename(f.filename or "upload.bin")
+                dest_url = f"{webdav_user_base}{_ensure_trailing_slash(user_root_prefix + norm_dir)}{safe_name}"
+
+                async def aiter():
+                    while True:
+                        chunk = await f.read(1024 * 64)
+                        if not chunk:
+                            break
+                        yield chunk
+
+                resp = await client.put(dest_url, auth=(username, password), content=aiter())
+                if resp.status_code not in (200, 201, 204):
+                    results.append({"file": safe_name, "success": False, "status": resp.status_code, "error": _dav_error(resp)})
+                else:
+                    results.append({"file": safe_name, "success": True, "status": resp.status_code})
+                await f.close()
+
+        # If any failed, return 207 multi-status style payload
+        if any(not r["success"] for r in results):
+            return JSONResponse(status_code=207, content={"results": results})
+        return {"success": True, "results": results}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] upload error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to upload files")
+
+
+@app.post("/api/custom/smartdrive/move")
+async def smartdrive_move(
+    request: Request,
+    payload: Dict[str, str] = Body(...),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Move a file or folder via WebDAV MOVE."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        src = await _normalize_smartdrive_path(payload.get("from") or "/")
+        dst = await _normalize_smartdrive_path(payload.get("to") or "/")
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        base = f"{base_url}/remote.php/dav/files/{username}"
+        headers = {"Destination": f"{base}{user_root_prefix}{dst}", "Overwrite": "T"}
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.request("MOVE", f"{base}{user_root_prefix}{src}", auth=(username, password), headers=headers)
+        if resp.status_code in (201, 204):
+            return {"success": True}
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] move error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to move item")
+
+
+@app.post("/api/custom/smartdrive/copy")
+async def smartdrive_copy(
+    request: Request,
+    payload: Dict[str, str] = Body(...),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Copy a file or folder via WebDAV COPY."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        src = await _normalize_smartdrive_path(payload.get("from") or "/")
+        dst = await _normalize_smartdrive_path(payload.get("to") or "/")
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        base = f"{base_url}/remote.php/dav/files/{username}"
+        headers = {"Destination": f"{base}{user_root_prefix}{dst}", "Overwrite": "T"}
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.request("COPY", f"{base}{user_root_prefix}{src}", auth=(username, password), headers=headers)
+        if resp.status_code in (201, 204):
+            return {"success": True}
+        raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] copy error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to copy item")
+
+
+@app.delete("/api/custom/smartdrive/delete")
+async def smartdrive_delete(
+    request: Request,
+    payload: Dict[str, List[str]] = Body(...),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Delete one or more files/folders via WebDAV DELETE."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        paths = payload.get("paths") or []
+        if not isinstance(paths, list) or not paths:
+            raise HTTPException(status_code=400, detail="paths array is required")
+        norm_paths = [await _normalize_smartdrive_path(p) for p in paths]
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        base = f"{base_url}/remote.php/dav/files/{username}"
+        results: List[Dict[str, Any]] = []
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            for p in norm_paths:
+                resp = await client.delete(f"{base}{user_root_prefix}{p}", auth=(username, password))
+                ok = resp.status_code in (200, 204)
+                results.append({"path": p, "success": ok, "status": resp.status_code, "error": None if ok else _dav_error(resp)})
+        if any(not r["success"] for r in results):
+            return JSONResponse(status_code=207, content={"results": results})
+        return {"success": True, "results": results}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] delete error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to delete items")
+
+
+@app.get("/api/custom/smartdrive/download")
+async def smartdrive_download(
+    request: Request,
+    path: str = Query(..., description="File path to download"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Download a file by streaming from WebDAV to client."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        norm_path = await _normalize_smartdrive_path(path)
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+        base = f"{base_url}/remote.php/dav/files/{username}"
+        source_url = f"{base}{user_root_prefix}{norm_path}"
+
+        client = httpx.AsyncClient(timeout=None)
+        resp = await client.get(source_url, auth=(username, password), stream=True)
+        if resp.status_code != 200:
+            await client.aclose()
+            raise HTTPException(status_code=_map_webdav_status(resp.status_code), detail=_dav_error(resp))
+
+        filename = _guess_filename_from_path(norm_path)
+        media_type = resp.headers.get("content-type", "application/octet-stream")
+        headers = {
+            "Content-Disposition": f"attachment; filename=\"{filename}\"",
+            "ETag": resp.headers.get("etag", ""),
+        }
+
+        async def stream_body():
+            async for chunk in resp.aiter_bytes():
+                yield chunk
+            await client.aclose()
+
+        return StreamingResponse(stream_body(), media_type=media_type, headers=headers)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] download error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to download file")
+
+
+# --------- Helpers: auth, paths, rate limiting, dav utils ---------
+# Simple in-memory rate limiting per user+operation
+_RATE_BUCKETS: Dict[Tuple[str, str], list] = {}
+_RATE_LIMITS: Dict[str, Tuple[int, int]] = {
+    "mkdir": (30, 60),
+    "upload": (60, 60),
+    "move": (30, 60),
+    "copy": (30, 60),
+    "delete": (60, 60),
+}
+
+async def _check_rate_limit(operation: str, user_id: str) -> None:
+    import time
+    limit, window = _RATE_LIMITS.get(operation, (60, 60))
+    key = (user_id, operation)
+    now = time.time()
+    bucket = _RATE_BUCKETS.get(key)
+    if bucket is None:
+        bucket = []
+        _RATE_BUCKETS[key] = bucket
+    # drop old
+    cutoff = now - window
+    i = 0
+    for ts in bucket:
+        if ts >= cutoff:
+            break
+        i += 1
+    if i:
+        del bucket[:i]
+    if len(bucket) >= limit:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    bucket.append(now)
+
+async def _get_nextcloud_credentials(conn: asyncpg.Connection, onyx_user_id: str) -> Tuple[str, str, str, str]:
+    """
+    Returns (username, password, base_url, user_root_prefix)
+    - Requires per-user credentials stored in smartdrive_accounts
+    """
+    account = await conn.fetchrow(
+        "SELECT onyx_user_id, nextcloud_username, nextcloud_password_encrypted, nextcloud_base_url FROM smartdrive_accounts WHERE onyx_user_id = $1",
+        onyx_user_id,
+    )
+    if not account or not account.get("nextcloud_username") or not account.get("nextcloud_password_encrypted"):
+        raise HTTPException(status_code=401, detail="SmartDrive account not connected")
+
+    base_url = (account.get("nextcloud_base_url") or os.environ.get("NEXTCLOUD_BASE_URL") or "").rstrip("/")
+    if not base_url:
+        raise HTTPException(status_code=400, detail="Nextcloud base URL not configured")
+
+    try:
+        password = decrypt_password(account["nextcloud_password_encrypted"])  # type: ignore
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to decrypt SmartDrive credentials")
+
+    return account["nextcloud_username"], password, base_url, ""
+
+
+def _ensure_trailing_slash(p: str) -> str:
+    return p if p.endswith("/") else p + "/"
+
+
+def _sanitize_filename(name: str) -> str:
+    # Basic filename sanitization
+    name = name.strip().replace("\\", "_").replace("/", "_")
+    if not name:
+        return "file"
+    return name
+
+
+async def _normalize_smartdrive_path(p: str) -> str:
+    """Normalize and validate a SmartDrive path. Must be absolute within the user's root."""
+    from urllib.parse import unquote
+    p = unquote(p or "/")
+    if not p.startswith("/"):
+        p = "/" + p
+    # Collapse multiple slashes
+    while "//" in p:
+        p = p.replace("//", "/")
+    # Reject traversal
+    parts = [seg for seg in p.split("/") if seg not in ("", ".")]
+    if any(seg == ".." for seg in parts):
+        raise HTTPException(status_code=400, detail="Invalid path")
+    # Rebuild
+    normalized = "/" + "/".join(parts)
+    return normalized if normalized != "" else "/"
+
+
+async def _ensure_folder_tree(base: str, full_path: str, auth: Tuple[str, str]) -> None:
+    """Ensure the full folder tree exists using MKCOL on each segment."""
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        # Only directories
+        path = _ensure_trailing_slash(full_path)
+        segments = [s for s in path.strip("/").split("/") if s]
+        cumulative = ""
+        for seg in segments:
+            cumulative += f"/{seg}"
+            url = f"{base}{_ensure_trailing_slash(cumulative)}"
+            try:
+                r = await client.request("MKCOL", url, auth=auth)
+                if r.status_code in (201, 405):
+                    continue
+                elif 200 <= r.status_code < 300:
+                    continue
+                else:
+                    logger.warning(f"MKCOL {url} -> {r.status_code} {r.text[:120]}")
+            except Exception as e:
+                logger.warning(f"MKCOL failed {url}: {e}")
+
+
+def _map_webdav_status(status: int) -> int:
+    mapping = {
+        401: 401,
+        403: 403,
+        404: 404,
+        405: 405,
+        409: 409,
+        423: 423,
+        507: 507,
+    }
+    if status in mapping:
+        return mapping[status]
+    # Treat non-2xx as 500 by default
+    return 500
+
+
+def _dav_error(resp: httpx.Response) -> str:
+    try:
+        txt = resp.text[:400]
+    except Exception:
+        txt = ""
+    return f"WebDAV error {resp.status_code}: {txt}"
+
+
+def _guess_filename_from_path(path: str) -> str:
+    try:
+        return (path.rsplit("/", 1)[-1]) or "download"
+    except Exception:
+        return "download"
 
 @app.post("/api/custom/smartdrive/import")
 async def import_smartdrive_files(
