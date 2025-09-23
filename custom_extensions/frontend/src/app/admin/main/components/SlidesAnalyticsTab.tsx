@@ -416,6 +416,19 @@ const SlidesAnalyticsTab: React.FC = () => {
                   <tr>
                     <th 
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('slide_id')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>Slide ID</span>
+                        {sortField === 'slide_id' ? (
+                          sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                        ) : (
+                          <ArrowUpDown className="w-3 h-3" />
+                        )}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('template_id')}
                     >
                       <div className="flex items-center space-x-1">
@@ -486,7 +499,10 @@ const SlidesAnalyticsTab: React.FC = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {sortedUsageData.map((item, index) => (
-                    <tr key={`${item.template_id}-${index}`} className="hover:bg-gray-50">
+                    <tr key={`${item.slide_id}-${index}`} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={item.slide_id}>
+                        {item.slide_id}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={item.template_id}>
                         {item.template_id}
                       </td>
