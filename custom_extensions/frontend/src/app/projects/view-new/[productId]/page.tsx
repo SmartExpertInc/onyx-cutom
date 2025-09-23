@@ -8,20 +8,20 @@ import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
-const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"></path> <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M12 7L12 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M16 8L16 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 9L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"></path> <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M12 7L12 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M16 8L16 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 9L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
-const QuizIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"></circle><path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path><circle cx="12" cy="16" r="1" fill="currentColor"></circle></g></svg>
+const QuizIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"></circle><path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path><circle cx="12" cy="16" r="1" fill="currentColor"></circle></g></svg>
 );
 
-const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+const VideoScriptIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
-const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+const TextPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
 // Custom Tooltip Component matching the text presentation page style
@@ -93,6 +93,7 @@ export default function ProductViewNewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [lessonContentStatus, setLessonContentStatus] = useState<{[key: string]: {presentation: boolean, onePager: boolean, quiz: boolean, videoLesson: boolean}}>({});
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -114,6 +115,74 @@ export default function ProductViewNewPage() {
       else router.push('/projects');
     }
   }, [router]);
+
+  // Function to check existing content for lessons
+  const checkLessonContentStatus = useCallback(async (outlineName: string, lessons: Lesson[]) => {
+    if (!outlineName || !lessons.length) return;
+
+    try {
+      const commonHeaders: HeadersInit = {};
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      // Check for existing products for each lesson
+      const contentStatus: {[key: string]: {presentation: boolean, onePager: boolean, quiz: boolean, videoLesson: boolean}} = {};
+      
+      for (const lesson of lessons) {
+        const lessonKey = lesson.id || lesson.title;
+        const expectedProjectName = `${outlineName}: ${lesson.title}`;
+        
+        // Initialize status for this lesson
+        contentStatus[lessonKey] = {
+          presentation: false,
+          onePager: false,
+          quiz: false,
+          videoLesson: false
+        };
+
+        // Check for existing products with this naming pattern
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects?search=${encodeURIComponent(expectedProjectName)}`, {
+          headers: commonHeaders
+        });
+
+        if (response.ok) {
+          const searchResults = await response.json();
+          const projects = searchResults.projects || [];
+          
+          // Check each found project to see what type of content it is
+          for (const project of projects) {
+            if (project.project_name === expectedProjectName) {
+              const microproductType = project.microproduct_type;
+              
+              // Map microproduct types to our content status
+              switch (microproductType) {
+                case 'Slide Deck':
+                case 'Lesson Presentation':
+                  contentStatus[lessonKey].presentation = true;
+                  break;
+                case 'Text Presentation':
+                  contentStatus[lessonKey].onePager = true;
+                  break;
+                case 'Quiz':
+                  contentStatus[lessonKey].quiz = true;
+                  break;
+                case 'Video Lesson':
+                case 'Video Lesson Presentation':
+                  contentStatus[lessonKey].videoLesson = true;
+                  break;
+              }
+            }
+          }
+        }
+      }
+
+      setLessonContentStatus(contentStatus);
+    } catch (error) {
+      console.error('Error checking lesson content status:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchProjectData = async () => {
@@ -138,6 +207,23 @@ export default function ProductViewNewPage() {
 
         const data: ProjectInstanceDetail = await response.json();
         setProjectData(data);
+
+        // Check for existing content for lessons
+        const trainingPlanData = data.details as TrainingPlanData;
+        if (trainingPlanData?.sections && trainingPlanData?.mainTitle) {
+          const allLessons: Lesson[] = [];
+          trainingPlanData.sections.forEach(section => {
+            if (section.lessons) {
+              allLessons.push(...section.lessons);
+            }
+          });
+          await checkLessonContentStatus(trainingPlanData.mainTitle, allLessons);
+        }
+
+        // Clear refresh flag if it exists
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('refresh_lesson_content_status');
+        }
       } catch (err) {
         console.error('Error fetching project data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load project');
@@ -149,7 +235,7 @@ export default function ProductViewNewPage() {
     fetchProjectData();
   }, [productId]);
 
-  const handleContentTypeClick = (lesson: Lesson, contentType: string) => {
+  const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
     const trainingPlanData = projectData?.details as TrainingPlanData;
     if (!trainingPlanData || !productId) return;
 
@@ -175,6 +261,11 @@ export default function ProductViewNewPage() {
       case 'video-lesson':
         // Keep inactive for now
         return;
+    }
+
+    // Store a flag to refresh content status when returning to this page
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('refresh_lesson_content_status', 'true');
     }
 
     router.push(createUrl);
@@ -332,16 +423,40 @@ export default function ProductViewNewPage() {
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
                               <CustomTooltip content="Lesson Presentation">
-                                <LessonPresentationIcon />
+                                <LessonPresentationIcon 
+                                  color={(() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    return status?.presentation ? '#0F58F9' : undefined;
+                                  })()}
+                                />
                               </CustomTooltip>
                               <CustomTooltip content="Text Presentation">
-                                <TextPresentationIcon />
+                                <TextPresentationIcon 
+                                  color={(() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    return status?.onePager ? '#0F58F9' : undefined;
+                                  })()}
+                                />
                               </CustomTooltip>
                               <CustomTooltip content="Quiz">
-                                <QuizIcon />
+                                <QuizIcon 
+                                  color={(() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    return status?.quiz ? '#0F58F9' : undefined;
+                                  })()}
+                                />
                               </CustomTooltip>
                               <CustomTooltip content="Video Lesson">
-                                <VideoScriptIcon />
+                                <VideoScriptIcon 
+                                  color={(() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    return status?.videoLesson ? '#0F58F9' : undefined;
+                                  })()}
+                                />
                               </CustomTooltip>
                             </div>
                             <div className="relative">
@@ -394,6 +509,22 @@ export default function ProductViewNewPage() {
                 </div>
               ));
             })()}
+            {/* Add New Module Button */}
+            <div className="flex justify-center">
+              <button
+                className="flex items-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#0F58F9',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                Add new module
+              </button>
+            </div>
           </div>
 
           {/* Right Panel - Course Summary */}
