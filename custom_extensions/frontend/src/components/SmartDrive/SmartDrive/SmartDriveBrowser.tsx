@@ -305,10 +305,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		return items.find(i => i.path === previewPath) || null;
 	}, [previewPath, items]);
 
+	// In select mode, notify parent on every selection change to enable downstream buttons immediately
+	useEffect(() => {
+		if (mode === 'select' && onFilesSelected) {
+			onFilesSelected(Array.from(selected));
+		}
+	}, [mode, selected, onFilesSelected]);
+
 	return (
 		<div className={`space-y-3 text-black ${className}`}>
 			{/* Toolbar */}
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between rounded-md border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
 				<div className="flex items-center gap-2 text-sm">
 					{breadcrumbs.map((b, idx) => (
 						<Button key={b.path} variant="link" className="px-0 h-auto" onClick={() => setCurrentPath(b.path)}>
@@ -354,7 +361,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				</div>
 			)}
 
-			<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border rounded-md overflow-hidden">
+			<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border rounded-md overflow-hidden bg-gradient-to-br from-blue-50 to-cyan-50">
 				{loading ? (
 					<div className="p-10 text-center text-gray-700">Loading…</div>
 				) : error ? (
@@ -366,7 +373,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						{previewItem ? (
 							<div className="grid grid-cols-12">
 								<div className="col-span-12 lg:col-span-7 divide-y">
-									<div className="flex items-center px-3 py-2 text-xs uppercase text-gray-600">
+									<div className="flex items-center px-3 py-2 text-xs uppercase text-blue-700/80">
 										<div className="w-8"/>
 										<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
 											Name <ArrowUpDown className="w-3 h-3 ml-1"/>
@@ -395,7 +402,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 										</div>
 									))}
 								</div>
-								<div className="hidden lg:block col-span-5 border-l min-h-[420px] bg-white">
+								<div className="hidden lg:block col-span-5 border-l min-h-[420px] bg-gradient-to-b from-white/80 to-blue-50">
 									<div className="p-4 space-y-2">
 										<div className="text-sm text-gray-600">Preview</div>
 										<div className="font-semibold text-black">{previewItem?.name}</div>
@@ -406,7 +413,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 								</div>
 							</div>
 						) : (
-							<div className="divide-y">
+																<div className="divide-y bg-white/40 backdrop-blur-sm">
 								<div className="flex items-center px-3 py-2 text-xs uppercase text-gray-600">
 									<div className="w-8"/>
 									<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
