@@ -689,6 +689,7 @@ const ProjectsPageInner: React.FC = () => {
         }
         // Identify user for Mixpanel
         identifyUser(user.id);
+        updateUserProfile(user.email);
       } catch (error) {
         setUser(null);
         resetUserIdentity();

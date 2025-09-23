@@ -58,6 +58,18 @@ export function identifyUser(userId: string) {
   }
 }
 
+// Add email property to user profile
+export function updateUserProfile(email: string) {
+  if (!isInitialized) {
+    return;
+  }
+  try {
+    mixpanel.people.set_once({ "email": email });
+  } catch (error) {
+    console.error("[analytics] Mixpanel identify failed", error);
+  }
+}
+
 // Call on logout to handle multiple users on a single device
 export function resetUserIdentity() {
   if (!isInitialized) {
