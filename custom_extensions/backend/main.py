@@ -25912,6 +25912,15 @@ async def smartdrive_indexing_status(
         for p in norm_paths:
             if p not in out:
                 out[p] = None
+        # Also include URL-encoded aliases for robustness
+        try:
+            from urllib.parse import quote
+            alias: Dict[str, Any] = {}
+            for k, v in out.items():
+                alias[quote(k, safe='/')] = v
+            out.update(alias)
+        except Exception:
+            pass
         return {"statuses": out}
     except HTTPException:
         raise
