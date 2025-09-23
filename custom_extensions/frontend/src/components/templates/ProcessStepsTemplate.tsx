@@ -289,11 +289,11 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     width: '28px',
     height: '28px',
     borderRadius: '50%',
-    backgroundColor: color,
+    backgroundColor: 'white',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'white',
+    color: color, // Цвет текста такой же как цвет блока
     fontSize: '18px',
     fontWeight: 'bold'
   });
