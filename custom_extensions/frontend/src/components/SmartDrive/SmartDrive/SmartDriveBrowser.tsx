@@ -20,6 +20,8 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input as UiInput } from '@/components/ui/input';
 
 export type SmartDriveItem = {
 	name: string;
@@ -68,6 +70,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [uploading, setUploading] = useState<UploadProgress[]>([]);
 	const [indexing, setIndexing] = useState<IndexingState>({});
 	const [previewPath, setPreviewPath] = useState<string | null>(null);
+	const [mkdirOpen, setMkdirOpen] = useState(false);
+	const [mkdirName, setMkdirName] = useState('');
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const uploadInput = useRef<HTMLInputElement | null>(null);
@@ -144,8 +148,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const selectAll = () => setSelected(new Set(filtered.map(i => i.path)));
 	const clearSel = () => setSelected(new Set());
 
-	const mkdir = async () => {
-		const name = prompt('New folder name');
+	const createFolder = async () => {
+		const name = mkdirName.trim();
 		if (!name) return;
 		setBusy(true);
 		try {
@@ -156,6 +160,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
 			});
 			if (!res.ok) throw new Error(await res.text());
+			setMkdirOpen(false);
+			setMkdirName('');
 			await fetchList(currentPath);
 		} catch (e) {
 			alert('Failed to create folder');
@@ -360,7 +366,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						<Upload className="w-4 h-4 mr-2"/>Upload
 					</Button>
 					<input ref={uploadInput} type="file" multiple className="hidden" onChange={onUploadChange} />
-					<Button variant="outline" onClick={mkdir} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
+					<Button variant="outline" onClick={()=>{ setMkdirOpen(true); setMkdirName(''); }} disabled={busy} className="border-slate-200 hover:border-blue-300 hover:bg-blue-50">
 						<Plus className="w-4 h-4 mr-2"/>New Folder
 					</Button>
 					{/* Per-row actions now handle the rest */}
@@ -378,6 +384,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					))}
 				</div>
 			)}
+
+			<Dialog open={mkdirOpen} onOpenChange={setMkdirOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Create folder</DialogTitle>
+						<DialogDescription>Enter a name for the new folder in the current directory.</DialogDescription>
+					</DialogHeader>
+					<div className="mt-2">
+						<UiInput value={mkdirName} onChange={(e)=>setMkdirName(e.target.value)} placeholder="Folder name" autoFocus />
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={()=>setMkdirOpen(false)}>Cancel</Button>
+						<Button onClick={createFolder} disabled={!mkdirName.trim() || busy}>Create</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 
 			<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border border-slate-200 rounded-lg overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 max-h-[600px] flex flex-col shadow-sm">
 				{loading ? (

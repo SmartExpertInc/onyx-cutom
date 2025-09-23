@@ -25853,6 +25853,73 @@ async def smartdrive_upload(
         raise HTTPException(status_code=500, detail="Failed to upload files")
 
 
+@app.get("/api/custom/smartdrive/indexing-status")
+async def smartdrive_indexing_status(
+    request: Request,
+    paths: List[str] = Query([]),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        # Normalize paths
+        norm_paths: List[str] = []
+        for p in paths:
+            try:
+                norm_paths.append(await _normalize_smartdrive_path(p))
+            except Exception:
+                continue
+        if not norm_paths:
+            return {"statuses": {}}
+
+        # Lookup Onyx file IDs
+        path_to_file_id: Dict[str, str] = {}
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT smartdrive_path, onyx_file_id
+                FROM smartdrive_imports
+                WHERE onyx_user_id = $1 AND smartdrive_path = ANY($2::text[])
+                """,
+                str(onyx_user_id),
+                norm_paths,
+            )
+        for r in rows:
+            path_to_file_id[r["smartdrive_path"]] = str(r["onyx_file_id"])  # always string
+
+        if not path_to_file_id:
+            return {"statuses": {p: None for p in norm_paths}}
+
+        # Query Onyx for indexing status
+        file_ids = list(path_to_file_id.values())
+        query_params = []
+        for fid in file_ids:
+            query_params.append(("file_ids", fid))
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                f"{ONYX_API_SERVER_URL}/user/file/indexing-status",
+                params=query_params,
+                cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+            )
+        if not resp.is_success:
+            logger.warning(f"Indexing status fetch failed: {resp.status_code} {resp.text[:200]}")
+            return {"statuses": {p: None for p in norm_paths}}
+        status_map = resp.json()  # {file_id: bool}
+
+        # Map back to paths
+        out: Dict[str, Any] = {}
+        for p, fid in path_to_file_id.items():
+            out[p] = bool(status_map.get(str(fid)))
+        for p in norm_paths:
+            if p not in out:
+                out[p] = None
+        return {"statuses": out}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] indexing-status error: {e}", exc_info=True)
+        return {"statuses": {p: None for p in paths}}
+
+
 @app.post("/api/custom/smartdrive/move")
 async def smartdrive_move(
     request: Request,
