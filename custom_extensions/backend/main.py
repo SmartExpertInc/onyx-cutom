@@ -26084,13 +26084,16 @@ async def smartdrive_token_estimate(
         if not head.is_success:
             raise HTTPException(status_code=_map_webdav_status(head.status_code), detail=_dav_error(head))
         content_length = head.headers.get("content-length")
+        mime_type = head.headers.get("content-type", "")
         approx_tokens = 0
         if content_length and content_length.isdigit():
-            approx_tokens = max(1, int(int(content_length) / 4))
+            # Heuristic: PDFs compress poorly relative to tokens; use larger divisor
+            divisor = 8 if "pdf" in mime_type.lower() else 6
+            approx_tokens = max(1, int(int(content_length) / divisor))
         else:
-            # Fallback: last resort approximate small size
+            # Fallback: conservative small estimate
             approx_tokens = 2000
-        return {"tokens": approx_tokens, "source": "approx"}
+        return {"tokens": approx_tokens, "source": "approx", "mime_type": mime_type}
     except HTTPException:
         raise
     except Exception as e:
