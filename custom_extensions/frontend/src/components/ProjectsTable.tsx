@@ -2341,6 +2341,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  // Feature flag: disable outline-related filtering (shows all products)
+  const DISABLE_OUTLINE_FILTERING = true;
+
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
     setLoading(true);
@@ -2471,8 +2474,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             const projectTitle = proj.title.trim();
             let belongsToOutline = false;
 
+            // Method 2: New logic - check if this project follows the "Outline Name: Lesson Title" pattern
+            if (!belongsToOutline && projectTitle.includes(": ")) {
+              const outlinePart = projectTitle.split(": ")[0].trim();
+              if (outlineNames.has(outlinePart)) {
+                belongsToOutline = true;
+              }
+            }
+
             // Method 3: Content-specific patterns - check if this content belongs to an outline
-            // IMPORTANT: Only quizzes use pattern-based filtering; non-quiz products should remain visible
             if (!belongsToOutline) {
               const contentType = (
                 proj.designMicroproductType || ""
@@ -2487,24 +2497,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 (proj as any).is_standalone !== undefined &&
                 (proj as any).is_standalone !== null;
 
-              // If product has explicit standalone flag, use it selectively:
-              // Hide only outline-linked quizzes; keep non-quiz products visible even if linked to an outline
+              // If product has explicit standalone flag, use it to determine visibility
               if (hasStandaloneFlag) {
-                if (isQuiz && (proj as any).is_standalone === false) {
+                // For products with explicit standalone flag: show only if standalone=true
+                if ((proj as any).is_standalone === false) {
                   belongsToOutline = true;
                   console.log(
-                    `🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false for quiz)`
+                    `🔍 [FILTER] ${contentType} "${projectTitle}" filtered out (Explicit standalone=false)`
                   );
                 }
               } else if (isQuiz) {
-                // Pattern-based linkage checks apply only to quizzes
-                // Pattern A: "Outline Name: Lesson Title"
-                if (!belongsToOutline && projectTitle.includes(": ")) {
-                  const outlinePart = projectTitle.split(": ")[0].trim();
-                  if (outlineNames.has(outlinePart)) {
-                    belongsToOutline = true;
-                  }
-                }
                 // NEW: Only apply legacy filtering to quizzes - show all One-pagers (text presentations, PDF lessons) by default
                 // This ensures all One-pagers are visible on the main products page
                 // Pattern 1: "Content Type - Outline Name: Lesson Title" (e.g., "Quiz - Outline Name: Lesson Title") - Legacy pattern
@@ -2588,13 +2590,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         return filteredProjects;
       };
 
-      // Show all products regardless of outline linkage
-      const allProjects = sortedProjects;
+      const allProjects = DISABLE_OUTLINE_FILTERING
+        ? sortedProjects
+        : deduplicateProjects(sortedProjects);
       setProjects(allProjects);
 
       // Calculate folder projects mapping for all folders
       const folderProjectsMap: Record<number, Project[]> = {};
-      allProjects.forEach((project) => {
+      allProjects.forEach((project: Project) => {
         if (project.folderId) {
           if (!folderProjectsMap[project.folderId]) {
             folderProjectsMap[project.folderId] = [];
@@ -3580,7 +3583,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   // Add these just before the render block
-  const visibleProjects = getProjectsForFolder(folderId);
+  const visibleProjects = DISABLE_OUTLINE_FILTERING
+    ? getProjectsForFolder(folderId)
+    : viewMode === "list"
+    ? getProjectsForFolder(folderId).filter(
+        (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
+      )
+    : getProjectsForFolder(folderId);
 
   const visibleUnassignedProjects =
     viewMode === "list"
