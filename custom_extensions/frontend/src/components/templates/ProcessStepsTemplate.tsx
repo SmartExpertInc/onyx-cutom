@@ -204,8 +204,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     background: '#ffffff', // White background as in photo
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    padding: '80px 100px',
-    gap: '80px',
+    padding: '50px',
     alignItems: 'flex-start'
   };
 
@@ -221,12 +220,12 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     flex: '1',
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px',
+    gap: '7px',
     maxWidth: '500px'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '4.8rem',
+    fontSize: '3.8rem',
     fontFamily: 'serif', // Serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'bold',
@@ -254,7 +253,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     borderRadius: '12px',
     minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    background: color // Solid color instead of gradient as in photo
+    background: color, // Solid color instead of gradient as in photo
+    width: '60%' // Each block takes 60% of slide width
   });
 
   // Helper function to adjust color brightness
