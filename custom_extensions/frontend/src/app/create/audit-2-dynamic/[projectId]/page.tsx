@@ -327,10 +327,37 @@ export default function DynamicAuditLandingPage() {
       case 'projectName':
         currentValue = landingPageData.projectName || '';
         break
+      case 'yearlyShortage':
+        currentValue = landingPageData.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '';
+        break
+      case 'workforceCrisisIndustry':
+        currentValue = landingPageData.workforceCrisis?.industry || '';
+        break
+      case 'workforceCrisisDescription':
+        currentValue = landingPageData.workforceCrisis?.yearlyShortage?.description || '';
+        break
+      case 'workforceCrisisMissingText':
+        // This is the "Missing per year" text - we'll handle it as a special case
+        currentValue = landingPageData.workforceCrisis?.industry || '';
+        break
       default:
         if (field.startsWith('jobPosition_')) {
           const index = parseInt(field.split('_')[1])
           currentValue = landingPageData.jobPositions?.[index]?.title || '';
+        } else if (field.startsWith('courseTemplate_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.courseTemplates?.[index]?.title || '';
+        } else if (field.startsWith('courseTemplateDescription_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.courseTemplates?.[index]?.description || '';
+        } else if (field.startsWith('courseModule_')) {
+          const index = parseInt(field.split('_')[1])
+          currentValue = landingPageData.courseOutlineModules?.[index]?.title || '';
+        } else if (field.startsWith('courseLesson_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          currentValue = landingPageData.courseOutlineModules?.[moduleIndex]?.lessons?.[lessonIndex] || '';
         }
         break
     }
@@ -374,13 +401,63 @@ export default function DynamicAuditLandingPage() {
         updatedData.projectName = newValue
         console.log('✅ [TEXT SAVE] Successfully updated projectName');
         break
+      case 'yearlyShortage':
+        if (updatedData.workforceCrisis?.yearlyShortage) {
+          updatedData.workforceCrisis.yearlyShortage.yearlyShortage = parseInt(newValue) || 0
+          console.log('✅ [TEXT SAVE] Successfully updated yearlyShortage');
+        }
+        break
+      case 'workforceCrisisIndustry':
+        if (updatedData.workforceCrisis) {
+          updatedData.workforceCrisis.industry = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisIndustry');
+        }
+        break
+      case 'workforceCrisisDescription':
+        if (updatedData.workforceCrisis?.yearlyShortage) {
+          updatedData.workforceCrisis.yearlyShortage.description = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisDescription');
+        }
+        break
+      case 'workforceCrisisMissingText':
+        if (updatedData.workforceCrisis) {
+          updatedData.workforceCrisis.industry = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisMissingText');
+        }
+        break
       default:
-        // Handle nested fields like job positions
+        // Handle nested fields like job positions, course templates, and course modules
         if (field.startsWith('jobPosition_')) {
           const index = parseInt(field.split('_')[1])
           if (updatedData.jobPositions && updatedData.jobPositions[index]) {
             updatedData.jobPositions[index] = { ...updatedData.jobPositions[index], title: newValue }
             console.log('✅ [TEXT SAVE] Successfully updated job position', index);
+          }
+        } else if (field.startsWith('courseTemplate_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.courseTemplates && updatedData.courseTemplates[index]) {
+            updatedData.courseTemplates[index] = { ...updatedData.courseTemplates[index], title: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated course template', index);
+          }
+        } else if (field.startsWith('courseTemplateDescription_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.courseTemplates && updatedData.courseTemplates[index]) {
+            updatedData.courseTemplates[index] = { ...updatedData.courseTemplates[index], description: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated course template description', index);
+          }
+        } else if (field.startsWith('courseModule_')) {
+          const index = parseInt(field.split('_')[1])
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[index]) {
+            updatedData.courseOutlineModules[index] = { ...updatedData.courseOutlineModules[index], title: newValue }
+            console.log('✅ [TEXT SAVE] Successfully updated course module', index);
+          }
+        } else if (field.startsWith('courseLesson_')) {
+          const parts = field.split('_')
+          const moduleIndex = parseInt(parts[1])
+          const lessonIndex = parseInt(parts[2])
+          if (updatedData.courseOutlineModules && updatedData.courseOutlineModules[moduleIndex]?.lessons) {
+            updatedData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue
+            console.log('✅ [TEXT SAVE] Successfully updated course lesson', moduleIndex, lessonIndex);
           }
         }
         break
@@ -434,11 +511,53 @@ export default function DynamicAuditLandingPage() {
             case 'projectName':
               recoveredData.projectName = newValue;
               break;
+            case 'yearlyShortage':
+              if (recoveredData.workforceCrisis?.yearlyShortage) {
+                recoveredData.workforceCrisis.yearlyShortage.yearlyShortage = parseInt(newValue) || 0;
+              }
+              break;
+            case 'workforceCrisisIndustry':
+              if (recoveredData.workforceCrisis) {
+                recoveredData.workforceCrisis.industry = newValue;
+              }
+              break;
+            case 'workforceCrisisDescription':
+              if (recoveredData.workforceCrisis?.yearlyShortage) {
+                recoveredData.workforceCrisis.yearlyShortage.description = newValue;
+              }
+              break;
+            case 'workforceCrisisMissingText':
+              if (recoveredData.workforceCrisis) {
+                recoveredData.workforceCrisis.industry = newValue;
+              }
+              break;
             default:
               if (field.startsWith('jobPosition_')) {
                 const index = parseInt(field.split('_')[1]);
                 if (recoveredData.jobPositions && recoveredData.jobPositions[index]) {
                   recoveredData.jobPositions[index] = { ...recoveredData.jobPositions[index], title: newValue };
+                }
+              } else if (field.startsWith('courseTemplate_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.courseTemplates && recoveredData.courseTemplates[index]) {
+                  recoveredData.courseTemplates[index] = { ...recoveredData.courseTemplates[index], title: newValue };
+                }
+              } else if (field.startsWith('courseTemplateDescription_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.courseTemplates && recoveredData.courseTemplates[index]) {
+                  recoveredData.courseTemplates[index] = { ...recoveredData.courseTemplates[index], description: newValue };
+                }
+              } else if (field.startsWith('courseModule_')) {
+                const index = parseInt(field.split('_')[1]);
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[index]) {
+                  recoveredData.courseOutlineModules[index] = { ...recoveredData.courseOutlineModules[index], title: newValue };
+                }
+              } else if (field.startsWith('courseLesson_')) {
+                const parts = field.split('_');
+                const moduleIndex = parseInt(parts[1]);
+                const lessonIndex = parseInt(parts[2]);
+                if (recoveredData.courseOutlineModules && recoveredData.courseOutlineModules[moduleIndex]?.lessons) {
+                  recoveredData.courseOutlineModules[moduleIndex].lessons[lessonIndex] = newValue;
                 }
               }
               break;
@@ -1234,7 +1353,23 @@ export default function DynamicAuditLandingPage() {
                         {/* Dynamic Number and Text */}
                         <div className="relative z-10 flex flex-col items-center justify-center text-center">
                           <div className="font-bold text-[36px] leading-[1] text-[#09090B] mb-1">
-                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                            {editingField === 'yearlyShortage' ? (
+                              <InlineEditor
+                                initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
+                                onSave={(value) => handleTextSave('yearlyShortage', value)}
+                                onCancel={handleTextCancel}
+                                className="text-center"
+                                style={{ fontSize: '36px', fontWeight: 'bold', color: '#09090B' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('yearlyShortage')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit personnel shortage number"
+                              >
+                                {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                              </span>
+                            )}
                           </div>
                           <div className="font-normal text-[12px] text-[#09090B]">
                             {getLocalizedText(landingPageData?.language, {
@@ -1261,7 +1396,23 @@ export default function DynamicAuditLandingPage() {
                         {/* Dynamic Number and Text */}
                         <div className="relative z-10 flex flex-col items-center justify-center text-center">
                           <div className="font-bold text-[48px] leading-[1] text-[#09090B] mb-1">
-                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                            {editingField === 'yearlyShortage' ? (
+                              <InlineEditor
+                                initialValue={landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toString() || '80000'}
+                                onSave={(value) => handleTextSave('yearlyShortage', value)}
+                                onCancel={handleTextCancel}
+                                className="text-center"
+                                style={{ fontSize: '48px', fontWeight: 'bold', color: '#09090B' }}
+                              />
+                            ) : (
+                              <span 
+                                onClick={() => startEditing('yearlyShortage')}
+                                className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                title="Click to edit personnel shortage number"
+                              >
+                                {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                              </span>
+                            )}
                           </div>
                           <div className="font-normal text-[14px] text-[#09090B]">
                             {getLocalizedText(landingPageData?.language, {
@@ -1277,12 +1428,29 @@ export default function DynamicAuditLandingPage() {
   
                     <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
                       <p className="font-semibold text-[16px] xl:text-[20px]">
-                        {getLocalizedText(landingPageData?.language, {
-                          en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
-                          es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
-                          ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
-                          ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
-                        })}
+                        {editingField === 'workforceCrisisMissingText' ? (
+                          <InlineEditor
+                            initialValue={landingPageData?.workforceCrisis?.industry || 'HVAC'}
+                            onSave={(value) => handleTextSave('workforceCrisisMissingText', value)}
+                            onCancel={handleTextCancel}
+                            multiline={false}
+                            className="font-semibold"
+                            style={{ fontSize: '16px' }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={() => startEditing('workforceCrisisMissingText')}
+                            className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                            title="Click to edit industry name"
+                          >
+                            {getLocalizedText(landingPageData?.language, {
+                              en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
+                              es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
+                              ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
+                              ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
+                            })}
+                          </span>
+                        )}
                       </p>
                       <p className="font-normal italic text-[12px] text-[#BABABE]">
                         {getLocalizedText(landingPageData?.language, {
@@ -1346,12 +1514,34 @@ export default function DynamicAuditLandingPage() {
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
-                {getLocalizedText(landingPageData?.language, {
-                  en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
-                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
-                  ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
-                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
-                })}
+                {editingField === 'workforceCrisisIndustry' ? (
+                  <div className="flex flex-col xl:flex-row xl:items-center xl:justify-center gap-2">
+                    <span>Workforce Crisis</span>
+                    <br className="xl:hidden"/>
+                    <span>in</span>
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.industry || 'HVAC'}
+                      onSave={(value) => handleTextSave('workforceCrisisIndustry', value)}
+                      onCancel={handleTextCancel}
+                      className="font-medium"
+                      style={{ fontSize: '32px', textAlign: 'center' }}
+                    />
+                    <span>Industry</span>
+                  </div>
+                ) : (
+                  <span 
+                    onClick={() => startEditing('workforceCrisisIndustry')}
+                    className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                    title="Click to edit industry name"
+                  >
+                    {getLocalizedText(landingPageData?.language, {
+                      en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
+                      es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
+                      ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
+                      ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
+                    })}
+                  </span>
+                )}
               </h2>
   
               <Image 
@@ -1680,11 +1870,44 @@ export default function DynamicAuditLandingPage() {
                       {/* Card Bottom */}
                       <div className="p-[15px] flex flex-col gap-[6px]">
                         <h4 className="font-semibold text-[16px]">
-                          {template.title}
+                          {editingField === `courseTemplate_${index}` ? (
+                            <InlineEditor
+                              initialValue={template.title}
+                              onSave={(value) => handleTextSave(`courseTemplate_${index}`, value)}
+                              onCancel={handleTextCancel}
+                              className="font-semibold"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing(`courseTemplate_${index}`)}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit course template title"
+                            >
+                              {template.title}
+                            </span>
+                          )}
                         </h4>
                         
                         <p className="font-normal text-[14px] text-[#71717A] mb-[9px]">
-                          {template.description}
+                          {editingField === `courseTemplateDescription_${index}` ? (
+                            <InlineEditor
+                              initialValue={template.description}
+                              onSave={(value) => handleTextSave(`courseTemplateDescription_${index}`, value)}
+                              onCancel={handleTextCancel}
+                              multiline={true}
+                              className="font-normal"
+                              style={{ fontSize: '14px', color: '#71717A' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing(`courseTemplateDescription_${index}`)}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
+                              title="Click to edit course template description"
+                            >
+                              {template.description}
+                            </span>
+                          )}
                         </p>
                         
                         <div className="flex gap-[10px] items-center">
@@ -1912,7 +2135,23 @@ export default function DynamicAuditLandingPage() {
                                     <div key={index} className={`px-[20px] py-[12px] border-b border-[#D2E3F1] ${isLast ? 'last:border-b-0' : ''}`}>
                                       <div className="grid grid-cols-3 gap-[20px] items-center">
                                         <div className="font-medium text-[12px] text-[#09090B] leading-[120%]">
-                                          {lesson}
+                                          {editingField === `courseLesson_0_${index}` ? (
+                                            <InlineEditor
+                                              initialValue={lesson}
+                                              onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
+                                              onCancel={handleTextCancel}
+                                              className="font-medium"
+                                              style={{ fontSize: '12px', color: '#09090B' }}
+                                            />
+                                          ) : (
+                                            <span 
+                                              onClick={() => startEditing(`courseLesson_0_${index}`)}
+                                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                              title="Click to edit lesson name"
+                                            >
+                                              {lesson}
+                                            </span>
+                                          )}
                                         </div>
                                         <div className="flex items-center gap-[5.63px] border-l border-[#D2E3F1] pl-[20px]">
                                           {assessment.type === 'нет' || assessment.type === 'none' ? (
@@ -1983,7 +2222,23 @@ export default function DynamicAuditLandingPage() {
                               return (
                                 <div key={index} className={`border-b border-[#D2E3F1] flex flex-col gap-[10px] ${isLast ? 'last:border-b-0' : ''} mt-[12px] first:mt-0`}>
                                   <span className="font-medium text-[14px] text-[#09090B] leading-[130%]">
-                                    {lesson}
+                                    {editingField === `courseLesson_0_${index}` ? (
+                                      <InlineEditor
+                                        initialValue={lesson}
+                                        onSave={(value) => handleTextSave(`courseLesson_0_${index}`, value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium"
+                                        style={{ fontSize: '14px', color: '#09090B' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing(`courseLesson_0_${index}`)}
+                                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                        title="Click to edit lesson name"
+                                      >
+                                        {lesson}
+                                      </span>
+                                    )}
                                   </span>
                                   <div className="flex items-center justify-between mb-[12px]">
                                     <div className="px-[10px] py-[6.5px] bg-[#F3F7FF] rounded-[2px] flex items-center gap-[7px]">
