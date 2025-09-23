@@ -93,13 +93,10 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
       {/* Sources Section */}
       <div className="mb-6">
         <h3 className="text-sm font-medium text-gray-700 mb-4">Sources</h3>
-        <div className="space-y-3">
+        <div className="grid grid-cols-4 gap-3">
           {sources.map((source, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <div className="text-gray-500">
-                {source.icon}
-              </div>
-              <span className="text-sm text-gray-500">{source.name}</span>
+            <div key={index} className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors" title={source.name}>
+              {source.icon}
             </div>
           ))}
         </div>
