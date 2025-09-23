@@ -34,7 +34,7 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
       setPosition({
-        top: rect.top - 10,
+        top: rect.top - 6,
         left: rect.left + rect.width / 2
       });
     }
@@ -64,11 +64,11 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
             transform: 'translate(-50%, -100%)'
           }}
         >
-          <div className="bg-blue-500 text-white px-2 py-1.5 rounded-md shadow-lg text-sm whitespace-nowrap relative max-w-xs">
+          <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-xs whitespace-nowrap relative max-w-xs">
             <div className="font-medium">{content}</div>
             {/* Simple triangle tail */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-blue-500"></div>
+              <div className="w-0 h-0 border-l-3 border-r-3 border-t-3 border-l-transparent border-r-transparent border-t-blue-500"></div>
             </div>
           </div>
         </div>,
@@ -207,12 +207,12 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 min-h-screen font-inter"
+      className="p-4 md:p-8 h-screen overflow-hidden font-inter"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto flex flex-col h-full">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-x-4">
             <button
@@ -286,9 +286,9 @@ export default function ProductViewNewPage() {
         </div>
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px] flex-1 overflow-hidden">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
               <h1 className="text-[#191D30] font-regular text-[30px] leading-[100%]">
@@ -356,7 +356,7 @@ export default function ProductViewNewPage() {
                               </button>
                               
                               {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
-                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
+                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[160px]">
                                   <div className="p-2">
                                     <button
                                       onClick={() => handleContentTypeClick(lesson, 'presentation')}
