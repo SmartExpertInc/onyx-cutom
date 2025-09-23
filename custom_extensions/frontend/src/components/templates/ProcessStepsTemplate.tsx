@@ -217,11 +217,11 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const rightColumnStyles: React.CSSProperties = {
-    flex: '1',
+    flex: '2', // Увеличиваем flex для большей ширины
     display: 'flex',
     flexDirection: 'column',
-    gap: '7px',
-    maxWidth: '500px'
+    gap: '7px'
+    // Убираем maxWidth чтобы колонка могла быть шире
   };
 
   const titleStyles: React.CSSProperties = {
@@ -254,7 +254,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
     background: color, // Solid color instead of gradient as in photo
-    width: '60%' // Each block takes 60% of slide width
+    width: '100%' // Each block takes full width of right column
   });
 
   // Helper function to adjust color brightness
