@@ -590,7 +590,7 @@ export const es = {
     numberOfLessons: "Número de lecciones",
     estCreationTime: "Tiempo est. creación",
     estCompletionTime: "Tiempo est. finalización",
-    actions: "Acciones",
+    actions: "ACCIONES",
 
     // Project actions
     rename: "Renombrar",

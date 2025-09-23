@@ -3852,7 +3852,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
-                    {t("interface.actions", "Actions")}
+                    {t("interface.actions", "ACTIONS")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
