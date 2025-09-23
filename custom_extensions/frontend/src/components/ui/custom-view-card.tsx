@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Play, FileText, HelpCircle, BookOpen } from 'lucide-react';
 
 interface CourseMetrics {
   totalModules: number;
@@ -18,10 +17,17 @@ interface ContentType {
   icon: React.ReactNode;
 }
 
+interface Source {
+  type: string;
+  name: string;
+  icon: React.ReactNode;
+}
+
 interface CustomViewCardProps {
   title?: string;
   metrics: CourseMetrics;
   contentTypes?: ContentType[];
+  sources?: Source[];
   className?: string;
   projectId?: string | number;
 }
@@ -46,6 +52,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
   title = "Course Summary",
   metrics,
   contentTypes = defaultContentTypes,
+  sources = defaultSources,
   className = "",
   projectId
 }) => {
@@ -58,17 +65,6 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
     creditsTotal,
     progress
   } = metrics;
-
-  const [lessonDataCache, setLessonDataCache] = useState<
-    Record<
-      number,
-      {
-        lessonCount: number | string;
-        totalHours: number | string;
-        completionTime: number | string;
-      }
-    >
-  >({});
 
   return (
     <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
@@ -89,36 +85,41 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
           <span className="text-sm font-medium text-gray-800">{totalLessons}</span>
         </div>
         
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Completed</span>
-          <span className="text-sm font-medium text-[#32965A]">{completed}/{totalLessons}</span>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Estimated Duration</span>
-          <span className="text-sm font-medium text-gray-800">{estimatedDuration}</span>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Credits Used</span>
-          <span className="text-sm font-medium text-[#8C8CC2]">{creditsUsed}/{creditsTotal}</span>
+      </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-200 mb-6"></div>
+
+      {/* Sources Section */}
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">Sources</h3>
+        <div className="space-y-3">
+          {sources.map((source, index) => (
+            <div key={index} className="flex items-center space-x-3">
+              <div className="text-gray-500">
+                {source.icon}
+              </div>
+              <span className="text-sm text-gray-500">{source.name}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Divider */}
       <div className="border-t border-gray-200 mb-6"></div>
 
-      {/* Progress Section */}
+      {/* Sources Section */}
       <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-500">Progress</span>
-          <span className="text-sm font-medium text-gray-800">{progress}%</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-[#616AED] h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          ></div>
+        <h3 className="text-sm font-medium text-gray-700 mb-4">Sources</h3>
+        <div className="space-y-3">
+          {sources.map((source, index) => (
+            <div key={index} className="flex items-center space-x-3">
+              <div className="text-gray-500">
+                {source.icon}
+              </div>
+              <span className="text-sm text-gray-500">{source.name}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -164,6 +165,20 @@ export const defaultContentTypes: ContentType[] = [
     type: "Quizzes",
     count: 0,
     icon: <QuizIcon size={16} />
+  }
+];
+
+// Default sources with connector icons
+export const defaultSources: Source[] = [
+  {
+    type: "connector",
+    name: "Google Drive",
+    icon: <svg className="text-blue-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 6.29L3.42 10.58C2.53 11.46 2.53 12.85 3.42 13.73L7.71 18.02C8.1 18.41 8.73 18.41 9.12 18.02C9.51 17.63 9.51 17 9.12 16.61L5.41 12.9C5.02 12.51 5.02 11.88 5.41 11.49L9.12 7.78C9.51 7.39 9.51 6.76 9.12 6.37C8.73 5.98 8.1 5.98 7.71 6.29Z"/></svg>
+  },
+  {
+    type: "file",
+    name: "PDF Document",
+    icon: <svg className="text-red-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
   }
 ];
 
