@@ -25830,9 +25830,9 @@ async def smartdrive_upload(
                                     ON CONFLICT (onyx_user_id, smartdrive_path)
                                     DO UPDATE SET onyx_file_id = EXCLUDED.onyx_file_id, etag = EXCLUDED.etag, checksum = EXCLUDED.checksum, imported_at = EXCLUDED.imported_at
                                     """,
-                                    onyx_user_id,
+                                    str(onyx_user_id),
                                     smart_path,
-                                    entry["onyx_file_id"],
+                                    str(entry["onyx_file_id"]),
                                     resp.headers.get("etag", f"etag_{hash(safe_name)}"),
                                     f"imported_{int(time.time())}",
                                     datetime.now(timezone.utc),
