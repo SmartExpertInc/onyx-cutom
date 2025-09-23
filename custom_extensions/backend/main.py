@@ -14192,6 +14192,7 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+
 # Audit sharing models
 class ShareAuditRequest(BaseModel):
     expires_in_days: Optional[int] = 30  # Default 30 days expiration
@@ -14250,9 +14251,27 @@ async def share_audit(
         async with pool.acquire() as conn:
             await conn.execute(update_query, share_token, expires_at, audit_id)
         
-        # Generate public URL (this would be your frontend domain)
-        frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
-        public_url = f"{frontend_domain}/public/audit/{share_token}"
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/audit/{share_token}"
         
         logger.info(f"🔗 [AUDIT SHARING] Created share token for audit {audit_id}: {share_token}")
         
