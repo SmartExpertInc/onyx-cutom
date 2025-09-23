@@ -25807,10 +25807,39 @@ async def smartdrive_upload(
                         yield chunk
 
                 resp = await client.put(dest_url, auth=(username, password), content=aiter())
-                if resp.status_code not in (200, 201, 204):
-                    results.append({"file": safe_name, "success": False, "status": resp.status_code, "error": _dav_error(resp)})
+                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code}
+                if not entry["success"]:
+                    entry["error"] = _dav_error(resp)
+                    results.append(entry)
                 else:
-                    results.append({"file": safe_name, "success": True, "status": resp.status_code})
+                    # Post-upload: import into Onyx immediately
+                    try:
+                        smart_path = f"{_ensure_trailing_slash(norm_dir)}{safe_name}"
+                        file_info = {"name": safe_name, "path": smart_path, "type": "file", "mime_type": resp.headers.get("content-type", "application/octet-stream")}
+                        session_cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+                        onyx_file_id = await import_file_to_onyx_individual(
+                            username, password, base_url, smart_path, file_info, str(onyx_user_id), session_cookies
+                        )
+                        if onyx_file_id:
+                            entry["onyx_file_id"] = int(onyx_file_id) if str(onyx_file_id).isdigit() else onyx_file_id
+                            async with pool.acquire() as conn2:
+                                await conn2.execute(
+                                    """
+                                    INSERT INTO smartdrive_imports (onyx_user_id, smartdrive_path, onyx_file_id, etag, checksum, imported_at)
+                                    VALUES ($1, $2, $3, $4, $5, $6)
+                                    ON CONFLICT (onyx_user_id, smartdrive_path)
+                                    DO UPDATE SET onyx_file_id = EXCLUDED.onyx_file_id, etag = EXCLUDED.etag, checksum = EXCLUDED.checksum, imported_at = EXCLUDED.imported_at
+                                    """,
+                                    onyx_user_id,
+                                    smart_path,
+                                    entry["onyx_file_id"],
+                                    resp.headers.get("etag", f"etag_{hash(safe_name)}"),
+                                    f"imported_{int(time.time())}",
+                                    datetime.now(timezone.utc),
+                                )
+                    except Exception as import_err:
+                        logger.warning(f"Post-upload Onyx import failed for {safe_name}: {import_err}")
+                    results.append(entry)
                 await f.close()
 
         # If any failed, return 207 multi-status style payload

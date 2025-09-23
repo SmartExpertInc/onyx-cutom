@@ -47,6 +47,8 @@ type UploadProgress = {
 	progress: number; // 0-100
 };
 
+type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string }>;
+
 const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	mode = 'manage',
 	className = '',
@@ -64,6 +66,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [sortAsc, setSortAsc] = useState<boolean>(true);
 	const [lastIndex, setLastIndex] = useState<number | null>(null);
 	const [uploading, setUploading] = useState<UploadProgress[]>([]);
+	const [indexing, setIndexing] = useState<IndexingState>({});
 	const [previewPath, setPreviewPath] = useState<string | null>(null);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
@@ -255,6 +258,18 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				body: form,
 			});
 			if (!res.ok && res.status !== 207) throw new Error(await res.text());
+			const data = await res.json();
+			// Initialize indexing tracking for uploaded files using response mapping (onyx_file_id when present)
+			if (data && Array.isArray(data.results)) {
+				const next: IndexingState = { ...indexing };
+				for (const r of data.results) {
+					const p = `${currentPath.endsWith('/') ? currentPath : currentPath + '/'}${r.file}`;
+					next[p] = { status: 'pending', etaPct: 5, onyxFileId: r.onyx_file_id };
+				}
+				setIndexing(next);
+				// Start polling indexing status
+				pollIndexingStatus(Object.keys(next));
+			}
 			await fetchList(currentPath);
 		} catch (e) {
 			alert('Upload failed');
@@ -262,6 +277,33 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			setUploading([]);
 			setBusy(false);
 		}
+	};
+
+	const pollIndexingStatus = async (paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		try {
+			const params = new URLSearchParams();
+			for (const p of paths) params.append('paths', p);
+			const res = await fetch(`${CUSTOM_BACKEND_URL}/smartdrive/indexing-status?${params.toString()}`, { credentials: 'same-origin' });
+			if (!res.ok) return;
+			const data = await res.json();
+			const statuses = data?.statuses || {};
+			setIndexing(prev => {
+				const out: IndexingState = { ...prev };
+				for (const p of Object.keys(out)) {
+					if (p in statuses) {
+						const done = statuses[p] === true;
+						out[p] = { ...(out[p] || { status: 'unknown', etaPct: 0 }), status: done ? 'done' : 'pending', etaPct: done ? 100 : Math.min(95, (out[p]?.etaPct ?? 5) + 10) };
+					}
+				}
+				return out;
+			});
+			// Continue polling until all done
+			const remaining = Object.entries(indexing).filter(([_, v]) => v.status !== 'done').length;
+			if (remaining > 0) {
+				setTimeout(() => pollIndexingStatus(paths), 1500);
+			}
+		} catch {}
 	};
 
 	const onDrop = async (e: React.DragEvent) => {
@@ -386,6 +428,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<div className="flex-1">
 													<div className="font-medium text-slate-800">{it.name}</div>
 													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+													{it.type === 'file' && indexing[it.path] && indexing[it.path].status !== 'done' && (
+														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
+															<Progress value={indexing[it.path].etaPct} className="h-1.5" />
+														</div>
+													)}
 												</div>
 												<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
 												<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
@@ -459,6 +506,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 												<div className="flex-1">
 													<div className="font-medium text-slate-800">{it.name}</div>
 													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+													{it.type === 'file' && indexing[it.path] && indexing[it.path].status !== 'done' && (
+														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
+															<Progress value={indexing[it.path].etaPct} className="h-1.5" />
+														</div>
+													)}
 												</div>
 												<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
 												<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
