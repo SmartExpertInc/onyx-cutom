@@ -100,7 +100,7 @@ function InlineEditor({
           minHeight: '1.6em',
           boxSizing: 'border-box',
           display: 'block',
-          textAlign: 'center'
+          textAlign: 'left'
         }}
         rows={1}
       />
@@ -162,6 +162,33 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
       }
     };
   }, []);
+
+  // HARDCODED 5 STEPS - гарантированно 5 блоков
+  const defaultSteps = [
+    {
+      title: 'PROBLEM',
+      description: 'Identify a problem and form a thesis statement.'
+    },
+    {
+      title: 'READ',
+      description: 'Review literature related to your topic.'
+    },
+    {
+      title: 'HYPOTHESIZE',
+      description: 'Come up with an educated guess based on your research.'
+    },
+    {
+      title: 'RESEARCH',
+      description: 'Read resources to support your hypothesis.'
+    },
+    {
+      title: 'CONCLUSION',
+      description: 'Interpret the results and write your conclusion.'
+    }
+  ];
+
+  // Use props.steps if available, otherwise use defaultSteps
+  const steps = props.steps && props.steps.length > 0 ? props.steps : defaultSteps;
 
   // Define colors for each step (matching the photo exactly)
   const stepColors = [
@@ -320,8 +347,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
 
   // Handle step editing
   const handleStepSave = (index: number, field: 'title' | 'description', newValue: string) => {
-    if (props.onUpdate && props.steps) {
-      const updatedSteps = [...props.steps];
+    if (props.onUpdate) {
+      const updatedSteps = [...steps];
       if (typeof updatedSteps[index] === 'string') {
         // Convert string to object format
         updatedSteps[index] = {
@@ -453,9 +480,9 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
         </div>
       </div>
 
-      {/* Right Column - Process Steps */}
+      {/* Right Column - Process Steps - GUARANTEED 5 BLOCKS */}
       <div style={rightColumnStyles}>
-        {props.steps?.map((step: StepItem, index: number) => {
+        {steps.map((step: StepItem, index: number) => {
           const stepTitle = typeof step === 'string' ? `Step ${index + 1}` : step.title;
           const stepDescription = typeof step === 'string' ? step : step.description;
           const stepColor = stepColors[index] || stepColors[0];
@@ -570,4 +597,4 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   );
 };
 
-export default ProcessStepsTemplate; 
+export default ProcessStepsTemplate;
