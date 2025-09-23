@@ -177,8 +177,9 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     background: '#ffffff', // White background as in photo
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    padding: '60px 80px',
-    gap: '60px'
+    padding: '80px 100px',
+    gap: '80px',
+    alignItems: 'flex-start'
   };
 
   const leftColumnStyles: React.CSSProperties = {
@@ -193,83 +194,91 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     flex: '1',
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px'
+    gap: '16px',
+    maxWidth: '500px'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3.5rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontSize: '4rem',
+    fontFamily: 'serif', // Serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'bold',
-    lineHeight: '1.1',
-    marginBottom: '20px',
-    textAlign: 'left'
+    lineHeight: '1.0',
+    marginBottom: '24px',
+    textAlign: 'left',
+    letterSpacing: '-0.02em'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
-    fontFamily: currentTheme.fonts.contentFont,
+    fontSize: '1.1rem',
+    fontFamily: 'sans-serif', // Sans-serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'normal',
     textAlign: 'left',
-    opacity: 0.8
+    opacity: 0.9,
+    letterSpacing: '0.01em'
   };
 
   const stepContainerStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px',
-    padding: '20px',
-    borderRadius: '8px',
-    minHeight: '80px'
+    gap: '24px',
+    padding: '24px 28px',
+    borderRadius: '12px',
+    minHeight: '90px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
   };
 
   const stepNumberStyles = (color: string): React.CSSProperties => ({
-    width: '40px',
-    height: '40px',
+    width: '44px',
+    height: '44px',
     borderRadius: '50%',
     backgroundColor: 'white',
-    border: `3px solid ${color}`,
+    border: `4px solid ${color}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    position: 'relative'
+    position: 'relative',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   });
 
   const stepNumberInnerStyles = (color: string): React.CSSProperties => ({
-    width: '24px',
-    height: '24px',
+    width: '28px',
+    height: '28px',
     borderRadius: '50%',
     backgroundColor: color,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
-    fontSize: '16px',
+    fontSize: '18px',
     fontWeight: 'bold'
   });
 
   const stepContentStyles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
+    gap: '6px',
     flex: 1
   };
 
   const stepTitleStyles: React.CSSProperties = {
-    fontSize: '1.4rem',
+    fontSize: '1.5rem',
     fontWeight: 'bold',
     color: 'white',
-    margin: 0
+    margin: 0,
+    fontFamily: 'sans-serif',
+    letterSpacing: '0.02em'
   };
 
   const stepDescriptionStyles: React.CSSProperties = {
     fontSize: '1rem',
     color: 'white',
     margin: 0,
-    opacity: 0.9,
-    lineHeight: '1.4'
+    opacity: 0.95,
+    lineHeight: '1.3',
+    fontFamily: 'sans-serif'
   };
 
   // Handle title editing
