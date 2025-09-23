@@ -1,9 +1,10 @@
 // custom_extensions/frontend/src/app/projects/view-new/[productId]/page.tsx
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, FolderOpen, Sparkles } from 'lucide-react';
+import { Download, FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
@@ -23,6 +24,60 @@ const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
+// Custom Tooltip Component matching the text presentation page style
+const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (elementRef.current) {
+      const rect = elementRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.top - 10,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
+  return (
+    <>
+      <div 
+        ref={elementRef}
+        className="relative inline-block w-full"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+      {isVisible && typeof window !== 'undefined' && createPortal(
+        <div 
+          className="fixed z-50 pointer-events-none"
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div className="bg-blue-500 text-white px-2 py-1.5 rounded-md shadow-lg text-sm whitespace-nowrap relative max-w-xs">
+            <div className="font-medium">{content}</div>
+            {/* Simple triangle tail */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-blue-500"></div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
+
 type ProductViewNewParams = {
   productId: string;
 };
@@ -37,6 +92,21 @@ export default function ProductViewNewPage() {
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (_event: MouseEvent) => {
+      if (openDropdown) {
+        setOpenDropdown(null);
+      }
+    };
+
+    if (openDropdown) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [openDropdown]);
 
   const handleBack = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -78,6 +148,38 @@ export default function ProductViewNewPage() {
 
     fetchProjectData();
   }, [productId]);
+
+  const handleContentTypeClick = (lesson: Lesson, contentType: string) => {
+    const trainingPlanData = projectData?.details as TrainingPlanData;
+    if (!trainingPlanData || !productId) return;
+
+    const params = new URLSearchParams({
+      outlineId: productId,
+      lesson: lesson.title,
+      length: '300-400 words',
+      slidesCount: '5',
+      lang: trainingPlanData.detectedLanguage || 'en'
+    });
+
+    let createUrl = '';
+    switch (contentType) {
+      case 'presentation':
+        createUrl = `/create/lesson-presentation?${params.toString()}`;
+        break;
+      case 'one-pager':
+        createUrl = `/create/text-presentation?${params.toString()}`;
+        break;
+      case 'quiz':
+        createUrl = `/create/quiz?${params.toString()}`;
+        break;
+      case 'video-lesson':
+        // Keep inactive for now
+        return;
+    }
+
+    router.push(createUrl);
+    setOpenDropdown(null);
+  };
 
   if (loading) {
     return (
@@ -213,7 +315,7 @@ export default function ProductViewNewPage() {
                   <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
                     Module {index + 1}: {section.title}
                   </h2>
-                  <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-4">
+                  <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
                   <hr className="border-gray-200 mb-4" />
@@ -229,18 +331,65 @@ export default function ProductViewNewPage() {
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
-                              <LessonPresentationIcon />
-                              <TextPresentationIcon />
-                              <QuizIcon />
-                              <VideoScriptIcon />
+                              <CustomTooltip content="Lesson Presentation">
+                                <LessonPresentationIcon />
+                              </CustomTooltip>
+                              <CustomTooltip content="Text Presentation">
+                                <TextPresentationIcon />
+                              </CustomTooltip>
+                              <CustomTooltip content="Quiz">
+                                <QuizIcon />
+                              </CustomTooltip>
+                              <CustomTooltip content="Video Lesson">
+                                <VideoScriptIcon />
+                              </CustomTooltip>
                             </div>
-                            <button
-                              className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                              style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
-                              title="Add content"
-                            >
-                              + Content
-                            </button>
+                            <div className="relative">
+                              <button
+                                onClick={() => setOpenDropdown(openDropdown === lesson.id ? null : lesson.id || lessonIndex.toString())}
+                                className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                                style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
+                                title="Create content"
+                              >
+                                Create
+                                <ChevronDown size={12} className="ml-1" />
+                              </button>
+                              
+                              {openDropdown === (lesson.id || lessonIndex.toString()) && (
+                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
+                                  <div className="py-1">
+                                    <button
+                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                      <LessonPresentationIcon size={16} />
+                                      Presentation
+                                    </button>
+                                    <button
+                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                      <TextPresentationIcon size={16} />
+                                      One-Pager
+                                    </button>
+                                    <button
+                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                      <QuizIcon size={16} />
+                                      Quiz
+                                    </button>
+                                    <button
+                                      disabled
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2"
+                                    >
+                                      <VideoScriptIcon size={16} />
+                                      Video Lesson
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
