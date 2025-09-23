@@ -3756,7 +3756,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
-            style={{ minWidth: "800px" }}
+            style={{ minWidth: "600px" }}
           >
             <Table
               className="min-w-full divide-y divide-gray-200 table-auto"
@@ -3765,7 +3765,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <TableRow>
                  {columnVisibility.type && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-20"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-16"
                     >
                       <div className="flex items-center gap-2">
                         <TypeIcon size={15} />
@@ -3775,7 +3775,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.title && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative min-w-0 flex-1"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative min-w-0 flex-1"
                     >
                       <div className="flex items-center gap-2">
                         <TitleIcon size={15} />
@@ -3785,7 +3785,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.created && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-32"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-24"
                     >
                       <div className="flex items-center gap-2">
                         <CreatedIcon size={15} />
@@ -3795,7 +3795,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.creator && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-32"
+                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-24"
                     >
                       <div className="flex items-center gap-2">
                         <CreatorIcon size={15} />
@@ -3891,7 +3891,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.type && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-20">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 w-16">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -3902,7 +3902,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.title && (
-                        <TableCell className="px-6 py-4 text-sm font-medium text-gray-900 min-w-0 flex-1">
+                        <TableCell className="px-3 py-4 text-sm font-medium text-gray-900 min-w-0 flex-1">
                           <span className="inline-flex items-center">
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
@@ -3919,14 +3919,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-32">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 w-24">
                           {formatDate(p.createdAt)}
                         </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-32">
+                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 w-24">
                           <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                            <span className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center mr-1">
                               <span className="text-xs font-bold text-gray-700">
                                 Y
                               </span>
