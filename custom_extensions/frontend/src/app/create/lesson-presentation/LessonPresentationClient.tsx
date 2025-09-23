@@ -254,6 +254,17 @@ export default function LessonPresentationClient() {
   const [slidesCount, setSlidesCount] = useState<number>(
     params?.get("slidesCount") ? Number(params.get("slidesCount")) : 5
   );
+  
+  // Force regeneration when slides count changes
+  const handleSlidesCountChange = (value: string) => {
+    const newCount = Number(value);
+    setSlidesCount(newCount);
+    // Clear content to force regeneration with new slides count
+    if (content && !loading) {
+      setContent("");
+      setStreamDone(false);
+    }
+  };
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
@@ -1647,7 +1658,7 @@ export default function LessonPresentationClient() {
                           <div className="flex-1 flex items-center justify-center">
                             <Select
                               value={slidesCount.toString()}
-                              onValueChange={(value: string) => setSlidesCount(Number(value))}
+                              onValueChange={handleSlidesCountChange}
                             >
                               <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
                                 <div className="flex items-center gap-2">
