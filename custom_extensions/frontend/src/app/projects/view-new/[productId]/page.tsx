@@ -276,8 +276,6 @@ export default function ProductViewNewPage() {
     const params = new URLSearchParams({
       outlineId: productId,
       lesson: lesson.title,
-      length: '300-400 words',
-      slidesCount: '5',
       lang: trainingPlanData.detectedLanguage || 'en'
     });
 

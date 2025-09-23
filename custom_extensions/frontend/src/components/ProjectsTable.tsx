@@ -2342,7 +2342,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   // Feature flag: disable outline-related filtering (shows all products)
-  const DISABLE_OUTLINE_FILTERING = true;
+  const DISABLE_OUTLINE_FILTERING = false;
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
