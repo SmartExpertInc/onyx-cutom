@@ -38,6 +38,29 @@ export default function ProductViewNewPage() {
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userCredits, setUserCredits] = useState<number | null>(null);
+
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // Fetch user credits on component mount
+  useEffect(() => {
+    const fetchUserCredits = async () => {
+      try {
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, {
+          credentials: 'same-origin',
+        });
+        if (response.ok) {
+          const credits = await response.json();
+          setUserCredits(credits.credits_balance);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user credits:', error);
+        // Keep userCredits as null to show loading state
+      }
+    };
+
+    fetchUserCredits();
+  }, []);
 
   // Calculate metrics from project data
   const trainingPlanData = projectData?.details as TrainingPlanData;
@@ -277,7 +300,7 @@ export default function ProductViewNewPage() {
                 estimatedDuration: estimatedDuration,
                 estimatedCompletionTime: estimatedCompletionTime,
                 creditsUsed: creditsUsed,
-                creditsTotal: creditsTotal,
+                creditsTotal: userCredits || 100,
                 progress: progress
               }}
             />

@@ -41,29 +41,6 @@ const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
     <svg className='text-green-600' width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
   );
 
-  const [userCredits, setUserCredits] = useState<number | null>(null);
-
-  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-
-  // Fetch user credits on component mount
-  useEffect(() => {
-    const fetchUserCredits = async () => {
-      try {
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/credits/me`, {
-          credentials: 'same-origin',
-        });
-        if (response.ok) {
-          const credits = await response.json();
-          setUserCredits(credits.credits_balance);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user credits:', error);
-        // Keep userCredits as null to show loading state
-      }
-    };
-
-    fetchUserCredits();
-  }, []);
 
 const CustomViewCard: React.FC<CustomViewCardProps> = ({
   title = "Course Summary",
@@ -113,7 +90,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
         
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500">Credits Used</span>
-          <span className="text-sm font-medium text-[#8C8CC2]">{creditsUsed}/{userCredits}</span>
+          <span className="text-sm font-medium text-[#8C8CC2]">{creditsUsed}/{creditsTotal}</span>
         </div>
       </div>
 
