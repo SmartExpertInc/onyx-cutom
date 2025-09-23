@@ -95,6 +95,8 @@ export default function ProductViewNewPage() {
                 sources.add(match[1]);
               } else if (lesson.source.includes('PDF') || lesson.source.includes('Document')) {
                 sources.add('PDF Document');
+              } else if (lesson.source.includes('text') || lesson.source.includes('Text')) {
+                sources.add('Create from scratch');
               } else {
                 sources.add(lesson.source);
               }
@@ -104,12 +106,36 @@ export default function ProductViewNewPage() {
       });
     }
     
+    // Connector icon mapping
+    const getConnectorIcon = (connectorName: string) => {
+      const connectorMap: { [key: string]: React.ReactNode } = {
+        'notion': <img src="/Notion.png" alt="Notion" className="w-4 h-4" />,
+        'google_drive': <img src="/GoogleDrive.png" alt="Google Drive" className="w-4 h-4" />,
+        'dropbox': <img src="/Dropbox.png" alt="Dropbox" className="w-4 h-4" />,
+        'slack': <img src="/Slack.png" alt="Slack" className="w-4 h-4" />,
+        'confluence': <img src="/Confluence.svg" alt="Confluence" className="w-4 h-4" />,
+        'github': <img src="/Github.png" alt="GitHub" className="w-4 h-4" />,
+        'gitlab': <img src="/Gitlab.png" alt="GitLab" className="w-4 h-4" />,
+        'jira': <img src="/Jira.svg" alt="Jira" className="w-4 h-4" />,
+        'asana': <img src="/Asana.png" alt="Asana" className="w-4 h-4" />,
+        'salesforce': <img src="/Salesforce.png" alt="Salesforce" className="w-4 h-4" />,
+        'hubspot': <img src="/HubSpot.png" alt="HubSpot" className="w-4 h-4" />,
+        'airtable': <img src="/Airtable.svg" alt="Airtable" className="w-4 h-4" />,
+        'teams': <img src="/Teams.png" alt="Microsoft Teams" className="w-4 h-4" />,
+        'gmail': <img src="/Gmail.png" alt="Gmail" className="w-4 h-4" />,
+        'zendesk': <img src="/Zendesk.svg" alt="Zendesk" className="w-4 h-4" />,
+        'PDF Document': <svg className="text-red-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>,
+        'Create from scratch': <svg className="text-blue-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/><path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      };
+      
+      return connectorMap[connectorName.toLowerCase()] || 
+        <svg className="text-gray-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>;
+    };
+    
     return Array.from(sources).map(source => ({
-      type: source.includes('notion') ? 'connector' : 'file',
+      type: source === 'PDF Document' || source === 'Create from scratch' ? 'file' : 'connector',
       name: source,
-      icon: source.includes('notion') ? 
-        <svg className="text-gray-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.186v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.904-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.98.653.933 1.026.933 1.653v11.26c0 .933-.327 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.68-1.632z"/></svg> :
-        <svg className="text-blue-500" width={16} height={16} viewBox="0 0 24 24" fill="currentColor"><path d="M7.71 6.29L3.42 10.58C2.53 11.46 2.53 12.85 3.42 13.73L7.71 18.02C8.1 18.41 8.73 18.41 9.12 18.02C9.51 17.63 9.51 17 9.12 16.61L5.41 12.9C5.02 12.51 5.02 11.88 5.41 11.49L9.12 7.78C9.51 7.39 9.51 6.76 9.12 6.37C8.73 5.98 8.1 5.98 7.71 6.29Z"/></svg>
+      icon: getConnectorIcon(source)
     }));
   };
 
