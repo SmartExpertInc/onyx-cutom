@@ -294,13 +294,14 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: '497px',
     height: '290px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '8px',
-    marginTop: '35px'
+    position: 'absolute',
+    bottom: '0',
   };
 
   const imageStyles: React.CSSProperties = {
