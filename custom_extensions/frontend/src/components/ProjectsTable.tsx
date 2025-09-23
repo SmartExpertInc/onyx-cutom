@@ -23,6 +23,7 @@ import {
   List,
   Plus,
   ChevronsUpDown,
+  ArrowUpDown,
   LucideIcon,
   Share2,
   Trash2,
@@ -2197,7 +2198,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed">(
+  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed" | "creator" | "numberOfLessons" | "estCreationTime" | "estCompletionTime">(
     "lastViewed"
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -2262,6 +2263,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
 
+  // Handle sorting
+  const handleSort = (column: typeof sortBy) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -2343,10 +2353,49 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         source_chat_session_id: p.source_chat_session_id,
       }));
 
-      // Sort projects by order field
-      const sortedProjects = processedProjects.sort(
-        (a: Project, b: Project) => (a.order || 0) - (b.order || 0)
-      );
+      // Sort projects based on selected column and order
+      const sortedProjects = processedProjects.sort((a: Project, b: Project) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortBy) {
+          case 'title':
+            aValue = a.title.toLowerCase();
+            bValue = b.title.toLowerCase();
+            break;
+          case 'created':
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+            break;
+          case 'lastViewed':
+            aValue = a.lastViewed === "Never" ? new Date(0) : new Date(a.lastViewed);
+            bValue = b.lastViewed === "Never" ? new Date(0) : new Date(b.lastViewed);
+            break;
+          case 'creator':
+            aValue = a.createdBy.toLowerCase();
+            bValue = b.createdBy.toLowerCase();
+            break;
+          case 'numberOfLessons':
+            aValue = lessonDataCache[a.id]?.lessonCount || 0;
+            bValue = lessonDataCache[b.id]?.lessonCount || 0;
+            break;
+          case 'estCreationTime':
+            aValue = lessonDataCache[a.id]?.totalHours || 0;
+            bValue = lessonDataCache[b.id]?.totalHours || 0;
+            break;
+          case 'estCompletionTime':
+            aValue = lessonDataCache[a.id]?.completionTime || 0;
+            bValue = lessonDataCache[b.id]?.completionTime || 0;
+            break;
+          default:
+            aValue = a.order || 0;
+            bValue = b.order || 0;
+        }
+
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
 
       // ---- Filter lessons that belong to outlines from the main products page ----
       const deduplicateProjects = (projectsArr: Project[]): Project[] => {
@@ -3787,64 +3836,88 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.title && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.title}%` }}
+                      onClick={() => handleSort('title')}
                     >
                       <div className="flex items-center gap-2">
                         <TitleIcon size={15} />
                         {t("interface.title", "Title")}
+                        {sortBy === 'title' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
                     </TableHead>
                   )}
                   {columnVisibility.creator && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.creator}%` }}
+                      onClick={() => handleSort('creator')}
                     >
                       <div className="flex items-center gap-2">
                         <CreatorIcon size={15} />
                         {t("interface.creator", "Creator")}
+                        {sortBy === 'creator' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
                     </TableHead>
                   )}
                   {columnVisibility.created && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.created}%` }}
+                      onClick={() => handleSort('created')}
                     >
                       <div className="flex items-center gap-2">
                         <CreatedIcon size={15} />
                         {t("interface.created", "Created")}
+                        {sortBy === 'created' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
                     </TableHead>
                   )}
                   {columnVisibility.numberOfLessons && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
+                      onClick={() => handleSort('numberOfLessons')}
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.numberOfLessons", "Number of Lessons")}
+                        {sortBy === 'numberOfLessons' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
                     </TableHead>
                   )}
                   {columnVisibility.estCreationTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.estCreationTime}%` }}
+                      onClick={() => handleSort('estCreationTime')}
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.estCreationTime", "Est. Creation Time")}
+                        {sortBy === 'estCreationTime' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
                     </TableHead>
                   )}
                   {columnVisibility.estCompletionTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
+                      onClick={() => handleSort('estCompletionTime')}
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.estCompletionTime", "Est. Completion Time")}
+                        {sortBy === 'estCompletionTime' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
                       </div>
                     </TableHead>
                   )}
