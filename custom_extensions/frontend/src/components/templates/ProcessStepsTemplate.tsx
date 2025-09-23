@@ -195,7 +195,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     '#002D91', // Deep blue for PROBLEM
     '#3B82F6', // Medium blue for READ  
     '#06B6D4', // Teal for HYPOTHESIZE
-    '#1D4ED8', // Darker blue for RESEARCH (darker than READ)
+    '#60A5FA', // Lighter sky blue for RESEARCH (lighter than READ)
     '#1E3A8A'  // Deep blue for CONCLUSION
   ];
 
@@ -226,23 +226,23 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '4rem',
+    fontSize: '4.5rem',
     fontFamily: 'serif', // Serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'bold',
-    lineHeight: '1.0',
-    marginBottom: '24px',
+    lineHeight: '0.9',
+    marginBottom: '20px',
     textAlign: 'left',
-    letterSpacing: '-0.02em'
+    letterSpacing: '-0.03em'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    fontSize: '1.2rem',
     fontFamily: 'sans-serif', // Sans-serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'normal',
     textAlign: 'left',
-    opacity: 0.8,
+    opacity: 0.9,
     letterSpacing: '0.01em'
   };
 
@@ -250,11 +250,11 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     display: 'flex',
     alignItems: 'center',
     gap: '24px',
-    padding: '24px 28px',
+    padding: '28px 32px',
     borderRadius: '12px',
-    minHeight: '90px',
+    minHeight: '100px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    background: `linear-gradient(90deg, ${color} 0%, ${adjustColor(color, -20)} 100%)`
+    background: color // Solid color instead of gradient as in photo
   });
 
   // Helper function to adjust color brightness
@@ -316,7 +316,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     fontSize: '1rem',
     color: 'white',
     margin: 0,
-    opacity: 0.9,
+    opacity: 0.95,
     lineHeight: '1.4',
     fontFamily: 'sans-serif'
   };
