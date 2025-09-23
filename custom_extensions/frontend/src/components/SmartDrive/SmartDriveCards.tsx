@@ -87,10 +87,10 @@ const SmartDriveCards: React.FC<SmartDriveCardsProps> = ({ className = '' }) => 
               Hide Browser
             </button>
           </div>
-          {process.env.NEXT_PUBLIC_SMARTDRIVE_NATIVE_UI_ENABLED === 'true' ? (
-            <SmartDriveBrowser mode="manage" />
-          ) : (
+          {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
             <SmartDriveFrame />
+          ) : (
+            <SmartDriveBrowser mode="manage" />
           )}
         </div>
       )}

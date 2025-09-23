@@ -385,13 +385,13 @@ export default function CreateFromSpecificFilesPage() {
               
               {showFileBrowser && (
                 <div className="mt-6 pt-6 border-t border-gray-100">
-                  {process.env.NEXT_PUBLIC_SMARTDRIVE_NATIVE_UI_ENABLED === 'true' ? (
-                    <SmartDriveBrowser mode="select" onFilesSelected={handleFilesSelected} />
-                  ) : (
+                  {process.env.NEXT_PUBLIC_SMARTDRIVE_IFRAME_ENABLED === 'true' ? (
                     <SmartDriveFrame 
                       onFilesSelected={handleFilesSelected}
                       selectedFiles={selectedFiles}
                     />
+                  ) : (
+                    <SmartDriveBrowser mode="select" onFilesSelected={handleFilesSelected} />
                   )}
                 </div>
               )}
