@@ -25414,7 +25414,7 @@ async def list_smartdrive_files(
                         raise HTTPException(status_code=401, detail="SmartDrive account not connected")
 
                     # Ensure placeholder row exists
-            if not account:
+                    if not account:
                         await conn.execute(
                             """
                             INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
