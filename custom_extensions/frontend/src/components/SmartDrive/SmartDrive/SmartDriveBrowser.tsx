@@ -294,19 +294,19 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 			if (!res.ok) return;
 			const data = await res.json();
 			const statuses = data?.statuses || {};
+			let nextRemaining = 0;
 			setIndexing(prev => {
 				const out: IndexingState = { ...prev };
 				for (const p of Object.keys(out)) {
-					if (p in statuses) {
-						const done = statuses[p] === true;
-						out[p] = { ...(out[p] || { status: 'unknown', etaPct: 0 }), status: done ? 'done' : 'pending', etaPct: done ? 100 : Math.min(95, (out[p]?.etaPct ?? 5) + 10) };
-					}
+					// Support encoded/decoded mapping
+					const done = statuses[p] === true || statuses[encodeURI(p)] === true || statuses[decodeURIComponent(p)] === true;
+					out[p] = { ...(out[p] || { status: 'unknown', etaPct: 0 }), status: done ? 'done' : 'pending', etaPct: done ? 100 : Math.min(95, (out[p]?.etaPct ?? 5) + 10) };
+					if (!done) nextRemaining += 1;
 				}
 				return out;
 			});
 			// Continue polling until all done
-			const remaining = Object.entries(indexing).filter(([_, v]) => v.status !== 'done').length;
-			if (remaining > 0) {
+			if (nextRemaining > 0) {
 				setTimeout(() => pollIndexingStatus(paths), 1500);
 			}
 		} catch {}
@@ -448,11 +448,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
 												</div>
 												<div className="flex-1">
-													<div className="font-medium text-slate-800">{it.name}</div>
+													<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
 													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-													{it.type === 'file' && indexing[it.path] && indexing[it.path].status !== 'done' && (
+													{it.type === 'file' && (() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return s && s.status !== 'done'; })() && (
 														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
-															<Progress value={indexing[it.path].etaPct} className="h-1.5" />
+															{(() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return <Progress value={s?.etaPct ?? 10} className="h-1.5" />; })()}
 														</div>
 													)}
 												</div>
@@ -526,11 +526,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
 												</div>
 												<div className="flex-1">
-													<div className="font-medium text-slate-800">{it.name}</div>
+													<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
 													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-													{it.type === 'file' && indexing[it.path] && indexing[it.path].status !== 'done' && (
+													{it.type === 'file' && (() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return s && s.status !== 'done'; })() && (
 														<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
-															<Progress value={indexing[it.path].etaPct} className="h-1.5" />
+															{(() => { const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; return <Progress value={s?.etaPct ?? 10} className="h-1.5" />; })()}
 														</div>
 													)}
 												</div>
