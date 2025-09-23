@@ -275,12 +275,13 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     height: '44px',
     borderRadius: '50%',
     backgroundColor: 'white',
-    border: `4px solid ${color}`,
+    border: `3px solid ${color}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    position: 'relative',
+    position: 'absolute',
+    left: '-21px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   });
 
@@ -298,10 +299,12 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   });
 
   const stepContentStyles: React.CSSProperties = {
+    width: '80%',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginLeft: '25px',
     gap: '6px',
-    flex: 1
   };
 
   const stepTitleStyles: React.CSSProperties = {
