@@ -220,6 +220,7 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   // Main content area styles (white background)
   const contentStyles: React.CSSProperties = {
     padding: '64px',
+    paddingTop: '20px',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',

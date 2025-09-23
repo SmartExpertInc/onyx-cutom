@@ -175,13 +175,13 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start',
-    padding: '80px',
+    padding: '40px',
     position: 'relative',
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3rem',
+    fontSize: '3.5rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: alignment,

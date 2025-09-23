@@ -246,11 +246,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const contentContainerStyles: React.CSSProperties = {
     width: '100%', // Полная ширина
     height: '300px', // Точная высота 50% от 600px
-    padding: '60px 80px',
+    padding: '40px 40px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'center', // Центрируем по вертикали
     minWidth: 0,
     flexShrink: 0, // Предотвращаем сжатие
     overflow: 'hidden' // Скрываем переполнение
@@ -272,6 +271,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     fontFamily: currentTheme.fonts.contentFont,
     color: '#333333', // Темно-серый цвет как на фото
     lineHeight: '1.6',
+    width: '63%',
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word',
     textAlign: 'left'
