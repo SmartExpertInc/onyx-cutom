@@ -10,7 +10,6 @@ import {
 	Copy,
 	Download,
 	Search,
-	ExternalLink,
 	ArrowUpDown,
 	Pencil,
 	MoveRight
@@ -296,10 +295,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const openInNextcloud = () => {
-		window.open(`/smartdrive/`, '_blank');
-	};
-
 	const canRename = selected.size === 1;
 	const canDelete = selected.size > 0;
 	const canMoveCopy = selected.size > 0;
@@ -311,10 +306,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	}, [previewPath, items]);
 
 	return (
-		<div className={`space-y-3 ${className}`}>
+		<div className={`space-y-3 text-black ${className}`}>
 			{/* Toolbar */}
 			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-2 text-sm text-muted-foreground">
+				<div className="flex items-center gap-2 text-sm">
 					{breadcrumbs.map((b, idx) => (
 						<Button key={b.path} variant="link" className="px-0 h-auto" onClick={() => setCurrentPath(b.path)}>
 							{idx > 0 ? ' / ' : ''}{b.label}
@@ -342,7 +337,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 							<DropdownMenuItem disabled={!canMoveCopy || busy} onClick={()=>doMoveCopy('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
 							<DropdownMenuItem disabled={!canDelete || busy} onClick={del}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
 							<DropdownMenuItem disabled={!canDownload || busy} onClick={download}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
-							<DropdownMenuItem onClick={openInNextcloud}><ExternalLink className="w-4 h-4 mr-2"/>Open in Nextcloud</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
@@ -353,7 +347,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				<div className="space-y-2">
 					{uploading.map(u => (
 						<div key={u.filename} className="flex items-center gap-3">
-							<div className="w-48 truncate text-sm text-muted-foreground">{u.filename}</div>
+							<div className="w-48 truncate text-sm text-gray-600">{u.filename}</div>
 							<Progress value={u.progress} className="w-full" />
 						</div>
 					))}
@@ -362,63 +356,94 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 			<div ref={containerRef} onDrop={onDrop} onDragOver={onDragOver} className="border rounded-md overflow-hidden">
 				{loading ? (
-					<div className="p-10 text-center text-muted-foreground">Loading…</div>
+					<div className="p-10 text-center text-gray-700">Loading…</div>
 				) : error ? (
-					<div className="p-10 text-center text-destructive">{error}</div>
+					<div className="p-10 text-center text-red-600">{error}</div>
 				) : filtered.length === 0 ? (
-					<div className="p-10 text-center text-muted-foreground">This folder is empty</div>
+					<div className="p-10 text-center text-gray-700">This folder is empty</div>
 				) : (
-					<div className="grid grid-cols-12">
-						<div className="col-span-12 lg:col-span-7 divide-y">
-							<div className="flex items-center px-3 py-2 text-xs uppercase text-muted-foreground">
-								<div className="w-8"/>
-								<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
-									Name <ArrowUpDown className="w-3 h-3 ml-1"/>
-								</button>
-								<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
-									Size <ArrowUpDown className="w-3 h-3 ml-1"/>
-								</button>
-								<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
-									Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
-								</button>
+					<>
+						{previewItem ? (
+							<div className="grid grid-cols-12">
+								<div className="col-span-12 lg:col-span-7 divide-y">
+									<div className="flex items-center px-3 py-2 text-xs uppercase text-gray-600">
+										<div className="w-8"/>
+										<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
+											Name <ArrowUpDown className="w-3 h-3 ml-1"/>
+										</button>
+										<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
+											Size <ArrowUpDown className="w-3 h-3 ml-1"/>
+										</button>
+										<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
+											Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
+										</button>
+									</div>
+									{filtered.map((it, idx) => (
+										<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
+											<div className="w-8">
+												<Checkbox checked={selected.has(it.path)} onCheckedChange={()=>toggle(it.path)} />
+											</div>
+											<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
+												{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-600"/> : <File className="w-5 h-5 text-gray-700"/>}
+											</div>
+											<div className="flex-1">
+												<div className="font-medium text-black">{it.name}</div>
+												<div className="text-xs text-gray-600">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+											</div>
+											<div className="w-24 text-right text-sm text-black">{it.type === 'file' ? formatSize(it.size) : ''}</div>
+											<div className="w-44 text-right text-sm text-black">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+										</div>
+									))}
+								</div>
+								<div className="hidden lg:block col-span-5 border-l min-h-[420px] bg-white">
+									<div className="p-4 space-y-2">
+										<div className="text-sm text-gray-600">Preview</div>
+										<div className="font-semibold text-black">{previewItem?.name}</div>
+										<div className="rounded-md border overflow-hidden">
+											{previewItem && renderPreview(previewItem)}
+										</div>
+									</div>
+								</div>
 							</div>
-							{filtered.map((it, idx) => (
-								<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-accent cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
-									<div className="w-8">
-										<Checkbox checked={selected.has(it.path)} onCheckedChange={()=>toggle(it.path)} />
-									</div>
-									<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
-										{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-600"/> : <File className="w-5 h-5 text-muted-foreground"/>}
-									</div>
-									<div className="flex-1">
-										<div className="font-medium text-foreground">{it.name}</div>
-										<div className="text-xs text-muted-foreground">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-									</div>
-									<div className="w-24 text-right text-sm text-foreground">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-									<div className="w-44 text-right text-sm text-foreground">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+						) : (
+							<div className="divide-y">
+								<div className="flex items-center px-3 py-2 text-xs uppercase text-gray-600">
+									<div className="w-8"/>
+									<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
+										Name <ArrowUpDown className="w-3 h-3 ml-1"/>
+									</button>
+									<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
+										Size <ArrowUpDown className="w-3 h-3 ml-1"/>
+									</button>
+									<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
+										Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
+									</button>
 								</div>
-							))}
-						</div>
-						<div className="hidden lg:block col-span-5 border-l min-h-[420px] bg-white">
-							{previewItem ? (
-								<div className="p-4 space-y-2">
-									<div className="text-sm text-muted-foreground">Preview</div>
-									<div className="font-semibold">{previewItem.name}</div>
-									<div className="rounded-md border overflow-hidden">
-										{renderPreview(previewItem)}
+								{filtered.map((it, idx) => (
+									<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
+										<div className="w-8">
+											<Checkbox checked={selected.has(it.path)} onCheckedChange={()=>toggle(it.path)} />
+										</div>
+										<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
+											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-600"/> : <File className="w-5 h-5 text-gray-700"/>}
+										</div>
+										<div className="flex-1">
+											<div className="font-medium text-black">{it.name}</div>
+											<div className="text-xs text-gray-600">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+										</div>
+										<div className="w-24 text-right text-sm text-black">{it.type === 'file' ? formatSize(it.size) : ''}</div>
+										<div className="w-44 text-right text-sm text-black">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
 									</div>
-								</div>
-							) : (
-								<div className="h-full flex items-center justify-center text-muted-foreground">Select a file to preview</div>
-							)}
-						</div>
-					</div>
+								))}
+							</div>
+						)}
+					</>
 				)}
 			</div>
 
 			{mode === 'select' && (
 				<div className="flex justify-between items-center">
-					<div className="text-sm text-muted-foreground">{selected.size > 0 ? `${selected.size} selected` : ''}</div>
+					<div className="text-sm text-gray-700">{selected.size > 0 ? `${selected.size} selected` : ''}</div>
 					<div className="flex gap-2">
 						<Button variant="outline" onClick={clearSel}>Clear</Button>
 						<Button onClick={()=>onFilesSelected && onFilesSelected(Array.from(selected))} disabled={selected.size===0}>Select {selected.size || ''}</Button>
@@ -439,12 +464,12 @@ function formatSize(bytes?: number | null): string {
 function renderPreview(item: SmartDriveItem) {
 	const name = item.name.toLowerCase();
 	if (/(\.png|\.jpg|\.jpeg|\.gif|\.webp)$/.test(name)) {
-		return <img src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(item.path)}`} alt={item.name} className="max-h-[380px] w-full object-contain bg-muted" />;
+		return <img src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(item.path)}`} alt={item.name} className="max-h-[380px] w-full object-contain bg-gray-50" />;
 	}
 	if (name.endsWith('.pdf')) {
-		return <iframe src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(item.path)}`} className="w-full h-[380px] bg-muted" />;
+		return <iframe src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(item.path)}`} className="w-full h-[380px] bg-gray-50" />;
 	}
-	return <div className="p-6 text-center text-muted-foreground text-sm">No inline preview. Use “Open in Nextcloud”.</div>;
+	return <div className="p-6 text-center text-gray-700 text-sm">No inline preview.</div>;
 }
 
 export default SmartDriveBrowser; 
