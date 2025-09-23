@@ -3796,17 +3796,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                     </TableHead>
                   )}
-                  {columnVisibility.created && (
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
-                      style={{ width: `${columnWidths.created}%` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <CreatedIcon size={15} />
-                        {t("interface.created", "Created")}
-                      </div>
-                    </TableHead>
-                  )}
                   {columnVisibility.creator && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
@@ -3815,6 +3804,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       <div className="flex items-center gap-2">
                         <CreatorIcon size={15} />
                         {t("interface.creator", "Creator")}
+                      </div>
+                    </TableHead>
+                  )}
+                  {columnVisibility.created && (
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.created}%` }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CreatedIcon size={15} />
+                        {t("interface.created", "Created")}
                       </div>
                     </TableHead>
                   )}
@@ -3849,16 +3849,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     </TableHead>
                   )}
                   <TableHead
-                    className="px-6 py-3 text-right text-xs font-normal text-gray-500 tracking-wider"
+                    className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
-                    {/* {t("interface.actions", "Actions")} */}
+                    {t("interface.actions", "Actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white divide-y divide-gray-100">
-                {/* Show all projects in a flat list */}
-                {projects.map((p: Project, index: number) => (
+                {/* Show filtered projects based on folder */}
+                {visibleProjects.map((p: Project, index: number) => (
                     <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
@@ -3936,11 +3936,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           </span>
                         </TableCell>
                       )}
-                      {columnVisibility.created && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </TableCell>
-                      )}
                       {columnVisibility.creator && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
@@ -3951,6 +3946,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
+                        </TableCell>
+                      )}
+                      {columnVisibility.created && (
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(p.createdAt)}
                         </TableCell>
                       )}
                       {columnVisibility.numberOfLessons && (
