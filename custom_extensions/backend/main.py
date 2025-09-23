@@ -26035,6 +26035,68 @@ async def smartdrive_delete(
         raise HTTPException(status_code=500, detail="Failed to delete items")
 
 
+@app.get("/api/custom/smartdrive/token-estimate")
+async def smartdrive_token_estimate(
+    request: Request,
+    path: str = Query(..., description="File path to estimate tokens for"),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Estimate token count for a SmartDrive file.
+    - Primary: Use stored Onyx token_count if we have a mapping and the file has been processed previously
+    - Fallback: Use Content-Length from WebDAV HEAD and approximate tokens ~= bytes / 4
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        norm_path = await _normalize_smartdrive_path(path)
+        async with pool.acquire() as conn:
+            username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+            # Try to find mapped onyx_file_id
+            rec = await conn.fetchrow(
+                """
+                SELECT onyx_file_id FROM smartdrive_imports
+                WHERE onyx_user_id = $1 AND smartdrive_path = $2
+                """,
+                str(onyx_user_id),
+                norm_path,
+            )
+        # If we have an Onyx file id, try to fetch its token_count quickly
+        if rec and rec.get("onyx_file_id"):
+            file_id = str(rec["onyx_file_id"]).strip()
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    resp = await client.get(
+                        f"{ONYX_API_SERVER_URL}/user/file/token-estimate",
+                        params={"file_ids": file_id},
+                        cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
+                    )
+                if resp.is_success:
+                    data = resp.json() or {}
+                    total_tokens = int(data.get("total_tokens") or 0)
+                    if total_tokens > 0:
+                        return {"tokens": total_tokens, "source": "onyx"}
+            except Exception:
+                pass
+        # Otherwise use HEAD to get Content-Length and approximate
+        base = f"{base_url}/remote.php/dav/files/{username}"
+        file_url = f"{base}{user_root_prefix}{norm_path}"
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            head = await client.head(file_url, auth=(username, password))
+        if not head.is_success:
+            raise HTTPException(status_code=_map_webdav_status(head.status_code), detail=_dav_error(head))
+        content_length = head.headers.get("content-length")
+        approx_tokens = 0
+        if content_length and content_length.isdigit():
+            approx_tokens = max(1, int(int(content_length) / 4))
+        else:
+            # Fallback: last resort approximate small size
+            approx_tokens = 2000
+        return {"tokens": approx_tokens, "source": "approx"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[SmartDrive] token-estimate error for path={path}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to estimate tokens")
+
 @app.get("/api/custom/smartdrive/download")
 async def smartdrive_download(
     request: Request,

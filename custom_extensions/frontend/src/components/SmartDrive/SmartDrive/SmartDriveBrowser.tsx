@@ -49,7 +49,7 @@ type UploadProgress = {
 	progress: number; // 0-100
 };
 
-type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string }>;
+type IndexingState = Record<string, { status: 'pending' | 'done' | 'unknown'; etaPct: number; onyxFileId?: number | string; startedAtMs?: number; durationMs?: number }>;
 
 const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	mode = 'manage',
@@ -249,6 +249,61 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (uploadInput.current) uploadInput.current.value = '';
 	};
 
+	const INDEX_TOKENS_PER_SEC = 75000 / 240; // ~312.5 tokens/s
+
+	const startIndexingEstimates = useCallback(async (paths: string[]) => {
+		if (!paths || paths.length === 0) return;
+		try {
+			const results = await Promise.all(paths.map(async (p) => {
+				const url = `${CUSTOM_BACKEND_URL}/smartdrive/token-estimate?path=${encodeURIComponent(p)}`;
+				console.log('[SmartDrive] token-estimate request:', url);
+				const res = await fetch(url, { credentials: 'same-origin' });
+				if (!res.ok) throw new Error(`token-estimate failed: ${res.status}`);
+				const data = await res.json();
+				const tokens = Number(data?.tokens ?? 0);
+				const durationSec = Math.max(3, Math.ceil(tokens / INDEX_TOKENS_PER_SEC));
+				console.log('[SmartDrive] token-estimate response:', { path: p, tokens, durationSec, source: data?.source });
+				return { path: p, tokens, durationMs: durationSec * 1000 };
+			}));
+			const now = Date.now();
+			setIndexing(prev => {
+				const out: IndexingState = { ...prev };
+				for (const r of results) {
+					if (!r) continue;
+					const prevEntry = out[r.path] || { status: 'pending', etaPct: 5 };
+					out[r.path] = { ...prevEntry, status: 'pending', startedAtMs: now, durationMs: r.durationMs, etaPct: Math.max(prevEntry.etaPct ?? 5, 5) };
+				}
+				return out;
+			});
+		} catch (e) {
+			console.error('[SmartDrive] token-estimate error:', e);
+		}
+	}, [INDEX_TOKENS_PER_SEC]);
+
+	// Drive time-based progress updates for all pending items with a known duration
+	const hasPendingTimed = useMemo(() => Object.values(indexing).some(v => v.status === 'pending' && v.startedAtMs && v.durationMs), [indexing]);
+	useEffect(() => {
+		if (!hasPendingTimed) return;
+		const interval = setInterval(() => {
+			setIndexing(prev => {
+				const now = Date.now();
+				const out: IndexingState = { ...prev };
+				for (const [path, st] of Object.entries(out)) {
+					if (st.status !== 'pending' || !st.startedAtMs || !st.durationMs) continue;
+					const elapsed = now - st.startedAtMs;
+					const pct = Math.min(100, Math.max(5, Math.round((elapsed / st.durationMs) * 100)));
+					if (pct >= 100) {
+						out[path] = { ...st, status: 'done', etaPct: 100 };
+					} else {
+						out[path] = { ...st, etaPct: pct };
+					}
+				}
+				return out;
+			});
+		}, 500);
+		return () => clearInterval(interval);
+	}, [hasPendingTimed]);
+
 	const uploadFiles = async (files: File[]) => {
 		if (files.length === 0) return;
 		console.log('[SmartDrive] Starting upload:', { filesCount: files.length, currentPath, fileNames: files.map(f => f.name) });
@@ -287,7 +342,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				for (const r of data.results) {
 					console.log('[SmartDrive] Processing result:', r);
 					
-					// Use filename instead of file property
 					const filename = r.filename || r.file;
 					if (!filename) {
 						console.warn('[SmartDrive] No filename found in result:', r);
@@ -311,12 +365,9 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				
 				setIndexing(next);
 				
-				// Start polling indexing status
+				// Start time-based indexing progress based on token estimates (no polling)
 				if (pathsToTrack.length > 0) {
-					console.log('[SmartDrive] Starting polling for uploaded files');
-					setTimeout(() => pollIndexingStatus(pathsToTrack), 100);
-				} else {
-					console.log('[SmartDrive] No files to track for indexing');
+					await startIndexingEstimates(pathsToTrack);
 				}
 			} else {
 				console.warn('[SmartDrive] No results array in upload response:', data);
