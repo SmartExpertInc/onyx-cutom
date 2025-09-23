@@ -251,7 +251,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     alignItems: 'center',
     gap: '24px',
     padding: '25px 36px',
-    borderRadius: '12px',
+    borderRadius: '2px',
     minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
     background: color, // Solid color instead of gradient as in photo
