@@ -41,7 +41,7 @@ import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
-import { identifyUser, resetUserIdentity, trackPageView } from '@/lib/mixpanelClient';
+import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
 import Userback, { UserbackWidget } from '@userback/widget';
 
 
