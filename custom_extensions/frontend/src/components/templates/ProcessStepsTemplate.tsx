@@ -226,18 +226,18 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '4.5rem',
+    fontSize: '4.8rem',
     fontFamily: 'serif', // Serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'bold',
-    lineHeight: '0.9',
-    marginBottom: '20px',
+    lineHeight: '0.85',
+    marginBottom: '16px',
     textAlign: 'left',
-    letterSpacing: '-0.03em'
+    letterSpacing: '-0.04em'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
+    fontSize: '1.3rem',
     fontFamily: 'sans-serif', // Sans-serif font as in photo
     color: '#000000', // Black color as in photo
     fontWeight: 'normal',
@@ -250,9 +250,9 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     display: 'flex',
     alignItems: 'center',
     gap: '24px',
-    padding: '28px 32px',
+    padding: '32px 36px',
     borderRadius: '12px',
-    minHeight: '100px',
+    minHeight: '110px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
     background: color // Solid color instead of gradient as in photo
   });
@@ -304,7 +304,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const stepTitleStyles: React.CSSProperties = {
-    fontSize: '1.5rem',
+    fontSize: '1.6rem',
     fontWeight: 'bold',
     color: 'white',
     margin: 0,
@@ -313,7 +313,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const stepDescriptionStyles: React.CSSProperties = {
-    fontSize: '1rem',
+    fontSize: '1.1rem',
     color: 'white',
     margin: 0,
     opacity: 0.95,
