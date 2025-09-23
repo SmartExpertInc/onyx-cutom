@@ -127,12 +127,23 @@ export default function ProductViewNewPage() {
         commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
       }
 
+      // Fetch all projects for the user
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects`, {
+        headers: commonHeaders
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch projects for content status check');
+        return;
+      }
+
+      const allProjects = await response.json();
+      
       // Check for existing products for each lesson
       const contentStatus: {[key: string]: {presentation: boolean, onePager: boolean, quiz: boolean, videoLesson: boolean}} = {};
       
       for (const lesson of lessons) {
         const lessonKey = lesson.id || lesson.title;
-        const expectedProjectName = `${outlineName}: ${lesson.title}`;
         
         // Initialize status for this lesson
         contentStatus[lessonKey] = {
@@ -142,43 +153,51 @@ export default function ProductViewNewPage() {
           videoLesson: false
         };
 
-        // Check for existing products with this naming pattern
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects?search=${encodeURIComponent(expectedProjectName)}`, {
-          headers: commonHeaders
-        });
-
-        if (response.ok) {
-          const searchResults = await response.json();
-          const projects = searchResults.projects || [];
+        // Look for projects that match this lesson using the same logic as TrainingPlan.tsx
+        const expectedProjectName = `${outlineName}: ${lesson.title}`;
+        
+        const matchingProjects = allProjects.filter((project: { projectName?: string; design_microproduct_type?: string; microproduct_type?: string }) => {
+          const projectName = project.projectName?.trim();
           
-          // Check each found project to see what type of content it is
-          for (const project of projects) {
-            if (project.project_name === expectedProjectName) {
-              const microproductType = project.microproduct_type;
-              
-              // Map microproduct types to our content status
-              switch (microproductType) {
-                case 'Slide Deck':
-                case 'Lesson Presentation':
-                  contentStatus[lessonKey].presentation = true;
-                  break;
-                case 'Text Presentation':
-                  contentStatus[lessonKey].onePager = true;
-                  break;
-                case 'Quiz':
-                  contentStatus[lessonKey].quiz = true;
-                  break;
-                case 'Video Lesson':
-                case 'Video Lesson Presentation':
-                  contentStatus[lessonKey].videoLesson = true;
-                  break;
-              }
-            }
+          // Method 1: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+          const newPatternMatch = projectName === expectedProjectName;
+          
+          // Method 2: Legacy patterns for backward compatibility
+          const legacyQuizPattern = `Quiz - ${outlineName}: ${lesson.title}`;
+          const legacyQuizPatternMatch = projectName === legacyQuizPattern;
+          
+          const legacyTextPresentationPattern = `Text Presentation - ${outlineName}: ${lesson.title}`;
+          const legacyTextPresentationPatternMatch = projectName === legacyTextPresentationPattern;
+          
+          return newPatternMatch || legacyQuizPatternMatch || legacyTextPresentationPatternMatch;
+        });
+        
+        // Check each matching project to see what type of content it is
+        for (const project of matchingProjects) {
+          const microproductType = project.design_microproduct_type || project.microproduct_type;
+          
+          // Map microproduct types to our content status
+          switch (microproductType) {
+            case 'Slide Deck':
+            case 'Lesson Presentation':
+              contentStatus[lessonKey].presentation = true;
+              break;
+            case 'Text Presentation':
+              contentStatus[lessonKey].onePager = true;
+              break;
+            case 'Quiz':
+              contentStatus[lessonKey].quiz = true;
+              break;
+            case 'Video Lesson':
+            case 'Video Lesson Presentation':
+              contentStatus[lessonKey].videoLesson = true;
+              break;
           }
         }
       }
 
       setLessonContentStatus(contentStatus);
+      console.log('Lesson content status updated:', contentStatus);
     } catch (error) {
       console.error('Error checking lesson content status:', error);
     }
@@ -234,6 +253,13 @@ export default function ProductViewNewPage() {
 
     fetchProjectData();
   }, [productId]);
+
+  // Debug effect to monitor lesson content status changes
+  useEffect(() => {
+    if (Object.keys(lessonContentStatus).length > 0) {
+      console.log('🔍 Lesson content status changed:', lessonContentStatus);
+    }
+  }, [lessonContentStatus]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
     const trainingPlanData = projectData?.details as TrainingPlanData;
@@ -427,7 +453,9 @@ export default function ProductViewNewPage() {
                                   color={(() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    return status?.presentation ? '#0F58F9' : undefined;
+                                    const hasContent = status?.presentation;
+                                    console.log(`🎯 Presentation icon for "${lesson.title}":`, { lessonKey, status, hasContent });
+                                    return hasContent ? '#0F58F9' : undefined;
                                   })()}
                                 />
                               </CustomTooltip>
@@ -436,7 +464,9 @@ export default function ProductViewNewPage() {
                                   color={(() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    return status?.onePager ? '#0F58F9' : undefined;
+                                    const hasContent = status?.onePager;
+                                    console.log(`🎯 One-Pager icon for "${lesson.title}":`, { lessonKey, status, hasContent });
+                                    return hasContent ? '#0F58F9' : undefined;
                                   })()}
                                 />
                               </CustomTooltip>
@@ -445,7 +475,9 @@ export default function ProductViewNewPage() {
                                   color={(() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    return status?.quiz ? '#0F58F9' : undefined;
+                                    const hasContent = status?.quiz;
+                                    console.log(`🎯 Quiz icon for "${lesson.title}":`, { lessonKey, status, hasContent });
+                                    return hasContent ? '#0F58F9' : undefined;
                                   })()}
                                 />
                               </CustomTooltip>
@@ -454,7 +486,9 @@ export default function ProductViewNewPage() {
                                   color={(() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    return status?.videoLesson ? '#0F58F9' : undefined;
+                                    const hasContent = status?.videoLesson;
+                                    console.log(`🎯 Video Lesson icon for "${lesson.title}":`, { lessonKey, status, hasContent });
+                                    return hasContent ? '#0F58F9' : undefined;
                                   })()}
                                 />
                               </CustomTooltip>
@@ -512,7 +546,7 @@ export default function ProductViewNewPage() {
             {/* Add New Module Button */}
             <div className="flex justify-center">
               <button
-                className="flex items-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none w-full"
+                className="flex items-center justify-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none w-full"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: 'white',
