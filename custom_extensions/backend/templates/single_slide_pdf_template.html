@@ -2128,7 +2128,7 @@
                                 style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
                         {% endif %}
-                    >{{ slide.props.title or 'Add title' }}</h1>
+                    >{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Your title here'] else 'Add title' }}</h1>
                     
                     <h2 class="slide-subtitle positioned-element"
                         {% if slide.metadata and slide.metadata.elementPositions %}
@@ -2137,7 +2137,7 @@
                                 style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
                             {% endif %}
                         {% endif %}
-                    >{{ slide.props.subtitle or 'Add subtitle' }}</h2>
+                    >{{ slide.props.subtitle if slide.props.subtitle and slide.props.subtitle not in ['Click to add content', 'Add subtitle', 'Add a short description.'] else 'Add subtitle' }}</h2>
                 </div>
                 
                 {% elif slide.templateId == 'big-image-left' %}
@@ -2355,7 +2355,7 @@
 
                     <!-- Right section with text content -->
                     <div class="right-section">
-                        <h1 class="slide-title">{{ slide.props.title or 'Add title' }}</h1>
+                        <h1 class="slide-title">{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Problem'] else 'Add title' }}</h1>
                     
                     <div class="content-row">
                     
@@ -2384,7 +2384,7 @@
                                             <span class="bullet-icon" style="background-color: #8b5cf6; color: #ffffff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; flex-shrink: 0;">
                                                 {{ loop.index }}
                                             </span>
-                                            <span class="bullet-text">{{ bullet or 'Add bullet point' }}</span>
+                                            <span class="bullet-text">{{ bullet if bullet and bullet not in ['Click to add bullet point', 'Add bullet point'] else 'Add bullet point' }}</span>
                                         </li>
                                     {% endfor %}
                                 {% else %}
@@ -2513,8 +2513,8 @@
                     <div class="two-column-layout">
                         <!-- Left Column -->
                         <div class="column">
-                            <h2 class="column-title">{{ slide.props.leftTitle or 'Add title' }}</h2>
-                            <p class="column-content">{{ slide.props.leftContent or 'Add text' }}</p>
+                            <h2 class="column-title">{{ slide.props.leftTitle if slide.props.leftTitle and slide.props.leftTitle not in ['Click to add left title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
+                            <p class="column-content">{{ slide.props.leftContent if slide.props.leftContent and slide.props.leftContent not in ['Click to add left content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
                             {% if slide.props.leftImagePath %}
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
@@ -2534,8 +2534,8 @@
                         
                         <!-- Right Column -->
                         <div class="column">
-                            <h2 class="column-title">{{ slide.props.rightTitle or 'Add title' }}</h2>
-                            <p class="column-content">{{ slide.props.rightContent or 'Add text' }}</p>
+                            <h2 class="column-title">{{ slide.props.rightTitle if slide.props.rightTitle and slide.props.rightTitle not in ['Click to add right title', 'Add title', 'Assess risks for the organization.'] else 'Add title' }}</h2>
+                            <p class="column-content">{{ slide.props.rightContent if slide.props.rightContent and slide.props.rightContent not in ['Click to add right content', 'Add text', 'Present with Canva like a professional using presenter mode.'] else 'Add text' }}</p>
                             {% if slide.props.rightImagePath %}
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
@@ -2789,7 +2789,7 @@
                                 style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
                             {% endif %}
                         {% endif %}
-                    >{{ slide.props.title or 'Add title' }}</h1>
+                    >{{ slide.props.title if slide.props.title and slide.props.title not in ['Click to add title', 'Add title', 'Spring picnic meetup'] else 'Add title' }}</h1>
                     
                     <div class="content-text positioned-element"
                         {% if slide.metadata and slide.metadata.elementPositions %}
@@ -2798,7 +2798,7 @@
                                 style="transform: translate({{ slide.metadata.elementPositions[contentId].x }}px, {{ slide.metadata.elementPositions[contentId].y }}px);"
                             {% endif %}
                         {% endif %}
-                    >{{ slide.props.content or 'Add text' }}</div>
+                    >{{ slide.props.content if slide.props.content and slide.props.content not in ['Click to add content', 'Add text', 'Join us for an afternoon of fun!'] else 'Add text' }}</div>
                 </div>
                 
             {% elif slide.templateId == 'hero-title-slide' %}
