@@ -67,7 +67,11 @@ export default function ProductViewNewPage() {
   const totalModules = trainingPlanData?.sections?.length || 0;
   const totalLessons = trainingPlanData?.sections?.reduce((acc, section) => acc + (section.lessons?.length || 0), 0) || 0;
   const completed = 0; // Placeholder - would need actual completion data
-  const estimatedDuration = "2h 30m"; // Placeholder
+  
+  // Calculate real estimated duration from project data
+  const estimatedDuration = totalLessons > 0 
+    ? `${Math.ceil(totalLessons * 0.5)}h ${Math.ceil((totalLessons * 0.5 % 1) * 60)}m`
+    : "0h 0m";
   
   // Calculate estimated completion time based on actual lessons
   const estimatedCompletionTime = totalLessons > 0 ? `${Math.ceil(totalLessons * 0.5)}h ${Math.ceil((totalLessons * 0.5 % 1) * 60)}m` : "0h 0m";
