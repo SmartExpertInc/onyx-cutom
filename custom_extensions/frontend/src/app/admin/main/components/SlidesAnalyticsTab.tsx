@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { format, subDays } from 'date-fns';
 import { 
-  Download, RefreshCw, ChevronDown, AlertTriangle, Filter, X, Calendar
+  Download, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, Filter, X, Calendar
 } from 'lucide-react';
 import SlideTypeUsageBarChart from '../../../../components/SlideTypeUsageBarChart';
 import { useLanguage } from '../../../../contexts/LanguageContext';
@@ -37,6 +37,10 @@ const SlidesAnalyticsTab: React.FC = () => {
   });
   const [isFiltering, setIsFiltering] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Expandable sections state
+  const [isChartExpanded, setIsChartExpanded] = useState(true);
+  const [isFallbacksExpanded, setIsFallbacksExpanded] = useState(true);
 
   // Get available templates
   const availableTemplates = getAllTemplates().map(t => t.id);
@@ -258,135 +262,175 @@ const SlidesAnalyticsTab: React.FC = () => {
         </div>
       )}
 
-      {/* Filters Section */}
-      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-6">
-        <div className="flex items-center space-x-2 mb-3">
-          <Filter className="w-4 h-4 text-gray-600" />
-          <h3 className="text-sm font-medium text-gray-700">{t('interface.analytics.filters', 'Filters')}</h3>
-        </div>
+      {/* Chart and Filters Section */}
+      <div className="bg-white rounded-lg border border-gray-200 mb-6">
+        <button
+          onClick={() => setIsChartExpanded(!isChartExpanded)}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="text-lg font-semibold text-gray-900">Charts & Filters</div>
+            <span className="text-sm text-gray-500">Analytics visualization and filter options</span>
+          </div>
+          {isChartExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-500" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-500" />
+          )}
+        </button>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Date Range */}
-          <div className="lg:col-span-2">
-            <label className="block text-xs font-medium text-gray-700 mb-1">{t('interface.analytics.dateRange', 'Date Range')}</label>
-            <div className="flex items-center space-x-2">
-              <div className="relative flex-1">
-                <Calendar className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="date"
-                  value={dateRange.from}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
+        {isChartExpanded && (
+          <div className="px-6 pb-6">
+            {/* Filters Section */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-6">
+              <div className="flex items-center space-x-2 mb-3">
+                <Filter className="w-4 h-4 text-gray-600" />
+                <h3 className="text-sm font-medium text-gray-700">{t('interface.analytics.filters', 'Filters')}</h3>
               </div>
-              <span className="text-gray-500 text-sm">{t('interface.analytics.to', 'to')}</span>
-              <div className="relative flex-1">
-                <Calendar className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="date"
-                  value={dateRange.to}
-                  onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Template Type Checklist */}
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Select Template Types</label>
-            <div className="relative styles-dropdown">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowTemplatesDropdown(!showTemplatesDropdown);
-                }}
-                className="flex items-center justify-between w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
-              >
-                <span>{selectedTemplateIds.length > 0 ? `${selectedTemplateIds.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
-                <ChevronDown size={14} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              {showTemplatesDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                  {availableTemplates.map((id) => (
-                    <label key={id} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Date Range */}
+                <div className="lg:col-span-2">
+                  <label className="block text-xs font-medium text-gray-700 mb-1">{t('interface.analytics.dateRange', 'Date Range')}</label>
+                  <div className="flex items-center space-x-2">
+                    <div className="relative flex-1">
+                      <Calendar className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
-                        type="checkbox"
-                        checked={selectedTemplateIds.includes(id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedTemplateIds([...selectedTemplateIds, id]);
-                          } else {
-                            setSelectedTemplateIds(selectedTemplateIds.filter(s => s !== id));
-                          }
-                        }}
-                        className="mr-3"
+                        type="date"
+                        value={dateRange.from}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, from: e.target.value }))}
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       />
-                      <span className="text-sm">{id}</span>
-                    </label>
-                  ))}
+                    </div>
+                    <span className="text-gray-500 text-sm">{t('interface.analytics.to', 'to')}</span>
+                    <div className="relative flex-1">
+                      <Calendar className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="date"
+                        value={dateRange.to}
+                        onChange={(e) => setDateRange(prev => ({ ...prev, to: e.target.value }))}
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Template Type Checklist */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Select Template Types</label>
+                  <div className="relative styles-dropdown">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowTemplatesDropdown(!showTemplatesDropdown);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 rounded-lg border border-gray-300 bg-white/90 text-sm text-black min-w-[200px]"
+                    >
+                      <span>{selectedTemplateIds.length > 0 ? `${selectedTemplateIds.length} ${t('interface.generate.stylesSelected', 'styles selected')}` : t('interface.generate.selectStyles', 'Select styles')}</span>
+                      <ChevronDown size={14} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showTemplatesDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                        {availableTemplates.map((id) => (
+                          <label key={id} className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={selectedTemplateIds.includes(id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedTemplateIds([...selectedTemplateIds, id]);
+                                } else {
+                                  setSelectedTemplateIds(selectedTemplateIds.filter(s => s !== id));
+                                }
+                              }}
+                              className="mr-3"
+                            />
+                            <span className="text-sm">{id}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bar chart */}
+            <div className="flex gap-6">
+              <div className="w-full">
+                <SlideTypeUsageBarChart template_ids={selectedTemplateIds} date_from={dateRange.from} date_to={dateRange.to} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Bar chart */}
-      <div className="flex gap-6 mb-6">
-        <div className="w-full">
-          <SlideTypeUsageBarChart template_ids={selectedTemplateIds} date_from={dateRange.from} date_to={dateRange.to} />
-        </div>
-      </div>
-
-      {/* Fallbacks */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('interface.analytics.recentErrors', 'Fallbacks')}</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.time', 'Time')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.method', 'Slide type')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.endpoint', 'Props')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.user', 'User')}</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.status', 'Error')}</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {(dashboard.recent_errors || []).slice(0, 20).map((error) => (
-                <tr key={error.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(new Date(error.created_at), 'MMM dd, HH:mm:ss')}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.template_id }>
-                    {error.template_id }
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.props}>
-                    {error.props}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {error.user_email ? (
-                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
-                        {error.user_email.substring(0, 8)}...
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">{t('interface.analytics.anonymous', 'Anonymous')}</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                    <div className="text-red-600 text-xs" title={error.error_message || t('interface.analytics.noErrorMessage', 'No error message')}>
-                      {error.error_message && error.error_message.length > 50 
-                        ? `${error.error_message.substring(0, 50)}...`
-                        : error.error_message || t('interface.analytics.noErrorMessage', 'No error message')
-                        }
-                      </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Fallbacks Section */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        <button
+          onClick={() => setIsFallbacksExpanded(!isFallbacksExpanded)}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="text-lg font-semibold text-gray-900">{t('interface.analytics.recentErrors', 'Fallbacks')}</div>
+            <span className="text-sm text-gray-500">Recent slide generation errors and fallbacks</span>
+          </div>
+          {isFallbacksExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-500" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-500" />
+          )}
+        </button>
+        
+        {isFallbacksExpanded && (
+          <div className="px-6 pb-6">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.time', 'Time')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.method', 'Slide type')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.endpoint', 'Props')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.user', 'User')}</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('interface.analytics.status', 'Error')}</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {(dashboard.recent_errors || []).slice(0, 20).map((error) => (
+                    <tr key={error.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {format(new Date(error.created_at), 'MMM dd, HH:mm:ss')}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.template_id }>
+                        {error.template_id }
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={error.props}>
+                        {error.props}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {error.user_email ? (
+                          <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                            {error.user_email.substring(0, 8)}...
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">{t('interface.analytics.anonymous', 'Anonymous')}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                        <div className="text-red-600 text-xs" title={error.error_message || t('interface.analytics.noErrorMessage', 'No error message')}>
+                          {error.error_message && error.error_message.length > 50 
+                            ? `${error.error_message.substring(0, 50)}...`
+                            : error.error_message || t('interface.analytics.noErrorMessage', 'No error message')
+                            }
+                          </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
