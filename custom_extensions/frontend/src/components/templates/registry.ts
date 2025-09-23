@@ -330,16 +330,21 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📋',
     component: BulletPointsRightTemplate,
     defaultProps: {
-      title: 'Add title',
-      subtitle: 'Add subtitle',
-      bullets: ['Add point 1', 'Add point 2', 'Add point 3'],
+      title: 'Problem',
+      subtitle: '',
+      bullets: [
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.'
+      ],
       maxColumns: 1,
-      bulletStyle: 'dot',
-      titleColor: '#1a1a1a',
-      bulletColor: '#333333',
+      bulletStyle: 'number',
+      titleColor: '#000000',
+      bulletColor: '#8b5cf6',
       backgroundColor: '#ffffff',
-      imagePrompt: 'A relevant illustration for the bullet points',
-      imageAlt: 'Add image description',
+      imagePrompt: 'Three people collaborating around a laptop on a wooden table',
+      imageAlt: 'Team collaboration',
       companyName: 'Company name'
     },
     propSchema: {
