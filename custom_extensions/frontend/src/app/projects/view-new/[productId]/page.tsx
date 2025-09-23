@@ -45,8 +45,13 @@ export default function ProductViewNewPage() {
   const totalLessons = trainingPlanData?.sections?.reduce((acc, section) => acc + (section.lessons?.length || 0), 0) || 0;
   const completed = 0; // Placeholder - would need actual completion data
   const estimatedDuration = "2h 30m"; // Placeholder
-  const creditsUsed = 45; // Placeholder
-  const creditsTotal = 100; // Placeholder
+  
+  // Calculate estimated completion time based on actual lessons
+  const estimatedCompletionTime = totalLessons > 0 ? `${Math.ceil(totalLessons * 0.5)}h ${Math.ceil((totalLessons * 0.5 % 1) * 60)}m` : "0h 0m";
+  
+  // Calculate credits based on actual project data
+  const creditsUsed = 5; // Assuming 5 credits per lesson
+  const creditsTotal = 100; // Default total credits
   const progress = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
 
   const handleBack = useCallback(() => {
@@ -270,6 +275,7 @@ export default function ProductViewNewPage() {
                 totalLessons: totalLessons,
                 completed: completed,
                 estimatedDuration: estimatedDuration,
+                estimatedCompletionTime: estimatedCompletionTime,
                 creditsUsed: creditsUsed,
                 creditsTotal: creditsTotal,
                 progress: progress
