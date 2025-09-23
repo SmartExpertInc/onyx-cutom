@@ -22776,7 +22776,7 @@ async def get_slides_analytics(
                 """
                 WITH last_usages AS (
                     SELECT
-                        slide->>'templateId' AS template_id,
+                        slide->>'templateId' AS lu_template_id,
                         MAX(projects.created_at) AS last_usage
                     FROM
                         projects
@@ -22786,7 +22786,7 @@ async def get_slides_analytics(
                         microproduct_content ? 'slides'
                         AND projects.created_at BETWEEN $1 AND $2
                     GROUP BY
-                        template_id
+                        lu_template_id
                 )
                 SELECT
                     slide->>'templateId' AS template_id,
@@ -22800,19 +22800,19 @@ async def get_slides_analytics(
                 CROSS JOIN LATERAL
                     jsonb_array_elements(microproduct_content->'slides') AS slide
                 LEFT JOIN (
-                    SELECT template_id, COUNT(*) AS error_count
-                    FROM slide_creation_errors
-                    WHERE created_at BETWEEN $1 AND $2
-                    GROUP BY template_id
+                    SELECT sce.template_id AS ec_template_id, COUNT(*) AS error_count
+                    FROM slide_creation_errors sce
+                    WHERE sce.created_at BETWEEN $1 AND $2
+                    GROUP BY ec_template_id
                 ) AS error_counts
-                ON slide->>'templateId' = error_counts.template_id
+                ON slide->>'templateId' = error_counts.ec_template_id
                 LEFT JOIN last_usages
-                ON slide->>'templateId' = last_usages.template_id
+                ON slide->>'templateId' = last_usages.lu_template_id
                 WHERE
                     microproduct_content ? 'slides'
                     AND projects.created_at BETWEEN $1 AND $2
                 GROUP BY
-                    template_id, slide_id, error_counts.error_count, last_usages.last_usage
+                    slide->>'templateId', slide->>'slideId', error_counts.error_count, last_usages.last_usage
                 ORDER BY
                     total_generated DESC
                 """
