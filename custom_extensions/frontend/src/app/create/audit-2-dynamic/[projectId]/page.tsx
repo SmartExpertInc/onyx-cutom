@@ -236,6 +236,16 @@ export default function DynamicAuditLandingPage() {
   // Text editing state
   const [editingField, setEditingField] = useState<string | null>(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareData, setShareData] = useState<{
+    shareToken: string;
+    publicUrl: string;
+    expiresAt: string;
+  } | null>(null)
+  const [isSharing, setIsSharing] = useState(false)
+  const [shareError, setShareError] = useState<string | null>(null)
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => ({
@@ -530,6 +540,63 @@ export default function DynamicAuditLandingPage() {
     console.log('❌ [TEXT EDIT] Edit canceled for field:', editingField);
     stopEditing()
   }
+
+  const handleShare = async () => {
+    if (!projectId) return;
+    
+    setIsSharing(true);
+    setShareError(null);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${projectId}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expires_in_days: 30 // Default 30 days
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || `Failed to share audit: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setShareData({
+        shareToken: data.share_token,
+        publicUrl: data.public_url,
+        expiresAt: data.expires_at
+      });
+      
+      console.log('✅ [SHARE] Successfully created share link:', data.public_url);
+      
+    } catch (error: any) {
+      console.error('❌ [SHARE] Error sharing audit:', error);
+      setShareError(error.message || 'Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+      console.log('✅ [COPY] Link copied to clipboard');
+    } catch (error) {
+      console.error('❌ [COPY] Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
 
   // Click outside handler to stop editing
   useEffect(() => {
@@ -830,6 +897,38 @@ export default function DynamicAuditLandingPage() {
           <main className="w-[360px] mx-auto xl:w-[1440px] flex-1">
             {/* First Section */}
             <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:pt-[22px] xl:h-[660px] xl:relative xl:overflow-hidden">
+              
+              {/* Share Button - positioned in top-right */}
+              <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20">
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                  title={getLocalizedText(landingPageData?.language, {
+                    en: 'Share audit',
+                    es: 'Compartir auditoría',
+                    ua: 'Поділитися аудитом',
+                    ru: 'Поделиться аудитом'
+                  })}
+                >
+                  <svg 
+                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Share',
+                      es: 'Compartir',
+                      ua: 'Поділитися',
+                      ru: 'Поделиться'
+                    })}
+                  </span>
+                </button>
+              </div>
+
               <div className="flex flex-col gap-[20px] xl:gap-[25px] xl:w-[551px]">
                 <svg className="hidden xl:block xl:mb-[35px]" width="168" height="37" viewBox="0 0 168 37" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M47.6003 23.6794C47.6003 24.1541 47.6855 24.5562 47.8559 24.8858C48.0264 25.2154 48.2492 25.4857 48.5245 25.6967C48.8128 25.8945 49.1471 26.0461 49.5272 26.1516C49.9074 26.2439 50.3006 26.29 50.707 26.29C50.9823 26.29 51.2772 26.2702 51.5918 26.2307C51.9064 26.1779 52.2013 26.0857 52.4766 25.9538C52.7519 25.822 52.9813 25.644 53.1648 25.4198C53.3483 25.1825 53.44 24.8858 53.44 24.5298C53.44 24.1475 53.3155 23.8376 53.0665 23.6003C52.8305 23.363 52.5159 23.1652 52.1227 23.007C51.7294 22.8487 51.2837 22.7103 50.7856 22.5916C50.2875 22.473 49.7829 22.3411 49.2716 22.1961C48.7473 22.0642 48.2361 21.906 47.738 21.7214C47.2399 21.5237 46.7942 21.2731 46.4009 20.9699C46.0077 20.6666 45.6865 20.2909 45.4375 19.8426C45.2015 19.3811 45.0836 18.8273 45.0836 18.1813C45.0836 17.4561 45.2343 16.8298 45.5358 16.3024C45.8504 15.7618 46.2567 15.3135 46.7549 14.9575C47.253 14.6015 47.8166 14.3378 48.4458 14.1664C49.075 13.995 49.7042 13.9093 50.3334 13.9093C51.0675 13.9093 51.7687 13.995 52.4373 14.1664C53.1189 14.3247 53.7219 14.5884 54.2462 14.9575C54.7705 15.3267 55.1834 15.8014 55.4849 16.3815C55.7995 16.9485 55.9568 17.6407 55.9568 18.4581H52.9682C52.9419 18.0362 52.8502 17.6868 52.6929 17.4099C52.5487 17.1331 52.3521 16.9155 52.103 16.7573C51.854 16.5991 51.5656 16.487 51.2379 16.4211C50.9233 16.3551 50.5759 16.3222 50.1958 16.3222C49.9467 16.3222 49.6976 16.3485 49.4486 16.4013C49.1995 16.454 48.9701 16.5463 48.7604 16.6782C48.5638 16.81 48.3999 16.9748 48.2689 17.1726C48.1378 17.3704 48.0722 17.6209 48.0722 17.9242C48.0722 18.201 48.1247 18.4252 48.2295 18.5966C48.3344 18.768 48.5376 18.9262 48.8391 19.0712C49.1537 19.2163 49.5797 19.3613 50.1171 19.5063C50.6677 19.6514 51.3821 19.836 52.2603 20.0601C52.5225 20.1129 52.8829 20.2117 53.3417 20.3568C53.8136 20.4886 54.279 20.7062 54.7378 21.0094C55.1965 21.3127 55.5898 21.7214 55.9175 22.2356C56.2583 22.7367 56.4287 23.3827 56.4287 24.1738C56.4287 24.8199 56.3042 25.4198 56.0551 25.9736C55.8061 26.5274 55.4325 27.0086 54.9344 27.4173C54.4494 27.8129 53.8398 28.1227 53.1058 28.3469C52.3848 28.571 51.5459 28.6831 50.589 28.6831C49.8156 28.6831 49.0619 28.5842 48.3278 28.3864C47.6069 28.2018 46.9646 27.9052 46.4009 27.4964C45.8504 27.0877 45.4113 26.5669 45.0836 25.934C44.7558 25.3011 44.5985 24.5496 44.6117 23.6794H47.6003Z" fill="#0F58F9"/>
@@ -3660,6 +3759,165 @@ export default function DynamicAuditLandingPage() {
             </span>
           </footer>
         </div>
+
+        {/* Share Modal */}
+        {showShareModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
+              {/* Close button */}
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setShareData(null);
+                  setShareError(null);
+                }}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Modal content */}
+              <div className="pr-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  {getLocalizedText(landingPageData?.language, {
+                    en: 'Share Audit',
+                    es: 'Compartir Auditoría',
+                    ua: 'Поділитися Аудитом',
+                    ru: 'Поделиться Аудитом'
+                  })}
+                </h3>
+
+                {!shareData ? (
+                  <div>
+                    <p className="text-gray-600 mb-6">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Create a public link to share this audit with others. The link will expire in 30 days.',
+                        es: 'Crea un enlace público para compartir esta auditoría con otros. El enlace expirará en 30 días.',
+                        ua: 'Створіть публічне посилання, щоб поділитися цим аудитом з іншими. Посилання діятиме 30 днів.',
+                        ru: 'Создайте публичную ссылку, чтобы поделиться этим аудитом с другими. Ссылка будет действительна 30 дней.'
+                      })}
+                    </p>
+
+                    {shareError && (
+                      <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                        <p className="text-red-800 text-sm">{shareError}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => {
+                          setShowShareModal(false);
+                          setShareError(null);
+                        }}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        {getLocalizedText(landingPageData?.language, {
+                          en: 'Cancel',
+                          es: 'Cancelar',
+                          ua: 'Скасувати',
+                          ru: 'Отмена'
+                        })}
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        disabled={isSharing}
+                        className="flex-1 px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                      >
+                        {isSharing ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {getLocalizedText(landingPageData?.language, {
+                              en: 'Creating...',
+                              es: 'Creando...',
+                              ua: 'Створення...',
+                              ru: 'Создание...'
+                            })}
+                          </>
+                        ) : (
+                          getLocalizedText(landingPageData?.language, {
+                            en: 'Create Share Link',
+                            es: 'Crear Enlace',
+                            ua: 'Створити Посилання',
+                            ru: 'Создать Ссылку'
+                          })
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-gray-600 mb-4">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Your audit is now publicly accessible via this link:',
+                        es: 'Su auditoría ahora es públicamente accesible a través de este enlace:',
+                        ua: 'Ваш аудит тепер публічно доступний за цим посиланням:',
+                        ru: 'Ваш аудит теперь публично доступен по этой ссылке:'
+                      })}
+                    </p>
+
+                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={shareData.publicUrl}
+                          readOnly
+                          className="flex-1 bg-transparent text-sm text-gray-800 outline-none"
+                        />
+                        <button
+                          onClick={() => copyToClipboard(shareData.publicUrl)}
+                          className="px-3 py-1 text-xs bg-[#0F58F9] text-white rounded hover:bg-[#0F58F9]/90 transition-colors"
+                          title={getLocalizedText(landingPageData?.language, {
+                            en: 'Copy to clipboard',
+                            es: 'Copiar al portapapeles',
+                            ua: 'Копіювати в буфер обміну',
+                            ru: 'Копировать в буфер обмена'
+                          })}
+                        >
+                          {getLocalizedText(landingPageData?.language, {
+                            en: 'Copy',
+                            es: 'Copiar',
+                            ua: 'Копіювати',
+                            ru: 'Копировать'
+                          })}
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mb-6">
+                      {getLocalizedText(landingPageData?.language, {
+                        en: `Link expires on: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        es: `El enlace expira el: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        ua: `Посилання діє до: ${new Date(shareData.expiresAt).toLocaleDateString()}`,
+                        ru: `Ссылка действительна до: ${new Date(shareData.expiresAt).toLocaleDateString()}`
+                      })}
+                    </p>
+
+                    <button
+                      onClick={() => {
+                        setShowShareModal(false);
+                        setShareData(null);
+                      }}
+                      className="w-full px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 transition-colors"
+                    >
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Done',
+                        es: 'Hecho',
+                        ua: 'Готово',
+                        ru: 'Готово'
+                      })}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </>
 
   )

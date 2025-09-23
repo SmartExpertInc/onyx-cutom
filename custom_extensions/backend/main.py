@@ -6948,6 +6948,26 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
 
+            # Add audit sharing fields to projects table
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS share_token UUID DEFAULT NULL;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS shared_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                await connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_share_token ON projects(share_token) WHERE share_token IS NOT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_public ON projects(is_public);")
+                logger.info("Added audit sharing columns to projects table.")
+                
+                # Add same fields to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS share_token UUID DEFAULT NULL;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS shared_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                logger.info("Added audit sharing columns to trashed_projects table.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding audit sharing columns (may already exist): {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -14170,6 +14190,145 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
     except Exception as e:
         logger.error(f"Error getting landing page data: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# Audit sharing models
+class ShareAuditRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareAuditResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/audits/{audit_id}/share")
+async def share_audit(
+    audit_id: int, 
+    request_data: ShareAuditRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareAuditResponse:
+    """
+    Generate a share token for an audit project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Verify the audit belongs to the user and is an audit project
+        query = """
+        SELECT id, project_name, microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2 
+        AND (project_name LIKE 'AI-Аудит%' OR project_name LIKE '%Landing Page%')
+        """
+        
+        async with pool.acquire() as conn:
+            audit = await conn.fetchrow(query, audit_id, onyx_user_id)
+            
+        if not audit:
+            raise HTTPException(status_code=404, detail="Audit not found or access denied")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, audit_id)
+        
+        # Generate public URL (this would be your frontend domain)
+        frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+        public_url = f"{frontend_domain}/public/audit/{share_token}"
+        
+        logger.info(f"🔗 [AUDIT SHARING] Created share token for audit {audit_id}: {share_token}")
+        
+        return ShareAuditResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing audit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share audit")
+
+@app.get("/api/custom/public/audits/{share_token}")
+async def get_public_audit(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get audit data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public audit by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public
+        FROM projects 
+        WHERE share_token = $1 AND is_public = TRUE
+        """
+        
+        async with pool.acquire() as conn:
+            audit = await conn.fetchrow(query, share_token)
+            
+        if not audit:
+            raise HTTPException(status_code=404, detail="Shared audit not found")
+        
+        # Check if the share has expired
+        if audit["expires_at"] and audit["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared audit link has expired")
+        
+        content = audit["microproduct_content"]
+        project_name = audit["project_name"]
+        
+        # Extract the dynamic data similar to the private endpoint
+        company_name = content.get("companyName", "Unknown Company")
+        company_description = content.get("companyDescription", "Company description not available")
+        job_positions = content.get("jobPositions", [])
+        workforce_crisis = content.get("workforceCrisis", {})
+        course_outline_modules = content.get("courseOutlineModules", [])
+        course_templates = content.get("courseTemplates", [])
+        
+        # Return the same structure as the private endpoint but without sensitive info
+        response_data = {
+            "projectId": audit["id"],
+            "projectName": project_name,
+            "companyName": company_name,
+            "companyDescription": company_description,
+            "jobPositions": job_positions,
+            "workforceCrisis": workforce_crisis,
+            "courseOutlineModules": course_outline_modules,
+            "courseTemplates": course_templates,
+            "language": content.get("language", "ru"),
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": audit["shared_at"].isoformat() if audit["shared_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC AUDIT ACCESS] Served public audit with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public audit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
 
 
 async def _run_audit_generation(payload, request, pool, job_id):
