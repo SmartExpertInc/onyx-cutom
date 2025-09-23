@@ -1041,7 +1041,7 @@ const FolderRow: React.FC<{
               </svg>
               <DynamicText
                 text={folder.name}
-                columnWidthPercent={100}
+                columnWidthPercent={columnWidths.title}
                 className="font-semibold text-blue-700"
                 title={folder.name}
               />
@@ -1183,7 +1183,7 @@ const FolderRow: React.FC<{
                   {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                   <DynamicText
                     text={p.title}
-                    columnWidthPercent={100}
+                    columnWidthPercent={columnWidths.title}
                     href={trashMode ? "#" : (
                       p.designMicroproductType === "Video Lesson Presentation" 
                         ? `/projects-2/view/${p.id}`
@@ -2240,7 +2240,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     estCompletionTime: false,
     type: true,
   });
+  const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
+    title: 48,
+    created: 15,
+    creator: 15,
+    numberOfLessons: 13,
+    estCreationTime: 13.5,
+    estCompletionTime: 13.5,
+    type: 5,
+  });
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
+  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
 
   // Drag and drop reordering state
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
@@ -3462,6 +3472,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     // Add column visibility settings
     queryParams.append("column_visibility", JSON.stringify(columnVisibility));
 
+    // Add column widths settings
+    queryParams.append("column_widths", JSON.stringify(columnWidths));
 
     // Add client name if provided
     if (clientName) {
@@ -3756,16 +3768,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
-            style={{ minWidth: "600px" }}
           >
             <Table
-              className="min-w-full divide-y divide-gray-200 table-auto"
+              className="min-w-full divide-y divide-gray-200"
             >
               <TableHeader className="bg-white">
                 <TableRow>
                  {columnVisibility.type && (
                     <TableHead
-                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-16"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.type}%` }}
                     >
                       <div className="flex items-center gap-2">
                         <TypeIcon size={15} />
@@ -3775,7 +3787,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.title && (
                     <TableHead
-                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative min-w-0 flex-1"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.title}%` }}
                     >
                       <div className="flex items-center gap-2">
                         <TitleIcon size={15} />
@@ -3785,7 +3798,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.created && (
                     <TableHead
-                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-24"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.created}%` }}
                     >
                       <div className="flex items-center gap-2">
                         <CreatedIcon size={15} />
@@ -3795,7 +3809,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.creator && (
                     <TableHead
-                      className="px-3 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-24"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.creator}%` }}
                     >
                       <div className="flex items-center gap-2">
                         <CreatorIcon size={15} />
@@ -3805,7 +3820,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.numberOfLessons && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-36"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.numberOfLessons}%` }}
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.numberOfLessons", "Number of Lessons")}
@@ -3814,7 +3830,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.estCreationTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-36"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.estCreationTime}%` }}
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.estCreationTime", "Est. Creation Time")}
@@ -3823,7 +3840,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   )}
                   {columnVisibility.estCompletionTime && (
                     <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative w-36"
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
+                      style={{ width: `${columnWidths.estCompletionTime}%` }}
                     >
                       <div className="flex items-center gap-2">
                         {t("interface.estCompletionTime", "Est. Completion Time")}
@@ -3891,7 +3909,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       }}
                     >
                       {columnVisibility.type && (
-                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 w-16">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -3902,12 +3920,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.title && (
-                        <TableCell className="px-3 py-4 text-sm font-medium text-gray-900 min-w-0 flex-1">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
                             <DynamicText
                               text={p.title}
-                              columnWidthPercent={100}
+                              columnWidthPercent={columnWidths.title}
                               href={trashMode ? "#" : (
                                 p.designMicroproductType === "Video Lesson Presentation" 
                                   ? `/projects-2/view/${p.id}`
@@ -3919,14 +3937,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.created && (
-                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-500 w-24">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
                         </TableCell>
                       )}
                       {columnVisibility.creator && (
-                        <TableCell className="px-3 py-4 whitespace-nowrap text-sm text-gray-900 w-24">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
-                            <span className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center mr-1">
+                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
                                 Y
                               </span>
@@ -3936,7 +3954,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.numberOfLessons && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-36">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
@@ -3944,7 +3962,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.estCreationTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-36">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData && lessonData.totalHours
@@ -3954,7 +3972,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                       )}
                       {columnVisibility.estCompletionTime && (
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 w-36">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData
