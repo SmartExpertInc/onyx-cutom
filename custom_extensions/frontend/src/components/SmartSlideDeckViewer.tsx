@@ -119,6 +119,50 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Get available templates
   const availableTemplates = getAllTemplates();
 
+  // =============================================================
+  // Inline editing for Presentation Title (Header)
+  // =============================================================
+  const [isEditingHeaderTitle, setIsEditingHeaderTitle] = useState<boolean>(false);
+  const [headerTitleDraft, setHeaderTitleDraft] = useState<string>('');
+  const headerInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditHeaderTitle = useCallback(() => {
+    if (!isEditable || !componentDeck) return;
+    setHeaderTitleDraft(componentDeck.lessonTitle || '');
+    setIsEditingHeaderTitle(true);
+    // Focus next tick to ensure input is mounted
+    setTimeout(() => headerInputRef.current?.focus(), 0);
+  }, [isEditable, componentDeck]);
+
+  const cancelEditHeaderTitle = useCallback(() => {
+    setIsEditingHeaderTitle(false);
+    setHeaderTitleDraft('');
+  }, []);
+
+  const commitEditHeaderTitle = useCallback(() => {
+    if (!componentDeck) return cancelEditHeaderTitle();
+    const newTitle = headerTitleDraft.trim();
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentDeck,
+      lessonTitle: newTitle.length ? newTitle : (componentDeck.lessonTitle || '')
+    } as ComponentBasedSlideDeck;
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
+    setIsEditingHeaderTitle(false);
+  }, [componentDeck, headerTitleDraft, onSave, cancelEditHeaderTitle]);
+
+  const handleHeaderKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitEditHeaderTitle();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditHeaderTitle();
+    }
+  }, [commitEditHeaderTitle, cancelEditHeaderTitle]);
+
+  // =============================================================
+
   // ✅ NEW: Handle generation started for a specific placeholder
   const handleGenerationStarted = useCallback((elementId: string) => {
     log('SmartSlideDeckViewer', 'handleGenerationStarted', { elementId });
@@ -645,7 +689,37 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             color: '#111827',
             margin: 0
           }}>
-            {componentDeck.lessonTitle || 'Slide Deck'}
+            {isEditingHeaderTitle ? (
+              <input
+                type="text"
+                value={headerTitleDraft}
+                onChange={(e) => setHeaderTitleDraft(e.target.value)}
+                onBlur={commitEditHeaderTitle}
+                onKeyDown={handleHeaderKeyDown}
+                ref={headerInputRef}
+                style={{
+                  width: 'auto',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  border: 'none',
+                  outline: 'none',
+                  background: 'transparent',
+                  padding: '0',
+                  margin: '0',
+                  display: 'inline-block',
+                  verticalAlign: 'middle'
+                }}
+              />
+            ) : (
+              <span
+                onClick={isEditable ? startEditHeaderTitle : undefined}
+                style={{ cursor: isEditable ? 'text' : 'default' }}
+                title={isEditable ? 'Click to edit title' : undefined}
+              >
+                {componentDeck.lessonTitle || 'Slide Deck'}
+              </span>
+            )}
           </h1>
           <div style={{
             fontSize: '14px',
