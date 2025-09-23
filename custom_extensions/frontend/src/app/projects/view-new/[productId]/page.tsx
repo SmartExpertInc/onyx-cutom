@@ -422,7 +422,7 @@ export default function ProductViewNewPage() {
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
-                              <CustomTooltip content="Lesson Presentation">
+                              <CustomTooltip content="Presentation">
                                 <LessonPresentationIcon 
                                   color={(() => {
                                     const lessonKey = lesson.id || lesson.title;
@@ -431,7 +431,7 @@ export default function ProductViewNewPage() {
                                   })()}
                                 />
                               </CustomTooltip>
-                              <CustomTooltip content="Text Presentation">
+                              <CustomTooltip content="One-Pager">
                                 <TextPresentationIcon 
                                   color={(() => {
                                     const lessonKey = lesson.id || lesson.title;
@@ -512,7 +512,7 @@ export default function ProductViewNewPage() {
             {/* Add New Module Button */}
             <div className="flex justify-center">
               <button
-                className="flex items-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                className="flex items-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none w-full"
                 style={{
                   backgroundColor: '#0F58F9',
                   color: 'white',
@@ -522,7 +522,7 @@ export default function ProductViewNewPage() {
                   letterSpacing: '0.05em'
                 }}
               >
-                Add new module
+                + Add new module
               </button>
             </div>
           </div>
