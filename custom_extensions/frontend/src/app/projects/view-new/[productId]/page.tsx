@@ -93,7 +93,12 @@ export default function ProductViewNewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [lessonContentStatus, setLessonContentStatus] = useState<{[key: string]: {presentation: boolean, onePager: boolean, quiz: boolean, videoLesson: boolean}}>({});
+  const [lessonContentStatus, setLessonContentStatus] = useState<{[key: string]: {
+    presentation: {exists: boolean, productId?: number}, 
+    onePager: {exists: boolean, productId?: number}, 
+    quiz: {exists: boolean, productId?: number}, 
+    videoLesson: {exists: boolean, productId?: number}
+  }}>({});
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -114,6 +119,11 @@ export default function ProductViewNewPage() {
       if (window.history.length > 1) window.history.back();
       else router.push('/projects');
     }
+  }, [router]);
+
+  // Function to handle icon clicks for navigation
+  const handleIconClick = useCallback((productId: number) => {
+    router.push(`/projects/view/${productId}`);
   }, [router]);
 
   // Function to check existing content for lessons
@@ -140,23 +150,28 @@ export default function ProductViewNewPage() {
       const allProjects = await response.json();
       
       // Check for existing products for each lesson
-      const contentStatus: {[key: string]: {presentation: boolean, onePager: boolean, quiz: boolean, videoLesson: boolean}} = {};
+      const contentStatus: {[key: string]: {
+        presentation: {exists: boolean, productId?: number}, 
+        onePager: {exists: boolean, productId?: number}, 
+        quiz: {exists: boolean, productId?: number}, 
+        videoLesson: {exists: boolean, productId?: number}
+      }} = {};
       
       for (const lesson of lessons) {
         const lessonKey = lesson.id || lesson.title;
         
         // Initialize status for this lesson
         contentStatus[lessonKey] = {
-          presentation: false,
-          onePager: false,
-          quiz: false,
-          videoLesson: false
+          presentation: {exists: false},
+          onePager: {exists: false},
+          quiz: {exists: false},
+          videoLesson: {exists: false}
         };
 
         // Look for projects that match this lesson using the same logic as TrainingPlan.tsx
         const expectedProjectName = `${outlineName}: ${lesson.title}`;
         
-        const matchingProjects = allProjects.filter((project: { projectName?: string; design_microproduct_type?: string; microproduct_type?: string }) => {
+        const matchingProjects = allProjects.filter((project: { id: number; projectName?: string; design_microproduct_type?: string; microproduct_type?: string }) => {
           const projectName = project.projectName?.trim();
           
           // Method 1: New naming convention - project name follows "Outline Name: Lesson Title" pattern
@@ -180,24 +195,23 @@ export default function ProductViewNewPage() {
           switch (microproductType) {
             case 'Slide Deck':
             case 'Lesson Presentation':
-              contentStatus[lessonKey].presentation = true;
+              contentStatus[lessonKey].presentation = {exists: true, productId: project.id};
               break;
             case 'Text Presentation':
-              contentStatus[lessonKey].onePager = true;
+              contentStatus[lessonKey].onePager = {exists: true, productId: project.id};
               break;
             case 'Quiz':
-              contentStatus[lessonKey].quiz = true;
+              contentStatus[lessonKey].quiz = {exists: true, productId: project.id};
               break;
             case 'Video Lesson':
             case 'Video Lesson Presentation':
-              contentStatus[lessonKey].videoLesson = true;
+              contentStatus[lessonKey].videoLesson = {exists: true, productId: project.id};
               break;
           }
         }
       }
 
       setLessonContentStatus(contentStatus);
-      console.log('Lesson content status updated:', contentStatus);
     } catch (error) {
       console.error('Error checking lesson content status:', error);
     }
@@ -254,12 +268,6 @@ export default function ProductViewNewPage() {
     fetchProjectData();
   }, [productId]);
 
-  // Debug effect to monitor lesson content status changes
-  useEffect(() => {
-    if (Object.keys(lessonContentStatus).length > 0) {
-      console.log('🔍 Lesson content status changed:', lessonContentStatus);
-    }
-  }, [lessonContentStatus]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
     const trainingPlanData = projectData?.details as TrainingPlanData;
@@ -449,48 +457,88 @@ export default function ProductViewNewPage() {
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
                               <CustomTooltip content="Presentation">
-                                <LessonPresentationIcon 
-                                  color={(() => {
+                                <div 
+                                  onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    const hasContent = status?.presentation;
-                                    console.log(`🎯 Presentation icon for "${lesson.title}":`, { lessonKey, status, hasContent });
-                                    return hasContent ? '#0F58F9' : undefined;
-                                  })()}
-                                />
+                                    if (status?.presentation?.exists && status.presentation.productId) {
+                                      handleIconClick(status.presentation.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <LessonPresentationIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.presentation?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
                               </CustomTooltip>
                               <CustomTooltip content="One-Pager">
-                                <TextPresentationIcon 
-                                  color={(() => {
+                                <div 
+                                  onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    const hasContent = status?.onePager;
-                                    console.log(`🎯 One-Pager icon for "${lesson.title}":`, { lessonKey, status, hasContent });
-                                    return hasContent ? '#0F58F9' : undefined;
-                                  })()}
-                                />
+                                    if (status?.onePager?.exists && status.onePager.productId) {
+                                      handleIconClick(status.onePager.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <TextPresentationIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.onePager?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
                               </CustomTooltip>
                               <CustomTooltip content="Quiz">
-                                <QuizIcon 
-                                  color={(() => {
+                                <div 
+                                  onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    const hasContent = status?.quiz;
-                                    console.log(`🎯 Quiz icon for "${lesson.title}":`, { lessonKey, status, hasContent });
-                                    return hasContent ? '#0F58F9' : undefined;
-                                  })()}
-                                />
+                                    if (status?.quiz?.exists && status.quiz.productId) {
+                                      handleIconClick(status.quiz.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <QuizIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.quiz?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
                               </CustomTooltip>
                               <CustomTooltip content="Video Lesson">
-                                <VideoScriptIcon 
-                                  color={(() => {
+                                <div 
+                                  onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
                                     const status = lessonContentStatus[lessonKey];
-                                    const hasContent = status?.videoLesson;
-                                    console.log(`🎯 Video Lesson icon for "${lesson.title}":`, { lessonKey, status, hasContent });
-                                    return hasContent ? '#0F58F9' : undefined;
-                                  })()}
-                                />
+                                    if (status?.videoLesson?.exists && status.videoLesson.productId) {
+                                      handleIconClick(status.videoLesson.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <VideoScriptIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.videoLesson?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
                               </CustomTooltip>
                             </div>
                             <div className="relative">
