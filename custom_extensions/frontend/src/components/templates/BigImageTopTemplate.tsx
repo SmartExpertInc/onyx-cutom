@@ -256,7 +256,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem', // Крупный шрифт как на фото
+    fontSize: '3rem', // Крупный шрифт как на фото
     fontFamily: currentTheme.fonts.titleFont,
     color: '#000000', // Черный цвет как на фото
     marginBottom: '24px',
@@ -271,7 +271,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
     fontFamily: currentTheme.fonts.contentFont,
     color: '#333333', // Темно-серый цвет как на фото
     lineHeight: '1.6',
-    width: '63%',
+    width: '75%',
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word',
     textAlign: 'left'

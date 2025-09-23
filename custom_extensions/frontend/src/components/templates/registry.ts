@@ -435,29 +435,34 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🔄',
     component: ProcessStepsTemplate,
     defaultProps: {
-      title: 'Add title',
+      title: 'The Stages of Research',
+      subtitle: 'Miss Jones Science Class',
       steps: [
         {
-          title: 'Add step 1',
-          description: 'Add step description',
-          icon: '1️⃣'
+          title: 'PROBLEM',
+          description: 'Identify a problem and form a thesis statement.'
         },
         {
-          title: 'Add step 2',
-          description: 'Add step description',
-          icon: '2️⃣'
+          title: 'READ',
+          description: 'Review literature related to your topic.'
         },
         {
-          title: 'Add step 3',
-          description: 'Add step description',
-          icon: '3️⃣'
+          title: 'HYPOTHESIZE',
+          description: 'Come up with an educated guess based on your research.'
+        },
+        {
+          title: 'RESEARCH',
+          description: 'Read resources to support your hypothesis.'
+        },
+        {
+          title: 'CONCLUSION',
+          description: 'Interpret the results and write your conclusion.'
         }
       ],
-      layout: 'horizontal',
-      stepColor: '#007bff',
+      layout: 'vertical',
       backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a',
-      companyName: 'Company name'
+      titleColor: '#000000',
+      subtitleColor: '#000000'
     },
     propSchema: {
       title: {

@@ -143,13 +143,15 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingSteps, setEditingSteps] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  // Refs for draggable elements (following Big Image Left pattern)
+  // Refs for draggable elements
   const titleRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLDivElement>(null);
   
-  // Generate slideId for element positioning (following Big Image Left pattern)
+  // Generate slideId for element positioning
   const slideId = `process-steps-${Date.now()}`;
   
   // Cleanup timeouts on unmount
@@ -161,21 +163,113 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     };
   }, []);
 
+  // Define colors for each step (matching the photo)
+  const stepColors = [
+    '#1e3a8a', // Deep blue for PROBLEM
+    '#3b82f6', // Medium blue for READ  
+    '#06b6d4', // Teal for HYPOTHESIZE
+    '#3b82f6', // Medium blue for RESEARCH
+    '#1e3a8a'  // Deep blue for CONCLUSION
+  ];
+
+  const slideStyles: React.CSSProperties = {
+    minHeight: '600px',
+    background: '#ffffff', // White background as in photo
+    fontFamily: currentTheme.fonts.contentFont,
+    display: 'flex',
+    padding: '60px 80px',
+    gap: '60px'
+  };
+
+  const leftColumnStyles: React.CSSProperties = {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start'
+  };
+
+  const rightColumnStyles: React.CSSProperties = {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px'
+  };
+
   const titleStyles: React.CSSProperties = {
-    textAlign: 'center',
-    marginBottom: '40px',
+    fontSize: '3.5rem',
     fontFamily: currentTheme.fonts.titleFont,
-    fontSize: currentTheme.fonts.titleSize,
-    color: currentTheme.colors.titleColor,
-    wordWrap: 'break-word'
+    color: '#000000', // Black color as in photo
+    fontWeight: 'bold',
+    lineHeight: '1.1',
+    marginBottom: '20px',
+    textAlign: 'left'
+  };
+
+  const subtitleStyles: React.CSSProperties = {
+    fontSize: '1.2rem',
+    fontFamily: currentTheme.fonts.contentFont,
+    color: '#000000', // Black color as in photo
+    fontWeight: 'normal',
+    textAlign: 'left',
+    opacity: 0.8
+  };
+
+  const stepContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '20px',
+    padding: '20px',
+    borderRadius: '8px',
+    minHeight: '80px'
+  };
+
+  const stepNumberStyles = (color: string): React.CSSProperties => ({
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    backgroundColor: 'white',
+    border: `3px solid ${color}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    position: 'relative'
+  });
+
+  const stepNumberInnerStyles = (color: string): React.CSSProperties => ({
+    width: '24px',
+    height: '24px',
+    borderRadius: '50%',
+    backgroundColor: color,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '16px',
+    fontWeight: 'bold'
+  });
+
+  const stepContentStyles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    flex: 1
+  };
+
+  const stepTitleStyles: React.CSSProperties = {
+    fontSize: '1.4rem',
+    fontWeight: 'bold',
+    color: 'white',
+    margin: 0
   };
 
   const stepDescriptionStyles: React.CSSProperties = {
-    fontFamily: currentTheme.fonts.contentFont,
-    fontSize: currentTheme.fonts.contentSize,
-    color: currentTheme.colors.contentColor,
+    fontSize: '1rem',
+    color: 'white',
     margin: 0,
-    wordWrap: 'break-word'
+    opacity: 0.9,
+    lineHeight: '1.4'
   };
 
   // Handle title editing
@@ -190,22 +284,33 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     setEditingTitle(false);
   };
 
+  // Handle subtitle editing
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (props.onUpdate) {
+      props.onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
+  };
+
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
+  };
+
   // Handle step editing
-  const handleStepSave = (index: number, newStep: string) => {
+  const handleStepSave = (index: number, field: 'title' | 'description', newValue: string) => {
     if (props.onUpdate && props.steps) {
       const updatedSteps = [...props.steps];
-      // Always maintain the object structure with title, description, and optional icon
       if (typeof updatedSteps[index] === 'string') {
         // Convert string to object format
         updatedSteps[index] = {
-          title: `Step ${index + 1}`,
-          description: newStep
+          title: field === 'title' ? newValue : `Step ${index + 1}`,
+          description: field === 'description' ? newValue : updatedSteps[index] as string
         };
       } else {
-        // Update existing object, preserving title and icon if they exist
+        // Update existing object
         updatedSteps[index] = {
           ...updatedSteps[index],
-          description: newStep
+          [field]: newValue
         };
       }
       props.onUpdate({ steps: updatedSteps });
@@ -222,145 +327,222 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   return (
-    <div
-      style={{
-        padding: '40px',
-        minHeight: '600px',
-        background: currentTheme.colors.backgroundColor,
-        fontFamily: currentTheme.fonts.contentFont,
-      }}
-    >
-      {/* Title - wrapped */}
-      <div 
-        ref={titleRef}
-        data-moveable-element={`${slideId}-title`}
-        data-draggable="true" 
-        style={{ display: 'inline-block', width: '100%' }}
-      >
-        {props.isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={props.title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0 auto 40px auto',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={(e) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              if (props.isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {props.title || 'Click to add title'}
-          </h1>
-        )}
+    <div style={slideStyles}>
+      {/* Left Column - Title and Subtitle */}
+      <div style={leftColumnStyles}>
+        {/* Title */}
+        <div 
+          ref={titleRef}
+          data-moveable-element={`${slideId}-title`}
+          data-draggable="true" 
+          style={{ display: 'inline-block', width: '100%' }}
+        >
+          {props.isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={props.title || 'The Stages of Research'}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              multiline={true}
+              placeholder="Enter title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (props.isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {props.title || 'The Stages of Research'}
+            </h1>
+          )}
+        </div>
+
+        {/* Subtitle */}
+        <div 
+          ref={subtitleRef}
+          data-moveable-element={`${slideId}-subtitle`}
+          data-draggable="true" 
+          style={{ display: 'inline-block', width: '100%' }}
+        >
+          {props.isEditable && editingSubtitle ? (
+            <InlineEditor
+              initialValue={(props as any).subtitle || 'Miss Jones Science Class'}
+              onSave={handleSubtitleSave}
+              onCancel={handleSubtitleCancel}
+              multiline={false}
+              placeholder="Enter subtitle..."
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                margin: '0',
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <p 
+              style={subtitleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (props.isEditable) {
+                  setEditingSubtitle(true);
+                }
+              }}
+              className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {(props as any).subtitle || 'Miss Jones Science Class'}
+            </p>
+          )}
+        </div>
       </div>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'start',
-          gap: '32px',
-        }}
-      >
+      {/* Right Column - Process Steps */}
+      <div style={rightColumnStyles}>
         {props.steps?.map((step: StepItem, index: number) => {
-          // Підтримка масиву рядків (як генерує AI)
+          const stepTitle = typeof step === 'string' ? `Step ${index + 1}` : step.title;
           const stepDescription = typeof step === 'string' ? step : step.description;
+          const stepColor = stepColors[index] || stepColors[0];
+          
           return (
             <div
               key={index}
               data-moveable-element={`${slideId}-step-${index}`}
               data-draggable="true"
               style={{
-                textAlign: 'center',
-                maxWidth: '220px',
-                background: 'rgba(0,0,0,0.08)',
-                borderRadius: '12px',
-                padding: '24px 16px',
+                ...stepContainerStyles,
+                backgroundColor: stepColor
               }}
             >
-              <div
-                style={{
-                  fontSize: '2rem',
-                  fontWeight: 700,
-                  color: currentTheme.colors.accentColor,
-                  marginBottom: '10px',
-                  fontFamily: currentTheme.fonts.titleFont,
-                }}
-              >
-                {index + 1}
+              {/* Step Number Circle */}
+              <div style={stepNumberStyles(stepColor)}>
+                <div style={stepNumberInnerStyles(stepColor)}>
+                  {index + 1}
+                </div>
               </div>
-              
-              {/* Step Description */}
-              {props.isEditable && editingSteps.includes(index) ? (
-                <InlineEditor
-                  initialValue={stepDescription || ''}
-                  onSave={(newStep) => handleStepSave(index, newStep)}
-                  onCancel={() => handleStepCancel(index)}
-                  multiline={true}
-                  placeholder="Enter step description..."
-                  className="inline-editor-step"
-                  style={{
-                    ...stepDescriptionStyles,
-                    // Ensure description behaves exactly like p element
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block',
-                    textAlign: 'center'
-                  }}
-                />
-              ) : (
-                <p 
-                  style={stepDescriptionStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (props.isEditable) {
-                      startEditingStep(index);
-                    }
-                  }}
-                  className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {stepDescription || 'Click to add step description'}
-                </p>
-              )}
+
+              {/* Step Content */}
+              <div style={stepContentStyles}>
+                {/* Step Title */}
+                {props.isEditable && editingSteps.includes(index) ? (
+                  <InlineEditor
+                    initialValue={stepTitle}
+                    onSave={(newValue) => handleStepSave(index, 'title', newValue)}
+                    onCancel={() => handleStepCancel(index)}
+                    multiline={false}
+                    placeholder="Enter step title..."
+                    className="inline-editor-step-title"
+                    style={{
+                      ...stepTitleStyles,
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <h3 
+                    style={stepTitleStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (props.isEditable) {
+                        startEditingStep(index);
+                      }
+                    }}
+                    className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {stepTitle}
+                  </h3>
+                )}
+
+                {/* Step Description */}
+                {props.isEditable && editingSteps.includes(index) ? (
+                  <InlineEditor
+                    initialValue={stepDescription}
+                    onSave={(newValue) => handleStepSave(index, 'description', newValue)}
+                    onCancel={() => handleStepCancel(index)}
+                    multiline={true}
+                    placeholder="Enter step description..."
+                    className="inline-editor-step-description"
+                    style={{
+                      ...stepDescriptionStyles,
+                      margin: '0',
+                      padding: '0',
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      overflow: 'hidden',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <p 
+                    style={stepDescriptionStyles}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (props.isEditable) {
+                        startEditingStep(index);
+                      }
+                    }}
+                    className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  >
+                    {stepDescription}
+                  </p>
+                )}
+              </div>
             </div>
           );
         })}
