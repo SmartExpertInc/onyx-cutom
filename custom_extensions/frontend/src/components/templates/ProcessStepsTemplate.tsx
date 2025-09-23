@@ -163,13 +163,13 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     };
   }, []);
 
-  // Define colors for each step (matching the photo)
+  // Define colors for each step (matching the photo exactly)
   const stepColors = [
-    '#1e3a8a', // Deep blue for PROBLEM
-    '#3b82f6', // Medium blue for READ  
-    '#06b6d4', // Teal for HYPOTHESIZE
-    '#3b82f6', // Medium blue for RESEARCH
-    '#1e3a8a'  // Deep blue for CONCLUSION
+    '#002D91', // Deep blue for PROBLEM
+    '#3B82F6', // Medium blue for READ  
+    '#06B6D4', // Teal for HYPOTHESIZE
+    '#1D4ED8', // Darker blue for RESEARCH (darker than READ)
+    '#1E3A8A'  // Deep blue for CONCLUSION
   ];
 
   const slideStyles: React.CSSProperties = {
@@ -215,18 +215,31 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     color: '#000000', // Black color as in photo
     fontWeight: 'normal',
     textAlign: 'left',
-    opacity: 0.9,
+    opacity: 0.8,
     letterSpacing: '0.01em'
   };
 
-  const stepContainerStyles: React.CSSProperties = {
+  const stepContainerStyles = (color: string): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
     gap: '24px',
     padding: '24px 28px',
     borderRadius: '12px',
     minHeight: '90px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    background: `linear-gradient(90deg, ${color} 0%, ${adjustColor(color, -20)} 100%)`
+  });
+
+  // Helper function to adjust color brightness
+  const adjustColor = (color: string, amount: number): string => {
+    const num = parseInt(color.replace("#", ""), 16);
+    const amt = Math.round(2.55 * amount);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+      (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+      (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
   };
 
   const stepNumberStyles = (color: string): React.CSSProperties => ({
@@ -276,8 +289,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     fontSize: '1rem',
     color: 'white',
     margin: 0,
-    opacity: 0.95,
-    lineHeight: '1.3',
+    opacity: 0.9,
+    lineHeight: '1.4',
     fontFamily: 'sans-serif'
   };
 
@@ -452,10 +465,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
               key={index}
               data-moveable-element={`${slideId}-step-${index}`}
               data-draggable="true"
-              style={{
-                ...stepContainerStyles,
-                backgroundColor: stepColor
-              }}
+              style={stepContainerStyles(stepColor)}
             >
               {/* Step Number Circle */}
               <div style={stepNumberStyles(stepColor)}>
