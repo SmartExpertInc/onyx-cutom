@@ -76,13 +76,13 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
       {/* Metrics Section */}
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Total Modules</span>
-          <span className="text-sm font-medium text-gray-800">{totalModules}</span>
+          <span className="text-md text-gray-500">Total Modules</span>
+          <span className="text-md font-medium text-gray-800">{totalModules}</span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Total Lessons</span>
-          <span className="text-sm font-medium text-gray-800">{totalLessons}</span>
+          <span className="text-md text-gray-500">Total Lessons</span>
+          <span className="text-md font-medium text-gray-800">{totalLessons}</span>
         </div>
         
       </div>
@@ -92,7 +92,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
 
       {/* Sources Section */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">Sources</h3>
+        <h3 className="text-md font-medium text-gray-700 mb-4">Sources</h3>
         <div className="grid grid-cols-4 gap-3">
           {sources.map((source, index) => (
             <div key={index} className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors" title={source.name}>
