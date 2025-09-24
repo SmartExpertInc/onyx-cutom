@@ -547,7 +547,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   // Left side with title and bullets (dark blue background with diagonal cut)
   const leftSectionStyles: React.CSSProperties = {
-    width: '45%',
+    width: '60%',
     height: '600px',
     position: 'relative',
     display: 'flex',
@@ -561,7 +561,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   // Right side with image only (white background with diagonal cut)
   const rightSectionStyles: React.CSSProperties = {
-    width: '55%',
+    width: '40%',
     height: '600px',
     position: 'relative',
     display: 'flex',
