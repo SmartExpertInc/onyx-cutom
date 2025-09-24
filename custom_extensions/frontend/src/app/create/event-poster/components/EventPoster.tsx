@@ -145,7 +145,7 @@ export default function EventPoster({
                   color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
                   fontWeight: '400',
-                  fontSize: '20px',
+                  fontSize: '18px',
                   textAlign: 'left',
                   lineHeight: '1.2'
                 }}
@@ -246,7 +246,7 @@ export default function EventPoster({
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
-                fontWeight: '400',
+                fontWeight: '600',
                 fontSize: '25px',
                 textAlign: 'center'
               }}
@@ -257,7 +257,7 @@ export default function EventPoster({
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
-                fontWeight: '400',
+                fontWeight: '600',
                 fontSize: '27px',
                 textAlign: 'center',
                 marginTop: '4px'
@@ -283,8 +283,8 @@ export default function EventPoster({
           <div
             style={{
               color: 'rgba(235,235,235,1)',
-              fontWeight: '400',
-              fontSize: '37px',
+              fontWeight: '600',
+              fontSize: '34px',
               textAlign: 'center',
               lineHeight: '1.2',
               backgroundColor: '#5416af',

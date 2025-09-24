@@ -20352,7 +20352,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 19px;
+                font-size: 18px;
                 text-align: left;
                 line-height: 1.2;
             }}
@@ -20434,7 +20434,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .ticket-label {{
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
-                font-weight: 400;
+                font-weight: 600;
                 font-size: 24px;
                 text-align: center;
             }}
@@ -20442,7 +20442,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .ticket-type {{
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
-                font-weight: 400;
+                font-weight: 600;
                 font-size: 26px;
                 text-align: center;
                 margin-top: 4px;
@@ -20459,8 +20459,8 @@ def generate_poster_html_template(poster_data: dict) -> str:
             
             .free-access {{
                 color: rgba(235,235,235,1);
-                font-weight: 400;
-                font-size: 37px;
+                font-weight: 600;
+                font-size: 34px;
                 text-align: center;
                 line-height: 1.2;
                 background-color: #5416af;
