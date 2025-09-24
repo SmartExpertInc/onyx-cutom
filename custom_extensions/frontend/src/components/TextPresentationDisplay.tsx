@@ -1048,56 +1048,61 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
-              <button
-                onClick={() => onMoveBlockUp(contentBlockIndex)}
-                disabled={isFirstBlock}
-                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Move up"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => onMoveBlockDown(contentBlockIndex)}
-                disabled={isLastBlock}
-                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Move down"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-          )}
-
-          {/* List icon picker for bullet lists */}
-          {isEditing && !!onTextChange && !isNumbered && (
-            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
-              <div className="relative">
-                <button 
-                  className="p-1 rounded hover:bg-gray-200" 
-                  onClick={() => setIsBulletPickerOpen(v => !v)} 
-                  title="Choose bullet icon"
-                >
-                  <StarIcon className="w-4 h-4" />
-                </button>
-                {isBulletPickerOpen && (
-                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
-                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
-                      <span className="text-xs font-medium">No Icon</span>
-                    </button>
-                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
-                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1 items-center">
+               <button
+                 onClick={() => onMoveBlockUp(contentBlockIndex)}
+                 disabled={isFirstBlock}
+                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                 title="Move up"
+               >
+                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                 </svg>
+               </button>
+               <button
+                 onClick={() => onMoveBlockDown(contentBlockIndex)}
+                 disabled={isLastBlock}
+                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                 title="Move down"
+               >
+                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                 </svg>
+               </button>
+               {/* Bullet icon picker (only for bullet lists) */}
+               {!isNumbered && (
+                 <div className="relative">
+                   <button 
+                     className="p-1 rounded hover:bg-gray-200"
+                     onClick={() => setIsBulletPickerOpen(v => !v)}
+                     title="Choose bullet icon"
+                   >
+                     <StarIcon className="w-4 h-4" />
+                   </button>
+                   {isBulletPickerOpen && (
+                     <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                       <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                         <span className="text-xs font-medium">No Icon</span>
+                       </button>
+                       {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                         <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                           {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                         </button>
+                       ))}
+                     </div>
+                   )}
+                 </div>
+               )}
+               {/* Delete this block */}
+               <button
+                 className="p-1 rounded hover:bg-gray-200 text-red-600"
+                 onClick={() => removeBlockAtIndex(contentBlockIndex)}
+                 title="Delete block"
+               >
+                 <Trash2 className="w-4 h-4" />
+               </button>
+             </div>
+           )}
           
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
@@ -1849,29 +1854,61 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
-              <button
-                onClick={() => onMoveBlockUp(contentBlockIndex)}
-                disabled={isFirstBlock}
-                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Move up"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => onMoveBlockDown(contentBlockIndex)}
-                disabled={isLastBlock}
-                className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Move down"
-              >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
-          )}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1 items-center">
+               <button
+                 onClick={() => onMoveBlockUp(contentBlockIndex)}
+                 disabled={isFirstBlock}
+                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                 title="Move up"
+               >
+                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                 </svg>
+               </button>
+               <button
+                 onClick={() => onMoveBlockDown(contentBlockIndex)}
+                 disabled={isLastBlock}
+                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                 title="Move down"
+               >
+                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                 </svg>
+               </button>
+               {/* Bullet icon picker (only for bullet lists) */}
+               {!isNumbered && (
+                 <div className="relative">
+                   <button 
+                     className="p-1 rounded hover:bg-gray-200"
+                     onClick={() => setIsBulletPickerOpen(v => !v)}
+                     title="Choose bullet icon"
+                   >
+                     <StarIcon className="w-4 h-4" />
+                   </button>
+                   {isBulletPickerOpen && (
+                     <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                       <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                         <span className="text-xs font-medium">No Icon</span>
+                       </button>
+                       {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                         <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                           {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                         </button>
+                       ))}
+                     </div>
+                   )}
+                 </div>
+               )}
+               {/* Delete this block */}
+               <button
+                 className="p-1 rounded hover:bg-gray-200 text-red-600"
+                 onClick={() => removeBlockAtIndex(contentBlockIndex)}
+                 title="Delete block"
+               >
+                 <Trash2 className="w-4 h-4" />
+               </button>
+             </div>
+           )}
           
           <div 
             draggable={isEditing}
