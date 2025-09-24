@@ -738,6 +738,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
   const [showBasicActions, setShowBasicActions] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
+  const [isBulletPickerOpen, setIsBulletPickerOpen] = useState(false);
 
   const fieldPath = (fieldKey: string) => {
     const path = [...basePath, fieldKey];
@@ -1077,18 +1078,18 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
-                  onClick={() => setIconPickerBulletIndex(iconPickerBulletIndex === contentBlockIndex ? null : contentBlockIndex)} 
+                  onClick={() => setIsBulletPickerOpen(v => !v)} 
                   title="Choose bullet icon"
                 >
                   <StarIcon className="w-4 h-4" />
                 </button>
-                {iconPickerBulletIndex === contentBlockIndex && (
+                {isBulletPickerOpen && (
                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
-                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => setBulletIcon(contentBlockIndex, null)} title="No icon">
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
                       <span className="text-xs font-medium">No Icon</span>
                     </button>
                     {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => setBulletIcon(contentBlockIndex, name === 'none' ? null : name)} title={name}>
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
                         {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
                       </button>
                     ))}
@@ -2473,7 +2474,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [dataToDisplay, onTextChange]);
 
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
-  const [bulletIconPickerIndex, setBulletIconPickerIndex] = useState<number | null>(null);
   const [fabOpen, setFabOpen] = useState(false);
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
