@@ -3,10 +3,12 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
+import { FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
-import CustomViewCard, { defaultSources } from '@/components/ui/custom-view-card';
+import CustomViewCard from '@/components/ui/custom-view-card';
+import SmartPromptEditor from '@/components/SmartPromptEditor';
+import { useLanguage } from '../../../../contexts/LanguageContext';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -83,12 +85,16 @@ type ProductViewNewParams = {
   productId: string;
 };
 
+// Component Name Constants
+const COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable";
+
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 export default function ProductViewNewPage() {
   const params = useParams<ProductViewNewParams>();
   const productId = params?.productId;
   const router = useRouter();
+  const { t: _t } = useLanguage();
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -115,8 +121,12 @@ export default function ProductViewNewPage() {
     }
   }, [openDropdown]);
   const [userCredits, setUserCredits] = useState<number | null>(null);
+  
+  // Smart editing state
+  const [showSmartEditor, setShowSmartEditor] = useState(false);
+  const [editableData, setEditableData] = useState<TrainingPlanData | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   // Fetch user credits on component mount
   useEffect(() => {
@@ -370,6 +380,57 @@ export default function ProductViewNewPage() {
     fetchProjectData();
   }, [productId]);
 
+  // Update editableData when projectData changes
+  useEffect(() => {
+    if (projectData?.details) {
+      setEditableData(projectData.details as TrainingPlanData);
+    }
+  }, [projectData]);
+
+  // Handler for SmartPromptEditor content updates
+  const handleSmartEditContentUpdate = useCallback((updatedContent: TrainingPlanData) => {
+    setEditableData(updatedContent);
+    // Note: Don't refetch from server here since with confirmation flow,
+    // changes are only saved after user explicitly confirms them
+  }, []);
+
+  // Handler for SmartPromptEditor errors
+  const handleSmartEditError = useCallback((error: string) => {
+    setSaveError(error);
+  }, []);
+
+  // Handler for SmartPromptEditor revert
+  const handleSmartEditRevert = useCallback(() => {
+    // Refetch the original data from the server to restore the original content
+    if (productId) {
+      const fetchProjectData = async () => {
+        try {
+          const commonHeaders: HeadersInit = {};
+          const devUserId = "dummy-onyx-user-id-for-testing";
+          if (devUserId && process.env.NODE_ENV === 'development') {
+            commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+          }
+
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+            cache: 'no-store',
+            headers: commonHeaders
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch project data: ${response.status}`);
+          }
+
+          const data: ProjectInstanceDetail = await response.json();
+          setProjectData(data);
+          setEditableData(data.details as TrainingPlanData);
+        } catch (error) {
+          console.error('Error refetching project data:', error);
+          setError('Failed to restore original content');
+        }
+      };
+      fetchProjectData();
+    }
+  }, [productId]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
     const trainingPlanData = projectData?.details as TrainingPlanData;
@@ -497,23 +558,25 @@ export default function ProductViewNewPage() {
 
           <div className="flex items-center space-x-3">
             {/* Smart Edit button for Course Outline */}
-            <button
-              onClick={() => {}}
-              className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-              style={{
-                backgroundColor: '#8B5CF6',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-              title="Smart edit with AI"
-            >
-              <Sparkles size={14} style={{ color: 'white' }} /> Smart Edit
-            </button>
+            {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && (
+              <button
+                onClick={() => setShowSmartEditor(!showSmartEditor)}
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#8B5CF6',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+                title="Smart edit with AI"
+              >
+                <Sparkles size={14} style={{ color: 'white' }} /> Smart Edit
+              </button>
+            )}
 
-            {/* Download PDF button for Course Outline */}
+            {/* Download PDF button for Course Outline
             <button
               onClick={() => {}}
               className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
@@ -528,7 +591,7 @@ export default function ProductViewNewPage() {
               title="Download content as PDF"
             >
               <Download size={14} style={{ color: 'white' }} /> Download PDF
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -571,9 +634,7 @@ export default function ProductViewNewPage() {
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => (
                         <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
                           <div className="flex items-center gap-2">
-                            <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M5.78446 3.30541C6.32191 3.61252 6.32191 4.38748 5.78446 4.69459L1.19691 7.31605C0.663586 7.62081 1.60554e-07 7.23571 1.87404e-07 6.62146L4.16579e-07 1.37854C4.43429e-07 0.764285 0.663586 0.379192 1.19691 0.683949L5.78446 3.30541Z" fill="#0F58F9"/>
-                            </svg>
+                            <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
                             <span className="text-[#191D30] text-[16px] leading-[100%] font-normal">{lesson.title}</span>
                           </div>
                           <div className="flex items-center gap-6">
@@ -750,6 +811,32 @@ export default function ProductViewNewPage() {
           </div>
         </div>
       </div>
+
+      {/* Error display */}
+      {saveError && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center">
+          <span className="mr-2">⚠️</span>
+          <span>{saveError}</span>
+          <button
+            onClick={() => setSaveError(null)}
+            className="ml-4 text-red-500 hover:text-red-700"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Smart Prompt Editor - render outside the main content container */}
+      {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
+        <SmartPromptEditor
+          projectId={projectData.project_id}
+          onContentUpdate={handleSmartEditContentUpdate}
+          onError={handleSmartEditError}
+          onRevert={handleSmartEditRevert}
+          currentLanguage={editableData.detectedLanguage}
+          currentTheme={editableData.theme}
+        />
+      )}
     </main>
   );
 }
