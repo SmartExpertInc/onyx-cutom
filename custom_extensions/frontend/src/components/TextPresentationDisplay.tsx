@@ -1001,6 +1001,20 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         containerClasses += `pl-2.5 border-l-[3px] border-[#FF1414] py-1`;
       }
 
+      // Helpers for list item manipulation
+      const addItemAt = (insertIndex: number) => {
+        if (onTextChange === undefined || contentBlockIndex === undefined) return;
+        const next = [...items];
+        next.splice(insertIndex, 0, '');
+        onTextChange(['contentBlocks', contentBlockIndex, 'items'], next);
+      };
+      const removeItemAt = (removeIndex: number) => {
+        if (onTextChange === undefined || contentBlockIndex === undefined) return;
+        const next = [...items];
+        next.splice(removeIndex, 1);
+        onTextChange(['contentBlocks', contentBlockIndex, 'items'], next);
+      };
+
       return (
         <div 
           draggable={isEditing}
@@ -1033,7 +1047,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1056,6 +1070,33 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               </button>
             </div>
           )}
+
+          {/* List icon picker for bullet lists */}
+          {isEditing && onTextChange && !isNumbered && (
+            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
+              <div className="relative">
+                <button 
+                  className="p-1 rounded hover:bg-gray-200" 
+                  onClick={() => setIconPickerBulletIndex(iconPickerBulletIndex === contentBlockIndex ? null : contentBlockIndex)} 
+                  title="Choose bullet icon"
+                >
+                  <StarIcon className="w-4 h-4" />
+                </button>
+                {iconPickerBulletIndex === contentBlockIndex && (
+                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => setBulletIcon(contentBlockIndex, null)} title="No icon">
+                      <span className="text-xs font-medium">No Icon</span>
+                    </button>
+                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => setBulletIcon(contentBlockIndex, name === 'none' ? null : name)} title={name}>
+                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
             {items.map((item, index) => {
@@ -1070,17 +1111,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               if (isNumbered) {
                 return (
-                  <li key={index} className="flex items-center gap-3">
+                  <li key={index} className="flex items-center gap-3 group/listitem relative">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
-                          <input
-                            type="text"
-                            value={item}
-                            onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                            className={`${editingInputClass} w-full text-xs`}
-                          />
+                          <div className="flex items-center gap-1 z-10">
+                            <input
+                              type="text"
+                              value={item}
+                              onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                              className={`${editingInputClass} w-full text-xs`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  addItemAt(index + 1);
+                                }
+                              }}
+                            />
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                              <Plus className="w-3.5 h-3.5 text-gray-900" />
+                            </button>
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Remove item" onClick={() => removeItemAt(index)}>
+                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            </button>
+                          </div>
                         ) : (
                           <span className="text-black text-xs leading-snug">{styledItemText}</span>
                         )
@@ -1118,41 +1173,41 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   </li>
                 );
               }
-              
-              if (isEditing && onTextChange && itemIsString) {
-                return (
-                  <li key={index} className="flex items-center">
-                    {BulletIconToRender && !isNumbered && (
-                      <div className="flex-shrink-0 mr-1.5 flex items-center">
-                        <BulletIconToRender />
-                      </div>
-                    )}
-                    <input
-                      type="text"
-                      value={item}
-                      onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
-                      className={`${editingInputClass} w-full`}
-                    />
-                  </li>
-                );
-              }
 
-              // Remove all emoji bullet logic and always use BulletIconToRender
-              const nestedIndentation = depth > 0 ? 'ml-6' : '';
-
+              // Bullet list items - consistent with numbered list structure
               return (
-                <li
-                  key={index}
-                  className={`flex items-center text-black text-xs leading-tight ${nestedIndentation}`}
-                >
-                  {!isNumbered && BulletIconToRender && (
+                <li key={index} className="flex items-center group/listitem relative">
+                  {BulletIconToRender && !isNumbered && (
                     <div className="flex-shrink-0 mr-1.5 flex items-center">
                       <BulletIconToRender />
                     </div>
                   )}
                   <div className="flex-grow">
                     {itemIsString ? (
-                        <span className={isNumbered ? 'ml-1' : ''}>{styledItemText}</span>
+                      isEditing && onTextChange ? (
+                        <div className="flex items-center gap-1 z-10">
+                          <input
+                            type="text"
+                            value={item}
+                            onChange={(e) => handleInputChangeEvent(listItemPath(index), e)}
+                            className={`${editingInputClass} w-full text-xs`}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addItemAt(index + 1);
+                              }
+                            }}
+                          />
+                          <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                            <Plus className="w-3.5 h-3.5 text-gray-900" />
+                          </button>
+                          <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Remove item" onClick={() => removeItemAt(index)}>
+                            <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-black text-xs leading-snug">{styledItemText}</span>
+                      )
                     ) : Array.isArray(item) ? (
                         <div className="flex flex-col">
                             {(item as AnyContentBlock[]).map((block, blockIndex) => (
@@ -1187,6 +1242,21 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </li>
               );
             })}
+            
+            {/* Add-at-end row for lists in edit mode */}
+            {isEditing && onTextChange && (
+              <li className="mt-2">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-300 text-xs transition-colors duration-200"
+                  onClick={() => addItemAt(items.length)}
+                  title="Add item"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add item
+                </button>
+              </li>
+            )}
           </ListTag>
         </div>
       );
