@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Download, FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
@@ -89,6 +89,7 @@ export default function ProductViewNewPage() {
   const params = useParams<ProductViewNewParams>();
   const productId = params?.productId;
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -117,6 +118,61 @@ export default function ProductViewNewPage() {
   const [userCredits, setUserCredits] = useState<number | null>(null);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // PDF download handler
+  const handlePdfDownload = async () => {
+    if (!projectData || !projectData.project_id) {
+      alert('Project data is not available for download.');
+      return;
+    }
+
+    try {
+      const nameForSlug = projectData.name || 'document';
+      const docNameSlug = nameForSlug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const pdfProjectId = projectData.project_id;
+
+      // Build PDF URL with project ID and document name slug
+      let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/${pdfProjectId}/${docNameSlug}`;
+      
+      // Add query parameters for training plan PDFs to match the course outline functionality
+      const queryParams = new URLSearchParams();
+      
+      // Add parent project name and lesson number if available (same as main view page)
+      const parentProjectName = searchParams?.get('parentProjectName');
+      const lessonNumber = searchParams?.get('lessonNumber');
+      
+      if (parentProjectName) {
+        queryParams.append('parentProjectName', parentProjectName);
+      }
+      
+      if (lessonNumber) {
+        queryParams.append('lessonNumber', lessonNumber);
+      }
+      
+      // Add column visibility settings for Training Plan PDFs (same as in the main view page)
+      queryParams.append('knowledgeCheck', '1'); // Default to show all columns
+      queryParams.append('contentAvailability', '1');
+      queryParams.append('informationSource', '1');
+      queryParams.append('time', '1');
+      queryParams.append('estCompletionTime', '1');
+      queryParams.append('qualityTier', '1');
+      queryParams.append('quiz', '1');
+      queryParams.append('onePager', '1');
+      queryParams.append('videoPresentation', '1');
+      queryParams.append('lessonPresentation', '1');
+      
+      // Add the query parameters to the URL
+      if (queryParams.toString()) {
+        pdfUrl += `?${queryParams.toString()}`;
+      }
+      
+      // Open PDF in new tab for download
+      window.open(pdfUrl, '_blank');
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Failed to download PDF. Please try again.');
+    }
+  };
 
   // Fetch user credits on component mount
   useEffect(() => {
@@ -493,18 +549,7 @@ export default function ProductViewNewPage() {
 
             {/* Download PDF button for Course Outline */}
             <button
-              onClick={async () => {
-                if (productId) {
-                  try {
-                    const pdfUrl = `${CUSTOM_BACKEND_URL}/api/custom/pdf/course-outline/${productId}`;
-                    console.log('Opening PDF URL:', pdfUrl);
-                    window.open(pdfUrl, '_blank');
-                  } catch (error) {
-                    console.error('Error opening PDF:', error);
-                    alert('Error opening PDF. Please try again.');
-                  }
-                }
-              }}
+              onClick={handlePdfDownload}
               className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
               style={{
                 backgroundColor: '#0F58F9',

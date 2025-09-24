@@ -12806,64 +12806,6 @@ async def debug_slide_generation(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Debug failed: {str(e)[:200]}")
 
 
-@app.get("/api/custom/pdf/course-outline/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
-async def download_course_outline_pdf(
-    project_id: int,
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Download course outline as PDF"""
-    try:
-        logger.info(f"Starting course outline PDF generation for project {project_id}")
-        async with pool.acquire() as conn:
-            # Fetch project data
-            target_row_dict = await conn.fetchrow(
-                "SELECT * FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                project_id, onyx_user_id
-            )
-            
-            if not target_row_dict:
-                raise HTTPException(status_code=404, detail="Project not found")
-            
-            # Get project details
-            project_name = target_row_dict.get('project_name', 'Course Outline')
-            microproduct_content = target_row_dict.get('microproduct_content')
-            
-            if not microproduct_content:
-                raise HTTPException(status_code=400, detail="No course outline data found")
-            
-            logger.info(f"Found course outline data for project {project_id}: {project_name}")
-            
-            # Prepare template data
-            template_data = {
-                "details": microproduct_content,
-                "project_name": project_name,
-                "project_id": project_id
-            }
-            
-            # Generate PDF
-            unique_output_filename = f"course_outline_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
-            logger.info(f"Generating PDF with template: course_outline_pdf_template.html")
-            pdf_path = await generate_pdf_from_html_template("course_outline_pdf_template.html", template_data, unique_output_filename)
-            
-            if not os.path.exists(pdf_path):
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="PDF file not found after generation.")
-            
-            user_friendly_filename = f"course_outline_{create_slug(project_name)}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
-            return FileResponse(
-                path=pdf_path, 
-                filename=user_friendly_filename, 
-                media_type='application/pdf', 
-                headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
-            )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating course outline PDF: {e}", exc_info=not IS_PRODUCTION)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
-
-
 @app.get("/api/custom/pdf/{project_id}/", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_project_instance_pdf_no_slug(
     project_id: int,
