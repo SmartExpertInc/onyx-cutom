@@ -125,11 +125,11 @@ const TitleIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" fill="#6A7282" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 12H20M4 8H20M4 16H12" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
-const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
+const TypeIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note" className="icon glyph" fill="#6A7282"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20.71,3.29a2.91,2.91,0,0,0-2.2-.84,3.25,3.25,0,0,0-2.17,1L9.46,10.29s0,0,0,0a.62.62,0,0,0-.11.17,1,1,0,0,0-.1.18l0,0L8,14.72A1,1,0,0,0,9,16a.9.9,0,0,0,.28,0l4-1.17,0,0,.18-.1a.62.62,0,0,0,.17-.11l0,0,6.87-6.88a3.25,3.25,0,0,0,1-2.17A2.91,2.91,0,0,0,20.71,3.29Z"></path><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style={{fill:"#6A728"}}></path></g></svg>
 );
 
-const TypeIcon: React.FC<{ size?: number }> = ({ size }) => (
+const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 );
 
@@ -886,7 +886,6 @@ const FolderRow: React.FC<{
   level: number;
   index: number;
   trashMode: boolean;
-  columnVisibility: ColumnVisibility;
   columnWidths: ColumnWidths;
   expandedFolders: Set<number>;
   folderProjects: Record<number, Project[]>;
@@ -925,7 +924,6 @@ const FolderRow: React.FC<{
   level,
   index,
   trashMode,
-  columnVisibility,
   columnWidths,
   expandedFolders,
   folderProjects,
@@ -1007,12 +1005,9 @@ const FolderRow: React.FC<{
         }}
         onClick={() => toggleFolder(folder.id)}
       >
-        {columnVisibility.type && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             -
           </TableCell>
-        )}
-        {columnVisibility.title && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             <span
               className="inline-flex items-center"
@@ -1054,13 +1049,9 @@ const FolderRow: React.FC<{
               </Badge>
             </span>
           </TableCell>
-        )}
-        {columnVisibility.created && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {formatDate(folder.created_at)}
           </TableCell>
-        )}
-        {columnVisibility.creator && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <span className="inline-flex items-center">
               <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
@@ -1069,24 +1060,18 @@ const FolderRow: React.FC<{
               You
             </span>
           </TableCell>
-        )}
-        {columnVisibility.numberOfLessons && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalLessons = getTotalLessonsInFolder(folder);
               return totalLessons > 0 ? totalLessons : "-";
             })()}
           </TableCell>
-        )}
-        {columnVisibility.estCreationTime && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalHours = getTotalHoursInFolder(folder);
               return totalHours > 0 ? `${totalHours}h` : "-";
             })()}
           </TableCell>
-        )}
-        {columnVisibility.estCompletionTime && (
           <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {(() => {
               const totalCompletionTime =
@@ -1096,7 +1081,6 @@ const FolderRow: React.FC<{
                 : "-";
             })()}
           </TableCell>
-        )}
         <TableCell
           className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
           onClick={(e) => e.stopPropagation()}
@@ -1163,7 +1147,6 @@ const FolderRow: React.FC<{
               handleDragEnd(e);
             }}
           >
-            {columnVisibility.type && (
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
                   <span className="text-gray-500 font-medium">
@@ -1173,8 +1156,6 @@ const FolderRow: React.FC<{
                   "-"
                 )}
               </TableCell>
-            )}
-            {columnVisibility.title && (
               <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <span
                   className="inline-flex items-center"
@@ -1196,50 +1177,39 @@ const FolderRow: React.FC<{
                   />
                 </span>
               </TableCell>
-            )}
-            {columnVisibility.created && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(p.createdAt)}
-              </TableCell>
-            )}
-            {columnVisibility.creator && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <span className="inline-flex items-center">
-                  <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                    <span className="text-xs font-bold text-gray-700">Y</span>
-                  </span>
-                  You
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {formatDate(p.createdAt)}
+            </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <span className="inline-flex items-center">
+                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                  <span className="text-xs font-bold text-gray-700">Y</span>
                 </span>
-              </TableCell>
-            )}
-            {columnVisibility.numberOfLessons && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData ? lessonData.lessonCount : "-";
-                })()}
-              </TableCell>
-            )}
-            {columnVisibility.estCreationTime && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData && lessonData.totalHours
-                    ? `${lessonData.totalHours}h`
-                    : "-";
-                })()}
-              </TableCell>
-            )}
-            {columnVisibility.estCompletionTime && (
-              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData
-                    ? formatCompletionTimeLocalized(lessonData.completionTime)
-                    : "-";
-                })()}
-              </TableCell>
-            )}
+                You
+              </span>
+            </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {(() => {
+                const lessonData = lessonDataCache[p.id];
+                return lessonData ? lessonData.lessonCount : "-";
+              })()}
+            </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {(() => {
+                const lessonData = lessonDataCache[p.id];
+                return lessonData && lessonData.totalHours
+                  ? `${lessonData.totalHours}h`
+                  : "-";
+              })()}
+            </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {(() => {
+                const lessonData = lessonDataCache[p.id];
+                return lessonData
+                  ? formatCompletionTimeLocalized(lessonData.completionTime)
+                  : "-";
+              })()}
+            </TableCell>
             <TableCell
               className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
               onClick={(e) => e.stopPropagation()}
@@ -1261,7 +1231,7 @@ const FolderRow: React.FC<{
       {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
         <TableRow>
           <TableCell
-            colSpan={Object.values(columnVisibility).filter(Boolean).length + 1}
+            colSpan={7}
             className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
             style={{ paddingLeft: `${(level + 1) * 20}px` }}
           >
@@ -1280,7 +1250,6 @@ const FolderRow: React.FC<{
             level={level + 1}
             index={childIndex}
             trashMode={trashMode}
-            columnVisibility={columnVisibility}
             columnWidths={columnWidths}
             expandedFolders={expandedFolders}
             folderProjects={folderProjects}
@@ -2218,6 +2187,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   );
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [contentTypeFilter, setContentTypeFilter] = useState("All");
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(
     new Set()
   );
@@ -2234,15 +2204,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
     >
   >({});
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
-    title: true,
-    created: true,
-    creator: true,
-    numberOfLessons: false,
-    estCreationTime: false,
-    estCompletionTime: false,
-    type: true,
-  });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 48,
     created: 15,
@@ -2252,7 +2213,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     estCompletionTime: 13.5,
     type: 5,
   });
-  const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
 
   // Drag and drop reordering state
@@ -2655,6 +2615,25 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const getUnassignedProjects = useCallback(() => {
     let filteredProjects = projects.filter((p) => p.folderId === null);
 
+    // Apply content type filter
+    if (contentTypeFilter !== "All") {
+      filteredProjects = filteredProjects.filter((p) => {
+        const designType = (p.designMicroproductType || "").toLowerCase();
+        switch (contentTypeFilter) {
+          case "Course Outline":
+            return designType === "training plan";
+          case "Presentation":
+            return designType === "slide deck";
+          case "Quiz":
+            return designType === "quiz";
+          case "Video Lesson":
+            return designType === "video lesson presentation";
+          default:
+            return true;
+        }
+      });
+    }
+
     // Apply search filter if search term exists
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase().trim();
@@ -2674,17 +2653,36 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     }
 
     return filteredProjects;
-  }, [projects, searchTerm]);
+  }, [projects, searchTerm, contentTypeFilter]);
 
   // Helper function to get projects for a specific folder (including subfolders) with search
   const getProjectsForFolder = useCallback(
     (targetFolderId: number | null) => {
       let filteredProjects = projects;
 
+      // Apply content type filter
+      if (contentTypeFilter !== "All") {
+        filteredProjects = filteredProjects.filter((p) => {
+          const designType = (p.designMicroproductType || "").toLowerCase();
+          switch (contentTypeFilter) {
+            case "Course Outline":
+              return designType === "training plan";
+            case "Presentation":
+              return designType === "slide deck";
+            case "Quiz":
+              return designType === "quiz";
+            case "Video Lesson":
+              return designType === "video lesson presentation";
+            default:
+              return true;
+          }
+        });
+      }
+
       // Apply search filter if search term exists
       if (searchTerm.trim()) {
         const searchLower = searchTerm.toLowerCase().trim();
-        filteredProjects = projects.filter((p) => {
+        filteredProjects = filteredProjects.filter((p) => {
           const title = (p.title || "").toLowerCase();
           const instanceName = (p.instanceName || "").toLowerCase();
           const designType = (p.designMicroproductType || "").toLowerCase();
@@ -2764,7 +2762,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         (p) => p.folderId && folderIds.includes(p.folderId)
       );
     },
-    [projects, folders, searchTerm, sortBy, sortOrder, lessonDataCache]
+    [projects, folders, searchTerm, sortBy, sortOrder, lessonDataCache, contentTypeFilter]
   );
 
   // Helper function to calculate lesson data for a project
@@ -2872,23 +2870,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     return () => window.removeEventListener("refreshProjects", handleRefresh);
   }, [refreshProjects]);
 
-  // Handle clicking outside the columns dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest("[data-columns-dropdown]")) {
-        setShowColumnsDropdown(false);
-      }
-    };
-
-    if (showColumnsDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showColumnsDropdown]);
 
   useEffect(() => {
     localStorage.setItem("projectsViewMode", viewMode);
@@ -3505,6 +3486,22 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     // [t("interface.favorites", "Favorites")]: Star,
   };
 
+  // Content type filters for list view
+  const contentTypeFilters = [
+    "All",
+    "Course Outline", 
+    "Presentation",
+    "Quiz",
+    "Video Lesson"
+  ];
+  const contentTypeFilterIcons: Record<string, LucideIcon> = {
+    "All": Home,
+    "Course Outline": TableOfContents,
+    "Presentation": Presentation,
+    "Quiz": HelpCircle,
+    "Video Lesson": Video,
+  };
+
   // Add PDF download function
   const handlePdfDownload = () => {
     setShowClientNameModal(true);
@@ -3530,8 +3527,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       queryParams.append("folder_id", folderId.toString());
     }
 
-    // Add column visibility settings
-    queryParams.append("column_visibility", JSON.stringify(columnVisibility));
 
     // Add column widths settings
     queryParams.append("column_widths", JSON.stringify(columnWidths));
@@ -3649,7 +3644,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    className="flex items-center gap-2 text-sm font-semibold"
                  >
                    <ListFilter size={16} className="text-gray-800" />
-                   {activeFilter}
+                   {contentTypeFilter}
                    <ChevronDown size={14} className="text-gray-600" />
                  </Button>
                </DropdownMenuTrigger>
@@ -3660,14 +3655,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                    </p>
                  </DropdownMenuLabel>
                  <DropdownMenuSeparator />
-                 {filters.map((filter) => {
-                   const Icon = filterIcons[filter];
+                 {contentTypeFilters.map((filter) => {
+                   const Icon = contentTypeFilterIcons[filter];
                    return (
                      <DropdownMenuItem
                        key={filter}
-                       onClick={() => setActiveFilter(filter)}
+                       onClick={() => setContentTypeFilter(filter)}
                        className={`flex items-center gap-2 px-3 py-2 text-sm ${
-                         activeFilter === filter 
+                         contentTypeFilter === filter 
                            ? "bg-blue-50 text-blue-700 font-semibold" 
                            : "text-gray-700 hover:bg-gray-50"
                        }`}
@@ -3681,100 +3676,49 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
              </DropdownMenu>
             )}
 
-            {/* Columns Dropdown - only show in list view */}
+            {/* Content Type Filter - only show in list view */}
             {viewMode === "list" && (
-              <div className="relative" data-columns-dropdown>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                 <Button
-                  onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
                   variant="columns"
                   className="flex items-center gap-2 text-sm font-semibold"
                 >
-                  <List size={16} className="text-gray-800" />
-                  {t("interface.columns", "Columns")}
+                    <ListFilter size={16} className="text-gray-800" />
+                    {contentTypeFilter}
                   <ChevronDown size={14} className="text-gray-600" />
                 </Button>
-
-                {showColumnsDropdown && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="p-2">
-                      <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
-                        {t("interface.showColumns", "Show columns")}
-                      </div>
-                      {[
-                        { key: "title", label: t("interface.title", "Title") },
-                        {
-                          key: "type",
-                          label: t("interface.type", "Type"),
-                        },
-                        {
-                          key: "created",
-                          label: t("interface.created", "Created"),
-                        },
-                        {
-                          key: "creator",
-                          label: t("interface.creator", "Creator"),
-                        },
-                        {
-                          key: "numberOfLessons",
-                          label: t(
-                            "interface.numberOfLessonsShort",
-                            "Number of lessons"
-                          ),
-                        },
-                        {
-                          key: "estCreationTime",
-                          label: t(
-                            "interface.estCreationTimeShort",
-                            "Est. creation time"
-                          ),
-                        },
-                        {
-                          key: "estCompletionTime",
-                          label: t(
-                            "interface.estCompletionTimeShort",
-                            "Est. completion time"
-                          ),
-                        },
-                      ].map((column) => (
-                        <Label
-                          key={column.key}
-                          className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                        >
-                          {columnVisibility[
-                            column.key as keyof ColumnVisibility
-                          ] ? (
-                            <CheckSquare size={16} className="text-blue-600" />
-                          ) : (
-                            <Square size={16} className="text-gray-400" />
-                          )}
-                          <span className="text-sm text-gray-700">
-                            {column.label}
-                          </span>
-                          <Input
-                            type="checkbox"
-                            checked={
-                              columnVisibility[
-                                column.key as keyof ColumnVisibility
-                              ]
-                            }
-                            onChange={(e) => {
-                              setColumnVisibility((prev) => ({
-                                ...prev,
-                                [column.key]: e.target.checked,
-                              }));
-                            }}
-                            className="sr-only"
-                          />
-                        </Label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48">
+                  <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+                    <p className="font-semibold text-sm text-gray-900">
+                      {t("interface.filterBy", "Filter by")}
+                    </p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {contentTypeFilters.map((filter) => {
+                    const Icon = contentTypeFilterIcons[filter];
+                    return (
+                      <DropdownMenuItem
+                        key={filter}
+                        onClick={() => setContentTypeFilter(filter)}
+                        className={`flex items-center gap-2 px-3 py-2 text-sm ${
+                          contentTypeFilter === filter 
+                            ? "bg-blue-50 text-blue-700 font-semibold" 
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon size={16} />
+                        {filter}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* PDF Download Button - only show in list view */}
-            {viewMode === "list" && (
+            {/* {viewMode === "list" && (
               <Button
                 onClick={handlePdfDownload}
                 variant="download"
@@ -3787,7 +3731,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <ArrowDownToLine size={16} />
                 {t("common.downloadPdf", "Download PDF")}
               </Button>
-            )}
+            )} */}
 
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
               <Button
@@ -3836,7 +3780,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             >
               <TableHeader className="bg-white">
                 <TableRow>
-                 {columnVisibility.type && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
@@ -3846,8 +3789,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         {t("interface.type", "Type")}
                       </div>
                     </TableHead>
-                  )}
-                  {columnVisibility.title && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.title}%` }}
@@ -3861,8 +3802,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                  )}
-                  {columnVisibility.creator && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.creator}%` }}
@@ -3876,8 +3815,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                  )}
-                  {columnVisibility.created && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.created}%` }}
@@ -3891,8 +3828,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                  )}
-                  {columnVisibility.numberOfLessons && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.numberOfLessons}%` }}
@@ -3905,8 +3840,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                  )}
-                  {columnVisibility.estCreationTime && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.estCreationTime}%` }}
@@ -3919,8 +3852,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                  )}
-                  {columnVisibility.estCompletionTime && (
                     <TableHead
                       className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.estCompletionTime}%` }}
@@ -3933,7 +3864,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                  )}
                   <TableHead
                     className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
@@ -3994,7 +3924,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         handleDragEnd(e);
                       }}
                     >
-                      {columnVisibility.type && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
@@ -4004,8 +3933,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             "-"
                           )}
                         </TableCell>
-                      )}
-                      {columnVisibility.title && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           <span className="inline-flex items-center">
                             {/* <Star size={16} className="text-gray-300 mr-2" /> */}
@@ -4021,8 +3948,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             />
                           </span>
                         </TableCell>
-                      )}
-                      {columnVisibility.creator && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
@@ -4033,21 +3958,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             You
                           </span>
                         </TableCell>
-                      )}
-                      {columnVisibility.created && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
                         </TableCell>
-                      )}
-                      {columnVisibility.numberOfLessons && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
                             return lessonData ? lessonData.lessonCount : "-";
                           })()}
                         </TableCell>
-                      )}
-                      {columnVisibility.estCreationTime && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
@@ -4056,8 +3975,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               : "-";
                           })()}
                         </TableCell>
-                      )}
-                      {columnVisibility.estCompletionTime && (
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {(() => {
                             const lessonData = lessonDataCache[p.id];
@@ -4068,7 +3985,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               : "-";
                           })()}
                         </TableCell>
-                      )}
                       <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
