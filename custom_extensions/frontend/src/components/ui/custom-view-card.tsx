@@ -116,7 +116,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
               <div className="text-gray-500">
                 {contentType.icon}
               </div>
-              <span className="text-xs text-gray-500">{contentType.type}</span>
+              <span className="text-sm text-gray-500">{contentType.type}</span>
             </div>
           ))}
         </div>
