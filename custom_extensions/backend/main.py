@@ -31581,6 +31581,203 @@ async def get_shared_offer_details(share_token: str):
         raise HTTPException(status_code=500, detail="Failed to fetch shared offer details")
 
 # ============================================================================
+# AUDITS API ENDPOINTS
+# ============================================================================
+
+class AuditResponse(BaseModel):
+    id: int
+    onyx_user_id: str
+    project_name: str
+    created_at: datetime
+    updated_at: datetime
+    company_name: str
+    audit_type: str
+    status: str
+    total_modules: int
+    total_lessons: int
+    language: str
+    share_token: Optional[str] = None
+
+@app.get("/api/custom/audits", response_model=List[AuditResponse])
+async def get_audits(
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    company_id: Optional[int] = Query(None, description="Filter by company ID"),
+    status: Optional[str] = Query(None, description="Filter by status"),
+    search: Optional[str] = Query(None, description="Search in project name or company name")
+):
+    """Get all audit projects for the current user with optional filtering"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Build the base query
+            base_query = """
+                SELECT p.id, p.onyx_user_id, p.project_name, p.created_at, p.updated_at, 
+                       pf.name as company_name, p.microproduct_content,
+                       p.share_token
+                FROM projects p
+                LEFT JOIN project_folders pf ON p.folder_id = pf.id
+                WHERE p.onyx_user_id = $1 
+                AND p.product_type = 'Text Presentation'
+                AND p.project_name LIKE 'AI-Аудит%'
+            """
+            
+            params = [onyx_user_id]
+            param_count = 1
+            
+            # Add filters
+            if company_id:
+                param_count += 1
+                base_query += f" AND p.folder_id = ${param_count}"
+                params.append(company_id)
+                
+            if status:
+                param_count += 1
+                base_query += f" AND p.microproduct_content->>'status' = ${param_count}"
+                params.append(status)
+                
+            if search:
+                param_count += 1
+                base_query += f" AND (p.project_name ILIKE ${param_count} OR pf.name ILIKE ${param_count})"
+                params.append(f"%{search}%")
+            
+            base_query += " ORDER BY p.created_at DESC"
+            
+            rows = await connection.fetch(base_query, *params)
+            
+            audits = []
+            for row in rows:
+                # Extract audit information from microproduct_content
+                content = row['microproduct_content'] or {}
+                
+                # Calculate modules and lessons from course outline
+                total_modules = 0
+                total_lessons = 0
+                if content.get('courseOutlineModules'):
+                    total_modules = len(content['courseOutlineModules'])
+                    total_lessons = sum(len(module.get('lessons', [])) for module in content['courseOutlineModules'])
+                
+                # Determine audit type and status
+                audit_type = "AI Audit"
+                status = "Completed"  # Default status for existing audits
+                
+                # Extract language
+                language = content.get('language', 'ru')
+                
+                audit = AuditResponse(
+                    id=row['id'],
+                    onyx_user_id=row['onyx_user_id'],
+                    project_name=row['project_name'],
+                    created_at=row['created_at'],
+                    updated_at=row['updated_at'],
+                    company_name=row['company_name'] or "Unknown Company",
+                    audit_type=audit_type,
+                    status=status,
+                    total_modules=total_modules,
+                    total_lessons=total_lessons,
+                    language=language,
+                    share_token=row['share_token']
+                )
+                audits.append(audit)
+        
+        return audits
+        
+    except Exception as e:
+        logger.error(f"Error fetching audits: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch audits")
+
+@app.delete("/api/custom/audits/{audit_id}")
+async def delete_audit(
+    audit_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Delete an audit project"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Verify the audit belongs to the user and is an audit project
+            audit = await connection.fetchrow(
+                """
+                SELECT id, project_name FROM projects 
+                WHERE id = $1 AND onyx_user_id = $2 
+                AND product_type = 'Text Presentation'
+                AND project_name LIKE 'AI-Аудит%'
+                """,
+                audit_id, onyx_user_id
+            )
+            
+            if not audit:
+                raise HTTPException(status_code=404, detail="Audit not found")
+            
+            # Delete the audit project
+            await connection.execute("DELETE FROM projects WHERE id = $1", audit_id)
+            
+            return {"message": "Audit deleted successfully"}
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting audit: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete audit")
+
+@app.post("/api/custom/audits/{audit_id}/generate-share-link")
+async def generate_audit_share_link(
+    audit_id: int,
+    request: Request,
+    onyx_user_id: str = Depends(get_current_onyx_user_id)
+):
+    """Generate a shareable link for an audit"""
+    try:
+        async with DB_POOL.acquire() as connection:
+            # Verify the audit belongs to the user
+            audit = await connection.fetchrow(
+                """
+                SELECT id, project_name FROM projects 
+                WHERE id = $1 AND onyx_user_id = $2 
+                AND product_type = 'Text Presentation'
+                AND project_name LIKE 'AI-Аудит%'
+                """,
+                audit_id, onyx_user_id
+            )
+            
+            if not audit:
+                raise HTTPException(status_code=404, detail="Audit not found")
+            
+            # Generate a unique share token
+            import uuid
+            share_token = str(uuid.uuid4())
+            
+            # Set expiration date (30 days from now)
+            from datetime import timedelta
+            expires_at = datetime.now() + timedelta(days=30)
+            
+            # Update the project with share token and make it public
+            await connection.execute(
+                """
+                UPDATE projects 
+                SET share_token = $1, expires_at = $2, is_public = TRUE, shared_at = NOW()
+                WHERE id = $3
+                """,
+                share_token, expires_at, audit_id
+            )
+            
+            # Generate the shareable URL
+            base_url = str(request.base_url).rstrip('/')
+            if base_url.endswith('/api/custom-projects-backend'):
+                base_url = base_url[:-27]
+            elif base_url.endswith('/api/custom'):
+                base_url = base_url[:-11]
+            
+            share_url = f"{base_url}/public/audit/{share_token}"
+            
+            return {"share_url": share_url, "expires_at": expires_at.isoformat()}
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating share link: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate share link")
+
+# ============================================================================
 # WORKSPACE MANAGEMENT API ENDPOINTS
 # ============================================================================
 
