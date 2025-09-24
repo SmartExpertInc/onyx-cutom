@@ -20311,7 +20311,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 33px;
+                font-size: 31px;
                 text-align: left;
                 line-height: 1.2;
             }}
@@ -20343,7 +20343,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 41px;
+                font-size: 39px;
                 text-align: left;
                 line-height: 1.2;
             }}
@@ -20352,7 +20352,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 20px;
+                font-size: 19px;
                 text-align: left;
                 line-height: 1.2;
             }}
@@ -20367,7 +20367,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(255,255,255,1);
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 58px;
+                font-size: 55px;
                 text-align: center;
                 line-height: 1;
             }}
@@ -20376,7 +20376,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(255,255,255,1);
                 font-family: 'Montserrat';
                 font-weight: 300;
-                font-size: 52px;
+                font-size: 49px;
                 text-align: center;
                 line-height: 1;
                 margin-top: 5px;
@@ -20394,7 +20394,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 50px;
+                font-size: 47px;
                 text-align: left;
                 line-height: 1.2;
                 max-width: 480px;
@@ -20404,7 +20404,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 20px;
+                font-size: 19px;
                 text-align: left;
                 line-height: 1.2;
                 max-width: 460px;
@@ -20435,7 +20435,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 25px;
+                font-size: 24px;
                 text-align: center;
             }}
             
@@ -20443,7 +20443,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 27px;
+                font-size: 26px;
                 text-align: center;
                 margin-top: 4px;
             }}
@@ -20452,7 +20452,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 900;
-                font-size: 41px;
+                font-size: 39px;
                 text-align: center;
                 margin-top: 2px;
             }}
@@ -20531,3 +20531,4 @@ def generate_poster_html_template(poster_data: dict) -> str:
     logger.info(f"📷 [POSTER_HTML_TEMPLATE] Template preview: {html_template[:200]}...")
     
     return html_template
+    
