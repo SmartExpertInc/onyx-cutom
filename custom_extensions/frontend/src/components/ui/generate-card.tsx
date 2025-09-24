@@ -16,8 +16,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <div 
         className="w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34 rounded-lg p-3 hover:scale-105 transition-all duration-200"
         style={{
-          backgroundColor: 'white',
-          opacity: 0.05,
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
           border: '1px solid rgba(255, 255, 255, 0.3)'
         }}
         onMouseEnter={(e) => {
