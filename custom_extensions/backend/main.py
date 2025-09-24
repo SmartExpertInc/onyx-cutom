@@ -31611,7 +31611,7 @@ async def get_audits(
         async with DB_POOL.acquire() as connection:
             # Build the base query
             base_query = """
-                SELECT p.id, p.onyx_user_id, p.project_name, p.created_at, p.updated_at, 
+                SELECT p.id, p.onyx_user_id, p.project_name, p.created_at, p.created_at as updated_at, 
                        pf.name as company_name, p.microproduct_content,
                        p.share_token
                 FROM projects p
