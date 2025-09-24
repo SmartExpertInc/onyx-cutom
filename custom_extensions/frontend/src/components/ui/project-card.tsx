@@ -407,7 +407,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const getProductTypeDisplayName = (type: string): string => {
     switch (type) {
       case "Training Plan":
-        return "Course Outline";
+        return "Course";
       case "Slide Deck":
         return "Presentation";
       case "Text Presentation":

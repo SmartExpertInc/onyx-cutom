@@ -1026,7 +1026,7 @@ export const en = {
       questionSingular: "question",
       questionTypesSelected: "Types selected",
       // Additional keys for course outline
-      courseOutline: "Course Outline",
+      courseOutline: "Course",
       videoLesson: "Video Lesson",
       presentation: "Presentation",
       onePager: "One-Pager",
