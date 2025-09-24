@@ -495,7 +495,7 @@ export default function ProductViewNewPage() {
             <button
               onClick={() => {
                 if (productId) {
-                  const pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/course-outline/${productId}`;
+                  const pdfUrl = `${CUSTOM_BACKEND_URL}/api/custom/pdf/course-outline/${productId}`;
                   window.open(pdfUrl, '_blank');
                 }
               }}
