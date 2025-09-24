@@ -515,12 +515,12 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 h-screen overflow-hidden font-inter"
+      className="p-4 md:p-8 font-inter"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
     >
-      <div className="max-w-7xl mx-auto flex flex-col h-full">
+      <div className="max-w-7xl mx-auto flex flex-col">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-x-4">
             <button
@@ -610,9 +610,9 @@ export default function ProductViewNewPage() {
         )}
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px] flex-1 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
+          <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
               <h1 className="text-[#191D30] font-semibold text-[32px] leading-none">
