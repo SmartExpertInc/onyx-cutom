@@ -414,7 +414,7 @@ export default function ProductViewNewPage() {
           <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
-              <h1 className="text-[#191D30] font-regular text-[30px] leading-[100%]">
+              <h1 className="text-[#191D30] font-medium text-[30px] leading-[100%]">
                 {(() => {
                   const trainingPlanData = projectData.details as TrainingPlanData;
                   return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
@@ -435,7 +435,7 @@ export default function ProductViewNewPage() {
 
               return trainingPlanData.sections.map((section, index) => (
                 <div key={section.id || index} className="bg-white rounded-lg p-[25px]">
-                  <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
+                  <h2 className="text-[#191D30] font-semibold text-[18px] leading-[100%] mb-2">
                     Module {index + 1}: {section.title}
                   </h2>
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
@@ -589,7 +589,7 @@ export default function ProductViewNewPage() {
                 </div>
               ));
             })()}
-            {/* Add New Module Button */}
+            {/* Add New Module Button
             <div className="flex justify-center">
               <button
                 className="flex items-center justify-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none w-full"
@@ -604,7 +604,7 @@ export default function ProductViewNewPage() {
               >
                 + Add new module
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* Right Panel - Course Summary */}
