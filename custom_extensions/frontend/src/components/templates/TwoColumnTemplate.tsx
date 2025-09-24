@@ -248,7 +248,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     width: '100%',
     maxWidth: '1200px',
     height: '100%',
-    position: 'relative'
+    position: 'relative',
+    alignItems: 'stretch',
   };
 
   const columnStyles: React.CSSProperties = {
@@ -258,7 +259,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: '40px 30px',
-    borderRadius: '8px'
+    borderRadius: '8px',
+    position: 'relative'
   };
 
   const titleStyles: React.CSSProperties = {
@@ -297,11 +299,10 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     width: '497px',
     height: '290px',
     display: 'flex',
+    marginTop: 'auto',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '8px',
-    position: 'absolute',
-    bottom: '0',
   };
 
   const imageStyles: React.CSSProperties = {
