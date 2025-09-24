@@ -375,34 +375,56 @@ export default function ProductViewNewPage() {
     const trainingPlanData = projectData?.details as TrainingPlanData;
     if (!trainingPlanData || !productId) return;
 
-    const params = new URLSearchParams({
-      outlineId: productId,
-      lesson: lesson.title,
-      lang: trainingPlanData.detectedLanguage || 'en'
-    });
+    // Map content types to product and lessonType parameters (matching CreateContentTypeModal pattern)
+    let product = '';
+    let lessonType = '';
 
-    let createUrl = '';
     switch (contentType) {
       case 'presentation':
-        createUrl = `/create/lesson-presentation?${params.toString()}`;
+        product = 'lesson';
+        lessonType = 'lessonPresentation';
         break;
       case 'one-pager':
-        createUrl = `/create/text-presentation?${params.toString()}`;
+        product = 'text-presentation';
+        lessonType = 'textPresentation';
         break;
       case 'quiz':
-        createUrl = `/create/quiz?${params.toString()}`;
+        product = 'quiz';
+        lessonType = 'multiple-choice';
         break;
       case 'video-lesson':
-        // Keep inactive for now
+        product = 'video-lesson';
+        lessonType = 'videoLesson';
+        break;
+      default:
         return;
     }
+
+    // Find the module name for this lesson
+    const moduleName = trainingPlanData.sections?.find(section => 
+      section.lessons?.some(l => l.title === lesson.title)
+    )?.title || '';
+
+    // Find the lesson number within the module
+    const lessonNumber = trainingPlanData.sections?.find(section => 
+      section.lessons?.some(l => l.title === lesson.title)
+    )?.lessons?.findIndex(l => l.title === lesson.title) || 0;
+
+    const params = new URLSearchParams({
+      product: product,
+      lessonType: lessonType,
+      lessonTitle: lesson.title,
+      moduleName: moduleName,
+      lessonNumber: String(lessonNumber + 1), // Convert to 1-based indexing
+      courseName: trainingPlanData.mainTitle || ''
+    });
 
     // Store a flag to refresh content status when returning to this page
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('refresh_lesson_content_status', 'true');
     }
 
-    router.push(createUrl);
+    router.push(`/create?${params.toString()}`);
     setOpenDropdown(null);
   };
 
