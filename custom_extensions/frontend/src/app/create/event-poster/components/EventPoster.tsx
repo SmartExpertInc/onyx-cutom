@@ -192,7 +192,7 @@ export default function EventPoster({
         </div>
 
         {/* Left content area */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingRight: '50px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingRight: '50px', justifyContent: 'center', height: '100%' }}>
           {/* Topic */}
           <div
             style={{
@@ -233,9 +233,9 @@ export default function EventPoster({
           <div 
             style={{ 
               border: '2px solid #5416af',
-              borderRadius: '40px',
-              padding: '15px 20px',
-              minWidth: '200px',
+              borderRadius: '30px',
+              padding: '10px 14px',
+              minWidth: '160px',
               lineHeight: '1',
               display: 'flex',
               flexDirection: 'column',
@@ -288,8 +288,8 @@ export default function EventPoster({
               textAlign: 'center',
               lineHeight: '1.2',
               backgroundColor: '#5416af',
-              borderRadius: '40px',
-              padding: '20px 30px',
+              borderRadius: '30px',
+              padding: '10px 16px',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               maxWidth: '700px',

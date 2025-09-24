@@ -20388,6 +20388,8 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 flex-direction: column;
                 gap: 40px;
                 padding-right: 50px;
+                justify-content: center;
+                height: 100%;
             }}
             
             .topic {{
@@ -20422,9 +20424,9 @@ def generate_poster_html_template(poster_data: dict) -> str:
             
             .ticket-section {{
                 border: 2px solid #5416af;
-                border-radius: 40px;
-                padding: 15px 20px;
-                min-width: 200px;
+                border-radius: 30px;
+                padding: 10px 14px;
+                min-width: 160px;
                 line-height: 1;
                 display: flex;
                 flex-direction: column;
@@ -20464,8 +20466,8 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 text-align: center;
                 line-height: 1.2;
                 background-color: #5416af;
-                border-radius: 40px;
-                padding: 20px 30px;
+                border-radius: 30px;
+                padding: 10px 16px;
                 box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
                 backdrop-filter: blur(5px);
                 max-width: 700px;
