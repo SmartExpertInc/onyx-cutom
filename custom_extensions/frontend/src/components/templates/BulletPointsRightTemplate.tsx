@@ -547,9 +547,11 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   // Left side with title and bullets (dark blue background with diagonal cut)
   const leftSectionStyles: React.CSSProperties = {
-    width: '60%',
+    width: '65%',
     height: '600px',
-    position: 'relative',
+    position: 'absolute',
+    left: '0',
+    top: '0',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -562,15 +564,15 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   // Right side with image only (white background with diagonal cut)
   const rightSectionStyles: React.CSSProperties = {
-    width: '40%',
+    width: '100%',
     height: '600px',
-    position: 'relative',
+    position: 'absolute',
+    left: '0',
+    top: '0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     background: '#ffffff',
-    padding: '40px',
-    clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)',
     zIndex: 1
   };
 
