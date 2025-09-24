@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ContentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-import { getStandardSlideStyles, getStandardTitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -164,32 +163,47 @@ export const ContentSlideTemplate: React.FC<ContentSlideProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme),
+    width: '100%',
+    height: '100%',
+    minHeight: '600px',
     background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
     alignItems: alignment === 'center' ? 'center' : alignment === 'right' ? 'flex-end' : 'flex-start',
-    padding: '40px'
+    padding: '40px',
+    position: 'relative',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
   const titleStyles: React.CSSProperties = {
-    ...getStandardTitleStyles(currentTheme),
+    fontSize: '3.5rem',
+    fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     textAlign: alignment,
+    marginBottom: '24px',
+    lineHeight: 1.2,
     maxWidth: '900px',
-    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none'
+    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const contentStyles: React.CSSProperties = {
-    ...getStandardContentStyles(currentTheme),
+    fontSize: '1.2rem',
+    fontFamily: currentTheme.fonts.contentFont,
     color: subtitleColor,
     textAlign: alignment,
+    lineHeight: 1.4,
     maxWidth: '800px',
+    wordWrap: 'break-word',
     textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
     opacity: 0.9
-  };
+    };
 
   const editOverlayStyles: React.CSSProperties = {
     position: 'absolute',

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { FourBoxGridProps } from '@/types/slideTemplates';
-import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 interface BoxItem {
   heading: string;
@@ -163,17 +162,24 @@ export const FourBoxGridTemplate: React.FC<FourBoxGridProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme),
+    width: '100%',
+    minHeight: '600px',
     background: '#ffffff', // Белый фон
+    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'flex-start',
-    padding: '60px 80px'
+    padding: '60px 80px',
+    fontFamily: currentTheme.fonts.contentFont
   };
 
   const titleStyles: React.CSSProperties = {
-    ...getStandardTitleStyles(currentTheme),
+    fontSize: '2.5rem',
+    fontFamily: currentTheme.fonts.titleFont,
     color: '#000000', // Черный цвет для заголовка на белом фоне
     textAlign: 'left',
-    marginBottom: '40px'
+    marginBottom: '40px',
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const gridStyles: React.CSSProperties = {

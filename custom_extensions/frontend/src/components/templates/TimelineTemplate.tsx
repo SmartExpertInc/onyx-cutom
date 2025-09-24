@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { TimelineTemplateProps, TimelineStep } from '@/types/slideTemplates';
-import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -159,18 +158,23 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme),
+    minHeight: '600px',
     background: backgroundColor,
+    display: 'flex',
+    flexDirection: 'column',
     padding: '64px',
+    fontFamily: currentTheme.fonts.contentFont,
     alignItems: 'stretch',
-    textAlign: 'center'
+    textAlign: 'center',
   };
 
   const titleStyles: React.CSSProperties = {
-    ...getStandardTitleStyles(currentTheme),
+    fontSize: currentTheme.fonts.titleSize,
+    fontFamily: currentTheme.fonts.titleFont,
     color: titleColor,
     marginBottom: '80px',
-    textAlign: 'left'
+    textAlign: 'left',
+    wordWrap: 'break-word'
   };
 
   const timelineContainerStyles: React.CSSProperties = {

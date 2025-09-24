@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -230,7 +229,17 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme)
+    width: '100%',
+    height: '100%',
+    minHeight: '600px',
+    background: currentTheme.colors.backgroundColor,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: '60px 40px',
+    position: 'relative',
+    fontFamily: currentTheme.fonts.contentFont
   };
 
   const columnsContainerStyles: React.CSSProperties = {
@@ -255,18 +264,32 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    ...getStandardTitleStyles(currentTheme),
+    fontSize: '2.9rem',
+    fontFamily: currentTheme.fonts.titleFont,
+    color: currentTheme.colors.titleColor,
+    textAlign: 'center',
+    marginBottom: '20px',
+    lineHeight: 1.2,
     maxWidth: '340px',
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
     position: 'relative',
     left: '50%',
     transform: 'translateX(-50%)'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    ...getStandardSubtitleStyles(currentTheme),
     width: '325px',
-    maxWidth: '500px',
+    fontSize: '1.4rem',
+    fontFamily: currentTheme.fonts.contentFont,
+    color: currentTheme.colors.subtitleColor,
+    textAlign: 'center',
+    marginBottom: '40px',
     marginTop: '10px',
+    lineHeight: 1.4,
+    maxWidth: '500px',
+    wordWrap: 'break-word',
+    opacity: 0.9,
     position: 'relative',
     left: '50%',
     transform: 'translateX(-50%)'

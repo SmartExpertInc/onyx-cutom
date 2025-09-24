@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ProcessStepsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 interface StepItem {
   title: string;
@@ -201,8 +200,9 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   ];
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme),
+    minHeight: '600px',
     background: '#ffffff', // White background as in photo
+    fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
     padding: '50px',
     alignItems: 'flex-start'
@@ -225,22 +225,25 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    ...getStandardTitleStyles(currentTheme),
     width: '230px',
+    fontSize: '3rem',
+    fontFamily: 'serif', // Serif font as in photo
     color: '#000000', // Black color as in photo
+    fontWeight: 'bold',
     lineHeight: '0.85',
     marginBottom: '20px',
     textAlign: 'left',
-    letterSpacing: '-0.04em',
-    fontFamily: 'serif' // Serif font as in photo
+    letterSpacing: '-0.04em'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    ...getStandardSubtitleStyles(currentTheme),
+    fontSize: '1.4rem',
+    fontFamily: 'sans-serif', // Sans-serif font as in photo
     color: '#09090B', // Black color as in photo
+    fontWeight: 'normal',
     textAlign: 'left',
-    letterSpacing: '0.01em',
-    fontFamily: 'sans-serif' // Sans-serif font as in photo
+    opacity: 0.9,
+    letterSpacing: '0.01em'
   };
 
   const stepContainerStyles = (color: string): React.CSSProperties => ({

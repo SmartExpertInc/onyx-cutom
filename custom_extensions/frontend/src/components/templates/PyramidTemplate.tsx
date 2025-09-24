@@ -170,15 +170,21 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme)
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    backgroundColor
   };
 
   const titleStyles: React.CSSProperties = {
-    ...getStandardTitleStyles(currentTheme)
+    ...getStandardTitleStyles(currentTheme),
+    titleStyles: React.CSSProperties = {
+    color
   };
 
   const subtitleStyles: React.CSSProperties = {
-    ...getStandardSubtitleStyles(currentTheme)
+    ...getStandardSubtitleStyles(currentTheme),
+    subtitleStyles: React.CSSProperties = {
+    color
   };
 
   const mainContentStyles: React.CSSProperties = {

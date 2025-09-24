@@ -168,15 +168,20 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    ...getStandardSlideStyles(currentTheme),
+    width: '100%',
+    minHeight: '600px',
     background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
+    display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start',
     padding: '80px',
+    position: 'relative',
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     overflow: 'hidden'
   };
 
