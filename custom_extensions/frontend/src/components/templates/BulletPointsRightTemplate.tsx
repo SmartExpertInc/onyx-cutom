@@ -556,7 +556,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     justifyContent: 'flex-start',
     background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
     padding: '80px 60px',
-    clipPath: 'polygon(0 0, 85% 0, 100% 100%, 0 100%)'
+    clipPath: 'polygon(0 0, 100% 0, 100% 85%, 0 100%)'
   };
 
   // Right side with image only (white background with diagonal cut)
@@ -569,33 +569,9 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     justifyContent: 'center',
     background: '#ffffff',
     padding: '40px',
-    clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
+    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 85%)'
   };
 
-  // Diagonal divider line
-  const diagonalDividerStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: '0',
-    left: '45%',
-    width: '2px',
-    height: '100%',
-    background: 'linear-gradient(135deg, transparent 0%, #ffffff 20%, #ffffff 80%, transparent 100%)',
-    transform: 'skewX(-15deg)',
-    transformOrigin: 'top left',
-    zIndex: 2
-  };
-
-  // Blue gradient shape in top-left corner (exact match to photo)
-  const blueGradientStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: '0',
-    left: '0',
-    width: '200px',
-    height: '150px',
-    background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-    clipPath: 'polygon(0 0, 85% 0, 100% 100%, 0 85%)',
-    zIndex: 1
-  };
 
   const titleStyles: React.CSSProperties = {
     fontSize: '3.5rem',
@@ -694,12 +670,6 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   return (
     <div ref={slideContainerRef} className="bullet-points-right-template" style={slideStyles}>
-      {/* Blue gradient shape in top-left corner */}
-      <div style={blueGradientStyles}></div>
-      
-      {/* Diagonal divider line */}
-      <div style={diagonalDividerStyles}></div>
-
       {/* Left section with title and bullets (dark blue background) */}
       <div style={leftSectionStyles}>
         {/* Title */}
