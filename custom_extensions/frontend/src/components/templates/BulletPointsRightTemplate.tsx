@@ -167,20 +167,8 @@ function UnifiedBulletEditor({
   };
 
   const getBulletIcon = (style: string, index: number) => {
-    switch (style) {
-      case 'dot':
-        return '•';
-      case 'arrow':
-        return '→';
-      case 'check':
-        return '✓';
-      case 'star':
-        return '★';
-      case 'number':
-        return `${index + 1}.`;
-      default:
-        return '•';
-    }
+    // Always use triangular arrows for bullet-points-right template
+    return '▶';
   };
 
   const startEditing = () => {
@@ -265,14 +253,12 @@ function UnifiedBulletEditor({
   }, [isEditing]);
 
   const bulletIconStyles: React.CSSProperties = {
-    backgroundColor: '#8b5cf6', // Purple background for circles
-    color: '#ffffff', // White numbers
+    color: '#ffffff', // White triangular arrows
     fontWeight: 'bold',
-    minWidth: '32px',
-    minHeight: '32px',
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
+    minWidth: '20px',
+    minHeight: '20px',
+    width: '20px',
+    height: '20px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -284,7 +270,7 @@ function UnifiedBulletEditor({
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
     fontSize: '1rem',
-    color: '#333333',
+    color: '#ffffff', // White text on dark background
     lineHeight: '1.6'
   };
 
@@ -559,7 +545,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     overflow: 'hidden'
   };
 
-  // Left side with image
+  // Left side with bullets (dark blue background)
   const leftSectionStyles: React.CSSProperties = {
     width: '45%',
     height: '600px',
@@ -567,10 +553,11 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: '#f8f9fa'
+    background: `linear-gradient(135deg, ${currentTheme.colors.backgroundColor} 0%, ${currentTheme.colors.accentColor} 50%, ${currentTheme.colors.titleColor} 100%)`,
+    padding: '60px 40px'
   };
 
-  // Right side with text content
+  // Right side with title and image
   const rightSectionStyles: React.CSSProperties = {
     width: '55%',
     height: '600px',
@@ -578,7 +565,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     display: 'flex',
     flexDirection: 'column',
     padding: '80px 60px',
-    background: '#ffffff'
+    background: '#ffffff',
+    justifyContent: 'flex-start'
   };
 
   // Diagonal divider line
@@ -601,15 +589,15 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     left: '0',
     width: '200px',
     height: '150px',
-    background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+    background: `linear-gradient(135deg, ${currentTheme.colors.accentColor} 0%, ${currentTheme.colors.titleColor} 100%)`,
     clipPath: 'polygon(0 0, 85% 0, 100% 100%, 0 85%)',
     zIndex: 1
   };
 
   const titleStyles: React.CSSProperties = {
     fontSize: '3.5rem',
-    fontFamily: 'serif', // Serif font as in photo
-    color: '#000000', // Black color as in photo
+    fontFamily: currentTheme.fonts.titleFont,
+    color: currentTheme.colors.titleColor,
     fontWeight: 'bold',
     textAlign: 'left',
     marginBottom: '40px',
@@ -619,9 +607,9 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
 
   const subtitleStyles: React.CSSProperties = {
     fontSize: '1.2rem',
-    color: '#333333',
+    color: currentTheme.colors.subtitleColor,
     marginBottom: '32px',
-    fontFamily: 'sans-serif',
+    fontFamily: currentTheme.fonts.contentFont,
     wordWrap: 'break-word',
     lineHeight: '1.4'
   };
@@ -709,32 +697,20 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
       {/* Diagonal divider line */}
       <div style={diagonalDividerStyles}></div>
 
-      {/* Left section with image */}
+      {/* Left section with bullets (dark blue background) */}
       <div style={leftSectionStyles}>
-        <ClickableImagePlaceholder
-          imagePath={imagePath}
-          onImageUploaded={handleImageUploaded}
-          size="LARGE"
-          position="CENTER"
-          description="Click to upload image"
-          prompt={displayPrompt}
-          isEditable={isEditable}
-          style={placeholderStyles}
-          onSizeTransformChange={handleSizeTransformChange}
-          elementId={`${slideId}-image`}
-          elementRef={imageRef}
-          cropMode={objectFit || 'cover'}
-          slideContainerRef={slideContainerRef}
-          savedImagePosition={imageOffset}
-          savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
-          templateId="bullet-points-right"
-          aiGeneratedPrompt={imagePrompt}
-          isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
-          onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
-        />
+        <div data-draggable="true">
+          <UnifiedBulletEditor
+            bullets={bullets || []}
+            bulletStyle="arrow"
+            onUpdate={handleBulletsUpdate}
+            theme={currentTheme}
+            isEditable={isEditable}
+          />
+        </div>
       </div>
 
-      {/* Right section with text content */}
+      {/* Right section with title and image */}
       <div style={rightSectionStyles}>
         {/* Title */}
         <div data-draggable="true">
@@ -824,14 +800,28 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
           )}
         </div>
 
-        {/* Unified bullet points editor */}
-        <div data-draggable="true">
-          <UnifiedBulletEditor
-            bullets={bullets || []}
-            bulletStyle="number"
-            onUpdate={handleBulletsUpdate}
-            theme={currentTheme}
+        {/* Image placeholder */}
+        <div data-draggable="true" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload image"
+            prompt={displayPrompt}
             isEditable={isEditable}
+            style={placeholderStyles}
+            onSizeTransformChange={handleSizeTransformChange}
+            elementId={`${slideId}-image`}
+            elementRef={imageRef}
+            cropMode={objectFit || 'cover'}
+            slideContainerRef={slideContainerRef}
+            savedImagePosition={imageOffset}
+            savedImageSize={widthPx && heightPx ? { width: widthPx, height: heightPx } : undefined}
+            templateId="bullet-points-right"
+            aiGeneratedPrompt={imagePrompt}
+            isGenerating={getPlaceholderGenerationState ? getPlaceholderGenerationState(`${slideId}-image`).isGenerating : false}
+            onGenerationStarted={getPlaceholderGenerationState ? () => {} : undefined}
           />
         </div>
       </div>
