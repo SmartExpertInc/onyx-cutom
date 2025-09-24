@@ -9,7 +9,7 @@ import {
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -2404,6 +2404,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
   const [bulletIconPickerIndex, setBulletIconPickerIndex] = useState<number | null>(null);
+  const [fabOpen, setFabOpen] = useState(false);
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
     onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
@@ -2477,23 +2478,23 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                              documentContent={documentContent}
                            />
                            {isEditing && (
-                             <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5">
+                             <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
                                <button
-                                 className="p-1 rounded hover:bg-gray-100"
+                                 className="p-1 rounded hover:bg-gray-200"
                                  onClick={() => addMiniSectionAtEndOfMajor(originalHeadlineIndex)}
                                  title="Add Subsection"
                                >
                                  <Plus className="w-4 h-4" />
                                </button>
                                <button
-                                 className="p-1 rounded hover:bg-gray-100"
+                                 className="p-1 rounded hover:bg-gray-200"
                                  onClick={() => insertBulletListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
                                  title="Insert Bulleted List"
                                >
                                  <List className="w-4 h-4" />
                                </button>
                                <button
-                                 className="p-1 rounded hover:bg-gray-100"
+                                 className="p-1 rounded hover:bg-gray-200"
                                  onClick={() => insertNumberedListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
                                  title="Insert Numbered List"
                                >
@@ -2501,7 +2502,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                </button>
                                <div className="relative">
                                  <button
-                                   className="p-1 rounded hover:bg-gray-100"
+                                   className="p-1 rounded hover:bg-gray-200"
                                    onClick={() => setIconPickerHeadlineIndex(iconPickerHeadlineIndex === originalHeadlineIndex ? null : originalHeadlineIndex)}
                                    title="Choose Icon"
                                  >
@@ -2521,7 +2522,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                  )}
                                </div>
                                <button
-                                 className="p-1 rounded hover:bg-gray-100 text-red-600"
+                                 className="p-1 rounded hover:bg-gray-200 text-red-600"
                                  onClick={() => removeMajorSection(originalHeadlineIndex)}
                                  title="Delete Section"
                                >
@@ -2540,17 +2541,17 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             return (
                               <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#FF1414]'} text-left shadow-sm rounded-sm relative group/minisection`}>
                                 {isEditing && (
-                                  <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5 text-gray-800">
-                                    <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
+                                  <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
+                                    <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
                                       <List className="w-4 h-4" />
                                     </button>
-                                    <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertNumberedListAfter(originalMiniListIndex)} title="Insert Numbered List">
+                                    <button className="p-1 rounded hover:bg-gray-200" onClick={() => insertNumberedListAfter(originalMiniListIndex)} title="Insert Numbered List">
                                       <ListOrdered className="w-4 h-4" />
                                     </button>
-                                    <button className="p-1 rounded hover:bg-gray-100" onClick={() => removeBlockAtIndex(originalMiniHeadlineIndex)} title="Delete This Heading Only">
+                                    <button className="p-1 rounded hover:bg-gray-200" onClick={() => removeBlockAtIndex(originalMiniHeadlineIndex)} title="Delete This Heading Only">
                                       <X className="w-4 h-4" />
                                     </button>
-                                    <button className="p-1 rounded hover:bg-gray-100 text-red-600" onClick={() => removeMiniSection(originalMiniHeadlineIndex)} title="Delete Subsection">
+                                    <button className="p-1 rounded hover:bg-gray-200 text-red-600" onClick={() => removeMiniSection(originalMiniHeadlineIndex)} title="Delete Subsection">
                                       <Trash2 className="w-4 h-4" />
                                     </button>
                                   </div>
@@ -2714,26 +2715,34 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           </main>
         </div>
       
-      {/* Floating add buttons - compact circular like image controls (different visuals) */}
+      {/* Floating add menu: one big plus -> expands into image and section buttons */}
       {isEditing && onTextChange && (
         <>
           <button
-            onClick={() => setShowImageUpload(true)}
+            onClick={() => setFabOpen(v => !v)}
             className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
-            title="Add Image"
+            title="Add"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="w-6 h-6" />
           </button>
-          <button
-            onClick={addMajorSection}
-            className="fixed bottom-6 right-20 bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
-            title="Add Section"
-          >
-            <Heading2 className="w-5 h-5" />
-            <span className="sr-only">Add Section</span>
-          </button>
+          {fabOpen && (
+            <>
+              <button
+                onClick={() => { setFabOpen(false); setShowImageUpload(true); }}
+                className="fixed bottom-24 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+                title="Add Image"
+              >
+                <ImageIcon className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => { setFabOpen(false); addMajorSection(); }}
+                className="fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+                title="Add Section"
+              >
+                <Heading2 className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </>
       )}
       
