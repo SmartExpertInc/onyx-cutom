@@ -11,15 +11,17 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo: _gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, label, active: _active = false, gradientTo: _gradientTo, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
         className={cn(
           "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34",
-          "bg-white border-0 shadow-none hover:shadow-2xl hover:scale-105",
-          active && "shadow-2xl",
+          // Dark gradient card with prominent border and hover shadow
+          "bg-gradient-to-br from-blue-700 to-purple-800 hover:from-blue-600 hover:to-purple-700",
+          "border-0",
+          "shadow-none hover:shadow-2xl hover:scale-105",
           className
         )}
         onClick={onClick}
@@ -28,34 +30,32 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
               <div 
-                className="w-15 h-15 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-16 lg:h-16 xl:w-17 xl:h-17 flex items-center justify-center"
+                className="w-16 h-16 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-17 md:h-17 lg:w-18 lg:h-18 xl:w-19 xl:h-19 flex items-center justify-center rounded-full border-2 border-white"
                 style={{
-                  backgroundColor: active ? '#0646D3' : '#ADE9FF',
-                  borderRadius: '50%',
+                  backgroundColor: 'transparent',
                   aspectRatio: '1/1',
-                  '--icon-color': active ? 'white' : 'black',
-                  color: active ? 'white' : 'black'
+                  color: '#FFFFFF'
                 } as React.CSSProperties}
               >
                 <Icon 
-                  size={20}
+                  size={28}
+                  strokeWidth={2}
                   className={cn(
-                    "w-5 h-5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7",
-                    active ? "text-white" : "text-black"
+                    "text-white",
+                    "w-7 h-7 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10"
                   )}
                   style={{
-                    color: active ? 'white' : 'black',
-                    fill: active ? 'white' : 'black',
-                    stroke: active ? 'white' : 'black',
-                    '--tw-text-opacity': '1',
+                    color: '#FFFFFF',
+                    fill: '#FFFFFF',
+                    stroke: '#FFFFFF'
                   }}
                 />
               </div>
             )}
             <span 
-              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium"
+              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium text-white"
               style={{
-                color: active ? '#6B6B6D' : '#7C8082'
+                color: '#FFFFFF'
               }}
             >
               {label}
