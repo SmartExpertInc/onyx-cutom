@@ -12999,6 +12999,54 @@ async def download_project_instance_pdf(
             data_for_template_render['time_unit_singular'] = current_lang_cfg_main.get('TIME_UNIT_SINGULAR', 'h')
             data_for_template_render['time_unit_decimal_plural'] = current_lang_cfg_main.get('TIME_UNIT_DECIMAL_PLURAL', 'h')
             data_for_template_render['time_unit_general_plural'] = current_lang_cfg_main.get('TIME_UNIT_GENERAL_PLURAL', 'h')
+            
+            # Extract sources from the training plan data
+            sources = []
+            if 'sections' in data_for_template_render:
+                sources_set = set()
+                for section in data_for_template_render['sections']:
+                    if 'lessons' in section:
+                        for lesson in section['lessons']:
+                            if 'source' in lesson and lesson['source']:
+                                source_str = lesson['source']
+                                # Extract connector name from source string like "Connector Search: notion"
+                                import re
+                                match = re.match(r'Connector Search:\s*(.+)', source_str, re.IGNORECASE)
+                                if match:
+                                    sources_set.add(match.group(1))
+                                elif 'PDF' in source_str or 'Document' in source_str:
+                                    sources_set.add('PDF Document')
+                                elif 'text' in source_str.lower() or 'Text' in source_str:
+                                    sources_set.add('Create from scratch')
+                                else:
+                                    sources_set.add(source_str)
+                
+                # Convert to list of dictionaries with type information
+                for source_name in sources_set:
+                    if source_name in ['PDF Document', 'Create from scratch']:
+                        sources.append({'name': source_name, 'type': 'file'})
+                    else:
+                        sources.append({'name': source_name, 'type': 'connector'})
+            
+            data_for_template_render['sources'] = sources
+            
+            # Add content status for each lesson to show blue icons when content exists
+            if 'sections' in data_for_template_render:
+                for section in data_for_template_render['sections']:
+                    if 'lessons' in section:
+                        for lesson in section['lessons']:
+                            # Initialize content status for each lesson
+                            lesson['contentStatus'] = {
+                                'presentation': False,
+                                'onePager': False,
+                                'quiz': False,
+                                'videoLesson': False
+                            }
+                            
+                            # Check if content exists for this lesson
+                            # This would need to be implemented based on your existing content checking logic
+                            # For now, we'll set them to False (gray icons) - this can be enhanced later
+                            # to actually check the database for existing content
         elif component_name == COMPONENT_NAME_VIDEO_LESSON: # Updated logic for Video Lesson
             pdf_template_file = "video_lesson_pdf_template.html"
             if content_json and isinstance(content_json, dict):
