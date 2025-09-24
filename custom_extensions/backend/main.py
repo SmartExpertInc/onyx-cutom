@@ -13040,10 +13040,10 @@ async def download_project_instance_pdf(
                         for lesson in section['lessons']:
                             # Initialize content status for each lesson
                             lesson['contentStatus'] = {
-                                'presentation': False,
-                                'onePager': False,
-                                'quiz': False,
-                                'videoLesson': False
+                                'presentation': {'exists': False},
+                                'onePager': {'exists': False},
+                                'quiz': {'exists': False},
+                                'videoLesson': {'exists': False}
                             }
                             
                             # Check if content exists for this lesson by querying the database
@@ -13107,16 +13107,16 @@ async def download_project_instance_pdf(
                                     
                                     # Map microproduct types to our content status
                                     if microproduct_type in ['Slide Deck', 'Lesson Presentation']:
-                                        lesson['contentStatus']['presentation'] = True
+                                        lesson['contentStatus']['presentation']['exists'] = True
                                         print(f"Set presentation to True for lesson: {lesson.get('title', '')}")
                                     elif microproduct_type == 'Text Presentation':
-                                        lesson['contentStatus']['onePager'] = True
+                                        lesson['contentStatus']['onePager']['exists'] = True
                                         print(f"Set onePager to True for lesson: {lesson.get('title', '')}")
                                     elif microproduct_type == 'Quiz':
-                                        lesson['contentStatus']['quiz'] = True
+                                        lesson['contentStatus']['quiz']['exists'] = True
                                         print(f"Set quiz to True for lesson: {lesson.get('title', '')}")
                                     elif microproduct_type in ['Video Lesson', 'Video Lesson Presentation']:
-                                        lesson['contentStatus']['videoLesson'] = True
+                                        lesson['contentStatus']['videoLesson']['exists'] = True
                                         print(f"Set videoLesson to True for lesson: {lesson.get('title', '')}")
                                         
                             except Exception as e:
@@ -13151,13 +13151,13 @@ async def download_project_instance_pdf(
                                         
                                         # Map microproduct types to our content status
                                         if microproduct_type in ['Slide Deck', 'Lesson Presentation']:
-                                            lesson['contentStatus']['presentation'] = True
+                                            lesson['contentStatus']['presentation']['exists'] = True
                                         elif microproduct_type == 'Text Presentation':
-                                            lesson['contentStatus']['onePager'] = True
+                                            lesson['contentStatus']['onePager']['exists'] = True
                                         elif microproduct_type == 'Quiz':
-                                            lesson['contentStatus']['quiz'] = True
+                                            lesson['contentStatus']['quiz']['exists'] = True
                                         elif microproduct_type in ['Video Lesson', 'Video Lesson Presentation']:
-                                            lesson['contentStatus']['videoLesson'] = True
+                                            lesson['contentStatus']['videoLesson']['exists'] = True
                                             
                             except Exception as fallback_error:
                                 print(f"Fallback query also failed for lesson {lesson.get('title', '')}: {fallback_error}")
