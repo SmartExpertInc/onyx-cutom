@@ -1096,7 +1096,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                {/* Delete this block */}
                <button
                  className="p-1 rounded hover:bg-gray-200 text-red-600"
-                 onClick={() => removeBlockAtIndex(contentBlockIndex)}
+                 onClick={() => {
+                   if (!onTextChange || contentBlockIndex === undefined) return;
+                   onTextChange(['contentBlocks'], (prev => {
+                     if (!Array.isArray((prev as any))) return prev;
+                     const blocks = [...(prev as any)];
+                     if (contentBlockIndex < 0 || contentBlockIndex >= blocks.length) return prev;
+                     blocks.splice(contentBlockIndex, 1);
+                     return blocks;
+                   }) as any);
+                 }}
                  title="Delete block"
                >
                  <Trash2 className="w-4 h-4" />
@@ -1902,7 +1911,16 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                {/* Delete this block */}
                <button
                  className="p-1 rounded hover:bg-gray-200 text-red-600"
-                 onClick={() => removeBlockAtIndex(contentBlockIndex)}
+                 onClick={() => {
+                   if (!onTextChange || contentBlockIndex === undefined) return;
+                   onTextChange(['contentBlocks'], (prev => {
+                     if (!Array.isArray((prev as any))) return prev;
+                     const blocks = [...(prev as any)];
+                     if (contentBlockIndex < 0 || contentBlockIndex >= blocks.length) return prev;
+                     blocks.splice(contentBlockIndex, 1);
+                     return blocks;
+                   }) as any);
+                 }}
                  title="Delete block"
                >
                  <Trash2 className="w-4 h-4" />
