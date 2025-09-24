@@ -111,7 +111,7 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
 const getProductTypeDisplayName = (type: string): string => {
   switch (type) {
     case "Training Plan":
-      return "Course Outline";
+      return "Course";
     case "Slide Deck":
       return "Presentation";
     case "Text Presentation":
@@ -1060,27 +1060,6 @@ const FolderRow: React.FC<{
               You
             </span>
           </TableCell>
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalLessons = getTotalLessonsInFolder(folder);
-              return totalLessons > 0 ? totalLessons : "-";
-            })()}
-          </TableCell>
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalHours = getTotalHoursInFolder(folder);
-              return totalHours > 0 ? `${totalHours}h` : "-";
-            })()}
-          </TableCell>
-          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalCompletionTime =
-                getTotalCompletionTimeInFolder(folder);
-              return totalCompletionTime > 0
-                ? formatCompletionTimeLocalized(totalCompletionTime)
-                : "-";
-            })()}
-          </TableCell>
         <TableCell
           className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
           onClick={(e) => e.stopPropagation()}
@@ -1188,28 +1167,6 @@ const FolderRow: React.FC<{
                 You
               </span>
             </TableCell>
-            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {(() => {
-                const lessonData = lessonDataCache[p.id];
-                return lessonData ? lessonData.lessonCount : "-";
-              })()}
-            </TableCell>
-            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {(() => {
-                const lessonData = lessonDataCache[p.id];
-                return lessonData && lessonData.totalHours
-                  ? `${lessonData.totalHours}h`
-                  : "-";
-              })()}
-            </TableCell>
-            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {(() => {
-                const lessonData = lessonDataCache[p.id];
-                return lessonData
-                  ? formatCompletionTimeLocalized(lessonData.completionTime)
-                  : "-";
-              })()}
-            </TableCell>
             <TableCell
               className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
               onClick={(e) => e.stopPropagation()}
@@ -1231,7 +1188,7 @@ const FolderRow: React.FC<{
       {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
         <TableRow>
           <TableCell
-            colSpan={7}
+            colSpan={4}
             className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
             style={{ paddingLeft: `${(level + 1) * 20}px` }}
           >
@@ -2169,7 +2126,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed" | "creator" | "numberOfLessons" | "estCreationTime" | "estCompletionTime">(
+  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed" | "creator">(
     "lastViewed"
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -2620,7 +2577,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       filteredProjects = filteredProjects.filter((p) => {
         const designType = (p.designMicroproductType || "").toLowerCase();
         switch (contentTypeFilter) {
-          case "Course Outline":
+          case "Course":
             return designType === "training plan";
           case "Presentation":
             return designType === "slide deck";
@@ -2665,7 +2622,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         filteredProjects = filteredProjects.filter((p) => {
           const designType = (p.designMicroproductType || "").toLowerCase();
           switch (contentTypeFilter) {
-            case "Course Outline":
+            case "Course":
               return designType === "training plan";
             case "Presentation":
               return designType === "slide deck";
@@ -2718,18 +2675,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           case 'creator':
             aValue = a.createdBy.toLowerCase();
             bValue = b.createdBy.toLowerCase();
-            break;
-          case 'numberOfLessons':
-            aValue = lessonDataCache[a.id]?.lessonCount || 0;
-            bValue = lessonDataCache[b.id]?.lessonCount || 0;
-            break;
-          case 'estCreationTime':
-            aValue = lessonDataCache[a.id]?.totalHours || 0;
-            bValue = lessonDataCache[b.id]?.totalHours || 0;
-            break;
-          case 'estCompletionTime':
-            aValue = lessonDataCache[a.id]?.completionTime || 0;
-            bValue = lessonDataCache[b.id]?.completionTime || 0;
             break;
           default:
             aValue = a.order || 0;
@@ -3489,14 +3434,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Content type filters for list view
   const contentTypeFilters = [
     "All",
-    "Course Outline", 
+    "Course", 
     "Presentation",
     "Quiz",
     "Video Lesson"
   ];
   const contentTypeFilterIcons: Record<string, LucideIcon> = {
     "All": Home,
-    "Course Outline": TableOfContents,
+    "Course": TableOfContents,
     "Presentation": Presentation,
     "Quiz": HelpCircle,
     "Video Lesson": Video,
@@ -3611,13 +3556,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </div>
                 </Button>
               </Link>
-            <Button 
-              variant="import" 
-              className="rounded-full font-semibold"
-            >
-              {t("interface.import", "Import")}
-              <ChevronsUpDown size={16} className="text-gray-500" />
-            </Button>
           </div>
         </div>
       )}
@@ -3828,42 +3766,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         )}
                       </div>
                     </TableHead>
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
-                      style={{ width: `${columnWidths.numberOfLessons}%` }}
-                      onClick={() => handleSort('numberOfLessons')}
-                    >
-                      <div className="flex items-center gap-2">
-                        {t("interface.numberOfLessons", "Number of Lessons")}
-                        {sortBy === 'numberOfLessons' && (
-                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
-                        )}
-                      </div>
-                    </TableHead>
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
-                      style={{ width: `${columnWidths.estCreationTime}%` }}
-                      onClick={() => handleSort('estCreationTime')}
-                    >
-                      <div className="flex items-center gap-2">
-                        {t("interface.estCreationTime", "Est. Creation Time")}
-                        {sortBy === 'estCreationTime' && (
-                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
-                        )}
-                      </div>
-                    </TableHead>
-                    <TableHead
-                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
-                      style={{ width: `${columnWidths.estCompletionTime}%` }}
-                      onClick={() => handleSort('estCompletionTime')}
-                    >
-                      <div className="flex items-center gap-2">
-                        {t("interface.estCompletionTime", "Est. Completion Time")}
-                        {sortBy === 'estCompletionTime' && (
-                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
-                        )}
-                      </div>
-                    </TableHead>
                   <TableHead
                     className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
@@ -3960,30 +3862,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         </TableCell>
                         <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(p.createdAt)}
-                        </TableCell>
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </TableCell>
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </TableCell>
-                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
                         </TableCell>
                       <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
