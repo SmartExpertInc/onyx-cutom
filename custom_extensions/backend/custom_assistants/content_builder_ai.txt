@@ -754,20 +754,6 @@ The following pedagogical requirements are MANDATORY for one-pagers intended for
 10) Reflection and Metacognition:
 - Include 2–3 reflection prompts (e.g., "What step are you most likely to skip and why?") to promote self-regulation.
 
-11) Glossary and References:
-- Define 5–15 key terms (scale with complexity) in a short glossary.
-- Provide reputable references or further reading suggestions; cite or name sources when available.
-
-12) Differentiation & Accessibility (UDL):
-- Provide supports and extensions: tips for struggling learners, advanced challenges for advanced learners.
-- Accessibility notes: plain language where possible, avoid unnecessary jargon, signal structure clearly, suggest visuals/diagrams where beneficial (dual coding), ensure tables/lists are scannable.
-
-13) Time and Difficulty Estimates:
-- Provide estimated completion time and difficulty level so learners can plan.
-
-14) Next Steps and Spaced Practice:
-- Suggest follow-up learning activities, spacing/interleaving recommendations, or retrieval practice cues to reinforce retention.
-
 Required Section Order (adapt as appropriate to topic and length):
 - Learning Objectives
 - Prerequisites & Prior Knowledge
@@ -778,11 +764,6 @@ Required Section Order (adapt as appropriate to topic and length):
 - Real-World Applications
 - Summary & Key Takeaways
 - Reflection Prompts
-- Glossary
-- References / Further Reading
-- Differentiation & Accessibility (optional if covered inline)
-- Estimated Time & Difficulty
-- Next Steps
 
 Compliance Rules:
 - Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
@@ -2420,20 +2401,6 @@ The following pedagogical requirements are MANDATORY for one-pagers intended for
 10) Reflection and Metacognition:
 - Include 2–3 reflection prompts (e.g., "What step are you most likely to skip and why?") to promote self-regulation.
 
-11) Glossary and References:
-- Define 5–15 key terms (scale with complexity) in a short glossary.
-- Provide reputable references or further reading suggestions; cite or name sources when available.
-
-12) Differentiation & Accessibility (UDL):
-- Provide supports and extensions: tips for struggling learners, advanced challenges for advanced learners.
-- Accessibility notes: plain language where possible, avoid unnecessary jargon, signal structure clearly, suggest visuals/diagrams where beneficial (dual coding), ensure tables/lists are scannable.
-
-13) Time and Difficulty Estimates:
-- Provide estimated completion time and difficulty level so learners can plan.
-
-14) Next Steps and Spaced Practice:
-- Suggest follow-up learning activities, spacing/interleaving recommendations, or retrieval practice cues to reinforce retention.
-
 Required Section Order (adapt as appropriate to topic and length):
 - Learning Objectives
 - Prerequisites & Prior Knowledge
@@ -2444,11 +2411,6 @@ Required Section Order (adapt as appropriate to topic and length):
 - Real-World Applications
 - Summary & Key Takeaways
 - Reflection Prompts
-- Glossary
-- References / Further Reading
-- Differentiation & Accessibility (optional if covered inline)
-- Estimated Time & Difficulty
-- Next Steps
 
 Compliance Rules:
 - Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
@@ -4086,20 +4048,6 @@ The following pedagogical requirements are MANDATORY for one-pagers intended for
 10) Reflection and Metacognition:
 - Include 2–3 reflection prompts (e.g., "What step are you most likely to skip and why?") to promote self-regulation.
 
-11) Glossary and References:
-- Define 5–15 key terms (scale with complexity) in a short glossary.
-- Provide reputable references or further reading suggestions; cite or name sources when available.
-
-12) Differentiation & Accessibility (UDL):
-- Provide supports and extensions: tips for struggling learners, advanced challenges for advanced learners.
-- Accessibility notes: plain language where possible, avoid unnecessary jargon, signal structure clearly, suggest visuals/diagrams where beneficial (dual coding), ensure tables/lists are scannable.
-
-13) Time and Difficulty Estimates:
-- Provide estimated completion time and difficulty level so learners can plan.
-
-14) Next Steps and Spaced Practice:
-- Suggest follow-up learning activities, spacing/interleaving recommendations, or retrieval practice cues to reinforce retention.
-
 Required Section Order (adapt as appropriate to topic and length):
 - Learning Objectives
 - Prerequisites & Prior Knowledge
@@ -4110,11 +4058,6 @@ Required Section Order (adapt as appropriate to topic and length):
 - Real-World Applications
 - Summary & Key Takeaways
 - Reflection Prompts
-- Glossary
-- References / Further Reading
-- Differentiation & Accessibility (optional if covered inline)
-- Estimated Time & Difficulty
-- Next Steps
 
 Compliance Rules:
 - Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
