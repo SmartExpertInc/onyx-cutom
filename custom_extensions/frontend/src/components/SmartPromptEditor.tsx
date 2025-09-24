@@ -208,13 +208,9 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
   if (showConfirmation) {
     return (
-      <div className="w-full bg-white border border-gray-300 rounded-xl p-6 mb-4 shadow-sm">
+      <div className="w-full bg-white rounded-lg p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-            {t('actions.changesPreview', 'Changes Preview')}
-          </div>
         </div>
         
         <p className="text-gray-700 mb-6">
@@ -226,7 +222,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <button
             onClick={handleConfirmChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loadingConfirm ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -239,7 +235,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <button
             onClick={handleRevertChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
           >
             <RotateCcw size={16} />
             {t('actions.revertChanges', 'Revert Changes')}
@@ -253,7 +249,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Advanced mode panel - always shown */}
       {showAdvanced && (
-        <div className="w-full bg-white rounded-xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
+        <div className="w-full bg-white rounded-lg p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
             <button

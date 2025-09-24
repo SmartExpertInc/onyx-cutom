@@ -149,7 +149,7 @@ export default function ProductViewNewPage() {
   }, []);
 
   // Calculate metrics from project data
-  const trainingPlanData = projectData?.details as TrainingPlanData;
+  const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
   const totalModules = trainingPlanData?.sections?.length || 0;
   const totalLessons = trainingPlanData?.sections?.reduce((acc, section) => acc + (section.lessons?.length || 0), 0) || 0;
   const completed = 0; // Placeholder - would need actual completion data
@@ -433,7 +433,7 @@ export default function ProductViewNewPage() {
   }, [productId]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
-    const trainingPlanData = projectData?.details as TrainingPlanData;
+    const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
     if (!trainingPlanData || !productId) return;
 
     // Map content types to product and lessonType parameters (matching CreateContentTypeModal pattern)
@@ -515,7 +515,7 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 font-inter"
+      className="p-4 md:p-8 font-inter min-h-screen"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
@@ -617,7 +617,7 @@ export default function ProductViewNewPage() {
             <div className="bg-white rounded-lg p-[25px]">
               <h1 className="text-[#191D30] font-semibold text-[32px] leading-none">
                 {(() => {
-                  const trainingPlanData = projectData.details as TrainingPlanData;
+                  const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
                   return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
                 })()}
               </h1>
@@ -625,7 +625,7 @@ export default function ProductViewNewPage() {
 
             {/* Render actual modules from the course outline data */}
             {(() => {
-              const trainingPlanData = projectData.details as TrainingPlanData;
+              const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
               if (!trainingPlanData?.sections) {
                 return (
                   <div className="bg-white rounded-lg p-[25px]">

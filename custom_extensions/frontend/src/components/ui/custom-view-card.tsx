@@ -67,7 +67,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
   } = metrics;
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
+    <div className={`bg-white rounded-lg p-6 ${className}`}>
       {/* Title */}
       <h2 className="text-xl font-medium text-gray-800 mb-4">
         {title}
