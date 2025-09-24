@@ -21209,7 +21209,7 @@ async def download_projects_list_pdf(
         logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
 
-@app.get("/api/custom/pdf/course-outline/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+@app.get("/pdf/course-outline/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_course_outline_pdf(
     project_id: int,
     onyx_user_id: str = Depends(get_current_onyx_user_id),
