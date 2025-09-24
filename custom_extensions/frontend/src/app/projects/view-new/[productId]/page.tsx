@@ -1,28 +1,83 @@
 // custom_extensions/frontend/src/app/projects/view-new/[productId]/page.tsx
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, FolderOpen, Sparkles } from 'lucide-react';
+import { Download, FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultSources } from '@/components/ui/custom-view-card';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
-const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"></path> <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M12 7L12 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M16 8L16 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 9L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"></path> <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M12 7L12 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M16 8L16 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 9L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
-const QuizIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"></circle><path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path><circle cx="12" cy="16" r="1" fill="currentColor"></circle></g></svg>
+const QuizIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"></circle><path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path><circle cx="12" cy="16" r="1" fill="currentColor"></circle></g></svg>
 );
 
-const VideoScriptIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+const VideoScriptIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
-const TextPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
+const TextPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
+
+// Custom Tooltip Component matching the text presentation page style
+const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (elementRef.current) {
+      const rect = elementRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.top - 6,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
+  return (
+    <>
+      <div 
+        ref={elementRef}
+        className="relative inline-block w-full"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+      {isVisible && typeof window !== 'undefined' && createPortal(
+        <div 
+          className="fixed z-50 pointer-events-none"
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-xs whitespace-nowrap relative max-w-xs">
+            <div className="font-medium">{content}</div>
+            {/* Simple triangle tail */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+              <div className="w-0 h-0 border-l-3 border-r-3 border-t-3 border-l-transparent border-r-transparent border-t-blue-500"></div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
 
 type ProductViewNewParams = {
   productId: string;
@@ -38,6 +93,27 @@ export default function ProductViewNewPage() {
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [lessonContentStatus, setLessonContentStatus] = useState<{[key: string]: {
+    presentation: {exists: boolean, productId?: number}, 
+    onePager: {exists: boolean, productId?: number}, 
+    quiz: {exists: boolean, productId?: number}, 
+    videoLesson: {exists: boolean, productId?: number}
+  }}>({});
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (_event: MouseEvent) => {
+      if (openDropdown) {
+        setOpenDropdown(null);
+      }
+    };
+
+    if (openDropdown) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [openDropdown]);
   const [userCredits, setUserCredits] = useState<number | null>(null);
 
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -147,6 +223,102 @@ export default function ProductViewNewPage() {
     }
   }, [router]);
 
+  // Function to handle icon clicks for navigation
+  const handleIconClick = useCallback((productId: number) => {
+    router.push(`/projects/view/${productId}`);
+  }, [router]);
+
+  // Function to check existing content for lessons
+  const checkLessonContentStatus = useCallback(async (outlineName: string, lessons: Lesson[]) => {
+    if (!outlineName || !lessons.length) return;
+
+    try {
+      const commonHeaders: HeadersInit = {};
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      // Fetch all projects for the user
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects`, {
+        headers: commonHeaders
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch projects for content status check');
+        return;
+      }
+
+      const allProjects = await response.json();
+      
+      // Check for existing products for each lesson
+      const contentStatus: {[key: string]: {
+        presentation: {exists: boolean, productId?: number}, 
+        onePager: {exists: boolean, productId?: number}, 
+        quiz: {exists: boolean, productId?: number}, 
+        videoLesson: {exists: boolean, productId?: number}
+      }} = {};
+      
+      for (const lesson of lessons) {
+        const lessonKey = lesson.id || lesson.title;
+        
+        // Initialize status for this lesson
+        contentStatus[lessonKey] = {
+          presentation: {exists: false},
+          onePager: {exists: false},
+          quiz: {exists: false},
+          videoLesson: {exists: false}
+        };
+
+        // Look for projects that match this lesson using the same logic as TrainingPlan.tsx
+        const expectedProjectName = `${outlineName}: ${lesson.title}`;
+        
+        const matchingProjects = allProjects.filter((project: { id: number; projectName?: string; design_microproduct_type?: string; microproduct_type?: string }) => {
+          const projectName = project.projectName?.trim();
+          
+          // Method 1: New naming convention - project name follows "Outline Name: Lesson Title" pattern
+          const newPatternMatch = projectName === expectedProjectName;
+          
+          // Method 2: Legacy patterns for backward compatibility
+          const legacyQuizPattern = `Quiz - ${outlineName}: ${lesson.title}`;
+          const legacyQuizPatternMatch = projectName === legacyQuizPattern;
+          
+          const legacyTextPresentationPattern = `Text Presentation - ${outlineName}: ${lesson.title}`;
+          const legacyTextPresentationPatternMatch = projectName === legacyTextPresentationPattern;
+          
+          return newPatternMatch || legacyQuizPatternMatch || legacyTextPresentationPatternMatch;
+        });
+        
+        // Check each matching project to see what type of content it is
+        for (const project of matchingProjects) {
+          const microproductType = project.design_microproduct_type || project.microproduct_type;
+          
+          // Map microproduct types to our content status
+          switch (microproductType) {
+            case 'Slide Deck':
+            case 'Lesson Presentation':
+              contentStatus[lessonKey].presentation = {exists: true, productId: project.id};
+              break;
+            case 'Text Presentation':
+              contentStatus[lessonKey].onePager = {exists: true, productId: project.id};
+              break;
+            case 'Quiz':
+              contentStatus[lessonKey].quiz = {exists: true, productId: project.id};
+              break;
+            case 'Video Lesson':
+            case 'Video Lesson Presentation':
+              contentStatus[lessonKey].videoLesson = {exists: true, productId: project.id};
+              break;
+          }
+        }
+      }
+
+      setLessonContentStatus(contentStatus);
+    } catch (error) {
+      console.error('Error checking lesson content status:', error);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchProjectData = async () => {
       if (!productId) return;
@@ -170,6 +342,23 @@ export default function ProductViewNewPage() {
 
         const data: ProjectInstanceDetail = await response.json();
         setProjectData(data);
+
+        // Check for existing content for lessons
+        const trainingPlanData = data.details as TrainingPlanData;
+        if (trainingPlanData?.sections && trainingPlanData?.mainTitle) {
+          const allLessons: Lesson[] = [];
+          trainingPlanData.sections.forEach(section => {
+            if (section.lessons) {
+              allLessons.push(...section.lessons);
+            }
+          });
+          await checkLessonContentStatus(trainingPlanData.mainTitle, allLessons);
+        }
+
+        // Clear refresh flag if it exists
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('refresh_lesson_content_status');
+        }
       } catch (err) {
         console.error('Error fetching project data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load project');
@@ -180,6 +369,42 @@ export default function ProductViewNewPage() {
 
     fetchProjectData();
   }, [productId]);
+
+
+  const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
+    const trainingPlanData = projectData?.details as TrainingPlanData;
+    if (!trainingPlanData || !productId) return;
+
+    const params = new URLSearchParams({
+      outlineId: productId,
+      lesson: lesson.title,
+      lang: trainingPlanData.detectedLanguage || 'en'
+    });
+
+    let createUrl = '';
+    switch (contentType) {
+      case 'presentation':
+        createUrl = `/create/lesson-presentation?${params.toString()}`;
+        break;
+      case 'one-pager':
+        createUrl = `/create/text-presentation?${params.toString()}`;
+        break;
+      case 'quiz':
+        createUrl = `/create/quiz?${params.toString()}`;
+        break;
+      case 'video-lesson':
+        // Keep inactive for now
+        return;
+    }
+
+    // Store a flag to refresh content status when returning to this page
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('refresh_lesson_content_status', 'true');
+    }
+
+    router.push(createUrl);
+    setOpenDropdown(null);
+  };
 
   if (loading) {
     return (
@@ -207,12 +432,12 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 min-h-screen font-inter"
+      className="p-4 md:p-8 h-screen overflow-hidden font-inter"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto flex flex-col h-full">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-x-4">
             <button
@@ -286,12 +511,12 @@ export default function ProductViewNewPage() {
         </div>
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px] flex-1 overflow-hidden">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
-              <h1 className="text-[#191D30] font-semibold text-[30px] leading-[100%]">
+              <h1 className="text-[#191D30] font-semibold text-[32px] leading-none">
                 {(() => {
                   const trainingPlanData = projectData.details as TrainingPlanData;
                   return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
@@ -312,13 +537,13 @@ export default function ProductViewNewPage() {
 
               return trainingPlanData.sections.map((section, index) => (
                 <div key={section.id || index} className="bg-white rounded-lg p-[25px]">
-                  <h2 className="text-[#191D30] font-medium text-[18px] leading-[100%] mb-2">
+                  <h2 className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2">
                     Module {index + 1}: {section.title}
                   </h2>
-                  <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-4">
+                  <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
-                  <hr className="border-gray-200 mb-4" />
+                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   {section.lessons && section.lessons.length > 0 && (
                     <div>
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => (
@@ -331,18 +556,133 @@ export default function ProductViewNewPage() {
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
-                              <LessonPresentationIcon />
-                              <TextPresentationIcon />
-                              <QuizIcon />
-                              <VideoScriptIcon />
+                              <CustomTooltip content="Presentation">
+                                <div 
+                                  onClick={() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    if (status?.presentation?.exists && status.presentation.productId) {
+                                      handleIconClick(status.presentation.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <LessonPresentationIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.presentation?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
+                              </CustomTooltip>
+                              <CustomTooltip content="One-Pager">
+                                <div 
+                                  onClick={() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    if (status?.onePager?.exists && status.onePager.productId) {
+                                      handleIconClick(status.onePager.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <TextPresentationIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.onePager?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
+                              </CustomTooltip>
+                              <CustomTooltip content="Quiz">
+                                <div 
+                                  onClick={() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    if (status?.quiz?.exists && status.quiz.productId) {
+                                      handleIconClick(status.quiz.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <QuizIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.quiz?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
+                              </CustomTooltip>
+                              <CustomTooltip content="Video Lesson">
+                                <div 
+                                  onClick={() => {
+                                    const lessonKey = lesson.id || lesson.title;
+                                    const status = lessonContentStatus[lessonKey];
+                                    if (status?.videoLesson?.exists && status.videoLesson.productId) {
+                                      handleIconClick(status.videoLesson.productId);
+                                    }
+                                  }}
+                                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                  <VideoScriptIcon 
+                                    color={(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasContent = status?.videoLesson?.exists;
+                                      return hasContent ? '#0F58F9' : undefined;
+                                    })()}
+                                  />
+                                </div>
+                              </CustomTooltip>
                             </div>
-                            <button
-                              className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                              style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
-                              title="Add content"
-                            >
-                              + Content
-                            </button>
+                            <div className="relative">
+                              <button
+                                onClick={() => setOpenDropdown(openDropdown === (lesson.id || `${index}-${lessonIndex}`) ? null : (lesson.id || `${index}-${lessonIndex}`))}
+                                className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                                style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
+                                title="Create content"
+                              >
+                                Create
+                                <ChevronDown size={12} className="ml-1" />
+                              </button>
+                              
+                              {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
+                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[160px]">
+                                  <div className="p-2">
+                                    <button
+                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
+                                    >
+                                      Presentation
+                                    </button>
+                                    <button
+                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
+                                    >
+                                      One-Pager
+                                    </button>
+                                    <button
+                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
+                                    >
+                                      Quiz
+                                    </button>
+                                    <button
+                                      disabled
+                                      className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
+                                    >
+                                      Video Lesson
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -351,6 +691,22 @@ export default function ProductViewNewPage() {
                 </div>
               ));
             })()}
+            {/* Add New Module Button
+            <div className="flex justify-center">
+              <button
+                className="flex items-center justify-center gap-2 rounded px-[15px] py-[8px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none w-full"
+                style={{
+                  backgroundColor: '#0F58F9',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                + Add new module
+              </button>
+            </div> */}
           </div>
 
           {/* Right Panel - Course Summary */}

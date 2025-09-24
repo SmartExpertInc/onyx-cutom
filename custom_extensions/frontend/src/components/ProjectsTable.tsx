@@ -2341,6 +2341,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  // Feature flag: disable outline-related filtering (shows all products)
+  const DISABLE_OUTLINE_FILTERING = false;
+
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
     setLoading(true);
@@ -2587,12 +2590,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         return filteredProjects;
       };
 
-      const allProjects = deduplicateProjects(sortedProjects);
+      const allProjects = DISABLE_OUTLINE_FILTERING
+        ? sortedProjects
+        : deduplicateProjects(sortedProjects);
       setProjects(allProjects);
 
       // Calculate folder projects mapping for all folders
       const folderProjectsMap: Record<number, Project[]> = {};
-      allProjects.forEach((project) => {
+      allProjects.forEach((project: Project) => {
         if (project.folderId) {
           if (!folderProjectsMap[project.folderId]) {
             folderProjectsMap[project.folderId] = [];
@@ -3578,12 +3583,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   // Add these just before the render block
-  const visibleProjects =
-    viewMode === "list"
-      ? getProjectsForFolder(folderId).filter(
-          (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
-        )
-      : getProjectsForFolder(folderId);
+  const visibleProjects = DISABLE_OUTLINE_FILTERING
+    ? getProjectsForFolder(folderId)
+    : viewMode === "list"
+    ? getProjectsForFolder(folderId).filter(
+        (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
+      )
+    : getProjectsForFolder(folderId);
 
   const visibleUnassignedProjects =
     viewMode === "list"
