@@ -556,7 +556,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     justifyContent: 'flex-start',
     background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
     padding: '80px 60px',
-    clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)'
+    clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)',
+    zIndex: 2
   };
 
   // Right side with image only (white background with diagonal cut)
@@ -569,7 +570,8 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     justifyContent: 'center',
     background: '#ffffff',
     padding: '40px',
-    clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)'
+    clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)',
+    zIndex: 1
   };
 
 
@@ -665,7 +667,9 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
   const placeholderStyles: React.CSSProperties = {
     // Only apply default dimensions if no saved size exists
     ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
-    margin: '0 auto'
+    margin: '0 auto',
+    position: 'relative',
+    zIndex: 1
   };
 
   return (
