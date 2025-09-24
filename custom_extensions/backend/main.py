@@ -12854,6 +12854,7 @@ async def download_project_instance_pdf(
     onePager: Optional[str] = Query(None),
     videoPresentation: Optional[str] = Query(None),
     lessonPresentation: Optional[str] = Query(None),
+    templateType: Optional[str] = Query(None),
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -12936,7 +12937,11 @@ async def download_project_instance_pdf(
                     "contentBlocks": [], "detectedLanguage": detected_lang_for_pdf
                 }
         elif component_name == COMPONENT_NAME_TRAINING_PLAN:
-            pdf_template_file = "training_plan_pdf_template.html"
+            # Check if templateType is specified to use course outline template
+            if templateType == "course-outline":
+                pdf_template_file = "course_outline_pdf_template.html"
+            else:
+                pdf_template_file = "training_plan_pdf_template.html"
             temp_dumped_dict = None
             if content_json and isinstance(content_json, dict):
                 try:

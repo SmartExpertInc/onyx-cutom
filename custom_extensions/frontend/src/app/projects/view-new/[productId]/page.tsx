@@ -149,6 +149,9 @@ export default function ProductViewNewPage() {
         queryParams.append('lessonNumber', lessonNumber);
       }
       
+      // Use course outline template for this view-new page
+      queryParams.append('templateType', 'course-outline');
+      
       // Add column visibility settings for Training Plan PDFs (same as in the main view page)
       queryParams.append('knowledgeCheck', '1'); // Default to show all columns
       queryParams.append('contentAvailability', '1');
