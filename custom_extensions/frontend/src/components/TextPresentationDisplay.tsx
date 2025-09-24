@@ -2507,10 +2507,10 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                    <StarIcon className="w-4 h-4" />
                                  </button>
                                  {iconPickerHeadlineIndex === originalHeadlineIndex && (
-                                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-1 grid grid-cols-5 gap-1 z-10">
+                                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px]">
                                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                                       <button key={name} className="p-1 rounded hover:bg-gray-100" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
-                                         {React.createElement(iconMap[name], { className: 'w-4 h-4' })}
+                                       <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
+                                         {React.createElement(iconMap[name], { className: 'w-6 h-6' })}
                                        </button>
                                      ))}
                                    </div>
@@ -2594,26 +2594,36 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             );
                           } else { // It's an AnyContentBlock
                             const originalSubIndex = findOriginalIndex(subItem);
-                            return <RenderBlock
-                              key={subIndex}
-                              block={subItem}
-                              isLastInBox={isLastSubItem}
-                              basePath={['contentBlocks', originalSubIndex]}
-                              isEditing={isEditing}
-                              onTextChange={onTextChange}
-                              contentBlockIndex={originalSubIndex}
-                              onMoveBlockUp={handleMoveBlockUp}
-                              onMoveBlockDown={handleMoveBlockDown}
-                              isFirstBlock={originalSubIndex === 0}
-                              isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                              onDragStart={handleDragStart}
-                              onDragOver={handleDragOver}
-                              onDragLeave={handleDragLeave}
-                              onDrop={handleDrop}
-                              onDragEnd={handleDragEnd}
-                              isDraggedOver={dragOverIndex === originalSubIndex}
-                              documentContent={documentContent}
-                            />;
+                            return (
+                              <div key={subIndex} className="relative group/block">
+                                <RenderBlock
+                                  block={subItem}
+                                  isLastInBox={isLastSubItem}
+                                  basePath={['contentBlocks', originalSubIndex]}
+                                  isEditing={isEditing}
+                                  onTextChange={onTextChange}
+                                  contentBlockIndex={originalSubIndex}
+                                  onMoveBlockUp={handleMoveBlockUp}
+                                  onMoveBlockDown={handleMoveBlockDown}
+                                  isFirstBlock={originalSubIndex === 0}
+                                  isLastBlock={originalSubIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                                  onDragStart={handleDragStart}
+                                  onDragOver={handleDragOver}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                  onDragEnd={handleDragEnd}
+                                  isDraggedOver={dragOverIndex === originalSubIndex}
+                                  documentContent={documentContent}
+                                />
+                                {isEditing && (
+                                  <div className="absolute bottom-1 left-1 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200">
+                                    <button className="p-1 rounded bg-white/90 border border-gray-200 hover:bg-gray-100 shadow-sm" onClick={() => removeBlockAtIndex(originalSubIndex)} title="Delete This Block">
+                                      <Trash2 className="w-4 h-4 text-red-600" />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
                           }
                         })}
                       </div>
