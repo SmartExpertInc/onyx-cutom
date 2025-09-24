@@ -837,7 +837,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -935,7 +935,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1033,17 +1033,17 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
-            <button
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+              <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
                 className="p-1 hover:bg-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Move up"
-            >
+              >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                 </svg>
-            </button>
+              </button>
               <button
                 onClick={() => onMoveBlockDown(contentBlockIndex)}
                 disabled={isLastBlock}
@@ -1233,7 +1233,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1470,7 +1470,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div className={`my-4 group relative`}>
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1632,7 +1632,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1786,8 +1786,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               className={`my-4 ${alignmentClass} group relative ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
             >
           {/* Arrow buttons for reordering */}
-          {/* {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 rounded px-2 py-1 text-xs text-gray-600 z-40 flex gap-1">
+          {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1809,7 +1809,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                 </svg>
               </button>
             </div>
-          )} */}
+          )}
           
           <div 
             draggable={isEditing}
@@ -2454,7 +2454,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <section className="mb-4 p-3 rounded-md text-left">
+                    <section className={`mb-4 p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {!item._skipRenderHeadline && (
                         <div className="relative group/section">
                            <RenderBlock
@@ -2507,7 +2507,10 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                    <StarIcon className="w-4 h-4" />
                                  </button>
                                  {iconPickerHeadlineIndex === originalHeadlineIndex && (
-                                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px]">
+                                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                                     <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => setHeadlineIcon(originalHeadlineIndex, null)} title="No icon">
+                                       <span className="text-xs font-medium">No Icon</span>
+                                     </button>
                                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
                                        <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
                                          {React.createElement(iconMap[name], { className: 'w-6 h-6' })}
@@ -2534,9 +2537,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                             const originalMiniListIndex = findOriginalIndex(subItem.list);
                             return (
-                              <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm relative group/minisection">
+                              <div key={subIndex} className={`p-3 my-4 ${isEditing ? '!bg-[#F7FAFF] border-l-2 border-blue-400' : '!bg-white border-l-2 border-[#FF1414]'} text-left shadow-sm rounded-sm relative group/minisection`}>
                                 {isEditing && (
-                                  <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5">
+                                  <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5 text-gray-800">
                                     <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
                                       <List className="w-4 h-4" />
                                     </button>
