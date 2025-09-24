@@ -224,7 +224,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             disabled={loadingConfirm}
             className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: '#10B981',
+              backgroundColor: '#059669',
               color: 'white',
               fontSize: '14px',
               fontWeight: '600',
@@ -314,7 +314,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
               disabled={!editPrompt.trim() || loadingEdit}
               className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                backgroundColor: '#8B5CF6',
+                backgroundColor: '#3B82F6',
                 color: 'white',
                 fontSize: '14px',
                 fontWeight: '600',

@@ -6,9 +6,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
-import CustomViewCard from '@/components/ui/custom-view-card';
+import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
+import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -95,6 +96,7 @@ export default function ProductViewNewPage() {
   const productId = params?.productId;
   const router = useRouter();
   const { t: _t } = useLanguage();
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -165,6 +167,11 @@ export default function ProductViewNewPage() {
   // Calculate credits based on actual project data
   const creditsUsed = 5; // Assuming 5 credits per lesson
   const progress = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
+
+  // Filter content types based on video lesson permission
+  const filteredContentTypes = videoLessonEnabled 
+    ? defaultContentTypes 
+    : defaultContentTypes.filter(contentType => contentType.type !== "Video Lessons");
 
   // Extract sources from project data
   const getSourcesFromProject = () => {
@@ -649,7 +656,7 @@ export default function ProductViewNewPage() {
                         <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
-                            <span className="text-[#191D30] text-[16px] leading-[100%] font-normal">{lesson.title}</span>
+                            <span className="text-[#191D30] text-[16px] leading-[100%] font-normal">{lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}</span>
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
@@ -716,27 +723,29 @@ export default function ProductViewNewPage() {
                                   />
                                 </div>
                               </CustomTooltip>
-                              <CustomTooltip content="Video Lesson">
-                                <div 
-                                  onClick={() => {
-                                    const lessonKey = lesson.id || lesson.title;
-                                    const status = lessonContentStatus[lessonKey];
-                                    if (status?.videoLesson?.exists && status.videoLesson.productId) {
-                                      handleIconClick(status.videoLesson.productId);
-                                    }
-                                  }}
-                                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                                >
-                                  <VideoScriptIcon 
-                                    color={(() => {
+                              {videoLessonEnabled && (
+                                <CustomTooltip content="Video Lesson">
+                                  <div 
+                                    onClick={() => {
                                       const lessonKey = lesson.id || lesson.title;
                                       const status = lessonContentStatus[lessonKey];
-                                      const hasContent = status?.videoLesson?.exists;
-                                      return hasContent ? '#0F58F9' : undefined;
-                                    })()}
-                                  />
-                                </div>
-                              </CustomTooltip>
+                                      if (status?.videoLesson?.exists && status.videoLesson.productId) {
+                                        handleIconClick(status.videoLesson.productId);
+                                      }
+                                    }}
+                                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                                  >
+                                    <VideoScriptIcon 
+                                      color={(() => {
+                                        const lessonKey = lesson.id || lesson.title;
+                                        const status = lessonContentStatus[lessonKey];
+                                        const hasContent = status?.videoLesson?.exists;
+                                        return hasContent ? '#0F58F9' : undefined;
+                                      })()}
+                                    />
+                                  </div>
+                                </CustomTooltip>
+                              )}
                             </div>
                             <div className="relative">
                               <button
@@ -770,12 +779,14 @@ export default function ProductViewNewPage() {
                                     >
                                       Quiz
                                     </button>
-                                    <button
-                                      disabled
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      Video Lesson
-                                    </button>
+                                    {videoLessonEnabled && (
+                                      <button
+                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
+                                      >
+                                        Video Lesson
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               )}
@@ -811,6 +822,7 @@ export default function ProductViewNewPage() {
             <CustomViewCard
               projectId={productId}
               sources={getSourcesFromProject()}
+              contentTypes={filteredContentTypes}
               metrics={{
                 totalModules: totalModules,
                 totalLessons: totalLessons,
