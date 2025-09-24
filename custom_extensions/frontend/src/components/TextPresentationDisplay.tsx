@@ -1073,7 +1073,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           )}
 
           {/* List icon picker for bullet lists */}
-          {isEditing && onTextChange && !isNumbered && (
+          {isEditing && !!onTextChange && !isNumbered && (
             <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
               <div className="relative">
                 <button 
@@ -1117,7 +1117,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                     <div className="flex-grow">
                       {itemIsString ? (
                         isEditing && onTextChange ? (
-                          <div className="flex items-center gap-1 z-10">
+                          <div className="relative z-10">
                             <input
                               type="text"
                               value={item}
@@ -1130,12 +1130,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                 }
                               }}
                             />
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Add item after" onClick={() => addItemAt(index + 1)}>
-                              <Plus className="w-3.5 h-3.5 text-gray-900" />
-                            </button>
-                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Remove item" onClick={() => removeItemAt(index)}>
-                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
-                            </button>
+                            <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1">
+                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                                <Plus className="w-3.5 h-3.5 text-gray-900" />
+                              </button>
+                              <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
+                                <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <span className="text-black text-xs leading-snug">{styledItemText}</span>
@@ -1186,7 +1188,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                   <div className="flex-grow">
                     {itemIsString ? (
                       isEditing && onTextChange ? (
-                        <div className="flex items-center gap-1 z-10">
+                        <div className="relative z-10">
                           <input
                             type="text"
                             value={item}
@@ -1199,12 +1201,14 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }
                             }}
                           />
-                          <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Add item after" onClick={() => addItemAt(index + 1)}>
-                            <Plus className="w-3.5 h-3.5 text-gray-900" />
-                          </button>
-                          <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm flex-shrink-0" title="Remove item" onClick={() => removeItemAt(index)}>
-                            <Trash2 className="w-3.5 h-3.5 text-red-600" />
-                          </button>
+                          <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1">
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
+                              <Plus className="w-3.5 h-3.5 text-gray-900" />
+                            </button>
+                            <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
+                              <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <span className="text-black text-xs leading-snug">{styledItemText}</span>
@@ -1245,7 +1249,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             })}
             
             {/* Add-at-end row for lists in edit mode */}
-            {isEditing && onTextChange && (
+            {isEditing && !!onTextChange && (
               <li className="mt-2">
                 <button
                   type="button"
@@ -2786,7 +2790,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
         </div>
       
       {/* Floating add menu: one big plus -> expands into image and section buttons */}
-      {isEditing && onTextChange && (
+      {isEditing && !!onTextChange && (
         <>
           <button
             onClick={() => setFabOpen(v => !v)}
@@ -2795,24 +2799,21 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           >
             <Plus className="w-6 h-6" />
           </button>
-          {fabOpen && (
-            <>
-              <button
-                onClick={() => { setFabOpen(false); setShowImageUpload(true); }}
-                className="fixed bottom-24 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
-                title="Add Image"
-              >
-                <ImageIcon className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => { setFabOpen(false); addMajorSection(); }}
-                className="fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
-                title="Add Section"
-              >
-                <TextIcon className="w-5 h-5" />
-              </button>
-            </>
-          )}
+          {/* Keep mini-FABs mounted to allow smooth appear/disappear animations */}
+          <button
+            onClick={() => { setFabOpen(false); setShowImageUpload(true); }}
+            className={`fixed bottom-24 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Image"
+          >
+            <ImageIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => { setFabOpen(false); addMajorSection(); }}
+            className={`fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transform transition-all duration-200 ease-out z-50 ${fabOpen ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto delay-75' : 'opacity-0 scale-0 translate-y-2 pointer-events-none'}`}
+            title="Add Section"
+          >
+            <TextIcon className="w-5 h-5" />
+          </button>
         </>
       )}
       
