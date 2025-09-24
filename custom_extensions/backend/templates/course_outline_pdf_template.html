@@ -104,6 +104,11 @@
             border-bottom: none;
         }
         
+        .border-bottom-divider {
+            border-bottom: 1px solid #b4b4b4;
+            margin: 1rem -1.5rem;
+        }
+        
         .lesson-title {
             display: flex;
             align-items: center;
@@ -128,7 +133,7 @@
         }
         
         .icon-gray {
-            color: #9CA3AF;
+            color: #7e848f;
         }
         
         /* Content Types Section */
@@ -185,6 +190,7 @@
         .sources-section {
             margin-top: 0.5rem;
             margin-bottom: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
         }
         
         .sources-title {
@@ -260,11 +266,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
-            border-bottom: 1px solid #f3f4f6;
         }
         
         .metric-item:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid #f3f4f6;
         }
         
         .metric-label {
@@ -431,7 +436,7 @@
                     <p class="text-sm text-gray-600 mb-6">
                         {{ section.lessons|length }} lessons
                     </p>
-                    <hr class="border-gray-200 mb-4 -mx-6" />
+                    <div class="border-bottom-divider"></div>
                     
                     {% if section.lessons %}
                     <div>
