@@ -1075,13 +1075,45 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 relative"
+      style={{ backgroundColor: '#3E3AD9' }}
     >
-      <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
+      {/* Background SVG */}
+      <svg 
+        width="1181" 
+        height="545" 
+        viewBox="0 0 1181 545" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          position: 'absolute',
+          left: '130px',
+          top: '0',
+          opacity: 1,
+          zIndex: 0
+        }}
+      >
+        <mask id="mask0_38_3978" style={{maskType: 'alpha'}} maskUnits="userSpaceOnUse" x="0" y="0" width="1181" height="545">
+          <rect width="1180.12" height="545" rx="10" fill="#020103"/>
+        </mask>
+        <g mask="url(#mask0_38_3978)">
+          <g filter="url(#filter0_f_38_3978)">
+            <path d="M243.262 0C284.107 153.953 428.185 267.71 599.654 267.71C771.124 267.71 915.201 153.953 956.047 0H243.262Z" fill="#3172F0"/>
+          </g>
+        </g>
+        <defs>
+          <filter id="filter0_f_38_3978" x="-60.7383" y="-304" width="1320.79" height="875.71" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+            <feFlood floodOpacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="152" result="effect1_foregroundBlur_38_3978"/>
+          </filter>
+        </defs>
+      </svg>
+      <div className="w-full max-w-4xl flex flex-col gap-6 items-center relative z-10">
         {/* back button absolute top-left */}
         <Link
           href="/create"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md z-20"
         >
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
