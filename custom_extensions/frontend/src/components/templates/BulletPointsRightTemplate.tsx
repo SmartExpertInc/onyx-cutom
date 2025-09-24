@@ -260,18 +260,18 @@ function UnifiedBulletEditor({
     width: '14px',
     height: '14px',
     display: 'flex',
-    marginTop: '-5px',
-    opacity:'0.8',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.2rem',
+    fontSize: '0.8rem',
     fontFamily: 'sans-serif',
     flexShrink: 0
   };
 
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
-    fontSize: '1rem',
+    fontSize: '1.2rem',
+    marginTop: '-5px',
+    opacity:'0.8',
     color: '#ffffff', // White text on dark background
     lineHeight: '1.6'
   };
