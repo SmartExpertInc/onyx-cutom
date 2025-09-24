@@ -493,7 +493,12 @@ export default function ProductViewNewPage() {
 
             {/* Download PDF button for Course Outline */}
             <button
-              onClick={() => {}}
+              onClick={() => {
+                if (productId) {
+                  const pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/course-outline/${productId}`;
+                  window.open(pdfUrl, '_blank');
+                }
+              }}
               className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
               style={{
                 backgroundColor: '#0F58F9',
