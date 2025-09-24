@@ -31589,7 +31589,6 @@ class AuditResponse(BaseModel):
     onyx_user_id: str
     project_name: str
     created_at: datetime
-    updated_at: datetime
     company_name: str
     audit_type: str
     status: str
@@ -31611,7 +31610,7 @@ async def get_audits(
         async with DB_POOL.acquire() as connection:
             # Build the base query
             base_query = """
-                SELECT p.id, p.onyx_user_id, p.project_name, p.created_at, p.created_at as updated_at, 
+                SELECT p.id, p.onyx_user_id, p.project_name, p.created_at, 
                        pf.name as company_name, p.microproduct_content,
                        p.share_token
                 FROM projects p

@@ -44,7 +44,6 @@ interface Audit {
   onyx_user_id: string;
   project_name: string;
   created_at: string;
-  updated_at: string;
   company_name: string;
   audit_type: string;
   status: string;
@@ -91,7 +90,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         params.append('search', search);
       }
 
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits?${params}`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/audits?${params}`, {
         credentials: 'same-origin',
       });
 
@@ -233,7 +232,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     }
 
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${auditId}`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/audits/${auditId}`, {
         method: 'DELETE',
         credentials: 'same-origin',
       });
@@ -271,7 +270,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     setCopySuccess(false);
 
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${audit.id}/generate-share-link`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/audits/${audit.id}/generate-share-link`, {
         method: 'POST',
         credentials: 'same-origin',
       });
