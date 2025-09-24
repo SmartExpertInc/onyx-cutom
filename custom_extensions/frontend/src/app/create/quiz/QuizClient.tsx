@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Download, Sparkles, CheckCircle, XCircle, ChevronDown, Settings, Plus } from "lucide-react";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
+import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -42,7 +43,7 @@ export default function QuizClient() {
   const [finalProductId, setFinalProductId] = useState<number | null>(null);
 
   // Get parameters from URL
-  const prompt = searchParams?.get("prompt") || "";
+  const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(searchParams?.get("prompt") || ""));
   const outlineId = searchParams?.get("outlineId");
   const lesson = searchParams?.get("lesson");
   const courseName = searchParams?.get("courseName"); // Add course name parameter
@@ -51,6 +52,10 @@ export default function QuizClient() {
   const language = searchParams?.get("lang") || "en";
   const fromFiles = searchParams?.get("fromFiles") === "true";
   const fromText = searchParams?.get("fromText") === "true";
+  const fromKnowledgeBase = searchParams?.get("fromKnowledgeBase") === "true";
+  const fromConnectors = searchParams?.get("fromConnectors") === "true";
+  const connectorIds = searchParams?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = searchParams?.get("connectorSources")?.split(",").filter(Boolean) || [];
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
@@ -102,7 +107,7 @@ export default function QuizClient() {
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    outlineId ? true : (prompt ? false : null)
+    outlineId ? true : (currentPrompt ? false : null)
   );
 
   // UI state
@@ -519,7 +524,7 @@ export default function QuizClient() {
 
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing quiz request for "${prompt.slice(0, 40) || "Untitled"}"...`);
+    list.push(`Analyzing quiz request for "${currentPrompt?.slice(0, 40) || "Untitled"}"...`);
     list.push(`Detected language: ${language.toUpperCase()}`);
     list.push(`Planning ${selectedQuestionCount} questions with ${selectedQuestionTypes.length} question type${selectedQuestionTypes.length > 1 ? "s" : ""}...`);
     // shuffle little filler line
@@ -651,14 +656,14 @@ export default function QuizClient() {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
-    const promptQuery = searchParams?.get("prompt")?.trim() || "";
+    const promptQuery = currentPrompt?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
       return;
     }
 
     // Don't start generation if there's no valid input
-    const hasValidInput = (selectedOutlineId && selectedLesson) || promptQuery || fromFiles || fromText;
+    const hasValidInput = (selectedOutlineId && selectedLesson) || promptQuery || fromFiles || fromText || fromKnowledgeBase;
     if (!hasValidInput) {
       return;
     }
@@ -695,7 +700,14 @@ export default function QuizClient() {
             fromText: fromText,
             textMode: textMode,
             userText: fromText ? sessionStorage.getItem('userText') : undefined,
+            fromKnowledgeBase: fromKnowledgeBase,
             questionCount: selectedQuestionCount,
+            // Add connector context if creating from connectors
+            ...(fromConnectors && {
+              fromConnectors: true,
+              connectorIds: connectorIds.join(','),
+              connectorSources: connectorSources.join(','),
+            }),
           };
 
           const response = await fetch(`${CUSTOM_BACKEND_URL}/quiz/generate`, {
@@ -819,7 +831,7 @@ export default function QuizClient() {
         previewAbortRef.current.abort();
       }
     };
-  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
+  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, fromKnowledgeBase, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {
@@ -904,6 +916,12 @@ export default function QuizClient() {
           originalContent: originalQuizData,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // Add connector context if creating from connectors
+          ...(fromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
       });
 
@@ -915,6 +933,9 @@ export default function QuizClient() {
       setFinalProductId(result.id);
 
       // Redirect to the created quiz
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(result.id)); } catch (_) {}
+      }
       router.push(`/projects/view/${result.id}`);
     } catch (error: any) {
       console.error('Finalization error:', error);
@@ -969,6 +990,12 @@ export default function QuizClient() {
           questionCount: selectedQuestionCount,
           // NEW: Indicate if content is clean (questions only)
           isCleanContent: isCleanContent,
+          // Add connector context if creating from connectors
+          ...(fromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
       });
 
@@ -1323,10 +1350,20 @@ export default function QuizClient() {
           {/* Prompt input for standalone quizzes */}
           {useExistingOutline === false && (
             <textarea
-              value={searchParams?.get("prompt") || ""}
+              value={currentPrompt || ""}
               onChange={(e) => {
+                const newPrompt = e.target.value;
+                setCurrentPrompt(newPrompt);
+                
+                // Handle prompt storage for long prompts
                 const sp = new URLSearchParams(searchParams?.toString() || "");
-                sp.set("prompt", e.target.value);
+                if (newPrompt.length > 500) {
+                  const promptId = generatePromptId();
+                  sessionStorage.setItem(promptId, newPrompt);
+                  sp.set("prompt", promptId);
+                } else {
+                  sp.set("prompt", newPrompt);
+                }
                 router.replace(`?${sp.toString()}`, { scroll: false });
               }}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}

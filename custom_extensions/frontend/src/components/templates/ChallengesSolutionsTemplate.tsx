@@ -128,6 +128,34 @@ function InlineEditor({
   );
 }
 
+// FIXED: Function to detect language and provide localized headers
+const getLocalizedHeaders = (title: string, challenges: string[], solutions: string[]): { challengesTitle: string, solutionsTitle: string } => {
+  // Combine all text content to analyze language
+  const allText = [title, ...(challenges || []), ...(solutions || [])].join(' ').toLowerCase();
+  
+  // Language detection patterns
+  const ukrainianChars = /[її єю ґ]/gi;
+  const russianChars = /[ыъё]/gi;
+  const spanishChars = /[ñáéíóúü]/gi;
+  
+  // Count matches
+  const ukrainianMatches = (allText.match(ukrainianChars) || []).length;
+  const russianMatches = (allText.match(russianChars) || []).length;
+  const spanishMatches = (allText.match(spanishChars) || []).length;
+  
+  // Determine language based on character frequency
+  if (ukrainianMatches > 0) {
+    return { challengesTitle: 'Виклики', solutionsTitle: 'Рішення' };
+  } else if (russianMatches > 0) {
+    return { challengesTitle: 'Вызовы', solutionsTitle: 'Решения' };
+  } else if (spanishMatches > 0) {
+    return { challengesTitle: 'Desafíos', solutionsTitle: 'Soluciones' };
+  } else {
+    // Default to English
+    return { challengesTitle: 'Challenges', solutionsTitle: 'Solutions' };
+  }
+};
+
 export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
@@ -135,14 +163,18 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
 }> = ({
   slideId,
   title,
-  challengesTitle = 'Виклики',
-  solutionsTitle = 'Рішення',
+  challengesTitle,
+  solutionsTitle,
   challenges,
   solutions,
   onUpdate,
   theme,
   isEditable = false
 }) => {
+  // FIXED: Use localized headers based on content language
+  const localizedHeaders = getLocalizedHeaders(title || '', challenges || [], solutions || []);
+  const finalChallengesTitle = challengesTitle || localizedHeaders.challengesTitle;
+  const finalSolutionsTitle = solutionsTitle || localizedHeaders.solutionsTitle;
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
   // Inline editing state
@@ -409,7 +441,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             <XMarkIcon />
             {isEditable && editingChallengesTitle ? (
               <InlineEditor
-                initialValue={challengesTitle || ''}
+                initialValue={finalChallengesTitle || ''}
                 onSave={handleChallengesTitleSave}
                 onCancel={handleChallengesTitleCancel}
                 multiline={true}
@@ -446,7 +478,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
               >
-                {challengesTitle || 'Click to add challenges title'}
+                                  {finalChallengesTitle || 'Click to add challenges title'}
               </h2>
             )}
           </div>
@@ -515,7 +547,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
             <CheckIcon />
             {isEditable && editingSolutionsTitle ? (
               <InlineEditor
-                initialValue={solutionsTitle || ''}
+                initialValue={finalSolutionsTitle || ''}
                 onSave={handleSolutionsTitleSave}
                 onCancel={handleSolutionsTitleCancel}
                 multiline={true}

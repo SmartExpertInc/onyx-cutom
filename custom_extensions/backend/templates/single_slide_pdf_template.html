@@ -48,7 +48,7 @@
             min-height: {{ slide_height }}px;
             max-height: {{ slide_height }}px;
             position: relative;
-            overflow: visible; /* Allow content to determine height */
+            overflow: hidden; /* FIXED: Clip content that extends beyond slide boundaries */
             margin: 0;
             padding: 0;
             background: transparent;

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nextcloud File Selection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .iframe-container {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .status {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .selected-files {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .file-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        .button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #1976d2;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #263238;
+            color: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Nextcloud File Selection Test</h1>
+        <p>This page simulates the "Create from files and connectors" page to test file selection communication.</p>
+        
+        <div class="status">
+            <h3>📊 Status</h3>
+            <div id="status">Initializing...</div>
+        </div>
+
+        <div class="selected-files">
+            <h3>📁 Selected Files (<span id="file-count">0</span>)</h3>
+            <div id="selected-files-list">No files selected</div>
+        </div>
+
+        <div class="controls">
+            <h3>🎮 Controls</h3>
+            <button class="button" onclick="clearSelection()">Clear Selection</button>
+            <button class="button" onclick="getSelection()">Get Selection</button>
+            <button class="button" onclick="toggleLog()">Toggle Log</button>
+            <button class="button" onclick="simulateCreate()" id="create-btn" disabled>Create Content</button>
+        </div>
+
+        <div class="iframe-container">
+            <iframe 
+                id="nextcloud-iframe"
+                src="/smartdrive/?fileSelection=true" 
+                width="100%" 
+                height="600"
+                frameborder="0">
+            </iframe>
+        </div>
+
+        <div id="log-container" class="log" style="display: none;">
+            <h3>📝 Communication Log</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let selectedFiles = [];
+        let logVisible = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('Test page loaded, waiting for iframe...');
+            setupPostMessageListener();
+            
+            // Setup iframe load listener
+            const iframe = document.getElementById('nextcloud-iframe');
+            iframe.onload = function() {
+                updateStatus('✅ Nextcloud iframe loaded with file selection enabled');
+                logMessage('Iframe loaded successfully');
+            };
+            
+            iframe.onerror = function() {
+                updateStatus('❌ Failed to load Nextcloud iframe');
+                logMessage('ERROR: Iframe failed to load');
+            };
+        });
+
+        // PostMessage listener
+        function setupPostMessageListener() {
+            window.addEventListener('message', function(event) {
+                // Log all messages
+                logMessage(`📨 Received message from: ${event.origin}`);
+                logMessage(`📨 Message type: ${event.data?.type}`);
+                
+                if (event.data?.type === 'fileSelectionUpdate') {
+                    const data = event.data.data;
+                    selectedFiles = data.selectedFiles || [];
+                    
+                    updateSelectedFilesList();
+                    updateCreateButton();
+                    
+                    const count = selectedFiles.length;
+                    updateStatus(`✅ File selection updated: ${count} file${count !== 1 ? 's' : ''} selected`);
+                    logMessage(`📁 Files selected: [${selectedFiles.join(', ')}]`);
+                } else {
+                    logMessage(`❓ Unknown message type: ${event.data?.type}`);
+                }
+            });
+        }
+
+        // Update functions
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        function updateSelectedFilesList() {
+            const container = document.getElementById('selected-files-list');
+            const countElement = document.getElementById('file-count');
+            
+            countElement.textContent = selectedFiles.length;
+            
+            if (selectedFiles.length === 0) {
+                container.innerHTML = '<div style="color: #666;">No files selected</div>';
+            } else {
+                container.innerHTML = selectedFiles.map(file => 
+                    `<div class="file-item">📄 ${file}</div>`
+                ).join('');
+            }
+        }
+
+        function updateCreateButton() {
+            const createBtn = document.getElementById('create-btn');
+            const hasFiles = selectedFiles.length > 0;
+            
+            createBtn.disabled = !hasFiles;
+            createBtn.textContent = hasFiles ? 
+                `Create Content (${selectedFiles.length} files)` : 
+                'Select files to continue';
+        }
+
+        function logMessage(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // Control functions
+        function clearSelection() {
+            const iframe = document.getElementById('nextcloud-iframe');
+            iframe.contentWindow.postMessage({
+                type: 'clearFileSelection'
+            }, '*');
+            
+            logMessage('🔄 Sent clear selection message to iframe');
+        }
+
+        function getSelection() {
+            const iframe = document.getElementById('nextcloud-iframe');
+            iframe.contentWindow.postMessage({
+                type: 'getFileSelection'
+            }, '*');
+            
+            logMessage('🔄 Requested current selection from iframe');
+        }
+
+        function toggleLog() {
+            const logContainer = document.getElementById('log-container');
+            logVisible = !logVisible;
+            logContainer.style.display = logVisible ? 'block' : 'none';
+            
+            event.target.textContent = logVisible ? 'Hide Log' : 'Show Log';
+        }
+
+        function simulateCreate() {
+            if (selectedFiles.length === 0) {
+                alert('Please select some files first!');
+                return;
+            }
+
+            // Simulate the creation process
+            updateStatus(`🚀 Creating content with ${selectedFiles.length} selected files...`);
+            logMessage(`🚀 SIMULATE CREATE: Would send to backend: ${JSON.stringify({
+                selectedFiles: selectedFiles,
+                connectorIds: [1, 2], // Mock connector IDs
+                connectorSources: ['google_drive', 'notion'] // Mock sources
+            })}`);
+
+            // Simulate success after delay
+            setTimeout(() => {
+                updateStatus(`✅ Content creation simulated successfully!`);
+                logMessage(`✅ SIMULATION COMPLETE: Content would be generated with combined context`);
+            }, 2000);
+        }
+
+        // Add some helpful debugging
+        window.selectedFiles = selectedFiles;
+        window.logMessage = logMessage;
+        
+        console.log('🧪 Nextcloud File Selection Test initialized');
+        console.log('📋 Available debug functions: selectedFiles, logMessage()');
+    </script>
+</body>
+</html> 

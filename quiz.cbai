@@ -1,0 +1,169 @@
+{
+  "questions": [
+    {
+      "uid": "1f7c3e2a-8b9e-4b1c-9a2d-1e4f5a6b7c8d",
+      "options": [
+        {
+          "id": "A",
+          "text": "Berlin",
+          "uid": "a2b3c4d5-e6f7-4a8b-9c1d-2e3f4a5b6c7d"
+        },
+        {
+          "id": "B",
+          "text": "Madrid",
+          "uid": "b3c4d5e6-f7a8-4b9c-8d1e-3f4a5b6c7d8e"
+        },
+        {
+          "id": "C",
+          "text": "Paris",
+          "uid": "c4d5e6f7-a8b9-4c8d-9e1f-4a5b6c7d8e9f"
+        },
+        {
+          "id": "D",
+          "text": "Rome",
+          "uid": "d5e6f7a8-b9c1-4d9e-8f1a-5b6c7d8e9f0a"
+        }
+      ],
+      "explanation": "Paris is the capital city of France, known for its art, fashion, and culture.",
+      "question_text": "What is the capital of France?",
+      "question_type": "multiple-choice",
+      "correct_option_id": "C"
+    },
+    {
+      "uid": "2a8d4f3b-9c1a-4d2b-8b3e-2f5a6b7c8d9e",
+      "options": [
+        {
+          "id": "A",
+          "text": "Earth",
+          "uid": "e6f7a8b9-c1d2-4e3f-9a5b-6c7d8e9f0a1b"
+        },
+        {
+          "id": "B",
+          "text": "Sun",
+          "uid": "f7a8b9c1-d2e3-4f4a-8b6c-7d8e9f0a1b2c"
+        },
+        {
+          "id": "C",
+          "text": "Mars",
+          "uid": "a8b9c1d2-e3f4-4a5b-9c7d-8e9f0a1b2c3d"
+        },
+        {
+          "id": "D",
+          "text": "Pluto",
+          "uid": "b9c1d2e3-f4a5-4b6c-8d8e-9f0a1b2c3d4e"
+        }
+      ],
+      "explanation": "Earth, Mars, and Pluto are all planets in our solar system, while the Sun is a star.",
+      "question_text": "Select all the planets in our solar system.",
+      "question_type": "multi-select",
+      "correct_option_ids": [
+        "A",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "uid": "3b9e5a4c-1d2b-4e3c-9c4f-3a6b7c8d9e1f",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ottawa",
+          "uid": "c1d2e3f4-a5b6-4c7d-9e9f-0a1b2c3d4e5f"
+        },
+        {
+          "id": "B",
+          "text": "Brasília",
+          "uid": "d2e3f4a5-b6c7-4d8e-8f0a-1b2c3d4e5f6a"
+        },
+        {
+          "id": "C",
+          "text": "Tokyo",
+          "uid": "e3f4a5b6-c7d8-4e9f-9a1b-2c3d4e5f6a7b"
+        },
+        {
+          "id": "D",
+          "text": "Canberra",
+          "uid": "f4a5b6c7-d8e9-4f0a-8b2c-3d4e5f6a7b8c"
+        }
+      ],
+      "prompts": [
+        {
+          "id": "1",
+          "text": "Japan",
+          "uid": "a5b6c7d8-e9f0-4a1b-9c3d-4e5f6a7b8c9d"
+        },
+        {
+          "id": "2",
+          "text": "Canada",
+          "uid": "b6c7d8e9-f0a1-4b2c-8d4e-5f6a7b8c9d0e"
+        },
+        {
+          "id": "3",
+          "text": "Brazil",
+          "uid": "c7d8e9f0-a1b2-4c3d-9e5f-6a7b8c9d0e1f"
+        },
+        {
+          "id": "4",
+          "text": "Australia",
+          "uid": "d8e9f0a1-b2c3-4d4e-8f6a-7b8c9d0e1f2a"
+        }
+      ],
+      "explanation": "Tokyo is the capital of Japan, Ottawa is the capital of Canada, Brasília is the capital of Brazil, and Canberra is the capital of Australia.",
+      "question_text": "Match the following countries with their capitals:",
+      "question_type": "matching",
+      "correct_matches": {
+        "1": "C",
+        "2": "A",
+        "3": "B",
+        "4": "D"
+      }
+    },
+    {
+      "uid": "4c1a6b5d-2e3c-4f4d-8d5a-4b7c8d9e1f2a",
+      "explanation": "The Declaration of Independence was signed in 1776, World War II ended in 1945, the Berlin Wall fell in 1989, and the moon landing occurred in 1969.",
+      "correct_order": [
+        "A",
+        "D",
+        "C",
+        "B"
+      ],
+      "items_to_sort": [
+        {
+          "id": "A",
+          "text": "The signing of the Declaration of Independence",
+          "uid": "e9f0a1b2-c3d4-4e5f-9a7b-8c9d0e1f2a3b"
+        },
+        {
+          "id": "B",
+          "text": "The moon landing",
+          "uid": "f0a1b2c3-d4e5-4f6a-8b8c-9d0e1f2a3b4c"
+        },
+        {
+          "id": "C",
+          "text": "The fall of the Berlin Wall",
+          "uid": "a1b2c3d4-e5f6-4a7b-9c9d-0e1f2a3b4c5d"
+        },
+        {
+          "id": "D",
+          "text": "The end of World War II",
+          "uid": "b2c3d4e5-f6a7-4b8c-8d0e-1f2a3b4c5d6e"
+        }
+      ],
+      "question_text": "Sort the following events in chronological order:",
+      "question_type": "sorting"
+    },
+    {
+      "uid": "5d2b7c6e-3f4d-4a5e-9e6b-5c8d9e1f2a3b",
+      "explanation": "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy in the form of glucose.",
+      "question_text": "Explain the process of photosynthesis.",
+      "question_type": "open-answer",
+      "acceptable_answers": [
+        "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy in the form of glucose.",
+        "It occurs in the chloroplasts of plant cells, where chlorophyll captures sunlight.",
+        "The process uses carbon dioxide from the air and water from the soil, releasing oxygen as a byproduct."
+      ]
+    }
+  ],
+  "quizTitle": "Quiz on Geography and Science",
+  "detectedLanguage": "en"
+}

@@ -188,6 +188,14 @@ export const es = {
         "Crear una lección de video con narración y elementos visuales",
       soon: "Pronto",
       alreadyCreated: "Ya creado",
+      recommended: "Recomendado",
+      recommendedDescription: "Tipos de contenido sugeridos por IA perfectos para esta lección",
+      orExploreMore: "o explorar más opciones",
+      customizeRecommendations: "Personalizar Recomendaciones",
+      selectRecommendedProducts: "Selecciona qué productos deben mostrarse como recomendados para esta lección.",
+      allOptions: "Todos los tipos de contenido",
+      seeAllContentTypes: "Ver todos los tipos de contenido",
+      backToRecommended: "Volver a recomendados"
     },
     openContent: {
       title: "Abrir Contenido",
@@ -293,9 +301,30 @@ export const es = {
     folderExport: {
       title: "Generando PDF",
       subtitle: "Creando exportación PDF para carpeta",
-      description:
-        "Esto puede tomar unos momentos dependiendo del número de archivos...",
+      description: "Esto puede tomar unos momentos dependiendo del número de archivos..."
     },
+    lessonSettings: {
+      title: 'Configuración de la lección',
+      subtitle: 'Configurar calidad de producción para',
+      tier: 'Nivel',
+      contentExamples: 'Ejemplos de contenido',
+      hoursRange: 'Rango de horas',
+      example: 'Ejemplo',
+      lessonQualityTier: 'Nivel de calidad de la lección establecido en',
+      perCompletionHour: 'h por hora de finalización',
+      cancel: 'Cancelar',
+      saveChanges: 'Guardar cambios',
+      saving: 'Guardando...',
+      failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
+      lessonTitle: 'Título de la lección',
+      advanced: 'Avanzado'
+    },
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video'
+    }
   },
   projects: {
     loading: "Cargando productos...",
@@ -319,6 +348,9 @@ export const es = {
   interface: {
     // Header
     products: "Productos",
+    smartDrive: "Disco Inteligente",
+    offers: "Ofertas",
+    exportToLMS: "Exportar a LMS",
     trash: "Papelera",
     getUnlimitedAI: "Obtener IA ilimitada",
     credits: "créditos",
@@ -334,6 +366,206 @@ export const es = {
       "Organiza tus productos por tema y compártelos con tu equipo",
     templates: "Plantillas",
     themes: "Temas",
+
+    // Smart Drive content
+    smartDriveBrowser: "Navegador de Disco Inteligente",
+    browseAndManageFiles: "Explora y gestiona tus archivos en la nube",
+    browseAndSelectFiles: "Explora y selecciona archivos de tu almacenamiento en la nube",
+    connectors: "Conectores",
+    popularConnectors: "Conectores populares",
+    allConnectors: "Todos los conectores",
+    showAll: "Mostrar todo",
+    hideAll: "Ocultar todo",
+    connect: "Conectar",
+    manage: "Gestionar",
+    active: "Activo",
+    hideBrowser: "Ocultar navegador",
+    showBrowser: "Mostrar navegador",
+    selectConnectors: "Seleccionar conectores",
+    chooseDataSources: "Elige fuentes de datos para incluir en tu contenido",
+    searchConnectors: "Buscar conectores...",
+    noConnectorsFound: "No se encontraron conectores que coincidan con tu búsqueda.",
+    noConnectorsAvailable: "No hay conectores disponibles.",
+    tryAdjustingSearch: "Intenta ajustar tus términos de búsqueda.",
+    connectFirstDataSource: "Conecta tu primera fuente de datos para comenzar.",
+    loadingConnectors: "Cargando conectores...",
+    contentCreationNotImplemented: "La funcionalidad de creación de contenido se implementará en el backend",
+    contentCreation: "Creación de contenido",
+    transformFilesToContent: "Transforma tus archivos en contenido con IA",
+    selectedConnectors: "Conectores seleccionados",
+    selectedFiles: "Archivos seleccionados",
+    filesFromSmartDrive: "Archivos del Disco Inteligente",
+    connector: "conector",
+    connectorPlural: "conectores",
+    file: "archivo",
+    filePlural: "archivos",
+    docs: "docs",
+    createContentFromSelected: "Crear contenido desde {count} fuente seleccionada",
+    connectorStatusLabels: {
+      active: "activo",
+      syncing: "sincronizando",
+      error: "error",
+      paused: "pausado"
+    },
+
+    // LMS Export
+    lmsAccountQuestion: "¿Tienes una cuenta en Smart Expert LMS?",
+    lmsAccountYes: "Sí, tengo una cuenta",
+    lmsAccountNo: "No, necesito crear una",
+    lmsSetupWaiting: "Configurando tu cuenta...",
+    lmsSelectProducts: "Seleccionar productos para exportar",
+    lmsSelectCourseOutlines: "Seleccionar esquemas de curso para exportar",
+    noCourseOutlines: "No se encontraron esquemas de curso",
+    lmsExport: "Exportar a LMS",
+    lmsExporting: "Exportando...",
+    lmsNoProductsSelected: "Por favor, selecciona al menos un esquema de curso para exportar",
+
+    // Offers page
+    searchOffers: "Buscar ofertas...",
+    allStatuses: "Todos los estados",
+    draft: "Borrador",
+    internalReview: "Revisión interna",
+    approved: "Aprobado",
+    sentToClient: "Enviado al cliente",
+    viewedByClient: "Visto por el cliente",
+    negotiation: "Negociación",
+    accepted: "Aceptado",
+    rejected: "Rechazado",
+    archived: "Archivado",
+    createOffer: "Crear oferta",
+    offerName: "Nombre de la oferta",
+    offer: "Oferta",
+    name: "Nombre",
+    createdOn: "Creado en",
+    manager: "Gerente",
+    status: "Estado",
+    totalHours: "Horas totales",
+    link: "Enlace",
+    noOffers: "No se encontraron ofertas",
+    createYourFirstOffer: "Crea tu primera oferta para comenzar",
+    retry: "Reintentar",
+    shareError: "Error al generar enlace para compartir",
+    copyError: "Error al copiar enlace",
+    shareOffer: "Compartir oferta",
+    shareOfferDescription: "Comparte esta oferta con cualquiera, incluso sin una cuenta",
+    shareOfferSubtext: "Los destinatarios pueden ver los detalles completos de la oferta sin crear una cuenta",
+    generatingLink: "Generando enlace...",
+    shareableLink: "Enlace compartible",
+    copied: "¡Copiado!",
+    copyLink: "Copiar enlace",
+    linkCopied: "¡Enlace copiado al portapapeles!",
+    editOffer: "Editar oferta",
+    company: "Empresa",
+    updating: "Actualizando...",
+    deleteOfferConfirmation: "¿Estás seguro de que quieres eliminar esta oferta? Esta acción no se puede deshacer.",
+    locale: "es-ES",
+
+    // Connector Management
+    connectorStatus: "Estado",
+    documentsIndexed: "Documentos indexados",
+    lastIndexed: "Último indexado",
+    never: "Nunca",
+    connectorInvalidState: "El conector está en un estado inválido",
+    checkConfigurationAndRetry: "Por favor, verifica tu configuración e inténtalo de nuevo.",
+    index: "Indexar",
+    fullReindex: "Re-indexado completo",
+    pause: "Pausar",
+    resume: "Reanudar",
+    connectorMustBePaused: "El conector debe estar pausado antes de eliminarlo",
+    configuration: "Configuración",
+    connectorName: "Nombre del conector",
+    source: "Fuente",
+    credential: "Credencial",
+    accessType: "Tipo de acceso",
+    refreshFrequency: "Frecuencia de actualización",
+    pruneFrequency: "Frecuencia de limpieza",
+
+    // Create Offer Modal
+    loadingClients: "Cargando clientes...",
+    selectClient: "Selecciona un cliente...",
+
+    // Workspace Members
+    workspace: "Espacio de trabajo",
+    workspaceMembers: "Miembros del espacio de trabajo",
+    workspaceMembersDescription: "Gestiona los miembros del equipo y su acceso al espacio de trabajo",
+    addMember: "Agregar miembro",
+    inviteMember: "Invitar miembro",
+    memberName: "Nombre",
+    memberEmail: "Email",
+    memberRole: "Rol",
+    memberStatus: "Estado",
+    memberInvitationDate: "Fecha de invitación",
+    memberActions: "Acciones",
+    roles: {
+      admin: "Administrador",
+      member: "Miembro",
+      viewer: "Observador",
+      manager: "Gerente",
+      editor: "Editor"
+    },
+    statuses: {
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado",
+      pending: "Pendiente"
+    },
+    workspaceActions: {
+      delete: "Eliminar",
+      suspend: "Suspender",
+      activate: "Activar",
+      unblock: "Desbloquear",
+      resendInvitation: "Reenviar invitación"
+    },
+    filters: {
+      allStatuses: "Todos los estados",
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado"
+    },
+    addMemberModal: {
+      title: "Agregar miembro",
+      description: "Invitar a un nuevo miembro al espacio de trabajo",
+      emailLabel: "Email",
+      emailPlaceholder: "Ingrese dirección de email",
+      roleLabel: "Rol",
+      rolePlaceholder: "Seleccionar rol",
+      statusLabel: "Estado",
+      sendInvitation: "Enviar invitación",
+      cancel: "Cancelar"
+    },
+    noMembers: "No se encontraron miembros del espacio de trabajo",
+    searchPlaceholder: "Buscar miembros...",
+    searchPlaceholderProjects: "Buscar proyectos...",
+    manageRoles: "Gestionar roles",
+
+    // Role Management
+    roleManager: {
+      title: "Gestionar roles personalizados",
+      description: "Crear roles personalizados con permisos y colores específicos",
+      addNewRole: "Agregar nuevo rol",
+      roleNamePlaceholder: "Ingrese nombre del rol",
+      permissions: "Permisos",
+      addRole: "Agregar rol",
+      existingRoles: "Roles existentes",
+      close: "Cerrar"
+    },
+
+    // Permissions
+    permissions: {
+      fullAccess: "Acceso completo",
+      manageUsers: "Gestionar usuarios",
+      manageSettings: "Gestionar configuración",
+      viewProjects: "Ver proyectos",
+      editOwnWork: "Editar trabajo propio",
+      viewOnly: "Solo ver",
+      manageProjects: "Gestionar proyectos",
+      assignTasks: "Asignar tareas",
+      editContent: "Editar contenido",
+      reviewWork: "Revisar trabajo"
+    },
+    enterOfferName: "Ingresa el nombre de la oferta...",
+    enterManager: "Ingresa el nombre del gerente...",
+    creating: "Creando...",
 
     // Main content
     all: "Todos",
@@ -586,6 +818,30 @@ export const es = {
       // Basic actions dropdown
       openAdvancedSettings: "Abrir configuración avanzada"
     },
+    
+    // AI Image Generation Modal
+    aiImageGeneration: {
+      title: "Generar imagen con IA",
+      promptLabel: "Describe la imagen que quieres generar",
+      promptPlaceholder: "ej., Una diapositiva de presentación empresarial moderna con gráficos y diagramas, estilo profesional, diseño limpio",
+      promptHelp: "Sé específico y descriptivo para mejores resultados",
+      qualityLabel: "Calidad",
+      qualityStandard: "Estándar",
+      qualityHD: "HD",
+      styleLabel: "Estilo",
+      styleVivid: "Vívido",
+      styleNatural: "Natural",
+      errorEmptyPrompt: "Por favor, ingresa una descripción para generar la imagen",
+      cancel: "Cancelar",
+      generate: "Generar imagen",
+      generating: "Generando...",
+      addImage: "Agregar imagen",
+      chooseMethod: "Elige cómo quieres agregar una imagen a este marcador de posición",
+      uploadImage: "Subir imagen",
+      uploadDescription: "Elige un archivo de tu dispositivo",
+      generateWithAI: "Generar con IA",
+      generateDescription: "Crear una imagen usando DALL-E"
+    },
 
     // Quality tiers
     basic: "Básico",
@@ -630,7 +886,7 @@ export const es = {
     pasteInTextDescription:
       "Crear desde notas, un esquema o contenido existente",
     generateDescription: "Crear desde un prompt de una línea en segundos",
-    importFileOrUrl: "Importar archivo o URL",
+    importFileOrUrl: "Crear desde archivos",
     importFileOrUrlDescription:
       "Mejorar documentos, presentaciones o páginas web existentes",
     popular: "POPULAR",
@@ -732,6 +988,7 @@ export const es = {
       errorLoadingProject: "Error: {error}",
       projectNotFound: "Proyecto no encontrado o datos no disponibles.",
       back: "Atrás",
+      ManageAccess: "Administrar acceso",
       openProducts: "Abrir productos",
       downloadPdf: "Descargar PDF",
       smartEdit: "Edición inteligente",
@@ -905,6 +1162,17 @@ export const es = {
       select: "Seleccionar",
       selected: "Seleccionado",
       file: "archivo",
+      chooseMethod: "Elige tu método preferido para crear contenido desde tus archivos",
+      createFromKnowledgeBase: "Crear desde la Base de Conocimientos",
+      knowledgeBaseDescription: "Genera contenido buscando en toda tu Base de Conocimientos información relevante. Perfecto para la creación integral de contenido.",
+      createFromSpecificFiles: "Crear desde Archivos Específicos",
+      specificFilesDescription: "Selecciona archivos y carpetas específicos para usar como material fuente. Ideal para la creación dirigida de contenido.",
+      whyChooseMethods: "¿Por qué elegir estos métodos?",
+      knowledgeBaseSearch: "Búsqueda en Base de Conocimientos",
+      knowledgeBaseSearchDesc: "Aprovecha toda tu colección de documentos para encontrar la información más relevante para tus necesidades de creación de contenido.",
+      specificFileSelection: "Selección de Archivos Específicos",
+      specificFileSelectionDesc: "Elige exactamente qué archivos incluir, dándote control preciso sobre tu material fuente.",
+      backToCreateFromFiles: "Volver a Crear desde Archivos",
     },
     // Course Outline Page
     courseOutline: {
@@ -1085,7 +1353,7 @@ export const es = {
 
     // Module and Lesson Settings Modals
     modals: {
-      // ... existing code ...
+
       moduleSettings: {
         title: "Configuración del módulo",
         subtitle: "Configurar calidad de producción para",
@@ -1116,6 +1384,13 @@ export const es = {
         failedToSave:
           "No se pudo guardar la configuración del nivel de la lección",
       },
+    },
+
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video',
     },
 
     // Theme picker translations

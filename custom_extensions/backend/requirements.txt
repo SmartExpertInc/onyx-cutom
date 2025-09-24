@@ -7,11 +7,33 @@ psycopg2-binary
 pyppeteer
 PyPDF2
 Jinja2
-asyncpg # For PostgreSQL
-python-dotenv # To load .env variables
+html2image
+imgkit
+weasyprint
+pdf2image
+asyncpg
+python-dotenv
 python-multipart
 tiktoken
 openai
 google-generativeai # For Gemini image generation
 Pillow # For pie chart image generation
+sqlalchemy
+cryptography
 psutil
+aiohttp
+ffmpeg-python
+playwright
+asyncio-mqtt
+pathlib2
+structlog
+pytest
+pytest-asyncio
+black
+flake8
+gunicorn
+
+# Video processing dependencies (cleaned up duplicates) - installed separately in Dockerfile
+opencv-python==4.8.0.76
+moviepy==1.0.3
+numpy==1.24.3

@@ -105,9 +105,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       switch (templateId) {
         case 'big-image-left':
         case 'big-image-top':
+          const imageElementId = `${slideId}-image`;
+          // Only include if has prompt, no image, AND not manually deleted
           if (slide.props.imagePrompt && !slide.props.imagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-image`,
+              elementId: imageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.imagePrompt,
@@ -120,9 +122,11 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
 
         case 'bullet-points':
         case 'bullet-points-right':
+          const bulletImageElementId = `${slideId}-image`;
+          // Only include if has prompt, no image, AND not manually deleted
           if (slide.props.imagePrompt && !slide.props.imagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-image`,
+              elementId: bulletImageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.imagePrompt,
@@ -135,9 +139,10 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
 
         case 'two-column':
           // Handle left image
+          const leftImageElementId = `${slideId}-left-image`;
           if (slide.props.leftImagePrompt && !slide.props.leftImagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-left-image`,
+              elementId: leftImageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.leftImagePrompt,
@@ -147,9 +152,10 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
             });
           }
           // Handle right image
+          const rightImageElementId = `${slideId}-right-image`;
           if (slide.props.rightImagePrompt && !slide.props.rightImagePath) {
             extractedPlaceholders.push({
-              elementId: `${slideId}-right-image`,
+              elementId: rightImageElementId,
               slideId,
               templateId,
               imagePrompt: slide.props.rightImagePrompt,
@@ -281,7 +287,7 @@ export const AutomaticImageGenerationManager: React.FC<AutomaticImageGenerationM
       
       return { success: false, error: errorMessage };
     }
-  }, []);
+  }, [enhancePromptWithTheme]);
 
   // Process all placeholders with automatic generation
   const processAllPlaceholders = useCallback(async () => {

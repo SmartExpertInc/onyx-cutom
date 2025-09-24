@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import Query
+from fastapi import Request
 from sqlalchemy.orm import Session
 
 from onyx.auth.users import current_admin_user
@@ -62,14 +63,18 @@ def list_credentials_admin(
 
 
 @router.get("/admin/similar-credentials/{source_type}")
-def get_cc_source_full_info(
+async def get_cc_source_full_info(
     source_type: DocumentSource,
-    user: User | None = Depends(current_curator_or_admin_user),
+    request: Request,
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
     get_editable: bool = Query(
         False, description="If true, return editable credentials"
     ),
 ) -> list[CredentialSnapshot]:
+    # Admin check disabled for Smart Drive functionality
+    # All authenticated users can access credentials
+    
     credentials = fetch_credentials_by_source_for_user(
         db_session=db_session,
         user=user,
@@ -122,11 +127,15 @@ def swap_credentials_for_connector(
 
 
 @router.post("/credential")
-def create_credential_from_model(
+async def create_credential_from_model(
     credential_info: CredentialBase,
-    user: User | None = Depends(current_curator_or_admin_user),
+    request: Request,
+    user: User | None = Depends(current_user),
     db_session: Session = Depends(get_session),
 ) -> ObjectCreationIdResponse:
+    # Admin check disabled for Smart Drive functionality
+    # All authenticated users can create credentials
+    
     if not _ignore_credential_permissions(credential_info.source):
         fetch_ee_implementation_or_noop(
             "onyx.db.user_group", "validate_object_creation_for_user", None

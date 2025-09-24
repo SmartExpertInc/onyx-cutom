@@ -1,0 +1,47 @@
+# Professional Video Generation Pipeline Requirements
+# ===============================================
+
+# Core dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+httpx>=0.25.0
+aiohttp>=3.9.0
+
+# Video processing
+ffmpeg-python>=0.2.0
+
+# Web automation for slide capture
+playwright>=1.40.0
+
+# Image processing (optional, for advanced features)
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# Audio processing (optional, for advanced features)
+# Note: pydub>=0.25.0 - May have compatibility issues with Python 3.13
+# If needed, consider using alternative audio processing libraries
+
+# Async utilities
+asyncio-mqtt>=0.16.0
+
+# File handling
+pathlib2>=2.3.0
+
+# Logging and monitoring
+structlog>=23.0.0
+
+# Development dependencies (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Production dependencies
+gunicorn>=21.0.0
+
+# Installation Notes:
+# - All core dependencies have been successfully installed
+# - Playwright browsers have been installed via: python -m playwright install
+# - pydub may require additional setup for Python 3.13 compatibility
+# - FFmpeg should be available system-wide for video processing

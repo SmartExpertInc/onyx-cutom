@@ -77,15 +77,26 @@ export async function submitConnector<T>(
     connector.connector_specific_config = {} as T;
   }
 
+  // Check if this is a Smart Drive connector creation
+  const isSmartDriveConnector = typeof window !== 'undefined' && 
+    new URLSearchParams(window.location.search).get('smart_drive') === 'true';
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  // Add special header for Smart Drive connectors to force private access
+  if (isSmartDriveConnector) {
+    headers["x-smart-drive-connector"] = "true";
+  }
+
   try {
     if (fakeCredential) {
       const response = await fetch(
         "/api/manage/admin/connector-with-mock-credential",
         {
           method: isUpdate ? "PATCH" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify({ ...connector }),
         }
       );
@@ -101,9 +112,7 @@ export async function submitConnector<T>(
         BASE_CONNECTOR_URL + (isUpdate ? `/${connectorId}` : ""),
         {
           method: isUpdate ? "PATCH" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify(connector),
         }
       );
@@ -409,13 +418,19 @@ export default function AddConnector({
         if (credentialActivated && isSuccess && response) {
           const credential =
             currentCredential || liveGDriveCredential || liveGmailCredential;
+          
+          // Check if this is a Smart Drive connector
+          const isSmartDriveConnector = typeof window !== 'undefined' && 
+            new URLSearchParams(window.location.search).get('smart_drive') === 'true';
+            
           const linkCredentialResponse = await linkCredential(
             response.id,
             credential?.id!,
             name,
             access_type,
             groups,
-            auto_sync_options
+            auto_sync_options,
+            isSmartDriveConnector
           );
           if (linkCredentialResponse.ok) {
             onSuccess();

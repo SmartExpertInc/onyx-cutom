@@ -219,6 +219,19 @@ When generating quizzes, you MUST ensure:
 - Explanations are in the specified language
 - Instructions and labels are in the specified language
 
+**CRITICAL BULLET POINT LANGUAGE EXAMPLE (WRONG vs RIGHT):**
+WRONG (Ukrainian request): "Key aspect of Критерії оцінки успішності адаптації that enhances educational outcomes"
+RIGHT (Ukrainian request): "Основний аспект критеріїв оцінки успішності адаптації, який покращує освітні результати"
+
+WRONG (Ukrainian request): "Important consideration for implementing Критерії оцінки успішності адаптації effectively"  
+RIGHT (Ukrainian request): "Важливий момент для ефективного впровадження критеріїв оцінки успішності адаптації"
+
+**BULLET POINT LANGUAGE VALIDATION CHECKLIST:**
+1. Does the bullet point contain ANY English structural phrases? → FORBIDDEN
+2. Are ALL words in the target language? → REQUIRED  
+3. Does it read naturally in the target language? → REQUIRED
+4. Would a native speaker use this phrasing? → REQUIRED
+
 Edit Mode Requests
 +------------------------------------------------
 If the JSON payload you receive after the `WIZARD_REQUEST` header contains the key `"editMode": true`, this indicates that the user is requesting to edit existing content rather than create new content.
@@ -1742,6 +1755,9 @@ Before you finish generating any presentation, perform these checks:
 - **EACH ITEM SUBSTANTIAL**: Every list item must contain at least 2-3 sentences of detailed explanation
 - **NO EXCEPTIONS**: These rules apply to ALL list item templates - no shortcuts or exceptions
 - **VALIDATION REQUIRED**: Double-check your work - if you see 3 list items, you have made an error
+- **LANGUAGE CONSISTENCY**: Each bullet point must be ENTIRELY in the target language - NO mixing of English phrases with target language terms
+- **STRICT LANGUAGE VALIDATION**: If generating in Ukrainian, NEVER use English phrases like "Key aspect of", "Important consideration for", "Significant benefit of" - write COMPLETE sentences in Ukrainian only
+- **ENGLISH PHRASE PROHIBITION**: FORBIDDEN patterns for non-English languages: "Key aspect of [term]", "Important consideration for [term]", "Significant benefit of [term]", "Challenge that", "Future implication of" - replace with native language equivalents
 
 **MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING:**
 The following values MUST be used exactly as specified for each language. No variations or translations are allowed:
@@ -3327,6 +3343,9 @@ Before you finish generating any presentation, perform these checks:
 - **EACH ITEM SUBSTANTIAL**: Every list item must contain at least 2-3 sentences of detailed explanation
 - **NO EXCEPTIONS**: These rules apply to ALL list item templates - no shortcuts or exceptions
 - **VALIDATION REQUIRED**: Double-check your work - if you see 3 list items, you have made an error
+- **LANGUAGE CONSISTENCY**: Each bullet point must be ENTIRELY in the target language - NO mixing of English phrases with target language terms
+- **STRICT LANGUAGE VALIDATION**: If generating in Ukrainian, NEVER use English phrases like "Key aspect of", "Important consideration for", "Significant benefit of" - write COMPLETE sentences in Ukrainian only
+- **ENGLISH PHRASE PROHIBITION**: FORBIDDEN patterns for non-English languages: "Key aspect of [term]", "Important consideration for [term]", "Significant benefit of [term]", "Challenge that", "Future implication of" - replace with native language equivalents
 
 **MANDATORY LANGUAGE-SPECIFIC VALUES MAPPING:**
 The following values MUST be used exactly as specified for each language. No variations or translations are allowed:

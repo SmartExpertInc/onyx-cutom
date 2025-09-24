@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Slide Template</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=Martel+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset and base styles */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color, #110c35); /* Use theme background, not transparent */
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            font-size: 16px; /* Reduced base font size for better scaling */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Martel Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Video slide container - EXACT VIDEO DIMENSIONS */
+        .slide-page {
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color); /* Fill entire background */
+            display: block;
+            box-sizing: border-box;
+            min-height: 1080px; /* Ensure minimum height */
+        }
+        
+        .slide-content {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-color); /* Ensure background is filled */
+            box-sizing: border-box;
+            min-height: 100%; /* Ensure it fills the parent */
+        }
+        
+        /* Theme color definitions - EXACT FRONTEND MATCH */
+        .theme-dark-purple {
+            --bg-color: #110c35;
+            --title-color: #ffffff;
+            --subtitle-color: #d9e1ff;
+            --content-color: #d9e1ff;
+            --accent-color: #f35657;
+            --title-font: 'Kanit', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 45px;
+            --content-size: 18px;
+        }
+        
+        .theme-light-modern {
+            --bg-color: #ffffff;
+            --title-color: #1a1a1a;
+            --subtitle-color: #6b7280;
+            --content-color: #374151;
+            --accent-color: #3b82f6;
+            --title-font: 'Inter', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 36px;
+            --content-size: 16px;
+        }
+        
+        .theme-corporate-blue {
+            --bg-color: #1e3a8a;
+            --title-color: #ffffff;
+            --subtitle-color: #bfdbfe;
+            --content-color: #e0e7ff;
+            --accent-color: #60a5fa;
+            --title-font: 'Roboto', sans-serif;
+            --content-font: 'Martel Sans', sans-serif;
+            --title-size: 40px;
+            --content-size: 16px;
+        }
+        
+        /* Common slide styles */
+        .slide {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--content-color);
+            font-family: var(--content-font);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            position: relative;
+            box-sizing: border-box;
+        }
+        
+        /* Avatar Checklist Slide Template */
+        .avatar-checklist {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .avatar-checklist .content-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 80px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .avatar-checklist .left-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-checklist .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 36px;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .avatar-checklist .slide-title {
+            font-size: 3.2rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 48px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        
+        .avatar-checklist .checklist-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+        }
+        
+        .avatar-checklist .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 1.8rem;
+            font-family: var(--content-font);
+            color: var(--content-color);
+            line-height: 1.4;
+            padding: 12px 0;
+        }
+        
+        .avatar-checklist .icon {
+            font-size: 2.1rem;
+            font-weight: bold;
+            color: var(--title-color);
+            min-width: 36px;
+        }
+        
+        .avatar-checklist .positive-icon {
+            color: var(--title-color);
+        }
+        
+        .avatar-checklist .negative-icon {
+            color: #ff4444;
+        }
+        
+        .avatar-checklist .question-icon {
+            font-size: 3rem;
+        }
+        
+        /* Pink shape in top-left corner */
+        .avatar-checklist .pink-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 750px;
+            height: 600px;
+            background-color: var(--title-color) !important; /* Force the specific color */
+            border-radius: 0 0 375px 0;
+            z-index: 1;
+        }
+        
+        /* Dark shape overlapping */
+        .avatar-checklist .dark-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 525px;
+            height: 375px;
+            background-color: #1a1a2e !important; /* Force the specific color */
+            border-radius: 0 0 300px 0;
+            z-index: 1;
+        }
+        
+        /* Avatar CRM Slide Template */
+        .avatar-crm {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            position: relative;
+            font-family: var(--content-font);
+            overflow: hidden;
+        }
+        
+        .avatar-crm .left-panel {
+            width: 40%;
+            height: 100%;
+            background-color: var(--bg-color);
+            padding: 90px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .avatar-crm .right-panel {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .avatar-crm .banner {
+            background-color: var(--title-color) !important; /* Force the specific color */
+            color: var(--bg-color);
+            padding: 18px 30px;
+            border-radius: 37px;
+            font-size: 21px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 45px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+        
+        .avatar-crm .checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+        }
+        
+        .avatar-crm .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 24px;
+            color: var(--content-color);
+            line-height: 1.4;
+        }
+        
+        .avatar-crm .checkmark {
+            color: var(--title-color);
+            margin-right: 18px;
+            font-size: 27px;
+            flex-shrink: 0;
+        }
+        
+        /* Avatar Service Slide Template */
+        .avatar-service {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+            min-height: 1080px; /* Ensure minimum height matches video dimensions */
+            box-sizing: border-box; /* Include padding in height calculation */
+        }
+        
+        .avatar-service .content-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;    
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+            max-width: 1800px;
+            gap: 90px;
+            position: relative;
+            z-index: 2;
+            min-height: 100%; /* Ensure it fills the parent container */
+            box-sizing: border-box; /* Include any padding/border in height calculation */
+            background-color: transparent !important; /* Make transparent so dark shape shows through */
+        }
+        
+        .avatar-service .left-content {
+            flex: 1;
+            text-align: left;
+            z-index: 2;
+            position: relative;
+            padding-left: 90px;
+            background-color: transparent !important; /* Make transparent so dark shape shows through */
+        }
+        
+        .avatar-service .right-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 2;
+            position: relative;
+            height: 100%;
+            background-color: transparent !important; /* Make transparent so dark shape shows through */
+        }
+        
+        .avatar-service .slide-title {
+            font-size: 3.5rem; /* Reduced from 5rem for better scaling */
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 32px;
+            line-height: 1.1;
+            word-wrap: break-word;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add shadow for better readability over dark shape */
+        }
+        
+        .avatar-service .slide-subtitle {
+            font-size: 2.25rem; /* Reduced from 3rem for better scaling */
+            font-family: var(--content-font);
+            color: var(--content-color);
+            margin-bottom: 32px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add shadow for better readability over dark shape */
+        }
+        
+        .avatar-service .content-text {
+            font-size: 1.8rem; /* Reduced from 2.2rem for better scaling */
+            font-family: var(--content-font);
+            color: var(--content-color);
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add shadow for better readability over dark shape */
+        }
+        
+        /* Dark shape in top-left corner */
+        .avatar-service .dark-shape {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 600px;
+            height: 750px;
+            background-color: #1a1a2e !important; /* Force the specific color */
+            border-radius: 0 0 450px 0;
+            z-index: 1;
+        }
+        
+        /* Avatar With Buttons Slide Template */
+        .avatar-buttons {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+        
+        .avatar-buttons .content-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 60px;
+        }
+        
+        .avatar-buttons .left-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-buttons .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 48px;
+        }
+        
+        .avatar-buttons .slide-title {
+            font-size: 4.2rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 60px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .avatar-buttons .buttons-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            width: 100%;
+            max-width: 750px;
+        }
+        
+        .avatar-buttons .button {
+            padding: 30px 0px;
+            width: 263px;
+            border-radius: 18px;
+            border: none;
+            font-size: 1.95rem;
+            font-family: var(--content-font);
+            color: #000000;
+            background-color: var(--title-color) !important; /* Force the specific color */
+            cursor: pointer;
+            word-wrap: break-word;
+            font-weight: bold;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Avatar Steps Slide Template */
+        .avatar-steps {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: var(--content-font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+        
+        .avatar-steps .content-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1800px;
+            gap: 60px;
+        }
+        
+        .avatar-steps .left-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 48px;
+        }
+        
+        .avatar-steps .right-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            position: relative;
+            height: 100%;
+        }
+        
+        .avatar-steps .slide-title {
+            font-size: 4.2rem;
+            font-family: var(--title-font);
+            color: var(--title-color);
+            margin-bottom: 60px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        
+        .avatar-steps .steps-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: 100%;
+            max-width: 750px;
+        }
+        
+        .avatar-steps .step-box {
+            padding: 30px 48px;
+            border-radius: 18px;
+            border: none;
+            font-size: 1.95rem;
+            font-family: var(--content-font);
+            color: #000000;
+            background-color: var(--title-color) !important; /* Force the specific color */
+            word-wrap: break-word;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .avatar-steps .arrow {
+            font-size: 3rem;
+            color: #ffffff;
+            text-align: center;
+            margin: 12px 0;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        /* Avatar placeholder - Simple blank space */
+        .avatar-placeholder {
+            width: 935px;
+            height: 843px;
+            margin: 0 auto;
+            position: absolute;
+            top: -370px;
+            z-index: 3;
+            background-color: transparent; /* Transparent background */
+            border: none; /* No border */
+            border-radius: 0; /* No border radius */
+            display: block; /* Simple block display */
+            /* Remove all text and icon styles */
+        }
+        
+        /* Hide all placeholder content */
+        .avatar-placeholder .placeholder-icon,
+        .avatar-placeholder .placeholder-text,
+        .avatar-placeholder .placeholder-subtext,
+        .avatar-placeholder .placeholder-dimensions {
+            display: none;
+        }
+        
+        /* CRITICAL FIX: Ensure background fills completely for avatar-service template */
+        .avatar-service,
+        /* REMOVED: This was overriding the transparent backgrounds for avatar-service content containers */
+        
+        /* Ensure no gaps in background coverage for avatar-service - but exclude content containers */
+        .avatar-service > *:not(.content-container):not(.left-content):not(.right-content) {
+            background-color: var(--bg-color);
+        }
+        
+        /* Force background on main content elements to prevent white lines - but preserve decorative shapes */
+        .avatar-service .slide-title,
+        .avatar-service .slide-subtitle,
+        .avatar-service .content-text {
+            background-color: transparent !important; /* Keep text elements transparent */
+        }
+        
+        /* TARGETED FIX: Ensure background fills completely without affecting text styles */
+        .slide-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* CRITICAL: Force background on all slide containers to prevent white lines */
+        .slide-page,
+        .slide-content,
+        .avatar-checklist,
+        .avatar-crm,
+        .avatar-buttons,
+        .avatar-steps {
+            background-color: var(--bg-color) !important;
+        }
+        
+        /* Special handling for avatar-service - keep main container background but make content transparent */
+        .avatar-service {
+            background-color: var(--bg-color) !important;
+        }
+        
+        /* Ensure no gaps in background coverage - but preserve decorative elements */
+        .slide-page > *:not(.avatar-service .content-container):not(.avatar-service .left-content):not(.avatar-service .right-content) {
+            background-color: var(--bg-color);
+        }
+        
+        /* Ensure all slide containers have proper background */
+        .avatar-checklist,
+        .avatar-crm,
+        .avatar-buttons,
+        .avatar-steps {
+            background-color: var(--bg-color);
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Special handling for avatar-service - keep main container background */
+        .avatar-service {
+            background-color: var(--bg-color);
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* PRESERVE DECORATIVE SHAPES - Override background for specific decorative elements */
+        .avatar-checklist .pink-shape {
+            background-color: var(--title-color) !important; /* Use their original colors */
+        }
+        
+        /* Specific overrides for decorative shapes */
+        .avatar-service .dark-shape {
+            background-color: #1a1a2e !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 600px !important;
+            height: 750px !important;
+            border-radius: 0 0 450px 0 !important;
+            z-index: 1 !important;
+        }
+        
+        .avatar-checklist .pink-shape {
+            background-color: var(--title-color) !important;
+        }
+        
+        .avatar-checklist .dark-shape {
+            background-color: #1a1a2e !important;
+        }
+        
+        /* FINAL OVERRIDE: Ensure dark shape is visible with maximum specificity */
+        .slide-page .slide-content .avatar-service .dark-shape {
+            background-color: #1a1a2e !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 600px !important;
+            height: 750px !important;
+            border-radius: 0 0 450px 0 !important;
+            z-index: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-page">
+        <div class="slide-content theme-{{ theme or 'dark-purple' }}" style="background-color: var(--bg-color);">
+            {% if templateId == 'avatar-checklist' %}
+                <div class="avatar-checklist">
+                    <!-- Pink shape in top-left corner -->
+                    <div class="pink-shape"></div>
+                    <!-- Dark shape overlapping -->
+                    <div class="dark-shape"></div>
+                    
+                    <div class="content-container">
+                        <!-- Left content - Avatar -->
+                        <div class="left-content">
+                            <div class="avatar-placeholder">
+                                <!-- Simple blank space for avatar overlay -->
+                            </div>
+                        </div>
+
+                        <!-- Right content - Title and Checklist -->
+                        <div class="right-content">
+                            <!-- Title with question mark -->
+                            {% if title %}
+                                <div style="display: flex; align-items: center; gap: 18px;">
+                                <span class="icon question-icon">?</span>
+                                    <h1 class="slide-title">{{title}}</h1>
+                            </div>
+                            {% endif %}
+
+                            <!-- Checklist -->
+                            <div class="checklist-container">
+                                {% for item in items %}
+                                    <div class="checklist-item">
+                                        <span class="icon {% if item.isPositive %}positive-icon{% else %}negative-icon{% endif %}">
+                                            {% if item.isPositive %}✓{% else %}✗{% endif %}
+                                        </span>
+                                        <span>{{ item.text }}</span>
+                                    </div>
+                                {% endfor %}
+                                {% if not items or items|length == 0 %}
+                                    <div class="checklist-item">
+                                        <span class="icon positive-icon">✓</span>
+                                        <span>"Let me help you"</span>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <span class="icon positive-icon">✓</span>
+                                        <span>"I'll be happy to clarify"</span>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <span class="icon positive-icon">✓</span>
+                                        <span>"Thank you for your attention"</span>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <span class="icon negative-icon">✗</span>
+                                        <span>Avoid cold phrases and uncertainty</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-crm' %}
+                <div class="avatar-crm">
+                    <!-- Left Panel - Dark Promotional Section -->
+                    <div class="left-panel">
+                        <!-- Pink Banner -->
+                        <div class="banner">
+                            {{ title }}
+                        </div>
+                        
+                        <!-- Checklist -->
+                        <div class="checklist">
+                            {% if subtitle %}
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                    <span>{{ subtitle }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% if content %}
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                    <span>{{ content }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                <span>Maintain warm contact</span>
+                            </div>
+                            
+                            <div class="checklist-item">
+                                <span class="checkmark">✓</span>
+                                <span>The client will feel it</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel - Avatar Only -->
+                    <div class="right-panel">
+                        <!-- Avatar Display - full width of right panel, full height -->
+                        <div class="avatar-placeholder" style="width: 100%; height: 100%; top: 0; position: relative;">
+                            <!-- Simple blank space for avatar overlay -->
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
+                <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
+                    <!-- Dark shape in top-left corner -->
+                    <div class="dark-shape"></div>
+                    
+                    <div class="content-container" style="background-color: transparent; height: 100%;">
+                        <!-- Left content -->
+                        <div class="left-content" style="background-color: transparent;">
+                            <!-- Title -->
+                            {% if title %}
+                                <h1 class="slide-title">{{ title }}</h1>
+                            {% endif %}
+
+                            <!-- Subtitle -->
+                            {% if subtitle %}
+                                <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                            {% endif %}
+
+                            <!-- Content -->
+                            {% if content %}
+                                <p class="content-text">{{ content }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Right content - Avatar -->
+                        <div class="right-content" style="background-color: transparent;">
+                            <div class="avatar-placeholder">
+                                <!-- Simple blank space for avatar overlay -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-buttons' %}
+                <div class="avatar-buttons">
+                    <div class="content-container">
+                        <!-- Left content - Avatar -->
+                        <div class="left-content">
+                            <div class="avatar-placeholder">
+                                <!-- Simple blank space for avatar overlay -->
+                            </div>
+                        </div>
+
+                        <!-- Right content - Title and Buttons -->
+                        <div class="right-content">
+                            <!-- Title -->
+                            {% if title %}
+                                <h1 class="slide-title">{{ title }}</h1>
+                            {% endif %}
+
+                            <!-- Buttons Grid -->
+                            <div class="buttons-container">
+                                {% for button in buttons %}
+                                    <div class="button">{{ button.text }}</div>
+                                {% endfor %}
+                                {% if not buttons or buttons|length == 0 %}
+                                    <div class="button">Attention</div>
+                                    <div class="button">Speed</div>
+                                    <div class="button">Warmth</div>
+                                    <div class="button">Care</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% elif templateId == 'avatar-steps' %}
+                <div class="avatar-steps">
+                    <div class="content-container">
+                        <!-- Left content - Title and Steps -->
+                        <div class="left-content">
+                            <!-- Title -->
+                            {% if title %}
+                                <h1 class="slide-title">{{ title }}</h1>
+                            {% endif %}
+
+                            <!-- Steps -->
+                            <div class="steps-container">
+                                {% for step in steps %}
+                                    <div class="step-box">{{ step }}</div>
+                                    {% if not loop.last %}
+                                        <div class="arrow">↓</div>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if not steps or steps|length == 0 %}
+                                    <div class="step-box">Greeting</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Consultation</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Comfort</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Final Recommendations</div>
+                                    <div class="arrow">↓</div>
+                                    <div class="step-box">Farewell</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Right content - Avatar -->
+                        <div class="right-content">
+                            <div class="avatar-placeholder">
+                                <!-- Simple blank space for avatar overlay -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <div class="slide">
+                    <!-- Fallback for unknown template IDs - show actual content -->
+                    {% if title %}
+                        <h1 class="slide-title" style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;">{{ title }}</h1>
+                    {% endif %}
+                    
+                    {% if subtitle %}
+                        <h2 class="slide-subtitle" style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;">{{ subtitle }}</h2>
+                    {% endif %}
+                    
+                    {% if content %}
+                        <p class="content-text" style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;">{{ content }}</p>
+                    {% endif %}
+                    
+                    {% if not title and not subtitle and not content %}
+                        <h1 style="font-size: 3.5rem; color: var(--title-color); text-align: center;">Unknown Avatar Template</h1>
+                        <p style="font-size: 1.8rem; color: var(--content-color); text-align: center;">Template ID: {{ templateId }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

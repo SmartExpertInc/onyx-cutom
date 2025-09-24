@@ -14,6 +14,7 @@ import PresentationPreview from "../../../components/PresentationPreview";
 import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
+import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -161,6 +162,9 @@ export default function LessonPresentationClient() {
   const { t } = useLanguage();
   const params = useSearchParams();
   const router = useRouter();
+  
+  // Process prompt from URL or sessionStorage and create local state
+  const [currentPrompt, setCurrentPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
@@ -170,7 +174,15 @@ export default function LessonPresentationClient() {
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
+  
+  // Knowledge Base context for creation from Knowledge Base search
+  const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
+
+  // Connector context for creation from selected connectors
+  const isFromConnectors = params?.get("fromConnectors") === "true";
+  const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
 
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -242,7 +254,7 @@ export default function LessonPresentationClient() {
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
-    params?.get("outlineId") ? true : (params?.get("prompt") ? false : null)
+    params?.get("outlineId") ? true : (currentPrompt ? false : null)
   );
 
   // Theme management with creation-specific persistence
@@ -349,7 +361,7 @@ export default function LessonPresentationClient() {
 
   const makeThoughts = () => {
     const list: string[] = [];
-    list.push(`Analyzing lesson request for "${params?.get("prompt")?.slice(0, 40) || "Untitled"}"...`);
+            list.push(`Analyzing lesson request for "${currentPrompt?.slice(0, 40) || "Untitled"}"...`);
     list.push(`Detected language: ${language.toUpperCase()}`);
     list.push(`Planning ${slidesCount} slides with ${lengthOption} content...`);
     // shuffle little filler line
@@ -483,7 +495,7 @@ export default function LessonPresentationClient() {
     // Start preview when one of the following is true:
     //   • a lesson was chosen from the outline (old behaviour)
     //   • no lesson chosen, but the user provided a free-form prompt (new behaviour)
-    const promptQuery = params?.get("prompt")?.trim() || "";
+    const promptQuery = currentPrompt?.trim() || "";
     if (!selectedLesson && !promptQuery) {
       // Nothing to preview yet – wait for user input
       setLoading(false);
@@ -545,6 +557,18 @@ export default function LessonPresentationClient() {
             requestBody.fromText = true;
             requestBody.textMode = textMode;
             requestBody.userText = userText;
+          }
+
+          // Add Knowledge Base context if creating from Knowledge Base
+          if (isFromKnowledgeBase) {
+            requestBody.fromKnowledgeBase = true;
+          }
+
+          // Add connector context if creating from connectors
+          if (isFromConnectors) {
+            requestBody.fromConnectors = true;
+            requestBody.connectorIds = connectorIds.join(',');
+            requestBody.connectorSources = connectorSources.join(',');
           }
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/lesson-presentation/preview`, {
@@ -665,20 +689,164 @@ export default function LessonPresentationClient() {
 
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
+      // Reset JSON tracking state for new preview
+      jsonConvertedRef.current = false;
+      setOriginalJsonResponse(null);
     };
   }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
+  // Track if we've converted a JSON preview to markdown to avoid loops
+  const jsonConvertedRef = useRef<boolean>(false);
+  // Store original JSON response to send during finalization instead of converted markdown
+  const [originalJsonResponse, setOriginalJsonResponse] = useState<string | null>(null);
+  // Editable state for titles and preview bullets
+  const [editedTitles, setEditedTitles] = useState<Record<number, string>>({});
+  const [editedBullets, setEditedBullets] = useState<Record<number, string[]>>({});
+
+  const setTitleForSlide = (idx: number, value: string) => {
+    setEditedTitles((prev) => ({ ...prev, [idx + 1]: value }));
+  };
+  const setBulletForSlide = (idx: number, bulletIdx: number, value: string) => {
+    setEditedBullets((prev) => {
+      const key = idx + 1;
+      const arr = Array.isArray(prev[key]) ? [...prev[key]] : [];
+      arr[bulletIdx] = value;
+      return { ...prev, [key]: arr };
+    });
+  };
+  const addBulletForSlide = (idx: number) => {
+    setEditedBullets((prev) => {
+      const key = idx + 1;
+      const arr = Array.isArray(prev[key]) ? [...prev[key]] : [];
+      arr.push("");
+      return { ...prev, [key]: arr };
+    });
+  };
+
+  // Helper: detect if a string is a single JSON object with slides
+  const tryParsePresentationJson = (text: string): any | null => {
+    try {
+      const trimmed = (text || "").trim();
+      if (!trimmed.startsWith("{")) return null;
+      const obj = JSON.parse(trimmed);
+      if (obj && typeof obj === "object" && Array.isArray(obj.slides)) return obj;
+      return null;
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // Helper: convert JSON SlideDeckDetails to markdown for current preview UI
+  const convertPresentationJsonToMarkdown = (data: any): string => {
+    if (!data || !Array.isArray(data.slides)) return content;
+    const slidesMd: string[] = data.slides.map((s: any, idx: number) => {
+      const num = s?.slideNumber || idx + 1;
+      const title = (s?.slideTitle || `Slide ${num}`).toString();
+      const templateId = (s?.templateId || "content-slide").toString();
+      const props = s?.props || {};
+
+      const lines: string[] = [];
+      // Title line with layout hint
+      lines.push(`**Slide ${num}: ${title}** \`${templateId}\``);
+
+      // Preview key points (for preview UI only)
+      if (Array.isArray(s?.previewKeyPoints) && s.previewKeyPoints.length) {
+        lines.push(...s.previewKeyPoints.map((b: any) => `- ${String(b)}`));
+      }
+
+      // Minimal content reconstruction per common templates
+      if (props.title && typeof props.title === "string") {
+        lines.push(`## ${props.title}`);
+      }
+
+      if (Array.isArray(props.bullets) && props.bullets.length) {
+        lines.push(...props.bullets.map((b: any) => `- ${String(b)}`));
+      }
+
+      if ((props.leftTitle || props.rightTitle) || (props.leftContent || props.rightContent)) {
+        if (props.leftTitle) lines.push(`### ${props.leftTitle}`);
+        if (props.leftContent) lines.push(String(props.leftContent));
+        if (props.rightTitle) lines.push(`### ${props.rightTitle}`);
+        if (props.rightContent) lines.push(String(props.rightContent));
+      }
+
+      // Big numbers or metrics-like content
+      if (Array.isArray(props.boxes) && props.boxes.length) {
+        // four-box-grid style
+        props.boxes.forEach((box: any, i: number) => {
+          if (box?.title) lines.push(`- ${i + 1}. ${box.title}`);
+          if (box?.description) lines.push(`${box.description}`);
+        });
+      }
+
+      if (Array.isArray(props.steps) && props.steps.length) {
+        props.steps.forEach((step: any, i: number) => {
+          const t = step?.title || step?.label || `Step ${i + 1}`;
+          const d = step?.description || step?.text || "";
+          lines.push(`${i + 1}. ${t}${d ? ": " + d : ""}`);
+        });
+      }
+
+      if (props.subtitle && typeof props.subtitle === "string") {
+        lines.push(String(props.subtitle));
+      }
+
+      // Image placeholder hint if present
+      if (props.imagePrompt) {
+        lines.push(`[IMAGE_PLACEHOLDER: MEDIUM | CENTER | ${String(props.imagePrompt).slice(0, 140)}]`);
+      }
+
+      return lines.join("\n\n");
+    });
+
+    return slidesMd.join("\n\n---\n\n");
+  };
+
+  // If stream completed and preview is JSON, convert it to markdown once
+  useEffect(() => {
+    if (!streamDone) return;
+    if (jsonConvertedRef.current) return;
+    const json = tryParsePresentationJson(content);
+    if (json) {
+      const md = convertPresentationJsonToMarkdown(json);
+      if (md && md.trim()) {
+        jsonConvertedRef.current = true;
+        setOriginalJsonResponse(content); // Store original JSON for finalization
+        setContent(md);
+        // Initialize editable state from full JSON
+        try {
+          const obj = JSON.parse(content);
+          if (Array.isArray(obj?.slides)) {
+            const titles: Record<number, string> = {};
+            const bullets: Record<number, string[]> = {};
+            obj.slides.forEach((s: any, i: number) => {
+              const num = s?.slideNumber || i + 1;
+              if (typeof s?.slideTitle === 'string') titles[num] = s.slideTitle;
+              if (Array.isArray(s?.previewKeyPoints)) bullets[num] = [...s.previewKeyPoints];
+            });
+            setEditedTitles(titles);
+            setEditedBullets(bullets);
+          }
+        } catch {}
+      }
+    }
+  }, [streamDone, content]);
+
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
   useEffect(() => {
     if (streamDone && !firstLineRemoved) {
+      // Do not strip first line if this is JSON or was converted from JSON
+      const looksLikeJson = (content || "").trim().startsWith("{");
+      if (!looksLikeJson && !jsonConvertedRef.current) {
       const parts = content.split('\n');
       if (parts.length > 1) {
         let trimmed = parts.slice(1).join('\n');
         // Remove leading blank lines (one or more) at the very start
         trimmed = trimmed.replace(/^(\s*\n)+/, '');
         setContent(trimmed);
+        }
       }
       setFirstLineRemoved(true);
     }
@@ -702,6 +870,12 @@ export default function LessonPresentationClient() {
     // Replicate slide parsing logic used in the UI to count slides
     const countParsedSlides = (text: string): number => {
       if (!text || !text.trim()) return 0;
+
+      // Handle JSON preview directly
+      const json = tryParsePresentationJson(text);
+      if (json && Array.isArray(json.slides)) {
+        return json.slides.length;
+      }
 
       // Clean the content first
       const cleanedText = cleanContent(text);
@@ -772,8 +946,35 @@ export default function LessonPresentationClient() {
 
     try {
       // Re-use the same fallback title logic we applied in preview
-      const promptQuery = params?.get("prompt")?.trim() || "";
+      const promptQuery = currentPrompt?.trim() || "";
       const derivedTitle = selectedLesson || (promptQuery ? promptQuery.slice(0, 80) : "Untitled Lesson");
+
+      // Log what we're sending for debugging
+      const responseToSend = originalJsonResponse || content;
+      const isUsingJson = !!originalJsonResponse;
+      console.log(`[FINALIZE] Sending ${isUsingJson ? 'original JSON' : 'markdown'} response (${responseToSend.length} chars)`);
+
+      // Build edits payload if any
+      let edits: Array<{ slideNumber: number; newTitle?: string; previewKeyPoints?: string[] }> = [];
+      try {
+        if (originalJsonResponse) {
+          const obj = JSON.parse(originalJsonResponse);
+          if (Array.isArray(obj?.slides)) {
+            obj.slides.forEach((s: any, i: number) => {
+              const num = s?.slideNumber || i + 1;
+              const origTitle = typeof s?.slideTitle === 'string' ? s.slideTitle : '';
+              const origBullets: string[] = Array.isArray(s?.previewKeyPoints) ? s.previewKeyPoints : [];
+              const newTitle = editedTitles[num];
+              const newBullets = editedBullets[num];
+              const titleChanged = typeof newTitle === 'string' && newTitle !== '' && newTitle !== origTitle;
+              const bulletsChanged = Array.isArray(newBullets) && JSON.stringify(newBullets) !== JSON.stringify(origBullets);
+              if (titleChanged || bulletsChanged) {
+                edits.push({ slideNumber: num, ...(titleChanged ? { newTitle } : {}), ...(bulletsChanged ? { previewKeyPoints: newBullets } : {}) });
+              }
+            });
+          }
+        }
+      } catch {}
 
       const res = await fetch(`${CUSTOM_BACKEND_URL}/lesson-presentation/finalize`, {
         method: "POST",
@@ -782,13 +983,24 @@ export default function LessonPresentationClient() {
           outlineProjectId: selectedOutlineId || undefined,
           lessonTitle: derivedTitle,
           lengthRange: lengthRangeForOption(lengthOption),
-          aiResponse: content,
+          // Send original JSON if available, otherwise send markdown content
+          aiResponse: originalJsonResponse || content,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           productType: productType, // Pass product type for video lesson vs regular presentation
           folderId: folderContext?.folderId || undefined,
           // Include selected theme
           theme: selectedTheme,
+          // Edits tracking
+          hasUserEdits: edits.length > 0,
+          originalContent: originalJsonResponse || null,
+          editedSlides: edits,
+          // Add connector context if creating from connectors
+          ...(isFromConnectors && {
+            fromConnectors: true,
+            connectorIds: connectorIds.join(','),
+            connectorSources: connectorSources.join(','),
+          }),
         }),
         signal: abortController.signal
       });
@@ -809,7 +1021,13 @@ export default function LessonPresentationClient() {
       }
 
       // Navigate immediately without delay to prevent cancellation
-      router.push(`/projects/view/${data.id}`);
+      // Use new interface for Video Lessons, old interface for regular presentations
+      const isVideoLesson = productType === "video_lesson_presentation";
+      const redirectPath = isVideoLesson ? `/projects-2/view/${data.id}` : `/projects/view/${data.id}`;
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
+      router.push(redirectPath);
 
     } catch (error: any) {
       caughtError = error;
@@ -852,7 +1070,13 @@ export default function LessonPresentationClient() {
               if (newestProject) {
                 // Found a newly created slide deck, redirect to it
                 console.log('Found newly created slide deck, redirecting...', newestProject.id);
-                router.push(`/projects/view/${newestProject.id}`);
+                // Use new interface for Video Lessons, old interface for regular presentations
+                const isVideoLesson = newestProject.design_microproduct_type === 'VideoLessonPresentationDisplay';
+                const redirectPath = isVideoLesson ? `/projects-2/view/${newestProject.id}` : `/projects/view/${newestProject.id}`;
+                if (typeof window !== 'undefined') {
+                  try { sessionStorage.setItem('last_created_product_id', String(newestProject.id)); } catch (_) {}
+                }
+                router.push(redirectPath);
               } else {
                 // No new slide deck found, redirect to products page
                 console.log('No new slide deck found, redirecting to products page');
@@ -893,7 +1117,7 @@ export default function LessonPresentationClient() {
     if (!trimmed || loadingEdit) return;
 
     // Combine existing prompt (if any) with new instruction
-    const basePrompt = params?.get("prompt") || "";
+    const basePrompt = currentPrompt || "";
     let combined = basePrompt.trim();
     if (combined && !/[.!?]$/.test(combined)) combined += ".";
     combined = combined ? `${combined} ${trimmed}` : trimmed;
@@ -1130,6 +1354,73 @@ export default function LessonPresentationClient() {
 
   const currentTheme = themeConfig[selectedTheme as keyof typeof themeConfig] || themeConfig.cherry;
 
+  // Extract slide objects from partial JSON streaming buffer
+  const extractSlidesFromPartialJson = (text: string): any[] => {
+    try {
+      const s = (text || "");
+      const slidesKeyIdx = s.indexOf('"slides"');
+      if (slidesKeyIdx < 0) return [];
+      const arrayStart = s.indexOf('[', slidesKeyIdx);
+      if (arrayStart < 0) return [];
+
+      const slides: any[] = [];
+      let i = arrayStart + 1;
+      const n = s.length;
+      while (i < n) {
+        while (i < n && (s[i] === ' ' || s[i] === '\n' || s[i] === '\r' || s[i] === '\t' || s[i] === ',')) i++;
+        if (i >= n) break;
+        if (s[i] === ']') break;
+        if (s[i] !== '{') {
+          const nextObj = s.indexOf('{', i);
+          if (nextObj < 0) break;
+          i = nextObj;
+        }
+        let depth = 0;
+        let start = i;
+        let end = -1;
+        while (i < n) {
+          const ch = s[i];
+          if (ch === '{') depth++;
+          else if (ch === '}') {
+            depth--;
+            if (depth === 0) { end = i + 1; break; }
+          }
+          i++;
+        }
+        if (end > 0) {
+          const objStr = s.slice(start, end);
+          try {
+            const slideObj = JSON.parse(objStr);
+            slides.push(slideObj);
+          } catch { /* ignore */ }
+        } else {
+          break;
+        }
+      }
+      return slides;
+    } catch { return []; }
+  };
+
+  // Build a live preview markdown from partial JSON during streaming
+  const getPreviewTextFromPartialJson = (text: string): string | null => {
+    try {
+      const slides = extractSlidesFromPartialJson(text);
+      if (!slides.length) return null;
+      const tmp = { slides };
+      return convertPresentationJsonToMarkdown(tmp);
+    } catch (_) {
+      return null;
+    }
+  };
+
+  // Decide what to render in the preview during streaming
+  const getLivePreviewText = (text: string): string => {
+    if (jsonConvertedRef.current) return text;
+    const md = getPreviewTextFromPartialJson(text);
+    if (md && md.trim()) return md;
+    return text;
+  };
+
   return (
     <>
       <main
@@ -1323,10 +1614,20 @@ export default function LessonPresentationClient() {
           {/* Prompt input for standalone lessons */}
           {useExistingOutline === false && (
             <textarea
-              value={params?.get("prompt") || ""}
+              value={currentPrompt || ""}
               onChange={(e) => {
+                const newPrompt = e.target.value;
+                setCurrentPrompt(newPrompt);
+                
+                // Handle prompt storage for long prompts
                 const sp = new URLSearchParams(params?.toString() || "");
-                sp.set("prompt", e.target.value);
+                if (newPrompt.length > 500) {
+                  const promptId = generatePromptId();
+                  sessionStorage.setItem(promptId, newPrompt);
+                  sp.set("prompt", promptId);
+                } else {
+                  sp.set("prompt", newPrompt);
+                }
                 router.replace(`?${sp.toString()}`, { scroll: false });
               }}
               placeholder={t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
@@ -1371,7 +1672,7 @@ export default function LessonPresentationClient() {
                   };
 
                   // Clean the content first to handle malformed AI responses
-                  const cleanedContent = cleanContent(content);
+                  const cleanedContent = cleanContent(getLivePreviewText(content));
 
                   // Split slides properly - first try by --- separators, then by language-agnostic patterns
                   let slides = [];
@@ -1392,15 +1693,15 @@ export default function LessonPresentationClient() {
                     let title = '';
 
                     if (titleMatch) {
-                      title = titleMatch[1].trim();
+                      title = titleMatch[1]; // do not trim to allow trailing spaces
                     } else {
                       // Fallback: look for any **text** pattern at the start
                       const fallbackMatch = slideContent.match(/\*\*([^*]+)\*\*/);
-                      title = fallbackMatch ? fallbackMatch[1].trim() : `Slide ${slideIdx + 1}`;
+                      title = fallbackMatch ? fallbackMatch[1] : `Slide ${slideIdx + 1}`;
                     }
 
                     return (
-                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden">
+                      <div key={slideIdx} className="flex rounded-xl shadow-sm overflow-hidden" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
                         {/* Left colored bar with index - matching course outline styling */}
                         <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
                           <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{slideIdx + 1}</span>
@@ -1411,22 +1712,61 @@ export default function LessonPresentationClient() {
                           {/* Slide title */}
                           <input
                             type="text"
-                            value={title}
+                            value={editedTitles[slideIdx + 1] ?? title}
                             onChange={(e) => {
                               const newTitle = e.target.value;
-                              // Update the content with new title using language-agnostic pattern
-                              const slidePattern = titleMatch
-                                ? new RegExp(`(\\*\\*[^*]+\\s+${slideIdx + 1}\\s*:\\s*)([^*\`\\n]+)`)
-                                : new RegExp(`\\*\\*${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`);
-
-                              const updatedContent = content.replace(slidePattern,
-                                titleMatch ? `$1${newTitle}` : `**${newTitle}**`
-                              );
-                              setContent(updatedContent);
+                              setTitleForSlide(slideIdx, newTitle);
                             }}
+                            disabled={!streamDone}
                             className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
                             placeholder={`${t('interface.generate.slideTitle', 'Slide')} ${slideIdx + 1} ${t('interface.generate.title', 'title')}`}
                           />
+
+                          {/* Preview bullets under title (from original JSON if available) */}
+                          {(() => {
+                            try {
+                              // Prefer full original JSON (post-stream). Otherwise, use partial slides during stream
+                              let bullets: string[] = [];
+                              if (originalJsonResponse) {
+                                const obj = JSON.parse(originalJsonResponse);
+                                const slideObj = Array.isArray(obj?.slides)
+                                  ? obj.slides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                  : null;
+                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              }
+                              if (!bullets.length) {
+                                const partialSlides = extractSlidesFromPartialJson(content);
+                                const slideObj = Array.isArray(partialSlides)
+                                  ? partialSlides.find((s: any, i: number) => (s?.slideNumber || i + 1) === (slideIdx + 1))
+                                  : null;
+                                bullets = Array.isArray(slideObj?.previewKeyPoints) ? slideObj.previewKeyPoints : [];
+                              }
+                              // Use edited bullets if present
+                              const edited = editedBullets[slideIdx + 1];
+                              if (Array.isArray(edited) && edited.length) bullets = edited;
+                              if (!bullets.length) return null;
+                              return (
+                                <div className="mt-1 ml-1 flex flex-col gap-1" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                                  {bullets.slice(0, 5).map((b, i) => (
+                                    <div key={i} className="flex items-center gap-2">
+                                      <span className="inline-block w-2 h-2 bg-gray-500 rounded-full" />
+                                      <input
+                                        type="text"
+                                        value={String(b)}
+                                        onChange={(e) => setBulletForSlide(slideIdx, i, e.target.value)}
+                                        disabled={!streamDone}
+                                        className="text-sm text-gray-800 border-0 px-0 py-1 focus:outline-none focus:ring-0 flex-1"
+                                        placeholder={t('interface.generate.topic', 'Topic') as string}
+                                      />
+                                    </div>
+                                  ))}
+                                  <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
+                                    + {t('interface.generate.addBullet', 'Add bullet')}
+                                  </button>
+                                </div>
+                              );
+                            } catch (_) { return null; }
+                          })()}
                         </div>
                       </div>
                     );
@@ -1491,7 +1831,7 @@ export default function LessonPresentationClient() {
           {streamDone && content && (
             <section className="flex flex-col gap-3">
               <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-              <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.6s ease-out both' }}>
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
@@ -1581,7 +1921,7 @@ export default function LessonPresentationClient() {
           )}
 
           {streamDone && content && (
-            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between">
+            <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-300 py-4 px-6 flex items-center justify-between" style={{ animation: 'fadeInDown 0.6s ease-out both' }}>
               <div className="flex items-center gap-2 text-base font-medium text-[#20355D] select-none">
                 {/* Credits calculated based on slide count */}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5C14 11.8807 11.7614 13 9 13C6.23858 13 4 11.8807 4 10.5M14 10.5C14 9.11929 11.7614 8 9 8C6.23858 8 4 9.11929 4 10.5M14 10.5V14.5M4 10.5V14.5M20 5.5C20 4.11929 17.7614 3 15 3C13.0209 3 11.3104 3.57493 10.5 4.40897M20 5.5C20 6.42535 18.9945 7.23328 17.5 7.66554M20 5.5V14C20 14.7403 18.9945 15.3866 17.5 15.7324M20 10C20 10.7567 18.9495 11.4152 17.3999 11.755M14 14.5C14 15.8807 11.7614 17 9 17C6.23858 17 4 15.8807 4 14.5M14 14.5V18.5C14 19.8807 11.7614 21 9 21C6.23858 21 4 19.8807 4 18.5V14.5" stroke="#20355D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>

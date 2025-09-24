@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Image } from 'lucide-react';
 import { uploadPresentationImage } from '../lib/designTemplateApi';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -28,8 +29,9 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
   isOpen, 
   onClose, 
   onImageUploaded,
-  title = "Upload Presentation Image"
+  title
 }) => {
+  const { t } = useLanguage();
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -190,7 +192,9 @@ const PresentationImageUpload: React.FC<PresentationImageUploadProps> = ({
         }}
       >
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">
+              {title || t('interface.modals.aiImageGeneration.uploadImage', 'Upload Image')}
+            </h3>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
