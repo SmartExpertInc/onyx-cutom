@@ -595,6 +595,20 @@ export default function ProductViewNewPage() {
           </div>
         </div>
 
+        {/* Smart Prompt Editor - positioned between top panel and main content */}
+        {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
+          <div className="px-[120px]">
+            <SmartPromptEditor
+              projectId={projectData.project_id}
+              onContentUpdate={handleSmartEditContentUpdate}
+              onError={handleSmartEditError}
+              onRevert={handleSmartEditRevert}
+              currentLanguage={editableData.detectedLanguage}
+              currentTheme={editableData.theme}
+            />
+          </div>
+        )}
+
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px] flex-1 overflow-hidden">
           {/* Main Content Area - Course Outline and Modules */}
@@ -824,18 +838,6 @@ export default function ProductViewNewPage() {
             ✕
           </button>
         </div>
-      )}
-
-      {/* Smart Prompt Editor - render outside the main content container */}
-      {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-        <SmartPromptEditor
-          projectId={projectData.project_id}
-          onContentUpdate={handleSmartEditContentUpdate}
-          onError={handleSmartEditError}
-          onRevert={handleSmartEditRevert}
-          currentLanguage={editableData.detectedLanguage}
-          currentTheme={editableData.theme}
-        />
       )}
     </main>
   );
