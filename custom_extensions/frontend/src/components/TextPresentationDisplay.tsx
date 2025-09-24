@@ -1248,20 +1248,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               );
             })}
             
-            {/* Add-at-end row for lists in edit mode */}
-            {isEditing && !!onTextChange && (
-              <li className="mt-2">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-300 text-xs transition-colors duration-200"
-                  onClick={() => addItemAt(items.length)}
-                  title="Add item"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add item
-                </button>
-              </li>
-            )}
+
           </ListTag>
         </div>
       );
