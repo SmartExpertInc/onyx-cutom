@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BulletPointsProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -530,16 +531,9 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   const slideContainerRef = useRef<HTMLDivElement>(null);
   
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    minHeight: '600px',
-        background: currentTheme.colors.backgroundColor,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
+    ...getStandardSlideStyles(currentTheme),
     alignItems: 'stretch',
-    padding: '80px',
-    position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont
+    padding: '80px'
   };
 
   // Placeholder styles (left)
@@ -569,13 +563,9 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: currentTheme.colors.titleColor,
+    ...getStandardTitleStyles(currentTheme),
     textAlign: 'left',
-    marginBottom: '32px',
-    wordWrap: 'break-word',
-    lineHeight: '1.2'
+    marginBottom: '32px'
   };
 
   // Handle title editing

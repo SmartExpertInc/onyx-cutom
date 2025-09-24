@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 export interface BigNumberItem {
   value: string;
@@ -176,12 +177,8 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    minHeight: '600px',
-    background: 'white', // White background for main content area
-    display: 'flex',
-    flexDirection: 'column',
-    fontFamily: currentTheme.fonts.contentFont,
+    ...getStandardSlideStyles(currentTheme),
+    background: 'white' // White background for main content area
   };
 
   // Header section styles (using dark purple theme background)
@@ -195,26 +192,18 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    ...getStandardTitleStyles(currentTheme),
     color: currentTheme.colors.titleColor, // Use theme title color
     textAlign: 'left',
     marginBottom: '24px',
-    width: '100%',
-    wordWrap: 'break-word',
-    fontWeight: 'bold',
-    lineHeight: '1.2'
+    width: '100%'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
-    fontFamily: currentTheme.fonts.contentFont,
+    ...getStandardSubtitleStyles(currentTheme),
     color: currentTheme.colors.subtitleColor, // Use theme subtitle color
     textAlign: 'left',
-    width: '100%',
-    wordWrap: 'break-word',
-    lineHeight: '1.5',
-    opacity: 0.9
+    width: '100%'
   };
 
   // Main content area styles (white background)

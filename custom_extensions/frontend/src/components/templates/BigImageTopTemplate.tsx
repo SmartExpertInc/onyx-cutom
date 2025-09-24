@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
@@ -200,15 +201,10 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    height: '600px', // Фиксированная высота
+    ...getStandardSlideStyles(currentTheme),
     background: '#ffffff', // Белый фон как на фото
-    fontFamily: currentTheme.fonts.contentFont,
-    display: 'flex',
-    flexDirection: 'column', // Вертикальный макет
     alignItems: 'stretch',
-    justifyContent: 'flex-start',
-    padding: '0',
-    position: 'relative'
+    padding: '0'
   };
 
   const getImageDimensions = () => {
@@ -256,24 +252,16 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3rem', // Крупный шрифт как на фото
-    fontFamily: currentTheme.fonts.titleFont,
+    ...getStandardTitleStyles(currentTheme),
     color: '#000000', // Черный цвет как на фото
-    marginBottom: '24px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word',
-    fontWeight: 'bold',
     textAlign: 'left'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.1rem', // Чуть больше для читаемости
-    fontFamily: currentTheme.fonts.contentFont,
+    ...getStandardSubtitleStyles(currentTheme),
     color: '#333333', // Темно-серый цвет как на фото
-    lineHeight: '1.6',
     width: '75%',
     whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
     textAlign: 'left'
   };
 

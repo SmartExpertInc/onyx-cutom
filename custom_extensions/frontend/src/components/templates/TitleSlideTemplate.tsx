@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { TitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles } from '@/styles/slideStandards';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -169,20 +170,13 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    minHeight: '600px',
+    ...getStandardSlideStyles(currentTheme),
     background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: '60px 80px',
-    position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont
+    padding: '60px 80px'
   };
 
   const logoStyles: React.CSSProperties = {
@@ -214,30 +208,18 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    ...getStandardTitleStyles(currentTheme),
     color: titleColor,
-    textAlign: 'center',
     marginTop: '130px',
-    marginBottom: '24px',
-    lineHeight: 1.2,
     maxWidth: '900px',
-    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
-    wordWrap: 'break-word',
-    fontWeight: 'bold'
+    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
-    fontFamily: currentTheme.fonts.contentFont,
+    ...getStandardSubtitleStyles(currentTheme),
     color: subtitleColor,
-    textAlign: 'center',
-    marginBottom: '40px',
-    lineHeight: 1.4,
     maxWidth: '700px',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
-    wordWrap: 'break-word',
-    opacity: 0.9
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none'
   };
 
   const metadataStyles: React.CSSProperties = {
