@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 export interface PyramidItem {
   heading: string;
   description: string;
@@ -169,33 +170,15 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    backgroundColor,
-    padding: '64px',
-    display: 'flex',
-    flexDirection: 'column',
-    fontFamily: currentTheme.fonts.contentFont,
-    minHeight: '600px',
-    width: '100%',
+    ...getStandardSlideStyles(currentTheme)
   };
 
   const titleStyles: React.CSSProperties = {
-    color: titleColor,
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    marginBottom: '16px',
-    textAlign: 'left',
-    wordWrap: 'break-word'
+    ...getStandardTitleStyles(currentTheme)
   };
 
   const subtitleStyles: React.CSSProperties = {
-    color: contentColor,
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    marginBottom: '48px',
-    maxWidth: '80%',
-    lineHeight: 1.6,
-    textAlign: 'left',
-    wordWrap: 'break-word'
+    ...getStandardSubtitleStyles(currentTheme)
   };
 
   const mainContentStyles: React.CSSProperties = {

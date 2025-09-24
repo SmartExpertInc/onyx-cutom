@@ -6,6 +6,7 @@ import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -210,14 +211,9 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
-    background: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '40px',
-    position: 'relative',
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    minHeight,
     overflow: 'hidden'
   };
 
@@ -252,22 +248,15 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '16px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word',
-    fontWeight: 'bold'
+    ...getStandardTitleStyles(currentTheme),
+    titleStyles: React.CSSProperties = {
+    fontSize
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    marginBottom: '16px',
-    lineHeight: '1.6',
-    wordWrap: 'break-word',
+    ...getStandardSubtitleStyles(currentTheme),
+    subtitleStyles: React.CSSProperties = {
+    fontSize,
     fontWeight: 'bold'
   };
 

@@ -5,6 +5,7 @@ import { ThankYouSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -161,14 +162,10 @@ export const ThankYouSlideTemplate: React.FC<ThankYouSlideProps & {
   const { backgroundColor: themeBg, titleColor: themeTitle, subtitleColor: themeSubtitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    height: '600px',
-    background: themeBg,
-    display: 'flex',
-    flexDirection: 'column',
-    position: 'relative',
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    width,
     overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
     boxSizing: 'border-box'
   };
 

@@ -6,6 +6,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 // Table Dark Template Props
 export interface TableDarkTemplateProps extends BaseTemplateProps {
   title: string;

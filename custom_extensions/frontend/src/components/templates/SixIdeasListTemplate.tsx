@@ -3,6 +3,7 @@ import { SixIdeasListTemplateProps } from '@/types/slideTemplates';
 import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;

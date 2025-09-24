@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HeroTitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -167,20 +168,15 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    minHeight: '600px',
+    ...getStandardSlideStyles(currentTheme),
     background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
-    display: 'flex',
-    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start',
     padding: '80px',
-    position: 'relative',
-    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     overflow: 'hidden'
   };
 
@@ -208,32 +204,22 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: getTitleFontSize(titleSize),
-    fontFamily: currentTheme.fonts.titleFont,
-    fontWeight: 700,
-    color: titleColor,
-    textAlign: textAlign as any,
-    marginBottom: '24px',
-    lineHeight: 1.2,
-    maxWidth: '900px',
-    textShadow: backgroundImage ? '2px 2px 4px rgba(0,0,0,0.3)' : 'none',
+    ...getStandardTitleStyles(currentTheme),
+    titleStyles: React.CSSProperties = {
+    fontSize,
+    textShadow: backgroundImage ? '2px 2px 4px rgba(0,
     zIndex: 2,
-    position: 'relative',
-    wordWrap: 'break-word'
+    position: 'relative'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: getSubtitleFontSize(subtitleSize),
-    fontFamily: currentTheme.fonts.contentFont,
+    ...getStandardSubtitleStyles(currentTheme),
+    subtitleStyles: React.CSSProperties = {
+    fontSize,
     fontWeight: 400,
-    color: subtitleColor,
-    textAlign: textAlign as any,
-    lineHeight: 1.6,
-    maxWidth: '700px',
-    textShadow: backgroundImage ? '1px 1px 2px rgba(0,0,0,0.2)' : 'none',
+    textShadow: backgroundImage ? '1px 1px 2px rgba(0,
     zIndex: 2,
-    position: 'relative',
-    wordWrap: 'break-word'
+    position: 'relative'
   };
 
   const getAccentStyles = (): React.CSSProperties => {

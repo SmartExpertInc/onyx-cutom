@@ -5,6 +5,7 @@ import { BigImageLeftProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 // Debug logging utility
 const DEBUG = typeof window !== 'undefined' && (window as any).__MOVEABLE_DEBUG__;
 const log = (source: string, event: string, data: any) => {
@@ -265,12 +266,9 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
-    background: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
-    display: 'flex',
-    alignItems: 'stretch'
-    // Removed overflow: 'hidden' to allow natural content expansion
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    minHeight
   };
 
   const getImageDimensions = () => {
@@ -310,21 +308,16 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '24px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word'
+    ...getStandardTitleStyles(currentTheme),
+    titleStyles: React.CSSProperties = {
+    fontSize
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
-    lineHeight: '1.6',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
+    ...getStandardSubtitleStyles(currentTheme),
+    subtitleStyles: React.CSSProperties = {
+    fontSize,
+    whiteSpace: 'pre-wrap'
   };
 
   // Handle title editing

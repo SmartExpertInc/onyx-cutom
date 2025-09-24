@@ -5,6 +5,7 @@ import { ImpactStatementsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -153,14 +154,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    height: '600px',
-    background: themeBg,
-    display: 'flex',
-    position: 'relative',
-    overflow: 'hidden',
-    fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    width,
+    overflow: 'hidden'
   };
 
   const handleTitleSave = (newTitle: string) => {

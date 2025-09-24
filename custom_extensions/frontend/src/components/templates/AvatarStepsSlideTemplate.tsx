@@ -6,6 +6,7 @@ import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import AvatarImageDisplay from '../AvatarImageDisplay';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -195,13 +196,9 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   };
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
-    background: backgroundColor,
-    fontFamily: currentTheme.fonts.contentFont,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '40px'
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    minHeight
   };
 
   const contentContainerStyles: React.CSSProperties = {
@@ -232,13 +229,9 @@ export const AvatarStepsSlideTemplate: React.FC<AvatarWithStepsProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.8rem',
-    fontFamily: currentTheme.fonts.titleFont,
-    color: backgroundColor === '#ffffff' ? '#000000' : titleColor,
-    marginBottom: '40px',
-    lineHeight: '1.2',
-    wordWrap: 'break-word',
-    fontWeight: 'bold'
+    ...getStandardTitleStyles(currentTheme),
+    titleStyles: React.CSSProperties = {
+    fontSize
   };
 
   const stepsContainerStyles: React.CSSProperties = {

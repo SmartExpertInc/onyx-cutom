@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
+import { getStandardSlideStyles, getStandardTitleStyles, getStandardSubtitleStyles, getStandardContentStyles } from '@/styles/slideStandards';
 interface InlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
@@ -200,25 +201,16 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
-    minHeight: '600px',
-        background: currentTheme.colors.backgroundColor,
-    padding: '60px',
-    position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont
+    ...getStandardSlideStyles(currentTheme),
+    slideStyles: React.CSSProperties = {
+    width
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontWeight: 700,
-    color: currentTheme.colors.titleColor,
-    fontFamily: currentTheme.fonts.titleFont,
-    textAlign: 'center',
-    marginBottom: '50px',
-    lineHeight: 1.3,
-    maxWidth: '900px',
-    margin: '0 auto 50px auto',
-    wordWrap: 'break-word'
+    ...getStandardTitleStyles(currentTheme),
+    titleStyles: React.CSSProperties = {
+    fontSize,
+    margin: '0 auto 50px auto'
   };
 
   const gridStyles: React.CSSProperties = {
