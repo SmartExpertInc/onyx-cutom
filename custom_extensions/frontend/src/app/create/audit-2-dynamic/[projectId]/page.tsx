@@ -166,6 +166,7 @@ interface YearlyShortageData {
 
 interface WorkforceCrisisData {
   industry: string
+  missingPersonnelDescription: string
   burnout: {
     months: string
     industryName: string
@@ -337,8 +338,9 @@ export default function DynamicAuditLandingPage() {
         currentValue = landingPageData.workforceCrisis?.yearlyShortage?.description || '';
         break
       case 'workforceCrisisMissingText':
-        // This is the "Missing per year" text - we'll handle it as a special case
-        currentValue = landingPageData.workforceCrisis?.industry || '';
+        // This is the full "Missing per year" text - now we handle the complete description
+        currentValue = landingPageData.workforceCrisis?.missingPersonnelDescription || 
+          `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`;
         break
       case 'burnoutTitle':
         currentValue = 'Burnout'; // Static title, but we'll make it editable
@@ -363,6 +365,9 @@ export default function DynamicAuditLandingPage() {
         break
       case 'onboardingCourseTitle':
         currentValue = landingPageData.courseTemplates?.[0]?.title || 'HVAC Installer';
+        break
+      case 'serviceTemplatesDescription':
+        currentValue = 'Ready-made course templates for onboarding and training your employees:';
         break
       default:
         if (field.startsWith('jobPosition_')) {
@@ -445,7 +450,7 @@ export default function DynamicAuditLandingPage() {
         break
       case 'workforceCrisisMissingText':
         if (updatedData.workforceCrisis) {
-          updatedData.workforceCrisis.industry = newValue
+          updatedData.workforceCrisis.missingPersonnelDescription = newValue
           console.log('✅ [TEXT SAVE] Successfully updated workforceCrisisMissingText');
         }
         break
@@ -494,6 +499,10 @@ export default function DynamicAuditLandingPage() {
           updatedData.courseTemplates[0].title = newValue
           console.log('✅ [TEXT SAVE] Successfully updated onboardingCourseTitle');
         }
+        break
+      case 'serviceTemplatesDescription':
+        // This is a static descriptive text, we'll just log it for now
+        console.log('✅ [TEXT SAVE] Service templates description updated (static field)');
         break
       default:
         // Handle nested fields like job positions, course templates, and course modules
@@ -598,7 +607,7 @@ export default function DynamicAuditLandingPage() {
               break;
             case 'workforceCrisisMissingText':
               if (recoveredData.workforceCrisis) {
-                recoveredData.workforceCrisis.industry = newValue;
+                recoveredData.workforceCrisis.missingPersonnelDescription = newValue;
               }
               break;
             case 'burnoutTitle':
@@ -638,6 +647,9 @@ export default function DynamicAuditLandingPage() {
               if (recoveredData.courseTemplates && recoveredData.courseTemplates[0]) {
                 recoveredData.courseTemplates[0].title = newValue;
               }
+              break;
+            case 'serviceTemplatesDescription':
+              // Static text, no data to update
               break;
             default:
               if (field.startsWith('jobPosition_')) {
@@ -1538,10 +1550,11 @@ export default function DynamicAuditLandingPage() {
                       <p className="font-semibold text-[16px] xl:text-[20px]">
                         {editingField === 'workforceCrisisMissingText' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.industry || 'HVAC'}
+                            initialValue={landingPageData?.workforceCrisis?.missingPersonnelDescription || 
+                              `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`}
                             onSave={(value) => handleTextSave('workforceCrisisMissingText', value)}
                             onCancel={handleTextCancel}
-                            multiline={false}
+                            multiline={true}
                             className="font-semibold"
                             style={{ fontSize: '16px' }}
                           />
@@ -1549,14 +1562,15 @@ export default function DynamicAuditLandingPage() {
                           <span 
                             onClick={() => startEditing('workforceCrisisMissingText')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit industry name"
+                            title="Click to edit full description text"
                           >
-                            {getLocalizedText(landingPageData?.language, {
-                              en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
-                              es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
-                              ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
-                              ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
-                            })}
+                            {landingPageData?.workforceCrisis?.missingPersonnelDescription || 
+                              getLocalizedText(landingPageData?.language, {
+                                en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
+                                es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
+                                ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
+                                ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
+                              })}
                           </span>
                         )}
                       </p>
@@ -2255,36 +2269,80 @@ export default function DynamicAuditLandingPage() {
                 </div>
                 
                 <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                  {getLocalizedText(landingPageData?.language, {
-                    en: 'Buy ready-made course templates',
-                    es: 'Compre plantillas de cursos listas',
-                    ua: 'Купуйте готові шаблони курсів',
-                    ru: 'Купите готовые шаблоны'
-                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'for onboarding',
-                    es: 'para incorporación',
-                    ua: 'для онбордингу',
-                    ru: 'курсов для онбординга'
-                  })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'and',
-                    es: 'y',
-                    ua: 'і',
-                    ru: 'и'
-                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'training:',
-                    es: 'entrenamiento:',
-                    ua: 'навчання:',
-                    ru: 'обучения:'
-                  })}
+                  {editingField === 'serviceTemplatesDescription' ? (
+                    <InlineEditor
+                      initialValue={getLocalizedText(landingPageData?.language, {
+                        en: 'Buy ready-made course templates for onboarding and training:',
+                        es: 'Compre plantillas de cursos listas para incorporación y entrenamiento:',
+                        ua: 'Купуйте готові шаблони курсів для онбордингу і навчання:',
+                        ru: 'Купите готовые шаблоны курсов для онбординга и обучения:'
+                      })}
+                      onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-medium"
+                      style={{ fontSize: '22px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('serviceTemplatesDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit service templates description"
+                    >
+                      {getLocalizedText(landingPageData?.language, {
+                        en: 'Buy ready-made course templates',
+                        es: 'Compre plantillas de cursos listas',
+                        ua: 'Купуйте готові шаблони курсів',
+                        ru: 'Купите готовые шаблоны'
+                      })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'for onboarding',
+                        es: 'para incorporación',
+                        ua: 'для онбордингу',
+                        ru: 'курсов для онбординга'
+                      })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                        en: 'training:',
+                        es: 'entrenamiento:',
+                        ua: 'навчання:',
+                        ru: 'обучения:'
+                      })}
+                    </span>
+                  )}
                 </h3>
   
                 <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                  {getLocalizedText(landingPageData?.language, {
-                    en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
-                    es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
-                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
-                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
-                  })}
+                  {editingField === 'serviceTemplatesDescription' ? (
+                    <InlineEditor
+                      initialValue={getLocalizedText(landingPageData?.language, {
+                        en: 'Ready-made course templates for onboarding and training your employees:',
+                        es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
+                        ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
+                        ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+                      })}
+                      onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-medium"
+                      style={{ fontSize: '40px' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('serviceTemplatesDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit service templates description"
+                    >
+                      {getLocalizedText(landingPageData?.language, {
+                        en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
+                        es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
+                        ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
+                        ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
+                      })}
+                    </span>
+                  )}
                 </h3>
                 
                 <div className="flex flex-col xl:flex-row xl:flex-wrap gap-[15px] xl:gap-[20px] xl:mb-[40px]">
