@@ -204,6 +204,7 @@ interface RenderBlockProps {
   onDrop?: (e: React.DragEvent, index: number) => void;
   onDragEnd?: () => void;
   isDraggedOver?: boolean;
+  onRemoveBlock?: (index: number) => void;
 }
 
 // Modern Settings Modal Component
@@ -731,7 +732,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
     isEditing, onTextChange, basePath = [],
     suppressRecommendationStripe, contentBlockIndex,
     onMoveBlockUp, onMoveBlockDown, isFirstBlock, isLastBlock,
-    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver
+    documentContent, onDragStart, onDragOver, onDragLeave, onDrop, onDragEnd, isDraggedOver,
+    onRemoveBlock
   } = props;
 
   const [showWordStyleEditor, setShowWordStyleEditor] = useState(false);
@@ -1096,16 +1098,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                {/* Delete this block */}
                <button
                  className="p-1 rounded hover:bg-gray-200 text-red-600"
-                 onClick={() => {
-                   if (!onTextChange || contentBlockIndex === undefined) return;
-                   onTextChange(['contentBlocks'], (prev => {
-                     if (!Array.isArray((prev as any))) return prev;
-                     const blocks = [...(prev as any)];
-                     if (contentBlockIndex < 0 || contentBlockIndex >= blocks.length) return prev;
-                     blocks.splice(contentBlockIndex, 1);
-                     return blocks;
-                   }) as any);
-                 }}
+                 onClick={() => { if (onRemoveBlock && contentBlockIndex !== undefined) onRemoveBlock(contentBlockIndex); }}
                  title="Delete block"
                >
                  <Trash2 className="w-4 h-4" />
@@ -1911,16 +1904,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                {/* Delete this block */}
                <button
                  className="p-1 rounded hover:bg-gray-200 text-red-600"
-                 onClick={() => {
-                   if (!onTextChange || contentBlockIndex === undefined) return;
-                   onTextChange(['contentBlocks'], (prev => {
-                     if (!Array.isArray((prev as any))) return prev;
-                     const blocks = [...(prev as any)];
-                     if (contentBlockIndex < 0 || contentBlockIndex >= blocks.length) return prev;
-                     blocks.splice(contentBlockIndex, 1);
-                     return blocks;
-                   }) as any);
-                 }}
+                 onClick={() => { if (onRemoveBlock && contentBlockIndex !== undefined) onRemoveBlock(contentBlockIndex); }}
                  title="Delete block"
                >
                  <Trash2 className="w-4 h-4" />
@@ -2592,6 +2576,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                              onDragEnd={handleDragEnd}
                              isDraggedOver={dragOverIndex === originalHeadlineIndex}
                              documentContent={documentContent}
+                             onRemoveBlock={removeBlockAtIndex}
                            />
                            {isEditing && (
                              <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-gray-100 text-gray-900 border border-gray-300 rounded-md shadow-sm px-1 py-0.5">
@@ -2691,6 +2676,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniHeadlineIndex}
                                   documentContent={documentContent}
+                                  onRemoveBlock={removeBlockAtIndex}
                                 />
                                 <RenderBlock
                                   block={subItem.list}
@@ -2710,6 +2696,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalMiniListIndex}
                                   documentContent={documentContent}
+                                  onRemoveBlock={removeBlockAtIndex}
                                 />
                               </div>
                             );
@@ -2735,6 +2722,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   onDragEnd={handleDragEnd}
                                   isDraggedOver={dragOverIndex === originalSubIndex}
                                   documentContent={documentContent}
+                                  onRemoveBlock={removeBlockAtIndex}
                                 />
                                 {isEditing && (
                                   <div className="absolute bottom-1 left-1 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200">
@@ -2773,6 +2761,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         isFirstBlock={originalHeadlineIndex === 0}
                         isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
                         documentContent={documentContent}
+                        onRemoveBlock={removeBlockAtIndex}
                       />
                       <RenderBlock
                         block={item.list}
@@ -2792,6 +2781,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                         onDragEnd={handleDragEnd}
                         isDraggedOver={dragOverIndex === originalListIndex}
                         documentContent={documentContent}
+                        onRemoveBlock={removeBlockAtIndex}
                       />
                     </div>
                   </div>
@@ -2821,6 +2811,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                       onDrop={handleDrop}
                       onDragEnd={handleDragEnd}
                       isDraggedOver={dragOverIndex === originalIndex}
+                      onRemoveBlock={removeBlockAtIndex}
                     />
                   </div>
                 );
