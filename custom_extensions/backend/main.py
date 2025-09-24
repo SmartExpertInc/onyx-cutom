@@ -21209,7 +21209,7 @@ async def download_projects_list_pdf(
         logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
 
-@app.get("/pdf/course-outline/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
+@app.get("/api/custom/pdf/course-outline/{project_id}", response_class=FileResponse, responses={404: {"model": ErrorDetail}, 500: {"model": ErrorDetail}})
 async def download_course_outline_pdf(
     project_id: int,
     onyx_user_id: str = Depends(get_current_onyx_user_id),
@@ -21217,6 +21217,7 @@ async def download_course_outline_pdf(
 ):
     """Download course outline as PDF"""
     try:
+        logger.info(f"Starting course outline PDF generation for project {project_id}")
         async with pool.acquire() as conn:
             # Fetch project data
             target_row_dict = await conn.fetchrow(
@@ -21234,6 +21235,8 @@ async def download_course_outline_pdf(
             if not microproduct_content:
                 raise HTTPException(status_code=400, detail="No course outline data found")
             
+            logger.info(f"Found course outline data for project {project_id}: {project_name}")
+            
             # Prepare template data
             template_data = {
                 "details": microproduct_content,
@@ -21243,6 +21246,7 @@ async def download_course_outline_pdf(
             
             # Generate PDF
             unique_output_filename = f"course_outline_{project_id}_{uuid.uuid4().hex[:12]}.pdf"
+            logger.info(f"Generating PDF with template: course_outline_pdf_template.html")
             pdf_path = await generate_pdf_from_html_template("course_outline_pdf_template.html", template_data, unique_output_filename)
             
             if not os.path.exists(pdf_path):
