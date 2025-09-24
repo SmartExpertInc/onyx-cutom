@@ -9,7 +9,7 @@ import {
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -2387,6 +2387,29 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     onTextChange(['contentBlocks'], updated);
   }, [dataToDisplay, onTextChange]);
 
+  const insertBulletListAfter = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const newList: BulletListBlock = { type: 'bullet_list', items: [''] };
+    blocks.splice(index + 1, 0, newList);
+    onTextChange(['contentBlocks'], blocks);
+  }, [dataToDisplay, onTextChange]);
+
+  const insertNumberedListAfter = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    const newList: NumberedListBlock = { type: 'numbered_list', items: [''] };
+    blocks.splice(index + 1, 0, newList);
+    onTextChange(['contentBlocks'], blocks);
+  }, [dataToDisplay, onTextChange]);
+
+  const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
+  const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
+    if (!onTextChange) return;
+    onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
+    setIconPickerHeadlineIndex(null);
+  }, [onTextChange]);
+
   return (
     <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
       <div className="bg-[#EFF6FF] rounded-3xl p-4 sm:p-6 md:p-8">
@@ -2426,45 +2449,77 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
                     <section className="mb-4 p-3 rounded-md text-left">
                       {!item._skipRenderHeadline && (
-                        <div className="relative">
-                          <RenderBlock
-                            block={item.headline}
-                            basePath={['contentBlocks', originalHeadlineIndex]}
-                            isEditing={isEditing}
-                            onTextChange={onTextChange}
-                            contentBlockIndex={originalHeadlineIndex}
-                            onMoveBlockUp={handleMoveBlockUp}
-                            onMoveBlockDown={handleMoveBlockDown}
-                            isFirstBlock={originalHeadlineIndex === 0}
-                            isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
-                            onDragStart={handleDragStart}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            onDragEnd={handleDragEnd}
-                            isDraggedOver={dragOverIndex === originalHeadlineIndex}
-                            documentContent={documentContent}
-                          />
-                          {isEditing && (
-                            <div className="absolute top-0 right-0 flex gap-2">
-                              <button
-                                className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded"
-                                onClick={() => addMiniSectionAtEndOfMajor(originalHeadlineIndex)}
-                                title="Add Subsection"
-                              >
-                                + Subsection
-                              </button>
-                              <button
-                                className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded"
-                                onClick={() => removeMajorSection(originalHeadlineIndex)}
-                                title="Delete Section"
-                              >
-                                <span className="inline-flex items-center"><Trash2 className="w-3 h-3 mr-1"/>Delete</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                        <div className="relative group/section">
+                           <RenderBlock
+                             block={item.headline}
+                             basePath={['contentBlocks', originalHeadlineIndex]}
+                             isEditing={isEditing}
+                             onTextChange={onTextChange}
+                             contentBlockIndex={originalHeadlineIndex}
+                             onMoveBlockUp={handleMoveBlockUp}
+                             onMoveBlockDown={handleMoveBlockDown}
+                             isFirstBlock={originalHeadlineIndex === 0}
+                             isLastBlock={originalHeadlineIndex >= (dataToDisplay?.contentBlocks?.length || 0) - 1}
+                             onDragStart={handleDragStart}
+                             onDragOver={handleDragOver}
+                             onDragLeave={handleDragLeave}
+                             onDrop={handleDrop}
+                             onDragEnd={handleDragEnd}
+                             isDraggedOver={dragOverIndex === originalHeadlineIndex}
+                             documentContent={documentContent}
+                           />
+                           {isEditing && (
+                             <div className="absolute top-1 right-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5">
+                               <button
+                                 className="p-1 rounded hover:bg-gray-100"
+                                 onClick={() => addMiniSectionAtEndOfMajor(originalHeadlineIndex)}
+                                 title="Add Subsection"
+                               >
+                                 <Plus className="w-4 h-4" />
+                               </button>
+                               <button
+                                 className="p-1 rounded hover:bg-gray-100"
+                                 onClick={() => insertBulletListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
+                                 title="Insert Bulleted List"
+                               >
+                                 <List className="w-4 h-4" />
+                               </button>
+                               <button
+                                 className="p-1 rounded hover:bg-gray-100"
+                                 onClick={() => insertNumberedListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
+                                 title="Insert Numbered List"
+                               >
+                                 <Type className="w-4 h-4 rotate-90" />
+                               </button>
+                               <div className="relative">
+                                 <button
+                                   className="p-1 rounded hover:bg-gray-100"
+                                   onClick={() => setIconPickerHeadlineIndex(iconPickerHeadlineIndex === originalHeadlineIndex ? null : originalHeadlineIndex)}
+                                   title="Choose Icon"
+                                 >
+                                   <StarIcon className="w-4 h-4" />
+                                 </button>
+                                 {iconPickerHeadlineIndex === originalHeadlineIndex && (
+                                   <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-1 grid grid-cols-5 gap-1 z-10">
+                                     {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                                       <button key={name} className="p-1 rounded hover:bg-gray-100" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
+                                         {React.createElement(iconMap[name], { className: 'w-4 h-4' })}
+                                       </button>
+                                     ))}
+                                   </div>
+                                 )}
+                               </div>
+                               <button
+                                 className="p-1 rounded hover:bg-gray-100 text-red-600"
+                                 onClick={() => removeMajorSection(originalHeadlineIndex)}
+                                 title="Delete Section"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </button>
+                             </div>
+                           )}
+                         </div>
+                       )}
                       <div className={item._skipRenderHeadline ? '' : 'pl-1'} style={{ textAlign: 'left' }}>
                         {item.items.map((subItem, subIndex) => {
                           const isLastSubItem = subIndex === item.items.length - 1;
@@ -2472,15 +2527,17 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                             const originalMiniHeadlineIndex = findOriginalIndex(subItem.headline);
                             const originalMiniListIndex = findOriginalIndex(subItem.list);
                             return (
-                              <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm">
+                              <div key={subIndex} className="p-3 my-4 !bg-white border-l-2 border-[#FF1414] text-left shadow-sm rounded-sm relative group/minisection">
                                 {isEditing && (
-                                  <div className="flex justify-end mb-1">
-                                    <button
-                                      className="px-2 py-1 text-xs bg-red-600 hover:bg-red-700 text-white rounded"
-                                      onClick={() => removeMiniSection(originalMiniHeadlineIndex)}
-                                      title="Delete Subsection"
-                                    >
-                                      <span className="inline-flex items-center"><Trash2 className="w-3 h-3 mr-1"/>Delete</span>
+                                  <div className="absolute top-1 right-1 opacity-0 group-hover/minisection:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5">
+                                    <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertBulletListAfter(originalMiniListIndex)} title="Insert Bulleted List">
+                                      <List className="w-4 h-4" />
+                                    </button>
+                                    <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertNumberedListAfter(originalMiniListIndex)} title="Insert Numbered List">
+                                      <Type className="w-4 h-4 rotate-90" />
+                                    </button>
+                                    <button className="p-1 rounded hover:bg-gray-100 text-red-600" onClick={() => removeMiniSection(originalMiniHeadlineIndex)} title="Delete Subsection">
+                                      <Trash2 className="w-4 h-4" />
                                     </button>
                                   </div>
                                 )}
@@ -2633,29 +2690,26 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           </main>
         </div>
       
-      {/* Floating Add Image Button - Only show in editing mode */}
+      {/* Floating add buttons - compact circular like image controls */}
       {isEditing && onTextChange && (
         <>
           <button
             onClick={() => setShowImageUpload(true)}
-            className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+            className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
             title="Add Image"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
           <button
             onClick={addMajorSection}
-            className="fixed bottom-6 right-24 bg-green-600 hover:bg-green-700 text-white rounded-full px-4 h-14 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+            className="fixed bottom-6 right-20 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
             title="Add Section"
           >
-            <span className="inline-flex items-center">
-              <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Section
-            </span>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </button>
         </>
       )}
