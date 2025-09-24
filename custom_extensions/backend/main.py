@@ -13032,6 +13032,9 @@ async def download_project_instance_pdf(
             
             # Add content status for each lesson to show blue icons when content exists
             if 'sections' in data_for_template_render:
+                # Get the main title for content matching
+                main_title = data_for_template_render.get('mainTitle', '')
+                
                 for section in data_for_template_render['sections']:
                     if 'lessons' in section:
                         for lesson in section['lessons']:
@@ -13043,10 +13046,55 @@ async def download_project_instance_pdf(
                                 'videoLesson': False
                             }
                             
-                            # Check if content exists for this lesson
-                            # This would need to be implemented based on your existing content checking logic
-                            # For now, we'll set them to False (gray icons) - this can be enhanced later
-                            # to actually check the database for existing content
+                            # Check if content exists for this lesson by querying the database
+                            try:
+                                # Build expected project name pattern
+                                expected_project_name = f"{main_title}: {lesson.get('title', '')}"
+                                
+                                # Query for existing projects that match this lesson
+                                content_check_query = """
+                                SELECT id, project_name, design_microproduct_type, microproduct_type 
+                                FROM projects 
+                                WHERE onyx_user_id = $1 
+                                AND (
+                                    project_name = $2 OR 
+                                    project_name = $3 OR 
+                                    project_name = $4 OR
+                                    project_name = $5
+                                )
+                                """
+                                
+                                # Check for different naming patterns
+                                legacy_quiz_pattern = f"Quiz - {expected_project_name}"
+                                legacy_text_presentation_pattern = f"Text Presentation - {expected_project_name}"
+                                
+                                content_results = await pool.fetch(
+                                    content_check_query,
+                                    onyx_user_id,
+                                    expected_project_name,
+                                    legacy_quiz_pattern,
+                                    legacy_text_presentation_pattern,
+                                    f"Video Lesson - {expected_project_name}"
+                                )
+                                
+                                # Check each matching project to see what type of content it is
+                                for project in content_results:
+                                    microproduct_type = project.get('design_microproduct_type') or project.get('microproduct_type')
+                                    
+                                    # Map microproduct types to our content status
+                                    if microproduct_type in ['Slide Deck', 'Lesson Presentation']:
+                                        lesson['contentStatus']['presentation'] = True
+                                    elif microproduct_type == 'Text Presentation':
+                                        lesson['contentStatus']['onePager'] = True
+                                    elif microproduct_type == 'Quiz':
+                                        lesson['contentStatus']['quiz'] = True
+                                    elif microproduct_type in ['Video Lesson', 'Video Lesson Presentation']:
+                                        lesson['contentStatus']['videoLesson'] = True
+                                        
+                            except Exception as e:
+                                # If there's an error checking content, keep defaults (gray icons)
+                                print(f"Error checking content status for lesson {lesson.get('title', '')}: {e}")
+                                pass
         elif component_name == COMPONENT_NAME_VIDEO_LESSON: # Updated logic for Video Lesson
             pdf_template_file = "video_lesson_pdf_template.html"
             if content_json and isinstance(content_json, dict):
