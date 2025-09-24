@@ -2374,7 +2374,6 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const removeMiniSection = useCallback((miniHeadlineIndex: number) => {
     if (!dataToDisplay || !onTextChange) return;
     const blocks = [...(dataToDisplay.contentBlocks || [])];
-    // Remove the headline and the immediately following paired block if compatible
     const toRemoveStart = miniHeadlineIndex;
     let toRemoveEnd = Math.min(blocks.length, miniHeadlineIndex + 1);
     if (miniHeadlineIndex + 1 < blocks.length) {
@@ -2409,6 +2408,14 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
     onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
     setIconPickerHeadlineIndex(null);
   }, [onTextChange]);
+
+  const removeBlockAtIndex = useCallback((index: number) => {
+    if (!dataToDisplay || !onTextChange) return;
+    const blocks = [...(dataToDisplay.contentBlocks || [])];
+    if (index < 0 || index >= blocks.length) return;
+    const updated = [...blocks.slice(0, index), ...blocks.slice(index + 1)];
+    onTextChange(['contentBlocks'], updated);
+  }, [dataToDisplay, onTextChange]);
 
   return (
     <div className="font-['Inter',_sans-serif] bg-white p-4 sm:p-6 md:p-8 shadow-lg rounded-md max-w-3xl mx-auto my-6">
@@ -2469,7 +2476,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                              documentContent={documentContent}
                            />
                            {isEditing && (
-                             <div className="absolute top-1 right-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5">
+                             <div className="absolute top-1 left-1 opacity-0 group-hover/section:opacity-100 transition-opacity duration-200 flex items-center gap-1 bg-white/90 border border-gray-200 rounded-md shadow-sm px-1 py-0.5">
                                <button
                                  className="p-1 rounded hover:bg-gray-100"
                                  onClick={() => addMiniSectionAtEndOfMajor(originalHeadlineIndex)}
@@ -2500,7 +2507,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                    <StarIcon className="w-4 h-4" />
                                  </button>
                                  {iconPickerHeadlineIndex === originalHeadlineIndex && (
-                                   <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-1 grid grid-cols-5 gap-1 z-10">
+                                   <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-1 grid grid-cols-5 gap-1 z-10">
                                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
                                        <button key={name} className="p-1 rounded hover:bg-gray-100" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
                                          {React.createElement(iconMap[name], { className: 'w-4 h-4' })}
@@ -2535,6 +2542,9 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                     </button>
                                     <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertNumberedListAfter(originalMiniListIndex)} title="Insert Numbered List">
                                       <Type className="w-4 h-4 rotate-90" />
+                                    </button>
+                                    <button className="p-1 rounded hover:bg-gray-100" onClick={() => removeBlockAtIndex(originalMiniHeadlineIndex)} title="Delete This Heading Only">
+                                      <X className="w-4 h-4" />
                                     </button>
                                     <button className="p-1 rounded hover:bg-gray-100 text-red-600" onClick={() => removeMiniSection(originalMiniHeadlineIndex)} title="Delete Subsection">
                                       <Trash2 className="w-4 h-4" />
@@ -2690,7 +2700,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           </main>
         </div>
       
-      {/* Floating add buttons - compact circular like image controls */}
+      {/* Floating add buttons - compact circular like image controls (different visuals) */}
       {isEditing && onTextChange && (
         <>
           <button
@@ -2704,12 +2714,11 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
           </button>
           <button
             onClick={addMajorSection}
-            className="fixed bottom-6 right-20 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
+            className="fixed bottom-6 right-20 bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
             title="Add Section"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Type className="w-5 h-5" />
+            <span className="sr-only">Add Section</span>
           </button>
         </>
       )}
