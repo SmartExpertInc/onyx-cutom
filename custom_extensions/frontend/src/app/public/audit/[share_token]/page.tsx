@@ -36,12 +36,17 @@ interface LandingPageData {
   }>
   workforceCrisis: {
     industry: string
+    fullTitle?: string
+    missingPersonnelDescription?: string
     burnout: {
       months: string
       industryName: string
+      fullDescription?: string
     }
     turnover: {
       percentage: string
+      fullTitle?: string
+      fullDescription?: string
       earlyExit: {
         percentage: string
         months: string
@@ -49,9 +54,13 @@ interface LandingPageData {
     }
     losses: {
       amount: string
+      fullTitle?: string
+      fullDescription?: string
     }
     searchTime: {
       days: string
+      fullTitle?: string
+      fullDescription?: string
     }
     chartData: any
     yearlyShortage: {
@@ -590,7 +599,7 @@ export default function PublicAuditPage() {
   
                     <div className="flex flex-col gap-[10px] xl:gap-[15px] xl:w-[296px]">
                       <p className="font-semibold text-[16px] xl:text-[20px]">
-                        {getLocalizedText(language, {
+                        {workforceCrisis?.missingPersonnelDescription || getLocalizedText(language, {
                           en: `Missing per year in ${workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
                           es: `Faltan por año en el sector ${workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
                           ua: `Не вистачає на рік у ${workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
@@ -659,7 +668,7 @@ export default function PublicAuditPage() {
             {/* Fourth Section */}
             <section className="bg-white pt-[50px] xl:pt-[100px] pb-[60px] xl:pb-[100px] px-[20px] xl:px-[120px] flex flex-col gap-[30px]">
               <h2 className="font-medium text-[32px] xl:text-[46px] leading-[120%] xl:leading-[115%] tracking-[-0.03em] xl:text-center">
-                {getLocalizedText(language, {
+                {workforceCrisis?.fullTitle || getLocalizedText(language, {
                   en: <>Workforce Crisis <br className="xl:hidden"/> in {workforceCrisis?.industry || 'HVAC'} Industry</>,
                   es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {workforceCrisis?.industry || 'HVAC'}</>,
                   ua: <>Кадрова криза <br className="xl:hidden"/> в {workforceCrisis?.industry || 'HVAC'}-галузі</>,
@@ -700,7 +709,7 @@ export default function PublicAuditPage() {
                   })}</span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(language, {
+                  {workforceCrisis?.burnout?.fullDescription || getLocalizedText(language, {
                     en: <>Average work duration in<br className="xl:hidden"/> {workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {workforceCrisis?.burnout?.months || '14'} months.</span></>,
                     es: <>Duración promedio de trabajo en<br className="xl:hidden"/> {workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {workforceCrisis?.burnout?.months || '14'} meses.</span></>,
                     ua: <>Середня тривалість роботи в<br className="xl:hidden"/> {workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
@@ -718,7 +727,7 @@ export default function PublicAuditPage() {
                   </svg>
   
                   <span className="font-semibold text-[20px]">
-                    {getLocalizedText(language, {
+                    {workforceCrisis?.turnover?.fullTitle || getLocalizedText(language, {
                       en: `Turnover up to ${workforceCrisis?.turnover?.percentage || '85'}% per year`,
                       es: `Rotación hasta ${workforceCrisis?.turnover?.percentage || '85'}% por año`,
                       ua: `Плинність до ${workforceCrisis?.turnover?.percentage || '85'}% на рік`,
@@ -727,7 +736,7 @@ export default function PublicAuditPage() {
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(language, {
+                  {workforceCrisis?.turnover?.fullDescription || getLocalizedText(language, {
                     en: <><span className="font-medium text-[#09090B]">{workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit</span> in the first {workforceCrisis?.turnover?.earlyExit?.months || '3'} months</>,
                     es: <><span className="font-medium text-[#09090B]">{workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% renuncian</span> en los primeros {workforceCrisis?.turnover?.earlyExit?.months || '3'} meses</>,
                     ua: <><span className="font-medium text-[#09090B]">{workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% звільняються</span> в перші {workforceCrisis?.turnover?.earlyExit?.months || '3'} місяці</>,
@@ -744,7 +753,7 @@ export default function PublicAuditPage() {
                   </svg>
   
                   <span className="font-semibold text-[20px]">
-                    {getLocalizedText(language, {
+                    {workforceCrisis?.losses?.fullTitle || getLocalizedText(language, {
                       en: `Losses ${workforceCrisis?.losses?.amount || '$10K–$18K'}`,
                       es: `Pérdidas ${workforceCrisis?.losses?.amount || '$10K–$18K'}`,
                       ua: `Збитки ${workforceCrisis?.losses?.amount || '$10К–$18К'}`,
@@ -753,7 +762,7 @@ export default function PublicAuditPage() {
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(language, {
+                  {workforceCrisis?.losses?.fullDescription || getLocalizedText(language, {
                     en: <><span className="font-medium text-[#09090B]">Company losses</span> per year for unfilled positions, including lost profits, overtime, and downtime.</>,
                     es: <><span className="font-medium text-[#09090B]">Pérdidas de la empresa</span> por año por posiciones no cubiertas, incluyendo ganancias perdidas, horas extra y tiempo de inactividad.</>,
                     ua: <><span className="font-medium text-[#09090B]">Збитки компанії</span> на рік за незакриті позиції, включаючи втрачені прибутки, понаднормові та простої.</>,
@@ -771,7 +780,7 @@ export default function PublicAuditPage() {
                   </svg>
   
                   <span className="font-semibold text-[20px]">
-                    {getLocalizedText(language, {
+                    {workforceCrisis?.searchTime?.fullTitle || getLocalizedText(language, {
                       en: `${workforceCrisis?.searchTime?.days || '30–60'} days`,
                       es: `${workforceCrisis?.searchTime?.days || '30–60'} días`,
                       ua: `${workforceCrisis?.searchTime?.days || '30–60'} днів`,
@@ -780,7 +789,7 @@ export default function PublicAuditPage() {
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(language, {
+                  {workforceCrisis?.searchTime?.fullDescription || getLocalizedText(language, {
                     en: 'Candidate search',
                     es: 'Búsqueda de candidatos',
                     ua: 'Пошук кандидата',
@@ -811,7 +820,7 @@ export default function PublicAuditPage() {
                       })}</span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {getLocalizedText(language, {
+                      {workforceCrisis?.burnout?.fullDescription || getLocalizedText(language, {
                         en: <>Average work duration in<br className="hidden xl:block"/> {workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {workforceCrisis?.burnout?.months || '14'} months.</span></>,
                         es: <>Duración promedio de trabajo en<br className="hidden xl:block"/> {workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {workforceCrisis?.burnout?.months || '14'} meses.</span></>,
                         ua: <>Середня тривалість роботи в<br className="hidden xl:block"/> {workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
@@ -829,7 +838,7 @@ export default function PublicAuditPage() {
                       </svg>
   
                       <span className="font-semibold text-[20px]">
-                    {getLocalizedText(language, {
+                    {workforceCrisis?.turnover?.fullTitle || getLocalizedText(language, {
                       en: `Turnover up to ${workforceCrisis?.turnover?.percentage || '85'}% per year`,
                       es: `Rotación hasta ${workforceCrisis?.turnover?.percentage || '85'}% por año`,
                       ua: `Плинність до ${workforceCrisis?.turnover?.percentage || '85'}% на рік`,
@@ -838,7 +847,7 @@ export default function PublicAuditPage() {
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {getLocalizedText(language, {
+                      {workforceCrisis?.turnover?.fullDescription || getLocalizedText(language, {
                     en: <><span className="font-medium text-[#09090B]">{workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit</span> in the first {workforceCrisis?.turnover?.earlyExit?.months || '3'} months</>,
                     es: <><span className="font-medium text-[#09090B]">{workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% renuncian</span> en los primeros {workforceCrisis?.turnover?.earlyExit?.months || '3'} meses</>,
                     ua: <><span className="font-medium text-[#09090B]">{workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% звільняються</span> в перші {workforceCrisis?.turnover?.earlyExit?.months || '3'} місяці</>,
@@ -870,7 +879,7 @@ export default function PublicAuditPage() {
                       </svg>
   
                       <span className="font-semibold text-[20px]">
-                    {getLocalizedText(language, {
+                    {workforceCrisis?.losses?.fullTitle || getLocalizedText(language, {
                       en: `Losses ${workforceCrisis?.losses?.amount || '$10K–$18K'}`,
                       es: `Pérdidas ${workforceCrisis?.losses?.amount || '$10K–$18K'}`,
                       ua: `Збитки ${workforceCrisis?.losses?.amount || '$10К–$18К'}`,
@@ -896,7 +905,7 @@ export default function PublicAuditPage() {
                       </svg>
   
                       <span className="font-semibold text-[20px]">
-                    {getLocalizedText(language, {
+                    {workforceCrisis?.searchTime?.fullTitle || getLocalizedText(language, {
                       en: `${workforceCrisis?.searchTime?.days || '30–60'} days`,
                       es: `${workforceCrisis?.searchTime?.days || '30–60'} días`,
                       ua: `${workforceCrisis?.searchTime?.days || '30–60'} днів`,
@@ -905,7 +914,7 @@ export default function PublicAuditPage() {
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {getLocalizedText(language, {
+                      {workforceCrisis?.searchTime?.fullDescription || getLocalizedText(language, {
                     en: 'Candidate search',
                     es: 'Búsqueda de candidatos',
                     ua: 'Пошук кандидата',
