@@ -255,11 +255,13 @@ function UnifiedBulletEditor({
   const bulletIconStyles: React.CSSProperties = {
     color: '#ffffff', // White triangular arrows
     fontWeight: 'bold',
-    minWidth: '20px',
-    minHeight: '20px',
-    width: '20px',
-    height: '20px',
+    minWidth: '14px',
+    minHeight: '14px',
+    width: '14px',
+    height: '14px',
     display: 'flex',
+    marginTop: '-5px',
+    opacity:'0.8',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.2rem',
@@ -311,7 +313,7 @@ function UnifiedBulletEditor({
                 display: 'flex', 
                 alignItems: 'flex-start', 
                 gap: '12px', 
-                marginBottom: '16px',
+                marginBottom: '30px',
                 minHeight: '1.6em',
                 width: '100%'
               }}>
@@ -456,7 +458,7 @@ function UnifiedBulletEditor({
     <div 
       onClick={startEditing}
       className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
+      style={{ padding: '4px', borderRadius: '4px', width: '77%', minWidth: 0, boxSizing: 'border-box' }}
     >
       <ul style={{
         listStyle: 'none',
@@ -557,7 +559,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
-    padding: '80px 60px',
+    padding: '35px',
     clipPath: 'polygon(0 0, 100% 0, 85% 100%, 0 100%)',
     zIndex: 2
   };
