@@ -279,7 +279,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -1234,10 +1234,10 @@ function GenerateProductPicker() {
         {/* Tab selector */}
         <div className="w-full max-w-3xl flex flex-wrap justify-center gap-3 sm:gap-3 md:gap-4 lg:gap-5 mb-1 px-1">
           <GenerateCard
-            label={t('interface.generate.courseOutline', 'Course Outline')}
+            label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
-            active={activeProduct === "Course Outline"}
-            onClick={() => setActiveProduct("Course Outline")}
+            active={activeProduct === "Course"}
+            onClick={() => setActiveProduct("Course")}
           />
           <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
@@ -1266,7 +1266,7 @@ function GenerateProductPicker() {
         </div>
 
         {/* Dropdown chips */}
-        {activeProduct === "Course Outline" && (
+        {activeProduct === "Course" && (
           <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={modulesCount.toString()}
@@ -1783,7 +1783,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
-        {((activeProduct === "Course Outline") || 
+        {((activeProduct === "Course") || 
           (activeProduct === "Video Lesson") ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
@@ -1847,7 +1847,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Generate Button */}
-        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+        {((activeProduct === "Course" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
@@ -1859,7 +1859,7 @@ function GenerateProductPicker() {
             <Button
               onClick={() => {
                 switch (activeProduct) {
-                  case "Course Outline":
+                  case "Course":
                     handleCourseOutlineStart();
                     break;
                   case "Video Lesson":
@@ -1881,7 +1881,7 @@ function GenerateProductPicker() {
               style={{ minWidth: 240 }}
             >
               <Sparkles size={20} />
-              {activeProduct === "Course Outline" && t('interface.generate.generateCourseOutline', 'Generate Course Outline')}
+              {activeProduct === "Course" && t('interface.generate.generateCourseOutline', 'Generate Course')}
               {activeProduct === "Video Lesson" && t('interface.generate.generateVideoLesson', 'Generate Video Lesson')}
               {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
               {activeProduct === "Quiz" && t('interface.generate.generateQuiz', 'Generate Quiz')}

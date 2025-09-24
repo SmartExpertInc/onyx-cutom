@@ -578,7 +578,7 @@ export default function ProductViewNewPage() {
               <h1 className="text-[#191D30] font-semibold text-[32px] leading-none">
                 {(() => {
                   const trainingPlanData = projectData.details as TrainingPlanData;
-                  return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                  return trainingPlanData?.mainTitle || projectData.name || 'Course';
                 })()}
               </h1>
             </div>
