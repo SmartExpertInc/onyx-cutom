@@ -170,6 +170,7 @@ interface WorkforceCrisisData {
   burnout: {
     months: string
     industryName: string
+    fullDescription: string
   }
   turnover: {
     percentage: string
@@ -177,12 +178,18 @@ interface WorkforceCrisisData {
       percentage: string
       months: string
     }
+    fullTitle: string
+    fullDescription: string
   }
   losses: {
     amount: string
+    fullTitle: string
+    fullDescription: string
   }
   searchTime: {
     days: string
+    fullTitle: string
+    fullDescription: string
   }
   chartData: ChartData
   yearlyShortage: YearlyShortageData
@@ -348,8 +355,20 @@ export default function DynamicAuditLandingPage() {
       case 'burnoutDescription':
         currentValue = landingPageData.workforceCrisis?.burnout?.months || '24';
         break
+      case 'burnoutFullDescription':
+        currentValue = landingPageData.workforceCrisis?.burnout?.fullDescription || 
+          `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '24'} months.`;
+        break
       case 'turnoverPercentage':
         currentValue = landingPageData.workforceCrisis?.turnover?.percentage || '85';
+        break
+      case 'turnoverFullTitle':
+        currentValue = landingPageData.workforceCrisis?.turnover?.fullTitle || 
+          `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`;
+        break
+      case 'turnoverFullDescription':
+        currentValue = landingPageData.workforceCrisis?.turnover?.fullDescription || 
+          `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`;
         break
       case 'turnoverEarlyExit':
         currentValue = landingPageData.workforceCrisis?.turnover?.earlyExit?.percentage || '20';
@@ -360,8 +379,24 @@ export default function DynamicAuditLandingPage() {
       case 'lossesAmount':
         currentValue = landingPageData.workforceCrisis?.losses?.amount || '$10K–$18K';
         break
+      case 'lossesFullTitle':
+        currentValue = landingPageData.workforceCrisis?.losses?.fullTitle || 
+          `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`;
+        break
+      case 'lossesFullDescription':
+        currentValue = landingPageData.workforceCrisis?.losses?.fullDescription || 
+          'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.';
+        break
       case 'searchTimeDays':
         currentValue = landingPageData.workforceCrisis?.searchTime?.days || '30–60';
+        break
+      case 'searchTimeFullTitle':
+        currentValue = landingPageData.workforceCrisis?.searchTime?.fullTitle || 
+          `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`;
+        break
+      case 'searchTimeFullDescription':
+        currentValue = landingPageData.workforceCrisis?.searchTime?.fullDescription || 
+          'Candidate search';
         break
       case 'onboardingCourseTitle':
         currentValue = landingPageData.courseTemplates?.[0]?.title || 'HVAC Installer';
@@ -464,10 +499,28 @@ export default function DynamicAuditLandingPage() {
           console.log('✅ [TEXT SAVE] Successfully updated burnoutDescription');
         }
         break
+      case 'burnoutFullDescription':
+        if (updatedData.workforceCrisis?.burnout) {
+          updatedData.workforceCrisis.burnout.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated burnoutFullDescription');
+        }
+        break
       case 'turnoverPercentage':
         if (updatedData.workforceCrisis?.turnover) {
           updatedData.workforceCrisis.turnover.percentage = newValue
           console.log('✅ [TEXT SAVE] Successfully updated turnoverPercentage');
+        }
+        break
+      case 'turnoverFullTitle':
+        if (updatedData.workforceCrisis?.turnover) {
+          updatedData.workforceCrisis.turnover.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverFullTitle');
+        }
+        break
+      case 'turnoverFullDescription':
+        if (updatedData.workforceCrisis?.turnover) {
+          updatedData.workforceCrisis.turnover.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated turnoverFullDescription');
         }
         break
       case 'turnoverEarlyExit':
@@ -488,10 +541,34 @@ export default function DynamicAuditLandingPage() {
           console.log('✅ [TEXT SAVE] Successfully updated lossesAmount');
         }
         break
+      case 'lossesFullTitle':
+        if (updatedData.workforceCrisis?.losses) {
+          updatedData.workforceCrisis.losses.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated lossesFullTitle');
+        }
+        break
+      case 'lossesFullDescription':
+        if (updatedData.workforceCrisis?.losses) {
+          updatedData.workforceCrisis.losses.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated lossesFullDescription');
+        }
+        break
       case 'searchTimeDays':
         if (updatedData.workforceCrisis?.searchTime) {
           updatedData.workforceCrisis.searchTime.days = newValue
           console.log('✅ [TEXT SAVE] Successfully updated searchTimeDays');
+        }
+        break
+      case 'searchTimeFullTitle':
+        if (updatedData.workforceCrisis?.searchTime) {
+          updatedData.workforceCrisis.searchTime.fullTitle = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated searchTimeFullTitle');
+        }
+        break
+      case 'searchTimeFullDescription':
+        if (updatedData.workforceCrisis?.searchTime) {
+          updatedData.workforceCrisis.searchTime.fullDescription = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated searchTimeFullDescription');
         }
         break
       case 'onboardingCourseTitle':
@@ -618,9 +695,24 @@ export default function DynamicAuditLandingPage() {
                 recoveredData.workforceCrisis.burnout.months = newValue;
               }
               break;
+            case 'burnoutFullDescription':
+              if (recoveredData.workforceCrisis?.burnout) {
+                recoveredData.workforceCrisis.burnout.fullDescription = newValue;
+              }
+              break;
             case 'turnoverPercentage':
               if (recoveredData.workforceCrisis?.turnover) {
                 recoveredData.workforceCrisis.turnover.percentage = newValue;
+              }
+              break;
+            case 'turnoverFullTitle':
+              if (recoveredData.workforceCrisis?.turnover) {
+                recoveredData.workforceCrisis.turnover.fullTitle = newValue;
+              }
+              break;
+            case 'turnoverFullDescription':
+              if (recoveredData.workforceCrisis?.turnover) {
+                recoveredData.workforceCrisis.turnover.fullDescription = newValue;
               }
               break;
             case 'turnoverEarlyExit':
@@ -638,9 +730,29 @@ export default function DynamicAuditLandingPage() {
                 recoveredData.workforceCrisis.losses.amount = newValue;
               }
               break;
+            case 'lossesFullTitle':
+              if (recoveredData.workforceCrisis?.losses) {
+                recoveredData.workforceCrisis.losses.fullTitle = newValue;
+              }
+              break;
+            case 'lossesFullDescription':
+              if (recoveredData.workforceCrisis?.losses) {
+                recoveredData.workforceCrisis.losses.fullDescription = newValue;
+              }
+              break;
             case 'searchTimeDays':
               if (recoveredData.workforceCrisis?.searchTime) {
                 recoveredData.workforceCrisis.searchTime.days = newValue;
+              }
+              break;
+            case 'searchTimeFullTitle':
+              if (recoveredData.workforceCrisis?.searchTime) {
+                recoveredData.workforceCrisis.searchTime.fullTitle = newValue;
+              }
+              break;
+            case 'searchTimeFullDescription':
+              if (recoveredData.workforceCrisis?.searchTime) {
+                recoveredData.workforceCrisis.searchTime.fullDescription = newValue;
               }
               break;
             case 'onboardingCourseTitle':
@@ -1487,7 +1599,7 @@ export default function DynamicAuditLandingPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit personnel shortage number"
                               >
-                                {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
                               </span>
                             )}
                           </div>
@@ -1530,7 +1642,7 @@ export default function DynamicAuditLandingPage() {
                                 className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                 title="Click to edit personnel shortage number"
                               >
-                                {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
+                            {landingPageData?.workforceCrisis?.yearlyShortage?.yearlyShortage?.toLocaleString() || '80,000'}
                               </span>
                             )}
                           </div>
@@ -1566,11 +1678,11 @@ export default function DynamicAuditLandingPage() {
                           >
                             {landingPageData?.workforceCrisis?.missingPersonnelDescription || 
                               getLocalizedText(landingPageData?.language, {
-                                en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
-                                es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
-                                ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
-                                ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
-                              })}
+                          en: `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`,
+                          es: `Faltan por año en el sector ${landingPageData?.workforceCrisis?.industry || 'HVAC'} — y la brecha está creciendo.`,
+                          ua: `Не вистачає на рік у ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторі — і розрив зростає.`,
+                          ru: `Не хватает в год в ${landingPageData?.workforceCrisis?.industry || 'HVAC'}-секторе — и разрыв растет.`
+                        })}
                           </span>
                         )}
                       </p>
@@ -1656,12 +1768,12 @@ export default function DynamicAuditLandingPage() {
                     className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                     title="Click to edit industry name"
                   >
-                    {getLocalizedText(landingPageData?.language, {
-                      en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
-                      es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
-                      ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
-                      ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
-                    })}
+                {getLocalizedText(landingPageData?.language, {
+                  en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
+                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
+                  ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
+                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
+                })}
                   </span>
                 )}
               </h2>
@@ -1707,36 +1819,39 @@ export default function DynamicAuditLandingPage() {
                         title="Click to edit burnout title"
                       >
                         {getLocalizedText(landingPageData?.language, {
-                          en: 'Burnout',
-                          es: 'Agotamiento',
-                          ua: 'Вигорання',
-                          ru: 'Выгорание'
+                    en: 'Burnout',
+                    es: 'Agotamiento',
+                    ua: 'Вигорання',
+                    ru: 'Выгорание'
                         })}
                       </span>
                     )}
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {editingField === 'burnoutDescription' ? (
+                  {editingField === 'burnoutFullDescription' ? (
                     <InlineEditor
-                      initialValue={landingPageData?.workforceCrisis?.burnout?.months || '14'}
-                      onSave={(value) => handleTextSave('burnoutDescription', value)}
+                      initialValue={landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                        `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '14'} months.`}
+                      onSave={(value) => handleTextSave('burnoutFullDescription', value)}
                       onCancel={handleTextCancel}
-                      className="font-medium"
-                      style={{ fontSize: '14px', color: '#09090B' }}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
                     />
                   ) : (
                     <span 
-                      onClick={() => startEditing('burnoutDescription')}
+                      onClick={() => startEditing('burnoutFullDescription')}
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                      title="Click to edit burnout duration"
+                      title="Click to edit full burnout description"
                     >
-                      {getLocalizedText(landingPageData?.language, {
-                        en: <>Average work duration in<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
-                        es: <>Duración promedio de trabajo en<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
-                        ua: <>Середня тривалість роботи в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
-                        ru: <>Средняя продолжительность работы в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
-                      })}
+                      {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                    en: <>Average work duration in<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
+                    es: <>Duración promedio de trabajo en<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
+                    ua: <>Середня тривалість роботи в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
+                    ru: <>Средняя продолжительность работы в<br className="xl:hidden"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
+                  })}
                     </span>
                   )}
                 </p>
@@ -1751,128 +1866,66 @@ export default function DynamicAuditLandingPage() {
                   </svg>
   
                   <span className="font-semibold text-[20px]">
-                    {editingField === 'turnoverPercentage' ? (
+                    {editingField === 'turnoverFullTitle' ? (
                       <InlineEditor
-                        initialValue={landingPageData?.workforceCrisis?.turnover?.percentage || '85'}
-                        onSave={(value) => handleTextSave('turnoverPercentage', value)}
+                        initialValue={landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`}
+                        onSave={(value) => handleTextSave('turnoverFullTitle', value)}
                         onCancel={handleTextCancel}
                         className="font-semibold"
                         style={{ fontSize: '20px' }}
                       />
                     ) : (
                       <span 
-                        onClick={() => startEditing('turnoverPercentage')}
+                        onClick={() => startEditing('turnoverFullTitle')}
                         className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                        title="Click to edit turnover percentage"
+                        title="Click to edit full turnover title"
                       >
-                        {getLocalizedText(landingPageData?.language, {
-                          en: `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`,
-                          es: `Rotación hasta ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% por año`,
-                          ua: `Плинність до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% на рік`,
-                          ru: `Текучка до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% в год`
-                        })}
+                        {landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                      en: `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`,
+                      es: `Rotación hasta ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% por año`,
+                      ua: `Плинність до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% на рік`,
+                      ru: `Текучка до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% в год`
+                    })}
                       </span>
                     )}
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(landingPageData?.language, {
-                    en: <>
-                      {editingField === 'turnoverEarlyExit' ? (
-                        <InlineEditor
-                          initialValue={landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}
-                          onSave={(value) => handleTextSave('turnoverEarlyExit', value)}
-                          onCancel={handleTextCancel}
-                          className="font-medium text-[#09090B]"
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('turnoverEarlyExit')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[#09090B]"
-                          title="Click to edit early exit percentage"
-                        >
-                          {landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}%
-                        </span>
-                      )} quit
-                    </>,
-                    es: <>
-                      {editingField === 'turnoverEarlyExit' ? (
-                        <InlineEditor
-                          initialValue={landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}
-                          onSave={(value) => handleTextSave('turnoverEarlyExit', value)}
-                          onCancel={handleTextCancel}
-                          className="font-medium text-[#09090B]"
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('turnoverEarlyExit')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[#09090B]"
-                          title="Click to edit early exit percentage"
-                        >
-                          {landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}%
-                        </span>
-                      )} renuncian
-                    </>,
-                    ua: <>
-                      {editingField === 'turnoverEarlyExit' ? (
-                        <InlineEditor
-                          initialValue={landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}
-                          onSave={(value) => handleTextSave('turnoverEarlyExit', value)}
-                          onCancel={handleTextCancel}
-                          className="font-medium text-[#09090B]"
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('turnoverEarlyExit')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[#09090B]"
-                          title="Click to edit early exit percentage"
-                        >
-                          {landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}%
-                        </span>
-                      )} звільняються
-                    </>,
-                    ru: <>
-                      {editingField === 'turnoverEarlyExit' ? (
-                        <InlineEditor
-                          initialValue={landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}
-                          onSave={(value) => handleTextSave('turnoverEarlyExit', value)}
-                          onCancel={handleTextCancel}
-                          className="font-medium text-[#09090B]"
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => startEditing('turnoverEarlyExit')}
-                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[#09090B]"
-                          title="Click to edit early exit percentage"
-                        >
-                          {landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}%
-                        </span>
-                      )} увольняются
-                    </>
-                  })}
-                  {' '}in the first{' '}
-                  {editingField === 'turnoverEarlyExitMonths' ? (
+                  {editingField === 'turnoverFullDescription' ? (
                     <InlineEditor
-                      initialValue={landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'}
-                      onSave={(value) => handleTextSave('turnoverEarlyExitMonths', value)}
+                      initialValue={landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                        `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`}
+                      onSave={(value) => handleTextSave('turnoverFullDescription', value)}
                       onCancel={handleTextCancel}
-                      className="font-medium text-[#09090B]"
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
                     />
                   ) : (
                     <span 
-                      onClick={() => startEditing('turnoverEarlyExitMonths')}
-                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded font-medium text-[#09090B]"
-                      title="Click to edit early exit months"
+                      onClick={() => startEditing('turnoverFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full turnover description"
                     >
-                      {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'}
+                      {landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit</span> in the first {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months
+                          </>,
+                          es: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% renuncian</span> en los primeros {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} meses
+                          </>,
+                          ua: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% звільняються</span> в перші {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} місяці
+                          </>,
+                          ru: <>
+                            <span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% увольняются</span> в первые {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} месяца
+                          </>
+                        })}
                     </span>
-                  )}{' '}
-                  {getLocalizedText(landingPageData?.language, {
-                    en: 'months',
-                    es: 'meses',
-                    ua: 'місяці',
-                    ru: 'месяца'
-                  })}
+                  )}
                 </p>
               </div>
               
@@ -1885,96 +1938,119 @@ export default function DynamicAuditLandingPage() {
   
                   <span className="font-semibold text-[20px]">
                     {getLocalizedText(landingPageData?.language, {
-                      en: <>
-                        Losses{' '}
-                        {editingField === 'lossesAmount' ? (
+                      en: (
+                        editingField === 'lossesFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}
-                            onSave={(value) => handleTextSave('lossesAmount', value)}
+                            initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
+                            onSave={(value) => handleTextSave('lossesFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('lossesAmount')}
+                            onClick={() => startEditing('lossesFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit losses amount"
+                            title="Click to edit full losses title"
                           >
-                            {landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}
+                            {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
                           </span>
-                        )}
-                      </>,
-                      es: <>
-                        Pérdidas{' '}
-                        {editingField === 'lossesAmount' ? (
+                        )
+                      ),
+                      es: (
+                        editingField === 'lossesFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}
-                            onSave={(value) => handleTextSave('lossesAmount', value)}
+                            initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
+                            onSave={(value) => handleTextSave('lossesFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('lossesAmount')}
+                            onClick={() => startEditing('lossesFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit losses amount"
+                            title="Click to edit full losses title"
                           >
-                            {landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}
+                            {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
                           </span>
-                        )}
-                      </>,
-                      ua: <>
-                        Збитки{' '}
-                        {editingField === 'lossesAmount' ? (
+                        )
+                      ),
+                      ua: (
+                        editingField === 'lossesFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}
-                            onSave={(value) => handleTextSave('lossesAmount', value)}
+                            initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`}
+                            onSave={(value) => handleTextSave('lossesFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('lossesAmount')}
+                            onClick={() => startEditing('lossesFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit losses amount"
+                            title="Click to edit full losses title"
                           >
-                            {landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}
+                            {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`}
                           </span>
-                        )}
-                      </>,
-                      ru: <>
-                        Убытки{' '}
-                        {editingField === 'lossesAmount' ? (
+                        )
+                      ),
+                      ru: (
+                        editingField === 'lossesFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}
-                            onSave={(value) => handleTextSave('lossesAmount', value)}
+                            initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`}
+                            onSave={(value) => handleTextSave('lossesFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('lossesAmount')}
+                            onClick={() => startEditing('lossesFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit losses amount"
+                            title="Click to edit full losses title"
                           >
-                            {landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}
+                            {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                              `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`}
                           </span>
-                        )}
-                      </>
+                        )
+                      )
                     })}
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(landingPageData?.language, {
+                  {editingField === 'lossesFullDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                        'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.'}
+                      onSave={(value) => handleTextSave('lossesFullDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('lossesFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full losses description"
+                    >
+                      {landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
                     en: <><span className="font-medium text-[#09090B]">Company losses</span> per year for unfilled positions, including lost profits, overtime, and downtime.</>,
                     es: <><span className="font-medium text-[#09090B]">Pérdidas de la empresa</span> por año por posiciones no cubiertas, incluyendo ganancias perdidas, horas extra y tiempo de inactividad.</>,
                     ua: <><span className="font-medium text-[#09090B]">Збитки компанії</span> на рік за незакриті позиції, включаючи втрачені прибутки, понаднормові та простої.</>,
                     ru: <><span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.</>
                   })}
+                    </span>
+                  )}
                 </p>
               </div>
               
@@ -1988,92 +2064,119 @@ export default function DynamicAuditLandingPage() {
   
                   <span className="font-semibold text-[20px]">
                     {getLocalizedText(landingPageData?.language, {
-                      en: <>
-                        {editingField === 'searchTimeDays' ? (
+                      en: (
+                        editingField === 'searchTimeFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
-                            onSave={(value) => handleTextSave('searchTimeDays', value)}
+                            initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`}
+                            onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('searchTimeDays')}
+                            onClick={() => startEditing('searchTimeFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit search time days"
+                            title="Click to edit full search time title"
                           >
-                            {landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
+                            {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`}
                           </span>
-                        )}{' '}days
-                      </>,
-                      es: <>
-                        {editingField === 'searchTimeDays' ? (
+                        )
+                      ),
+                      es: (
+                        editingField === 'searchTimeFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
-                            onSave={(value) => handleTextSave('searchTimeDays', value)}
+                            initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`}
+                            onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('searchTimeDays')}
+                            onClick={() => startEditing('searchTimeFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit search time days"
+                            title="Click to edit full search time title"
                           >
-                            {landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
+                            {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`}
                           </span>
-                        )}{' '}días
-                      </>,
-                      ua: <>
-                        {editingField === 'searchTimeDays' ? (
+                        )
+                      ),
+                      ua: (
+                        editingField === 'searchTimeFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
-                            onSave={(value) => handleTextSave('searchTimeDays', value)}
+                            initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`}
+                            onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('searchTimeDays')}
+                            onClick={() => startEditing('searchTimeFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit search time days"
+                            title="Click to edit full search time title"
                           >
-                            {landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
+                            {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`}
                           </span>
-                        )}{' '}днів
-                      </>,
-                      ru: <>
-                        {editingField === 'searchTimeDays' ? (
+                        )
+                      ),
+                      ru: (
+                        editingField === 'searchTimeFullTitle' ? (
                           <InlineEditor
-                            initialValue={landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
-                            onSave={(value) => handleTextSave('searchTimeDays', value)}
+                            initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`}
+                            onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
                             style={{ fontSize: '20px' }}
                           />
                         ) : (
                           <span 
-                            onClick={() => startEditing('searchTimeDays')}
+                            onClick={() => startEditing('searchTimeFullTitle')}
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                            title="Click to edit search time days"
+                            title="Click to edit full search time title"
                           >
-                            {landingPageData?.workforceCrisis?.searchTime?.days || '30–60'}
+                            {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                              `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`}
                           </span>
-                        )}{' '}дней
-                      </>
+                        )
+                      )
                     })}
                   </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
-                  {getLocalizedText(landingPageData?.language, {
+                  {editingField === 'searchTimeFullDescription' ? (
+                    <InlineEditor
+                      initialValue={landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                        'Candidate search'}
+                      onSave={(value) => handleTextSave('searchTimeFullDescription', value)}
+                      onCancel={handleTextCancel}
+                      multiline={true}
+                      className="font-normal"
+                      style={{ fontSize: '14px', color: '#71717A' }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => startEditing('searchTimeFullDescription')}
+                      className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                      title="Click to edit full search time description"
+                    >
+                      {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                        getLocalizedText(landingPageData?.language, {
                     en: 'Candidate search',
                     es: 'Búsqueda de candidatos',
                     ua: 'Пошук кандидата',
                     ru: 'Поиск кандидата'
                   })}
+                    </span>
+                  )}
                 </p>
               </div>
   
@@ -2107,36 +2210,39 @@ export default function DynamicAuditLandingPage() {
                             title="Click to edit burnout title"
                           >
                             {getLocalizedText(landingPageData?.language, {
-                              en: 'Burnout',
-                              es: 'Agotamiento',
-                              ua: 'Вигорання',
-                              ru: 'Выгорание'
+                        en: 'Burnout',
+                        es: 'Agotamiento',
+                        ua: 'Вигорання',
+                        ru: 'Выгорание'
                             })}
                           </span>
                         )}
                       </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {editingField === 'burnoutDescription' ? (
+                      {editingField === 'burnoutFullDescription' ? (
                         <InlineEditor
-                          initialValue={landingPageData?.workforceCrisis?.burnout?.months || '14'}
-                          onSave={(value) => handleTextSave('burnoutDescription', value)}
+                          initialValue={landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                            `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '14'} months.`}
+                          onSave={(value) => handleTextSave('burnoutFullDescription', value)}
                           onCancel={handleTextCancel}
-                          className="font-medium"
-                          style={{ fontSize: '14px', color: '#09090B' }}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
                         />
                       ) : (
                         <span 
-                          onClick={() => startEditing('burnoutDescription')}
+                          onClick={() => startEditing('burnoutFullDescription')}
                           className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
-                          title="Click to edit burnout duration"
+                          title="Click to edit full burnout description"
                         >
-                          {getLocalizedText(landingPageData?.language, {
-                            en: <>Average work duration in<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
-                            es: <>Duración promedio de trabajo en<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
-                            ua: <>Середня тривалість роботи в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
-                            ru: <>Средняя продолжительность работы в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
-                          })}
+                          {landingPageData?.workforceCrisis?.burnout?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                        en: <>Average work duration in<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — <span className="font-medium text-[#09090B]">less than {landingPageData?.workforceCrisis?.burnout?.months || '14'} months.</span></>,
+                        es: <>Duración promedio de trabajo en<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'empresas HVAC'} — <span className="font-medium text-[#09090B]">menos de {landingPageData?.workforceCrisis?.burnout?.months || '14'} meses.</span></>,
+                        ua: <>Середня тривалість роботи в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаніях'} — <span className="font-medium text-[#09090B]">менше {landingPageData?.workforceCrisis?.burnout?.months || '14'} місяців.</span></>,
+                        ru: <>Средняя продолжительность работы в<br className="hidden xl:block"/> {landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC-компаниях'} — <span className="font-medium text-[#09090B]">менее {landingPageData?.workforceCrisis?.burnout?.months || '14'} месяцев.</span></>
+                      })}
                         </span>
                       )}
                     </p>
@@ -2151,21 +2257,58 @@ export default function DynamicAuditLandingPage() {
                       </svg>
   
                       <span className="font-semibold text-[20px]">
-                    {getLocalizedText(landingPageData?.language, {
+                    {editingField === 'turnoverFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`}
+                        onSave={(value) => handleTextSave('turnoverFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('turnoverFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full turnover title"
+                      >
+                        {landingPageData?.workforceCrisis?.turnover?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
                       en: `Turnover up to ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% per year`,
                       es: `Rotación hasta ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% por año`,
                       ua: `Плинність до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% на рік`,
                       ru: `Текучка до ${landingPageData?.workforceCrisis?.turnover?.percentage || '85'}% в год`
                     })}
+                      </span>
+                    )}
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {getLocalizedText(landingPageData?.language, {
+                      {editingField === 'turnoverFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                            `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`}
+                          onSave={(value) => handleTextSave('turnoverFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('turnoverFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full turnover description"
+                        >
+                          {landingPageData?.workforceCrisis?.turnover?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
                     en: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit</span> in the first {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months</>,
                     es: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% renuncian</span> en los primeros {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} meses</>,
                     ua: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% звільняються</span> в перші {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} місяці</>,
                     ru: <><span className="font-medium text-[#09090B]">{landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% увольняются</span> в первые {landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} месяца</>
                   })}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -2227,12 +2370,31 @@ export default function DynamicAuditLandingPage() {
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {getLocalizedText(landingPageData?.language, {
-                    en: 'Candidate search',
-                    es: 'Búsqueda de candidatos',
-                    ua: 'Пошук кандидата',
-                    ru: 'Поиск кандидата'
-                  })}
+                      {editingField === 'searchTimeFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                            'Candidate search'}
+                          onSave={(value) => handleTextSave('searchTimeFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
+                      ) : (
+                        <span 
+                          onClick={() => startEditing('searchTimeFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full search time description"
+                        >
+                          {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                              en: 'Candidate search',
+                              es: 'Búsqueda de candidatos',
+                              ua: 'Пошук кандидата',
+                              ru: 'Поиск кандидата'
+                            })}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -2289,27 +2451,27 @@ export default function DynamicAuditLandingPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                       title="Click to edit service templates description"
                     >
-                      {getLocalizedText(landingPageData?.language, {
-                        en: 'Buy ready-made course templates',
-                        es: 'Compre plantillas de cursos listas',
-                        ua: 'Купуйте готові шаблони курсів',
-                        ru: 'Купите готовые шаблоны'
-                      })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                        en: 'for onboarding',
-                        es: 'para incorporación',
-                        ua: 'для онбордингу',
-                        ru: 'курсов для онбординга'
-                      })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
-                        en: 'and',
-                        es: 'y',
-                        ua: 'і',
-                        ru: 'и'
-                      })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                        en: 'training:',
-                        es: 'entrenamiento:',
-                        ua: 'навчання:',
-                        ru: 'обучения:'
-                      })}
+                  {getLocalizedText(landingPageData?.language, {
+                    en: 'Buy ready-made course templates',
+                    es: 'Compre plantillas de cursos listas',
+                    ua: 'Купуйте готові шаблони курсів',
+                    ru: 'Купите готовые шаблоны'
+                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'for onboarding',
+                    es: 'para incorporación',
+                    ua: 'для онбордингу',
+                    ru: 'курсов для онбординга'
+                  })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'and',
+                    es: 'y',
+                    ua: 'і',
+                    ru: 'и'
+                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'training:',
+                    es: 'entrenamiento:',
+                    ua: 'навчання:',
+                    ru: 'обучения:'
+                  })}
                     </span>
                   )}
                 </h3>
@@ -2335,12 +2497,12 @@ export default function DynamicAuditLandingPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                       title="Click to edit service templates description"
                     >
-                      {getLocalizedText(landingPageData?.language, {
-                        en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
-                        es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
-                        ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
-                        ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
-                      })}
+                  {getLocalizedText(landingPageData?.language, {
+                    en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
+                    es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
+                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
+                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
+                  })}
                     </span>
                   )}
                 </h3>
@@ -2373,7 +2535,7 @@ export default function DynamicAuditLandingPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit course template title"
                             >
-                              {template.title}
+                          {template.title}
                             </span>
                           )}
                         </h4>
@@ -2394,7 +2556,7 @@ export default function DynamicAuditLandingPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded block"
                               title="Click to edit course template description"
                             >
-                              {template.description}
+                          {template.description}
                             </span>
                           )}
                         </p>
@@ -2566,7 +2728,23 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
-                              {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                              {editingField === 'courseModule_0' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                                  onSave={(value) => handleTextSave('courseModule_0', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_0')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                                  {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                                </span>
+                              )}
                             </h5>
                           </div>
                           
@@ -2589,7 +2767,23 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                          {editingField === 'courseModule_0' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                              onSave={(value) => handleTextSave('courseModule_0', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_0')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                              {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                            </span>
+                          )}
                         </h5>
   
                         {/* Module 1 Expandable Content */}
@@ -2655,7 +2849,7 @@ export default function DynamicAuditLandingPage() {
                                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                               title="Click to edit lesson name"
                                             >
-                                              {lesson}
+                                          {lesson}
                                             </span>
                                           )}
                                         </div>
@@ -2742,7 +2936,7 @@ export default function DynamicAuditLandingPage() {
                                         className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                         title="Click to edit lesson name"
                                       >
-                                        {lesson}
+                                    {lesson}
                                       </span>
                                     )}
                                   </span>
@@ -2824,7 +3018,23 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="hidden xl:block font-medium text-[16px]">
-                              {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                              {editingField === 'courseModule_1' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                                  onSave={(value) => handleTextSave('courseModule_1', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_1')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                                  {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                                </span>
+                              )}
                             </h5>
                           </div>
                           
@@ -2847,7 +3057,23 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                          {editingField === 'courseModule_1' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                              onSave={(value) => handleTextSave('courseModule_1', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_1')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                              {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                            </span>
+                          )}
                         </h5>
   
                         {/* Module 2 Expandable Content */}
@@ -3038,7 +3264,23 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="font-medium text-[16px] hidden xl:block">
-                              {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                              {editingField === 'courseModule_2' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                                  onSave={(value) => handleTextSave('courseModule_2', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_2')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                                  {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                                </span>
+                              )}
                             </h5>
                           </div>
                           
@@ -3061,7 +3303,23 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                          {editingField === 'courseModule_2' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                              onSave={(value) => handleTextSave('courseModule_2', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_2')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                              {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                            </span>
+                          )}
                         </h5>
   
                         {/* Module 3 Expandable Content */}
@@ -3252,7 +3510,23 @@ export default function DynamicAuditLandingPage() {
                             </span>
   
                             <h5 className="font-medium text-[16px] text-[#09090B] hidden xl:block">
-                              {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                              {editingField === 'courseModule_3' ? (
+                                <InlineEditor
+                                  initialValue={landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                                  onSave={(value) => handleTextSave('courseModule_3', value)}
+                                  onCancel={handleTextCancel}
+                                  className="font-medium"
+                                  style={{ fontSize: '16px', color: '#09090B' }}
+                                />
+                              ) : (
+                                <span 
+                                  onClick={() => startEditing('courseModule_3')}
+                                  className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                                  title="Click to edit module title"
+                                >
+                                  {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                                </span>
+                              )}
                             </h5>
                           </div>
                           
@@ -3275,7 +3549,23 @@ export default function DynamicAuditLandingPage() {
                         </div>
                         
                         <h5 className="font-medium text-[16px] text-[#09090B] xl:hidden">
-                          {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                          {editingField === 'courseModule_3' ? (
+                            <InlineEditor
+                              initialValue={landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                              onSave={(value) => handleTextSave('courseModule_3', value)}
+                              onCancel={handleTextCancel}
+                              className="font-medium"
+                              style={{ fontSize: '16px', color: '#09090B' }}
+                            />
+                          ) : (
+                            <span 
+                              onClick={() => startEditing('courseModule_3')}
+                              className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                              title="Click to edit module title"
+                            >
+                              {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                            </span>
+                          )}
                         </h5>
   
                         {/* Module 4 Expandable Content */}
