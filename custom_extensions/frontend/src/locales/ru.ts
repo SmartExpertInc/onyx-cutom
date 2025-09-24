@@ -590,7 +590,7 @@ export const ru = {
     numberOfLessons: "Количество уроков",
     estCreationTime: "Оц. время создания",
     estCompletionTime: "Оц. время завершения",
-    actions: "Действия",
+    actions: "ДЕЙСТВИЯ",
 
     // Project actions
     rename: "Переименовать",

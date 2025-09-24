@@ -575,20 +575,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       <PenLine size={16} className="text-gray-500" />
                       <span>{t("actions.rename", "Rename...")}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    {/* <DropdownMenuItem>
                       <Star size={16} className="text-gray-500" />
                       <span>
                         {t("actions.addToFavorites", "Add to favorites")}
                       </span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem onClick={handleDuplicateProject}>
                       <Copy size={16} className="text-gray-500" />
                       <span>{t("actions.duplicate", "Duplicate")}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    {/* <DropdownMenuItem>
                       <LinkIcon size={16} className="text-gray-500" />
                       <span>{t("actions.copyLink", "Copy link")}</span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     {isOutline && qualityTierEnabled && (
                       <DropdownMenuItem
                         onClick={(e) => {

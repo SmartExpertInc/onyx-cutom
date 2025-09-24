@@ -576,7 +576,7 @@ export const uk = {
     numberOfLessons: "Кількість уроків",
     estCreationTime: "Оц. час створення",
     estCompletionTime: "Оц. час завершення",
-    actions: "Дії",
+    actions: "ДІЇ",
 
     // Project actions
     rename: "Перейменувати",

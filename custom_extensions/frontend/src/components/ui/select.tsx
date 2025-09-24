@@ -1,11 +1,66 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import * as SelectPrimitive from "@radix-ui/react-select"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown, Info } from "lucide-react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+
+// Simple Tooltip Component
+const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [position, setPosition] = React.useState({ top: 0, left: 0 });
+  const elementRef = React.useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (elementRef.current) {
+      const rect = elementRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.top - 10,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
+  return (
+    <>
+      <div 
+        ref={elementRef}
+        className="relative inline-block w-full"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+      {isVisible && typeof window !== 'undefined' && createPortal(
+        <div 
+          className="fixed z-50 pointer-events-none"
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+            transform: 'translate(-50%, -100%)'
+          }}
+        >
+          <div className="bg-blue-500 text-white px-2 py-1.5 rounded-md shadow-lg text-sm relative max-w-xs">
+            <div className="font-medium">{content}</div>
+            {/* Simple triangle tail */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-blue-500"></div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
 
 const selectTriggerVariants = cva(
   "flex w-fit items-center justify-between gap-2 rounded-md px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -212,38 +267,33 @@ function CustomPillSelector({
   className
 }: CustomPillSelectorProps) {
   return (
-    <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger 
-        className={cn(
-          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
-          "text-gray-700 font-medium text-sm",
-          "[&>svg]:hidden",
-          "shadow-none",
-          className
-        )}
-      >
-        <div className="flex items-center gap-3">
-          {icon && (
-            <div className="flex items-center justify-center">
-              {icon}
-            </div>
+    <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger 
+          className={cn(
+            "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
+            className
           )}
-          <span>
-            <span className="text-gray-600">{label}:</span> 
-            <span className="text-black ml-1">{value}</span>
-          </span>
-          <ChevronDownIcon className="w-4 h-4 text-gray-500" />
-        </div>
-        <div className="w-px h-6 bg-gray-200 ml-2"></div>
-      </SelectTrigger>
-      <SelectContent className="border-none">
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        >
+          <div className="flex items-center gap-2">
+            {icon && (
+              <div className="flex items-center justify-center">
+                {icon}
+              </div>
+            )}
+            <span className="text-[#09090B] opacity-50">{label}:</span>
+            <span className="text-[#09090B]">{value}</span>
+          </div>
+        </SelectTrigger>
+        <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 
@@ -251,7 +301,7 @@ function CustomPillSelector({
 interface CustomMultiSelectorProps {
   selectedValues: string[]
   onSelectionChange: (values: string[]) => void
-  options: { value: string; label: string }[]
+  options: { value: string; label: string; tooltip?: string }[]
   icon?: React.ReactNode
   label: string
   placeholder?: string
@@ -284,52 +334,56 @@ function CustomMultiSelector({
     : `${selectedValues.length} types selected`
 
   return (
-    <Select open={isOpen} onOpenChange={setIsOpen}>
-      <SelectTrigger 
-        className={cn(
-          "flex items-center gap-3 px-5 py-3 rounded-md border-0 bg-white hover:bg-gray-100",
-          "text-gray-700 font-medium text-sm cursor-pointer",
-          "[&>svg]:hidden",
-          "shadow-none",
-          className
-        )}
-      >
-        <div className="flex items-center gap-3">
-          {icon && (
-            <div className="flex items-center justify-center">
-              {icon}
-            </div>
+    <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+      <Select open={isOpen} onOpenChange={setIsOpen}>
+        <SelectTrigger 
+          className={cn(
+            "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
+            className
           )}
-          <span>
-            <span className="text-gray-600">{label}:</span> 
-            <span className="text-black ml-1">{displayText}</span>
-          </span>
-          <ChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", isOpen && "rotate-180")} />
-        </div>
-        <div className="w-px h-6 bg-gray-200 ml-2"></div>
-      </SelectTrigger>
-      <SelectContent className="border border-gray-300 shadow-lg">
-        {options.map((option) => (
-          <div
-            key={option.value}
-            className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
-            onClick={(e) => {
-              e.preventDefault()
-              handleToggle(option.value)
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={selectedValues.includes(option.value)}
-              onChange={() => handleToggle(option.value)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              onClick={(e) => e.stopPropagation()}
-            />
-            {option.label}
+        >
+          <div className="flex items-center gap-2">
+            {icon && (
+              <div className="flex items-center justify-center">
+                {icon}
+              </div>
+            )}
+            <span className="text-[#09090B] opacity-50">{label}:</span>
+            <span className="text-[#09090B]">{displayText}</span>
           </div>
-        ))}
-      </SelectContent>
-    </Select>
+        </SelectTrigger>
+        <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+          {options.map((option) => (
+            <div
+              key={option.value}
+              className="flex items-center justify-between px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+              onClick={(e) => {
+                e.preventDefault()
+                handleToggle(option.value)
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedValues.includes(option.value)}
+                  onChange={() => handleToggle(option.value)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                {option.label}
+              </div>
+              {option.tooltip && (
+                <div className="ml-2" onClick={(e) => e.stopPropagation()}>
+                  <SimpleTooltip content={option.tooltip}>
+                    <Info size={14} className="text-gray-400 hover:text-gray-600 cursor-help" />
+                  </SimpleTooltip>
+                </div>
+              )}
+            </div>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
 

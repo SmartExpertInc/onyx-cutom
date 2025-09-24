@@ -618,7 +618,7 @@ export const en = {
     numberOfLessons: "Number of Lessons",
     estCreationTime: "Est. Creation Time",
     estCompletionTime: "Est. Completion Time",
-    actions: "Actions",
+    actions: "ACTIONS",
 
     // Project actions
     rename: "Rename",
