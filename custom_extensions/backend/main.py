@@ -26087,8 +26087,14 @@ async def smartdrive_token_estimate(
         mime_type = head.headers.get("content-type", "")
         approx_tokens = 0
         if content_length and content_length.isdigit():
-            # Heuristic: PDFs compress poorly relative to tokens; use larger divisor
-            divisor = 8 if "pdf" in mime_type.lower() else 6
+            # Heuristic per type: md/txt fastest, others moderate, pdf largest
+            lower = mime_type.lower()
+            if "markdown" in lower or "md" in lower or "text/plain" in lower:
+                divisor = 4
+            elif "pdf" in lower:
+                divisor = 8
+            else:
+                divisor = 6
             approx_tokens = max(1, int(int(content_length) / divisor))
         else:
             # Fallback: conservative small estimate

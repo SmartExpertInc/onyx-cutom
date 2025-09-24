@@ -249,7 +249,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (uploadInput.current) uploadInput.current.value = '';
 	};
 
-	const INDEX_TOKENS_PER_SEC = 75000 / 60; // ~1250 tokens/s (adjusted 4x faster)
+	const INDEX_TOKENS_PER_SEC = 75000 / 30; // ~2500 tokens/s (OpenAI small model ~75k in 30s)
 
 	const startIndexingEstimates = useCallback(async (paths: string[]) => {
 		if (!paths || paths.length === 0) return;
