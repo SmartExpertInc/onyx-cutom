@@ -9,7 +9,7 @@ import {
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered, Image as ImageIcon, Text as TextIcon
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -2739,7 +2739,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                 className="fixed bottom-40 right-6 bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
                 title="Add Section"
               >
-                <Heading2 className="w-5 h-5" />
+                <TextIcon className="w-5 h-5" />
               </button>
             </>
           )}
