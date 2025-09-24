@@ -11,35 +11,17 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, label, active = false, gradientTo: _gradientTo, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
         className={cn(
           "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34",
-          "hover:scale-105",
+          "bg-white border-0 shadow-none hover:shadow-2xl hover:scale-105",
+          active && "shadow-2xl",
           className
         )}
-        style={{
-          backgroundColor: active ? 'white' : '#F2F9FC',
-          background: active 
-            ? `white`
-            : `#F2F9FC`,
-          boxShadow: active 
-            ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-        }}
-        onMouseEnter={(e) => {
-          if (!active) {
-            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!active) {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-          }
-        }}
         onClick={onClick}
         {...props}
       >
