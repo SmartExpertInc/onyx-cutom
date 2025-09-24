@@ -9,7 +9,7 @@ import {
 import {
   CheckCircle, Info as InfoIconLucide, XCircle, AlertTriangle,
   Settings, X, Palette, Type, List, AlertCircle, ZoomIn, ZoomOut, RotateCcw,
-  ChevronDown, Move, Trash2, Copy, Edit3, Plus
+  ChevronDown, Move, Trash2, Copy, Edit3, Plus, Heading2, ListOrdered
 } from 'lucide-react';
 import { locales } from '@/locales';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -2403,6 +2403,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   }, [dataToDisplay, onTextChange]);
 
   const [iconPickerHeadlineIndex, setIconPickerHeadlineIndex] = useState<number | null>(null);
+  const [bulletIconPickerIndex, setBulletIconPickerIndex] = useState<number | null>(null);
   const setHeadlineIcon = useCallback((headlineIndex: number, iconName: string | null) => {
     if (!onTextChange) return;
     onTextChange(['contentBlocks', headlineIndex, 'iconName'], iconName);
@@ -2496,7 +2497,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                  onClick={() => insertNumberedListAfter(findMajorSectionBounds(originalHeadlineIndex).end - 1)}
                                  title="Insert Numbered List"
                                >
-                                 <Type className="w-4 h-4 rotate-90" />
+                                 <ListOrdered className="w-4 h-4" />
                                </button>
                                <div className="relative">
                                  <button
@@ -2513,7 +2514,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                      </button>
                                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
                                        <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => setHeadlineIcon(originalHeadlineIndex, name === 'none' ? null : name)} title={name}>
-                                         {React.createElement(iconMap[name], { className: 'w-6 h-6' })}
+                                         {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
                                        </button>
                                      ))}
                                    </div>
@@ -2544,7 +2545,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                       <List className="w-4 h-4" />
                                     </button>
                                     <button className="p-1 rounded hover:bg-gray-100" onClick={() => insertNumberedListAfter(originalMiniListIndex)} title="Insert Numbered List">
-                                      <Type className="w-4 h-4 rotate-90" />
+                                      <ListOrdered className="w-4 h-4" />
                                     </button>
                                     <button className="p-1 rounded hover:bg-gray-100" onClick={() => removeBlockAtIndex(originalMiniHeadlineIndex)} title="Delete This Heading Only">
                                       <X className="w-4 h-4" />
@@ -2730,7 +2731,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
             className="fixed bottom-6 right-20 bg-white text-blue-600 border border-blue-600 hover:bg-blue-50 rounded-full w-12 h-12 flex items-center justify-center shadow-lg transition-colors duration-200 z-50"
             title="Add Section"
           >
-            <Type className="w-5 h-5" />
+            <Heading2 className="w-5 h-5" />
             <span className="sr-only">Add Section</span>
           </button>
         </>
