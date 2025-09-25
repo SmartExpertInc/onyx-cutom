@@ -102,6 +102,17 @@ export default function ProductViewNewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showRegenerateModal, setShowRegenerateModal] = useState<{
+    isOpen: boolean;
+    lesson: Lesson | null;
+    contentType: string;
+    existingProductId: number | null;
+  }>({
+    isOpen: false,
+    lesson: null,
+    contentType: '',
+    existingProductId: null
+  });
   const [lessonContentStatus, setLessonContentStatus] = useState<{[key: string]: {
     presentation: {exists: boolean, productId?: number}, 
     onePager: {exists: boolean, productId?: number}, 
@@ -620,6 +631,46 @@ export default function ProductViewNewPage() {
     const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
     if (!trainingPlanData || !productId) return;
 
+    // Check if content already exists
+    const lessonKey = lesson.id || lesson.title;
+    const status = lessonContentStatus[lessonKey];
+    let existingProductId: number | null = null;
+
+    switch (contentType) {
+      case 'presentation':
+        if (status?.presentation?.exists && status.presentation.productId) {
+          existingProductId = status.presentation.productId;
+        }
+        break;
+      case 'one-pager':
+        if (status?.onePager?.exists && status.onePager.productId) {
+          existingProductId = status.onePager.productId;
+        }
+        break;
+      case 'quiz':
+        if (status?.quiz?.exists && status.quiz.productId) {
+          existingProductId = status.quiz.productId;
+        }
+        break;
+      case 'video-lesson':
+        if (status?.videoLesson?.exists && status.videoLesson.productId) {
+          existingProductId = status.videoLesson.productId;
+        }
+        break;
+    }
+
+    // If content exists, show regenerate modal instead of navigating
+    if (existingProductId) {
+      setShowRegenerateModal({
+        isOpen: true,
+        lesson: lesson,
+        contentType: contentType,
+        existingProductId: existingProductId
+      });
+      setOpenDropdown(null);
+      return;
+    }
+
     // Map content types to product and lessonType parameters (matching CreateContentTypeModal pattern)
     let product = '';
     let lessonType = '';
@@ -671,6 +722,113 @@ export default function ProductViewNewPage() {
 
     router.push(`/create?${params.toString()}`);
     setOpenDropdown(null);
+  };
+
+  // Handle regenerate confirmation
+  const handleRegenerateConfirm = async () => {
+    if (!showRegenerateModal.existingProductId) return;
+
+    try {
+      // Delete the existing product using the same logic as the old interface
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== 'undefined' ? sessionStorage.getItem('dev_user_id') : null;
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        headers['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/delete-multiple`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ 
+          project_ids: [showRegenerateModal.existingProductId], 
+          scope: 'self' 
+        })
+      });
+
+      if (!resp.ok) {
+        const responseText = await resp.text();
+        throw new Error(`Failed to delete existing product: ${resp.status} ${responseText.slice(0, 200)}`);
+      }
+
+      // Close modal and navigate to create page
+      setShowRegenerateModal({
+        isOpen: false,
+        lesson: null,
+        contentType: '',
+        existingProductId: null
+      });
+
+      // Navigate to create page with the same parameters as handleContentTypeClick
+      const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+      if (!trainingPlanData) return;
+
+      const lesson = showRegenerateModal.lesson!;
+      const contentType = showRegenerateModal.contentType;
+
+      // Map content types to product and lessonType parameters
+      let product = '';
+      let lessonType = '';
+
+      switch (contentType) {
+        case 'presentation':
+          product = 'lesson';
+          lessonType = 'lessonPresentation';
+          break;
+        case 'one-pager':
+          product = 'text-presentation';
+          lessonType = 'textPresentation';
+          break;
+        case 'quiz':
+          product = 'quiz';
+          lessonType = 'multiple-choice';
+          break;
+        case 'video-lesson':
+          product = 'video-lesson';
+          lessonType = 'videoLesson';
+          break;
+        default:
+          return;
+      }
+
+      // Find the module name for this lesson
+      const moduleName = trainingPlanData.sections?.find(section => 
+        section.lessons?.some(l => l.title === lesson.title)
+      )?.title || '';
+
+      // Find the lesson number within the module
+      const lessonNumber = trainingPlanData.sections?.find(section => 
+        section.lessons?.some(l => l.title === lesson.title)
+      )?.lessons?.findIndex(l => l.title === lesson.title) || 0;
+
+      const params = new URLSearchParams({
+        product: product,
+        lessonType: lessonType,
+        lessonTitle: lesson.title,
+        moduleName: moduleName,
+        lessonNumber: String(lessonNumber + 1), // Convert to 1-based indexing
+        courseName: trainingPlanData.mainTitle || ''
+      });
+
+      // Store a flag to refresh content status when returning to this page
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('refresh_lesson_content_status', 'true');
+      }
+
+      router.push(`/create?${params.toString()}`);
+    } catch (error) {
+      console.error('Error deleting existing product:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete existing product');
+    }
+  };
+
+  // Handle regenerate cancel
+  const handleRegenerateCancel = () => {
+    setShowRegenerateModal({
+      isOpen: false,
+      lesson: null,
+      contentType: '',
+      existingProductId: null
+    });
   };
 
   if (loading) {
@@ -1013,34 +1171,75 @@ export default function ProductViewNewPage() {
                               </button>
                               
                               {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
-                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[160px]">
+                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
                                   <div className="p-2">
-                                    <button
-                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      Presentation
-                                    </button>
-                                    <button
-                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      One-Pager
-                                    </button>
-                                    <button
-                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      Quiz
-                                    </button>
-                                    {videoLessonEnabled && (
-                                      <button
-                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                      >
-                                        Video Lesson
-                                      </button>
-                                    )}
+                                    {(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasPresentation = status?.presentation?.exists;
+                                      const hasOnePager = status?.onePager?.exists;
+                                      const hasQuiz = status?.quiz?.exists;
+                                      const hasVideoLesson = status?.videoLesson?.exists;
+
+                                      return (
+                                        <>
+                                          <div className={`flex items-center justify-between px-4 py-2 ${!hasPresentation ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasPresentation ? () => handleContentTypeClick(lesson, 'presentation') : undefined}>
+                                            <span className={`text-sm ${hasPresentation ? 'text-gray-400' : 'text-gray-700'}`}>
+                                              Presentation
+                                            </span>
+                                            {hasPresentation && (
+                                              <button
+                                                onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                              >
+                                                Regenerate
+                                              </button>
+                                            )}
+                                          </div>
+                                          <div className={`flex items-center justify-between px-4 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
+                                            <span className={`text-sm ${hasOnePager ? 'text-gray-400' : 'text-gray-700'}`}>
+                                              One-Pager
+                                            </span>
+                                            {hasOnePager && (
+                                              <button
+                                                onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                              >
+                                                Regenerate
+                                              </button>
+                                            )}
+                                          </div>
+                                          <div className={`flex items-center justify-between px-4 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
+                                            <span className={`text-sm ${hasQuiz ? 'text-gray-400' : 'text-gray-700'}`}>
+                                              Quiz
+                                            </span>
+                                            {hasQuiz && (
+                                              <button
+                                                onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                              >
+                                                Regenerate
+                                              </button>
+                                            )}
+                                          </div>
+                                          {videoLessonEnabled && (
+                                            <div className={`flex items-center justify-between px-4 py-2 ${!hasVideoLesson ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasVideoLesson ? () => handleContentTypeClick(lesson, 'video-lesson') : undefined}>
+                                              <span className={`text-sm ${hasVideoLesson ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                Video Lesson
+                                              </span>
+                                              {hasVideoLesson && (
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                                  className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
+                                                >
+                                                  Regenerate
+                                                </button>
+                                              )}
+                                            </div>
+                                          )}
+                                        </>
+                                      );
+                                    })()}
                                   </div>
                                 </div>
                               )}
@@ -1103,6 +1302,34 @@ export default function ProductViewNewPage() {
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {/* Regenerate Confirmation Modal */}
+      {showRegenerateModal.isOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Regenerate Product
+            </h3>
+            <p className="text-gray-600 mb-6">
+              You are about to create a new product. The old one will be deleted.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleRegenerateCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRegenerateConfirm}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                OK
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </main>
