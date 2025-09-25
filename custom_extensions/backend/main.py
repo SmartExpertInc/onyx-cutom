@@ -22789,7 +22789,7 @@ async def get_slides_analytics(
                         jsonb_array_elements(microproduct_content->'slides') AS slide
                     WHERE
                         microproduct_content ? 'slides'
-                        AND projects.created_at BETWEEN $1 AND $2
+                        AND projects.created_at >= $1 AND projects.created_at <= $2
                     GROUP BY
                         lu_template_id
                 )
@@ -22806,7 +22806,7 @@ async def get_slides_analytics(
                 LEFT JOIN (
                     SELECT sce.template_id AS ec_template_id, COUNT(*) AS error_count
                     FROM slide_creation_errors sce
-                    WHERE sce.created_at BETWEEN $1 AND $2
+                    WHERE sce.created_at >= $1 AND sce.created_at <= $2
                     GROUP BY ec_template_id
                 ) AS error_counts
                 ON slide->>'templateId' = error_counts.ec_template_id
@@ -22814,7 +22814,7 @@ async def get_slides_analytics(
                 ON slide->>'templateId' = last_usages.lu_template_id
                 WHERE
                     microproduct_content ? 'slides'
-                    AND projects.created_at BETWEEN $1 AND $2
+                    AND projects.created_at >= $1 AND projects.created_at <= $2
                 GROUP BY
                     slide->>'templateId', error_counts.error_count, last_usages.last_usage
                 ORDER BY
@@ -22859,7 +22859,7 @@ async def get_slides_errors_analytics(
                     sce.error_message,
                     sce.created_at
                 FROM slide_creation_errors sce
-                WHERE sce.created_at BETWEEN $1 AND $2
+                WHERE sce.created_at >= $1 AND sce.created_at <= $2
                 ORDER BY sce.created_at DESC
                 """,
                 start_date, end_date
