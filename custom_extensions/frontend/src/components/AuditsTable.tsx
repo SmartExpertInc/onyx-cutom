@@ -892,19 +892,6 @@ const EditAuditModal: React.FC<EditAuditModalProps> = ({ audit, onClose, onAudit
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Company field (read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('interface.company', 'Company')}
-              </label>
-              <input
-                type="text"
-                value={audit.company_name}
-                disabled
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
-              />
-            </div>
-
             {/* Audit Name field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
