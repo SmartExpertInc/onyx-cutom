@@ -872,7 +872,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               fontSize: fontSize || undefined
             }}
           >
-            {IconComponent && <IconComponent className={`mr-1.5 shrink-0 ${THEME_COLORS.accentRed}`} />}
+            {IconComponent && <IconComponent className={`mr-1.5 shrink-0 text-[#FF1414]`} />}
             {isEditing && onTextChange ? (
               <input 
                 type="text" 
@@ -1181,7 +1181,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               return (
                 <li key={index} className="flex items-center group/listitem relative">
                   {BulletIconToRender && !isNumbered && (
-                    <div className="flex-shrink-0 mr-1.5 flex items-center">
+                    <div className="flex-shrink-0 mr-1.5 flex items-center text-[#FF1414]">
                       <BulletIconToRender />
                     </div>
                   )}
