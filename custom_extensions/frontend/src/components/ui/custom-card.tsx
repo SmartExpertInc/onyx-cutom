@@ -53,7 +53,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full hover:scale-95",
+          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full hover:scale-75",
           useCSSVariables 
             ? "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-2xl"
             : "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-2xl",

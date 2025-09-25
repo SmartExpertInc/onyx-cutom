@@ -332,7 +332,7 @@ export default function DataSourceLanding() {
         />
 
         {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 w-full max-w-7xl backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-8 shadow-lg transition-all duration-200 hover:shadow-xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-7 w-full max-w-7xl backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-8 shadow-lg transition-all duration-200 hover:shadow-xl">
           <OptionCard
             Icon={TextIcon}
             title={t('interface.pasteInText', 'Paste in text')}
