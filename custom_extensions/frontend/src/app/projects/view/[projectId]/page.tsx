@@ -205,17 +205,16 @@ export default function ProjectInstanceViewPage() {
   const { t } = useLanguage();
 
   const handleBack = useCallback(() => {
-    const fromParam = searchParams?.get('from');
-    if (fromParam === 'create') {
-      router.push('/create/generate');
-      return;
-    }
-    if (typeof window !== 'undefined' && window.history.length <= 1) {
-      router.push('/projects');
-      return;
-    }
+    try {
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const fromParam = params?.get('from');
+      if (fromParam === 'create') {
+        router.push('/create/generate');
+        return;
+      }
+    } catch (_) {}
     router.back();
-  }, [router, searchParams]);
+  }, [router]);
 
   // Add CSS for hidden scrollbar
   useEffect(() => {

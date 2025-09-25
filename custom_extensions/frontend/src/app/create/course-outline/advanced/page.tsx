@@ -273,6 +273,7 @@ export default function CourseOutlineAdvancedPage() {
       
       const qp = new URLSearchParams();
       Object.entries(filters).forEach(([key, val]) => qp.set(key, val ? "1" : "0"));
+      qp.set("from", "create");
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
       }
