@@ -16,7 +16,7 @@ const HeadTextCustom = React.forwardRef<HTMLDivElement, HeadTextCustomProps>(
           {text}
         </p>
         {description && (
-          <p className={cn("text-[#657383] text-md leading-relaxed text-center font-sans font-medium tracking-normal", descriptionSize)}>
+          <p className={cn("text-[var(--secondary-foreground)] text-md leading-relaxed text-center font-sans font-medium tracking-normal", descriptionSize)}>
             {description}
           </p>
         )}
