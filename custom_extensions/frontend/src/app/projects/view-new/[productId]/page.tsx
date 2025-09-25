@@ -29,18 +29,25 @@ const TextPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ siz
 );
 
 // Custom Tooltip Component matching the text presentation page style
-const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+const CustomTooltip: React.FC<{ children: React.ReactNode; content: string; position?: 'top' | 'bottom' }> = ({ children, content, position = 'bottom' }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
 
   const handleMouseEnter = () => {
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.top - 6,
-        left: rect.left + rect.width / 2
-      });
+      if (position === 'top') {
+        setTooltipPosition({
+          top: rect.top - 6,
+          left: rect.left + rect.width / 2
+        });
+      } else {
+        setTooltipPosition({
+          top: rect.bottom + 6,
+          left: rect.left + rect.width / 2
+        });
+      }
     }
     setIsVisible(true);
   };
@@ -53,7 +60,7 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
     <>
       <div 
         ref={elementRef}
-        className="relative inline-block w-full"
+        className="relative inline-block"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -63,16 +70,16 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
         <div 
           className="fixed z-50 pointer-events-none"
           style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-            transform: 'translate(-50%, -100%)'
+            top: `${tooltipPosition.top}px`,
+            left: `${tooltipPosition.left}px`,
+            transform: position === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0%)'
           }}
         >
           <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-xs whitespace-nowrap relative max-w-xs">
             <div className="font-medium">{content}</div>
             {/* Simple triangle tail */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-              <div className="w-0 h-0 border-l-3 border-r-3 border-t-3 border-l-transparent border-r-transparent border-t-blue-500"></div>
+            <div className={`absolute ${position === 'top' ? 'top-full' : 'bottom-full'} left-1/2 transform -translate-x-1/2`}>
+              <div className={`w-0 h-0 border-l-3 border-r-3 ${position === 'top' ? 'border-t-3 border-t-blue-500' : 'border-b-3 border-b-blue-500'} border-l-transparent border-r-transparent`}></div>
             </div>
           </div>
         </div>,
@@ -1171,8 +1178,8 @@ export default function ProductViewNewPage() {
                               </button>
                               
                               {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
-                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
-                                  <div className="p-2">
+                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[140px]">
+                                  <div className="p-1">
                                     {(() => {
                                       const lessonKey = lesson.id || lesson.title;
                                       const status = lessonContentStatus[lessonKey];
@@ -1183,63 +1190,63 @@ export default function ProductViewNewPage() {
 
                                       return (
                                         <>
-                                          <div className={`flex items-center justify-between px-4 py-2 ${!hasPresentation ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasPresentation ? () => handleContentTypeClick(lesson, 'presentation') : undefined}>
+                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasPresentation ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasPresentation ? () => handleContentTypeClick(lesson, 'presentation') : undefined}>
                                             <span className={`text-sm ${hasPresentation ? 'text-gray-400' : 'text-gray-700'}`}>
                                               Presentation
                                             </span>
                                             {hasPresentation && (
-                                              <CustomTooltip content="Regenerate">
+                                              <CustomTooltip content="Regenerate" position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                  className="p-1"
                                                 >
-                                                  <RefreshCcw size={16} className="text-gray-700" />
+                                                  <RefreshCcw size={14} className="text-gray-700" />
                                                 </button>
                                               </CustomTooltip>
                                             )}
                                           </div>
-                                          <div className={`flex items-center justify-between px-4 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
+                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
                                             <span className={`text-sm ${hasOnePager ? 'text-gray-400' : 'text-gray-700'}`}>
                                               One-Pager
                                             </span>
                                             {hasOnePager && (
-                                              <CustomTooltip content="Regenerate">
+                                              <CustomTooltip content="Regenerate" position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                  className="p-1"
                                                 >
-                                                  <RefreshCcw size={16} className="text-gray-700" />
+                                                  <RefreshCcw size={14} className="text-gray-700" />
                                                 </button>
                                               </CustomTooltip>
                                             )}
                                           </div>
-                                          <div className={`flex items-center justify-between px-4 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
+                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
                                             <span className={`text-sm ${hasQuiz ? 'text-gray-400' : 'text-gray-700'}`}>
                                               Quiz
                                             </span>
                                             {hasQuiz && (
-                                              <CustomTooltip content="Regenerate">
+                                              <CustomTooltip content="Regenerate" position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                  className="p-1"
                                                 >
-                                                  <RefreshCcw size={16} className="text-gray-700" />
+                                                  <RefreshCcw size={14} className="text-gray-700" />
                                                 </button>
                                               </CustomTooltip>
                                             )}
                                           </div>
                                           {videoLessonEnabled && (
-                                            <div className={`flex items-center justify-between px-4 py-2 ${!hasVideoLesson ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasVideoLesson ? () => handleContentTypeClick(lesson, 'video-lesson') : undefined}>
+                                            <div className={`flex items-center justify-between px-3 py-2 ${!hasVideoLesson ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasVideoLesson ? () => handleContentTypeClick(lesson, 'video-lesson') : undefined}>
                                               <span className={`text-sm ${hasVideoLesson ? 'text-gray-400' : 'text-gray-700'}`}>
                                                 Video Lesson
                                               </span>
                                               {hasVideoLesson && (
-                                                <CustomTooltip content="Regenerate">
+                                                <CustomTooltip content="Regenerate" position="top">
                                                   <button
                                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                    className="p-1"
                                                   >
-                                                    <RefreshCcw size={16} className="text-gray-700" />
+                                                    <RefreshCcw size={14} className="text-gray-700" />
                                                   </button>
                                                 </CustomTooltip>
                                               )}
