@@ -147,7 +147,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
   const [editingPresenter, setEditingPresenter] = useState(false);
   const [editingSubject, setEditingSubject] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [editingField, setEditingField] = useState<'date' | 'description' | null>(null);
+  const [editingField, setEditingField] = useState<'description' | null>(null);
 
   // Refs for MoveableManager integration
   const titleRef = useRef<HTMLDivElement>(null);
@@ -156,7 +156,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
   const timelineRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleEventChange = (idx: number, key: 'date' | 'description', value: string) => {
+  const handleEventChange = (idx: number, key: 'description', value: string) => {
     if (!onUpdate) return;
     const updated = events.map((ev, i) => i === idx ? { ...ev, [key]: value } : ev);
     onUpdate({ events: updated });
@@ -164,7 +164,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     setEditingField(null);
   };
 
-  const handleEditStart = (idx: number, field: 'date' | 'description') => {
+  const handleEditStart = (idx: number, field: 'description') => {
     if (!isEditable) return;
     setEditingIdx(idx);
     setEditingField(field);
@@ -315,10 +315,9 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
 
   const stepDescriptionStyles: React.CSSProperties = {
     fontWeight: 400,
-    fontSize: '0.9rem',
+    fontSize: '1rem',
     color: currentTheme.colors.contentColor,
     fontFamily: currentTheme.fonts.contentFont,
-    textAlign: 'center',
     wordWrap: 'break-word',
     lineHeight: '1.4'
   };
@@ -512,10 +511,9 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
             }}>
               {/* Square numbered node */}
               <div style={{
-                width: '32px',
-                height: '32px',
+                width: '40px',
+                height: '40px',
                 backgroundColor: '#0F58F9', // Use first color from the new gradient
-                border: `2px solid ${currentTheme.colors.rightSectionBackgroundColor || '#ffffff'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -527,7 +525,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
               }}>
                 <span style={{
                   color: '#ffffff', // White text in numbered squares
-                  fontSize: '16px',
+                  fontSize: '20px',
                   fontWeight: 'bold',
                   fontFamily: currentTheme.fonts.titleFont,
                   lineHeight: '1'
@@ -541,50 +539,11 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                width: '100%',
-                marginTop: '50px',
-                textAlign: 'center'
+                width: '115px',
+                marginTop: '120px',
+                marginLeft: '72px',
               }}>
-                {/* Step title */}
-                {isEditable && editingIdx === idx && editingField === 'date' ? (
-                  <InlineEditor
-                    initialValue={event.date}
-                    onSave={val => handleEventChange(idx, 'date', val)}
-                    onCancel={handleEditCancel}
-                    multiline={false}
-                    placeholder="Enter step title..."
-                    className="inline-editor-step-title"
-                    style={{
-                      ...stepTitleStyles,
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      width: '100%',
-                      marginBottom: '4px'
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={{ 
-                      ...stepTitleStyles,
-                      cursor: isEditable ? 'pointer' : 'default',
-                      width: '100%',
-                      marginBottom: '4px'
-                    }}
-                    onClick={() => handleEditStart(idx, 'date')}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {event.date || 'Add step'}
-                  </div>
-                )}
-                
-                {/* Step description */}
+                {/* Step description only */}
                 {isEditable && editingIdx === idx && editingField === 'description' ? (
                   <InlineEditor
                     initialValue={event.description}

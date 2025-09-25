@@ -898,9 +898,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       presenter: 'Add presenter name',
       subject: 'Add subject',
       events: [
-        { date: 'Add step', description: 'description' },
-        { date: 'Add step', description: 'description' },
-        { date: 'Add step', description: 'description' },
+        { description: 'description' },
+        { description: 'description' },
+        { description: 'description' },
       ],
       titleColor: undefined,
       descriptionColor: undefined,
