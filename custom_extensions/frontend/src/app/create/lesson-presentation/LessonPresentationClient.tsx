@@ -847,7 +847,7 @@ export default function LessonPresentationClient() {
 
       await trackCreateProduct(
         "Completed",
-        sessionStorage.getItem('lessonContext') != null ? true : false,
+        sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
         isFromFiles,
         isFromText,
         isFromKnowledgeBase,
@@ -879,7 +879,7 @@ export default function LessonPresentationClient() {
         if (!sessionStorage.getItem('createProductFailed')) {
           await trackCreateProduct(
             "Failed",
-            sessionStorage.getItem('lessonContext') != null ? true : false,
+            sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
             isFromFiles,
             isFromText,
             isFromKnowledgeBase,

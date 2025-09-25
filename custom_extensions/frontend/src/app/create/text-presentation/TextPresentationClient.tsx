@@ -1051,7 +1051,7 @@ export default function TextPresentationClient() {
 
       await trackCreateProduct(
         "Completed",
-        sessionStorage.getItem('lessonContext') != null ? true : false,
+        sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
         isFromFiles,
         isFromText,
         isFromKnowledgeBase,
@@ -1083,7 +1083,7 @@ export default function TextPresentationClient() {
         if (!sessionStorage.getItem('createProductFailed')) {
           await trackCreateProduct(
             "Failed",
-            sessionStorage.getItem('lessonContext') != null ? true : false,
+            sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
             isFromFiles,
             isFromText,
             isFromKnowledgeBase,
