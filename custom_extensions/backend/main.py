@@ -16094,8 +16094,43 @@ async def init_course_outline_chat(request: Request):
 # ======================= End Wizard Section ==============================
 
 # === Wizard Outline helpers & cache ===
-OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
-QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
+from collections import OrderedDict
+from typing import OrderedDict as OrderedDictType
+
+class LRUCache:
+    def __init__(self, maxsize: int = 1000):
+        self.maxsize = maxsize
+        self.cache: OrderedDictType[str, str] = OrderedDict()
+    
+    def get(self, key: str, default=None):
+        if key in self.cache:
+            # Move to end (most recent)
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        return default
+    
+    def __setitem__(self, key: str, value: str):
+        if key in self.cache:
+            # Update existing key
+            self.cache[key] = value
+            self.cache.move_to_end(key)
+        else:
+            # Add new key
+            self.cache[key] = value
+            if len(self.cache) > self.maxsize:
+                # Remove oldest item
+                oldest_key = next(iter(self.cache))
+                del self.cache[oldest_key]
+    
+    def __contains__(self, key: str) -> bool:
+        return key in self.cache
+    
+    def __delitem__(self, key: str):
+        if key in self.cache:
+            del self.cache[key]
+
+OUTLINE_PREVIEW_CACHE = LRUCache(1000)  # chat_session_id -> raw markdown outline
+QUIZ_PREVIEW_CACHE = LRUCache(1000)  # chat_session_id -> raw quiz content
 
 # Global tracking for live streaming progress to avoid duplicates
 LIVE_STREAM_TRACKING: Dict[str, Dict[str, set]] = {}  # chat_id -> {"modules": set(), "lessons": set()}
@@ -16996,7 +17031,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = None
+        project_name = payload.lessonTitle.strip() if payload.lessonTitle.strip() else "Video Lesson Presentation"
         if payload.outlineProjectId:
             try:
                 # Fetch outline name from database
@@ -17011,7 +17046,6 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             except Exception as e:
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
-                project_name = payload.lessonTitle.strip() if payload.lessonTitle.strip() else "Video Lesson Presentation"
         else:
             # Fallback to payload prompt
             project_name = payload.prompt
@@ -19045,7 +19079,7 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
         logger.info(f"[FINALIZE_SUCCESS] Updated training plan projectId={payload.projectId}")
         
         # Clean up the cache
-        OUTLINE_PREVIEW_CACHE.pop(payload.chatSessionId, None)
+        del OUTLINE_PREVIEW_CACHE[payload.chatSessionId]
         
         return {"success": True, "message": "Training plan updated successfully"}
         
@@ -21859,58 +21893,103 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_CLEANUP] Cleaned up stale quiz key: {stale_key}")
     
     try:
-        # NEW: Check for user edits and decide strategy (like in Course Outline)
+        # Ensure we have a chat session id (needed both for cache lookup and possible assistant fallback)
+        if payload.chatSessionId:
+            chat_id = payload.chatSessionId
+        else:
+            # Create a new chat session if needed
+            cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+            persona_id = await get_contentbuilder_persona_id(cookies)
+            chat_id = await create_onyx_chat_session(persona_id, cookies)
+        
+        # ---------- 1) Decide strategy ----------
+        raw_quiz_cached = QUIZ_PREVIEW_CACHE.get(chat_id)
+        
+        # Debug cache lookup
+        logger.info(f"DEBUG: Cache lookup for chat_id='{chat_id}', found cached quiz: {bool(raw_quiz_cached)}")
+        if raw_quiz_cached:
+            logger.info(f"DEBUG: Cached quiz length: {len(raw_quiz_cached)}")
+        else:
+            logger.info("DEBUG: No cached quiz found")
+        
         use_direct_parser = False
         use_ai_parser = True
         
-        if payload.hasUserEdits and payload.originalContent:
-            # User has made edits - check if they're significant
-            any_changes = _any_quiz_changes_made(payload.originalContent, payload.aiResponse)
-            
-            if not any_changes:
-                # NO CHANGES: Use direct parser path (fastest)
+        if raw_quiz_cached:
+            # Check if user made changes
+            if payload.hasUserEdits and payload.originalContent:
+                any_changes = _any_quiz_changes_made(payload.originalContent, payload.aiResponse)
+                
+                if not any_changes:
+                    # NO CHANGES: Use direct parser path (fastest)
+                    use_direct_parser = True
+                    use_ai_parser = False
+                    logger.info("No quiz changes detected - using direct parser path with cached content")
+                else:
+                    # CHANGES DETECTED: Use AI parser
+                    use_direct_parser = False
+                    use_ai_parser = True
+                    logger.info("Quiz changes detected - using AI parser path")
+            else:
+                # No edit information available but we have cache - try direct path first
                 use_direct_parser = True
                 use_ai_parser = False
-                logger.info("No quiz changes detected - using direct parser path")
-            else:
-                # CHANGES DETECTED: Use AI parser
-                use_direct_parser = False
-                use_ai_parser = True
-                logger.info("Quiz changes detected - using AI parser path")
+                logger.info("No edit information available but cached content found - using direct parser path")
         else:
-            # No edit information available - use AI parser
+            # No cached data - use AI parser
             use_direct_parser = False
             use_ai_parser = True
-            logger.info("No edit information available - using AI parser path")
+            logger.info("No cached content found - using AI parser path")
         
         # Ensure quiz template exists
         template_id = await _ensure_quiz_template(pool)
         
-        # CONSISTENT NAMING: Use the same pattern as lesson presentations
-        # Determine the project name - if connected to outline, use correct naming convention
-        project_name = None
-        if payload.outlineId:
+        # CONSISTENT NAMING: Use the same pattern as course outline wizard
+        # Extract project name from JSON or markdown (similar to wizard_outline_finalize)
+        project_name_detected = None
+        
+        if use_direct_parser and raw_quiz_cached:
             try:
-                # Fetch outline name from database
-                async with pool.acquire() as conn:
-                    outline_row = await conn.fetchrow(
-                        "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
-                        payload.outlineId, onyx_user_id
-                    )
-                    if outline_row:
-                        outline_name = outline_row["project_name"]
-                        project_name = f"{outline_name}: {payload.lesson.strip()}"
-                        logger.info(f"[QUIZ_FINALIZE_NAMING] Using outline-based naming: {project_name}")
-                    else:
-                        logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
-            except Exception as e:
-                logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
-                # Continue with plain title if outline fetch fails
-                project_name = payload.lesson.strip() if payload.lesson.strip() else "Untitled Quiz"
-        else:            
-            # Fallback to payload prompt
-            project_name = payload.prompt
-            logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
+                # Try JSON first
+                cached_json = json.loads(raw_quiz_cached.strip())
+                if isinstance(cached_json, dict) and "mainTitle" in cached_json:
+                    project_name_detected = cached_json["mainTitle"]
+                    logger.info(f"[QUIZ_FINALIZE_NAMING] Extracted project name from cached JSON: {project_name_detected}")
+            except (json.JSONDecodeError, KeyError):
+                pass
+            
+            # Fallback to markdown extraction
+            if not project_name_detected:
+                project_name_detected = _extract_project_name_from_markdown(raw_quiz_cached)
+                if project_name_detected:
+                    logger.info(f"[QUIZ_FINALIZE_NAMING] Extracted project name from cached markdown: {project_name_detected}")
+        
+        # If no cached extraction worked, use outline-based naming or fallback
+        if not project_name_detected:
+            if payload.outlineId:
+                try:
+                    # Fetch outline name from database
+                    async with pool.acquire() as conn:
+                        outline_row = await conn.fetchrow(
+                            "SELECT project_name FROM projects WHERE id = $1 AND onyx_user_id = $2",
+                            payload.outlineId, onyx_user_id
+                        )
+                        if outline_row:
+                            outline_name = outline_row["project_name"]
+                            project_name_detected = f"{outline_name}: {payload.lesson.strip()}"
+                            logger.info(f"[QUIZ_FINALIZE_NAMING] Using outline-based naming: {project_name_detected}")
+                        else:
+                            logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
+                except Exception as e:
+                    logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
+                    # Continue with plain title if outline fetch fails
+                    project_name_detected = payload.lesson.strip() if payload.lesson.strip() else "Untitled Quiz"
+            else:            
+                # Fallback to payload prompt or lesson
+                project_name_detected = payload.lesson or payload.prompt or "Untitled Quiz"
+                logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name_detected}")
+        
+        project_name = project_name_detected
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -21920,14 +21999,14 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] use_direct_parser: {use_direct_parser}")
         
-        # NEW: Choose parsing strategy based on user edits
-        if use_direct_parser:
-            # DIRECT PARSER PATH: Use cached content directly since no changes were made
+        # ---------- 2) DIRECT PARSER PATH: No changes made, use cached data directly ----------
+        if use_direct_parser and raw_quiz_cached:
             logger.info("Using direct parser path for quiz finalization")
             
-            # Use the original content for parsing since no changes were made
-            content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
+            # Use the cached content for parsing since no changes were made
+            content_to_parse = raw_quiz_cached
             
             parsed_quiz = await parse_ai_response_with_llm(
                 ai_response=content_to_parse,
@@ -21974,8 +22053,9 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
             )
             logger.info("Direct parser path completed successfully")
-        else:
-            # AI PARSER PATH: Use AI for parsing (original behavior)
+        
+        # ---------- 3) AI PARSER PATH: Process changes with AI parsing ----------
+        elif use_ai_parser:
             logger.info("Using AI parser path for quiz finalization")
             
             # NEW: Handle clean content (questions only) differently
@@ -22042,7 +22122,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
                 """
             
-                        # Parse the quiz data using LLM - only call once with consistent project name
+            # Parse the quiz data using LLM - only call once with consistent project name
             parsed_quiz = await parse_ai_response_with_llm(
                 ai_response=payload.aiResponse,
                 project_name=project_name,  # Use consistent project name
@@ -22053,6 +22133,34 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                     detectedLanguage=payload.language
                 ),
                 dynamic_instructions=dynamic_instructions,
+                target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
+            )
+        else:
+            # Fallback - should not reach here but handle gracefully
+            logger.warning("Neither direct parser nor AI parser path selected, using fallback AI parsing")
+            parsed_quiz = await parse_ai_response_with_llm(
+                ai_response=payload.aiResponse,
+                project_name=project_name,
+                target_model=QuizData,
+                default_error_model_instance=QuizData(
+                    quizTitle=project_name,
+                    questions=[],
+                    detectedLanguage=payload.language
+                ),
+                dynamic_instructions=f"""
+                CRITICAL: You must output ONLY valid JSON in the exact format shown in the example. Do not include any natural language, explanations, or markdown formatting.
+
+                The AI response contains quiz questions in natural language format. You need to convert this into a structured QuizData JSON format.
+
+                REQUIREMENTS:
+                1. Extract the quiz title from the content or use the provided project name
+                2. For each question in the content, create a structured question object
+                3. Infer appropriate question types from the structure
+                
+                CRITICAL RULES:
+                - Output ONLY the JSON object, no other text
+                - Language: {payload.language}
+                """,
                 target_json_example=DEFAULT_QUIZ_JSON_EXAMPLE_FOR_LLM
             )
         
