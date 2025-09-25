@@ -12,6 +12,7 @@ interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   pillLabel?: string;
   iconColor?: string;
   labelColor?: string;
+  glowColor?: string;
   disabled?: boolean;
   href?: string;
   onClick?: (e: React.MouseEvent) => void;
@@ -39,6 +40,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
     pillLabel,
     iconColor = "text-blue-600",
     labelColor = "text-blue-600",
+    glowColor = "var(--primary)",
     disabled = false,
     href,
     onClick,
@@ -109,7 +111,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           {Icon && (
             <div className="flex items-center justify-center h-16 relative mb-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/10 rounded-lg blur-sm"></div>
+                <div className="absolute inset-0 rounded-lg blur-sm" style={{background: `linear-gradient(to bottom right, ${glowColor}20, ${glowColor}10)`}}></div>
                 <Icon 
                   size={53} 
                   className={cn(

@@ -23,6 +23,7 @@ interface OptionCardProps {
   gradientTo: string;
   iconColor: string;
   labelColor: string;
+  glowColor?: string;
 }
 
 const ImportIcon: React.FC<{ size?: number }> = ({ size }) => (
@@ -193,6 +194,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
   gradientTo,
   iconColor,
   labelColor,
+  glowColor,
 }: OptionCardProps) => {
   const router = useRouter();
   
@@ -236,6 +238,7 @@ const OptionCard: React.FC<OptionCardProps> = ({
       pillLabel={pillLabel}
       iconColor={iconColor}
       labelColor={labelColor}
+      glowColor={glowColor}
       disabled={disabled}
       href={href}
       onClick={handleClick}
@@ -342,6 +345,7 @@ export default function DataSourceLanding() {
             gradientTo="to-yellow-200"
             iconColor="text-orange-600"
             labelColor="text-orange-600"
+            glowColor="#F7DC6F"
           />
           <OptionCard
             Icon={GenerateIcon}
@@ -363,6 +367,7 @@ export default function DataSourceLanding() {
             gradientTo="to-rose-200"
             iconColor="text-pink-600"
             labelColor="text-pink-600"
+            glowColor="#BB8FCE"
           />
         </div>
 
