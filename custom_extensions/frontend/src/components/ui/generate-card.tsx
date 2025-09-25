@@ -18,7 +18,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         className={cn(
           "group relative rounded-md border-[var(--border)] bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
           "w-22 h-20 xs:w-20 xs:h-18 sm:w-25 sm:h-23 md:w-27 md:h-25 lg:w-29 lg:h-27 xl:w-32 xl:h-30",
-          "hover:scale-75",
+          "hover:scale-105",
           active && "border-[var(--ring)]",
           className
         )}
