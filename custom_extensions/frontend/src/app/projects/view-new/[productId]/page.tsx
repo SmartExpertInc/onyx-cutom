@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { FolderOpen, Sparkles, ChevronDown, Edit3, RefreshCcw } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
+import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes'; 
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
