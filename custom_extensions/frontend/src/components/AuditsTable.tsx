@@ -39,6 +39,7 @@ import {
 import { useLanguage } from "../contexts/LanguageContext";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 interface Audit {
   id: number;
@@ -56,6 +57,7 @@ interface AuditsTableProps {
 
 const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
   const { t } = useLanguage();
+  const router = useRouter();
   const [audits, setAudits] = useState<Audit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -261,6 +263,11 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     }
   };
 
+  // Handle row click navigation
+  const handleRowClick = (audit: Audit) => {
+    router.push(`/create/audit-2-dynamic/${audit.id}`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -310,7 +317,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
             variant="download"
             onClick={() => {
               // Navigate to create audit page
-              window.location.href = '/create/ai-audit/questionnaire';
+              window.location.href = 'https://dev4.contentbuilder.ai/custom-projects-ui/create/ai-audit/questionnaire';
             }}
             className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
           >
@@ -351,7 +358,11 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                 </tr>
               ) : (
                 sortedAudits.map((audit) => (
-                  <tr key={audit.id} className="hover:bg-gray-50">
+                  <tr 
+                    key={audit.id} 
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => handleRowClick(audit)}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <ClipboardCheck className="h-5 w-5 text-gray-400 mr-3" />
@@ -362,7 +373,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleShareAudit(audit)}
                           className="text-green-600 hover:text-green-900"
