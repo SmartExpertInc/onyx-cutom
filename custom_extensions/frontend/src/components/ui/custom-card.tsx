@@ -71,8 +71,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-24 w-110 h-110 bg-[var(--accent)]/50 rounded-full border-[var(--border)]/80" />
-        <div className="absolute -top-12 -left-14 w-80 h-80 bg-[var(--accent)]/30 rounded-full border-[var(--border)]/80" />
+        {/* <div className="absolute -top-20 -left-24 w-110 h-110 bg-[var(--accent)]/50 rounded-full border-[var(--border)]/80" /> */}
+        {/* <div className="absolute -top-12 -left-14 w-80 h-80 bg-[var(--accent)]/30 rounded-full border-[var(--border)]/80" /> */}
         
         {/* Selection Indicator */}
         {selectable && (
@@ -95,8 +95,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                 className={cn(
                   "inline-flex items-center px-2 py-1 text-sm font-semibold",
                   useCSSVariables 
-                    ? "bg-[var(--card)] rounded-md border-none text-[var(--primary)] gap-1"
-                    : "bg-[var(--card)] rounded-md border-none text-[var(--primary)] gap-1"
+                    ? "bg-[var(--card)] rounded-md border-[var(--border)] border-none text-[var(--primary)] gap-1"
+                    : "bg-[var(--card)] rounded-md border-[var(--border)] border-none text-[var(--primary)] gap-1"
                 )}
               >
                 <SparklesIcon size={10} />
