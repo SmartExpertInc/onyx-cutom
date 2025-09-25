@@ -990,7 +990,7 @@ export default function ProductViewNewPage() {
                   </h1>
                   <button
                     onClick={() => startEditing('mainTitle')}
-                    className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
+                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
                     title="Edit course title"
                   >
                     <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
@@ -1032,7 +1032,7 @@ export default function ProductViewNewPage() {
                       </h2>
                       <button
                         onClick={() => startEditing('sectionTitle', index)}
-                        className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                         title="Edit module title"
                       >
                         <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
@@ -1069,7 +1069,7 @@ export default function ProductViewNewPage() {
                                 </span>
                                 <button
                                   onClick={() => startEditing('lessonTitle', index, lessonIndex)}
-                                  className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                                  className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                                   title="Edit lesson title"
                                 >
                                   <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
