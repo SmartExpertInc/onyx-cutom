@@ -64,6 +64,17 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "company_name" | "created_at" | "status">("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareData, setShareData] = useState<{
+    shareToken: string;
+    publicUrl: string;
+    expiresAt: string;
+  } | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [selectedAuditForShare, setSelectedAuditForShare] = useState<Audit | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAudit, setEditingAudit] = useState<Audit | null>(null);
   const [shareModalAudit, setShareModalAudit] = useState<Audit | null>(null);
@@ -436,8 +447,75 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     }
   };
 
+  // Share functionality - replicated from audit landing page
+  const handleShareAudit = (audit: Audit) => {
+    console.log('[Audits Tab] Share Audit Requested:', { audit });
+    setSelectedAuditForShare(audit);
+    setShowShareModal(true);
+    setShareData(null);
+    setShareError(null);
+  };
+
+  const handleShare = async () => {
+    if (!selectedAuditForShare) return;
+    
+    setIsSharing(true);
+    setShareError(null);
+    
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${selectedAuditForShare.id}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expires_in_days: 30 // Default 30 days
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || `Failed to share audit: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setShareData({
+        shareToken: data.share_token,
+        publicUrl: data.public_url,
+        expiresAt: data.expires_at
+      });
+      
+      console.log('✅ [Audits Tab] Successfully created share link:', data.public_url);
+      
+    } catch (error: any) {
+      console.error('❌ [Audits Tab] Error sharing audit:', error);
+      setShareError(error.message || 'Failed to create share link');
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('✅ [Audits Tab] Link copied to clipboard');
+    } catch (error) {
+      console.error('❌ [Audits Tab] Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      console.log('✅ [Audits Tab] Link copied to clipboard (fallback)');
+    }
+  };
+
   // Handle edit audit
   const handleEditAudit = (audit: Audit) => {
+    console.log('[Audits Tab] Edit Audit Requested:', { audit });
     setEditingAudit(audit);
     setShowEditModal(true);
   };
@@ -449,24 +527,6 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     fetchAudits(searchTerm);
   };
 
-  // Handle share audit
-  const handleShareAudit = async (audit: Audit) => {
-    setShareModalAudit(audit);
-    setGeneratingShareLink(true);
-    setShareLink("");
-    setCopySuccess(false);
-
-    try {
-      // For audits, we'll use the project view link as the share link
-      const shareUrl = `${window.location.origin}${audit.link}`;
-      setShareLink(shareUrl);
-    } catch (error) {
-      console.error('Error generating share link:', error);
-      alert(t('interface.shareError', 'Failed to generate share link'));
-    } finally {
-      setGeneratingShareLink(false);
-    }
-  };
 
   // Handle copy link
   const handleCopyLink = async () => {
@@ -663,141 +723,109 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         />
       )}
 
-      {/* Share Audit Modal */}
-      {shareModalAudit && (
-        <div
-          className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setShareModalAudit(null)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 border border-gray-100"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Share2 className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-black">
-                      {t('interface.shareAudit', 'Share Audit')}
-                    </h2>
-                    <p className="text-sm text-black/70 mt-1">
-                      {shareModalAudit.name}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShareModalAudit(null)}
-                  className="text-gray-400 hover:text-gray-600 transition-all duration-200 p-2 hover:bg-gray-100 rounded-full group"
-                >
-                  <XCircle size={20} className="group-hover:rotate-90 transition-transform duration-200" />
-                </button>
-              </div>
-            </div>
+      {/* Share Modal - Replicated from audit landing page */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 relative">
+            {/* Close button */}
+            <button
+              onClick={() => {
+                setShowShareModal(false);
+                setShareData(null);
+                setShareError(null);
+                setSelectedAuditForShare(null);
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-            {/* Content */}
-            <div className="p-6">
-              <div className="mb-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      <ClipboardCheck className="h-5 w-5 text-blue-600 mt-0.5" />
+            {/* Modal content */}
+            <div className="pr-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {t('interface.shareAudit', 'Share Audit')}
+              </h3>
+
+              {!shareData ? (
+                <div>
+                  <p className="text-gray-600 mb-6">
+                    {t('interface.shareAuditDescription', 'Create a public link to share this audit with others. The link will expire in 30 days.')}
+                  </p>
+
+                  {shareError && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+                      <p className="text-red-800 text-sm">{shareError}</p>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-black">
-                        {t('interface.shareAuditDescription', 'Share this audit with anyone, even those without an account')}
-                      </p>
-                      <p className="text-xs text-black/70 mt-1">
-                        {t('interface.shareAuditSubtext', 'Recipients can view the full audit details without creating an account')}
-                      </p>
-                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowShareModal(false);
+                        setShareError(null);
+                        setSelectedAuditForShare(null);
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      {t('interface.cancel', 'Cancel')}
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      disabled={isSharing}
+                      className="flex-1 px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                    >
+                      {isSharing ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          {t('interface.creating', 'Creating...')}
+                        </>
+                      ) : (
+                        t('interface.createShareLink', 'Create Share Link')
+                      )}
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              {generatingShareLink ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                  <span className="ml-3 text-black font-medium">
-                    {t('interface.generatingLink', 'Generating link...')}
-                  </span>
-                </div>
-              ) : shareLink ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-3">
-                      {t('interface.shareableLink', 'Shareable Link')}
-                    </label>
-                    <div className="relative">
+              ) : (
+                <div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+                    <div className="flex items-center space-x-2">
                       <input
                         type="text"
-                        value={shareLink}
+                        value={shareData.publicUrl}
                         readOnly
-                        className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg bg-gray-50 text-black text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        onClick={(e) => e.currentTarget.select()}
+                        className="flex-1 bg-transparent text-sm text-gray-800 outline-none"
                       />
                       <button
-                        onClick={handleCopyLink}
-                        className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md transition-all duration-200 ${copySuccess
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          }`}
-                        title={copySuccess ? t('interface.copied', 'Copied!') : t('interface.copyLink', 'Copy Link')}
+                        onClick={() => copyToClipboard(shareData.publicUrl)}
+                        className="px-3 py-1 text-xs bg-[#0F58F9] text-white rounded hover:bg-[#0F58F9]/90 transition-colors"
+                        title={t('interface.copyToClipboard', 'Copy to clipboard')}
                       >
-                        {copySuccess ? (
-                          <CheckCircle size={16} />
-                        ) : (
-                          <Copy size={16} />
-                        )}
+                        {t('interface.copy', 'Copy')}
                       </button>
                     </div>
-                    {copySuccess && (
-                      <div className="flex items-center mt-2 text-green-600">
-                        <CheckCircle size={16} className="mr-2" />
-                        <span className="text-sm font-medium">
-                          {t('interface.linkCopied', 'Link copied to clipboard!')}
-                        </span>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ) : null}
-            </div>
 
-            {/* Footer */}
-            <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => setShareModalAudit(null)}
-                  className="px-4 py-2 text-black bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium"
-                >
-                  {t('interface.close', 'Close')}
-                </button>
-                {shareLink && (
+                  <p className="text-xs text-gray-500 mb-6">
+                    {t('interface.linkExpiresOn', `Link expires on: ${new Date(shareData.expiresAt).toLocaleDateString()}`)}
+                  </p>
+
                   <button
-                    onClick={handleCopyLink}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${copySuccess
-                      ? 'bg-green-600 text-white'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
+                    onClick={() => {
+                      setShowShareModal(false);
+                      setShareData(null);
+                      setSelectedAuditForShare(null);
+                    }}
+                    className="w-full px-4 py-2 bg-[#0F58F9] text-white rounded-md hover:bg-[#0F58F9]/90 transition-colors"
                   >
-                    {copySuccess ? (
-                      <span className="flex items-center">
-                        <CheckCircle size={16} className="mr-2" />
-                        {t('interface.copied', 'Copied!')}
-                      </span>
-                    ) : (
-                      <span className="flex items-center">
-                        <Copy size={16} className="mr-2" />
-                        {t('interface.copyLink', 'Copy Link')}
-                      </span>
-                    )}
+                    {t('interface.close', 'Close')}
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
