@@ -16393,6 +16393,7 @@ class LessonWizardFinalize(BaseModel):
     lessonTitle: str
     lengthRange: Optional[str] = None
     aiResponse: str                        # User-edited markdown / plain text
+    prompt: str
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
     productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
@@ -16995,7 +16996,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lessonTitle.strip()
+        project_name = None
         if payload.outlineProjectId:
             try:
                 # Fetch outline name from database
@@ -17010,6 +17011,11 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             except Exception as e:
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
+                project_name = payload.lessonTitle.strip() if payload.lessonTitle.strip() else "Video Lesson Presentation"
+        else:
+            # Fallback to payload prompt
+            project_name = payload.prompt
+            logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name}")
 
         # Build source context from payload
         source_context_type, source_context_data = build_source_context(payload)
@@ -21899,7 +21905,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                         logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
             except Exception as e:
                 logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
-                # Continue with plain lesson title if outline fetch fails
+                # Continue with plain title if outline fetch fails
+                project_name = payload.lesson.strip() if payload.lesson.strip() else "Untitled Quiz"
         else:            
             # Fallback to payload prompt
             project_name = payload.prompt
@@ -22364,6 +22371,7 @@ class TextPresentationWizardPreview(BaseModel):
 
 class TextPresentationWizardFinalize(BaseModel):
     aiResponse: str
+    prompt: str
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     lesson: Optional[str] = None
     courseName: Optional[str] = None
@@ -22780,7 +22788,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # CONSISTENT NAMING: Use the same pattern as lesson presentations
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
+        project_name = None
         if payload.outlineId:
             try:
                 # Fetch outline name from database
@@ -22798,7 +22806,10 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             except Exception as e:
                 logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
+                project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
         else:
+            # Fallback to payload prompt
+            project_name = payload.prompt
             logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
