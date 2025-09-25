@@ -1401,5 +1401,41 @@ export const uk = {
       footerInfo:
         "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень.",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Назад",
+      openProducts: "Відкрити Продукти",
+      smartEdit: "Розумне Редагування",
+      smartEditTooltip: "Розумне редагування з ШІ",
+      downloadPdfTooltip: "Завантажити контент як PDF",
+      loadingProjectDetails: "Завантаження деталей проекту...",
+      error: "Помилка:",
+      projectNotFound: "Проект не знайдено або дані недоступні.",
+      courseOutline: "План Курсу",
+      courseTitle: "Назва Курсу",
+      moduleTitle: "Назва Модуля",
+      lessonTitle: "Назва Уроку",
+      editCourseTitle: "Редагувати назву курсу",
+      editModuleTitle: "Редагувати назву модуля",
+      editLessonTitle: "Редагувати назву уроку",
+      noModulesFound: "Модулі в цьому плані курсу не знайдені.",
+      lessons: "уроків",
+      create: "Створити",
+      createContent: "Створити контент",
+      presentation: "Презентація",
+      onePager: "Односторінка",
+      quiz: "Вікторина",
+      videoLesson: "Відео Урок",
+      regenerate: "Перестворити",
+      regenerateProduct: "Перестворити Продукт",
+      regenerateDescription: "Ви збираєтеся створити новий продукт. Старий буде видалено.",
+      cancel: "Скасувати",
+      ok: "ОК",
+      // View-new-2 specific tooltips
+      viewProduct: "Переглянути продукт",
+      regenerateProductTooltip: "Перестворити продукт",
+      addProduct: "Додати продукт"
+    },
   },
 };

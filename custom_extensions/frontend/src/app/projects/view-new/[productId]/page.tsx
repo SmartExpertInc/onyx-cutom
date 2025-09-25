@@ -102,7 +102,7 @@ export default function ProductViewNewPage() {
   const params = useParams<ProductViewNewParams>();
   const productId = params?.productId;
   const router = useRouter();
-  const { t: _t } = useLanguage();
+  const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
@@ -841,7 +841,7 @@ export default function ProductViewNewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="p-8 text-center text-lg text-gray-600">Loading project details...</div>
+        <div className="p-8 text-center text-lg text-gray-600">{t('interface.viewNew.loadingProjectDetails', 'Loading project details...')}</div>
       </div>
     );
   }
@@ -849,7 +849,7 @@ export default function ProductViewNewPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-red-50">
-        <div className="p-8 text-center text-red-700 text-lg">Error: {error}</div>
+        <div className="p-8 text-center text-red-700 text-lg">{t('interface.viewNew.error', 'Error:')} {error}</div>
       </div>
     );
   }
@@ -857,7 +857,7 @@ export default function ProductViewNewPage() {
   if (!projectData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="p-8 text-center text-gray-500">Project not found or data unavailable.</div>
+        <div className="p-8 text-center text-gray-500">{t('interface.viewNew.projectNotFound', 'Project not found or data unavailable.')}</div>
       </div>
     );
   }
@@ -886,7 +886,7 @@ export default function ProductViewNewPage() {
               <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              Back
+              {t('interface.viewNew.back', 'Back')}
             </button>
 
             <button
@@ -901,7 +901,7 @@ export default function ProductViewNewPage() {
               }}
             >
               <FolderOpen size={14} style={{ color: '#0F58F9' }} />
-              Open Products
+              {t('interface.viewNew.openProducts', 'Open Products')}
             </button>
           </div>
 
@@ -969,12 +969,12 @@ export default function ProductViewNewPage() {
                   type="text"
                   value={(() => {
                     const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
-                    return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                    return trainingPlanData?.mainTitle || projectData.name || t('interface.viewNew.courseOutline', 'Course Outline');
                   })()}
                   onChange={(e) => handleInputChange(['mainTitle'], e.target.value)}
                   onBlur={handleInputBlur}
                   className="text-[#191D30] font-semibold text-[32px] leading-none bg-transparent border-none outline-none w-full"
-                  placeholder="Course Title"
+                  placeholder={t('interface.viewNew.courseTitle', 'Course Title')}
                   autoFocus
                 />
               ) : (
@@ -985,13 +985,13 @@ export default function ProductViewNewPage() {
                   >
                     {(() => {
                       const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
-                      return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                      return trainingPlanData?.mainTitle || projectData.name || t('interface.viewNew.courseOutline', 'Course Outline');
                     })()}
                   </h1>
                   <button
                     onClick={() => startEditing('mainTitle')}
                     className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
-                    title="Edit course title"
+                    title={t('interface.viewNew.editCourseTitle', 'Edit course title')}
                   >
                     <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
                   </button>
@@ -1005,7 +1005,7 @@ export default function ProductViewNewPage() {
               if (!trainingPlanData?.sections) {
                 return (
                   <div className="bg-white rounded-lg p-[25px]">
-                    <p className="text-gray-500">No modules found in this course outline.</p>
+                    <p className="text-gray-500">{t('interface.viewNew.noModulesFound', 'No modules found in this course outline.')}</p>
                   </div>
                 );
               }
@@ -1019,7 +1019,7 @@ export default function ProductViewNewPage() {
                       onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
                       onBlur={handleInputBlur}
                       className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2 bg-transparent border-none outline-none w-full"
-                      placeholder="Module Title"
+                      placeholder={t('interface.viewNew.moduleTitle', 'Module Title')}
                       autoFocus
                     />
                   ) : (
@@ -1028,19 +1028,19 @@ export default function ProductViewNewPage() {
                         className="text-[#191D30] font-semibold text-[20px] leading-[100%] cursor-pointer"
                         onClick={() => startEditing('sectionTitle', index)}
                       >
-                        Module {index + 1}: {section.title}
+                        {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
                       </h2>
                       <button
                         onClick={() => startEditing('sectionTitle', index)}
                         className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
-                        title="Edit module title"
+                        title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
                       >
                         <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
                       </button>
                     </div>
                   )}
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
-                    {section.lessons?.length || 0} lessons
+                    {section.lessons?.length || 0} {t('interface.viewNew.lessons', 'lessons')}
                   </p>
                   <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   {section.lessons && section.lessons.length > 0 && (
@@ -1056,7 +1056,7 @@ export default function ProductViewNewPage() {
                                 onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
                                 onBlur={handleInputBlur}
                                 className="text-[#191D30] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
-                                placeholder="Lesson Title"
+                                placeholder={t('interface.viewNew.lessonTitle', 'Lesson Title')}
                                 autoFocus
                               />
                             ) : (
@@ -1070,7 +1070,7 @@ export default function ProductViewNewPage() {
                                 <button
                                   onClick={() => startEditing('lessonTitle', index, lessonIndex)}
                                   className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
-                                  title="Edit lesson title"
+                                  title={t('interface.viewNew.editLessonTitle', 'Edit lesson title')}
                                 >
                                   <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
                                 </button>
@@ -1079,7 +1079,7 @@ export default function ProductViewNewPage() {
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
-                              <CustomTooltip content="Presentation">
+                              <CustomTooltip content={t('interface.viewNew.presentation', 'Presentation')}>
                                 <div 
                                   onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
@@ -1100,7 +1100,7 @@ export default function ProductViewNewPage() {
                                   />
                                 </div>
                               </CustomTooltip>
-                              <CustomTooltip content="One-Pager">
+                              <CustomTooltip content={t('interface.viewNew.onePager', 'One-Pager')}>
                                 <div 
                                   onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
@@ -1121,7 +1121,7 @@ export default function ProductViewNewPage() {
                                   />
                                 </div>
                               </CustomTooltip>
-                              <CustomTooltip content="Quiz">
+                              <CustomTooltip content={t('interface.viewNew.quiz', 'Quiz')}>
                                 <div 
                                   onClick={() => {
                                     const lessonKey = lesson.id || lesson.title;
@@ -1143,7 +1143,7 @@ export default function ProductViewNewPage() {
                                 </div>
                               </CustomTooltip>
                               {videoLessonEnabled && (
-                                <CustomTooltip content="Video Lesson">
+                                <CustomTooltip content={t('interface.viewNew.videoLesson', 'Video Lesson')}>
                                   <div 
                                     onClick={() => {
                                       const lessonKey = lesson.id || lesson.title;
@@ -1171,9 +1171,9 @@ export default function ProductViewNewPage() {
                                 onClick={() => setOpenDropdown(openDropdown === (lesson.id || `${index}-${lessonIndex}`) ? null : (lesson.id || `${index}-${lessonIndex}`))}
                                 className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
                                 style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
-                                title="Create content"
+                                title={t('interface.viewNew.createContent', 'Create content')}
                               >
-                                Create
+                                {t('interface.viewNew.create', 'Create')}
                                 <ChevronDown size={12} className="ml-1" />
                               </button>
                               
@@ -1192,10 +1192,10 @@ export default function ProductViewNewPage() {
                                         <>
                                           <div className={`flex items-center justify-between px-3 py-2 ${!hasPresentation ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasPresentation ? () => handleContentTypeClick(lesson, 'presentation') : undefined}>
                                             <span className={`text-sm ${hasPresentation ? 'text-gray-400' : 'text-gray-700'}`}>
-                                              Presentation
+                                              {t('interface.viewNew.presentation', 'Presentation')}
                                             </span>
                                             {hasPresentation && (
-                                              <CustomTooltip content="Regenerate" position="top">
+                                              <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                                   className="p-1 cursor-pointer"
@@ -1207,10 +1207,10 @@ export default function ProductViewNewPage() {
                                           </div>
                                           <div className={`flex items-center justify-between px-3 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
                                             <span className={`text-sm ${hasOnePager ? 'text-gray-400' : 'text-gray-700'}`}>
-                                              One-Pager
+                                              {t('interface.viewNew.onePager', 'One-Pager')}
                                             </span>
                                             {hasOnePager && (
-                                              <CustomTooltip content="Regenerate" position="top">
+                                              <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                                   className="p-1 cursor-pointer"
@@ -1222,10 +1222,10 @@ export default function ProductViewNewPage() {
                                           </div>
                                           <div className={`flex items-center justify-between px-3 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
                                             <span className={`text-sm ${hasQuiz ? 'text-gray-400' : 'text-gray-700'}`}>
-                                              Quiz
+                                              {t('interface.viewNew.quiz', 'Quiz')}
                                             </span>
                                             {hasQuiz && (
-                                              <CustomTooltip content="Regenerate" position="top">
+                                              <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                                   className="p-1 cursor-pointer"
@@ -1238,10 +1238,10 @@ export default function ProductViewNewPage() {
                                           {videoLessonEnabled && (
                                             <div className={`flex items-center justify-between px-3 py-2 ${!hasVideoLesson ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasVideoLesson ? () => handleContentTypeClick(lesson, 'video-lesson') : undefined}>
                                               <span className={`text-sm ${hasVideoLesson ? 'text-gray-400' : 'text-gray-700'}`}>
-                                                Video Lesson
+                                                {t('interface.viewNew.videoLesson', 'Video Lesson')}
                                               </span>
                                               {hasVideoLesson && (
-                                                <CustomTooltip content="Regenerate" position="top">
+                                                <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                                   <button
                                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                                     className="p-1 cursor-pointer"
@@ -1325,10 +1325,10 @@ export default function ProductViewNewPage() {
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-lg p-4 max-w-sm w-full mx-4 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Regenerate Product
+              {t('interface.viewNew.regenerateProduct', 'Regenerate Product')}
             </h3>
             <p className="text-gray-600 mb-4 text-sm">
-              You are about to create a new product. The old one will be deleted.
+              {t('interface.viewNew.regenerateDescription', 'You are about to create a new product. The old one will be deleted.')}
             </p>
             <div className="flex gap-2 justify-end">
               <button
@@ -1343,7 +1343,7 @@ export default function ProductViewNewPage() {
                   letterSpacing: '0.05em'
                 }}
               >
-                Cancel
+                {t('interface.viewNew.cancel', 'Cancel')}
               </button>
               <button
                 onClick={handleRegenerateConfirm}
@@ -1357,7 +1357,7 @@ export default function ProductViewNewPage() {
                   letterSpacing: '0.05em'
                 }}
               >
-                OK
+                {t('interface.viewNew.ok', 'OK')}
               </button>
             </div>
           </div>

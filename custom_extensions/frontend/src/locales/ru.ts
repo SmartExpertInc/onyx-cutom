@@ -1370,5 +1370,41 @@ export const ru = {
       footerInfo:
         "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам.",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Назад",
+      openProducts: "Открыть Продукты",
+      smartEdit: "Умное Редактирование",
+      smartEditTooltip: "Умное редактирование с ИИ",
+      downloadPdfTooltip: "Скачать контент как PDF",
+      loadingProjectDetails: "Загрузка деталей проекта...",
+      error: "Ошибка:",
+      projectNotFound: "Проект не найден или данные недоступны.",
+      courseOutline: "План Курса",
+      courseTitle: "Название Курса",
+      moduleTitle: "Название Модуля",
+      lessonTitle: "Название Урока",
+      editCourseTitle: "Редактировать название курса",
+      editModuleTitle: "Редактировать название модуля",
+      editLessonTitle: "Редактировать название урока",
+      noModulesFound: "Модули в этом плане курса не найдены.",
+      lessons: "уроков",
+      create: "Создать",
+      createContent: "Создать контент",
+      presentation: "Презентация",
+      onePager: "Одностраничник",
+      quiz: "Викторина",
+      videoLesson: "Видео Урок",
+      regenerate: "Пересоздать",
+      regenerateProduct: "Пересоздать Продукт",
+      regenerateDescription: "Вы собираетесь создать новый продукт. Старый будет удален.",
+      cancel: "Отмена",
+      ok: "ОК",
+      // View-new-2 specific tooltips
+      viewProduct: "Просмотреть продукт",
+      regenerateProductTooltip: "Пересоздать продукт",
+      addProduct: "Добавить продукт"
+    },
   },
 };
