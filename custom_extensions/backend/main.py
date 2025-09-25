@@ -1463,7 +1463,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
+async def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
     """
     Normalize slide props to match frontend template schemas.
     
@@ -2058,6 +2058,14 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
         except Exception as e:
             logger.error(f"Error normalizing slide {slide_index + 1} with template '{template_id}': {e}")
             logger.warning(f"Removing problematic slide {slide_index + 1}")
+
+            # Log error to database if possible
+            try:
+                async with DB_POOL.acquire() as conn:
+                    await save_slide_creation_error(conn, None, template_id, props, str(e))
+            except Exception as err:
+                logger.error(f"Failed to save slide_creation_error: {err}")
+
             continue  # Skip this slide
     
     logger.info(f"Slide normalization complete: {len(slides)} -> {len(normalized_slides)} slides (removed {len(slides) - len(normalized_slides)} invalid slides)")
@@ -11093,23 +11101,22 @@ def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     return context_type, context_data
 
 async def save_slide_creation_error(
-    pool,
+    conn,
     user_id: str,
     template_id: str,
     props: dict,
     error_message: str
 ):
-    async with pool.acquire() as conn:
-        await conn.execute(
-            """
-            INSERT INTO slide_creation_errors (user_id, template_id, props, error_message)
-            VALUES ($1, $2, $3, $4)
-            """,
-            user_id,
-            template_id,
-            json.dumps(props, ensure_ascii=False),
-            error_message
-        )
+    await conn.execute(
+        """
+        INSERT INTO slide_creation_errors (user_id, template_id, props, error_message)
+        VALUES ($1, $2, $3, $4)
+        """,
+        user_id,
+        template_id,
+        json.dumps(props, ensure_ascii=False),
+        error_message
+    )
 
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
@@ -12166,7 +12173,7 @@ Return ONLY the JSON object.
             
             # Normalize slide props to fix schema mismatches
             slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
-            normalized_slides = normalize_slide_props(slides_dict, selected_design_template.component_name)
+            normalized_slides = await normalize_slide_props(slides_dict, selected_design_template.component_name)
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
@@ -12253,13 +12260,13 @@ Return ONLY the JSON object.
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_dict and db_content_dict['slides']:
-                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
+                        db_content_dict['slides'] = await normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails.")
                 elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_dict and db_content_dict['slides']:
-                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
+                        db_content_dict['slides'] = await normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
                 elif component_name_from_db == COMPONENT_NAME_LESSON_PLAN:
@@ -12353,12 +12360,12 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_json and db_content_json['slides']:
-                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'], component_name)
+                        db_content_json['slides'] = await normalize_slide_props(db_content_json['slides'], component_name)
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_json and db_content_json['slides']:
-                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'], component_name)
+                        db_content_json['slides'] = await normalize_slide_props(db_content_json['slides'], component_name)
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 else:
                     logger.warning(f"Unknown component_name '{component_name}' for project {project_id}. Trying fallbacks.", exc_info=not IS_PRODUCTION)
@@ -19405,7 +19412,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content and db_content['slides']:
-                        db_content['slides'] = normalize_slide_props(db_content['slides'], current_component_name)
+                        db_content['slides'] = await normalize_slide_props(db_content['slides'], current_component_name)
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
                     db_content = sanitize_training_plan_for_parse(db_content)
