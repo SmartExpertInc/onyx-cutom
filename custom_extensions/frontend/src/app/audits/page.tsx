@@ -4,7 +4,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AuditsTable from '../../components/AuditsTable';
+import ProjectsTable from '../../components/ProjectsTable';
 import { 
   Search, 
   ChevronsUpDown, 
@@ -823,7 +823,7 @@ const AuditsPageInner: React.FC = () => {
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} />
         <main className="flex-1 overflow-y-auto p-8">
-          <AuditsTable companyId={selectedFolderId} />
+          <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} auditMode={true} />
         </main>
         <div className="fixed bottom-4 right-4">
           <button

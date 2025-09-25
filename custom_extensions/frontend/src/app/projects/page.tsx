@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import OffersTable from '../../components/OffersTable';
-import AuditsTable from '../../components/AuditsTable';
 import CreateOfferModal from '../../components/CreateOfferModal';
 import {
   Search,
@@ -28,7 +27,8 @@ import {
   LayoutTemplate,
   HardDrive,
   FileText,
-  Upload
+  Upload,
+  ClipboardCheck
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import FolderModal from './FolderModal';
@@ -482,11 +482,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           </Link>
         )}
         <Link
-          href="/projects?tab=audits"
+          href="/audits"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
           onClick={() => onFolderSelect(null)}
         >
-          <FileText size={18} />
+          <ClipboardCheck size={18} />
           <span>{t('interface.audits', 'Audits')}</span>
         </Link>
         {workspaceTabEnabled && (
@@ -576,7 +576,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, workspaceData }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -606,7 +606,6 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     if (isTrash) return t('interface.trash', 'Trash');
     if (isSmartDrive) return t('interface.smartDrive', 'Smart Drive');
     if (isOffers) return t('interface.offers', 'Offers');
-    if (isAudits) return t('interface.audits', 'Audits');
     if (isWorkspace) {
       return workspaceData?.name || t('interface.workspace', 'Workspace');
     }
@@ -638,7 +637,6 @@ const ProjectsPageInner: React.FC = () => {
   const isTrash = currentTab === 'trash';
   const isSmartDrive = currentTab === 'smart-drive';
   const isOffers = currentTab === 'offers';
-  const isAudits = currentTab === 'audits';
   const isWorkspace = currentTab === 'workspace';
   const isExportLMS = currentTab === 'export-lms';
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
@@ -1011,14 +1009,12 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
           {isSmartDrive ? (
             <SmartDriveConnectors />
           ) : isOffersAllowed ? (
             <OffersTable companyId={selectedFolderId} />
-          ) : isAudits ? (
-            <AuditsTable companyId={selectedFolderId} />
           ) : isWorkspaceAllowed ? (
             <WorkspaceMembers />
           ) : isExportLMS ? (
