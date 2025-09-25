@@ -4,7 +4,7 @@ import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useLanguage } from "../../contexts/LanguageContext";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { CustomCard } from "@/components/ui/custom-card";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
 
@@ -310,7 +310,7 @@ export default function DataSourceLanding() {
       <main
         className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
         style={{
-          background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
+          background: `linear-gradient(135deg, var(--background-new-first) 0%, var(--background-new-second) 50%, var(--background-new-third) 100%)`
         }}
       >
       {/* Top-left home button */}
