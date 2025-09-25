@@ -917,11 +917,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         required: true,
         arrayItemType: {
           type: 'object',
-          label: 'Step',
-          properties: {
-            date: { type: 'text', label: 'Step Title', required: true },
-            description: { type: 'text', label: 'Step Description', required: true }
-          }
+          label: 'Step'
         }
       },
       titleColor: { type: 'text', label: 'Title Text', default: 'The Stages of Research' },
