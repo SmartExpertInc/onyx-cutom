@@ -105,10 +105,23 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
 
       const data = await response.json();
       
-      // Transform the projects data to look like audits
-      // For now, we'll use all projects as "audits" - in a real implementation,
-      // you might want to filter for specific audit-related projects
-      const transformedAudits: Audit[] = data.map((project: any) => ({
+      // Filter for audit projects only (same logic as ProjectsTable with auditMode)
+      const auditProjects = data.filter((project: any) => {
+        // Check if it's an AI audit by project name pattern
+        const isAIAudit = project.projectName && (
+          project.projectName.includes('AI-Аудит') || 
+          project.projectName.includes('AI-Audit')
+        );
+        
+        // Check if it's a Text Presentation (which includes audits)
+        const isTextPresentation = project.designMicroproductType === 'Text Presentation' || 
+                                 project.designMicroproductType === 'TextPresentationDisplay';
+        
+        return isAIAudit || isTextPresentation;
+      });
+      
+      // Transform the filtered audit projects data
+      const transformedAudits: Audit[] = auditProjects.map((project: any) => ({
         id: project.id,
         name: project.projectName || project.name || `Audit ${project.id}`,
         company_name: project.companyName || 'Unknown Company',
