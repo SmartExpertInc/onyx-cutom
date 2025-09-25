@@ -351,8 +351,8 @@ export default function DataSourceLanding() {
             pillLabel={t('interface.popular', 'Popular')}
             gradientFrom="from-orange-300"
             gradientTo="to-pink-200"
-            iconColor="text-orange-600"
-            labelColor="text-orange-600"
+            iconColor="text-[oklch(82.3%_0.12_346.018)]"
+            labelColor="text-[oklch(82.3%_0.12_346.018)]"
           />
           <OptionCard
             Icon={ImportIcon}
@@ -361,8 +361,8 @@ export default function DataSourceLanding() {
             href="/create/from-files"
             gradientFrom="from-purple-300"
             gradientTo="to-pink-200"
-            iconColor="text-purple-600"
-            labelColor="text-purple-600"
+            iconColor="text-[oklch(74%_0.238_322.16)]"
+            labelColor="text-[oklch(74%_0.238_322.16)]"
           />
         </div>
 
