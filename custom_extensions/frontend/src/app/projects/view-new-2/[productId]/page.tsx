@@ -1,9 +1,10 @@
 // custom_extensions/frontend/src/app/projects/view-new/[productId]/page.tsx
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { FolderOpen, Sparkles, Edit3, RefreshCcw, Check, Plus } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
@@ -26,6 +27,56 @@ const VideoScriptIcon: React.FC<{ size?: number; color?: string }> = ({ size = 1
 const TextPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
+
+// Simple Tooltip Component
+const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const elementRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseEnter = () => {
+    if (elementRef.current) {
+      const rect = elementRef.current.getBoundingClientRect();
+      setTooltipPosition({
+        top: rect.bottom + 6,
+        left: rect.left + rect.width / 2
+      });
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsVisible(false);
+  };
+
+  return (
+    <>
+      <div 
+        ref={elementRef}
+        className="relative inline-block"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {children}
+      </div>
+      {isVisible && typeof window !== 'undefined' && createPortal(
+        <div 
+          className="fixed z-50 pointer-events-none"
+          style={{
+            top: `${tooltipPosition.top}px`,
+            left: `${tooltipPosition.left}px`,
+            transform: 'translate(-50%, 0%)'
+          }}
+        >
+          <div className="bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+            {content}
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
 
 
 type ProductViewNewParams = {
@@ -984,21 +1035,24 @@ export default function ProductViewNewPage() {
                   <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   
                   {/* Product Types Header */}
-                  <div className={`grid gap-4 mb-4 px-2 ${videoLessonEnabled ? 'grid-cols-4' : 'grid-cols-3'}`}>
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto]'} gap-4 items-center px-2`}>
+                    <div className="text-sm font-medium text-gray-700">
+                      Content Types
+                    </div>
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
                       <LessonPresentationIcon size={16} />
                       <span>Presentation</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
                       <TextPresentationIcon size={16} />
                       <span>One-Pager</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
                       <QuizIcon size={16} />
                       <span>Quiz</span>
                     </div>
                     {videoLessonEnabled && (
-                      <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
                         <VideoScriptIcon size={16} />
                         <span>Video Lesson</span>
                       </div>
@@ -1016,7 +1070,8 @@ export default function ProductViewNewPage() {
                         const hasVideoLesson = status?.videoLesson?.exists;
 
                         return (
-                          <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
+                          <div key={lesson?.id || lessonIndex} className={`grid py-3 ${videoLessonEnabled ? 'grid-cols-[1fr_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto]'} gap-4 items-center`}>
+                            {/* Lesson Title Column */}
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
                               {isEditingField('lessonTitle', index, lessonIndex) ? (
@@ -1048,148 +1103,155 @@ export default function ProductViewNewPage() {
                               )}
                             </div>
                             
-                            {/* Status Indicators */}
-                            <div className="flex items-center gap-6">
-                              <div className={`grid gap-4 ${videoLessonEnabled ? 'grid-cols-4' : 'grid-cols-3'}`}>
-                                {/* Presentation Status */}
-                                <div className="flex items-center justify-center">
-                                  {hasPresentation ? (
-                                    <div className="group flex items-center gap-1">
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                        onClick={() => {
-                                          if (status?.presentation?.productId) {
-                                            handleIconClick(status.presentation.productId);
-                                          }
-                                        }}
-                                        title="View presentation"
-                                      >
-                                        <Check size={14} className="text-white" />
-                                      </div>
-                                      <div
-                                        className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                        onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                        title="Regenerate presentation"
-                                      >
-                                        <RefreshCcw size={12} />
-                                      </div>
-                                    </div>
-                                  ) : (
+                            {/* Presentation Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasPresentation ? (
+                                <div className="group flex items-center gap-1">
+                                  <SimpleTooltip content="Created">
                                     <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                      className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      onClick={() => {
+                                        if (status?.presentation?.productId) {
+                                          handleIconClick(status.presentation.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={14} className="text-white" />
+                                    </div>
+                                  </SimpleTooltip>
+                                  <SimpleTooltip content="Regenerate">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
                                       onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                      title="Create presentation"
                                     >
-                                      <Plus size={14} className="text-gray-600" />
+                                      <RefreshCcw size={12} className="text-white" />
                                     </div>
-                                  )}
+                                  </SimpleTooltip>
                                 </div>
-
-                                {/* One-Pager Status */}
-                                <div className="flex items-center justify-center">
-                                  {hasOnePager ? (
-                                    <div className="group flex items-center gap-1">
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                        onClick={() => {
-                                          if (status?.onePager?.productId) {
-                                            handleIconClick(status.onePager.productId);
-                                          }
-                                        }}
-                                        title="View one-pager"
-                                      >
-                                        <Check size={14} className="text-white" />
-                                      </div>
-                                      <div
-                                        className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                        onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                        title="Regenerate one-pager"
-                                      >
-                                        <RefreshCcw size={12} />
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                      title="Create one-pager"
-                                    >
-                                      <Plus size={14} className="text-gray-600" />
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Quiz Status */}
-                                <div className="flex items-center justify-center">
-                                  {hasQuiz ? (
-                                    <div className="group flex items-center gap-1">
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                        onClick={() => {
-                                          if (status?.quiz?.productId) {
-                                            handleIconClick(status.quiz.productId);
-                                          }
-                                        }}
-                                        title="View quiz"
-                                      >
-                                        <Check size={14} className="text-white" />
-                                      </div>
-                                      <div
-                                        className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                        onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                        title="Regenerate quiz"
-                                      >
-                                        <RefreshCcw size={12} />
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                      title="Create quiz"
-                                    >
-                                      <Plus size={14} className="text-gray-600" />
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Video Lesson Status */}
-                                {videoLessonEnabled && (
-                                  <div className="flex items-center justify-center">
-                                    {hasVideoLesson ? (
-                                      <div className="group flex items-center gap-1">
-                                        <div 
-                                          className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                          onClick={() => {
-                                            if (status?.videoLesson?.productId) {
-                                              handleIconClick(status.videoLesson.productId);
-                                            }
-                                          }}
-                                          title="View video lesson"
-                                        >
-                                          <Check size={14} className="text-white" />
-                                        </div>
-                                        <div
-                                          className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                          onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                          title="Regenerate video lesson"
-                                        >
-                                          <RefreshCcw size={12} />
-                                        </div>
-                                      </div>
-                                    ) : (
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                        title="Create video lesson"
-                                      >
-                                        <Plus size={14} className="text-gray-600" />
-                                      </div>
-                                    )}
+                              ) : (
+                                <SimpleTooltip content="Add product">
+                                  <div 
+                                    className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                  >
+                                    <Plus size={14} className="text-gray-600" />
                                   </div>
+                                </SimpleTooltip>
+                              )}
+                            </div>
+
+                            {/* One-Pager Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasOnePager ? (
+                                <div className="group flex items-center gap-1">
+                                  <SimpleTooltip content="Created">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      onClick={() => {
+                                        if (status?.onePager?.productId) {
+                                          handleIconClick(status.onePager.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={14} className="text-white" />
+                                    </div>
+                                  </SimpleTooltip>
+                                  <SimpleTooltip content="Regenerate">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
+                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                    >
+                                      <RefreshCcw size={12} className="text-white" />
+                                    </div>
+                                  </SimpleTooltip>
+                                </div>
+                              ) : (
+                                <SimpleTooltip content="Add product">
+                                  <div 
+                                    className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                  >
+                                    <Plus size={14} className="text-gray-600" />
+                                  </div>
+                                </SimpleTooltip>
+                              )}
+                            </div>
+
+                            {/* Quiz Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasQuiz ? (
+                                <div className="group flex items-center gap-1">
+                                  <SimpleTooltip content="Created">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      onClick={() => {
+                                        if (status?.quiz?.productId) {
+                                          handleIconClick(status.quiz.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={14} className="text-white" />
+                                    </div>
+                                  </SimpleTooltip>
+                                  <SimpleTooltip content="Regenerate">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
+                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                    >
+                                      <RefreshCcw size={12} className="text-white" />
+                                    </div>
+                                  </SimpleTooltip>
+                                </div>
+                              ) : (
+                                <SimpleTooltip content="Add product">
+                                  <div 
+                                    className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                  >
+                                    <Plus size={14} className="text-gray-600" />
+                                  </div>
+                                </SimpleTooltip>
+                              )}
+                            </div>
+
+                            {/* Video Lesson Status Column */}
+                            {videoLessonEnabled && (
+                              <div className="flex items-center justify-center">
+                                {hasVideoLesson ? (
+                                  <div className="group flex items-center gap-1">
+                                    <SimpleTooltip content="Created">
+                                      <div 
+                                        className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                        onClick={() => {
+                                          if (status?.videoLesson?.productId) {
+                                            handleIconClick(status.videoLesson.productId);
+                                          }
+                                        }}
+                                      >
+                                        <Check size={14} className="text-white" />
+                                      </div>
+                                    </SimpleTooltip>
+                                    <SimpleTooltip content="Regenerate">
+                                      <div 
+                                        className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
+                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                      >
+                                        <RefreshCcw size={12} className="text-white" />
+                                      </div>
+                                    </SimpleTooltip>
+                                  </div>
+                                ) : (
+                                  <SimpleTooltip content="Add product">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                      onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                    >
+                                      <Plus size={14} className="text-gray-600" />
+                                    </div>
+                                  </SimpleTooltip>
                                 )}
                               </div>
-                            </div>
+                            )}
                           </div>
                         );
                       })}
