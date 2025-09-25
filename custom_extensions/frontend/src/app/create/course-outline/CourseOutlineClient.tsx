@@ -1179,28 +1179,28 @@ export default function CourseOutlineClient() {
 
   const outlineExamples: { short: string; detailed: string }[] = [
     {
-      short: t('interface.courseOutline.examples.adaptIndustry.short', 'Adapt to U.S. industry specifics'),
-      detailed: t('interface.courseOutline.examples.adaptIndustry.detailed', 'Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don\'t align with the American context.'),
+      short: t('interface.generate.courseOutlineExamples.adaptIndustry.short', 'Adapt to U.S. industry specifics'),
+      detailed: t('interface.generate.courseOutlineExamples.adaptIndustry.detailed', 'Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don\'t align with the American context.'),
     },
     {
-      short: t('interface.courseOutline.examples.adoptTrends.short', 'Adopt trends and latest practices'),
-      detailed: t('interface.courseOutline.examples.adoptTrends.detailed', 'Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.'),
+      short: t('interface.generate.courseOutlineExamples.adoptTrends.short', 'Adopt trends and latest practices'),
+      detailed: t('interface.generate.courseOutlineExamples.adoptTrends.detailed', 'Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.'),
     },
     {
-      short: t('interface.courseOutline.examples.topExamples.short', 'Incorporate top industry examples'),
-      detailed: t('interface.courseOutline.examples.topExamples.detailed', 'Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.'),
+      short: t('interface.generate.courseOutlineExamples.topExamples.short', 'Incorporate top industry examples'),
+      detailed: t('interface.generate.courseOutlineExamples.topExamples.detailed', 'Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.'),
     },
     {
-      short: t('interface.courseOutline.examples.simplify.short', 'Simplify and restructure the content'),
-      detailed: t('interface.courseOutline.examples.simplify.detailed', 'Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.'),
+      short: t('interface.generate.courseOutlineExamples.simplify.short', 'Simplify and restructure the content'),
+      detailed: t('interface.generate.courseOutlineExamples.simplify.detailed', 'Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.'),
     },
     {
-      short: t('interface.courseOutline.examples.increaseDepth.short', 'Increase value and depth of content'),
-      detailed: t('interface.courseOutline.examples.increaseDepth.detailed', 'Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.'),
+      short: t('interface.generate.courseOutlineExamples.increaseDepth.short', 'Increase value and depth of content'),
+      detailed: t('interface.generate.courseOutlineExamples.increaseDepth.detailed', 'Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.'),
     },
     {
-      short: t('interface.courseOutline.examples.addApplications.short', 'Add case studies and applications'),
-      detailed: t('interface.courseOutline.examples.addApplications.detailed', 'Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.'),
+      short: t('interface.generate.courseOutlineExamples.addApplications.short', 'Add case studies and applications'),
+      detailed: t('interface.generate.courseOutlineExamples.addApplications.detailed', 'Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.'),
     },
   ];
 
