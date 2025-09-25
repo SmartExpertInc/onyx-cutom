@@ -647,6 +647,7 @@ const SlidesAnalyticsTab: React.FC = () => {
           >
             <RefreshCw className="w-5 h-5" />
           </button>
+          {/* 
           <div className="flex space-x-2">
             <button
               onClick={() => handleExport('csv')}
@@ -663,6 +664,7 @@ const SlidesAnalyticsTab: React.FC = () => {
               <span>{t('interface.analytics.exportJson', 'Export JSON')}</span>
             </button>
           </div>
+          */}
         </div>
       </div>
 
