@@ -254,7 +254,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    background: currentTheme.colors.backgroundColor, // Use gradient from theme
+    background: currentTheme.colors.eventListGradient || currentTheme.colors.backgroundColor, // Use new gradient or fallback
     padding: '60px 40px',
     zIndex: 2
   };
@@ -514,7 +514,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
               <div style={{
                 width: '32px',
                 height: '32px',
-                backgroundColor: currentTheme.colors.accentColor,
+                backgroundColor: '#0F58F9', // Use first color from the new gradient
                 border: `2px solid ${currentTheme.colors.rightSectionBackgroundColor || '#ffffff'}`,
                 display: 'flex',
                 alignItems: 'center',
@@ -526,7 +526,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}>
                 <span style={{
-                  color: currentTheme.colors.rightSectionBackgroundColor || '#ffffff',
+                  color: '#ffffff', // White text in numbered squares
                   fontSize: '16px',
                   fontWeight: 'bold',
                   fontFamily: currentTheme.fonts.titleFont,

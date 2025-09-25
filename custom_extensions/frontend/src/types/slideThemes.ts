@@ -12,6 +12,7 @@ export interface SlideTheme {
     accentColor: string;
     borderColor?: string;
     rightSectionBackgroundColor?: string;
+    eventListGradient?: string;
   };
   fonts: {
     titleFont: string;
@@ -30,10 +31,11 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       backgroundColor: 'linear-gradient(to bottom, #002D91 0%, #000C5B 100%)',
       titleColor: '#ffffff',        // Белый для заголовков на темном фоне
       subtitleColor: '#ffffff',     // Белый для описаний на темном фоне  
-      contentColor: '#000000',      // Черный для обычного текста на белом фоне
+      contentColor: '#09090B',      // Темно-серый для обычного текста на белом фоне
       accentColor: '#f35657',       // Красный акцент
       borderColor: '#e5e7eb',       // Светло-серая граница
-      rightSectionBackgroundColor: '#ffffff'  // Белый для правого блока в EventList
+      rightSectionBackgroundColor: '#ffffff',  // Белый для правого блока в EventList
+      eventListGradient: 'linear-gradient(#0F58F9 0%, #1023A1 100%)'  // Новый градиент для EventList
     },
     fonts: {
       titleFont: 'Lora, serif',
