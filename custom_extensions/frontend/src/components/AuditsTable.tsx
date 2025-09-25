@@ -105,7 +105,38 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
 
       const data = await response.json();
       
+      // [Audits Tab] API Response Logging
+      console.log('[Audits Tab] API Response:', {
+        url: `${CUSTOM_BACKEND_URL}/projects?${params}`,
+        status: response.status,
+        totalProjects: data.length,
+        rawData: JSON.stringify(data, null, 2),
+        searchParams: {
+          companyId,
+          search,
+          params: params.toString()
+        }
+      });
+      
+      // Log individual project details for debugging
+      console.log('[Audits Tab] Individual Project Details:', data.map((project: any, index: number) => ({
+        index,
+        id: project.id,
+        projectName: project.projectName,
+        designMicroproductType: project.designMicroproductType,
+        microproductContent: project.microproduct_content,
+        hasCompanyName: !!(project.microproduct_content?.companyName),
+        companyName: project.microproduct_content?.companyName
+      })));
+      
       // Filter for audit projects only (same logic as ProjectsTable with auditMode)
+      const filterCriteria = {
+        aiAuditPatterns: ['AI-Аудит', 'AI-Audit'],
+        textPresentationTypes: ['Text Presentation', 'TextPresentationDisplay']
+      };
+      
+      console.log('[Audits Tab] Filter Criteria:', filterCriteria);
+      
       const auditProjects = data.filter((project: any) => {
         // Check if it's an AI audit by project name pattern
         const isAIAudit = project.projectName && (
@@ -117,18 +148,80 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         const isTextPresentation = project.designMicroproductType === 'Text Presentation' || 
                                  project.designMicroproductType === 'TextPresentationDisplay';
         
-        return isAIAudit || isTextPresentation;
+        const isAudit = isAIAudit || isTextPresentation;
+        
+        // Log individual filter decisions
+        console.log(`[Audits Tab] Filter Decision for Project ${project.id} (${project.projectName}):`, {
+          projectName: project.projectName,
+          designMicroproductType: project.designMicroproductType,
+          isAIAudit,
+          isTextPresentation,
+          finalDecision: isAudit,
+          reason: isAudit ? 
+            (isAIAudit ? 'Matches AI audit pattern' : 'Matches text presentation type') : 
+            'Does not match audit criteria'
+        });
+        
+        return isAudit;
+      });
+      
+      // [Audits Tab] Filter Results Logging
+      console.log('[Audits Tab] Filter Applied:', {
+        before: data.length,
+        after: auditProjects.length,
+        filteredOut: data.length - auditProjects.length,
+        filterCriteria,
+        auditProjects: auditProjects.map((p: any) => ({
+          id: p.id,
+          name: p.projectName,
+          type: p.designMicroproductType
+        }))
       });
       
       // Transform the filtered audit projects data
-      const transformedAudits: Audit[] = auditProjects.map((project: any) => {
+      console.log('[Audits Tab] Starting Data Transformation:', {
+        auditProjectsCount: auditProjects.length,
+        auditProjects: auditProjects.map((p: any) => ({
+          id: p.id,
+          name: p.projectName,
+          microproductContent: p.microproduct_content
+        }))
+      });
+      
+      const transformedAudits: Audit[] = auditProjects.map((project: any, index: number) => {
         // Extract company name from microproduct_content for audit projects
         let companyName = 'Unknown Company';
+        let companyNameSource = 'default';
+        
+        console.log(`[Audits Tab] Processing Project ${project.id} (${index + 1}/${auditProjects.length}):`, {
+          projectId: project.id,
+          projectName: project.projectName,
+          hasMicroproductContent: !!project.microproduct_content,
+          microproductContentType: typeof project.microproduct_content,
+          microproductContentKeys: project.microproduct_content ? Object.keys(project.microproduct_content) : [],
+          rawMicroproductContent: project.microproduct_content
+        });
+        
         if (project.microproduct_content && typeof project.microproduct_content === 'object') {
-          companyName = project.microproduct_content.companyName || 'Unknown Company';
+          if (project.microproduct_content.companyName) {
+            companyName = project.microproduct_content.companyName;
+            companyNameSource = 'microproduct_content.companyName';
+          } else {
+            console.log(`[Audits Tab] Company Name Extraction - Project ${project.id}:`, {
+              microproductContent: project.microproduct_content,
+              availableKeys: Object.keys(project.microproduct_content),
+              companyNameField: project.microproduct_content.companyName,
+              reason: 'No companyName field found in microproduct_content'
+            });
+          }
+        } else {
+          console.log(`[Audits Tab] Company Name Extraction - Project ${project.id}:`, {
+            microproductContent: project.microproduct_content,
+            reason: 'No microproduct_content or not an object'
+          });
         }
         
-        return {
+        const transformedAudit = {
           id: project.id,
           name: project.projectName || project.name || `Audit ${project.id}`,
           company_name: companyName,
@@ -137,6 +230,37 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
           status: 'Active', // Default status
           link: `/projects/view/${project.id}`,
         };
+        
+        console.log(`[Audits Tab] Transformed Audit ${project.id}:`, {
+          original: {
+            id: project.id,
+            projectName: project.projectName,
+            microproductContent: project.microproduct_content
+          },
+          transformed: transformedAudit,
+          companyNameSource
+        });
+        
+        return transformedAudit;
+      });
+      
+      // [Audits Tab] Final Data Passed to Table Logging
+      console.log('[Audits Tab] Final Data Passed to Table:', {
+        totalAudits: transformedAudits.length,
+        audits: transformedAudits.map(audit => ({
+          id: audit.id,
+          name: audit.name,
+          company_name: audit.company_name,
+          created_at: audit.created_at,
+          link: audit.link
+        })),
+        summary: {
+          totalProjects: data.length,
+          auditProjects: auditProjects.length,
+          finalAudits: transformedAudits.length,
+          companiesWithNames: transformedAudits.filter(a => a.company_name !== 'Unknown Company').length,
+          unknownCompanies: transformedAudits.filter(a => a.company_name === 'Unknown Company').length
+        }
       });
       
       setAudits(transformedAudits);
@@ -150,7 +274,18 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
 
   // Debounced search effect
   useEffect(() => {
+    console.log('[Audits Tab] Search Effect Triggered:', {
+      searchTerm,
+      companyId,
+      timestamp: new Date().toISOString()
+    });
+    
     const timeoutId = setTimeout(() => {
+      console.log('[Audits Tab] Executing Debounced Search:', {
+        searchTerm,
+        companyId,
+        timeoutMs: 300
+      });
       fetchAudits(searchTerm);
     }, 300); // 300ms delay
 
@@ -159,12 +294,30 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
 
   // Initial load
   useEffect(() => {
+    console.log('[Audits Tab] Initial Load Effect Triggered:', {
+      companyId,
+      searchTerm,
+      timestamp: new Date().toISOString()
+    });
     fetchAudits(searchTerm);
   }, [companyId]);
 
   // Sort audits
   const sortedAudits = useMemo(() => {
-    return [...audits].sort((a, b) => {
+    console.log('[Audits Tab] Sorting Audits:', {
+      totalAudits: audits.length,
+      sortBy,
+      sortOrder,
+      audits: audits.map(a => ({
+        id: a.id,
+        name: a.name,
+        company_name: a.company_name,
+        created_at: a.created_at,
+        status: a.status
+      }))
+    });
+    
+    const sorted = [...audits].sort((a, b) => {
       let aValue: any;
       let bValue: any;
 
@@ -172,6 +325,10 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         case 'name':
           aValue = a.name.toLowerCase();
           bValue = b.name.toLowerCase();
+          break;
+        case 'company_name':
+          aValue = a.company_name.toLowerCase();
+          bValue = b.company_name.toLowerCase();
           break;
         case 'created_at':
           aValue = new Date(a.created_at);
@@ -190,10 +347,29 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
       if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
+    
+    console.log('[Audits Tab] Sorting Complete:', {
+      sortedCount: sorted.length,
+      firstFew: sorted.slice(0, 3).map(a => ({
+        id: a.id,
+        name: a.name,
+        company_name: a.company_name
+      }))
+    });
+    
+    return sorted;
   }, [audits, sortBy, sortOrder]);
 
   // Handle sorting
   const handleSort = (column: "name" | "company_name" | "created_at" | "status") => {
+    console.log('[Audits Tab] Sort Requested:', {
+      column,
+      currentSortBy: sortBy,
+      currentSortOrder: sortOrder,
+      willToggle: sortBy === column,
+      newSortOrder: sortBy === column ? (sortOrder === 'asc' ? 'desc' : 'asc') : 'asc'
+    });
+    
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -409,7 +585,18 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {audit.company_name}
+                      {(() => {
+                        // [Audits Tab] Company Name Column Rendering Logging
+                        console.log(`[Audits Tab] Rendering Company Name for Audit ${audit.id}:`, {
+                          auditId: audit.id,
+                          auditName: audit.name,
+                          companyName: audit.company_name,
+                          companyNameType: typeof audit.company_name,
+                          isUnknownCompany: audit.company_name === 'Unknown Company',
+                          fullAuditObject: audit
+                        });
+                        return audit.company_name;
+                      })()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatDate(audit.created_at)}
