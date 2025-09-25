@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, ChevronDown, Edit3 } from 'lucide-react';
+import { FolderOpen, Sparkles, ChevronDown, Edit3, RefreshCcw } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -983,7 +983,7 @@ export default function ProductViewNewPage() {
                   </h1>
                   <button
                     onClick={() => startEditing('mainTitle')}
-                    className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
                     title="Edit course title"
                   >
                     <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
@@ -1025,7 +1025,7 @@ export default function ProductViewNewPage() {
                       </h2>
                       <button
                         onClick={() => startEditing('sectionTitle', index)}
-                        className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                         title="Edit module title"
                       >
                         <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
@@ -1062,7 +1062,7 @@ export default function ProductViewNewPage() {
                                 </span>
                                 <button
                                   onClick={() => startEditing('lessonTitle', index, lessonIndex)}
-                                  className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                                   title="Edit lesson title"
                                 >
                                   <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
@@ -1188,12 +1188,14 @@ export default function ProductViewNewPage() {
                                               Presentation
                                             </span>
                                             {hasPresentation && (
-                                              <button
-                                                onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                                              >
-                                                Regenerate
-                                              </button>
+                                              <CustomTooltip content="Regenerate">
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                  <RefreshCcw size={16} className="text-gray-700" />
+                                                </button>
+                                              </CustomTooltip>
                                             )}
                                           </div>
                                           <div className={`flex items-center justify-between px-4 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
@@ -1201,12 +1203,14 @@ export default function ProductViewNewPage() {
                                               One-Pager
                                             </span>
                                             {hasOnePager && (
-                                              <button
-                                                onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                                              >
-                                                Regenerate
-                                              </button>
+                                              <CustomTooltip content="Regenerate">
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                  <RefreshCcw size={16} className="text-gray-700" />
+                                                </button>
+                                              </CustomTooltip>
                                             )}
                                           </div>
                                           <div className={`flex items-center justify-between px-4 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
@@ -1214,12 +1218,14 @@ export default function ProductViewNewPage() {
                                               Quiz
                                             </span>
                                             {hasQuiz && (
-                                              <button
-                                                onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                                className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                                              >
-                                                Regenerate
-                                              </button>
+                                              <CustomTooltip content="Regenerate">
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                  <RefreshCcw size={16} className="text-gray-700" />
+                                                </button>
+                                              </CustomTooltip>
                                             )}
                                           </div>
                                           {videoLessonEnabled && (
@@ -1228,12 +1234,14 @@ export default function ProductViewNewPage() {
                                                 Video Lesson
                                               </span>
                                               {hasVideoLesson && (
-                                                <button
-                                                  onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                                  className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors"
-                                                >
-                                                  Regenerate
-                                                </button>
+                                                <CustomTooltip content="Regenerate">
+                                                  <button
+                                                    onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                                                  >
+                                                    <RefreshCcw size={16} className="text-gray-700" />
+                                                  </button>
+                                                </CustomTooltip>
                                               )}
                                             </div>
                                           )}
