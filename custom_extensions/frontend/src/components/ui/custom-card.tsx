@@ -55,15 +55,15 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         className={cn(
           "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
           useCSSVariables 
-            ? "bg-[hsl(var(--card))] border-[hsl(var(--border))] shadow-lg hover:shadow-xl"
-            : "bg-[hsl(var(--card))] border-[hsl(var(--border))] shadow-lg hover:shadow-xl",
+            ? "bg-[oklch(var(--card))] border-[oklch(var(--border))] shadow-lg hover:shadow-xl"
+            : "bg-[oklch(var(--card))] border-[oklch(var(--border))] shadow-lg hover:shadow-xl",
           disabled
             ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
             : selectable 
               ? `cursor-pointer ${
                   isSelected 
-                    ? 'border-[hsl(var(--primary))] shadow-xl bg-[hsl(var(--accent))]' 
-                    : 'border-[hsl(var(--border))] hover:shadow-2xl hover:border-[hsl(var(--primary))]'
+                    ? 'border-[oklch(var(--primary))] shadow-xl bg-[oklch(var(--accent))]' 
+                    : 'border-[oklch(var(--border))] hover:shadow-2xl hover:border-[oklch(var(--primary))]'
                 }`
               : "cursor-pointer shadow-lg hover:shadow-xl",
           className
@@ -114,7 +114,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                   size={53} 
                   className={cn(
                     "relative z-10",
-                    useCSSVariables ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--primary))]"
+                    useCSSVariables ? "text-[oklch(var(--primary))]" : "text-[oklch(var(--primary))]"
                   )} 
                 />
               </div>
@@ -127,7 +127,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {title && (
                 <h3 className={cn(
                   "text-2xl font-semibold text-left leading-tight tracking-tight",
-                  useCSSVariables ? "text-[hsl(var(--card-foreground))]" : "text-[hsl(var(--card-foreground))]"
+                  useCSSVariables ? "text-[oklch(var(--card-foreground))]" : "text-[oklch(var(--card-foreground))]"
                 )}>
                   {title}
                 </h3>
@@ -135,7 +135,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {description && (
                 <p className={cn(
                   "text-base text-left leading-relaxed max-w-[64%]",
-                  useCSSVariables ? "text-[hsl(var(--muted-foreground))]" : "text-[hsl(var(--muted-foreground))]"
+                  useCSSVariables ? "text-[oklch(var(--muted-foreground))]" : "text-[oklch(var(--muted-foreground))]"
                 )}>
                   {description}
                 </p>
