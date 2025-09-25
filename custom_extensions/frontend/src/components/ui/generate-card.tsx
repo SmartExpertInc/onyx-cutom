@@ -17,7 +17,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         className={cn(
           "group relative rounded-md border-[var(--border)] bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-23 h-23 xs:w-21 xs:h-21 sm:w-26 sm:h-26 md:w-28 md:h-28 lg:w-30 lg:h-30 xl:w-33 xl:h-33",
+          "w-22 h-22 xs:w-20 xs:h-20 sm:w-25 sm:h-25 md:w-27 md:h-27 lg:w-29 lg:h-29 xl:w-32 xl:h-32",
           "hover:scale-105",
           active && "border-[var(--ring)]",
           className
@@ -46,9 +46,9 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
                 className="flex items-center justify-center"
               >
                   <Icon 
-                    size={30}
+                    size={35}
                     className={cn(
-                      "w-12 h-12 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 lg:w-15 lg:h-15 xl:w-16 xl:h-16",
+                      "w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
                       active ? "text-white" : "text-black"
                     )}
                   style={{
