@@ -865,7 +865,7 @@ const EditAuditModal: React.FC<EditAuditModalProps> = ({ audit, onClose, onAudit
         },
         credentials: 'same-origin',
         body: JSON.stringify({
-          project_name: formData.name,
+          projectName: formData.name,
         }),
       });
 
