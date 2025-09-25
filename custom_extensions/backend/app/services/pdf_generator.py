@@ -2904,10 +2904,29 @@ async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
         _log.error("[PDF] Invalid slides data after normalization")
         raise HTTPException(status_code=500, detail="Failed to generate slide deck PDF: Invalid slides data")
 
+    # Determine theme from stored content with sensible defaults
+    theme_value = "dark-purple"
+    try:
+        if isinstance(raw_content, dict):
+            theme_value = (
+                raw_content.get("theme")
+                or (raw_content.get("details") or {}).get("theme")
+                or theme_value
+            )
+        elif isinstance(content_obj, dict):
+            theme_value = (
+                content_obj.get("theme")
+                or (content_obj.get("details") or {}).get("theme")
+                or theme_value
+            )
+    except Exception:
+        # Fallback to default on any parsing issue
+        theme_value = "dark-purple"
+
     output_filename = f"presentation_{product_data['id']}.pdf"
     pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
         slides_list,
-        'default',
+        theme_value,
         output_filename,
         use_cache=False
     )
@@ -2979,12 +2998,8 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     except Exception:
         pass
 
-    # Build wrapper context expected by templates (details/locale)
-    wrapper_context = {
-        'details': data_for_template_render,
-        'locale': {}
-    }
-
+    # Build wrapper contexts expected by templates (details/locale)
+    # We'll construct the exact wrapper per template when rendering to keep compatibility across templates
     candidates = []
     # Prefer template by component/type; fall back to the other
     if comp_name in ("pdf lesson", "pdflesson") or mtype in ("pdf lesson", "pdflesson"):
@@ -3004,6 +3019,24 @@ async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
     for tpl in candidates:
         _log.info(f"[PDF] One-pager: trying template '{tpl}' (mtype='{mtype}', component='{comp_name}')")
         try:
+            # Build context per template to satisfy expected structure
+            if tpl == 'pdf_lesson_pdf_template.html':
+                # pdf_lesson template expects details.details
+                wrapper_context = {
+                    'details': {
+                        'details': data_for_template_render,
+                        'parentProjectName': product_data.get('parent_project_name') or product_data.get('parentProjectName'),
+                        'lessonNumber': product_data.get('lesson_number') or product_data.get('lessonNumber'),
+                        'locale': {}
+                    }
+                }
+            else:
+                # text presentation expects details.* directly
+                wrapper_context = {
+                    'details': data_for_template_render,
+                    'locale': {}
+                }
+
             pdf_path = await generate_pdf_from_html_template(
                 tpl,
                 wrapper_context,
