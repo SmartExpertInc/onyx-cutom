@@ -2,7 +2,7 @@
 
 import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
-import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
+import { Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { CustomCard } from "@/components/ui/custom-card";
@@ -190,8 +190,8 @@ const OptionCard: React.FC<OptionCardProps> = ({
   href,
   disabled,
   pillLabel,
-  gradientFrom,
-  gradientTo,
+  gradientFrom: _gradientFrom,
+  gradientTo: _gradientTo,
   iconColor,
   labelColor,
 }: OptionCardProps) => {
@@ -247,7 +247,6 @@ const OptionCard: React.FC<OptionCardProps> = ({
 // Component to handle URL parameters and pass them to all creation paths
 function CreatePageHandler() {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   // Store lesson/quiz/text-presentation parameters in sessionStorage for use across all creation paths
   useEffect(() => {
@@ -325,9 +324,64 @@ export default function DataSourceLanding() {
       <Suspense fallback={null}>
         <CreatePageHandler />
       </Suspense>
-      <main
-        className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
-      >
+      <Suspense fallback={
+        <main className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
+          <div className="w-full max-w-6xl flex flex-col gap-10 items-center">
+            <HeadTextCustom
+              text={t('interface.createWithAI', 'Create with AI')}
+              description={t('interface.howToGetStarted', 'How would you like to get started?')}
+              className="max-w-2xl"
+            />
+          </div>
+        </main>
+      }>
+        <CreatePageContent />
+      </Suspense>
+    </>
+  );
+}
+
+function CreatePageContent() {
+  const { t } = useLanguage();
+  const searchParams = useSearchParams();
+
+  // Check if we have lesson/quiz/text-presentation parameters from course outline
+  const product = searchParams?.get('product');
+  const lessonType = searchParams?.get('lessonType');
+  const lessonTitle = searchParams?.get('lessonTitle');
+  const moduleName = searchParams?.get('moduleName');
+  const lessonNumber = searchParams?.get('lessonNumber');
+
+  const isFromCourseOutline = product && lessonType && lessonTitle && moduleName && lessonNumber;
+
+  // Map product types to display names
+  const getProductDisplayName = (product: string, _lessonType: string) => {
+    switch (product) {
+      case 'lesson':
+        return 'Presentation';
+      case 'quiz':
+        return 'Quiz';
+      case 'text-presentation':
+        return 'One-Pager';
+      case 'video-lesson':
+        return 'Video Lesson';
+      default:
+        return 'Content';
+    }
+  };
+
+  const productDisplayName = isFromCourseOutline ? getProductDisplayName(product, lessonType) : '';
+  const title = isFromCourseOutline 
+    ? `Create ${productDisplayName} with AI`
+    : t('interface.createWithAI', 'Create with AI');
+  const description = isFromCourseOutline
+    ? 'How would you like to proceed?'
+    : t('interface.howToGetStarted', 'How would you like to get started?');
+
+  return (
+    <main
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+    >
       {/* Top-left home button */}
       <Link
         href="/projects"
@@ -342,8 +396,8 @@ export default function DataSourceLanding() {
       <div className="w-full max-w-6xl flex flex-col gap-10 items-center">
         {/* Headings */}
         <HeadTextCustom
-          text={t('interface.createWithAI', 'Create with AI')}
-          description={t('interface.howToGetStarted', 'How would you like to get started?')}
+          text={title}
+          description={description}
           className="max-w-2xl"
         />
 
@@ -385,6 +439,5 @@ export default function DataSourceLanding() {
         {/* Recent prompts section removed as per request */}
       </div>
     </main>
-    </>
   );
 } 

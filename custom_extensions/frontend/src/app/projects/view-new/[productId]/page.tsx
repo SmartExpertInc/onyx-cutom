@@ -3,10 +3,13 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Download, FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
+import { FolderOpen, Sparkles, ChevronDown, Edit3, RefreshCcw } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
-import CustomViewCard, { defaultSources } from '@/components/ui/custom-view-card';
+import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
+import SmartPromptEditor from '@/components/SmartPromptEditor';
+import { useLanguage } from '../../../../contexts/LanguageContext';
+import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -26,18 +29,25 @@ const TextPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ siz
 );
 
 // Custom Tooltip Component matching the text presentation page style
-const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+const CustomTooltip: React.FC<{ children: React.ReactNode; content: string; position?: 'top' | 'bottom' }> = ({ children, content, position = 'bottom' }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
 
   const handleMouseEnter = () => {
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.top - 6,
-        left: rect.left + rect.width / 2
-      });
+      if (position === 'top') {
+        setTooltipPosition({
+          top: rect.top - 6,
+          left: rect.left + rect.width / 2
+        });
+      } else {
+        setTooltipPosition({
+          top: rect.bottom + 6,
+          left: rect.left + rect.width / 2
+        });
+      }
     }
     setIsVisible(true);
   };
@@ -50,7 +60,7 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
     <>
       <div 
         ref={elementRef}
-        className="relative inline-block w-full"
+        className="relative inline-block"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -60,16 +70,16 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
         <div 
           className="fixed z-50 pointer-events-none"
           style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-            transform: 'translate(-50%, -100%)'
+            top: `${tooltipPosition.top}px`,
+            left: `${tooltipPosition.left}px`,
+            transform: position === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0%)'
           }}
         >
           <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-xs whitespace-nowrap relative max-w-xs">
             <div className="font-medium">{content}</div>
             {/* Simple triangle tail */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
-              <div className="w-0 h-0 border-l-3 border-r-3 border-t-3 border-l-transparent border-r-transparent border-t-blue-500"></div>
+            <div className={`absolute ${position === 'top' ? 'top-full' : 'bottom-full'} left-1/2 transform -translate-x-1/2`}>
+              <div className={`w-0 h-0 border-l-3 border-r-3 ${position === 'top' ? 'border-t-3 border-t-blue-500' : 'border-b-3 border-b-blue-500'} border-l-transparent border-r-transparent`}></div>
             </div>
           </div>
         </div>,
@@ -83,18 +93,34 @@ type ProductViewNewParams = {
   productId: string;
 };
 
+// Component Name Constants
+const COMPONENT_NAME_TRAINING_PLAN = "TrainingPlanTable";
+
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 export default function ProductViewNewPage() {
   const params = useParams<ProductViewNewParams>();
   const productId = params?.productId;
   const router = useRouter();
+  const { t: _t } = useLanguage();
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   const searchParams = useSearchParams();
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showRegenerateModal, setShowRegenerateModal] = useState<{
+    isOpen: boolean;
+    lesson: Lesson | null;
+    contentType: string;
+    existingProductId: number | null;
+  }>({
+    isOpen: false,
+    lesson: null,
+    contentType: '',
+    existingProductId: null
+  });
   const [lessonContentStatus, setLessonContentStatus] = useState<{[key: string]: {
     presentation: {exists: boolean, productId?: number}, 
     onePager: {exists: boolean, productId?: number}, 
@@ -116,8 +142,189 @@ export default function ProductViewNewPage() {
     }
   }, [openDropdown]);
   const [userCredits, setUserCredits] = useState<number | null>(null);
+  
+  // Smart editing state
+  const [showSmartEditor, setShowSmartEditor] = useState(false);
+  const [editableData, setEditableData] = useState<TrainingPlanData | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+  // Inline editing state
+  const [editingField, setEditingField] = useState<{
+    type: 'mainTitle' | 'sectionTitle' | 'lessonTitle';
+    sectionIndex?: number;
+    lessonIndex?: number;
+  } | null>(null);
+  const [autoSaveTimeoutRef, setAutoSaveTimeoutRef] = useState<NodeJS.Timeout | null>(null);
+
+  // Helper function to start editing a field
+  const startEditing = (type: 'mainTitle' | 'sectionTitle' | 'lessonTitle', sectionIndex?: number, lessonIndex?: number) => {
+    setEditingField({
+      type,
+      sectionIndex,
+      lessonIndex
+    });
+  };
+
+  // Helper function to stop editing
+  const stopEditing = () => {
+    setEditingField(null);
+  };
+
+  // Helper function to check if a field is currently being edited
+  const isEditingField = (type: 'mainTitle' | 'sectionTitle' | 'lessonTitle', sectionIndex?: number, lessonIndex?: number) => {
+    return editingField?.type === type && 
+           editingField?.sectionIndex === sectionIndex && 
+           editingField?.lessonIndex === lessonIndex;
+  };
+
+  // Handle input changes with auto-save
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    if (!editableData) return;
+
+    // Create a deep copy and update the value
+    const updatedData = JSON.parse(JSON.stringify(editableData));
+    let current = updatedData;
+    
+    // Navigate to the target location
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current[path[i]];
+    }
+    
+    // Set the new value
+    current[path[path.length - 1]] = value;
+    
+    setEditableData(updatedData);
+
+    // Clear existing timeout
+    if (autoSaveTimeoutRef) {
+      clearTimeout(autoSaveTimeoutRef);
+    }
+    
+    // Set new timeout for auto-save
+    const timeout = setTimeout(() => {
+      saveChanges(updatedData);
+      
+      // Special handling for lesson title changes - trigger re-matching of related content
+      if (editingField?.type === 'lessonTitle') {
+        console.log('Lesson title edited (auto-save), triggering content re-matching...');
+        // Slight delay to allow parent to refresh product list, then trigger re-match
+        setTimeout(() => {
+          if (updatedData?.sections) {
+            const allLessons: Lesson[] = [];
+            updatedData.sections.forEach((section: any) => {
+              if (section.lessons) {
+                allLessons.push(...section.lessons);
+              }
+            });
+            checkLessonContentStatus(updatedData.mainTitle || '', allLessons);
+          }
+        }, 100);
+      }
+    }, 2000);
+    setAutoSaveTimeoutRef(timeout);
+  };
+
+  // Handle input blur (immediate save)
+  const handleInputBlur = () => {
+    if (autoSaveTimeoutRef) {
+      clearTimeout(autoSaveTimeoutRef);
+      setAutoSaveTimeoutRef(null);
+    }
+    if (editableData) {
+      saveChanges(editableData);
+      
+      // Special handling for lesson title changes - trigger re-matching of related content
+      if (editingField?.type === 'lessonTitle') {
+        console.log('Lesson title edited, triggering content re-matching...');
+        // Slight delay to allow parent to refresh product list, then trigger re-match
+        setTimeout(() => {
+          const trainingPlanData = editableData as TrainingPlanData;
+          if (trainingPlanData?.sections) {
+            const allLessons: Lesson[] = [];
+            trainingPlanData.sections.forEach((section: any) => {
+              if (section.lessons) {
+                allLessons.push(...section.lessons);
+              }
+            });
+            checkLessonContentStatus(trainingPlanData.mainTitle || '', allLessons);
+          }
+        }, 100);
+      }
+    }
+    stopEditing();
+  };
+
+  // Save changes to backend (mirror old interface behavior)
+  const saveChanges = async (data: TrainingPlanData) => {
+    if (!productId) return;
+
+    try {
+      const commonHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      // Send only microProductContent (backend will sync project_name with mainTitle for training plans)
+      const payload = { microProductContent: data };
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${productId}`, {
+        method: 'PUT',
+        headers: commonHeaders,
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorDataText = await response.text();
+        let errorDetail = `HTTP error ${response.status}`;
+        try {
+          const errorJson = JSON.parse(errorDataText);
+          if (errorJson.detail) {
+            if (Array.isArray(errorJson.detail)) {
+              const validationErrors = errorJson.detail.map((err: any) => {
+                const location = err.loc ? err.loc.join('.') : 'unknown';
+                return `${location}: ${err.msg || 'Validation error'}`;
+              }).join('; ');
+              errorDetail = `Validation errors: ${validationErrors}`;
+            } else {
+              errorDetail = errorJson.detail;
+            }
+          }
+        } catch {
+          // keep default errorDetail
+        }
+        throw new Error(errorDetail);
+      }
+
+      // Optional: read response for debugging consistency with old interface
+      try {
+        const responseData = await response.json();
+        console.log('Auto-save response:', JSON.stringify(responseData, null, 2));
+      } catch {
+        // ignore if no JSON body
+      }
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save changes');
+    }
+  };
+
+  // Add click outside listener
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      if (editingField) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('input[type="text"]')) {
+          stopEditing();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, [editingField]);
 
   // PDF download handler
   const handlePdfDownload = async () => {
@@ -198,7 +405,7 @@ export default function ProductViewNewPage() {
   }, []);
 
   // Calculate metrics from project data
-  const trainingPlanData = projectData?.details as TrainingPlanData;
+  const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
   const totalModules = trainingPlanData?.sections?.length || 0;
   const totalLessons = trainingPlanData?.sections?.reduce((acc, section) => acc + (section.lessons?.length || 0), 0) || 0;
   const completed = 0; // Placeholder - would need actual completion data
@@ -214,6 +421,11 @@ export default function ProductViewNewPage() {
   // Calculate credits based on actual project data
   const creditsUsed = 5; // Assuming 5 credits per lesson
   const progress = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
+
+  // Filter content types based on video lesson permission
+  const filteredContentTypes = videoLessonEnabled 
+    ? defaultContentTypes 
+    : defaultContentTypes.filter(contentType => contentType.type !== "Video Lessons");
 
   // Extract sources from project data
   const getSourcesFromProject = () => {
@@ -429,40 +641,260 @@ export default function ProductViewNewPage() {
     fetchProjectData();
   }, [productId]);
 
+  // Update editableData when projectData changes
+  useEffect(() => {
+    if (projectData?.details) {
+      setEditableData(projectData.details as TrainingPlanData);
+    }
+  }, [projectData]);
+
+  // Handler for SmartPromptEditor content updates
+  const handleSmartEditContentUpdate = useCallback((updatedContent: TrainingPlanData) => {
+    setEditableData(updatedContent);
+    // Note: Don't refetch from server here since with confirmation flow,
+    // changes are only saved after user explicitly confirms them
+  }, []);
+
+  // Handler for SmartPromptEditor errors
+  const handleSmartEditError = useCallback((error: string) => {
+    setSaveError(error);
+  }, []);
+
+  // Handler for SmartPromptEditor revert
+  const handleSmartEditRevert = useCallback(() => {
+    // Refetch the original data from the server to restore the original content
+    if (productId) {
+      const fetchProjectData = async () => {
+        try {
+          const commonHeaders: HeadersInit = {};
+          const devUserId = "dummy-onyx-user-id-for-testing";
+          if (devUserId && process.env.NODE_ENV === 'development') {
+            commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+          }
+
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${productId}`, {
+            cache: 'no-store',
+            headers: commonHeaders
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch project data: ${response.status}`);
+          }
+
+          const data: ProjectInstanceDetail = await response.json();
+          setProjectData(data);
+          setEditableData(data.details as TrainingPlanData);
+        } catch (error) {
+          console.error('Error refetching project data:', error);
+          setError('Failed to restore original content');
+        }
+      };
+      fetchProjectData();
+    }
+  }, [productId]);
 
   const handleContentTypeClick = async (lesson: Lesson, contentType: string) => {
-    const trainingPlanData = projectData?.details as TrainingPlanData;
+    const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
     if (!trainingPlanData || !productId) return;
 
-    const params = new URLSearchParams({
-      outlineId: productId,
-      lesson: lesson.title,
-      lang: trainingPlanData.detectedLanguage || 'en'
-    });
+    // Check if content already exists
+    const lessonKey = lesson.id || lesson.title;
+    const status = lessonContentStatus[lessonKey];
+    let existingProductId: number | null = null;
 
-    let createUrl = '';
     switch (contentType) {
       case 'presentation':
-        createUrl = `/create/lesson-presentation?${params.toString()}`;
+        if (status?.presentation?.exists && status.presentation.productId) {
+          existingProductId = status.presentation.productId;
+        }
         break;
       case 'one-pager':
-        createUrl = `/create/text-presentation?${params.toString()}`;
+        if (status?.onePager?.exists && status.onePager.productId) {
+          existingProductId = status.onePager.productId;
+        }
         break;
       case 'quiz':
-        createUrl = `/create/quiz?${params.toString()}`;
+        if (status?.quiz?.exists && status.quiz.productId) {
+          existingProductId = status.quiz.productId;
+        }
         break;
       case 'video-lesson':
-        // Keep inactive for now
+        if (status?.videoLesson?.exists && status.videoLesson.productId) {
+          existingProductId = status.videoLesson.productId;
+        }
+        break;
+    }
+
+    // If content exists, show regenerate modal instead of navigating
+    if (existingProductId) {
+      setShowRegenerateModal({
+        isOpen: true,
+        lesson: lesson,
+        contentType: contentType,
+        existingProductId: existingProductId
+      });
+      setOpenDropdown(null);
+      return;
+    }
+
+    // Map content types to product and lessonType parameters (matching CreateContentTypeModal pattern)
+    let product = '';
+    let lessonType = '';
+
+    switch (contentType) {
+      case 'presentation':
+        product = 'lesson';
+        lessonType = 'lessonPresentation';
+        break;
+      case 'one-pager':
+        product = 'text-presentation';
+        lessonType = 'textPresentation';
+        break;
+      case 'quiz':
+        product = 'quiz';
+        lessonType = 'multiple-choice';
+        break;
+      case 'video-lesson':
+        product = 'video-lesson';
+        lessonType = 'videoLesson';
+        break;
+      default:
         return;
     }
+
+    // Find the module name for this lesson
+    const moduleName = trainingPlanData.sections?.find(section => 
+      section.lessons?.some(l => l.title === lesson.title)
+    )?.title || '';
+
+    // Find the lesson number within the module
+    const lessonNumber = trainingPlanData.sections?.find(section => 
+      section.lessons?.some(l => l.title === lesson.title)
+    )?.lessons?.findIndex(l => l.title === lesson.title) || 0;
+
+    const params = new URLSearchParams({
+      product: product,
+      lessonType: lessonType,
+      lessonTitle: lesson.title,
+      moduleName: moduleName,
+      lessonNumber: String(lessonNumber + 1), // Convert to 1-based indexing
+      courseName: trainingPlanData.mainTitle || ''
+    });
 
     // Store a flag to refresh content status when returning to this page
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('refresh_lesson_content_status', 'true');
     }
 
-    router.push(createUrl);
+    router.push(`/create?${params.toString()}`);
     setOpenDropdown(null);
+  };
+
+  // Handle regenerate confirmation
+  const handleRegenerateConfirm = async () => {
+    if (!showRegenerateModal.existingProductId) return;
+
+    try {
+      // Delete the existing product using the same logic as the old interface
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== 'undefined' ? sessionStorage.getItem('dev_user_id') : null;
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        headers['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const resp = await fetch(`${CUSTOM_BACKEND_URL}/projects/delete-multiple`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ 
+          project_ids: [showRegenerateModal.existingProductId], 
+          scope: 'self' 
+        })
+      });
+
+      if (!resp.ok) {
+        const responseText = await resp.text();
+        throw new Error(`Failed to delete existing product: ${resp.status} ${responseText.slice(0, 200)}`);
+      }
+
+      // Close modal and navigate to create page
+      setShowRegenerateModal({
+        isOpen: false,
+        lesson: null,
+        contentType: '',
+        existingProductId: null
+      });
+
+      // Navigate to create page with the same parameters as handleContentTypeClick
+      const trainingPlanData = (editableData || projectData?.details) as TrainingPlanData;
+      if (!trainingPlanData) return;
+
+      const lesson = showRegenerateModal.lesson!;
+      const contentType = showRegenerateModal.contentType;
+
+      // Map content types to product and lessonType parameters
+      let product = '';
+      let lessonType = '';
+
+      switch (contentType) {
+        case 'presentation':
+          product = 'lesson';
+          lessonType = 'lessonPresentation';
+          break;
+        case 'one-pager':
+          product = 'text-presentation';
+          lessonType = 'textPresentation';
+          break;
+        case 'quiz':
+          product = 'quiz';
+          lessonType = 'multiple-choice';
+          break;
+        case 'video-lesson':
+          product = 'video-lesson';
+          lessonType = 'videoLesson';
+          break;
+        default:
+          return;
+      }
+
+      // Find the module name for this lesson
+      const moduleName = trainingPlanData.sections?.find(section => 
+        section.lessons?.some(l => l.title === lesson.title)
+      )?.title || '';
+
+      // Find the lesson number within the module
+      const lessonNumber = trainingPlanData.sections?.find(section => 
+        section.lessons?.some(l => l.title === lesson.title)
+      )?.lessons?.findIndex(l => l.title === lesson.title) || 0;
+
+      const params = new URLSearchParams({
+        product: product,
+        lessonType: lessonType,
+        lessonTitle: lesson.title,
+        moduleName: moduleName,
+        lessonNumber: String(lessonNumber + 1), // Convert to 1-based indexing
+        courseName: trainingPlanData.mainTitle || ''
+      });
+
+      // Store a flag to refresh content status when returning to this page
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('refresh_lesson_content_status', 'true');
+      }
+
+      router.push(`/create?${params.toString()}`);
+    } catch (error) {
+      console.error('Error deleting existing product:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete existing product');
+    }
+  };
+
+  // Handle regenerate cancel
+  const handleRegenerateCancel = () => {
+    setShowRegenerateModal({
+      isOpen: false,
+      lesson: null,
+      contentType: '',
+      existingProductId: null
+    });
   };
 
   if (loading) {
@@ -491,12 +923,12 @@ export default function ProductViewNewPage() {
 
   return (
     <main 
-      className="p-4 md:p-8 h-screen overflow-hidden font-inter"
+      className="p-4 md:p-8 font-inter min-h-screen"
       style={{
         background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
     >
-      <div className="max-w-7xl mx-auto flex flex-col h-full">
+      <div className="max-w-7xl mx-auto flex flex-col">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-x-4">
             <button
@@ -534,23 +966,25 @@ export default function ProductViewNewPage() {
 
           <div className="flex items-center space-x-3">
             {/* Smart Edit button for Course Outline */}
-            <button
-              onClick={() => {}}
-              className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-              style={{
-                backgroundColor: '#8B5CF6',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '600',
-                lineHeight: '140%',
-                letterSpacing: '0.05em'
-              }}
-              title="Smart edit with AI"
-            >
-              <Sparkles size={14} style={{ color: 'white' }} /> Smart Edit
-            </button>
+            {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && (
+              <button
+                onClick={() => setShowSmartEditor(!showSmartEditor)}
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#8B5CF6',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+                title="Smart edit with AI"
+              >
+                <Sparkles size={14} style={{ color: 'white' }} /> Smart Edit
+              </button>
+            )}
 
-            {/* Download PDF button for Course Outline */}
+            {/* Download PDF button for Course Outline
             <button
               onClick={handlePdfDownload}
               className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
@@ -565,27 +999,68 @@ export default function ProductViewNewPage() {
               title="Download content as PDF"
             >
               <Download size={14} style={{ color: 'white' }} /> Download PDF
-            </button>
+            </button> */}
           </div>
         </div>
 
+        {/* Smart Prompt Editor - positioned between top panel and main content */}
+        {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
+          <div className="px-[120px]">
+            <SmartPromptEditor
+              projectId={projectData.project_id}
+              onContentUpdate={handleSmartEditContentUpdate}
+              onError={handleSmartEditError}
+              onRevert={handleSmartEditRevert}
+              currentLanguage={editableData.detectedLanguage}
+              currentTheme={editableData.theme}
+            />
+          </div>
+        )}
+
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px] flex-1 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
+          <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
-              <h1 className="text-[#191D30] font-semibold text-[32px] leading-none">
-                {(() => {
-                  const trainingPlanData = projectData.details as TrainingPlanData;
-                  return trainingPlanData?.mainTitle || projectData.name || 'Course';
-                })()}
-              </h1>
+              {isEditingField('mainTitle') ? (
+                <input
+                  type="text"
+                  value={(() => {
+                    const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
+                    return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                  })()}
+                  onChange={(e) => handleInputChange(['mainTitle'], e.target.value)}
+                  onBlur={handleInputBlur}
+                  className="text-[#191D30] font-semibold text-[32px] leading-none bg-transparent border-none outline-none w-full"
+                  placeholder="Course Title"
+                  autoFocus
+                />
+              ) : (
+                <div className="group flex items-center gap-2">
+                  <h1 
+                    className="text-[#191D30] font-semibold text-[32px] leading-none cursor-pointer"
+                    onClick={() => startEditing('mainTitle')}
+                  >
+                    {(() => {
+                      const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
+                      return trainingPlanData?.mainTitle || projectData.name || 'Course';
+                    })()}
+                  </h1>
+                  <button
+                    onClick={() => startEditing('mainTitle')}
+                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
+                    title="Edit course title"
+                  >
+                    <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Render actual modules from the course outline data */}
             {(() => {
-              const trainingPlanData = projectData.details as TrainingPlanData;
+              const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
               if (!trainingPlanData?.sections) {
                 return (
                   <div className="bg-white rounded-lg p-[25px]">
@@ -596,9 +1071,33 @@ export default function ProductViewNewPage() {
 
               return trainingPlanData.sections.map((section, index) => (
                 <div key={section.id || index} className="bg-white rounded-lg p-[25px]">
-                  <h2 className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2">
-                    Module {index + 1}: {section.title}
-                  </h2>
+                  {isEditingField('sectionTitle', index) ? (
+                    <input
+                      type="text"
+                      value={section.title}
+                      onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
+                      onBlur={handleInputBlur}
+                      className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2 bg-transparent border-none outline-none w-full"
+                      placeholder="Module Title"
+                      autoFocus
+                    />
+                  ) : (
+                    <div className="group flex items-center gap-2 mb-2">
+                      <h2 
+                        className="text-[#191D30] font-semibold text-[20px] leading-[100%] cursor-pointer"
+                        onClick={() => startEditing('sectionTitle', index)}
+                      >
+                        Module {index + 1}: {section.title}
+                      </h2>
+                      <button
+                        onClick={() => startEditing('sectionTitle', index)}
+                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                        title="Edit module title"
+                      >
+                        <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                      </button>
+                    </div>
+                  )}
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
@@ -608,10 +1107,34 @@ export default function ProductViewNewPage() {
                       {section.lessons.map((lesson: Lesson, lessonIndex: number) => (
                         <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
                           <div className="flex items-center gap-2">
-                            <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M5.78446 3.30541C6.32191 3.61252 6.32191 4.38748 5.78446 4.69459L1.19691 7.31605C0.663586 7.62081 1.60554e-07 7.23571 1.87404e-07 6.62146L4.16579e-07 1.37854C4.43429e-07 0.764285 0.663586 0.379192 1.19691 0.683949L5.78446 3.30541Z" fill="#0F58F9"/>
-                            </svg>
-                            <span className="text-[#191D30] text-[16px] leading-[100%] font-normal">{lesson.title}</span>
+                            <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
+                            {isEditingField('lessonTitle', index, lessonIndex) ? (
+                              <input
+                                type="text"
+                                value={lesson.title}
+                                onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
+                                onBlur={handleInputBlur}
+                                className="text-[#191D30] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
+                                placeholder="Lesson Title"
+                                autoFocus
+                              />
+                            ) : (
+                              <div className="group flex items-center gap-2">
+                                <span 
+                                  className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer"
+                                  onClick={() => startEditing('lessonTitle', index, lessonIndex)}
+                                >
+                                  {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
+                                </span>
+                                <button
+                                  onClick={() => startEditing('lessonTitle', index, lessonIndex)}
+                                  className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                                  title="Edit lesson title"
+                                >
+                                  <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
@@ -678,27 +1201,29 @@ export default function ProductViewNewPage() {
                                   />
                                 </div>
                               </CustomTooltip>
-                              <CustomTooltip content="Video Lesson">
-                                <div 
-                                  onClick={() => {
-                                    const lessonKey = lesson.id || lesson.title;
-                                    const status = lessonContentStatus[lessonKey];
-                                    if (status?.videoLesson?.exists && status.videoLesson.productId) {
-                                      handleIconClick(status.videoLesson.productId);
-                                    }
-                                  }}
-                                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                                >
-                                  <VideoScriptIcon 
-                                    color={(() => {
+                              {videoLessonEnabled && (
+                                <CustomTooltip content="Video Lesson">
+                                  <div 
+                                    onClick={() => {
                                       const lessonKey = lesson.id || lesson.title;
                                       const status = lessonContentStatus[lessonKey];
-                                      const hasContent = status?.videoLesson?.exists;
-                                      return hasContent ? '#0F58F9' : undefined;
-                                    })()}
-                                  />
-                                </div>
-                              </CustomTooltip>
+                                      if (status?.videoLesson?.exists && status.videoLesson.productId) {
+                                        handleIconClick(status.videoLesson.productId);
+                                      }
+                                    }}
+                                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                                  >
+                                    <VideoScriptIcon 
+                                      color={(() => {
+                                        const lessonKey = lesson.id || lesson.title;
+                                        const status = lessonContentStatus[lessonKey];
+                                        const hasContent = status?.videoLesson?.exists;
+                                        return hasContent ? '#0F58F9' : undefined;
+                                      })()}
+                                    />
+                                  </div>
+                                </CustomTooltip>
+                              )}
                             </div>
                             <div className="relative">
                               <button
@@ -712,32 +1237,83 @@ export default function ProductViewNewPage() {
                               </button>
                               
                               {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
-                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[160px]">
-                                  <div className="p-2">
-                                    <button
-                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      Presentation
-                                    </button>
-                                    <button
-                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      One-Pager
-                                    </button>
-                                    <button
-                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      Quiz
-                                    </button>
-                                    <button
-                                      disabled
-                                      className="w-full px-4 py-2 text-left text-sm text-gray-400 cursor-not-allowed flex items-center gap-2 rounded-sm hover:rounded-md transition-all duration-200"
-                                    >
-                                      Video Lesson
-                                    </button>
+                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[140px]">
+                                  <div className="p-1">
+                                    {(() => {
+                                      const lessonKey = lesson.id || lesson.title;
+                                      const status = lessonContentStatus[lessonKey];
+                                      const hasPresentation = status?.presentation?.exists;
+                                      const hasOnePager = status?.onePager?.exists;
+                                      const hasQuiz = status?.quiz?.exists;
+                                      const hasVideoLesson = status?.videoLesson?.exists;
+
+                                      return (
+                                        <>
+                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasPresentation ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasPresentation ? () => handleContentTypeClick(lesson, 'presentation') : undefined}>
+                                            <span className={`text-sm ${hasPresentation ? 'text-gray-400' : 'text-gray-700'}`}>
+                                              Presentation
+                                            </span>
+                                            {hasPresentation && (
+                                              <CustomTooltip content="Regenerate" position="top">
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                                  className="p-1 cursor-pointer"
+                                                >
+                                                  <RefreshCcw size={14} className="text-gray-700" />
+                                                </button>
+                                              </CustomTooltip>
+                                            )}
+                                          </div>
+                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
+                                            <span className={`text-sm ${hasOnePager ? 'text-gray-400' : 'text-gray-700'}`}>
+                                              One-Pager
+                                            </span>
+                                            {hasOnePager && (
+                                              <CustomTooltip content="Regenerate" position="top">
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                                  className="p-1 cursor-pointer"
+                                                >
+                                                  <RefreshCcw size={14} className="text-gray-700" />
+                                                </button>
+                                              </CustomTooltip>
+                                            )}
+                                          </div>
+                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
+                                            <span className={`text-sm ${hasQuiz ? 'text-gray-400' : 'text-gray-700'}`}>
+                                              Quiz
+                                            </span>
+                                            {hasQuiz && (
+                                              <CustomTooltip content="Regenerate" position="top">
+                                                <button
+                                                  onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                                  className="p-1 cursor-pointer"
+                                                >
+                                                  <RefreshCcw size={14} className="text-gray-700" />
+                                                </button>
+                                              </CustomTooltip>
+                                            )}
+                                          </div>
+                                          {videoLessonEnabled && (
+                                            <div className={`flex items-center justify-between px-3 py-2 ${!hasVideoLesson ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasVideoLesson ? () => handleContentTypeClick(lesson, 'video-lesson') : undefined}>
+                                              <span className={`text-sm ${hasVideoLesson ? 'text-gray-400' : 'text-gray-700'}`}>
+                                                Video Lesson
+                                              </span>
+                                              {hasVideoLesson && (
+                                                <CustomTooltip content="Regenerate" position="top">
+                                                  <button
+                                                    onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                                    className="p-1 cursor-pointer"
+                                                  >
+                                                    <RefreshCcw size={14} className="text-gray-700" />
+                                                  </button>
+                                                </CustomTooltip>
+                                              )}
+                                            </div>
+                                          )}
+                                        </>
+                                      );
+                                    })()}
                                   </div>
                                 </div>
                               )}
@@ -773,6 +1349,7 @@ export default function ProductViewNewPage() {
             <CustomViewCard
               projectId={productId}
               sources={getSourcesFromProject()}
+              contentTypes={filteredContentTypes}
               metrics={{
                 totalModules: totalModules,
                 totalLessons: totalLessons,
@@ -787,6 +1364,64 @@ export default function ProductViewNewPage() {
           </div>
         </div>
       </div>
+
+      {/* Error display */}
+      {saveError && (
+        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center">
+          <span className="mr-2">⚠️</span>
+          <span>{saveError}</span>
+          <button
+            onClick={() => setSaveError(null)}
+            className="ml-4 text-red-500 hover:text-red-700"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Regenerate Confirmation Modal */}
+      {showRegenerateModal.isOpen && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg p-4 max-w-sm w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              Regenerate Product
+            </h3>
+            <p className="text-gray-600 mb-4 text-sm">
+              You are about to create a new product. The old one will be deleted.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={handleRegenerateCancel}
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#6B7280',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRegenerateConfirm}
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#0F58F9',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

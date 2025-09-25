@@ -216,13 +216,9 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
   if (showConfirmation) {
     return (
-      <div className="w-full bg-white border border-gray-300 rounded-xl p-6 mb-4 shadow-sm">
+      <div className="w-full bg-white rounded-lg p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-            {t('actions.changesPreview', 'Changes Preview')}
-          </div>
         </div>
         
         <p className="text-gray-700 mb-6">
@@ -234,22 +230,40 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <button
             onClick={handleConfirmChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#059669',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              lineHeight: '140%',
+              letterSpacing: '0.05em'
+            }}
           >
             {loadingConfirm ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
             ) : (
-              <CheckCircle size={16} />
+              <>
+                <CheckCircle size={14} style={{ color: 'white' }} />
+                {t('actions.acceptChanges', 'Accept Changes')}
+              </>
             )}
-            {loadingConfirm ? t('actions.saving', 'Saving...') : t('actions.acceptChanges', 'Accept Changes')}
           </button>
           
           <button
             onClick={handleRevertChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#6B7280',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              lineHeight: '140%',
+              letterSpacing: '0.05em'
+            }}
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={14} style={{ color: 'white' }} />
             {t('actions.revertChanges', 'Revert Changes')}
           </button>
         </div>
@@ -261,7 +275,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Advanced mode panel - always shown */}
       {showAdvanced && (
-        <div className="w-full bg-white rounded-xl p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
+        <div className="w-full bg-white rounded-lg p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
             <button
@@ -306,17 +320,22 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             <button
               onClick={handleApplyEdit}
               disabled={!editPrompt.trim() || loadingEdit}
-              className="px-6 py-3 rounded-full text-white text-sm font-medium shadow-lg hover:shadow-xl focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer transition-all duration-200"
+              className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
-                fontWeight: 500
+                backgroundColor: '#3B82F6',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
               }}
             >
               {loadingEdit ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
               ) : (
                 <>
-                  {t('actions.applyEdit', 'Apply Edit')} <Sparkles size={14} />
+                  <Sparkles size={14} style={{ color: 'white' }} />
+                  {t('actions.applyEdit', 'Apply Edit')}
                 </>
               )}
             </button>
