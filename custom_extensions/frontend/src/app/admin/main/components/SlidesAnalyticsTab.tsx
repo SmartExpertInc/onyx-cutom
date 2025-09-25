@@ -482,23 +482,36 @@ const SlidesAnalyticsTab: React.FC = () => {
     }
   };
 
-  // Sorted usage data
+  // Group usage_by_template by template_id and aggregate values
   const sortedUsageData = useMemo(() => {
     if (!dashboard?.usage_by_template) return [];
-    
-    const sorted = [...dashboard.usage_by_template];
+
+    // Group by template_id
+    const grouped: Record<string, typeof dashboard.usage_by_template[0]> = {};
+    for (const item of dashboard.usage_by_template) {
+      if (!grouped[item.template_id]) {
+        grouped[item.template_id] = { ...item };
+      } else {
+        // Aggregate numeric fields (sum), and take the latest last_usage
+        grouped[item.template_id].total_generated += item.total_generated;
+        grouped[item.template_id].client_count += item.client_count;
+        grouped[item.template_id].error_count += item.error_count;
+        // For last_usage, take the max (latest)
+        if (item.last_usage && (!grouped[item.template_id].last_usage || new Date(item.last_usage) > new Date(grouped[item.template_id].last_usage))) {
+          grouped[item.template_id].last_usage = item.last_usage;
+        }
+      }
+    }
+    const groupedArr = Object.values(grouped);
     if (sortField) {
-      sorted.sort((a, b) => {
+      groupedArr.sort((a, b) => {
         const aValue = a[sortField];
         const bValue = b[sortField];
-        
         if (typeof aValue === 'number' && typeof bValue === 'number') {
           return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
         }
-        
         const aStr = String(aValue).toLowerCase();
         const bStr = String(bValue).toLowerCase();
-        
         if (sortDirection === 'asc') {
           return aStr.localeCompare(bStr);
         } else {
@@ -506,7 +519,7 @@ const SlidesAnalyticsTab: React.FC = () => {
         }
       });
     }
-    return sorted;
+    return groupedArr;
   }, [dashboard?.usage_by_template, sortField, sortDirection]);
 
   // TODO: Implement export functionality
