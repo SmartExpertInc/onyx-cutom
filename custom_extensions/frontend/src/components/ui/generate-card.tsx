@@ -16,16 +16,13 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
+          "group relative rounded-md border-[var(--border)] overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34",
           "hover:scale-105",
+          active && "border-[var(--ring)]",
           className
         )}
         style={{
-          backgroundColor: active ? 'white' : '#F2F9FC',
-          background: active 
-            ? `white`
-            : `#F2F9FC`,
           boxShadow: active 
             ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
@@ -46,19 +43,12 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
             {Icon && (
               <div 
-                className="w-15 h-15 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-16 lg:h-16 xl:w-17 xl:h-17 flex items-center justify-center"
-                style={{
-                  backgroundColor: active ? '#0646D3' : '#ADE9FF',
-                  borderRadius: '50%',
-                  aspectRatio: '1/1',
-                  '--icon-color': active ? 'white' : 'black',
-                  color: active ? 'white' : 'black'
-                } as React.CSSProperties}
+                className="flex items-center justify-center"
               >
                 <Icon 
                   size={20}
                   className={cn(
-                    "w-5 h-5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7",
+                    "w-10 h-10 xs:w-10 xs:h-10 sm:w-11 sm:h-11 md:w-11 md:h-11 lg:w-12 lg:h-12 xl:w-12 xl:h-12",
                     active ? "text-white" : "text-black"
                   )}
                   style={{
@@ -71,10 +61,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium"
-              style={{
-                color: active ? '#6B6B6D' : '#7C8082'
-              }}
+              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium text-[var(--secondary-foreground)]"
             >
               {label}
             </span>
