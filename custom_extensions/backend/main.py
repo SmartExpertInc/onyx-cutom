@@ -9495,7 +9495,8 @@ async def add_pipeline(pipeline_data: MicroproductPipelineCreateRequest, pool: a
 async def get_pipelines(pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, pipeline_name, pipeline_description, is_prompts_data_collection, is_prompts_data_formating, prompts_data_collection, prompts_data_formating, created_at FROM microproduct_pipelines ORDER BY created_at DESC;"
     try:
-        async with pool.acquire() as conn: rows = await conn.fetch(query)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query)
         pipelines_list = [MicroproductPipelineGetResponse.from_db_model(MicroproductPipelineDBRaw(**dict(row))) for row in rows]
         return pipelines_list
     except Exception as e:
@@ -9507,7 +9508,8 @@ async def get_pipelines(pool: asyncpg.Pool = Depends(get_db_pool)):
 async def get_pipeline(pipeline_id: int, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, pipeline_name, pipeline_description, is_prompts_data_collection, is_prompts_data_formating, prompts_data_collection, prompts_data_formating, created_at FROM microproduct_pipelines WHERE id = $1;"
     try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, pipeline_id)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, pipeline_id)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline not found.")
         return MicroproductPipelineGetResponse.from_db_model(MicroproductPipelineDBRaw(**dict(row)))
@@ -9547,7 +9549,8 @@ async def update_pipeline(pipeline_id: int, pipeline_data: MicroproductPipelineU
 async def delete_pipeline(pipeline_id: int, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "DELETE FROM microproduct_pipelines WHERE id = $1 RETURNING id;"
     try:
-        async with pool.acquire() as conn: deleted_id = await conn.fetchval(query, pipeline_id)
+        async with pool.acquire() as conn:
+            deleted_id = await conn.fetchval(query, pipeline_id)
         if deleted_id is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline not found.")
         return {"detail": f"Successfully deleted pipeline with ID {pipeline_id}."}
@@ -9752,7 +9755,8 @@ async def add_design_template(template_data: DesignTemplateCreate, pool: asyncpg
 async def get_design_templates_list(pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created FROM design_templates ORDER BY date_created DESC;"
     try:
-        async with pool.acquire() as conn: rows = await conn.fetch(query)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query)
         return [DesignTemplateResponse(**dict(row)) for row in rows]
     except Exception as e:
         logger.error(f"Error fetching design templates: {e}", exc_info=not IS_PRODUCTION)
@@ -9763,7 +9767,8 @@ async def get_design_templates_list(pool: asyncpg.Pool = Depends(get_db_pool)):
 async def get_design_template(template_id: int, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created FROM design_templates WHERE id = $1;"
     try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, template_id)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, template_id)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Design template not found")
         return DesignTemplateResponse(**dict(row))
@@ -9791,7 +9796,8 @@ async def update_design_template(template_id: int, template_data: DesignTemplate
         update_values.append(template_id)
         query = f"UPDATE design_templates SET {', '.join(set_clauses)} WHERE id = ${i} RETURNING id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created;"
 
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, *update_values)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, *update_values)
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update design template.")
         return DesignTemplateResponse(**dict(row))
@@ -12671,7 +12677,8 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
         WHERE p.id = $1 AND p.onyx_user_id = $2;
     """
     try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, project_id, onyx_user_id)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
@@ -23689,7 +23696,7 @@ class ProjectFolderUpdateRequest(BaseModel):
     model_config = {"from_attributes": True}
 
 @app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
-async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, request: Request, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     logger.info(f"🔄 [PROJECT UPDATE START] ===========================================")
     logger.info(f"🔄 [PROJECT UPDATE START] Project ID: {project_id}")
     logger.info(f"🔄 [PROJECT UPDATE START] User ID: {onyx_user_id}")
@@ -23745,8 +23752,10 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 old_microproduct_content = project_row["microproduct_content"] if isinstance(project_row["microproduct_content"], dict) else None
 
         if (not db_microproduct_name_to_store or not db_microproduct_name_to_store.strip()) and project_update_data.design_template_id:
-            async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
-            if design_row: db_microproduct_name_to_store = design_row["template_name"]
+            async with pool.acquire() as conn:
+                design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+                if design_row:
+                    db_microproduct_name_to_store = design_row["template_name"]
 
         content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
         
@@ -23801,11 +23810,12 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
 
         derived_product_type = None; derived_microproduct_type = None
         if project_update_data.design_template_id is not None:
-            async with pool.acquire() as conn: design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
-            if design_template:
-                derived_product_type = design_template["microproduct_type"]
-                derived_microproduct_type = design_template["template_name"]
-                current_component_name = design_template["component_name"]
+            async with pool.acquire() as conn:
+                design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+                if design_template:
+                    derived_product_type = design_template["microproduct_type"]
+                    derived_microproduct_type = design_template["template_name"]
+                    current_component_name = design_template["component_name"]
 
         update_clauses = []; update_values = []; arg_idx = 1
         
@@ -31764,7 +31774,7 @@ async def get_workspace_roles(workspace_id: int, request: Request):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve roles: {str(e)}")
 
 @app.get("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
-async def get_workspace_role(workspace_id: int, role_id: int):
+async def get_workspace_role(workspace_id: int, role_id: int, request: Request):
     """Get a specific role from a workspace."""
     try:
         # Get user identifiers
@@ -32318,3 +32328,4 @@ async def startup_event_lms_exports():
             logger.info("'lms_exports' table ensured.")
     except Exception as e:
         logger.error(f"Failed to ensure lms_exports table: {e}")
+    
