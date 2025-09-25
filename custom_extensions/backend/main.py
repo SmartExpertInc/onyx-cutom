@@ -22789,7 +22789,6 @@ async def get_slides_analytics(
                 )
                 SELECT
                     slide->>'templateId' AS template_id,
-                    slide->>'slideId' AS slide_id,
                     COUNT(*) AS total_generated,
                     COUNT(DISTINCT projects.onyx_user_id) AS client_count,
                     COALESCE(error_counts.error_count, 0) AS error_count,
@@ -22811,7 +22810,7 @@ async def get_slides_analytics(
                     microproduct_content ? 'slides'
                     AND projects.created_at BETWEEN $1 AND $2
                 GROUP BY
-                    slide->>'templateId', slide->>'slideId', error_counts.error_count, last_usages.last_usage
+                    slide->>'templateId', error_counts.error_count, last_usages.last_usage
                 ORDER BY
                     total_generated DESC
                 """
@@ -22819,7 +22818,6 @@ async def get_slides_analytics(
             template_stats = [
                 TemplateTypeUsage(
                     template_id=row['template_id'],
-                    slide_id=row['slide_id'],
                     total_generated=row['total_generated'],
                     client_count=row['client_count'],
                     #error_count=row['error_count'],
