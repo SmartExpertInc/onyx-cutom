@@ -1103,30 +1103,22 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'market-share': {
     id: 'market-share',
     name: 'Market Share',
-    description: 'Market share chart with bar comparison and legend',
+    description: 'Two-column layout with title/subtitle/list on blue left side and bar chart on white right side',
     category: 'content',
     icon: '📊',
     component: MarketShareTemplate,
     defaultProps: {
-      title: 'Market share',
-      subtitle: '',
+      title: 'The new os solution',
+      subtitle: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium ?',
       chartData: [
-        {
-          label: 'Mercury',
-          description: 'Mercury is the closest planet to the Sun',
-          percentage: 85,
-          color: '#2a5490',
-          year: '2023'
-        },
-        {
-          label: 'Mars',
-          description: 'Despite being red, Mars is a cold place',
-          percentage: 40,
-          color: '#9ca3af',
-          year: '2024'
-        }
+        { label: '2019', description: 'Lorem ipsum dolor sit amet', percentage: 48, color: '#4A70E8' },
+        { label: '2020', description: 'Lorem ipsum dolor sit amet', percentage: 61, color: '#FF8C00' },
+        { label: '2021', description: 'Lorem ipsum dolor sit amet', percentage: 83, color: '#32CD32' },
+        { label: '2022', description: 'Lorem ipsum dolor sit amet', percentage: 74, color: '#8A2BE2' }
       ],
-      bottomText: 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here'
+      bottomText: '',
+      imagePrompt: 'bar chart illustration for market share data',
+      imageAlt: 'Market share bar chart',
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1134,9 +1126,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       chartData: {
         type: 'array',
         label: 'Chart Data',
-        required: true
+        description: 'Array of chart items with labels, descriptions, percentages and colors',
+        required: true,
+        arrayItemType: {
+          type: 'object',
+          label: 'Chart Item'
+        }
       },
-      bottomText: { type: 'text', label: 'Bottom Description', required: false }
+      bottomText: { type: 'text', label: 'Bottom Description', required: false },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
     }
   },
 

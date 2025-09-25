@@ -275,12 +275,12 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.5rem',
+    fontSize: '2.7rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'left',
-    marginBottom: '40px',
+    marginBottom: '20px',
     wordWrap: 'break-word',
     lineHeight: '1.1'
   };
