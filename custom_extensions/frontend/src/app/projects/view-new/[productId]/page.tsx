@@ -129,6 +129,159 @@ export default function ProductViewNewPage() {
   const [editableData, setEditableData] = useState<TrainingPlanData | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Inline editing state
+  const [editingField, setEditingField] = useState<{
+    type: 'mainTitle' | 'sectionTitle' | 'lessonTitle';
+    sectionIndex?: number;
+    lessonIndex?: number;
+  } | null>(null);
+  const [autoSaveTimeoutRef, setAutoSaveTimeoutRef] = useState<NodeJS.Timeout | null>(null);
+
+  // Helper function to start editing a field
+  const startEditing = (type: 'mainTitle' | 'sectionTitle' | 'lessonTitle', sectionIndex?: number, lessonIndex?: number) => {
+    setEditingField({
+      type,
+      sectionIndex,
+      lessonIndex
+    });
+  };
+
+  // Helper function to stop editing
+  const stopEditing = () => {
+    setEditingField(null);
+  };
+
+  // Helper function to check if a field is currently being edited
+  const isEditingField = (type: 'mainTitle' | 'sectionTitle' | 'lessonTitle', sectionIndex?: number, lessonIndex?: number) => {
+    return editingField?.type === type && 
+           editingField?.sectionIndex === sectionIndex && 
+           editingField?.lessonIndex === lessonIndex;
+  };
+
+  // Handle input changes with auto-save
+  const handleInputChange = (path: (string | number)[], value: string) => {
+    if (!editableData) return;
+
+    // Create a deep copy and update the value
+    const updatedData = JSON.parse(JSON.stringify(editableData));
+    let current = updatedData;
+    
+    // Navigate to the target location
+    for (let i = 0; i < path.length - 1; i++) {
+      current = current[path[i]];
+    }
+    
+    // Set the new value
+    current[path[path.length - 1]] = value;
+    
+    setEditableData(updatedData);
+
+    // Clear existing timeout
+    if (autoSaveTimeoutRef) {
+      clearTimeout(autoSaveTimeoutRef);
+    }
+    
+    // Set new timeout for auto-save
+    const timeout = setTimeout(() => {
+      saveChanges(updatedData);
+      
+      // Special handling for lesson title changes - trigger re-matching of related content
+      if (editingField?.type === 'lessonTitle') {
+        console.log('Lesson title edited (auto-save), triggering content re-matching...');
+        // Slight delay to allow parent to refresh product list, then trigger re-match
+        setTimeout(() => {
+          if (updatedData?.sections) {
+            const allLessons: Lesson[] = [];
+            updatedData.sections.forEach((section: any) => {
+              if (section.lessons) {
+                allLessons.push(...section.lessons);
+              }
+            });
+            checkLessonContentStatus(updatedData.mainTitle || '', allLessons);
+          }
+        }, 100);
+      }
+    }, 2000);
+    setAutoSaveTimeoutRef(timeout);
+  };
+
+  // Handle input blur (immediate save)
+  const handleInputBlur = () => {
+    if (autoSaveTimeoutRef) {
+      clearTimeout(autoSaveTimeoutRef);
+      setAutoSaveTimeoutRef(null);
+    }
+    if (editableData) {
+      saveChanges(editableData);
+      
+      // Special handling for lesson title changes - trigger re-matching of related content
+      if (editingField?.type === 'lessonTitle') {
+        console.log('Lesson title edited, triggering content re-matching...');
+        // Slight delay to allow parent to refresh product list, then trigger re-match
+        setTimeout(() => {
+          const trainingPlanData = editableData as TrainingPlanData;
+          if (trainingPlanData?.sections) {
+            const allLessons: Lesson[] = [];
+            trainingPlanData.sections.forEach((section: any) => {
+              if (section.lessons) {
+                allLessons.push(...section.lessons);
+              }
+            });
+            checkLessonContentStatus(trainingPlanData.mainTitle || '', allLessons);
+          }
+        }, 100);
+      }
+    }
+    stopEditing();
+  };
+
+  // Save changes to backend
+  const saveChanges = async (data: TrainingPlanData) => {
+    if (!productId) return;
+
+    try {
+      const commonHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${productId}`, {
+        method: 'PUT',
+        headers: commonHeaders,
+        body: JSON.stringify({
+          projectName: data.mainTitle,
+          microProductContent: data
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save changes: ${response.status}`);
+      }
+
+      console.log('Changes saved successfully');
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      setSaveError('Failed to save changes');
+    }
+  };
+
+  // Add click outside listener
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      if (editingField) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('input[type="text"]')) {
+          stopEditing();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, [editingField]);
 
   // Fetch user credits on component mount
   useEffect(() => {
@@ -622,12 +775,30 @@ export default function ProductViewNewPage() {
           <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
-              <h1 className="text-[#191D30] font-semibold text-[32px] leading-none">
-                {(() => {
-                  const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
-                  return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
-                })()}
-              </h1>
+              {isEditingField('mainTitle') ? (
+                <input
+                  type="text"
+                  value={(() => {
+                    const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
+                    return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                  })()}
+                  onChange={(e) => handleInputChange(['mainTitle'], e.target.value)}
+                  onBlur={handleInputBlur}
+                  className="text-[#191D30] font-semibold text-[32px] leading-none bg-transparent border-none outline-none w-full"
+                  placeholder="Course Title"
+                  autoFocus
+                />
+              ) : (
+                <h1 
+                  className="text-[#191D30] font-semibold text-[32px] leading-none cursor-pointer hover:bg-yellow-50 p-2 rounded transition-colors"
+                  onClick={() => startEditing('mainTitle')}
+                >
+                  {(() => {
+                    const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
+                    return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                  })()}
+                </h1>
+              )}
             </div>
 
             {/* Render actual modules from the course outline data */}
@@ -643,9 +814,24 @@ export default function ProductViewNewPage() {
 
               return trainingPlanData.sections.map((section, index) => (
                 <div key={section.id || index} className="bg-white rounded-lg p-[25px]">
-                  <h2 className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2">
-                    Module {index + 1}: {section.title}
-                  </h2>
+                  {isEditingField('sectionTitle', index) ? (
+                    <input
+                      type="text"
+                      value={section.title}
+                      onChange={(e) => handleInputChange(['sections', index, 'title'], e.target.value)}
+                      onBlur={handleInputBlur}
+                      className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2 bg-transparent border-none outline-none w-full"
+                      placeholder="Module Title"
+                      autoFocus
+                    />
+                  ) : (
+                    <h2 
+                      className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2 cursor-pointer hover:bg-yellow-50 p-2 rounded transition-colors"
+                      onClick={() => startEditing('sectionTitle', index)}
+                    >
+                      Module {index + 1}: {section.title}
+                    </h2>
+                  )}
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
@@ -656,7 +842,24 @@ export default function ProductViewNewPage() {
                         <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
                           <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
-                            <span className="text-[#191D30] text-[16px] leading-[100%] font-normal">{lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}</span>
+                            {isEditingField('lessonTitle', index, lessonIndex) ? (
+                              <input
+                                type="text"
+                                value={lesson.title}
+                                onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
+                                onBlur={handleInputBlur}
+                                className="text-[#191D30] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
+                                placeholder="Lesson Title"
+                                autoFocus
+                              />
+                            ) : (
+                              <span 
+                                className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer hover:bg-yellow-50 p-1 rounded transition-colors"
+                                onClick={() => startEditing('lessonTitle', index, lessonIndex)}
+                              >
+                                {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
+                              </span>
+                            )}
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex items-center gap-6 text-gray-400">
