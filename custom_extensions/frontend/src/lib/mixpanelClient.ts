@@ -117,6 +117,7 @@ export function trackPageView(pageName: string): void {
 
 export const trackCreateProduct = async (
   action: string,
+  isFromProduct?: boolean,
   isFromFiles?: boolean,
   isFromText?: boolean,
   isFromKnowledgeBase?: boolean,
@@ -144,6 +145,7 @@ export const trackCreateProduct = async (
   const props = {
     "Feature Category": "Products",
     "Action": action,
+    "Is From Product": isFromProduct,
     "Generation Method": generationMethod,
     "Language": language,
     "Product Type": productType,

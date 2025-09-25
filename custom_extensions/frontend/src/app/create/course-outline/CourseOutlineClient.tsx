@@ -864,6 +864,7 @@ export default function CourseOutlineClient() {
 
       await trackCreateProduct(
         "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : false,
         isFromFiles,
         isFromText,
         isFromKnowledgeBase,
@@ -893,6 +894,7 @@ export default function CourseOutlineClient() {
         if (!sessionStorage.getItem('createProductFailed')) {
           await trackCreateProduct(
             "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : false,
             isFromFiles,
             isFromText,
             isFromKnowledgeBase,

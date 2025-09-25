@@ -943,6 +943,7 @@ export default function QuizClient() {
 
       await trackCreateProduct(
         "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : false,
         fromFiles,
         fromText,
         fromKnowledgeBase,
@@ -970,6 +971,7 @@ export default function QuizClient() {
         if (!sessionStorage.getItem('createProductFailed')) {
           await trackCreateProduct(
             "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : false,
             fromFiles,
             fromText,
             fromKnowledgeBase,
