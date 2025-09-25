@@ -90,7 +90,15 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         params.append('search', search);
       }
 
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/audits?${params}`, {
+        headers,
+        cache: "no-store",
         credentials: 'same-origin',
       });
 
@@ -232,8 +240,15 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     }
 
     try {
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${auditId}`, {
         method: 'DELETE',
+        headers,
         credentials: 'same-origin',
       });
 
@@ -270,8 +285,15 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     setCopySuccess(false);
 
     try {
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === "development") {
+        headers["X-Dev-Onyx-User-ID"] = devUserId;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${audit.id}/generate-share-link`, {
         method: 'POST',
+        headers,
         credentials: 'same-origin',
       });
 
