@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe, FileQuestion, MessageCircleQuestion, PanelsLeftBottom, Paintbrush, ClipboardList, Network } from "lucide-react";
+import { ArrowLeft, Shuffle, Sparkles, Plus, FileText, ChevronDown, Search, FolderIcon, Globe, FileQuestion, MessageCircleQuestion, PanelsLeftBottom, Paintbrush, ClipboardList, Network, RulerDimensionLine } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { generatePromptId } from "../../../utils/promptUtils";
@@ -144,8 +144,8 @@ function GenerateProductPicker() {
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
-  const [lessonsPerModule, setLessonsPerModule] = useState("3-4");
-  const [language, setLanguage] = useState("en");
+  const [lessonsPerModule, setLessonsPerModule] = useState("3-4 per module");
+  const [language, setLanguage] = useState("English");
 
   // All filters are always true (removed dropdown functionality)
   const filters = {
@@ -166,6 +166,19 @@ function GenerateProductPicker() {
     "Customer journey mapping",
     "A guide to investing in real estate",
   ];
+
+  const stylePurposes = {
+    headlines: t('interface.generate.headlinesPurpose', 'Section titles and headings'),
+    paragraphs: t('interface.generate.paragraphsPurpose', 'Regular text blocks'),
+    bullet_lists: t('interface.generate.bulletListsPurpose', 'Unordered lists with bullet points'),
+    numbered_lists: t('interface.generate.numberedListsPurpose', 'Ordered lists with numbers'),
+    alerts: t('interface.generate.alertsPurpose', 'Important warnings or tips'),
+    recommendations: t('interface.generate.recommendationsPurpose', 'Actionable advice'),
+    section_breaks: t('interface.generate.sectionBreaksPurpose', 'Visual separators between sections'),
+    icons: t('interface.generate.iconsPurpose', 'Emojis and visual elements'),
+    important_sections: t('interface.generate.importantSectionsPurpose', 'Highlighted critical content')
+  };
+
   const getRandomExamples = () => {
     const shuffled = [...allExamples].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 6);
@@ -266,7 +279,7 @@ function GenerateProductPicker() {
     }
   }, [prompt]);
 
-  const [activeProduct, setActiveProduct] = useState<"Course Outline" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course Outline");
+  const [activeProduct, setActiveProduct] = useState<"Course" | "Video Lesson" | "Presentation" | "Quiz" | "One-Pager">("Course");
 
   // Handle URL parameters and sessionStorage for pre-selecting product
   useEffect(() => {
@@ -348,7 +361,7 @@ function GenerateProductPicker() {
 
           // Clear lesson context when switching away from Presentation
     if (activeProduct !== "Presentation") {
-        setUseExistingOutline(null);
+        setUseExistingOutline(false);  // Default to standalone mode instead of null
         setSelectedOutlineId(null);
         setSelectedModuleIndex(null);
         setLessonsForModule([]);
@@ -357,7 +370,7 @@ function GenerateProductPicker() {
       
       // Clear quiz context when switching away from Quiz
       if (activeProduct !== "Quiz") {
-        setUseExistingQuizOutline(null);
+        setUseExistingQuizOutline(false);  // Default to standalone mode instead of null
         setSelectedQuizOutlineId(null);
         setSelectedQuizModuleIndex(null);
         setQuizLessonsForModule([]);
@@ -366,7 +379,7 @@ function GenerateProductPicker() {
       
       // Clear text presentation context when switching away from One-Pager
       if (activeProduct !== "One-Pager") {
-        setUseExistingTextOutline(null);
+        setUseExistingTextOutline(false);  // Default to standalone mode instead of null
         setSelectedTextOutlineId(null);
         setSelectedTextModuleIndex(null);
         setTextLessonsForModule([]);
@@ -391,7 +404,7 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(null);
+  const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(false);
 
   // --- Quiz specific state ---
   const [quizOutlines, setQuizOutlines] = useState<{ id: number; name: string }[]>([]);
@@ -401,8 +414,8 @@ function GenerateProductPicker() {
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
-  const [quizLanguage, setQuizLanguage] = useState("en");
-  const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(null);
+  const [quizLanguage, setQuizLanguage] = useState("English");
+  const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
     "multi-select", 
@@ -791,14 +804,14 @@ function GenerateProductPicker() {
   };
 
   // Text Presentation state (mimicking quiz pattern)
-  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(null);
+  const [useExistingTextOutline, setUseExistingTextOutline] = useState<boolean | null>(false);
   const [textOutlines, setTextOutlines] = useState<{ id: number; name: string }[]>([]);
   const [textModulesForOutline, setTextModulesForOutline] = useState<{ name: string; lessons: string[] }[]>([]);
   const [selectedTextModuleIndex, setSelectedTextModuleIndex] = useState<number | null>(null);
   const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
-  const [textLanguage, setTextLanguage] = useState<string>("en");
+  const [textLanguage, setTextLanguage] = useState<string>("English");
   const [textLength, setTextLength] = useState<string>("medium");
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
@@ -1087,7 +1100,7 @@ function GenerateProductPicker() {
     <main
       className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
     >
-      <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
+      <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1096,7 +1109,7 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-700 mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-gray-900 mt-8">{t('interface.generate.title', 'Generate')}</h1>
         <p className="text-center text-gray-600 text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
@@ -1231,10 +1244,10 @@ function GenerateProductPicker() {
         {/* Tab selector */}
         <div className="w-full max-w-3xl flex flex-wrap justify-center gap-3 sm:gap-3 md:gap-4 lg:gap-5 mb-1 px-1">
           <GenerateCard
-            label={t('interface.generate.courseOutline', 'Course Outline')}
+            label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
-            active={activeProduct === "Course Outline"}
-            onClick={() => setActiveProduct("Course Outline")}
+            active={activeProduct === "Course"}
+            onClick={() => setActiveProduct("Course")}
           />
           <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
@@ -1263,8 +1276,8 @@ function GenerateProductPicker() {
         </div>
 
         {/* Dropdown chips */}
-        {activeProduct === "Course Outline" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap shadow-sm justify-center gap-1 mb-1">
+        {activeProduct === "Course" && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1300,51 +1313,8 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {activeProduct === "Presentation" && (
-          <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Step 1: Choose source */}
-            {useExistingOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.presentationQuestion', 'Do you want to create a presentation from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentFromOutline', 'Yes, content for the presentation from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandalone', 'No, I want standalone presentation')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
-                {/* Back button at the start of the section */}
-                <Button
-                  onClick={() => {
-                    setUseExistingOutline(null);
-                    setSelectedOutlineId(null);
-                    setSelectedModuleIndex(null);
-                    setLessonsForModule([]);
-                    setSelectedLesson("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="px-4 py-2 border rounded-full border-gray-300 bg-white/90 text-gray-600 hover:bg-gray-100"
-                >
-                  ← Back
-                </Button>
-                
+        {activeProduct === "Presentation" && useExistingOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1458,42 +1428,13 @@ function GenerateProductPicker() {
                   </>
                 )}
               </div>
-            )}
-          </div>
         )}
 
         {/* Quiz Configuration */}
-        {activeProduct === "Quiz" && (
-          <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Step 1: Choose source */}
-            {useExistingQuizOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.quizQuestion', 'Do you want to create a quiz from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingQuizOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForQuiz', 'Yes, content for the quiz from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingQuizOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneQuiz', 'No, I want standalone quiz')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingQuizOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
+        {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
-                <Button
+                {/* <Button
                   onClick={() => {
                     setUseExistingQuizOutline(null);
                     setSelectedQuizOutlineId(null);
@@ -1506,7 +1447,7 @@ function GenerateProductPicker() {
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </Button>
+                </Button> */}
                 
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingQuizOutline === true && (
@@ -1649,42 +1590,13 @@ function GenerateProductPicker() {
                   </>
                 )}
               </div>
-            )}
-          </div>
         )}
 
         {/* One-Pager Configuration */}
-        {activeProduct === "One-Pager" && (
-          <div className="flex flex-col items-center gap-2 mb-1">
-            {/* Step 1: Choose source */}
-            {useExistingTextOutline === null && (
-              <div className="flex flex-col items-center gap-3">
-                <p className="text-lg font-medium text-gray-700">{t('interface.generate.onePagerQuestion', 'Do you want to create a one-pager from an existing Course Outline?')}</p>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setUseExistingTextOutline(true)}
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-blue-500 bg-blue-500 text-white hover:bg-blue-600 text-sm font-medium"
-                  >
-                    {t('interface.generate.yesContentForOnePager', 'Yes, content for the one-pager from the outline')}
-                  </Button>
-                  <Button
-                    onClick={() => setUseExistingTextOutline(false)}
-                    variant="outline"
-                    size="sm"
-                    className="px-6 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm font-medium"
-                  >
-                    {t('interface.generate.noStandaloneOnePager', 'No, I want standalone one-pager')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2+: Show dropdowns based on choice */}
-            {useExistingTextOutline !== null && (
-              <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1">
+        {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
-                <Button
+                {/* <Button
                   onClick={() => {
                     setUseExistingTextOutline(null);
                     setSelectedTextOutlineId(null);
@@ -1697,7 +1609,7 @@ function GenerateProductPicker() {
                   className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
                 >
                   ← Back
-                </Button>
+                </Button> */}
                 
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingTextOutline === true && (
@@ -1777,7 +1689,7 @@ function GenerateProductPicker() {
                             { value: "medium", label: t('interface.generate.medium', 'Medium') },
                             { value: "long", label: t('interface.generate.long', 'Long') }
                           ]}
-                          icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                          icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
                           label="Length"
                         />
                         <CustomMultiSelector
@@ -1787,15 +1699,15 @@ function GenerateProductPicker() {
                             handleStylesClick();
                           }}
                           options={[
-                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                            { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                            { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
+                            { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
+                            { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists'), tooltip: stylePurposes.bullet_lists },
+                            { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists'), tooltip: stylePurposes.numbered_lists },
+                            { value: "alerts", label: t('interface.generate.alerts', 'Alerts'), tooltip: stylePurposes.alerts },
+                            { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations'), tooltip: stylePurposes.recommendations },
+                            { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks'), tooltip: stylePurposes.section_breaks },
+                            { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
+                            { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                           ]}
                           icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
                           label="Styles"
@@ -1829,7 +1741,7 @@ function GenerateProductPicker() {
                         { value: "medium", label: t('interface.generate.medium', 'Medium') },
                         { value: "long", label: t('interface.generate.long', 'Long') }
                       ]}
-                      icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                      icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
                       label="Length"
                     />
                     <CustomMultiSelector
@@ -1839,15 +1751,15 @@ function GenerateProductPicker() {
                         handleStylesClick();
                       }}
                       options={[
-                        { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
-                        { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
-                        { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists') },
-                        { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists') },
-                        { value: "alerts", label: t('interface.generate.alerts', 'Alerts') },
-                        { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations') },
-                        { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks') },
-                        { value: "icons", label: t('interface.generate.icons', 'Icons') },
-                        { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections') }
+                        { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
+                        { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
+                        { value: "bullet_lists", label: t('interface.generate.bulletLists', 'Bullet Lists'), tooltip: stylePurposes.bullet_lists },
+                        { value: "numbered_lists", label: t('interface.generate.numberedLists', 'Numbered Lists'), tooltip: stylePurposes.numbered_lists },
+                        { value: "alerts", label: t('interface.generate.alerts', 'Alerts'), tooltip: stylePurposes.alerts },
+                        { value: "recommendations", label: t('interface.generate.recommendations', 'Recommendations'), tooltip: stylePurposes.recommendations },
+                        { value: "section_breaks", label: t('interface.generate.sectionBreaks', 'Section Breaks'), tooltip: stylePurposes.section_breaks },
+                        { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
+                        { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                       ]}
                       icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
                       label="Styles"
@@ -1856,13 +1768,11 @@ function GenerateProductPicker() {
                   </>
                 )}
               </div>
-            )}
-          </div>
         )}
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-2 bg-white flex flex-wrap justify-center gap-1 mb-1">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
@@ -1889,7 +1799,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Prompt Input Area - shown for standalone products or when no outline is selected */}
-        {((activeProduct === "Course Outline") || 
+        {((activeProduct === "Course") || 
           (activeProduct === "Video Lesson") ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false) ||
           (activeProduct === "Quiz" && useExistingQuizOutline === false) ||
@@ -1953,7 +1863,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Generate Button */}
-        {((activeProduct === "Course Outline" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
+        {((activeProduct === "Course" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "Video Lesson" && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === true && selectedTextOutlineId && selectedTextLesson) ||
           (activeProduct === "One-Pager" && useExistingTextOutline === false && (prompt.trim() || isFromFiles || isFromText || isFromKnowledgeBase || isFromConnectors)) ||
@@ -1966,7 +1876,7 @@ function GenerateProductPicker() {
               onClick={() => {
                 sessionStorage.setItem('activeProductType', activeProduct);
                 switch (activeProduct) {
-                  case "Course Outline":
+                  case "Course":
                     handleCourseOutlineStart();
                     break;
                   case "Video Lesson":
@@ -1988,7 +1898,7 @@ function GenerateProductPicker() {
               style={{ minWidth: 240 }}
             >
               <Sparkles size={20} />
-              {activeProduct === "Course Outline" && t('interface.generate.generateCourseOutline', 'Generate Course Outline')}
+              {activeProduct === "Course" && t('interface.generate.generateCourseOutline', 'Generate Course')}
               {activeProduct === "Video Lesson" && t('interface.generate.generateVideoLesson', 'Generate Video Lesson')}
               {activeProduct === "Presentation" && t('interface.generate.generatePresentation', 'Generate Presentation')}
               {activeProduct === "Quiz" && t('interface.generate.generateQuiz', 'Generate Quiz')}

@@ -590,7 +590,7 @@ export const es = {
     numberOfLessons: "Número de lecciones",
     estCreationTime: "Tiempo est. creación",
     estCompletionTime: "Tiempo est. finalización",
-    actions: "Acciones",
+    actions: "ACCIONES",
 
     // Project actions
     rename: "Renombrar",
@@ -1243,7 +1243,7 @@ export const es = {
         "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
       aiWillBuildUponText:
         "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
-      courseOutline: "Plan del curso",
+      courseOutline: "Curso",
       videoLesson: "Lección de video",
       presentation: "Presentación",
       quiz: "Cuestionario",

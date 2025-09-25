@@ -618,7 +618,7 @@ export const ru = {
     numberOfLessons: "Количество уроков",
     estCreationTime: "Оц. время создания",
     estCompletionTime: "Оц. время завершения",
-    actions: "Действия",
+    actions: "ДЕЙСТВИЯ",
 
     // Project actions
     rename: "Переименовать",
@@ -1261,7 +1261,7 @@ export const ru = {
         "ИИ будет использовать ваш текст как справочный материал и контекст для создания нового образовательного контента.",
       aiWillBuildUponText:
         "ИИ будет развивать вашу существующую структуру контента для создания образовательных материалов.",
-      courseOutline: "План курса",
+      courseOutline: "Курс",
       videoLesson: "Видеоурок",
       presentation: "Презентация",
       quiz: "Тест",

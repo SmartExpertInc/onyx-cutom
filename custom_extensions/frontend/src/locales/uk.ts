@@ -604,7 +604,7 @@ export const uk = {
     numberOfLessons: "Кількість уроків",
     estCreationTime: "Оц. час створення",
     estCompletionTime: "Оц. час завершення",
-    actions: "Дії",
+    actions: "ДІЇ",
 
     // Project actions
     rename: "Перейменувати",
@@ -1252,7 +1252,7 @@ export const uk = {
         "ШІ буде використовувати ваш текст як довідковий матеріал та контекст для створення нового навчального контенту.",
       aiWillBuildUponText:
         "ШІ буде розвивати вашу існуючу структуру контенту для створення навчальних матеріалів.",
-      courseOutline: "План курсу",
+      courseOutline: "Курс",
       videoLesson: "Відеоурок",
       presentation: "Презентація",
       quiz: "Тест",

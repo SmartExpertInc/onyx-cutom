@@ -12912,6 +12912,7 @@ async def download_project_instance_pdf(
     onePager: Optional[str] = Query(None),
     videoPresentation: Optional[str] = Query(None),
     lessonPresentation: Optional[str] = Query(None),
+    templateType: Optional[str] = Query(None),
     onyx_user_id: str = Depends(get_current_onyx_user_id),
     pool: asyncpg.Pool = Depends(get_db_pool)
 ):
@@ -12994,7 +12995,11 @@ async def download_project_instance_pdf(
                     "contentBlocks": [], "detectedLanguage": detected_lang_for_pdf
                 }
         elif component_name == COMPONENT_NAME_TRAINING_PLAN:
-            pdf_template_file = "training_plan_pdf_template.html"
+            # Check if templateType is specified to use course outline template
+            if templateType == "course-outline":
+                pdf_template_file = "course_outline_pdf_template.html"
+            else:
+                pdf_template_file = "training_plan_pdf_template.html"
             temp_dumped_dict = None
             if content_json and isinstance(content_json, dict):
                 try:
@@ -13052,6 +13057,169 @@ async def download_project_instance_pdf(
             data_for_template_render['time_unit_singular'] = current_lang_cfg_main.get('TIME_UNIT_SINGULAR', 'h')
             data_for_template_render['time_unit_decimal_plural'] = current_lang_cfg_main.get('TIME_UNIT_DECIMAL_PLURAL', 'h')
             data_for_template_render['time_unit_general_plural'] = current_lang_cfg_main.get('TIME_UNIT_GENERAL_PLURAL', 'h')
+            
+            # Extract sources from the training plan data
+            sources = []
+            if 'sections' in data_for_template_render:
+                sources_set = set()
+                for section in data_for_template_render['sections']:
+                    if 'lessons' in section:
+                        for lesson in section['lessons']:
+                            if 'source' in lesson and lesson['source']:
+                                source_str = lesson['source']
+                                # Extract connector name from source string like "Connector Search: notion"
+                                import re
+                                match = re.match(r'Connector Search:\s*(.+)', source_str, re.IGNORECASE)
+                                if match:
+                                    sources_set.add(match.group(1))
+                                elif 'PDF' in source_str or 'Document' in source_str:
+                                    sources_set.add('PDF Document')
+                                elif 'text' in source_str.lower() or 'Text' in source_str:
+                                    sources_set.add('Create from scratch')
+                                else:
+                                    sources_set.add(source_str)
+                
+                # Convert to list of dictionaries with type information
+                for source_name in sources_set:
+                    if source_name in ['PDF Document', 'Create from scratch']:
+                        sources.append({'name': source_name, 'type': 'file'})
+                    else:
+                        sources.append({'name': source_name, 'type': 'connector'})
+            
+            data_for_template_render['sources'] = sources
+            
+            # Add content status for each lesson to show blue icons when content exists
+            if 'sections' in data_for_template_render:
+                # Get the main title for content matching
+                main_title = data_for_template_render.get('mainTitle', '')
+                
+                for section in data_for_template_render['sections']:
+                    if 'lessons' in section:
+                        for lesson in section['lessons']:
+                            # Initialize content status for each lesson
+                            lesson['contentStatus'] = {
+                                'presentation': {'exists': False},
+                                'onePager': {'exists': False},
+                                'quiz': {'exists': False},
+                                'videoLesson': {'exists': False}
+                            }
+                            
+                            # Check if content exists for this lesson by querying the database
+                            try:
+                                # Build expected project name pattern
+                                expected_project_name = f"{main_title}: {lesson.get('title', '')}"
+                                
+                                # Debug: Print the expected project name
+                                print(f"Checking content for lesson: {lesson.get('title', '')}")
+                                print(f"Expected project name: {expected_project_name}")
+                                
+                                # Query for existing projects that match this lesson with more flexible matching
+                                content_check_query = """
+                                SELECT id, project_name, design_microproduct_type, microproduct_type 
+                                FROM projects 
+                                WHERE onyx_user_id = $1 
+                                AND (
+                                    project_name = $2 OR 
+                                    project_name = $3 OR 
+                                    project_name = $4 OR
+                                    project_name = $5 OR
+                                    project_name LIKE $6 OR
+                                    project_name LIKE $7 OR
+                                    project_name LIKE $8 OR
+                                    project_name LIKE $9
+                                )
+                                """
+                                
+                                # Check for different naming patterns
+                                legacy_quiz_pattern = f"Quiz - {expected_project_name}"
+                                legacy_text_presentation_pattern = f"Text Presentation - {expected_project_name}"
+                                legacy_video_pattern = f"Video Lesson - {expected_project_name}"
+                                
+                                # Add LIKE patterns for more flexible matching
+                                like_presentation = f"%{lesson.get('title', '')}%"
+                                like_quiz = f"%Quiz%{lesson.get('title', '')}%"
+                                like_text = f"%Text Presentation%{lesson.get('title', '')}%"
+                                like_video = f"%Video Lesson%{lesson.get('title', '')}%"
+                                
+                                content_results = await pool.fetch(
+                                    content_check_query,
+                                    onyx_user_id,
+                                    expected_project_name,
+                                    legacy_quiz_pattern,
+                                    legacy_text_presentation_pattern,
+                                    legacy_video_pattern,
+                                    like_presentation,
+                                    like_quiz,
+                                    like_text,
+                                    like_video
+                                )
+                                
+                                print(f"Found {len(content_results)} matching projects for lesson: {lesson.get('title', '')}")
+                                
+                                # Check each matching project to see what type of content it is
+                                for project in content_results:
+                                    project_name = project.get('project_name', '')
+                                    microproduct_type = project.get('design_microproduct_type') or project.get('microproduct_type')
+                                    
+                                    print(f"Project: {project_name}, Type: {microproduct_type}")
+                                    
+                                    # Map microproduct types to our content status
+                                    if microproduct_type in ['Slide Deck', 'Lesson Presentation']:
+                                        lesson['contentStatus']['presentation']['exists'] = True
+                                        print(f"Set presentation to True for lesson: {lesson.get('title', '')}")
+                                    elif microproduct_type == 'Text Presentation':
+                                        lesson['contentStatus']['onePager']['exists'] = True
+                                        print(f"Set onePager to True for lesson: {lesson.get('title', '')}")
+                                    elif microproduct_type == 'Quiz':
+                                        lesson['contentStatus']['quiz']['exists'] = True
+                                        print(f"Set quiz to True for lesson: {lesson.get('title', '')}")
+                                    elif microproduct_type in ['Video Lesson', 'Video Lesson Presentation']:
+                                        lesson['contentStatus']['videoLesson']['exists'] = True
+                                        print(f"Set videoLesson to True for lesson: {lesson.get('title', '')}")
+                                        
+                            except Exception as e:
+                                # If there's an error checking content, keep defaults (gray icons)
+                                print(f"Error checking content status for lesson {lesson.get('title', '')}: {e}")
+                                pass
+                            
+                            # Alternative approach: Check if we can find any projects with similar names
+                            try:
+                                # Simple fallback query to find any projects that might match
+                                fallback_query = """
+                                SELECT project_name, design_microproduct_type, microproduct_type 
+                                FROM projects 
+                                WHERE onyx_user_id = $1 
+                                AND project_name LIKE $2
+                                LIMIT 10
+                                """
+                                
+                                lesson_title = lesson.get('title', '')
+                                fallback_results = await pool.fetch(
+                                    fallback_query,
+                                    onyx_user_id,
+                                    f"%{lesson_title}%"
+                                )
+                                
+                                if fallback_results:
+                                    print(f"Fallback found {len(fallback_results)} projects for lesson: {lesson_title}")
+                                    for project in fallback_results:
+                                        project_name = project.get('project_name', '')
+                                        microproduct_type = project.get('design_microproduct_type') or project.get('microproduct_type')
+                                        print(f"Fallback Project: {project_name}, Type: {microproduct_type}")
+                                        
+                                        # Map microproduct types to our content status
+                                        if microproduct_type in ['Slide Deck', 'Lesson Presentation']:
+                                            lesson['contentStatus']['presentation']['exists'] = True
+                                        elif microproduct_type == 'Text Presentation':
+                                            lesson['contentStatus']['onePager']['exists'] = True
+                                        elif microproduct_type == 'Quiz':
+                                            lesson['contentStatus']['quiz']['exists'] = True
+                                        elif microproduct_type in ['Video Lesson', 'Video Lesson Presentation']:
+                                            lesson['contentStatus']['videoLesson']['exists'] = True
+                                            
+                            except Exception as fallback_error:
+                                print(f"Fallback query also failed for lesson {lesson.get('title', '')}: {fallback_error}")
+                                pass
         elif component_name == COMPONENT_NAME_VIDEO_LESSON: # Updated logic for Video Lesson
             pdf_template_file = "video_lesson_pdf_template.html"
             if content_json and isinstance(content_json, dict):
@@ -21359,7 +21527,6 @@ async def download_projects_list_pdf(
     except Exception as e:
         logger.error(f"Error generating projects list PDF: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to generate PDF: {str(e)[:200]}")
-
 
 # Quiz endpoints
 class QuizWizardPreview(BaseModel):

@@ -580,7 +580,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         )}
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
-        {aiAuditEnabled && (
+        {/* {aiAuditEnabled && (
           <Link href="/create/ai-audit/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
             <LayoutTemplate size={18} />
             <span>{t('interface.templates', 'Templates')}</span>
@@ -589,7 +589,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link href="#" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
           <Palette size={18} />
           <span>{t('interface.themes', 'Themes')}</span>
-        </Link>
+        </Link> */}
         <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
           <span>{t('interface.trash', 'Trash')}</span>

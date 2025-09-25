@@ -255,6 +255,12 @@ export default function LessonPresentationClient() {
   const [slidesCount, setSlidesCount] = useState<number>(
     params?.get("slidesCount") ? Number(params.get("slidesCount")) : 5
   );
+  
+  // Force regeneration when slides count changes
+  const handleSlidesCountChange = (value: string) => {
+    const newCount = Number(value);
+    setSlidesCount(newCount);
+  };
 
   // State for conditional dropdown logic
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(
@@ -699,7 +705,7 @@ export default function LessonPresentationClient() {
       jsonConvertedRef.current = false;
       setOriginalJsonResponse(null);
     };
-  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter]);
+  }, [selectedOutlineId, selectedLesson, lengthOption, language, isFromText, userText, textMode, formatRetryCounter, slidesCount]);
 
   // Note: Auto-scroll effect removed since we're using PresentationPreview instead of textarea
 
@@ -1695,7 +1701,7 @@ export default function LessonPresentationClient() {
                           <div className="flex-1 flex items-center justify-center">
                             <Select
                               value={slidesCount.toString()}
-                              onValueChange={(value: string) => setSlidesCount(Number(value))}
+                              onValueChange={handleSlidesCountChange}
                             >
                               <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
                                 <div className="flex items-center gap-2">

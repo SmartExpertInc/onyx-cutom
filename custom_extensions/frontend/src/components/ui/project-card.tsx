@@ -407,7 +407,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const getProductTypeDisplayName = (type: string): string => {
     switch (type) {
       case "Training Plan":
-        return "Course Outline";
+        return "Course";
       case "Slide Deck":
         return "Presentation";
       case "Text Presentation":
@@ -429,7 +429,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
             ? `/projects-2/view/${project.id}`
-            : `/projects/view/${project.id}`
+            : (project.designMicroproductType === "Training Plan"
+              ? `/projects/view-new/${project.id}`
+              : `/projects/view/${project.id}`)
         )}
         onClick={handleCardClick}
         className="block h-full"
@@ -573,20 +575,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       <PenLine size={16} className="text-gray-500" />
                       <span>{t("actions.rename", "Rename...")}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    {/* <DropdownMenuItem>
                       <Star size={16} className="text-gray-500" />
                       <span>
                         {t("actions.addToFavorites", "Add to favorites")}
                       </span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem onClick={handleDuplicateProject}>
                       <Copy size={16} className="text-gray-500" />
                       <span>{t("actions.duplicate", "Duplicate")}</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    {/* <DropdownMenuItem>
                       <LinkIcon size={16} className="text-gray-500" />
                       <span>{t("actions.copyLink", "Copy link")}</span>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     {isOutline && qualityTierEnabled && (
                       <DropdownMenuItem
                         onClick={(e) => {
