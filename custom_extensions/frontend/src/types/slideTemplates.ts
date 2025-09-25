@@ -247,6 +247,9 @@ export interface HeroTitleSlideProps extends BaseTemplateProps {
 }
 
 export interface EventListTemplateProps extends BaseTemplateProps {
+  title?: string;
+  presenter?: string;
+  subject?: string;
   events: Array<{
     date: string;
     description: string;

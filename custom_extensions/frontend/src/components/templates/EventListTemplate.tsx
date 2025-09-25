@@ -115,6 +115,9 @@ function InlineEditor({
 }
 
 const EventListTemplate: React.FC<EventListTemplateProps> = ({
+  title,
+  presenter,
+  subject,
   events = [],
   isEditable = false,
   onUpdate,
@@ -125,11 +128,11 @@ const EventListTemplate: React.FC<EventListTemplateProps> = ({
   theme,
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const tColor = titleColor || currentTheme.colors.titleColor;
-  const dColor = descriptionColor || currentTheme.colors.contentColor;
-  const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
 
-  // Inline editing state
+  // Inline editing state for title and presenter info
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingPresenter, setEditingPresenter] = useState(false);
+  const [editingSubject, setEditingSubject] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editingField, setEditingField] = useState<'date' | 'description' | null>(null);
 
@@ -150,123 +153,357 @@ const EventListTemplate: React.FC<EventListTemplateProps> = ({
   const handleEditCancel = () => {
     setEditingIdx(null);
     setEditingField(null);
+    setEditingTitle(false);
+    setEditingPresenter(false);
+    setEditingSubject(false);
+  };
+
+  // Handle title editing
+  const handleTitleSave = (newTitle: string) => {
+    if (onUpdate) {
+      onUpdate({ title: newTitle });
+    }
+    setEditingTitle(false);
+  };
+
+  const handlePresenterSave = (newPresenter: string) => {
+    if (onUpdate) {
+      onUpdate({ presenter: newPresenter });
+    }
+    setEditingPresenter(false);
+  };
+
+  const handleSubjectSave = (newSubject: string) => {
+    if (onUpdate) {
+      onUpdate({ subject: newSubject });
+    }
+    setEditingSubject(false);
+  };
+
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    minHeight: '600px',
+    background: '#ffffff',
+    display: 'flex',
+    flexDirection: 'row',
+    position: 'relative',
+    fontFamily: currentTheme.fonts.contentFont,
+    overflow: 'hidden'
+  };
+
+  // Left side with title and presenter info (blue background)
+  const leftSectionStyles: React.CSSProperties = {
+    width: '33%',
+    height: '600px',
+    position: 'absolute',
+    left: '0',
+    top: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    background: '#1e3a8a', // Blue background matching the screenshot
+    padding: '60px 40px',
+    zIndex: 2
+  };
+
+  // Right side with timeline (white background)
+  const rightSectionStyles: React.CSSProperties = {
+    width: '67%',
+    height: '600px',
+    position: 'absolute',
+    right: '0',
+    top: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#ffffff',
+    padding: '40px',
+    zIndex: 1
+  };
+
+  const titleStyles: React.CSSProperties = {
+    fontSize: '2.5rem',
+    fontFamily: 'serif',
+    color: '#ffffff',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    marginBottom: '40px',
+    wordWrap: 'break-word',
+    lineHeight: '1.1'
+  };
+
+  const presenterStyles: React.CSSProperties = {
+    fontSize: '1.1rem',
+    color: '#ffffff',
+    marginBottom: '8px',
+    fontFamily: currentTheme.fonts.contentFont,
+    wordWrap: 'break-word',
+    lineHeight: '1.4'
+  };
+
+  const subjectStyles: React.CSSProperties = {
+    fontSize: '1.1rem',
+    color: '#ffffff',
+    fontFamily: currentTheme.fonts.contentFont,
+    wordWrap: 'break-word',
+    lineHeight: '1.4'
   };
 
   return (
-    <div
-      style={{
-        background: bgColor,
-        minHeight: 600,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontFamily: currentTheme.fonts.contentFont,
-        position: 'relative',
-        padding: '40px',
-        boxSizing: 'border-box'
-      }}
-    >
-      {/* Events List */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: '600px'
-      }}>
-        {events.map((event, idx) => (
-          <div key={idx} style={{ 
-            margin: '24px 0', 
-            textAlign: 'center', 
-            width: '100%',
-            position: 'relative'
-          }}>
-            {/* Separator line (except for first item) */}
-            {idx > 0 && (
+    <div className="event-list-template" style={slideStyles}>
+      {/* Left section with title and presenter info (blue background) */}
+      <div style={leftSectionStyles}>
+        {/* Title */}
+        <div data-draggable="true">
+          {isEditable && editingTitle ? (
+            <InlineEditor
+              initialValue={title || titleColor || 'The Stages of Research'}
+              onSave={handleTitleSave}
+              onCancel={handleEditCancel}
+              multiline={true}
+              placeholder="Enter slide title..."
+              className="inline-editor-title"
+              style={{
+                ...titleStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {title || titleColor || 'The Stages of Research'}
+            </h1>
+          )}
+        </div>
+
+        {/* Presenter */}
+        <div data-draggable="true">
+          {isEditable && editingPresenter ? (
+            <InlineEditor
+              initialValue={presenter || descriptionColor || 'Miss Jones'}
+              onSave={handlePresenterSave}
+              onCancel={handleEditCancel}
+              multiline={false}
+              placeholder="Enter presenter name..."
+              className="inline-editor-presenter"
+              style={{
+                ...presenterStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <div 
+              style={presenterStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingPresenter(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {presenter || descriptionColor || 'Miss Jones'}
+            </div>
+          )}
+        </div>
+
+        {/* Subject */}
+        <div data-draggable="true">
+          {isEditable && editingSubject ? (
+            <InlineEditor
+              initialValue={subject || backgroundColor || 'Science Class'}
+              onSave={handleSubjectSave}
+              onCancel={handleEditCancel}
+              multiline={false}
+              placeholder="Enter subject..."
+              className="inline-editor-subject"
+              style={{
+                ...subjectStyles,
+                padding: '0',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                overflow: 'hidden',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
+            />
+          ) : (
+            <div 
+              style={subjectStyles}
+              onClick={(e) => {
+                if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingSubject(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            >
+              {subject || backgroundColor || 'Science Class'}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Right section with timeline */}
+      <div style={rightSectionStyles}>
+        {/* Timeline */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          maxWidth: '500px',
+          position: 'relative'
+        }}>
+          {/* Timeline line */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50px',
+            right: '50px',
+            height: '2px',
+            backgroundColor: '#1e3a8a',
+            transform: 'translateY(-50%)',
+            zIndex: 1
+          }} />
+
+          {/* Timeline steps */}
+          {events.slice(0, 3).map((event, idx) => (
+            <div key={idx} style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              flex: 1,
+              position: 'relative',
+              zIndex: 2
+            }}>
+              {/* Timeline node */}
               <div style={{
-                position: 'absolute',
-                top: '-12px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                width: '60px',
-                height: '1px',
-                backgroundColor: tColor,
-                opacity: 0.3
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                backgroundColor: '#1e3a8a',
+                border: '3px solid #ffffff',
+                marginBottom: '20px',
+                position: 'relative'
               }} />
-            )}
-            
-            {/* Date */}
-            {isEditable && editingIdx === idx && editingField === 'date' ? (
-              <InlineEditor
-                initialValue={event.date}
-                onSave={val => handleEventChange(idx, 'date', val)}
-                onCancel={handleEditCancel}
-                multiline={false}
-                placeholder="Enter event date..."
-                className="inline-editor-date"
-                style={{
-                  fontWeight: 700,
-                  fontSize: 40,
-                  color: tColor,
-                  textAlign: 'center',
-                  marginBottom: 8,
-                  width: '100%',
-                  fontFamily: currentTheme.fonts.titleFont
-                }}
-              />
-            ) : (
-              <div
-                style={{ 
-                  fontWeight: 700, 
-                  fontSize: 40, 
-                  color: tColor, 
-                  marginBottom: 8, 
-                  cursor: isEditable ? 'pointer' : 'default',
-                  fontFamily: currentTheme.fonts.titleFont
-                }}
-                onClick={() => handleEditStart(idx, 'date')}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {event.date || (isEditable ? 'Click to add date' : '')}
-              </div>
-            )}
-            
-            {/* Description */}
-            {isEditable && editingIdx === idx && editingField === 'description' ? (
-              <InlineEditor
-                initialValue={event.description}
-                onSave={val => handleEventChange(idx, 'description', val)}
-                onCancel={handleEditCancel}
-                multiline={false}
-                placeholder="Enter event description..."
-                className="inline-editor-description"
-                style={{
-                  fontWeight: 400,
-                  fontSize: 22,
-                  color: dColor,
-                  textAlign: 'center',
-                  width: '100%',
-                  fontFamily: currentTheme.fonts.contentFont
-                }}
-              />
-            ) : (
-              <div
-                style={{ 
-                  fontWeight: 400, 
-                  fontSize: 22, 
-                  color: dColor, 
-                  cursor: isEditable ? 'pointer' : 'default',
-                  fontFamily: currentTheme.fonts.contentFont
-                }}
-                onClick={() => handleEditStart(idx, 'description')}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {event.description || (isEditable ? 'Click to add description' : '')}
-              </div>
-            )}
-          </div>
-        ))}
+
+              {/* Step title */}
+              {isEditable && editingIdx === idx && editingField === 'date' ? (
+                <InlineEditor
+                  initialValue={event.date}
+                  onSave={val => handleEventChange(idx, 'date', val)}
+                  onCancel={handleEditCancel}
+                  multiline={false}
+                  placeholder="Enter step title..."
+                  className="inline-editor-step-title"
+                  style={{
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    color: '#1a1a1a',
+                    textAlign: 'center',
+                    marginBottom: '8px',
+                    width: '100%',
+                    fontFamily: currentTheme.fonts.titleFont
+                  }}
+                />
+              ) : (
+                <div
+                  style={{ 
+                    fontWeight: 700, 
+                    fontSize: '1.1rem', 
+                    color: '#1a1a1a', 
+                    marginBottom: '8px', 
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.titleFont,
+                    textAlign: 'center'
+                  }}
+                  onClick={() => handleEditStart(idx, 'date')}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {event.date || `Step ${idx + 1}`}
+                </div>
+              )}
+              
+              {/* Step description */}
+              {isEditable && editingIdx === idx && editingField === 'description' ? (
+                <InlineEditor
+                  initialValue={event.description}
+                  onSave={val => handleEventChange(idx, 'description', val)}
+                  onCancel={handleEditCancel}
+                  multiline={false}
+                  placeholder="Enter step description..."
+                  className="inline-editor-step-description"
+                  style={{
+                    fontWeight: 400,
+                    fontSize: '0.9rem',
+                    color: '#666666',
+                    textAlign: 'center',
+                    width: '100%',
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                />
+              ) : (
+                <div
+                  style={{ 
+                    fontWeight: 400, 
+                    fontSize: '0.9rem', 
+                    color: '#666666', 
+                    cursor: isEditable ? 'pointer' : 'default',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    textAlign: 'center'
+                  }}
+                  onClick={() => handleEditStart(idx, 'description')}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                >
+                  {event.description || 'Add step description'}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

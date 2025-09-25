@@ -889,30 +889,44 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'event-list': {
     id: 'event-list',
     name: 'Event Dates',
-    description: 'List of event dates with descriptions, visually separated.',
+    description: 'Two-column layout with title/presenter info on blue left side and timeline on white right side',
     category: 'special',
     icon: '📅',
     component: EventListTemplate,
     defaultProps: {
+      title: 'The Stages of Research',
+      presenter: 'Miss Jones',
+      subject: 'Science Class',
       events: [
-        { date: 'April 14', description: 'You can insert here the title of the event or a small description' },
-        { date: 'June 6', description: 'You can insert here the title of the event or a small description' },
-        { date: 'July 12', description: 'You can insert here the title of the event or a small description' },
+        { date: 'Step 1', description: 'Add step description' },
+        { date: 'Step 2', description: 'Add step description' },
+        { date: 'Step 3', description: 'Add step description' },
       ],
-      titleColor: undefined, // Will use theme color
-      descriptionColor: undefined, // Will use theme content color
-      backgroundColor: undefined, // Will use theme background color
+      titleColor: 'The Stages of Research',
+      descriptionColor: 'Miss Jones',
+      backgroundColor: 'Science Class',
     },
     propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      presenter: { type: 'text', label: 'Presenter', required: true },
+      subject: { type: 'text', label: 'Subject', required: true },
       events: {
         type: 'array',
-        label: 'Events',
-        description: 'List of events with date and description',
+        label: 'Timeline Steps',
+        description: 'List of timeline steps with titles and descriptions',
         required: true,
+        arrayItemType: {
+          type: 'object',
+          label: 'Step',
+          properties: {
+            date: { type: 'text', label: 'Step Title', required: true },
+            description: { type: 'text', label: 'Step Description', required: true }
+          }
+        }
       },
-      titleColor: { type: 'color', label: 'Date Color', default: undefined },
-      descriptionColor: { type: 'color', label: 'Description Color', default: undefined },
-      backgroundColor: { type: 'color', label: 'Background', default: undefined },
+      titleColor: { type: 'text', label: 'Title Text', default: 'The Stages of Research' },
+      descriptionColor: { type: 'text', label: 'Presenter Text', default: 'Miss Jones' },
+      backgroundColor: { type: 'text', label: 'Subject Text', default: 'Science Class' },
     }
   },
 
