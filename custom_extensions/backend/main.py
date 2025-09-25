@@ -21330,7 +21330,7 @@ class QuizWizardPreview(BaseModel):
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
-    lesson: str
+    lesson: Optional[str] = None
     courseName: Optional[str] = None  # Course name (outline name) for proper course context
     aiResponse: str                        # User-edited quiz data
     chatSessionId: Optional[str] = None
@@ -21807,6 +21807,10 @@ async def quiz_edit(payload: QuizEditRequest, request: Request):
 @app.post("/api/custom/quiz/finalize")
 async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Finalize quiz creation by parsing AI response and saving to database"""
+    cookies = {ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)}
+    if not cookies[ONYX_SESSION_COOKIE_NAME]:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
     onyx_user_id = await get_current_onyx_user_id(request)
     
     # Get user ID and deduct credits for quiz creation
@@ -21830,6 +21834,16 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
     except Exception as e:
         logger.error(f"Error processing credits for quiz creation: {e}")
         raise HTTPException(status_code=500, detail="Failed to process credits")
+
+    if payload.chatSessionId:
+        chat_id = payload.chatSessionId
+    else:
+        # Check if this is a Knowledge Base search request
+        use_search_persona = hasattr(payload, 'fromKnowledgeBase') and payload.fromKnowledgeBase
+        persona_id = await get_contentbuilder_persona_id(cookies, use_search_persona=use_search_persona)
+        chat_id = await create_onyx_chat_session(persona_id, cookies)
+
+    raw_quiz_cached = QUIZ_PREVIEW_CACHE.get(chat_id)
     
     # Create a unique key for this quiz finalization to prevent duplicates
     quiz_key = f"{onyx_user_id}:{payload.lesson}:{hash(payload.aiResponse) % 1000000}"
@@ -21881,7 +21895,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         # CONSISTENT NAMING: Use the same pattern as lesson presentations
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lesson.strip()
+        project_name = None
         if payload.outlineId:
             try:
                 # Fetch outline name from database
@@ -21900,6 +21914,20 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
         else:
+            # Extract project name from JSON or markdown
+            try:
+                # Try JSON first
+                cached_json = json.loads(raw_quiz_cached.strip())
+                if isinstance(cached_json, dict) and "mainTitle" in cached_json:
+                    project_name = cached_json["mainTitle"]
+                    logger.info(f"[DIRECT_PATH] Extracted project name from JSON: {project_name}")
+            except (json.JSONDecodeError, KeyError):
+                pass
+            
+            # Fallback to markdown extraction or payload prompt
+            if not project_name:
+                project_name = _extract_project_name_from_markdown(raw_quiz_cached) or payload.prompt
+                
             logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
