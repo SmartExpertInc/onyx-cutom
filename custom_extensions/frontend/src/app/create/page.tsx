@@ -167,7 +167,7 @@ export default function DataSourceLanding() {
       console.error('Error checking failed state:', error);
     }
     
-    trackCreateProduct("Clicked");
+    trackCreateProduct("Clicked", sessionStorage.getItem('lessonContext') != null ? true : false);
   };
 
   return (
