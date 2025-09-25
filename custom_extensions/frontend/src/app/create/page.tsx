@@ -310,7 +310,7 @@ export default function DataSourceLanding() {
       <main
         className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
         style={{
-          background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 100%)`
+          background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
         }}
       >
       {/* Top-left home button */}
@@ -332,7 +332,7 @@ export default function DataSourceLanding() {
         />
 
         {/* Option cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16 w-full max-w-6xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16 w-full max-w-6xl backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-8 shadow-lg">
           <OptionCard
             Icon={TextIcon}
             title={t('interface.pasteInText', 'Paste in text')}
