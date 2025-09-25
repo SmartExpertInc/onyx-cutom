@@ -7437,6 +7437,30 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding audit sharing columns (may already exist): {e}")
 
+            # Migrate existing audits to use dedicated microproduct_type
+            try:
+                async with DB_POOL.acquire() as conn:
+                    # Update existing audits that have AI audit names but wrong microproduct_type
+                    result = await conn.execute("""
+                        UPDATE projects 
+                        SET product_type = 'AI Audit', microproduct_type = 'AI Audit'
+                        WHERE (project_name LIKE '%AI-Аудит%' OR project_name LIKE '%AI-Audit%')
+                        AND microproduct_type != 'AI Audit'
+                    """)
+                    logger.info(f"Updated {result.split()[-1]} existing audits to use 'AI Audit' microproduct_type")
+                    
+                    # Also update trashed_projects for consistency
+                    await conn.execute("""
+                        UPDATE trashed_projects 
+                        SET product_type = 'AI Audit', microproduct_type = 'AI Audit'
+                        WHERE (project_name LIKE '%AI-Аудит%' OR project_name LIKE '%AI-Audit%')
+                        AND microproduct_type != 'AI Audit'
+                    """)
+                    logger.info("Updated trashed audits to use 'AI Audit' microproduct_type")
+                    
+            except Exception as e:
+                logger.warning(f"Error migrating existing audits (may already be updated): {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -15802,8 +15826,8 @@ async def insert_ai_audit_onepager_to_db(
             insert_query,
             onyx_user_id,
             project_name,
-            "Text Presentation",  # product_type
-            "Text Presentation",  # microproduct_type
+            "AI Audit",  # product_type
+            "AI Audit",  # microproduct_type
             project_name,  # microproduct_name
             microproduct_content,  # parsed content from AI parser
             template_id,  # design_template_id (from _ensure_text_presentation_template)

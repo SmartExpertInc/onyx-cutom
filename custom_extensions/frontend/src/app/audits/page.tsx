@@ -657,19 +657,10 @@ const AuditsPageInner: React.FC = () => {
           const foldersData = await foldersResponse.json();
           const projectsData = await projectsResponse.json();
 
-          // Filter projects to only include audits
+          // Filter projects to only include audits using dedicated microproduct_type
           const auditProjects = projectsData.filter((project: any) => {
-            // Check if it's an AI audit by project name pattern
-            const isAIAudit = project.project_name && (
-              project.project_name.includes('AI-Аудит') || 
-              project.project_name.includes('AI-Audit')
-            );
-            
-            // Check if it's a Text Presentation (which includes audits)
-            const isTextPresentation = project.design_microproduct_type === 'Text Presentation' || 
-                                     project.design_microproduct_type === 'TextPresentationDisplay';
-            
-            return isAIAudit || isTextPresentation;
+            // Use the dedicated microproduct_type for audits
+            return project.microproduct_type === 'AI Audit';
           });
 
           // Process audit projects to get folder mappings
