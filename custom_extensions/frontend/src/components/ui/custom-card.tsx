@@ -55,15 +55,15 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         className={cn(
           "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
           useCSSVariables 
-            ? "bg-[oklch(var(--card))] border-[oklch(var(--border))] shadow-lg hover:shadow-xl"
-            : "bg-[oklch(var(--card))] border-[oklch(var(--border))] shadow-lg hover:shadow-xl",
+            ? "bg-card border shadow-lg hover:shadow-xl"
+            : "bg-card border shadow-lg hover:shadow-xl",
           disabled
             ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
             : selectable 
               ? `cursor-pointer ${
                   isSelected 
-                    ? 'border-[oklch(var(--primary))] shadow-xl bg-[oklch(var(--accent))]' 
-                    : 'border-[oklch(var(--border))] hover:shadow-2xl hover:border-[oklch(var(--primary))]'
+                    ? 'border-primary shadow-xl bg-accent' 
+                    : 'border hover:shadow-2xl hover:border-primary'
                 }`
               : "cursor-pointer shadow-lg hover:shadow-xl",
           className
@@ -71,15 +71,15 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-24 w-110 h-110 bg-[oklch(var(--accent))]/50 rounded-full border-[oklch(var(--border))]/80" />
-        <div className="absolute -top-12 -left-14 w-80 h-80 bg-[oklch(var(--accent))]/30 rounded-full border-[oklch(var(--border))]/80" />
+        <div className="absolute -top-20 -left-24 w-110 h-110 bg-accent/50 rounded-full border/80" />
+        <div className="absolute -top-12 -left-14 w-80 h-80 bg-accent/30 rounded-full border/80" />
         
         {/* Selection Indicator */}
         {selectable && (
           <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
             isSelected
-              ? 'bg-[oklch(var(--primary))] border-[oklch(var(--primary))]'
-              : 'border-[oklch(var(--border))] group-hover:border-[oklch(var(--primary))]'
+              ? 'bg-primary border-primary'
+              : 'border group-hover:border-primary'
           }`}>
             {isSelected && (
               <Check size={14} className="text-white" />
@@ -95,8 +95,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                 className={cn(
                   "inline-flex items-center px-2 py-1 text-sm font-semibold",
                   useCSSVariables 
-                    ? "bg-[oklch(var(--card))] rounded-md border-none text-[oklch(var(--primary))] gap-1"
-                    : "bg-[oklch(var(--card))] rounded-md border-none text-[oklch(var(--primary))] gap-1"
+                    ? "bg-card rounded-md border-none text-card-foreground gap-1"
+                    : "bg-card rounded-md border-none text-card-foreground gap-1"
                 )}
               >
                 <SparklesIcon size={10} />
@@ -109,12 +109,12 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           {Icon && (
             <div className="flex items-start justify-start h-16 relative mb-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))]/20 to-[oklch(var(--primary))]/10 rounded-lg blur-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg blur-sm"></div>
                 <Icon 
                   size={53} 
                   className={cn(
                     "relative z-10",
-                    useCSSVariables ? "text-[oklch(var(--primary))]" : "text-[oklch(var(--primary))]"
+                    useCSSVariables ? "text-primary" : "text-primary"
                   )} 
                 />
               </div>
@@ -127,7 +127,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {title && (
                 <h3 className={cn(
                   "text-2xl font-semibold text-left leading-tight tracking-tight",
-                  useCSSVariables ? "text-[oklch(var(--card-foreground))]" : "text-[oklch(var(--card-foreground))]"
+                  useCSSVariables ? "text-card-foreground" : "text-card-foreground"
                 )}>
                   {title}
                 </h3>
@@ -135,7 +135,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {description && (
                 <p className={cn(
                   "text-base text-left leading-relaxed max-w-[64%]",
-                  useCSSVariables ? "text-[oklch(var(--muted-foreground))]" : "text-[oklch(var(--muted-foreground))]"
+                  useCSSVariables ? "text-muted-foreground" : "text-muted-foreground"
                 )}>
                   {description}
                 </p>
