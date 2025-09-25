@@ -480,22 +480,24 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
           style={{
             display: 'flex',
             flexDirection: 'row',
-            alignItems: 'flex-start',
+            alignItems: 'center',
             justifyContent: 'center',
             width: '100%',
-            maxWidth: '600px',
+            maxWidth: '800px',
             position: 'relative',
-            padding: '60px 0'
+            padding: '80px 40px',
+            minHeight: '200px'
           }}
         >
-          {/* Timeline line */}
+          {/* Timeline line - full width with proper margins */}
           <div style={{
             position: 'absolute',
-            top: '80px',
-            left: '80px',
-            right: '80px',
+            top: '50%',
+            left: '60px',
+            right: '60px',
             height: '2px',
             backgroundColor: '#1e3a8a',
+            transform: 'translateY(-50%)',
             zIndex: 1
           }} />
 
@@ -507,30 +509,44 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
               alignItems: 'center',
               flex: 1,
               position: 'relative',
-              zIndex: 2,
-              minHeight: '120px'
+              zIndex: 2
             }}>
-              {/* Timeline node */}
+              {/* Square numbered node */}
               <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
                 backgroundColor: '#1e3a8a',
-                border: '3px solid #ffffff',
-                marginBottom: '20px',
-                position: 'relative',
-                flexShrink: 0
-              }} />
+                border: '2px solid #ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'absolute',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                flexShrink: 0,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <span style={{
+                  color: '#ffffff',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  fontFamily: currentTheme.fonts.titleFont,
+                  lineHeight: '1'
+                }}>
+                  {idx + 1}
+                </span>
+              </div>
 
-              {/* Step title */}
+              {/* Step text content */}
               <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 width: '100%',
-                minHeight: '60px',
-                justifyContent: 'flex-start'
+                marginTop: '50px',
+                textAlign: 'center'
               }}>
+                {/* Step title */}
                 {isEditable && editingIdx === idx && editingField === 'date' ? (
                   <InlineEditor
                     initialValue={event.date}
@@ -550,7 +566,8 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
-                      width: '100%'
+                      width: '100%',
+                      marginBottom: '4px'
                     }}
                   />
                 ) : (
@@ -558,12 +575,13 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                     style={{ 
                       ...stepTitleStyles,
                       cursor: isEditable ? 'pointer' : 'default',
-                      width: '100%'
+                      width: '100%',
+                      marginBottom: '4px'
                     }}
                     onClick={() => handleEditStart(idx, 'date')}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                   >
-                    {event.date || 'Add step title'}
+                    {event.date || 'Add step'}
                   </div>
                 )}
                 
@@ -600,7 +618,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                     onClick={() => handleEditStart(idx, 'description')}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
                   >
-                    {event.description || 'Add step description'}
+                    {event.description || 'description'}
                   </div>
                 )}
               </div>
