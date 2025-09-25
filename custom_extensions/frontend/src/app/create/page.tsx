@@ -338,10 +338,10 @@ export default function DataSourceLanding() {
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
             href="/create/paste-text"
-            gradientFrom="from-blue-300"
-            gradientTo="to-purple-200"
-            iconColor="text-blue-600"
-            labelColor="text-blue-600"
+            gradientFrom="from-orange-300"
+            gradientTo="to-yellow-200"
+            iconColor="text-orange-600"
+            labelColor="text-orange-600"
           />
           <OptionCard
             Icon={GenerateIcon}
@@ -359,10 +359,10 @@ export default function DataSourceLanding() {
             title={t('interface.importFileOrUrl', 'Create from files')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
-            gradientFrom="from-purple-300"
-            gradientTo="to-pink-200"
-            iconColor="text-[oklch(74%_0.238_322.16)]"
-            labelColor="text-[oklch(74%_0.238_322.16)]"
+            gradientFrom="from-pink-300"
+            gradientTo="to-rose-200"
+            iconColor="text-pink-600"
+            labelColor="text-pink-600"
           />
         </div>
 
