@@ -1198,7 +1198,7 @@ export default function ProductViewNewPage() {
                                               <CustomTooltip content="Regenerate" position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                                  className="p-1"
+                                                  className="p-1 cursor-pointer"
                                                 >
                                                   <RefreshCcw size={14} className="text-gray-700" />
                                                 </button>
@@ -1213,7 +1213,7 @@ export default function ProductViewNewPage() {
                                               <CustomTooltip content="Regenerate" position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                                  className="p-1"
+                                                  className="p-1 cursor-pointer"
                                                 >
                                                   <RefreshCcw size={14} className="text-gray-700" />
                                                 </button>
@@ -1228,7 +1228,7 @@ export default function ProductViewNewPage() {
                                               <CustomTooltip content="Regenerate" position="top">
                                                 <button
                                                   onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                                  className="p-1"
+                                                  className="p-1 cursor-pointer"
                                                 >
                                                   <RefreshCcw size={14} className="text-gray-700" />
                                                 </button>
@@ -1244,7 +1244,7 @@ export default function ProductViewNewPage() {
                                                 <CustomTooltip content="Regenerate" position="top">
                                                   <button
                                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                                    className="p-1"
+                                                    className="p-1 cursor-pointer"
                                                   >
                                                     <RefreshCcw size={14} className="text-gray-700" />
                                                   </button>
@@ -1323,23 +1323,39 @@ export default function ProductViewNewPage() {
       {/* Regenerate Confirmation Modal */}
       {showRegenerateModal.isOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white rounded-lg p-4 max-w-sm w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">
               Regenerate Product
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4 text-sm">
               You are about to create a new product. The old one will be deleted.
             </p>
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-2 justify-end">
               <button
                 onClick={handleRegenerateCancel}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#6B7280',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleRegenerateConfirm}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#0F58F9',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
               >
                 OK
               </button>
