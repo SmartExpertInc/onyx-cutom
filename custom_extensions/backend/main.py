@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, RootModel
 import re
 import os
 import asyncpg
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 import httpx
 from httpx import HTTPStatusError
 import json
@@ -1673,7 +1673,7 @@ DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM = """
 }
 """
 
-def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
+async def normalize_slide_props(slides: List[Dict], component_name: str = None) -> List[Dict]:
     """
     Normalize slide props to match frontend template schemas.
     
@@ -2349,6 +2349,14 @@ def normalize_slide_props(slides: List[Dict], component_name: str = None) -> Lis
         except Exception as e:
             logger.error(f"Error normalizing slide {slide_index + 1} with template '{template_id}': {e}")
             logger.warning(f"Removing problematic slide {slide_index + 1}")
+
+            # Log error to database if possible
+            try:
+                async with DB_POOL.acquire() as conn:
+                    await save_slide_creation_error(conn, None, template_id, props, str(e))
+            except Exception as err:
+                logger.error(f"Failed to save slide_creation_error: {err}")
+
             continue  # Skip this slide
     
     logger.info(f"Slide normalization complete: {len(slides)} -> {len(normalized_slides)} slides (removed {len(slides) - len(normalized_slides)} invalid slides)")
@@ -5984,6 +5992,17 @@ async def startup_event():
                                             ))
         async with DB_POOL.acquire() as connection:
             await connection.execute("""
+                CREATE TABLE IF NOT EXISTS slide_creation_errors (
+                    id SERIAL PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    template_id TEXT NOT NULL,
+                    props JSONB,
+                    error_message TEXT,
+                    created_at TIMESTAMPTZ DEFAULT now()
+                );
+            """)
+
+            await connection.execute("""
                 CREATE TABLE IF NOT EXISTS design_templates (
                     id SERIAL PRIMARY KEY,
                     template_name TEXT NOT NULL UNIQUE,
@@ -6770,6 +6789,27 @@ class ProductUsage(BaseModel):
 class CreditUsageAnalyticsResponse(BaseModel):
     usage_by_product: List[ProductUsage]
     total_credits_used: int
+
+class TemplateTypeUsage(BaseModel):
+    template_id: str
+    total_generated: int
+    client_count: int
+    error_count: int
+    last_usage: str
+
+class SlidesAnalyticsResponse(BaseModel):
+    usage_by_template: List[TemplateTypeUsage]
+
+class SlideGenerationError(BaseModel):
+    id: int
+    user_id: str
+    template_id: str
+    props: Dict[str, Any]
+    error_message: str
+    created_at: datetime
+
+class SlidesErrorsAnalyticsResponse(BaseModel):
+    errors: List[SlideGenerationError]
 
 class TimelineActivity(BaseModel):
     id: str
@@ -10576,6 +10616,24 @@ def build_source_context(payload) -> tuple[Optional[str], Optional[dict]]:
     
     return context_type, context_data
 
+async def save_slide_creation_error(
+    conn,
+    user_id: str,
+    template_id: str,
+    props: dict,
+    error_message: str
+):
+    await conn.execute(
+        """
+        INSERT INTO slide_creation_errors (user_id, template_id, props, error_message)
+        VALUES ($1, $2, $3, $4)
+        """,
+        user_id,
+        template_id,
+        json.dumps(props, ensure_ascii=False),
+        error_message
+    )
+
 async def add_project_to_custom_db(project_data: ProjectCreateRequest, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
     # ---- Guard against duplicate concurrent submissions (same user+project name) ----
     lock_key = f"{onyx_user_id}:{project_data.projectName.strip().lower()}"
@@ -11720,7 +11778,7 @@ Return ONLY the JSON object.
             
             # Normalize slide props to fix schema mismatches
             slides_dict = [slide.model_dump() if hasattr(slide, 'model_dump') else dict(slide) for slide in parsed_content_model_instance.slides]
-            normalized_slides = normalize_slide_props(slides_dict, selected_design_template.component_name)
+            normalized_slides = await normalize_slide_props(slides_dict, selected_design_template.component_name)
             
             # Update the content with normalized slides
             content_dict = parsed_content_model_instance.model_dump(mode='json', exclude_none=True)
@@ -11807,13 +11865,13 @@ Return ONLY the JSON object.
                 elif component_name_from_db == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_dict and db_content_dict['slides']:
-                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
+                        db_content_dict['slides'] = await normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails.")
                 elif component_name_from_db == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_dict and db_content_dict['slides']:
-                        db_content_dict['slides'] = normalize_slide_props(db_content_dict['slides'], component_name_from_db)
+                        db_content_dict['slides'] = await normalize_slide_props(db_content_dict['slides'], component_name_from_db)
                     final_content_for_response = SlideDeckDetails(**db_content_dict)
                     logger.info("Re-parsed as SlideDeckDetails (Video Lesson Presentation).")
                 elif component_name_from_db == COMPONENT_NAME_LESSON_PLAN:
@@ -11907,12 +11965,12 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
                 elif component_name == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_json and db_content_json['slides']:
-                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'], component_name)
+                        db_content_json['slides'] = await normalize_slide_props(db_content_json['slides'], component_name)
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 elif component_name == COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content_json and db_content_json['slides']:
-                        db_content_json['slides'] = normalize_slide_props(db_content_json['slides'], component_name)
+                        db_content_json['slides'] = await normalize_slide_props(db_content_json['slides'], component_name)
                     parsed_content_for_response = SlideDeckDetails(**db_content_json)
                 else:
                     logger.warning(f"Unknown component_name '{component_name}' for project {project_id}. Trying fallbacks.", exc_info=not IS_PRODUCTION)
@@ -19791,7 +19849,7 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 elif current_component_name == COMPONENT_NAME_SLIDE_DECK:
                     # Apply slide normalization before parsing
                     if 'slides' in db_content and db_content['slides']:
-                        db_content['slides'] = normalize_slide_props(db_content['slides'], current_component_name)
+                        db_content['slides'] = await normalize_slide_props(db_content['slides'], current_component_name)
                     final_content_for_model = SlideDeckDetails(**db_content)
                 else:
                     db_content = sanitize_training_plan_for_parse(db_content)
@@ -23171,6 +23229,123 @@ async def get_usage_analytics(
     except Exception as e:
         logger.error(f"Error fetching usage analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+
+# Slide analytics across all users
+@app.get("/api/custom/admin/analytics/slides", response_model=SlidesAnalyticsResponse)
+async def get_slides_analytics(
+    request: Request,
+    date_from: str,
+    date_to: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    try:
+        start_date = date.fromisoformat(date_from)
+        end_date = date.fromisoformat(date_to)
+
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                WITH last_usages AS (
+                    SELECT
+                        slide->>'templateId' AS lu_template_id,
+                        MAX(projects.created_at) AS last_usage
+                    FROM
+                        projects
+                    CROSS JOIN LATERAL
+                        jsonb_array_elements(microproduct_content->'slides') AS slide
+                    WHERE
+                        microproduct_content ? 'slides'
+                        AND projects.created_at BETWEEN $1 AND $2
+                    GROUP BY
+                        lu_template_id
+                )
+                SELECT
+                    slide->>'templateId' AS template_id,
+                    COUNT(*) AS total_generated,
+                    COUNT(DISTINCT projects.onyx_user_id) AS client_count,
+                    COALESCE(error_counts.error_count, 0) AS error_count,
+                    COALESCE(last_usages.last_usage, NULL) AS last_usage
+                FROM
+                    projects
+                CROSS JOIN LATERAL
+                    jsonb_array_elements(microproduct_content->'slides') AS slide
+                LEFT JOIN (
+                    SELECT sce.template_id AS ec_template_id, COUNT(*) AS error_count
+                    FROM slide_creation_errors sce
+                    WHERE sce.created_at BETWEEN $1 AND $2
+                    GROUP BY ec_template_id
+                ) AS error_counts
+                ON slide->>'templateId' = error_counts.ec_template_id
+                LEFT JOIN last_usages
+                ON slide->>'templateId' = last_usages.lu_template_id
+                WHERE
+                    microproduct_content ? 'slides'
+                    AND projects.created_at BETWEEN $1 AND $2
+                GROUP BY
+                    slide->>'templateId', error_counts.error_count, last_usages.last_usage
+                ORDER BY
+                    total_generated DESC
+                """
+            , start_date, end_date)
+            template_stats = [
+                TemplateTypeUsage(
+                    template_id=row['template_id'],
+                    total_generated=row['total_generated'],
+                    client_count=row['client_count'],
+                    error_count=row['error_count'],
+                    #error_count=1,
+                    last_usage=row['last_usage'].isoformat() if row['last_usage'] else "",
+                ) for row in rows
+            ]
+            return SlidesAnalyticsResponse(usage_by_template=template_stats)
+    except Exception as e:
+        logger.error(f"Error fetching slides analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch slides analytics")
+
+@app.get("/api/custom/admin/analytics/slides-errors", response_model=SlidesErrorsAnalyticsResponse)
+async def get_slides_errors_analytics(
+    request: Request,
+    date_from: str,
+    date_to: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    await verify_admin_user(request)
+    try:
+        start_date = date.fromisoformat(date_from)
+        end_date = date.fromisoformat(date_to)
+
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT 
+                    sce.id,
+                    sce.user_id,
+                    sce.template_id,
+                    sce.props,
+                    sce.error_message,
+                    sce.created_at
+                FROM slide_creation_errors sce
+                WHERE sce.created_at BETWEEN $1 AND $2
+                ORDER BY sce.created_at DESC
+                """,
+                start_date, end_date
+            )
+            errors = [
+                SlideGenerationError(
+                    id=row["id"],
+                    user_id=row["user_id"],
+                    template_id=row["template_id"],
+                    props=row["props"],
+                    error_message=row["error_message"],
+                    created_at=row["created_at"]
+                )
+                for row in rows
+            ]
+            return SlidesErrorsAnalyticsResponse(errors=errors)
+    except Exception as e:
+        logger.error(f"Error fetching slides errors analytics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch slides errors analytics")
 
 @app.post("/api/custom/admin/credits/migrate-users")
 async def migrate_onyx_users_to_credits(

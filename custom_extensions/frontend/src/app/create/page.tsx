@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { CustomCard } from "@/components/ui/custom-card";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { trackCreateProduct } from "../../lib/mixpanelClient"
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -274,6 +275,8 @@ function CreatePageHandler() {
       try {
         sessionStorage.removeItem('lessonContext');
         sessionStorage.removeItem('lessonContextForDropdowns');
+        sessionStorage.removeItem('activeProductType');
+        sessionStorage.removeItem('stylesState');
       } catch (error) {
         console.error('Error clearing lesson context:', error);
       }
@@ -302,6 +305,21 @@ function CreatePageHandler() {
 export default function DataSourceLanding() {
   const { t } = useLanguage();
 
+  const handleCreateProductEnd = () => {
+    // Check if a "Failed" event has already been tracked
+    try {
+      const hasFailed = sessionStorage.getItem('createProductFailed');
+      if (hasFailed === 'true') {
+        // Don't track "Clicked" if "Failed" was already tracked
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking failed state:', error);
+    }
+    
+    trackCreateProduct("Clicked", sessionStorage.getItem('lessonContext') != null ? true : false);
+  };
+
   return (
     <>
       <Suspense fallback={null}>
@@ -313,6 +331,7 @@ export default function DataSourceLanding() {
       {/* Top-left home button */}
       <Link
         href="/projects"
+        onClick={() => handleCreateProductEnd()}
         className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
       >
         <HomeIcon size={16} />

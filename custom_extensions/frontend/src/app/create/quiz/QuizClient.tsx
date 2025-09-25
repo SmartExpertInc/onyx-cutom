@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -140,6 +141,14 @@ export default function QuizClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
 
   const quizExamples: { short: string; detailed: string }[] = [
     {
@@ -905,6 +914,7 @@ export default function QuizClient() {
     if (!quizData.trim()) return;
 
     setIsCreatingFinal(true);
+    const activeProductType = sessionStorage.getItem('activeProductType');
     try {
       // NEW: Prepare content based on whether user made edits
       let contentToSend = quizData;
@@ -958,12 +968,55 @@ export default function QuizClient() {
       const result = await response.json();
       setFinalProductId(result.id);
 
+      await trackCreateProduct(
+        "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+        fromFiles,
+        fromText,
+        fromKnowledgeBase,
+        fromConnectors,
+        language, 
+        activeProductType ?? undefined, 
+        undefined,
+        advancedModeState
+      );
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
+
       // Redirect to the created quiz
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(result.id)); } catch (_) {}
       }
       router.push(`/projects/view/${result.id}?from=create`);
     } catch (error: any) {
+      try {
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct(
+            "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+            fromFiles,
+            fromText,
+            fromKnowledgeBase,
+            fromConnectors,
+            language, 
+            activeProductType ?? undefined,
+            undefined,
+            advancedModeState
+          );
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
+      
       console.error('Finalization error:', error);
       setError(error.message || 'An error occurred during finalization');
     } finally {
@@ -1727,7 +1780,10 @@ export default function QuizClient() {
                     <button
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={handleApplyQuizEdit}
+                      onClick={() => {
+                        handleApplyQuizEdit();
+                        setAdvancedModeState("Used");
+                      }}
                       className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
                       style={{
                         background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
@@ -1742,7 +1798,10 @@ export default function QuizClient() {
               <div className="w-full flex justify-center mt-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    handleAdvancedModeClick();
+                  }}
                   className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
                   style={{
                     background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',

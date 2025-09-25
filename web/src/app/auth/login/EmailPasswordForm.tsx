@@ -12,6 +12,7 @@ import { Spinner } from "@/components/Spinner";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Link from "next/link";
 import { useUser } from "@/components/user/UserProvider";
+import { identifyUser, trackSignUp, resetUser } from "@/lib/mixpanelClient";
 import { useRouter } from "next/navigation";
 
 export function EmailPasswordForm({
@@ -83,6 +84,10 @@ export function EmailPasswordForm({
               setIsWorking(false);
               return;
             } else {
+              const userJson = await response.json();
+              identifyUser(userJson.id);
+              trackSignUp({ "Referral Source": referralSource }, true);
+              resetUser();
               setPopup({
                 type: "success",
                 message: "Account created successfully. Please log in.",

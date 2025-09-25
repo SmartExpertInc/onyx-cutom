@@ -44,17 +44,33 @@ import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
 import LMSProductSelector from '../../components/LMSProductSelector';
 import { LMSAccountStatus } from '../../types/lmsTypes';
 import { ToastProvider } from '../../components/ui/toast';
+import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
+import Userback, { UserbackWidget } from '@userback/widget';
+
+
+interface User {
+  id: string;
+  email: string;
+}
 
 // Authentication check function
-const checkAuthentication = async (): Promise<boolean> => {
+const checkAuthentication = async (): Promise<User | null> => {
   try {
     const response = await fetch('/api/me', {
       credentials: 'same-origin',
     });
-    return response.ok;
+    if (!response.ok) {
+      return null;
+    }
+    const userData = await response.json();
+
+    return {
+      id: userData.id,
+      email: userData.email,
+    };
   } catch (error) {
     console.error('Authentication check failed:', error);
-    return false;
+    return null;
   }
 };
 
@@ -467,7 +483,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link
           href="/projects?tab=smart-drive"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'smart-drive' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
+          onClick={() => {
+            trackPageView("Smart Drive");
+            onFolderSelect(null);
+          }}
         >
           <HardDrive size={18} />
           <span>{t('interface.smartDrive', 'Smart Drive')}</span>
@@ -476,7 +495,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
           <Link
             href="/projects?tab=offers"
             className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'offers' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-            onClick={() => onFolderSelect(null)}
+            onClick={() => {
+            trackPageView("Offers");
+            onFolderSelect(null);
+          }}
           >
             <FileText size={18} />
             <span>{t('interface.offers', 'Offers')}</span>
@@ -495,7 +517,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         <Link
           href="/projects?tab=export-lms"
           className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
+          onClick={() => {
+            trackPageView("Export to LMS");
+            onFolderSelect(null);
+          }}
         >
           <Upload size={18} />
           <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
@@ -631,7 +656,7 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isWorkspace, isExportLMS, wor
 const ProjectsPageInner: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const currentTab = searchParams?.get('tab') || 'products';
   const isTrash = currentTab === 'trash';
   const isSmartDrive = currentTab === 'smart-drive';
@@ -653,6 +678,10 @@ const ProjectsPageInner: React.FC = () => {
   const [selectedProducts, setSelectedProducts] = useState<Set<number>>(new Set());
   const [showAccountModal, setShowAccountModal] = useState(false);
 
+  // Userback
+  const [currentUser, setUser] = useState<User | null>(null);
+  const [userback, setUserback] = useState<UserbackWidget | null>(null);
+
   // Feature flags for conditional tabs/content
   const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
   const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
@@ -670,6 +699,8 @@ const ProjectsPageInner: React.FC = () => {
       // Clear lesson context from sessionStorage
       sessionStorage.removeItem('lessonContext');
       sessionStorage.removeItem('lessonContextForDropdowns');
+      sessionStorage.removeItem('activeProductType');
+      sessionStorage.removeItem('stylesState');
     } catch (error) {
       console.error('Error clearing lesson context:', error);
     }
@@ -679,16 +710,25 @@ const ProjectsPageInner: React.FC = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const authenticated = await checkAuthentication();
+        const user = await checkAuthentication();
+        setUser(user);
+
+        const authenticated = user !== null;
         setIsAuthenticated(authenticated);
 
         if (!authenticated) {
+          resetUserIdentity();
           // Redirect to main app's login with return URL
           const currentUrl = window.location.pathname + window.location.search;
           redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
+        // Identify user for Mixpanel
+        identifyUser(user.id);
+        updateUserProfile(user.email);
       } catch (error) {
+        setUser(null);
+        resetUserIdentity();
         console.error('Authentication check failed:', error);
         setIsAuthenticated(false);
         const currentUrl = window.location.pathname + window.location.search;
@@ -700,6 +740,42 @@ const ProjectsPageInner: React.FC = () => {
 
     checkAuth();
   }, []);
+
+  // Initialize userback instance with current user
+  useEffect(() => {
+    if (isAuthenticated && currentUser) {
+      const token: string | undefined = process.env.NEXT_PUBLIC_USERBACK_TOKEN;
+
+      if (token == undefined) {
+        console.warn('Userback token is missing! Check your .env file.');
+        return;
+      }
+
+      const init = async () => {
+        try {
+          const instance = await Userback(token, {
+            widget_settings: {
+              language: language == 'uk' ? 'en' : language
+            },
+            user_data: {
+              id: currentUser.id,
+              info: {
+                email: currentUser.email,
+              },
+            },
+            autohide: false, // Controls auto-hiding behavior after submit
+          });
+
+          setUserback(instance);
+          console.log('Userback is successfully initialized');
+        } catch (error) {
+          console.error('Userback initialization failed:', error);
+        }
+      };
+
+      init();
+    }
+  }, [isAuthenticated]);
 
   // Load folders and projects after authentication is confirmed
   // Fetch workspace data when on workspace tab

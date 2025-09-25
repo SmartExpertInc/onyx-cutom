@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
 
@@ -189,6 +190,14 @@ export default function TextPresentationClient() {
 
   // Advanced mode state
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [selectedExamples, setSelectedExamples] = useState<string[]>([]);
@@ -215,6 +224,14 @@ export default function TextPresentationClient() {
   const [originalContent, setOriginalContent] = useState<string>("");
   const [originallyEditedTitles, setOriginallyEditedTitles] = useState<Set<number>>(new Set());
   const [editedTitleNames, setEditedTitleNames] = useState<Set<string>>(new Set());
+
+  // Track usage of styles feature
+  const [stylesState, setStylesState] = useState<string | null>(sessionStorage.getItem('stylesState'));
+  const handleStylesClick = () => {
+    if (!stylesState) {
+      setStylesState("Clicked");
+    }
+  };
 
   // FIXED: Alternative parsing method for when header-based parsing fails
   const parseContentAlternatively = (content: string) => {
@@ -1069,6 +1086,8 @@ export default function TextPresentationClient() {
       setError("Presentation finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
+    const activeProductType = sessionStorage.getItem('activeProductType');
+
     try {
       console.log("DEBUG: handleFinalize - hasUserEdits:", hasUserEdits);
       console.log("DEBUG: handleFinalize - editedTitleNames:", Array.from(editedTitleNames));
@@ -1135,6 +1154,28 @@ export default function TextPresentationClient() {
 
       setFinalProjectId(data.id);
 
+      await trackCreateProduct(
+        "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType ?? undefined,
+        stylesState || undefined,
+        advancedModeState
+      );
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
+
       // Navigate immediately without delay to prevent cancellation
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
@@ -1144,6 +1185,27 @@ export default function TextPresentationClient() {
     } catch (error: any) {
       // Clear timeout on error
       clearTimeout(timeoutId);
+
+      try {
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct(
+            "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType ?? undefined,
+            stylesState || undefined,
+            advancedModeState
+          );
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
 
       // Handle specific error types
       if (error.name === 'AbortError') {
@@ -1548,7 +1610,9 @@ export default function TextPresentationClient() {
                           
                           {/* Styles dropdown */}
                           <div className="flex-1 flex items-center justify-center">
-                        <DropdownMenu open={showStylesDropdown} onOpenChange={setShowStylesDropdown}>
+                        <DropdownMenu open={showStylesDropdown} onOpenChange={() => {
+                          setShowStylesDropdown(!showStylesDropdown);
+                          handleStylesClick();}}>
                           <DropdownMenuTrigger asChild>
                                 <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
                                   <div className="flex items-center gap-2">
@@ -1582,6 +1646,7 @@ export default function TextPresentationClient() {
                                     type="checkbox"
                                     checked={selectedStyles.includes(option.value)}
                                     onChange={(e) => {
+                                      setStylesState("Used");
                                       if (e.target.checked) {
                                         setSelectedStyles([...selectedStyles, option.value]);
                                       } else {
@@ -1671,7 +1736,9 @@ export default function TextPresentationClient() {
                       
                       {/* Styles dropdown */}
                       <div className="flex-1 flex items-center justify-center">
-                    <DropdownMenu open={showStylesDropdown} onOpenChange={setShowStylesDropdown}>
+                    <DropdownMenu open={showStylesDropdown} onOpenChange={() => {
+                      setShowStylesDropdown(!showStylesDropdown);
+                      handleStylesClick();}}>
                       <DropdownMenuTrigger asChild>
                             <button className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
                               <div className="flex items-center gap-2">
@@ -1705,6 +1772,7 @@ export default function TextPresentationClient() {
                                 type="checkbox"
                                 checked={selectedStyles.includes(option.value)}
                                 onChange={(e) => {
+                                  setStylesState("Used");
                                   if (e.target.checked) {
                                     setSelectedStyles([...selectedStyles, option.value]);
                                   } else {
@@ -1893,7 +1961,10 @@ export default function TextPresentationClient() {
                     <button
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={handleApplyEdit}
+                      onClick={() => {
+                        handleApplyEdit();
+                        setAdvancedModeState("Used");
+                      }}
                       className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
                       style={{
                         background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
@@ -1908,7 +1979,10 @@ export default function TextPresentationClient() {
               <div className="w-full flex justify-center mt-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    handleAdvancedModeClick();
+                  }}
                   className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
                   style={{
                     background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',

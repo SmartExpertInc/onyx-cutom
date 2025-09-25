@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -758,6 +759,7 @@ export default function CourseOutlineClient() {
     // Ensure the preview spinner / fake-thoughts are not shown while we're in finalize mode
     setLoading(false);
     setError(null);
+    const activeProductType = sessionStorage.getItem('activeProductType');
     try {
       const outlineForBackend = {
         mainTitle: prompt,
@@ -903,6 +905,28 @@ export default function CourseOutlineClient() {
       qp.set("time", filters.time ? "1" : "0");
       qp.set("from", "create");
 
+      await trackCreateProduct(
+        "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : false,
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType ?? undefined,
+        undefined,
+        advancedModeState
+      );
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
+
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
       }
@@ -911,6 +935,26 @@ export default function CourseOutlineClient() {
       // leave the custom frontend and hit the main app's /projects route.
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
+      try {
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct(
+            "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : false,
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType ?? undefined, 
+            undefined,
+            advancedModeState
+          );
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
       setError(e.message);
       // allow UI interaction again
       setIsGenerating(false);
@@ -1176,6 +1220,14 @@ export default function CourseOutlineClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
 
   const outlineExamples: { short: string; detailed: string }[] = [
     {
@@ -1533,7 +1585,10 @@ export default function CourseOutlineClient() {
                   <Button
                     type="button"
                     disabled={loadingPreview || !editPrompt.trim()}
-                    onClick={handleApplyEdit}
+                    onClick={() => {
+                      handleApplyEdit();
+                      setAdvancedModeState("Used");
+                    }}
                     className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
                     style={{
                       background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
@@ -1548,7 +1603,10 @@ export default function CourseOutlineClient() {
             <div className="w-full flex justify-center mt-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    handleAdvancedModeClick();
+                  }}
                   className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
                   style={{
                     background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',

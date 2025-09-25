@@ -803,6 +803,14 @@ function GenerateProductPicker() {
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 
+  // Track usage of styles feature
+  const [stylesState, setStylesState] = useState<string | undefined>(undefined);
+  const handleStylesClick = () => {
+    if (stylesState === undefined) {
+      setStylesState("Clicked");
+    }
+  };
+
   // Fetch one-pager outlines when product is selected
   useEffect(() => {
     if (activeProduct !== "One-Pager" || useExistingTextOutline !== true) return;
@@ -974,7 +982,7 @@ function GenerateProductPicker() {
       params.set("prompt", prompt.trim() || "Create text presentation content from the Knowledge Base");
       params.set("fromKnowledgeBase", "true");
     } else if (prompt.trim()) {
-      const finalPrompt = prompt.trim();
+      const finalPrompt = prompt.trim(); 
       // Store prompt in sessionStorage if it's long
       let promptReference = finalPrompt;
       if (finalPrompt.length > 500) {
@@ -998,6 +1006,8 @@ function GenerateProductPicker() {
       params.set("connectorIds", connectorContext.connectorIds.join(','));
       params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
+
+    sessionStorage.setItem('stylesState', stylesState ?? ""); 
 
     router.push(`/create/text-presentation?${params.toString()}`);
   };
@@ -1772,7 +1782,10 @@ function GenerateProductPicker() {
                         />
                         <CustomMultiSelector
                           selectedValues={textStyles}
-                          onSelectionChange={setTextStyles}
+                          onSelectionChange={() => {
+                            setTextStyles(textStyles);
+                            handleStylesClick();
+                          }}
                           options={[
                             { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
                             { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
@@ -1807,7 +1820,7 @@ function GenerateProductPicker() {
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
-                    />
+                      />
                     <CustomPillSelector
                       value={textLength}
                       onValueChange={setTextLength}
@@ -1821,7 +1834,10 @@ function GenerateProductPicker() {
                     />
                     <CustomMultiSelector
                       selectedValues={textStyles}
-                      onSelectionChange={setTextStyles}
+                      onSelectionChange={() => {
+                        setTextStyles(textStyles);
+                        handleStylesClick();
+                      }}
                       options={[
                         { value: "headlines", label: t('interface.generate.headlines', 'Headlines') },
                         { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs') },
@@ -1948,6 +1964,7 @@ function GenerateProductPicker() {
           <div className="flex justify-center mt-3 mb-4">
             <Button
               onClick={() => {
+                sessionStorage.setItem('activeProductType', activeProduct);
                 switch (activeProduct) {
                   case "Course Outline":
                     handleCourseOutlineStart();

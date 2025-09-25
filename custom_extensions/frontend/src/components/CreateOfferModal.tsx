@@ -5,6 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { trackCreateOffer } from '@/lib/mixpanelClient'
 
 interface Folder {
   id: number;
@@ -167,8 +168,10 @@ const CreateOfferModal: React.FC<CreateOfferModalProps> = ({ onClose, onOfferCre
         throw new Error(errorData.detail || 'Failed to create offer');
       }
 
+      await trackCreateOffer("Completed");
       onOfferCreated();
     } catch (error) {
+      await trackCreateOffer("Failed");
       console.error('Error creating offer:', error);
       setError(error instanceof Error ? error.message : 'Failed to create offer');
     } finally {

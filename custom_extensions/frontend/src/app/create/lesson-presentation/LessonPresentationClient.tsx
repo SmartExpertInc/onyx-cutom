@@ -18,6 +18,7 @@ import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -292,6 +293,14 @@ export default function LessonPresentationClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
 
   const lessonExamples: { short: string; detailed: string }[] = [
     {
@@ -941,6 +950,8 @@ export default function LessonPresentationClient() {
       setError("Finalization timed out. Please try again.");
     }, 300000); // 5 minutes timeout
 
+    const activeProductType = sessionStorage.getItem('activeProductType');
+
     try {
       // Re-use the same fallback title logic we applied in preview
       const promptQuery = currentPrompt?.trim() || "";
@@ -1017,6 +1028,28 @@ export default function LessonPresentationClient() {
         throw new Error("Invalid response: missing project ID");
       }
 
+      await trackCreateProduct(
+        "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType ?? undefined,
+        undefined,
+        advancedModeState
+      );
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
+
       // Navigate immediately without delay to prevent cancellation
       // Use new interface for Video Lessons, old interface for regular presentations
       const isVideoLesson = productType === "video_lesson_presentation";
@@ -1027,6 +1060,27 @@ export default function LessonPresentationClient() {
       router.push(redirectPath);
 
     } catch (error: any) {
+      try {
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct(
+            "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : useExistingOutline === true ? true : false,
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType ?? undefined,
+            undefined, 
+            advancedModeState
+          );
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
+      
       caughtError = error;
       // Clear timeout on error
       clearTimeout(timeoutId);
@@ -1934,7 +1988,10 @@ export default function LessonPresentationClient() {
                     <button
                       type="button"
                       disabled={loadingEdit || !editPrompt.trim()}
-                      onClick={handleApplyLessonEdit}
+                      onClick={() => {
+                        handleApplyLessonEdit();
+                        setAdvancedModeState("Used");
+                      }}
                       className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
                       style={{
                         background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
@@ -1949,7 +2006,10 @@ export default function LessonPresentationClient() {
               <div className="w-full flex justify-center mt-2 mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    handleAdvancedModeClick();
+                  }}
                   className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
                   style={{
                     background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',

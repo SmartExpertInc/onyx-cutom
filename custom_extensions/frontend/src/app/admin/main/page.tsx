@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Users, BarChart3, Settings, ChevronRight, Home } from 'lucide-react';
+import { Users, BarChart3, Settings, FileChartPie, ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 import CreditsTab from './components/CreditsTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import FeaturesTab from './components/FeaturesTab';
+import SlidesAnalyticsTab from './components/SlidesAnalyticsTab'
 
-type TabType = 'credits' | 'analytics' | 'features';
+type TabType = 'credits' | 'analytics' | 'features' | 'slides';
 
 const AdminMainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('credits');
@@ -30,6 +31,12 @@ const AdminMainPage: React.FC = () => {
       name: 'Features',
       icon: Settings,
       description: 'Manage user feature flags and permissions'
+    },
+    {
+      id: 'slides' as TabType,
+      name: 'Slides',
+      icon: FileChartPie,
+      description: 'View slides creation analytics'
     }
   ];
 
@@ -41,6 +48,8 @@ const AdminMainPage: React.FC = () => {
         return <AnalyticsTab />;
       case 'features':
         return <FeaturesTab />;
+      case 'slides':
+        return <SlidesAnalyticsTab />;  
       default:
         return <CreditsTab />;
     }

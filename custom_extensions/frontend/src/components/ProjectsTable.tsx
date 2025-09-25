@@ -86,6 +86,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import useFeaturePermission from "../hooks/useFeaturePermission";
+import { timeEvent } from "../lib/mixpanelClient"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -3645,6 +3646,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     window.open(pdfUrl, "_blank");
   };
 
+  const handleCreateProduct = () => {
+    // Clear previous state of product creation
+    if (sessionStorage.getItem('createProductFailed')) {
+      sessionStorage.removeItem('createProductFailed');
+    }
+    // Start timer
+    timeEvent('Create Product');
+  };
+
   // Add these just before the render block
   const visibleProjects =
     viewMode === "list"
@@ -3689,6 +3699,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <Button 
                   variant="gradient" 
                   className="rounded-full font-semibold"
+                  onClick={handleCreateProduct}
                   asChild
                 >
                   <div>
