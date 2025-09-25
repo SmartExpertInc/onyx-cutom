@@ -2295,6 +2295,52 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
 
+  // Helper to compute a human-friendly display title for the products page
+  // Prefer unique instance names for non-outline products; fall back to content-derived titles
+  const computeDisplayTitleFromProjectApi = useCallback((p: any): string => {
+    try {
+      const typeRaw: string = p?.design_microproduct_type || '';
+      const type = String(typeRaw).toLowerCase();
+
+      // Treat outlines specially; keep the project name as the display name
+      if (type === 'training plan' || type === 'course outline') {
+        return p?.projectName || p?.microproduct_name || 'Untitled';
+      }
+
+      // 1) Prefer explicitly stored instance name if it's provided and not a generic template label
+      const instanceName: string | undefined = p?.microproduct_name?.trim?.();
+      const genericNames = new Set([
+        'Slide Deck', 'Quiz', 'Video Lesson', 'Text Presentation', 'PDF Lesson', 'Video Lesson Presentation'
+      ]);
+      if (instanceName && !genericNames.has(instanceName)) {
+        return instanceName;
+      }
+
+      // 2) Try to extract a meaningful title from the content payload
+      const content = p?.microproduct_content || {};
+      if (content && typeof content === 'object') {
+        const candidates = [
+          content.lessonTitle,
+          content.title,
+          content.quizTitle,
+          content.name,
+        ].filter(Boolean);
+        if (candidates.length > 0) {
+          const candidate = String(candidates[0]).trim();
+          if (candidate.length > 0) {
+            return candidate;
+          }
+        }
+      }
+
+      // 3) Fallbacks
+      return p?.projectName || instanceName || 'Untitled';
+    } catch (e) {
+      console.warn('[PRODUCTS PAGE] computeDisplayTitleFromProjectApi error:', e);
+      return p?.projectName || p?.microproduct_name || 'Untitled';
+    }
+  }, []);
+
   // Drag and drop reordering state
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [draggedFolder, setDraggedFolder] = useState<Folder | null>(null);
@@ -2396,34 +2442,52 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         apiUrl: projectsApiUrl,
         projects: projectsData.map((p: any) => ({
           id: p.id,
-          name: p.projectName || p.microproduct_name,
-          type: p.design_microproduct_type,
-          created_at: p.created_at
+          projectName: p.projectName,
+          microproduct_name: p.microproduct_name,
+          design_microproduct_type: p.design_microproduct_type,
+          created_at: p.created_at,
+          has_content: !!p.microproduct_content,
+          content_keys: p?.microproduct_content ? Object.keys(p.microproduct_content) : []
         }))
       });
       
-      const processedProjects = projectsData.map((p: any) => {
-        const isOutline = (p.design_microproduct_type || "").toLowerCase() === "training plan";
-        const displayTitle = isOutline
-          ? (p.projectName || p.microproduct_name || "Untitled")
-          : (p.microproduct_name || p.projectName || "Untitled");
-        return {
-          id: p.id,
-          title: displayTitle,
-          imageUrl: p.imageUrl || "",
-          lastViewed: p.lastViewed || "Never",
-          createdAt: p.created_at,
-          createdBy: p.createdBy || "You",
-          isPrivate: p.isPrivate || true,
-          designMicroproductType: p.design_microproduct_type,
-          isGamma: p.isGamma || false,
-          instanceName: p.microproduct_name,
-          folderId: p.folder_id,
-          order: p.order || 0,
-          is_standalone: p.is_standalone,
-          source_chat_session_id: p.source_chat_session_id,
-        };
-      });
+      // 📦 EXTRA DEBUG: Print full objects and computed display titles to find real name field
+      try {
+        projectsData.forEach((p: any) => {
+          const computedTitle = computeDisplayTitleFromProjectApi(p);
+          const nameCandidates = {
+            projectName: p?.projectName,
+            microproduct_name: p?.microproduct_name,
+            content_title: p?.microproduct_content?.title,
+            content_lessonTitle: p?.microproduct_content?.lessonTitle,
+            content_quizTitle: p?.microproduct_content?.quizTitle,
+          };
+          console.groupCollapsed(`📄 [PRODUCT] #${p?.id} (${p?.design_microproduct_type || 'unknown'})`);
+          console.log('Raw:', p);
+          console.log('Name candidates:', nameCandidates);
+          console.log('Computed displayTitle:', computedTitle);
+          console.groupEnd();
+        });
+      } catch (e) {
+        console.warn('[PRODUCTS PAGE] Error during debug logging:', e);
+      }
+      
+      const processedProjects = projectsData.map((p: any) => ({
+        id: p.id,
+        title: computeDisplayTitleFromProjectApi(p),
+        imageUrl: p.imageUrl || "",
+        lastViewed: p.lastViewed || "Never",
+        createdAt: p.created_at,
+        createdBy: p.createdBy || "You",
+        isPrivate: p.isPrivate || true,
+        designMicroproductType: p.design_microproduct_type,
+        isGamma: p.isGamma || false,
+        instanceName: p.microproduct_name,
+        folderId: p.folder_id,
+        order: p.order || 0,
+        is_standalone: p.is_standalone,
+        source_chat_session_id: p.source_chat_session_id,
+      }));
 
       // Sort projects by order field
       const sortedProjects = processedProjects.sort(
@@ -2663,28 +2727,22 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         }
 
         const projectsData = await response.json();
-        const processedProjects = projectsData.map((p: any) => {
-          const isOutline = (p.design_microproduct_type || "").toLowerCase() === "training plan";
-          const displayTitle = isOutline
-            ? (p.projectName || p.microproduct_name || "Untitled")
-            : (p.microproduct_name || p.projectName || "Untitled");
-          return {
-            id: p.id,
-            title: displayTitle,
-            imageUrl: p.imageUrl || "",
-            lastViewed: p.lastViewed || "Never",
-            createdAt: p.created_at,
-            createdBy: p.createdBy || "You",
-            isPrivate: p.isPrivate || true,
-            designMicroproductType: p.design_microproduct_type,
-            isGamma: p.isGamma || false,
-            instanceName: p.microproduct_name,
-            folderId: p.folder_id,
-            order: p.order || 0,
-            is_standalone: p.is_standalone,
-            source_chat_session_id: p.source_chat_session_id,
-          };
-        });
+        const processedProjects = projectsData.map((p: any) => ({
+          id: p.id,
+          title: computeDisplayTitleFromProjectApi(p),
+          imageUrl: p.imageUrl || "",
+          lastViewed: p.lastViewed || "Never",
+          createdAt: p.created_at,
+          createdBy: p.createdBy || "You",
+          isPrivate: p.isPrivate || true,
+          designMicroproductType: p.design_microproduct_type,
+          isGamma: p.isGamma || false,
+          instanceName: p.microproduct_name,
+          folderId: p.folder_id,
+          order: p.order || 0,
+          is_standalone: p.is_standalone,
+          source_chat_session_id: p.source_chat_session_id,
+        }));
 
         // Sort folder projects by order field
         const sortedProjects = processedProjects.sort(
