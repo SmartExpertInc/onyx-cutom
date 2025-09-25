@@ -343,6 +343,15 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                   </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={() => handleSort('created_at')}
+                    className="flex items-center gap-1 hover:text-gray-700"
+                  >
+                    {t('interface.createdOn', 'Created On')}
+                    <ArrowUpDown size={12} />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t('interface.actions', 'Actions')}
                 </th>
               </tr>
@@ -350,7 +359,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedAudits.length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
                     <ClipboardCheck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-lg font-medium">{t('interface.noAudits', 'No audits found')}</p>
                     <p className="text-sm">{t('interface.createYourFirstAudit', 'Create your first audit to get started')}</p>
@@ -371,6 +380,9 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                           <div className="text-sm text-gray-500">{audit.company_name}</div>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatDate(audit.created_at)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
