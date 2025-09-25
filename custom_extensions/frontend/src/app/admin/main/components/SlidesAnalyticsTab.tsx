@@ -8,6 +8,341 @@ import {
 import SlideTypeUsageBarChart from '../../../../components/SlideTypeUsageBarChart';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { getAllTemplates } from '@/components/templates/registry';
+import SmartSlideDeckViewer from '../../../../components/SmartSlideDeckViewer';
+
+
+export const DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM = {
+  "lessonTitle": "Digital Marketing Strategy: A Complete Guide",
+  "slides": [
+    {
+      "slideId": "slide_1_intro",
+      "slideNumber": 1,
+      "slideTitle": "Introduction",
+      "templateId": "hero-title-slide",
+      "props": {
+        "title": "Digital Marketing Strategy",
+        "subtitle": "A comprehensive guide to building effective online presence and driving business growth",
+        "author": "Marketing Excellence Team",
+        "date": "2024",
+        "backgroundColor": "#1e40af",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#bfdbfe"
+      }
+    },
+    {
+      "slideId": "slide_2_agenda",
+      "slideNumber": 2,
+      "slideTitle": "Learning Agenda",
+      "templateId": "bullet-points",
+      "props": {
+        "title": "What We'll Cover Today",
+        "bullets": [
+          "Understanding digital marketing fundamentals",
+          "Market research and target audience analysis",
+          "Content strategy development",
+          "Social media marketing tactics",
+          "Email marketing best practices",
+          "SEO and search marketing"
+        ],
+        "maxColumns": 2,
+        "bulletStyle": "number",
+        "imagePrompt": "A roadmap or pathway illustration showing the learning journey, modern flat design with blue and purple accents",
+        "imageAlt": "Learning roadmap illustration"
+      }
+    },
+    {
+      "slideId": "slide_3_stats",
+      "slideNumber": 3,
+      "slideTitle": "Digital Marketing by the Numbers",
+      "templateId": "big-numbers",
+      "props": {
+        "title": "Digital Marketing Impact",
+        "numbers": [
+          {
+            "value": "4.8B",
+            "label": "Internet Users Worldwide",
+            "color": "#3b82f6"
+          },
+          {
+            "value": "68%",
+            "label": "Of Online Experiences Start with Search",
+            "color": "#8b5cf6"
+          },
+          {
+            "value": "$42",
+            "label": "ROI for Every $1 Spent on Email Marketing",
+            "color": "#10b981"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_ecosystem",
+      "slideNumber": 4,
+      "slideTitle": "Digital Marketing Ecosystem",
+      "templateId": "big-image-top",
+      "props": {
+        "title": "The Digital Marketing Landscape",
+        "content": "Understanding the interconnected nature of digital marketing channels and how they work together to create a cohesive customer experience across all touchpoints.",
+        "imageUrl": "https://via.placeholder.com/800x400?text=Digital+Ecosystem",
+        "imageAlt": "Digital marketing ecosystem diagram",
+        "imagePrompt": "A comprehensive diagram showing interconnected digital marketing channels including social media, email, SEO, PPC, content marketing, and analytics in a modern network visualization",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_5_audience_vs_market",
+      "slideNumber": 5,
+      "slideTitle": "Audience vs Market Research",
+      "templateId": "two-column",
+      "props": {
+        "title": "Understanding the Difference",
+        "leftTitle": "Market Research",
+        "leftContent": "• Industry trends and size\n• Competitive landscape\n• Market opportunities\n• Overall demand patterns\n• Economic factors",
+        "rightTitle": "Audience Research",
+        "rightContent": "• Customer demographics\n• Behavioral patterns\n• Pain points and needs\n• Communication preferences\n• Decision-making process"
+      }
+    },
+    {
+      "slideId": "slide_6_personas",
+      "slideNumber": 6,
+      "slideTitle": "Buyer Persona Development",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Creating Effective Buyer Personas",
+        "steps": [
+          "Collect demographic and psychographic data",
+          "Conduct customer interviews and surveys",
+          "Analyze behavioral patterns and preferences",
+          "Identify goals, challenges, and pain points",
+          "Map the customer journey and touchpoints",
+          "Validate personas with real customer data"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_7_content_strategy",
+      "slideNumber": 7,
+      "slideTitle": "Content Strategy Foundation",
+      "templateId": "pyramid",
+      "props": {
+        "title": "Content Strategy Pyramid",
+        "levels": [
+          {
+            "text": "Content Distribution & Promotion",
+            "description": "Multi-channel amplification strategy"
+          },
+          {
+            "text": "Content Creation & Production",
+            "description": "High-quality, engaging content development"
+          },
+          {
+            "text": "Content Planning & Calendar",
+            "description": "Strategic planning and scheduling"
+          },
+          {
+            "text": "Content Audit & Analysis",
+            "description": "Understanding current content performance"
+          },
+          {
+            "text": "Goals, Audience & Brand Foundation",
+            "description": "Strategic foundation and core objectives"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_8_content_types",
+      "slideNumber": 8,
+      "slideTitle": "Content Format Matrix",
+      "templateId": "four-box-grid",
+      "props": {
+        "title": "Content Formats for Different Goals",
+        "boxes": [
+          {
+            "title": "Educational Content",
+            "content": "Blog posts, tutorials, webinars, how-to guides",
+            "icon": "📚"
+          },
+          {
+            "title": "Engagement Content", 
+            "content": "Social media posts, polls, user-generated content",
+            "icon": "💬"
+          },
+          {
+            "title": "Conversion Content",
+            "content": "Case studies, testimonials, product demos",
+            "icon": "🎯"
+          },
+          {
+            "title": "Entertainment Content",
+            "content": "Videos, memes, interactive content, stories",
+            "icon": "🎭"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_9_social_challenges",
+      "slideNumber": 9,
+      "slideTitle": "Social Media Challenges & Solutions",
+      "templateId": "challenges-solutions",
+      "props": {
+        "title": "Overcoming Social Media Obstacles",
+        "challenges": [
+          "Low organic reach and engagement",
+          "Creating consistent, quality content",
+          "Managing multiple platform requirements"
+        ],
+        "solutions": [
+          "Focus on community building and authentic interactions",
+          "Develop content pillars and batch creation workflows", 
+          "Use scheduling tools and platform-specific strategies"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_email_timeline",
+      "slideNumber": 10,
+      "slideTitle": "Email Marketing Campaign Timeline",
+      "templateId": "timeline",
+      "props": {
+        "title": "Building Your Email Marketing Program",
+        "events": [
+          {
+            "date": "Week 1-2",
+            "title": "Foundation Setup",
+            "description": "Choose platform, design templates, set up automation"
+          },
+          {
+            "date": "Week 3-4", 
+            "title": "List Building",
+            "description": "Create lead magnets, optimize signup forms"
+          },
+          {
+            "date": "Week 5-8",
+            "title": "Content Creation",
+            "description": "Develop welcome series, newsletters, promotional campaigns"
+          },
+          {
+            "date": "Week 9-12",
+            "title": "Optimization",
+            "description": "A/B testing, segmentation, performance analysis"
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_11_seo_quote",
+      "slideNumber": 11,
+      "slideTitle": "SEO Philosophy",
+      "templateId": "quote-center",
+      "props": {
+        "quote": "The best place to hide a dead body is page 2 of Google search results.",
+        "author": "Digital Marketing Wisdom",
+        "context": "This humorous quote highlights the critical importance of ranking on the first page of search results for visibility and traffic."
+      }
+    },
+    {
+      "slideId": "slide_12_seo_factors",
+      "slideNumber": 12,
+      "slideTitle": "SEO Success Factors",
+      "templateId": "bullet-points-right",
+      "props": {
+        "title": "Key SEO Elements",
+        "bullets": [
+          "Keyword research and strategic implementation",
+          "High-quality, original content creation",
+          "Technical SEO and site speed optimization",
+          "Mobile-first design and user experience",
+          "Authority building through quality backlinks",
+          "Local SEO for geographic targeting"
+        ],
+        "bulletStyle": "dot",
+        "imagePrompt": "SEO optimization illustration with search elements, website structure, and ranking factors in a modern, clean style",
+        "imageAlt": "SEO optimization visual guide"
+      }
+    },
+    {
+      "slideId": "slide_13_paid_advertising",
+      "slideNumber": 13,
+      "slideTitle": "Paid Advertising Strategy",
+      "templateId": "big-image-left",
+      "props": {
+        "title": "Maximizing Paid Campaign ROI",
+        "subtitle": "Strategic paid advertising accelerates reach and drives targeted traffic when organic efforts need support.",
+        "imageUrl": "https://via.placeholder.com/600x400?text=Paid+Advertising",
+        "imageAlt": "Digital advertising dashboard",
+        "imagePrompt": "A modern advertising dashboard showing campaign performance metrics, targeting options, and ROI indicators across multiple platforms",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_14_implementation",
+      "slideNumber": 14,
+      "slideTitle": "90-Day Implementation Plan",
+      "templateId": "process-steps",
+      "props": {
+        "title": "Your Digital Marketing Roadmap",
+        "steps": [
+          "Month 1: Foundation - Research, audit, and strategy development",
+          "Month 2: Launch - Implement core channels and begin content creation",
+          "Month 3: Optimize - Analyze data, refine approach, and scale success"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_15_conclusion",
+      "slideNumber": 15,
+      "slideTitle": "Success Principles",
+      "templateId": "title-slide",
+      "props": {
+        "title": "Your Digital Marketing Success Formula",
+        "subtitle": "Strategy + Consistency + Measurement = Growth",
+        "author": "Remember: Digital marketing is a marathon, not a sprint",
+        "backgroundColor": "#059669",
+        "titleColor": "#ffffff",
+        "subtitleColor": "#d1fae5"
+      }
+    },
+    {
+      "slideId": "slide_16_table_dark",
+      "slideNumber": 16,
+      "slideTitle": "Technology Comparison",
+      "templateId": "table-dark",
+      "props": {
+        "title": "Technology Comparison",
+        "tableData": {
+          "headers": ["Technology", "Performance", "Security", "Cost"],
+          "rows": [
+            ["React", "High", "Good", "Free"],
+            ["Vue.js", "Medium", "Excellent", "Free"],
+            ["Angular", "High", "Excellent", "Free"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_17_table_light",
+      "slideNumber": 17,
+      "slideTitle": "Product Features",
+      "templateId": "table-light",
+      "props": {
+        "title": "Product Features Comparison",
+        "tableData": {
+          "headers": ["Feature", "Basic Plan", "Pro Plan", "Enterprise"],
+          "rows": [
+            ["Storage", "10GB", "100GB", "Unlimited"],
+            ["Users", "5", "25", "Unlimited"],
+            ["Support", "Email", "Priority", "24/7"]
+          ]
+        }
+      }
+    }
+  ],
+  "currentSlideId": "slide_1_intro",
+  "detectedLanguage": "en"
+};
 
 interface AnalyticsDashboard {
   recent_errors: Array<{
@@ -52,6 +387,10 @@ const SlidesAnalyticsTab: React.FC = () => {
   // Modal state
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [selectedTemplateForErrors, setSelectedTemplateForErrors] = useState<string | null>(null);
+  
+  // Preview modal state
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewSlideData, setPreviewSlideData] = useState<any>(null);
 
   // Get available templates
   const availableTemplates = getAllTemplates().map(t => t.id);
@@ -209,6 +548,39 @@ const SlidesAnalyticsTab: React.FC = () => {
       console.error('Error exporting data:', err);
       alert('Failed to export data');
     }
+  };
+
+  // Handle preview button click
+  const handlePreview = (templateId: string, slideId: string) => {
+    const defaultSlide = DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM.slides.find(
+      (s) => s.templateId === templateId
+    );
+
+    const props = defaultSlide
+      ? { ...defaultSlide.props }
+      : {
+          title: `Preview: ${templateId}`,
+          content: 'This is a preview of the slide template.',
+        };
+
+    const mockSlideData = {
+      slides: [
+        {
+          slideId: slideId,
+          templateId: templateId,
+          slideNumber: 1,
+          props,
+          metadata: {
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      ],
+      theme: 'default',
+    };
+
+    setPreviewSlideData(mockSlideData);
+    setShowPreviewModal(true);
   };
 
   if (loading) {
@@ -519,7 +891,7 @@ const SlidesAnalyticsTab: React.FC = () => {
                               setSelectedTemplateForErrors(item.template_id);
                               setShowErrorModal(true);
                             }}
-                            className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
+                            className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium hover:bg-red-200 transition-colors cursor-pointer"
                           >
                             {item.error_count} errors
                           </button>
@@ -532,14 +904,12 @@ const SlidesAnalyticsTab: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         {item.preview_link ? (
-                          <a
-                            href={item.preview_link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-xs"
+                          <button
+                            onClick={() => handlePreview(item.template_id, item.slide_id)}
+                            className="text-blue-600 hover:text-blue-800 text-xs underline cursor-pointer"
                           >
                             Preview
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-gray-400 text-xs">No preview</span>
                         )}
@@ -623,7 +993,7 @@ const SlidesAnalyticsTab: React.FC = () => {
 
       {/* Error Modal */}
       {showErrorModal && selectedTemplateForErrors && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[80vh] overflow-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900">
@@ -680,6 +1050,36 @@ const SlidesAnalyticsTab: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreviewModal && previewSlideData && (
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-6xl max-h-[90vh] w-full mx-4 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Slide Preview
+              </h3>
+              <button
+                onClick={() => {
+                  setShowPreviewModal(false);
+                  setPreviewSlideData(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="overflow-auto max-h-[calc(90vh-80px)]">
+              <SmartSlideDeckViewer
+                deck={previewSlideData}
+                isEditable={false}
+                showFormatInfo={false}
+                enableAutomaticImageGeneration={false}
+              />
             </div>
           </div>
         </div>
