@@ -134,7 +134,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               )}
               {description && (
                 <p className={cn(
-                  "text-base text-center leading-relaxed max-w-[80%]",
+                  "text-base text-center leading-relaxed max-w-[85%]",
                   useCSSVariables ? "text-[var(--muted-foreground)]" : "text-[var(--muted-foreground)]"
                 )}>
                   {description}

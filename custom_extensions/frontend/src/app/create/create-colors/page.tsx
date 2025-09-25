@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
-import { CustomCard } from "@/components/ui/custom-card";
+import { CustomCard } from "@/components/ui/custom-card-new";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
 
 // ---------------------------------------------------------------------------
