@@ -495,7 +495,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
             left: '40px',
             right: '40px',
             height: '2px',
-            backgroundColor: currentTheme.colors.accentColor,
+            backgroundColor: '#0F58F9', // Use first color from the new gradient
             transform: 'translateY(-50%)',
             zIndex: 1
           }} />
