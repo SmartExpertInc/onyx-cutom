@@ -420,7 +420,12 @@ const SlidesAnalyticsTab: React.FC = () => {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
       const params = new URLSearchParams();
       if (dateRange.from) params.append('date_from', dateRange.from);
-      if (dateRange.to) params.append('date_to', dateRange.to);
+      if (dateRange.to) {
+        // Add one day to make the 'to' date inclusive for the backend (which uses <=)
+        const toDate = new Date(dateRange.to);
+        toDate.setDate(toDate.getDate() + 1);
+        params.append('date_to', format(toDate, 'yyyy-MM-dd'));
+      }
       
       // Fetch both endpoints
       const [errorsResponse, slidesResponse] = await Promise.all([
