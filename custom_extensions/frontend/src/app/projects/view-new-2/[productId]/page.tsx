@@ -28,8 +28,8 @@ const TextPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ siz
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: color || 'currentColor' }}><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
 );
 
-// Simple Tooltip Component
-const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
+// Custom Tooltip Component matching the text presentation page style
+const CustomTooltip: React.FC<{ children: React.ReactNode; content: string; position?: 'top' | 'bottom' }> = ({ children, content, position = 'bottom' }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
@@ -37,10 +37,17 @@ const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
   const handleMouseEnter = () => {
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
-      setTooltipPosition({
-        top: rect.bottom + 6,
-        left: rect.left + rect.width / 2
-      });
+      if (position === 'top') {
+        setTooltipPosition({
+          top: rect.top - 6,
+          left: rect.left + rect.width / 2
+        });
+      } else {
+        setTooltipPosition({
+          top: rect.bottom + 6,
+          left: rect.left + rect.width / 2
+        });
+      }
     }
     setIsVisible(true);
   };
@@ -65,11 +72,15 @@ const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = 
           style={{
             top: `${tooltipPosition.top}px`,
             left: `${tooltipPosition.left}px`,
-            transform: 'translate(-50%, 0%)'
+            transform: position === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0%)'
           }}
         >
-          <div className="bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-            {content}
+          <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-xs whitespace-nowrap relative max-w-xs">
+            <div className="font-medium">{content}</div>
+            {/* Simple triangle tail */}
+            <div className={`absolute ${position === 'top' ? 'top-full' : 'bottom-full'} left-1/2 transform -translate-x-1/2`}>
+              <div className={`w-0 h-0 border-l-3 border-r-3 ${position === 'top' ? 'border-t-3 border-t-blue-500' : 'border-b-3 border-b-blue-500'} border-l-transparent border-r-transparent`}></div>
+            </div>
           </div>
         </div>,
         document.body
@@ -1035,24 +1046,24 @@ export default function ProductViewNewPage() {
                   <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   
                   {/* Product Types Header */}
-                  <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto]'} gap-4 items-center px-2`}>
+                  <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center px-2`}>
                     <div className="text-sm font-medium text-gray-700">
                       Content Types
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
+                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
                       <LessonPresentationIcon size={16} />
                       <span>Presentation</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
+                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
                       <TextPresentationIcon size={16} />
                       <span>One-Pager</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
+                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
                       <QuizIcon size={16} />
                       <span>Quiz</span>
                     </div>
                     {videoLessonEnabled && (
-                      <div className="flex items-center gap-2 text-sm font-medium text-gray-700 justify-center">
+                      <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
                         <VideoScriptIcon size={16} />
                         <span>Video Lesson</span>
                       </div>
@@ -1070,7 +1081,7 @@ export default function ProductViewNewPage() {
                         const hasVideoLesson = status?.videoLesson?.exists;
 
                         return (
-                          <div key={lesson?.id || lessonIndex} className={`grid py-3 ${videoLessonEnabled ? 'grid-cols-[1fr_auto_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto_auto]'} gap-4 items-center`}>
+                          <div key={lesson?.id || lessonIndex} className={`grid py-3 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center`}>
                             {/* Lesson Title Column */}
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
@@ -1107,7 +1118,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasPresentation ? (
                                 <div className="group flex items-center gap-1">
-                                  <SimpleTooltip content="Created">
+                                  <CustomTooltip content="Created">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1118,25 +1129,25 @@ export default function ProductViewNewPage() {
                                     >
                                       <Check size={14} className="text-white" />
                                     </div>
-                                  </SimpleTooltip>
-                                  <SimpleTooltip content="Regenerate">
+                                  </CustomTooltip>
+                                  <CustomTooltip content="Regenerate">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
                                       onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                     >
                                       <RefreshCcw size={12} className="text-white" />
                                     </div>
-                                  </SimpleTooltip>
+                                  </CustomTooltip>
                                 </div>
                               ) : (
-                                <SimpleTooltip content="Add product">
+                                <CustomTooltip content="Add product">
                                   <div 
                                     className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
                                     <Plus size={14} className="text-gray-600" />
                                   </div>
-                                </SimpleTooltip>
+                                </CustomTooltip>
                               )}
                             </div>
 
@@ -1144,7 +1155,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasOnePager ? (
                                 <div className="group flex items-center gap-1">
-                                  <SimpleTooltip content="Created">
+                                  <CustomTooltip content="Created">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1155,25 +1166,25 @@ export default function ProductViewNewPage() {
                                     >
                                       <Check size={14} className="text-white" />
                                     </div>
-                                  </SimpleTooltip>
-                                  <SimpleTooltip content="Regenerate">
+                                  </CustomTooltip>
+                                  <CustomTooltip content="Regenerate">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
                                       onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                     >
                                       <RefreshCcw size={12} className="text-white" />
                                     </div>
-                                  </SimpleTooltip>
+                                  </CustomTooltip>
                                 </div>
                               ) : (
-                                <SimpleTooltip content="Add product">
+                                <CustomTooltip content="Add product">
                                   <div 
                                     className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
                                     <Plus size={14} className="text-gray-600" />
                                   </div>
-                                </SimpleTooltip>
+                                </CustomTooltip>
                               )}
                             </div>
 
@@ -1181,7 +1192,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasQuiz ? (
                                 <div className="group flex items-center gap-1">
-                                  <SimpleTooltip content="Created">
+                                  <CustomTooltip content="Created">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1192,25 +1203,25 @@ export default function ProductViewNewPage() {
                                     >
                                       <Check size={14} className="text-white" />
                                     </div>
-                                  </SimpleTooltip>
-                                  <SimpleTooltip content="Regenerate">
+                                  </CustomTooltip>
+                                  <CustomTooltip content="Regenerate">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
                                       onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                     >
                                       <RefreshCcw size={12} className="text-white" />
                                     </div>
-                                  </SimpleTooltip>
+                                  </CustomTooltip>
                                 </div>
                               ) : (
-                                <SimpleTooltip content="Add product">
+                                <CustomTooltip content="Add product">
                                   <div 
                                     className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
                                     <Plus size={14} className="text-gray-600" />
                                   </div>
-                                </SimpleTooltip>
+                                </CustomTooltip>
                               )}
                             </div>
 
@@ -1219,7 +1230,7 @@ export default function ProductViewNewPage() {
                               <div className="flex items-center justify-center">
                                 {hasVideoLesson ? (
                                   <div className="group flex items-center gap-1">
-                                    <SimpleTooltip content="Created">
+                                    <CustomTooltip content="Created">
                                       <div 
                                         className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                         onClick={() => {
@@ -1230,25 +1241,25 @@ export default function ProductViewNewPage() {
                                       >
                                         <Check size={14} className="text-white" />
                                       </div>
-                                    </SimpleTooltip>
-                                    <SimpleTooltip content="Regenerate">
+                                    </CustomTooltip>
+                                    <CustomTooltip content="Regenerate">
                                       <div 
                                         className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
                                         onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                       >
                                         <RefreshCcw size={12} className="text-white" />
                                       </div>
-                                    </SimpleTooltip>
+                                    </CustomTooltip>
                                   </div>
                                 ) : (
-                                  <SimpleTooltip content="Add product">
+                                  <CustomTooltip content="Add product">
                                     <div 
                                       className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
                                       onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                     >
                                       <Plus size={14} className="text-gray-600" />
                                     </div>
-                                  </SimpleTooltip>
+                                  </CustomTooltip>
                                 )}
                               </div>
                             )}
