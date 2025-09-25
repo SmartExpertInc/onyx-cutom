@@ -903,16 +903,12 @@ const SlidesAnalyticsTab: React.FC = () => {
                         {item.last_usage ? format(new Date(item.last_usage), 'MMM dd, yyyy HH:mm') : 'Never'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {item.preview_link ? (
-                          <button
-                            onClick={() => handlePreview(item.template_id, item.slide_id)}
-                            className="text-blue-600 hover:text-blue-800 text-xs underline cursor-pointer"
-                          >
-                            Preview
-                          </button>
-                        ) : (
-                          <span className="text-gray-400 text-xs">No preview</span>
-                        )}
+                        <button
+                          onClick={() => handlePreview(item.template_id, item.slide_id)}
+                          className="text-blue-600 hover:text-blue-800 text-xs underline cursor-pointer"
+                        >
+                          Preview
+                        </button>
                       </td>
                     </tr>
                   ))}
