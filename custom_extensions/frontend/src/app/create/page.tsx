@@ -43,18 +43,18 @@ const ImportIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.55556"/>
   <feGaussianBlur stdDeviation="3.11111"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.4 0 0 0 0 0.6 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2508"/>
   </filter>
   <clipPath id="bgblur_0_886_2508_clip_path" transform="translate(9.33333 3.11129)"><rect y="6.22205" width="56" height="40.4444" rx="9.33333"/>
-  </clipPath><filter id="filter1_i_886_2508" x="15.5555" y="12.4442" width="24.8889" height="29.5556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  </clipPath>  <filter id="filter1_i_886_2508" x="15.5555" y="12.4442" width="24.8889" height="29.5556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
   <feFlood flood-opacity="0" result="BackgroundImageFix"/>
   <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
   <feOffset dy="1.55556"/>
   <feGaussianBlur stdDeviation="0.777778"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.4 0 0 0 0 0.6 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2508"/>
   </filter>
   <linearGradient id="paint0_linear_886_2508" x1="9.39998" y1="14.2741" x2="47" y2="14.2741" gradientUnits="userSpaceOnUse">
@@ -134,18 +134,18 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="2.91667"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <clipPath id="bgblur_0_886_2462_clip_path" transform="translate(-5.83325 8.75)"><path d="M14.5833 5.83333C14.5833 3.08347 14.5833 1.70854 15.4375 0.854272C16.2918 0 17.6667 0 20.4166 0L40.8332 0C46.333 0 49.0828 0 50.7914 1.70854C52.4999 3.41709 52.4999 6.16695 52.4999 11.6667V40.8333C52.4999 46.3331 52.4999 49.0829 50.7914 50.7915C49.0828 52.5 46.333 52.5 40.8333 52.5H20.4166C17.6667 52.5 16.2918 52.5 15.4375 51.6457C14.5833 50.7915 14.5833 49.4165 14.5833 46.6667V5.83333Z"/>
-  </clipPath><filter id="filter1_i_886_2462" x="20.4167" y="11.6667" width="17.5" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  </clipPath>  <filter id="filter1_i_886_2462" x="20.4167" y="11.6667" width="17.5" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
   <feFlood flood-opacity="0" result="BackgroundImageFix"/>
   <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="0.729167"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <filter id="filter2_i_886_2462" x="20.4167" y="23.3333" width="26.25" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -155,7 +155,7 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="0.729167"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <filter id="filter3_i_886_2462" x="20.4167" y="35" width="26.25" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -165,7 +165,7 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="0.729167"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <linearGradient id="paint0_linear_886_2462" x1="4.11777" y1="3" x2="4.11777" y2="50" gradientUnits="userSpaceOnUse">
