@@ -2451,7 +2451,7 @@ export function ChatPage({
           {productCreationResult.success && productCreationResult.projectId && (
             <button
               onClick={() => {
-                router.push(`/custom-projects-ui/projects/view/${productCreationResult.projectId}`);
+                router.push(`/custom-projects-ui/projects/view/${productCreationResult.projectId}?from=create`);
                 setProductCreationResult(null); // Dismiss after navigation
               }}
               className="mt-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-1.5 px-3 rounded focus:outline-none focus:shadow-outline"

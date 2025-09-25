@@ -275,7 +275,16 @@ export default function VideoEditorHeader({ aspectRatio, onAspectRatioChange }: 
         {/* Left section - Logo and tools */}
         <div className="flex items-center gap-4 lg:gap-6">
           {/* Home button */}
-          <button className="bg-white border border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 flex items-center h-8 cursor-pointer ml-2">
+          <button className="bg-white border border-gray-300 text-black hover:bg-gray-50 rounded-[7px] px-3 py-1.5 flex items-center h-8 cursor-pointer ml-2" onClick={() => {
+            try {
+              const params = new URLSearchParams(window.location.search);
+              if (params.get('from') === 'create') {
+                window.location.assign('/custom-projects-ui/create/generate');
+                return;
+              }
+            } catch (e) {}
+            window.history.back();
+          }}>
             <span className="text-sm font-normal">Home</span>
           </button>
 

@@ -1139,7 +1139,7 @@ export default function TextPresentationClient() {
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
       }
-      router.push(`/projects/view/${data.id}`);
+      router.push(`/projects/view/${data.id}?from=create`);
 
     } catch (error: any) {
       // Clear timeout on error

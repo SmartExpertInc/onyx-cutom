@@ -962,7 +962,7 @@ export default function QuizClient() {
       if (typeof window !== 'undefined') {
         try { sessionStorage.setItem('last_created_product_id', String(result.id)); } catch (_) {}
       }
-      router.push(`/projects/view/${result.id}`);
+      router.push(`/projects/view/${result.id}?from=create`);
     } catch (error: any) {
       console.error('Finalization error:', error);
       setError(error.message || 'An error occurred during finalization');
