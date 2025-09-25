@@ -305,8 +305,8 @@ body:has([aria-modal="true"]) [draggable="true"] {
 
 :root {
   --background: linear-gradient(135deg, #e0c8fa 0%, #b3d9f1 100%);
-  --background-first: oklch(0.8495 0.1017 310.96);
-  --background-second:oklch(0.8246 0.0838 265.89);
+  --background-first: oklch(0.9209 0.0566 315.9);
+  --background-second: oklch(0.8862 0.055179 263.7407);
   --foreground: oklch(0 0 0);
   --card: oklch(0.9940 0 0);
   --card-foreground: oklch(0.546 0.245 262.881);
