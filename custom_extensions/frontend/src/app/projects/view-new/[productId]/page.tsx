@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, ChevronDown } from 'lucide-react';
+import { FolderOpen, Sparkles, ChevronDown, Edit3 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -813,15 +813,24 @@ export default function ProductViewNewPage() {
                   autoFocus
                 />
               ) : (
-                <h1 
-                  className="text-[#191D30] font-semibold text-[32px] leading-none cursor-pointer hover:bg-yellow-50 p-2 rounded transition-colors"
-                  onClick={() => startEditing('mainTitle')}
-                >
-                  {(() => {
-                    const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
-                    return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
-                  })()}
-                </h1>
+                <div className="group flex items-center gap-2">
+                  <h1 
+                    className="text-[#191D30] font-semibold text-[32px] leading-none cursor-pointer"
+                    onClick={() => startEditing('mainTitle')}
+                  >
+                    {(() => {
+                      const trainingPlanData = (editableData || projectData.details) as TrainingPlanData;
+                      return trainingPlanData?.mainTitle || projectData.name || 'Course Outline';
+                    })()}
+                  </h1>
+                  <button
+                    onClick={() => startEditing('mainTitle')}
+                    className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Edit course title"
+                  >
+                    <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
+                  </button>
+                </div>
               )}
             </div>
 
@@ -849,12 +858,21 @@ export default function ProductViewNewPage() {
                       autoFocus
                     />
                   ) : (
-                    <h2 
-                      className="text-[#191D30] font-semibold text-[20px] leading-[100%] mb-2 cursor-pointer hover:bg-yellow-50 p-2 rounded transition-colors"
-                      onClick={() => startEditing('sectionTitle', index)}
-                    >
-                      Module {index + 1}: {section.title}
-                    </h2>
+                    <div className="group flex items-center gap-2 mb-2">
+                      <h2 
+                        className="text-[#191D30] font-semibold text-[20px] leading-[100%] cursor-pointer"
+                        onClick={() => startEditing('sectionTitle', index)}
+                      >
+                        Module {index + 1}: {section.title}
+                      </h2>
+                      <button
+                        onClick={() => startEditing('sectionTitle', index)}
+                        className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Edit module title"
+                      >
+                        <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                      </button>
+                    </div>
                   )}
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
@@ -877,12 +895,21 @@ export default function ProductViewNewPage() {
                                 autoFocus
                               />
                             ) : (
-                              <span 
-                                className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer hover:bg-yellow-50 p-1 rounded transition-colors"
-                                onClick={() => startEditing('lessonTitle', index, lessonIndex)}
-                              >
-                                {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
-                              </span>
+                              <div className="group flex items-center gap-2">
+                                <span 
+                                  className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer"
+                                  onClick={() => startEditing('lessonTitle', index, lessonIndex)}
+                                >
+                                  {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
+                                </span>
+                                <button
+                                  onClick={() => startEditing('lessonTitle', index, lessonIndex)}
+                                  className="p-1 hover:bg-yellow-50 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Edit lesson title"
+                                >
+                                  <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                                </button>
+                              </div>
                             )}
                           </div>
                           <div className="flex items-center gap-6">
