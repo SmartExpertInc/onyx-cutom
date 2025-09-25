@@ -894,17 +894,19 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📅',
     component: EventListTemplate,
     defaultProps: {
-      title: 'The Stages of Research',
-      presenter: 'Miss Jones',
-      subject: 'Science Class',
+      title: 'Add title',
+      presenter: 'Add presenter name',
+      subject: 'Add subject',
       events: [
-        { date: 'Step 1', description: 'Add step description' },
-        { date: 'Step 2', description: 'Add step description' },
-        { date: 'Step 3', description: 'Add step description' },
+        { date: 'Add step title', description: 'Add step description' },
+        { date: 'Add step title', description: 'Add step description' },
+        { date: 'Add step title', description: 'Add step description' },
       ],
-      titleColor: 'The Stages of Research',
-      descriptionColor: 'Miss Jones',
-      backgroundColor: 'Science Class',
+      titleColor: undefined,
+      descriptionColor: undefined,
+      backgroundColor: undefined,
+      imagePrompt: 'timeline illustration for research stages',
+      imageAlt: 'Research timeline',
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -920,9 +922,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
           label: 'Step'
         }
       },
-      titleColor: { type: 'text', label: 'Title Text', default: 'The Stages of Research' },
-      descriptionColor: { type: 'text', label: 'Presenter Text', default: 'Miss Jones' },
-      backgroundColor: { type: 'text', label: 'Subject Text', default: 'Science Class' },
+      titleColor: { type: 'color', label: 'Title Color', default: undefined },
+      descriptionColor: { type: 'color', label: 'Presenter Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background Color', default: undefined },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
     }
   },
 

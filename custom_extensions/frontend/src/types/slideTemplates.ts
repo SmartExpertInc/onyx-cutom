@@ -257,6 +257,14 @@ export interface EventListTemplateProps extends BaseTemplateProps {
   titleColor?: string;
   descriptionColor?: string;
   backgroundColor?: string;
+  imagePrompt?: string;
+  imageAlt?: string;
+  imagePath?: string;
+  widthPx?: number;
+  heightPx?: number;
+  objectFit?: 'contain' | 'cover' | 'fill';
+  imageScale?: number;
+  imageOffset?: { x: number; y: number };
   theme?: SlideTheme;
 }
 
