@@ -7379,7 +7379,6 @@ class CreditUsageAnalyticsResponse(BaseModel):
 
 class TemplateTypeUsage(BaseModel):
     template_id: str
-    slide_id: str
     total_generated: int
     client_count: int
     error_count: int
@@ -22823,7 +22822,6 @@ async def get_slides_analytics(
                     #error_count=row['error_count'],
                     error_count=1,
                     last_usage=row['last_usage'].isoformat() if row['last_usage'] else "",
-                    preview_link=""
                 ) for row in rows
             ]
             return SlidesAnalyticsResponse(usage_by_template=template_stats)
