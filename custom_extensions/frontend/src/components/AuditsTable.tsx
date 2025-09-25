@@ -62,7 +62,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"name" | "created_at" | "status">("created_at");
+  const [sortBy, setSortBy] = useState<"name" | "company_name" | "created_at" | "status">("created_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAudit, setEditingAudit] = useState<Audit | null>(null);
@@ -121,15 +121,23 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
       });
       
       // Transform the filtered audit projects data
-      const transformedAudits: Audit[] = auditProjects.map((project: any) => ({
-        id: project.id,
-        name: project.projectName || project.name || `Audit ${project.id}`,
-        company_name: project.companyName || 'Unknown Company',
-        created_at: project.created_at || project.createdAt || new Date().toISOString(),
-        updated_at: project.updated_at || project.updatedAt || new Date().toISOString(),
-        status: 'Active', // Default status
-        link: `/projects/view/${project.id}`,
-      }));
+      const transformedAudits: Audit[] = auditProjects.map((project: any) => {
+        // Extract company name from microproduct_content for audit projects
+        let companyName = 'Unknown Company';
+        if (project.microproduct_content && typeof project.microproduct_content === 'object') {
+          companyName = project.microproduct_content.companyName || 'Unknown Company';
+        }
+        
+        return {
+          id: project.id,
+          name: project.projectName || project.name || `Audit ${project.id}`,
+          company_name: companyName,
+          created_at: project.created_at || project.createdAt || new Date().toISOString(),
+          updated_at: project.updated_at || project.updatedAt || new Date().toISOString(),
+          status: 'Active', // Default status
+          link: `/projects/view/${project.id}`,
+        };
+      });
       
       setAudits(transformedAudits);
     } catch (error) {
@@ -185,7 +193,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
   }, [audits, sortBy, sortOrder]);
 
   // Handle sorting
-  const handleSort = (column: typeof sortBy) => {
+  const handleSort = (column: "name" | "company_name" | "created_at" | "status") => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
@@ -357,6 +365,15 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
+                    onClick={() => handleSort('company_name')}
+                    className="flex items-center gap-1 hover:text-gray-700"
+                  >
+                    {t('interface.companyName', 'Company Name')}
+                    <ArrowUpDown size={12} />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
                     onClick={() => handleSort('created_at')}
                     className="flex items-center gap-1 hover:text-gray-700"
                   >
@@ -372,7 +389,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {sortedAudits.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                     <ClipboardCheck className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-lg font-medium">{t('interface.noAudits', 'No audits found')}</p>
                     <p className="text-sm">{t('interface.createYourFirstAudit', 'Create your first audit to get started')}</p>
@@ -388,11 +405,11 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <ClipboardCheck className="h-5 w-5 text-gray-400 mr-3" />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{audit.name}</div>
-                          <div className="text-sm text-gray-500">{audit.company_name}</div>
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{audit.name}</div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {audit.company_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatDate(audit.created_at)}
