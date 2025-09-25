@@ -2402,22 +2402,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         }))
       });
       
-      const processedProjects = projectsData.map((p: any) => ({
-        id: p.id,
-        title: p.projectName || p.microproduct_name || "Untitled",
-        imageUrl: p.imageUrl || "",
-        lastViewed: p.lastViewed || "Never",
-        createdAt: p.created_at,
-        createdBy: p.createdBy || "You",
-        isPrivate: p.isPrivate || true,
-        designMicroproductType: p.design_microproduct_type,
-        isGamma: p.isGamma || false,
-        instanceName: p.microproduct_name,
-        folderId: p.folder_id,
-        order: p.order || 0,
-        is_standalone: p.is_standalone,
-        source_chat_session_id: p.source_chat_session_id,
-      }));
+      const processedProjects = projectsData.map((p: any) => {
+        const isOutline = (p.design_microproduct_type || "").toLowerCase() === "training plan";
+        const displayTitle = isOutline
+          ? (p.projectName || p.microproduct_name || "Untitled")
+          : (p.microproduct_name || p.projectName || "Untitled");
+        return {
+          id: p.id,
+          title: displayTitle,
+          imageUrl: p.imageUrl || "",
+          lastViewed: p.lastViewed || "Never",
+          createdAt: p.created_at,
+          createdBy: p.createdBy || "You",
+          isPrivate: p.isPrivate || true,
+          designMicroproductType: p.design_microproduct_type,
+          isGamma: p.isGamma || false,
+          instanceName: p.microproduct_name,
+          folderId: p.folder_id,
+          order: p.order || 0,
+          is_standalone: p.is_standalone,
+          source_chat_session_id: p.source_chat_session_id,
+        };
+      });
 
       // Sort projects by order field
       const sortedProjects = processedProjects.sort(
@@ -2657,22 +2663,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         }
 
         const projectsData = await response.json();
-        const processedProjects = projectsData.map((p: any) => ({
-          id: p.id,
-          title: p.projectName || p.microproduct_name || "Untitled",
-          imageUrl: p.imageUrl || "",
-          lastViewed: p.lastViewed || "Never",
-          createdAt: p.created_at,
-          createdBy: p.createdBy || "You",
-          isPrivate: p.isPrivate || true,
-          designMicroproductType: p.design_microproduct_type,
-          isGamma: p.isGamma || false,
-          instanceName: p.microproduct_name,
-          folderId: p.folder_id,
-          order: p.order || 0,
-          is_standalone: p.is_standalone,
-          source_chat_session_id: p.source_chat_session_id,
-        }));
+        const processedProjects = projectsData.map((p: any) => {
+          const isOutline = (p.design_microproduct_type || "").toLowerCase() === "training plan";
+          const displayTitle = isOutline
+            ? (p.projectName || p.microproduct_name || "Untitled")
+            : (p.microproduct_name || p.projectName || "Untitled");
+          return {
+            id: p.id,
+            title: displayTitle,
+            imageUrl: p.imageUrl || "",
+            lastViewed: p.lastViewed || "Never",
+            createdAt: p.created_at,
+            createdBy: p.createdBy || "You",
+            isPrivate: p.isPrivate || true,
+            designMicroproductType: p.design_microproduct_type,
+            isGamma: p.isGamma || false,
+            instanceName: p.microproduct_name,
+            folderId: p.folder_id,
+            order: p.order || 0,
+            is_standalone: p.is_standalone,
+            source_chat_session_id: p.source_chat_session_id,
+          };
+        });
 
         // Sort folder projects by order field
         const sortedProjects = processedProjects.sort(
