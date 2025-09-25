@@ -90,7 +90,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         params.append('search', search);
       }
 
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/audits?${params}`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits?${params}`, {
         credentials: 'same-origin',
       });
 
@@ -232,7 +232,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     }
 
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/audits/${auditId}`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${auditId}`, {
         method: 'DELETE',
         credentials: 'same-origin',
       });
@@ -270,7 +270,7 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
     setCopySuccess(false);
 
     try {
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/api/custom/audits/${audit.id}/generate-share-link`, {
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/audits/${audit.id}/generate-share-link`, {
         method: 'POST',
         credentials: 'same-origin',
       });
