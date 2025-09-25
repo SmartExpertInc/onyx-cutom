@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectsTable from '../../components/ProjectsTable';
 import OffersTable from '../../components/OffersTable';
+import AuditsTable from '../../components/AuditsTable';
 import CreateOfferModal from '../../components/CreateOfferModal';
 import {
   Search,
@@ -1018,7 +1019,7 @@ const ProjectsPageInner: React.FC = () => {
           ) : isOffersAllowed ? (
             <OffersTable companyId={selectedFolderId} />
           ) : isAudits ? (
-            <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} auditMode={true} />
+            <AuditsTable companyId={selectedFolderId} />
           ) : isWorkspaceAllowed ? (
             <WorkspaceMembers />
           ) : isExportLMS ? (
