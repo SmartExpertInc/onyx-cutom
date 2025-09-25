@@ -210,6 +210,10 @@ export default function ProjectInstanceViewPage() {
       router.push('/create/generate');
       return;
     }
+    if (typeof window !== 'undefined' && window.history.length <= 1) {
+      router.push('/projects');
+      return;
+    }
     router.back();
   }, [router, searchParams]);
 

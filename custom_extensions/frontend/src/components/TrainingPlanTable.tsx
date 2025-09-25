@@ -1264,7 +1264,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
   const handleOpenLessonPlan = () => {
     const { lessonPlanId } = openOrCreateModalState;
     if (lessonPlanId) {
-      router.push(`/projects/view/${lessonPlanId}`);
+      router.push(`/projects/view/${lessonPlanId}?from=create`);
     }
     setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false, hasLessonPlan: false });
   };
@@ -1317,7 +1317,7 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
       if (result.success && result.project_id) {
         // Close modal and redirect to new lesson plan
         setOpenOrCreateModalState({ isOpen: false, lessonTitle: '', moduleName: '', lessonNumber: 0, hasLesson: false, hasQuiz: false, hasOnePager: false, hasLessonPlan: false });
-        router.push(`/projects/view/${result.project_id}`);
+        router.push(`/projects/view/${result.project_id}?from=create`);
       } else {
         throw new Error(result.message || 'Lesson plan refresh failed');
       }
