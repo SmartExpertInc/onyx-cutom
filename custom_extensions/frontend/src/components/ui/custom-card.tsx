@@ -71,15 +71,15 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
         {...props}
       >
         {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-24 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
-        <div className="absolute -top-12 -left-14 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
+        <div className="absolute -top-20 -left-24 w-110 h-110 bg-[oklch(var(--accent))]/50 rounded-full border-[oklch(var(--border))]/80" />
+        <div className="absolute -top-12 -left-14 w-80 h-80 bg-[oklch(var(--accent))]/30 rounded-full border-[oklch(var(--border))]/80" />
         
         {/* Selection Indicator */}
         {selectable && (
           <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
             isSelected
-              ? 'bg-blue-600 border-blue-600'
-              : 'border-gray-300 group-hover:border-blue-400'
+              ? 'bg-[oklch(var(--primary))] border-[oklch(var(--primary))]'
+              : 'border-[oklch(var(--border))] group-hover:border-[oklch(var(--primary))]'
           }`}>
             {isSelected && (
               <Check size={14} className="text-white" />
@@ -95,8 +95,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                 className={cn(
                   "inline-flex items-center px-2 py-1 text-sm font-semibold",
                   useCSSVariables 
-                    ? "bg-white rounded-md border-none text-blue-600 gap-1"
-                    : cn(labelColor, "bg-white rounded-md border-none text-blue-600 gap-1")
+                    ? "bg-[oklch(var(--card))] rounded-md border-none text-[oklch(var(--primary))] gap-1"
+                    : "bg-[oklch(var(--card))] rounded-md border-none text-[oklch(var(--primary))] gap-1"
                 )}
               >
                 <SparklesIcon size={10} />
@@ -109,7 +109,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           {Icon && (
             <div className="flex items-start justify-start h-16 relative mb-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-300/10 rounded-lg blur-sm"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))]/20 to-[oklch(var(--primary))]/10 rounded-lg blur-sm"></div>
                 <Icon 
                   size={53} 
                   className={cn(
