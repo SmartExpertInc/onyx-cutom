@@ -1125,7 +1125,10 @@ function GenerateProductPicker() {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6"
+      style={{
+        background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
+      }}
     >
       <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
