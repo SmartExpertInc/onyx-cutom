@@ -408,6 +408,8 @@ export interface MarketShareTemplateProps extends BaseTemplateProps {
     description?: string;
     percentage: number;
     color: string;
+    gradientStart?: string;
+    gradientEnd?: string;
     year?: string;
   }>;
   bottomText?: string;

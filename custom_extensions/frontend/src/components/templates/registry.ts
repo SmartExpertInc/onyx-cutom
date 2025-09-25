@@ -1111,10 +1111,10 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: 'The new os solution',
       subtitle: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium ?',
       chartData: [
-        { label: '2019', description: 'Lorem ipsum dolor sit amet', percentage: 48, color: '#4A70E8' },
-        { label: '2020', description: 'Lorem ipsum dolor sit amet', percentage: 61, color: '#FF8C00' },
-        { label: '2021', description: 'Lorem ipsum dolor sit amet', percentage: 83, color: '#32CD32' },
-        { label: '2022', description: 'Lorem ipsum dolor sit amet', percentage: 74, color: '#8A2BE2' }
+        { label: '2019', description: 'Lorem ipsum dolor sit amet', percentage: 48, color: '#4A70E8', gradientStart: '#87CEEB', gradientEnd: '#4682B4' },
+        { label: '2020', description: 'Lorem ipsum dolor sit amet', percentage: 61, color: '#FF8C00', gradientStart: '#FFA07A', gradientEnd: '#FF8C00' },
+        { label: '2021', description: 'Lorem ipsum dolor sit amet', percentage: 83, color: '#32CD32', gradientStart: '#90EE90', gradientEnd: '#3CB371' },
+        { label: '2022', description: 'Lorem ipsum dolor sit amet', percentage: 74, color: '#8A2BE2', gradientStart: '#DDA0DD', gradientEnd: '#9370DB' }
       ],
       bottomText: '',
       imagePrompt: 'bar chart illustration for market share data',
