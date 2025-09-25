@@ -219,6 +219,26 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
             microproductContent: project.microproduct_content,
             reason: 'No microproduct_content or not an object'
           });
+          
+          // FALLBACK: Extract company name from project name for AI audit landing pages
+          if (project.projectName && project.projectName.includes('AI-Аудит Landing Page:')) {
+            const extractedCompanyName = project.projectName.replace('AI-Аудит Landing Page:', '').trim();
+            if (extractedCompanyName && extractedCompanyName !== 'Company Name') {
+              companyName = extractedCompanyName;
+              companyNameSource = 'projectName.extracted';
+              console.log(`[Audits Tab] Company Name Extracted from Project Name - Project ${project.id}:`, {
+                originalProjectName: project.projectName,
+                extractedCompanyName,
+                companyNameSource
+              });
+            } else {
+              console.log(`[Audits Tab] Company Name Extraction from Project Name Failed - Project ${project.id}:`, {
+                originalProjectName: project.projectName,
+                extractedCompanyName,
+                reason: 'Extracted name is empty or placeholder'
+              });
+            }
+          }
         }
         
         const transformedAudit = {
