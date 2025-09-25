@@ -259,7 +259,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     zIndex: 2
   };
 
-  // Right side with timeline (white background)
+  // Right side with timeline (uses rightSectionBackgroundColor from theme or falls back to white)
   const rightSectionStyles: React.CSSProperties = {
     width: '67%',
     height: '600px',
@@ -270,7 +270,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    background: currentTheme.colors.backgroundColor,
+    background: currentTheme.colors.rightSectionBackgroundColor || '#ffffff',
     padding: '40px',
     zIndex: 1
   };

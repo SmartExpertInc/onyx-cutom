@@ -11,6 +11,7 @@ export interface SlideTheme {
     contentColor: string;
     accentColor: string;
     borderColor?: string;
+    rightSectionBackgroundColor?: string;
   };
   fonts: {
     titleFont: string;
@@ -31,7 +32,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       subtitleColor: '#ffffff',     // Белый для описаний на темном фоне  
       contentColor: '#000000',      // Черный для обычного текста на белом фоне
       accentColor: '#f35657',       // Красный акцент
-      borderColor: '#e5e7eb'        // Светло-серая граница
+      borderColor: '#e5e7eb',       // Светло-серая граница
+      rightSectionBackgroundColor: '#ffffff'  // Белый для правого блока в EventList
     },
     fonts: {
       titleFont: 'Lora, serif',
