@@ -53,17 +53,17 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "group bg-linear-to-b from-white via-[#F2F9FC] to-[#F2F9FC] rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
           useCSSVariables 
-            ? "bg-[hsl(var(--card))] border-[hsl(var(--border))] shadow-lg hover:shadow-xl"
-            : "bg-[hsl(var(--card))] border-[hsl(var(--border))] shadow-lg hover:shadow-xl",
+            ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))] shadow-lg hover:shadow-xl"
+            : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md shadow-lg hover:shadow-xl",
           disabled
             ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
             : selectable 
               ? `cursor-pointer ${
                   isSelected 
-                    ? 'border-[hsl(var(--primary))] shadow-xl bg-[hsl(var(--accent))]' 
-                    : 'border-[hsl(var(--border))] hover:shadow-2xl hover:border-[hsl(var(--primary))]'
+                    ? 'border-blue-300 shadow-xl bg-blue-50' 
+                    : 'border-gray-200 hover:shadow-2xl hover:border-blue-300'
                 }`
               : "cursor-pointer shadow-lg hover:shadow-xl",
           className
@@ -114,7 +114,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                   size={53} 
                   className={cn(
                     "relative z-10",
-                    useCSSVariables ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--primary))]"
+                    useCSSVariables ? "text-[hsl(var(--custom-card-icon))]" : "text-blue-600"
                   )} 
                 />
               </div>
@@ -127,15 +127,15 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {title && (
                 <h3 className={cn(
                   "text-2xl font-semibold text-left leading-tight tracking-tight",
-                  useCSSVariables ? "text-[hsl(var(--card-foreground))]" : "text-[hsl(var(--card-foreground))]"
+                  useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : "text-blue-600"
                 )}>
                   {title}
                 </h3>
               )}
               {description && (
                 <p className={cn(
-                  "text-base text-left leading-relaxed max-w-[64%]",
-                  useCSSVariables ? "text-[hsl(var(--muted-foreground))]" : "text-[hsl(var(--muted-foreground))]"
+                  "text-base text-left leading-relaxed text-gray-600 max-w-[64%]",
+                  useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-600"
                 )}>
                   {description}
                 </p>
