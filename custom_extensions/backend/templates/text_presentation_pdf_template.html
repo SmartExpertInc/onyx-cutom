@@ -513,8 +513,7 @@
                     {% if block_type == 'headline' %}
                         <div class="headline-block h{{ level }}"
                              style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %} {% if block_data.textColor %}color: {{ block_data.textColor }}; fill: {{block_data.textColor}};{% elif is_in_mini_section %}color: var(--color-primary-accent); fill: var(--color-primary-accent);{% endif %} {% if block_data.fontSize %}font-size: {{ block_data.fontSize }};{% endif %}">
-                            {% if is_in_mini_section and not block_data.iconName %}{{ render_icon_svg_macro('info') }}{% endif %}
-                            {{ render_icon_svg_macro(block_data.iconName) }}
+                            {% if block_data.iconName %}{{ render_icon_svg_macro(block_data.iconName) }}{% endif %}
                             <span>{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</span>
                         </div>
                     {% elif block_type == 'table' %}

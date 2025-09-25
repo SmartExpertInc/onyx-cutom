@@ -794,7 +794,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
       let calculatedMt = ''; let calculatedMb = ''; let calculatedPt = '';
       if (level === 1) { calculatedMb = 'mb-2'; } 
-      else if (level === 2) { calculatedMb = 'mb-3'; calculatedPt = 'pt-4'; } 
+      else if (level === 2) { calculatedMb = 'mb-3'; calculatedPt = ''; } 
       else if (level === 3) { calculatedMb = 'mb-1.5'; calculatedMt = 'mt-2.5'; } 
       else if (level === 4) { calculatedMb = 'mb-1'; calculatedMt = 'mt-2'; } 
       else { calculatedMb = 'mb-1.5'; } 
@@ -834,7 +834,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
               onDragEnd();
             }
           }}
-          className={`w-full group relative ${depth === 0 ? 'mt-6' : 'mt-4'} ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
+          className={`w-full group relative mt-0 ${isEditing ? 'cursor-move' : ''} ${isDraggedOver ? 'ring-2 ring-blue-400 ring-opacity-50' : ''}`}
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
