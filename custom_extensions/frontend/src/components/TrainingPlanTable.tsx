@@ -2249,6 +2249,23 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
                         placeholder="Section Title"
                       />
                     </div>
+                  ) : isEditingField('sectionTitle', sectionIdx) && onTextChange ? (
+                    <div className="flex items-center gap-2 w-full">
+                      <span 
+                        className="inline-flex items-center justify-center text-white rounded-sm w-auto px-1.5 h-5 text-xs font-bold"
+                        style={{ backgroundColor: iconBaseColor }}
+                      >
+                        {section.id}
+                      </span>
+                      <input 
+                        type="text" 
+                        value={section.title} 
+                        onChange={(e) => handleGenericInputChange(['sections', sectionIdx, 'title'], e)} 
+                        onBlur={handleInputBlur}
+                        className={`${inlineEditingInputTitleClass} flex-grow`} 
+                        placeholder="Section Title"
+                      />
+                    </div>
                   ) : (
                     <>
                       <span 
