@@ -1043,32 +1043,33 @@ export default function ProductViewNewPage() {
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
-                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   
                   {/* Product Types Header */}
                   <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center px-2`}>
                     <div className="text-sm font-medium text-gray-700">
-                      Content Types
+                      
                     </div>
-                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
+                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
                       <LessonPresentationIcon size={16} />
                       <span>Presentation</span>
                     </div>
-                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
+                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
                       <TextPresentationIcon size={16} />
                       <span>One-Pager</span>
                     </div>
-                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
+                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
                       <QuizIcon size={16} />
                       <span>Quiz</span>
                     </div>
                     {videoLessonEnabled && (
-                      <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center">
+                      <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
                         <VideoScriptIcon size={16} />
                         <span>Video Lesson</span>
                       </div>
                     )}
                   </div>
+                  
+                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
 
                   {section.lessons && section.lessons.length > 0 && (
                     <div>
@@ -1140,14 +1141,17 @@ export default function ProductViewNewPage() {
                                   </CustomTooltip>
                                 </div>
                               ) : (
-                                <CustomTooltip content="Add product">
-                                  <div 
-                                    className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                    onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                  >
-                                    <Plus size={14} className="text-gray-600" />
-                                  </div>
-                                </CustomTooltip>
+                                <div className="flex items-center gap-1">
+                                  <CustomTooltip content="Add product">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                    >
+                                      <Plus size={14} className="text-gray-600" />
+                                    </div>
+                                  </CustomTooltip>
+                                  <div className="w-6 h-6"></div>
+                                </div>
                               )}
                             </div>
 
@@ -1177,14 +1181,17 @@ export default function ProductViewNewPage() {
                                   </CustomTooltip>
                                 </div>
                               ) : (
-                                <CustomTooltip content="Add product">
-                                  <div 
-                                    className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                    onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                  >
-                                    <Plus size={14} className="text-gray-600" />
-                                  </div>
-                                </CustomTooltip>
+                                <div className="flex items-center gap-1">
+                                  <CustomTooltip content="Add product">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                    >
+                                      <Plus size={14} className="text-gray-600" />
+                                    </div>
+                                  </CustomTooltip>
+                                  <div className="w-6 h-6"></div>
+                                </div>
                               )}
                             </div>
 
@@ -1214,14 +1221,17 @@ export default function ProductViewNewPage() {
                                   </CustomTooltip>
                                 </div>
                               ) : (
-                                <CustomTooltip content="Add product">
-                                  <div 
-                                    className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                    onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                  >
-                                    <Plus size={14} className="text-gray-600" />
-                                  </div>
-                                </CustomTooltip>
+                                <div className="flex items-center gap-1">
+                                  <CustomTooltip content="Add product">
+                                    <div 
+                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                    >
+                                      <Plus size={14} className="text-gray-600" />
+                                    </div>
+                                  </CustomTooltip>
+                                  <div className="w-6 h-6"></div>
+                                </div>
                               )}
                             </div>
 
@@ -1252,14 +1262,17 @@ export default function ProductViewNewPage() {
                                     </CustomTooltip>
                                   </div>
                                 ) : (
-                                  <CustomTooltip content="Add product">
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                    >
-                                      <Plus size={14} className="text-gray-600" />
-                                    </div>
-                                  </CustomTooltip>
+                                  <div className="flex items-center gap-1">
+                                    <CustomTooltip content="Add product">
+                                      <div 
+                                        className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
+                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                      >
+                                        <Plus size={14} className="text-gray-600" />
+                                      </div>
+                                    </CustomTooltip>
+                                    <div className="w-6 h-6"></div>
+                                  </div>
                                 )}
                               </div>
                             )}
