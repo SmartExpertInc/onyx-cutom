@@ -235,7 +235,7 @@ export default function ProductViewNewPage() {
     stopEditing();
   };
 
-  // Save changes to backend
+  // Save changes to backend (mirror old interface behavior)
   const saveChanges = async (data: TrainingPlanData) => {
     if (!productId) return;
 
@@ -246,23 +246,47 @@ export default function ProductViewNewPage() {
         commonHeaders['X-Dev-Onyx-User-ID'] = devUserId;
       }
 
+      // Send only microProductContent (backend will sync project_name with mainTitle for training plans)
+      const payload = { microProductContent: data };
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${productId}`, {
         method: 'PUT',
         headers: commonHeaders,
-        body: JSON.stringify({
-          projectName: data.mainTitle,
-          microProductContent: data
-        })
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to save changes: ${response.status}`);
+        const errorDataText = await response.text();
+        let errorDetail = `HTTP error ${response.status}`;
+        try {
+          const errorJson = JSON.parse(errorDataText);
+          if (errorJson.detail) {
+            if (Array.isArray(errorJson.detail)) {
+              const validationErrors = errorJson.detail.map((err: any) => {
+                const location = err.loc ? err.loc.join('.') : 'unknown';
+                return `${location}: ${err.msg || 'Validation error'}`;
+              }).join('; ');
+              errorDetail = `Validation errors: ${validationErrors}`;
+            } else {
+              errorDetail = errorJson.detail;
+            }
+          }
+        } catch {
+          // keep default errorDetail
+        }
+        throw new Error(errorDetail);
       }
 
-      console.log('Changes saved successfully');
+      // Optional: read response for debugging consistency with old interface
+      try {
+        const responseData = await response.json();
+        console.log('Auto-save response:', JSON.stringify(responseData, null, 2));
+      } catch {
+        // ignore if no JSON body
+      }
     } catch (error) {
       console.error('Error saving changes:', error);
-      setSaveError('Failed to save changes');
+      setSaveError(error instanceof Error ? error.message : 'Failed to save changes');
     }
   };
 
