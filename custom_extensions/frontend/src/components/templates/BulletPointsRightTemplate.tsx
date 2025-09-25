@@ -471,7 +471,7 @@ function UnifiedBulletEditor({
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px',
+            marginBottom: '35px',
             width: '100%'
           }}>
             <span style={bulletIconStyles}>
@@ -487,7 +487,7 @@ function UnifiedBulletEditor({
             display: 'flex', 
             alignItems: 'flex-start', 
             gap: '12px', 
-            marginBottom: '16px',
+            marginBottom: '35px',
             width: '100%'
           }}>
             <span style={bulletIconStyles}>•</span>
