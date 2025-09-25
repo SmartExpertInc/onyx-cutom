@@ -22826,8 +22826,8 @@ async def get_slides_analytics(
                     template_id=row['template_id'],
                     total_generated=row['total_generated'],
                     client_count=row['client_count'],
-                    #error_count=row['error_count'],
-                    error_count=1,
+                    error_count=row['error_count'],
+                    #error_count=1,
                     last_usage=row['last_usage'].isoformat() if row['last_usage'] else "",
                 ) for row in rows
             ]
