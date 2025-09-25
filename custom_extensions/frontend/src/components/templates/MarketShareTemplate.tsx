@@ -63,7 +63,6 @@ function InlineEditor({
   useEffect(() => {
     if (multiline && inputRef.current) {
       const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
@@ -81,7 +80,6 @@ function InlineEditor({
         placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -113,7 +111,6 @@ function InlineEditor({
       placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -161,7 +158,6 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingListItem, setEditingListItem] = useState<number | null>(null);
   const [editingYear, setEditingYear] = useState<number | null>(null);
-  const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
 
   // Refs for MoveableManager integration
   const titleRef = useRef<HTMLDivElement>(null);
@@ -193,7 +189,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const handleListItemSave = (index: number, newText: string) => {
     if (onUpdate) {
-    const newChartData = [...chartData];
+      const newChartData = [...chartData];
       newChartData[index] = { ...newChartData[index], description: newText };
       onUpdate({ chartData: newChartData });
     }
@@ -215,19 +211,6 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const handleYearCancel = () => {
     setEditingYear(null);
-  };
-
-  const handlePercentageSave = (index: number, newValue: string) => {
-    if (onUpdate) {
-      const newChartData = [...chartData];
-      newChartData[index] = { ...newChartData[index], percentage: parseFloat(newValue) || 0 };
-      onUpdate({ chartData: newChartData });
-    }
-    setEditingPercentage(null);
-  };
-
-  const handlePercentageCancel = () => {
-    setEditingPercentage(null);
   };
 
   // Handle image upload
@@ -264,7 +247,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
-    minHeight: '600px',
+    height: '600px',
     background: currentTheme.colors.backgroundColor,
     display: 'flex',
     flexDirection: 'row',
@@ -273,10 +256,10 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     overflow: 'hidden'
   };
 
-  // Left section with title, subtitle and numbered list (blue background)
+  // Left section with title, subtitle and numbered list (blue background) - 40% width
   const leftSectionStyles: React.CSSProperties = {
-    width: '45%',
-    height: '600px',
+    width: '40%',
+    height: '100%',
     position: 'absolute',
     left: '0',
     top: '0',
@@ -284,15 +267,15 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    background: currentTheme.colors.eventListGradient || currentTheme.colors.backgroundColor,
-    padding: '60px 40px',
+    background: '#2A42D8', // Exact blue from photo
+    padding: '60px 50px',
     zIndex: 2
   };
 
-  // Right section with bar chart (white background)
+  // Right section with bar chart (white background) - 60% width
   const rightSectionStyles: React.CSSProperties = {
-    width: '55%',
-    height: '600px',
+    width: '60%',
+    height: '100%',
     position: 'absolute',
     right: '0',
     top: '0',
@@ -300,46 +283,46 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    background: currentTheme.colors.rightSectionBackgroundColor || '#ffffff',
+    background: '#ffffff',
     padding: '40px',
     zIndex: 1
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3rem',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontSize: '3.5rem', // Large title as in photo
+    fontFamily: 'Georgia, serif', // Serif font as in photo
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'left',
-    marginBottom: '20px',
+    marginBottom: '30px',
     wordWrap: 'break-word',
     lineHeight: '1.1'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    fontSize: '1.2rem', // Subtitle size as in photo
     color: '#ffffff',
-    marginBottom: '40px',
-    fontFamily: currentTheme.fonts.contentFont,
+    marginBottom: '50px',
+    fontFamily: 'Arial, sans-serif', // Sans-serif as in photo
     wordWrap: 'break-word',
     lineHeight: '1.4'
   };
 
   const listItemStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    fontSize: '1.3rem', // List item size as in photo
     color: '#ffffff',
-    marginBottom: '20px',
-    fontFamily: currentTheme.fonts.contentFont,
+    marginBottom: '25px',
+    fontFamily: 'Arial, sans-serif',
     wordWrap: 'break-word',
     lineHeight: '1.4',
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    gap: '20px'
   };
 
   const squareStyles = (color: string): React.CSSProperties => ({
-    width: '24px',
-    height: '24px',
+    width: '28px',
+    height: '28px',
     backgroundColor: color,
     display: 'flex',
     alignItems: 'center',
@@ -350,65 +333,65 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const squareTextStyles: React.CSSProperties = {
     color: '#ffffff',
-    fontSize: '14px',
+    fontSize: '16px',
     fontWeight: 'bold',
-    fontFamily: currentTheme.fonts.titleFont,
+    fontFamily: 'Arial, sans-serif',
     lineHeight: '1'
   };
 
-  // Chart styles
+  // Chart styles - exact match to photo
   const chartContainerStyles: React.CSSProperties = {
     width: '100%',
-    maxWidth: '500px',
-    height: '350px',
+    maxWidth: '600px',
+    height: '400px',
     position: 'relative',
     display: 'flex',
     alignItems: 'end',
     justifyContent: 'space-between',
-    padding: '40px 20px 20px 60px'
+    padding: '50px 20px 30px 80px'
   };
 
   const barStyles = (height: number, gradientStart: string, gradientEnd: string): React.CSSProperties => ({
-    width: '80px',
-    height: `${height * 2.5}px`,
+    width: '100px', // Wider bars as in photo
+    height: `${height * 3}px`, // Height multiplier to match photo proportions
     background: `linear-gradient(to top, ${gradientStart}, ${gradientEnd})`,
-    borderRadius: '4px 4px 0 0',
+    borderRadius: '6px 6px 0 0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: '0 3px 6px rgba(0,0,0,0.15)'
   });
 
   const barTextStyles: React.CSSProperties = {
     color: '#ffffff',
-    fontSize: '16px',
+    fontSize: '18px',
     fontWeight: 'bold',
-    fontFamily: currentTheme.fonts.titleFont
+    fontFamily: 'Arial, sans-serif'
   };
 
   const yearLabelStyles: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '16px',
     color: '#666666',
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Arial, sans-serif',
     textAlign: 'center',
-    marginTop: '10px'
+    marginTop: '15px'
   };
 
   const gridLineStyles: React.CSSProperties = {
     position: 'absolute',
     width: '100%',
     height: '1px',
-    backgroundColor: '#e0e0e0',
-    opacity: 0.5
+    backgroundColor: '#D3D3D3',
+    opacity: 0.7
   };
 
   const yAxisLabelStyles: React.CSSProperties = {
     position: 'absolute',
-    left: '-50px',
-    fontSize: '14px',
+    left: '-60px',
+    fontSize: '16px',
     color: '#666666',
-    fontFamily: currentTheme.fonts.contentFont
+    fontFamily: 'Arial, sans-serif'
   };
 
   return (
@@ -469,14 +452,14 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
           data-draggable="true"
         >
           {isEditable && editingSubtitle ? (
-                          <InlineEditor
+            <InlineEditor
               initialValue={subtitle}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
               multiline={true}
               placeholder="Enter subtitle..."
               className="inline-editor-subtitle"
-                            style={{
+              style={{
                 ...subtitleStyles,
                 padding: '0',
                 border: 'none',
@@ -487,9 +470,9 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
                 display: 'block'
-                            }}
-                          />
-                        ) : (
+              }}
+            />
+          ) : (
             <div 
               style={subtitleStyles}
               onClick={(e) => {
@@ -506,9 +489,9 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             >
               {subtitle}
             </div>
-                        )}
-                      </div>
-                      
+          )}
+        </div>
+
         {/* Numbered list */}
         <div style={{ width: '100%' }}>
           {chartData.map((item, index) => (
@@ -517,16 +500,16 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 <span style={squareTextStyles}>
                   {index + 1}
                 </span>
-                    </div>
+              </div>
               {isEditable && editingListItem === index ? (
-                  <InlineEditor
+                <InlineEditor
                   initialValue={item.description || 'Lorem ipsum dolor sit amet'}
                   onSave={(value) => handleListItemSave(index, value)}
                   onCancel={handleListItemCancel}
                   multiline={false}
                   placeholder="Enter list item..."
                   className="inline-editor-list-item"
-                    style={{
+                  style={{
                     padding: '0',
                     border: 'none',
                     outline: 'none',
@@ -538,11 +521,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                     display: 'block',
                     flex: 1,
                     color: '#ffffff',
-                    fontSize: '1.1rem',
-                    fontFamily: currentTheme.fonts.contentFont
-                    }}
-                  />
-                ) : (
+                    fontSize: '1.3rem',
+                    fontFamily: 'Arial, sans-serif'
+                  }}
+                />
+              ) : (
                 <span
                   style={{ flex: 1 }}
                   onClick={(e) => {
@@ -559,11 +542,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 >
                   {item.description || 'Lorem ipsum dolor sit amet'}
                 </span>
-                )}
-              </div>
-          ))}
+              )}
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
       {/* Right section with bar chart */}
       <div style={rightSectionStyles}>
@@ -602,16 +585,16 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
               </div>
               
               {/* Year label */}
-                <div>
+              <div>
                 {isEditable && editingYear === index ? (
-                    <InlineEditor
-                      initialValue={item.label}
+                  <InlineEditor
+                    initialValue={item.label}
                     onSave={(value) => handleYearSave(index, value)}
                     onCancel={handleYearCancel}
                     multiline={false}
                     placeholder="Enter year..."
                     className="inline-editor-year"
-                      style={{
+                    style={{
                       ...yearLabelStyles,
                       padding: '0',
                       border: 'none',
@@ -622,11 +605,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
                       display: 'block',
-                      width: '60px',
+                      width: '100px',
                       textAlign: 'center'
-                      }}
-                    />
-                  ) : (
+                    }}
+                  />
+                ) : (
                   <div
                     style={yearLabelStyles}
                     onClick={(e) => {
@@ -640,13 +623,13 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                       }
                     }}
                     className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                    >
-                      {item.label}
+                  >
+                    {item.label}
                   </div>
                 )}
-                </div>
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>
