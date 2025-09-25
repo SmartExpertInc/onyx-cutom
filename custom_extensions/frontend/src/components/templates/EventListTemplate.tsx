@@ -243,7 +243,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     overflow: 'hidden'
   };
 
-  // Left side with title and presenter info (blue background)
+  // Left side with title and presenter info (blue background from theme)
   const leftSectionStyles: React.CSSProperties = {
     width: '33%',
     height: '600px',
@@ -254,7 +254,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    background: '#1e3a8a', // Blue background matching the screenshot
+    background: currentTheme.colors.backgroundColor, // Use gradient from theme
     padding: '60px 40px',
     zIndex: 2
   };
@@ -481,20 +481,19 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'space-between',
             width: '100%',
-            maxWidth: '800px',
             position: 'relative',
-            padding: '80px 40px',
+            padding: '80px 20px',
             minHeight: '200px'
           }}
         >
-          {/* Timeline line - full width with proper margins */}
+          {/* Timeline line - full width with minimal margins */}
           <div style={{
             position: 'absolute',
             top: '50%',
-            left: '60px',
-            right: '60px',
+            left: '40px',
+            right: '40px',
             height: '2px',
             backgroundColor: '#1e3a8a',
             transform: 'translateY(-50%)',
