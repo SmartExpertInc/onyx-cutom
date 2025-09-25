@@ -37,28 +37,28 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
   const outlineExamples: { short: string; detailed: string }[] = [
     {
-      short: "Make all lessons have assessment type 'test'",
-      detailed: "Update all lessons in the training plan to have assessment type 'test' instead of their current assessment types.",
+      short: t('smartEdit.examples.makeAllTests.short', "Make all lessons have assessment type 'test'"),
+      detailed: t('smartEdit.examples.makeAllTests.detailed', "Update all lessons in the training plan to have assessment type 'test' instead of their current assessment types."),
     },
     {
-      short: "Add practical exercises to each module",
-      detailed: "Add practical exercises or hands-on activities to each module in the training plan to enhance learning engagement.",
+      short: t('smartEdit.examples.addExercises.short', 'Add practical exercises to each module'),
+      detailed: t('smartEdit.examples.addExercises.detailed', 'Add practical exercises or hands-on activities to each module in the training plan to enhance learning engagement.'),
     },
     {
-      short: "Restructure into shorter modules",
-      detailed: "Reorganize the content into shorter, more digestible modules while maintaining the learning flow and objectives.",
+      short: t('smartEdit.examples.restructureShorter.short', 'Restructure into shorter modules'),
+      detailed: t('smartEdit.examples.restructureShorter.detailed', 'Reorganize the content into shorter, more digestible modules while maintaining the learning flow and objectives.'),
     },
     {
-      short: "Add case studies and real examples",
-      detailed: "Include relevant case studies and real-world examples in each module to provide practical context for learners.",
+      short: t('smartEdit.examples.addCaseStudies.short', 'Add case studies and real examples'),
+      detailed: t('smartEdit.examples.addCaseStudies.detailed', 'Include relevant case studies and real-world examples in each module to provide practical context for learners.'),
     },
     {
-      short: "Increase advanced content depth",
-      detailed: "Enhance the training plan with more advanced-level content and deeper insights while maintaining accessibility.",
+      short: t('smartEdit.examples.increaseAdvancedDepth.short', 'Increase advanced content depth'),
+      detailed: t('smartEdit.examples.increaseAdvancedDepth.detailed', 'Enhance the training plan with more advanced-level content and deeper insights while maintaining accessibility.'),
     },
     {
-      short: "Add assessment quizzes",
-      detailed: "Include assessment quizzes and knowledge checks throughout the training plan to reinforce learning.",
+      short: t('smartEdit.examples.addQuizzes.short', 'Add assessment quizzes'),
+      detailed: t('smartEdit.examples.addQuizzes.detailed', 'Include assessment quizzes and knowledge checks throughout the training plan to reinforce learning.'),
     },
   ];
 
@@ -267,7 +267,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
-            placeholder="Describe what you'd like to improve..."
+            placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
             className="w-full px-7 py-5 rounded-2xl bg-white text-sm text-black resize-none overflow-y-auto min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.95)' }}
             disabled={loadingEdit}

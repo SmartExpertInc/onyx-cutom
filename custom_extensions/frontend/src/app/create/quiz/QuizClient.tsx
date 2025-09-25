@@ -143,28 +143,28 @@ export default function QuizClient() {
 
   const quizExamples: { short: string; detailed: string }[] = [
     {
-      short: "Make questions more challenging",
-      detailed: "Increase the difficulty level of the quiz questions by adding more complex scenarios, requiring deeper analysis, and including higher-order thinking skills.",
+      short: t('interface.generate.quizExamples.moreChallenging.short', 'Make questions more challenging'),
+      detailed: t('interface.generate.quizExamples.moreChallenging.detailed', 'Increase the difficulty level of the quiz questions by adding more complex scenarios, requiring deeper analysis, and including higher-order thinking skills.'),
     },
     {
-      short: "Add more practical examples",
-      detailed: "Include more real-world examples and case studies in the questions to make them more applicable and engaging for learners.",
+      short: t('interface.generate.quizExamples.morePractical.short', 'Add more practical examples'),
+      detailed: t('interface.generate.quizExamples.morePractical.detailed', 'Include more real-world examples and case studies in the questions to make them more applicable and engaging for learners.'),
     },
     {
-      short: "Improve question clarity",
-      detailed: "Rewrite questions to be clearer and more concise, ensuring they are easy to understand and avoid ambiguity.",
+      short: t('interface.generate.quizExamples.improveClarity.short', 'Improve question clarity'),
+      detailed: t('interface.generate.quizExamples.improveClarity.detailed', 'Rewrite questions to be clearer and more concise, ensuring they are easy to understand and avoid ambiguity.'),
     },
     {
-      short: "Add variety to question types",
-      detailed: "Incorporate different types of questions (multiple choice, true/false, short answer) to make the quiz more engaging and comprehensive.",
+      short: t('interface.generate.quizExamples.addVariety.short', 'Add variety to question types'),
+      detailed: t('interface.generate.quizExamples.addVariety.detailed', 'Incorporate different types of questions (multiple choice, true/false, short answer) to make the quiz more engaging and comprehensive.'),
     },
     {
-      short: "Focus on key learning objectives",
-      detailed: "Restructure the quiz to better align with the main learning objectives and ensure questions test the most important concepts.",
+      short: t('interface.generate.quizExamples.focusObjectives.short', 'Focus on key learning objectives'),
+      detailed: t('interface.generate.quizExamples.focusObjectives.detailed', 'Restructure the quiz to better align with the main learning objectives and ensure questions test the most important concepts.'),
     },
     {
-      short: "Include feedback and explanations",
-      detailed: "Add detailed explanations for correct and incorrect answers to help learners understand the reasoning behind each response.",
+      short: t('interface.generate.quizExamples.includeFeedback.short', 'Include feedback and explanations'),
+      detailed: t('interface.generate.quizExamples.includeFeedback.detailed', 'Add detailed explanations for correct and incorrect answers to help learners understand the reasoning behind each response.'),
     },
   ];
 

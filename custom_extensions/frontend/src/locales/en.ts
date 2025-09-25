@@ -113,6 +113,34 @@ export const en = {
     processing: "Processing",
     pleaseWait: "Please wait...",
   },
+  smartEdit: {
+    examples: {
+      makeAllTests: {
+        short: "Make all lessons have assessment type 'test'",
+        detailed: "Update all lessons in the training plan to have assessment type 'test' instead of their current assessment types.",
+      },
+      addExercises: {
+        short: "Add practical exercises to each module",
+        detailed: "Add practical exercises or hands-on activities to each module in the training plan to enhance learning engagement.",
+      },
+      restructureShorter: {
+        short: "Restructure into shorter modules",
+        detailed: "Reorganize the content into shorter, more digestible modules while maintaining the learning flow and objectives.",
+      },
+      addCaseStudies: {
+        short: "Add case studies and real examples",
+        detailed: "Include relevant case studies and real-world examples in each module to provide practical context for learners.",
+      },
+      increaseAdvancedDepth: {
+        short: "Increase advanced content depth",
+        detailed: "Enhance the training plan with more advanced-level content and deeper insights while maintaining accessibility.",
+      },
+      addQuizzes: {
+        short: "Add assessment quizzes",
+        detailed: "Include assessment quizzes and knowledge checks throughout the training plan to reinforce learning.",
+      },
+    },
+  },
   videoLesson: {
     slide: "Slide",
     displayedTextLabel: "Displayed text",
@@ -1138,6 +1166,84 @@ export const en = {
       credits: "credits",
       generate: "Generate",
       helpComingSoon: "Help (coming soon)",
+      examples: {
+        adaptIndustry: {
+          short: "Adapt to U.S. industry specifics",
+          detailed: "Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don't align with the American context.",
+        },
+        adoptTrends: {
+          short: "Adopt trends and latest practices",
+          detailed: "Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+        },
+        topExamples: {
+          short: "Incorporate top industry examples",
+          detailed: "Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.",
+        },
+        simplify: {
+          short: "Simplify and restructure the content",
+          detailed: "Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.",
+        },
+        increaseDepth: {
+          short: "Increase value and depth of content",
+          detailed: "Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+        },
+        addApplications: {
+          short: "Add case studies and applications",
+          detailed: "Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+        },
+      },
+      quizExamples: {
+        moreChallenging: {
+          short: "Make questions more challenging",
+          detailed: "Increase the difficulty level of the quiz questions by adding more complex scenarios, requiring deeper analysis, and including higher-order thinking skills.",
+        },
+        morePractical: {
+          short: "Add more practical examples",
+          detailed: "Include more real-world examples and case studies in the questions to make them more applicable and engaging for learners.",
+        },
+        improveClarity: {
+          short: "Improve question clarity",
+          detailed: "Rewrite questions to be clearer and more concise, ensuring they are easy to understand and avoid ambiguity.",
+        },
+        addVariety: {
+          short: "Add variety to question types",
+          detailed: "Incorporate different types of questions (multiple choice, true/false, short answer) to make the quiz more engaging and comprehensive.",
+        },
+        focusObjectives: {
+          short: "Focus on key learning objectives",
+          detailed: "Restructure the quiz to better align with the main learning objectives and ensure questions test the most important concepts.",
+        },
+        includeFeedback: {
+          short: "Include feedback and explanations",
+          detailed: "Add detailed explanations for correct and incorrect answers to help learners understand the reasoning behind each response.",
+        },
+      },
+      onePagerExamples: {
+        adaptIndustry: {
+          short: "Adapt to U.S. industry specifics",
+          detailed: "Update the one-pager's structure based on U.S. industry and cultural specifics: adjust content, replace topics, examples, and wording that don't align with the American context.",
+        },
+        adoptTrends: {
+          short: "Adopt trends and latest practices",
+          detailed: "Update the one-pager's structure by adding content that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+        },
+        topExamples: {
+          short: "Incorporate top industry examples",
+          detailed: "Analyze the best one-pagers on the market in this topic and restructure our content accordingly: change or add content which others present more effectively. Focus on content flow and clarity.",
+        },
+        simplify: {
+          short: "Simplify and restructure the content",
+          detailed: "Rewrite the one-pager's structure to make it more logical and user-friendly. Remove redundant sections, merge overlapping content, and rephrase content for clarity and simplicity.",
+        },
+        increaseDepth: {
+          short: "Increase value and depth of content",
+          detailed: "Strengthen the one-pager by adding content that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+        },
+        addApplications: {
+          short: "Add case studies and applications",
+          detailed: "Revise the one-pager's structure to include applied content — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+        },
+      },
       finalizingProduct: "Finalizing product...",
       // Offers translations
       offers: "Offers",

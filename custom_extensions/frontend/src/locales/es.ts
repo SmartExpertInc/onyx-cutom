@@ -1369,6 +1369,84 @@ export const es = {
       short: "Corto",
       medium: "Medio",
       long: "Largo",
+      quizExamples: {
+        moreChallenging: {
+          short: "Hacer las preguntas más desafiantes",
+          detailed: "Aumentar el nivel de dificultad de las preguntas del cuestionario añadiendo escenarios más complejos, requiriendo un análisis más profundo e incorporando habilidades de pensamiento de orden superior.",
+        },
+        morePractical: {
+          short: "Añadir más ejemplos prácticos",
+          detailed: "Incluir más ejemplos del mundo real y estudios de caso en las preguntas para hacerlas más aplicables y atractivas para los alumnos.",
+        },
+        improveClarity: {
+          short: "Mejorar la claridad de las preguntas",
+          detailed: "Reescribir las preguntas para que sean más claras y concisas, garantizando que sean fáciles de entender y evitando ambigüedades.",
+        },
+        addVariety: {
+          short: "Añadir variedad de tipos de preguntas",
+          detailed: "Incorporar diferentes tipos de preguntas (opción múltiple, verdadero/falso, respuesta corta) para hacer el cuestionario más atractivo y completo.",
+        },
+        focusObjectives: {
+          short: "Centrarse en los objetivos clave de aprendizaje",
+          detailed: "Reestructurar el cuestionario para alinearlo mejor con los principales objetivos de aprendizaje y asegurarse de que las preguntas evalúan los conceptos más importantes.",
+        },
+        includeFeedback: {
+          short: "Incluir retroalimentación y explicaciones",
+          detailed: "Añadir explicaciones detalladas para respuestas correctas e incorrectas para ayudar a los alumnos a entender el razonamiento detrás de cada respuesta.",
+        },
+      },
+      onePagerExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar la estructura del one-pager según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar la estructura del one-pager añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar los mejores one-pagers del mercado en esta temática y reestructurar nuestro contenido en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir la estructura del one-pager para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer el one-pager añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar la estructura del one-pager para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
+      lessonExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar la estructura de la lección según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar la estructura de la lección añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar las mejores lecciones del mercado en esta temática y reestructurar nuestra lección en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir la estructura de la lección para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer la lección añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar la estructura de la lección para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
     },
 
     // Module and Lesson Settings Modals
@@ -1421,6 +1499,34 @@ export const es = {
       applying: "Aplicando...",
       footerInfo:
         "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
+    },
+    smartEdit: {
+      examples: {
+        makeAllTests: {
+          short: "Hacer que todos los lecciones tengan tipo de evaluación 'test'",
+          detailed: "Actualizar todas las lecciones del plan de formación para que el tipo de evaluación sea 'test' en lugar de los tipos actuales.",
+        },
+        addExercises: {
+          short: "Añadir ejercicios prácticos a cada módulo",
+          detailed: "Añadir ejercicios prácticos o actividades a cada módulo del plan para aumentar la participación del aprendizaje.",
+        },
+        restructureShorter: {
+          short: "Reestructurar en módulos más cortos",
+          detailed: "Reorganizar el contenido en módulos más cortos y fáciles de asimilar, manteniendo el flujo y los objetivos de aprendizaje.",
+        },
+        addCaseStudies: {
+          short: "Añadir estudios de caso y ejemplos reales",
+          detailed: "Incluir estudios de caso relevantes y ejemplos del mundo real en cada módulo para aportar contexto práctico.",
+        },
+        increaseAdvancedDepth: {
+          short: "Aumentar la profundidad del contenido avanzado",
+          detailed: "Mejorar el plan de formación con contenido de nivel avanzado y perspectivas más profundas manteniendo la accesibilidad.",
+        },
+        addQuizzes: {
+          short: "Añadir cuestionarios de evaluación",
+          detailed: "Incluir cuestionarios y comprobaciones de conocimiento a lo largo del plan de formación para reforzar el aprendizaje.",
+        },
+      },
     },
   },
 };
