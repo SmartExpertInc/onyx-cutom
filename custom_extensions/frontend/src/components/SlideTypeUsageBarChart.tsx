@@ -8,7 +8,6 @@ interface SlideTypeUsageBarChartProps {
   template_ids: string[];
   usage_by_template: Array<{
     template_id: string;
-    slide_id: string;
     total_generated: number;
   }>;
   loading?: boolean;

@@ -7384,7 +7384,6 @@ class TemplateTypeUsage(BaseModel):
     client_count: int
     error_count: int
     last_usage: str
-    preview_link: str
 
 class SlidesAnalyticsResponse(BaseModel):
     usage_by_template: List[TemplateTypeUsage]
