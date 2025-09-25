@@ -53,17 +53,17 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px] backdrop-blur-md bg-white/20 border border-white/30 shadow-lg hover:shadow-xl",
           useCSSVariables 
-            ? "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-xl"
-            : "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-xl",
+            ? "bg-white/20 border-white/30 shadow-lg hover:shadow-xl"
+            : "bg-white/20 border-white/30 shadow-lg hover:shadow-xl",
           disabled
             ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
             : selectable 
               ? `cursor-pointer ${
                   isSelected 
-                    ? 'border-[var(--primary)] shadow-xl bg-[var(--accent)]' 
-                    : 'border-[var(--border)] hover:shadow-2xl hover:border-[var(--primary)]'
+                    ? 'border-white/50 shadow-xl bg-white/30' 
+                    : 'border-white/30 hover:shadow-2xl hover:border-white/50'
                 }`
               : "cursor-pointer shadow-lg hover:shadow-xl",
           className
@@ -95,8 +95,8 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                 className={cn(
                   "inline-flex items-center px-2 py-1 text-sm font-semibold",
                   useCSSVariables 
-                    ? "bg-[var(--card)] rounded-md border-[var(--border)] border-none text-[var(--primary)] gap-1"
-                    : "bg-[var(--card)] rounded-md border-[var(--border)] border-none text-[var(--primary)] gap-1"
+                    ? "bg-[var(--card)] rounded-md border-[var(--border)] text-[var(--primary)] gap-1"
+                    : "bg-[var(--card)] rounded-md border-[var(--border)] text-[var(--primary)] gap-1"
                 )}
               >
                 <SparklesIcon size={10} />
@@ -107,7 +107,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           
           {/* Icon section */}
           {Icon && (
-            <div className="flex items-start justify-start h-16 relative mb-4">
+            <div className="flex items-center justify-center h-16 relative mb-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/10 rounded-lg blur-sm"></div>
                 <Icon 
@@ -123,10 +123,10 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           
           {/* Text section */}
           {(title || description) && (
-            <div className="flex flex-col items-start gap-2 flex-1 justify-start">
+            <div className="flex flex-col items-center gap-2 flex-1 justify-center">
               {title && (
                 <h3 className={cn(
-                  "text-2xl font-semibold text-left leading-tight tracking-tight",
+                  "text-2xl font-semibold text-center leading-tight tracking-tight",
                   useCSSVariables ? "text-[var(--card-foreground)]" : "text-[var(--card-foreground)]"
                 )}>
                   {title}
@@ -134,7 +134,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               )}
               {description && (
                 <p className={cn(
-                  "text-base text-left leading-relaxed max-w-[64%]",
+                  "text-base text-center leading-relaxed max-w-[80%]",
                   useCSSVariables ? "text-[var(--muted-foreground)]" : "text-[var(--muted-foreground)]"
                 )}>
                   {description}
