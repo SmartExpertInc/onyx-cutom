@@ -1369,6 +1369,36 @@ export const es = {
       short: "Corto",
       medium: "Medio",
       long: "Largo",
+      english: "Inglés",
+      ukrainian: "Ucraniano",
+      spanish: "Español",
+      russian: "Ruso",
+      courseOutlineExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar el plan del curso según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar el plan del curso añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar los mejores planes de cursos del mercado en esta temática y reestructurar nuestro plan en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir el plan del curso para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer el plan del curso añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar el plan del curso para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
       quizExamples: {
         moreChallenging: {
           short: "Hacer las preguntas más desafiantes",
