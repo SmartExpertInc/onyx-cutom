@@ -102,7 +102,7 @@ export default function QuizClient() {
   const [selectedModuleIndex, setSelectedModuleIndex] = useState<number | null>(null);
   const [lessonsForModule, setLessonsForModule] = useState<string[]>([]);
   const [selectedOutlineId, setSelectedOutlineId] = useState<number | null>(outlineId ? Number(outlineId) : null);
-  const [selectedLesson, setSelectedLesson] = useState<string | null>(lesson || null);
+  const [selectedLesson, setSelectedLesson] = useState<string>(lesson || "");
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>(
     questionTypes ? questionTypes.split(',').filter(Boolean) : ["multiple-choice", "multi-select", "matching", "sorting", "open-answer"]

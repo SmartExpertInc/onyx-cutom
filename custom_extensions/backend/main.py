@@ -21330,7 +21330,7 @@ class QuizWizardPreview(BaseModel):
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
-    lesson: Optional[str] = None
+    lesson: str                      # May be explicitly empty string for no-lesson quizzes
     courseName: Optional[str] = None  # Course name (outline name) for proper course context
     aiResponse: str                        # User-edited quiz data
     chatSessionId: Optional[str] = None
