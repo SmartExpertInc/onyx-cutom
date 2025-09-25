@@ -595,7 +595,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
           {chartData.map((item, index) => (
             <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {/* Bar */}
-              <div style={barStyles(item.percentage, item.gradientStart, item.gradientEnd)}>
+              <div style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}>
                 <span style={barTextStyles}>
                   {String(index + 1).padStart(2, '0')}
                 </span>
