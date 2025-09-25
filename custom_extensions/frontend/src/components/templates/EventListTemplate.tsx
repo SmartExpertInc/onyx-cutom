@@ -271,7 +271,6 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     alignItems: 'center',
     justifyContent: 'center',
     background: currentTheme.colors.rightSectionBackgroundColor || '#ffffff',
-    padding: '40px',
     zIndex: 1
   };
 
@@ -308,7 +307,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
     fontSize: '1.1rem',
     color: currentTheme.colors.titleColor,
     textAlign: 'center',
-    marginBottom: '8px',
+    marginBottom: '4px',
     fontFamily: currentTheme.fonts.titleFont,
     wordWrap: 'break-word',
     lineHeight: '1.2'
@@ -482,9 +481,10 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            width: '100%',
+            width: '112%',
             position: 'relative',
             padding: '80px 20px',
+            paddingRight: '148px ',
             minHeight: '200px'
           }}
         >
@@ -495,7 +495,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
             left: '40px',
             right: '40px',
             height: '2px',
-            backgroundColor: '#1e3a8a',
+            backgroundColor: currentTheme.colors.accentColor,
             transform: 'translateY(-50%)',
             zIndex: 1
           }} />
@@ -506,7 +506,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              flex: 1,
+              width: idx === 0 ? '344px' : idx === 1 ? '250px' : '355px',
               position: 'relative',
               zIndex: 2
             }}>
@@ -514,8 +514,8 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
               <div style={{
                 width: '32px',
                 height: '32px',
-                backgroundColor: '#1e3a8a',
-                border: '2px solid #ffffff',
+                backgroundColor: currentTheme.colors.accentColor,
+                border: `2px solid ${currentTheme.colors.rightSectionBackgroundColor || '#ffffff'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -526,7 +526,7 @@ const EventListTemplate: React.FC<EventListTemplateProps & {
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}>
                 <span style={{
-                  color: '#ffffff',
+                  color: currentTheme.colors.rightSectionBackgroundColor || '#ffffff',
                   fontSize: '16px',
                   fontWeight: 'bold',
                   fontFamily: currentTheme.fonts.titleFont,
