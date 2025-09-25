@@ -31667,7 +31667,6 @@ async def get_audits(
                     onyx_user_id=row['onyx_user_id'],
                     project_name=row['project_name'],
                     created_at=row['created_at'],
-                    updated_at=row['updated_at'],
                     company_name=row['company_name'] or "Unknown Company",
                     audit_type=audit_type,
                     status=status,
