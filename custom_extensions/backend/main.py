@@ -21333,6 +21333,7 @@ class QuizWizardFinalize(BaseModel):
     lesson: str                      # May be explicitly empty string for no-lesson quizzes
     courseName: Optional[str] = None  # Course name (outline name) for proper course context
     aiResponse: str                        # User-edited quiz data
+    prompt: str
     chatSessionId: Optional[str] = None
     questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"
     questionCount: int = 10  # Number of questions to generate
