@@ -75,7 +75,7 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string; posi
             transform: position === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0%)'
           }}
         >
-          <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-xs whitespace-nowrap relative max-w-xs">
+          <div className="bg-blue-500 text-white px-1.5 py-1 rounded-md shadow-lg text-[10px] whitespace-nowrap relative max-w-xs">
             <div className="font-medium">{content}</div>
             {/* Simple triangle tail */}
             <div className={`absolute ${position === 'top' ? 'top-full' : 'bottom-full'} left-1/2 transform -translate-x-1/2`}>
@@ -858,7 +858,7 @@ export default function ProductViewNewPage() {
   if (!projectData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="p-8 text-center text-gray-500">Project not found or data unavailable.</div>
+        <div className="p-8 text-center text-[#9A9DA2]">Project not found or data unavailable.</div>
       </div>
     );
   }
@@ -994,7 +994,7 @@ export default function ProductViewNewPage() {
                     className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
                     title="Edit course title"
                   >
-                    <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
+                    <Edit3 size={16} className="text-[#9A9DA2] hover:text-gray-700" />
                   </button>
                 </div>
               )}
@@ -1006,7 +1006,7 @@ export default function ProductViewNewPage() {
               if (!trainingPlanData?.sections) {
                 return (
                   <div className="bg-white rounded-lg p-[25px]">
-                    <p className="text-gray-500">No modules found in this course outline.</p>
+                    <p className="text-[#9A9DA2]">No modules found in this course outline.</p>
                   </div>
                 );
               }
@@ -1036,40 +1036,39 @@ export default function ProductViewNewPage() {
                         className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                         title="Edit module title"
                       >
-                        <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                        <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
                       </button>
                     </div>
                   )}
                   <p className="text-[#9A9DA2] font-normal text-[14px] leading-[100%] mb-[25px]">
                     {section.lessons?.length || 0} lessons
                   </p>
+                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   
                   {/* Product Types Header */}
                   <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center px-2`}>
                     <div className="text-sm font-medium text-gray-700">
                       
                     </div>
-                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
                       <LessonPresentationIcon size={16} />
                       <span>Presentation</span>
                     </div>
-                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
                       <TextPresentationIcon size={16} />
                       <span>One-Pager</span>
                     </div>
-                    <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
+                    <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
                       <QuizIcon size={16} />
                       <span>Quiz</span>
                     </div>
                     {videoLessonEnabled && (
-                      <div className="flex flex-col items-center text-xs font-medium text-gray-500 justify-center gap-1">
+                      <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
                         <VideoScriptIcon size={16} />
                         <span>Video Lesson</span>
                       </div>
                     )}
                   </div>
-                  
-                  <hr className="border-gray-200 mb-4 -mx-[25px]" />
 
                   {section.lessons && section.lessons.length > 0 && (
                     <div>
@@ -1109,7 +1108,7 @@ export default function ProductViewNewPage() {
                                     className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                                     title="Edit lesson title"
                                   >
-                                    <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                                    <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
                                   </button>
                                 </div>
                               )}
