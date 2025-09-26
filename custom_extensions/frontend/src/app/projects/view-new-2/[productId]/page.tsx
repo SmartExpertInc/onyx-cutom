@@ -105,6 +105,7 @@ export default function ProductViewNewPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
+  const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1045,7 +1046,7 @@ export default function ProductViewNewPage() {
                   <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   
                   {/* Product Types Header */}
-                  <div className="grid mb-4 grid-cols-[1fr_80px_80px_80px_80px] gap-4 items-center px-2">
+                  <div className="grid mb-4 gap-4 items-center px-2" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}` }} >
                     <div className="text-sm font-medium text-gray-700">
                       {/* {t('interface.viewNew.lessonTitle', 'Lesson Title')} */}
                     </div>
@@ -1061,10 +1062,12 @@ export default function ProductViewNewPage() {
                       <QuizIcon size={18} color="#2563eb" />
                       <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
-                      <VideoScriptIcon size={18} color="#2563eb" />
-                      <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
-                    </div>
+                    {columnVideoLessonEnabled && (
+                      <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                        <VideoScriptIcon size={18} color="#2563eb" />
+                        <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
+                      </div>
+                    )}
                   </div>
 
                   {section.lessons && section.lessons.length > 0 && (
@@ -1078,7 +1081,7 @@ export default function ProductViewNewPage() {
                         const hasVideoLesson = status?.videoLesson?.exists;
 
                         return (
-                          <div key={lesson?.id || lessonIndex} className="grid py-3 grid-cols-[1fr_80px_80px_80px_80px] gap-4 items-center px-2">
+                          <div key={lesson?.id || lessonIndex} className="grid py-3 gap-4 items-center px-2" style={{ gridTemplateColumns: `1fr 80px 80px 80px${columnVideoLessonEnabled ? ' 80px' : ''}` }} >
                             {/* Lesson Title Column */}
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
@@ -1252,52 +1255,53 @@ export default function ProductViewNewPage() {
                               )}
                             </div>
 
-                            {/* Video Lesson Status Column */}
-                            <div className="flex items-center justify-center">
-                              {hasVideoLesson ? (
-                                <div className="relative group flex items-center justify-center">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
-                                    <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
-                                      onClick={() => {
-                                        if (status?.videoLesson?.productId) {
-                                          handleIconClick(status.videoLesson.productId);
-                                        }
-                                      }}
-                                    >
-                                      <Check size={10} strokeWidth={3.5} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
-                                  {/* Regenerate icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                            {columnVideoLessonEnabled && (
+                              <div className="flex items-center justify-center">
+                                {hasVideoLesson ? (
+                                  <div className="relative group flex items-center justify-center">
+                                    <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                       <div 
-                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                        className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
                                         onClick={() => {
-                                          setShowRegenerateModal({
-                                            isOpen: true,
-                                            lesson: lesson,
-                                            contentType: 'video-lesson',
-                                            existingProductId: status?.videoLesson?.productId || null
-                                          });
+                                          if (status?.videoLesson?.productId) {
+                                            handleIconClick(status.videoLesson.productId);
+                                          }
                                         }}
                                       >
-                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                        <Check size={10} strokeWidth={3.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
+                                    {/* Regenerate icon on hover */}
+                                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                      <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                        <div 
+                                          className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                          onClick={() => {
+                                            setShowRegenerateModal({
+                                              isOpen: true,
+                                              lesson: lesson,
+                                              contentType: 'video-lesson',
+                                              existingProductId: status?.videoLesson?.productId || null
+                                            });
+                                          }}
+                                        >
+                                          <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                        </div>
+                                      </CustomTooltip>
+                                    </div>
                                   </div>
-                                </div>
-                              ) : (
-                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
-                                  <div 
-                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
-                                    onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                  >
-                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
-                                  </div>
-                                </CustomTooltip>
-                              )}
-                            </div>
+                                ) : (
+                                  <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                      onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                    >
+                                      <Plus size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                )}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
