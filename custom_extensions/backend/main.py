@@ -9963,13 +9963,7 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         temp_chat_id = await create_onyx_chat_session(persona_id, cookies)
         
         # Step 3: Flexible analysis prompt that works with both text files and images
-        analysis_prompt = f"""
-        I have attached a file (ID: {file_id}) to this message. Please help me understand what this file contains.
-        
-        For images: Tell me what you see in this image, what it shows, and what it might be about.
-        For documents: Provide a summary of the main content and key topics.
-        For any file type: Focus on information that would be useful for creating educational content.
-        
+        analysis_prompt = f"""        
         Please describe:
         1. What is this file? (image, document, etc.)
         2. What does it contain or show? (max 200 words)
