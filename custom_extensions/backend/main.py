@@ -2678,6 +2678,19 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
+class QuizData(BaseModel):
+    quizTitle: Optional[str] = None
+    questions: List[AnyQuizQuestion] = Field(default_factory=list)
+    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True, "use_enum_values": True}
+
+class TextPresentationDetails(BaseModel):
+    textTitle: Optional[str] = None
+    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
+    detectedLanguage: Optional[str] = None
+    model_config = {"from_attributes": True}
+
 # --- End: Add New Quiz Models ---
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
@@ -6916,22 +6929,6 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: Optional[str] = None
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
-# --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: Optional[str] = None
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 
