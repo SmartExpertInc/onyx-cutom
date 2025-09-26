@@ -6623,7 +6623,7 @@ async def startup_event():
                     ('offers_tab', 'Offers Tab', 'Access to Offers tab in Projects', 'Navigation'),
                     ('workspace_tab', 'Workspace Tab', 'Access to Workspace tab in Projects', 'Navigation'),
                     ('export_to_lms', 'Export to LMS', 'Access to LMS export tab and functionality', 'Navigation'),
-                    ('course_table', 'Course Table', 'Use new course table view for course outlines', 'Navigation'),
+                    ('course_table', 'Course Table', 'Use classic course table (view) instead of new course view (view-new)', 'Navigation'),
                     ('video_lesson', 'Video Lesson', 'Allow creating Video Lessons in Generate page', 'Creation'),
                     ('lesson_draft', 'Lesson Draft', 'Allow creating and viewing Lesson Drafts', 'Creation'),
                     ('col_assessment_type', 'Column: Assessment Type', 'Shows the Assessment Type column', 'Columns'),

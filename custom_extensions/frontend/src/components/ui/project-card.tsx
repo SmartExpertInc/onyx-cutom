@@ -420,17 +420,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
-  const getViewUrl = () => {
-    if (project.designMicroproductType === "Video Lesson Presentation") {
-      return `/projects-2/view/${project.id}`;
-    } else if (project.designMicroproductType === "Training Plan") {
-      // Course Table feature flag controls which view to use for course outlines
-      return courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new/${project.id}`;
-    } else {
-      return `/projects/view/${project.id}`;
-    }
-  };
-
   return (
     <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
       !getModalState()
@@ -438,7 +427,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         : "cursor-default"
     }`}>
       <Link
-        href={isTrashMode ? "#" : getViewUrl()}
+        href={isTrashMode ? "#" : (
+          project.designMicroproductType === "Video Lesson Presentation" 
+            ? `/projects-2/view/${project.id}`
+            : (project.designMicroproductType === "Training Plan"
+              ? (courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new/${project.id}`)
+              : `/projects/view/${project.id}`)
+        )}
         onClick={handleCardClick}
         className="block h-full"
       >
