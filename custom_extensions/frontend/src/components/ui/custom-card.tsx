@@ -53,7 +53,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full hover:scale-75",
+          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full hover:scale-95",
           useCSSVariables 
             ? "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-2xl"
             : "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-2xl",
@@ -62,10 +62,10 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             : selectable 
               ? `cursor-pointer ${
                   isSelected 
-                    ? 'border-[var(--primary)] shadow-xl bg-[var(--accent)] hover:scale-105' 
-                    : 'border-[var(--border)] hover:shadow-2xl hover:border-[var(--primary)] hover:scale-105'
+                    ? 'border-[var(--primary)] shadow-xl bg-[var(--accent)] hover:scale-102' 
+                    : 'border-[var(--border)] hover:shadow-2xl hover:border-[var(--primary)] hover:scale-102'
                 }`
-              : "cursor-pointer shadow-lg hover:shadow-2xl hover:scale-105",
+              : "cursor-pointer shadow-lg hover:shadow-2xl hover:scale-102",
           className
         )}
         {...props}

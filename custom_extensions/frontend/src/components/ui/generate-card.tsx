@@ -61,7 +61,10 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium text-[var(--secondary-foreground)]"
+              className={cn(
+                "text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium",
+                active ? "text-[var(--ring)]" : "text-[var(--secondary-foreground)]"
+              )}
             >
               {label}
             </span>
