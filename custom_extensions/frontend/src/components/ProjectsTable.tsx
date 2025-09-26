@@ -2341,8 +2341,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  // Feature flag: disable outline-related filtering (shows all products)
-  const DISABLE_OUTLINE_FILTERING = false;
+  // Feature flag: enable outline-related filtering (hides products generated from course outlines)
+  const ENABLE_OUTLINE_FILTERING = false;
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -2590,9 +2590,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         return filteredProjects;
       };
 
-      const allProjects = DISABLE_OUTLINE_FILTERING
-        ? sortedProjects
-        : deduplicateProjects(sortedProjects);
+      const allProjects = ENABLE_OUTLINE_FILTERING
+        ? deduplicateProjects(sortedProjects)
+        : sortedProjects;
       setProjects(allProjects);
 
       // Calculate folder projects mapping for all folders
@@ -3583,9 +3583,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   };
 
   // Add these just before the render block
-  const visibleProjects = DISABLE_OUTLINE_FILTERING
-    ? getProjectsForFolder(folderId)
-    : viewMode === "list"
+  const visibleProjects = ENABLE_OUTLINE_FILTERING
+    ? viewMode === "list"
+    : getProjectsForFolder(folderId)
     ? getProjectsForFolder(folderId).filter(
         (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
       )

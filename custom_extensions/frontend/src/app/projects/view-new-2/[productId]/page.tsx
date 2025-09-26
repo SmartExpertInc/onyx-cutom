@@ -921,7 +921,7 @@ export default function ProductViewNewPage() {
                 }}
                 title="Smart edit with AI"
               >
-                <Sparkles size={14} style={{ color: 'white' }} /> Smart Edit
+                <Sparkles size={14} style={{ color: 'white' }} /> {t('actions.smartEdit', 'Smart Edit')}
               </button>
             )}
 
@@ -946,7 +946,7 @@ export default function ProductViewNewPage() {
 
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-[80px]">
+          <div className="px-[200px]">
             <SmartPromptEditor
               projectId={projectData.project_id}
               onContentUpdate={handleSmartEditContentUpdate}
