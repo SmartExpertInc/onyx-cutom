@@ -36,9 +36,9 @@
       "props": {
         "title": "Core Mathematical and Statistical Foundations",
         "leftTitle": "Statistical Concepts",
-        "leftContent": "• Probability distributions (normal, binomial, Poisson) used to model uncertainty and variability in data, enabling confident predictions and sound decisions\n• Hypothesis testing (t-tests, chi-square, ANOVA) to validate assumptions and measure effects in experiments and A/B tests\n• Bayesian inference to update beliefs with new evidence for recommendations, fraud detection, and personalized marketing",
+        "leftContent": "Probability distributions (normal, binomial, Poisson) used to model uncertainty and variability in data, enabling confident predictions and sound decisions\nHypothesis testing (t-tests, chi-square, ANOVA) to validate assumptions and measure effects in experiments and A/B tests\nBayesian inference to update beliefs with new evidence for recommendations, fraud detection, and personalized marketing",
         "rightTitle": "Mathematical Prerequisites",
-        "rightContent": "• Linear algebra (matrices, eigenvalues, eigenvectors) powering PCA, SVD, and neural network computations\n• Calculus (derivatives and gradients) for optimization in gradient descent, backpropagation, and regularization\n• Discrete math and combinatorics for algorithm analysis, sampling, Monte Carlo methods, and randomized optimization"
+        "rightContent": "Linear algebra (matrices, eigenvalues, eigenvectors) powering PCA, SVD, and neural network computations\nCalculus (derivatives and gradients) for optimization in gradient descent, backpropagation, and regularization\nDiscrete math and combinatorics for algorithm analysis, sampling, Monte Carlo methods, and randomized optimization"
       }
     },
     {
