@@ -414,8 +414,8 @@ export default function ProductViewNewPage() {
         'gmail': <img src="/Gmail.png" alt="Gmail" className="w-5 h-5" />,
         'zendesk': <img src="/Zendesk.svg" alt="Zendesk" className="w-5 h-5" />,
         'PDF Document': <svg className="text-red-500" width={17} height={17} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path d="M12.37 8.87988H17.62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 8.87988L7.13 9.62988L9.38 7.37988" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12.37 15.8799H17.62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 15.8799L7.13 16.6299L9.38 14.3799" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>,
-        'scratch': <svg className="text-blue-500" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>,
-        'Create from scratch': <svg className="text-blue-500" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+        'scratch': <svg className="text-white" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>,
+        'Create from scratch': <svg className="text-white" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
       };
       
       return connectorMap[connectorName] || 
@@ -1117,24 +1117,24 @@ export default function ProductViewNewPage() {
                               {hasPresentation ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.presentation?.productId) {
                                         handleIconClick(status.presentation.productId);
                                       }
                                     }}
                                   >
-                                    <Check size={10} className="text-green-500" />
+                                    <Check size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
-                                    <Plus size={10} className="text-blue-500" />
+                                    <Plus size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>
@@ -1146,24 +1146,24 @@ export default function ProductViewNewPage() {
                               {hasOnePager ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.onePager?.productId) {
                                         handleIconClick(status.onePager.productId);
                                       }
                                     }}
                                   >
-                                    <Check size={10} className="text-green-500" />
+                                    <Check size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
-                                    <Plus size={10} className="text-blue-500" />
+                                    <Plus size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>
@@ -1175,24 +1175,24 @@ export default function ProductViewNewPage() {
                               {hasQuiz ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.quiz?.productId) {
                                         handleIconClick(status.quiz.productId);
                                       }
                                     }}
                                   >
-                                    <Check size={10} className="text-green-500" />
+                                    <Check size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
-                                    <Plus size={10} className="text-blue-500" />
+                                    <Plus size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>
@@ -1204,24 +1204,24 @@ export default function ProductViewNewPage() {
                               {hasVideoLesson ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.videoLesson?.productId) {
                                         handleIconClick(status.videoLesson.productId);
                                       }
                                     }}
                                   >
-                                    <Check size={10} className="text-green-500" />
+                                    <Check size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-[14px] h-[14px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                   >
-                                    <Plus size={10} className="text-blue-500" />
+                                    <Plus size={8} className="text-white" />
                                   </div>
                                   <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>

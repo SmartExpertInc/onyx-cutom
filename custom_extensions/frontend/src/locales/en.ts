@@ -1303,7 +1303,7 @@ export const en = {
       projectNotFound: "Project not found or data unavailable.",
       courseOutline: "Course Outline",
       courseTitle: "Course Title",
-      moduleTitle: "Module Title",
+      moduleTitle: "Module",
       lessonTitle: "Lesson Title",
       editCourseTitle: "Edit course title",
       editModuleTitle: "Edit module title",

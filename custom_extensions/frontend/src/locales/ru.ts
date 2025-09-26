@@ -1383,7 +1383,7 @@ export const ru = {
       projectNotFound: "Проект не найден или данные недоступны.",
       courseOutline: "План Курса",
       courseTitle: "Название Курса",
-      moduleTitle: "Название Модуля",
+      moduleTitle: "Модуль",
       lessonTitle: "Название Урока",
       editCourseTitle: "Редактировать название курса",
       editModuleTitle: "Редактировать название модуля",

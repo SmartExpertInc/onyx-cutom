@@ -1414,7 +1414,7 @@ export const uk = {
       projectNotFound: "Проект не знайдено або дані недоступні.",
       courseOutline: "План Курсу",
       courseTitle: "Назва Курсу",
-      moduleTitle: "Назва Модуля",
+      moduleTitle: "Модуль",
       lessonTitle: "Назва Уроку",
       editCourseTitle: "Редагувати назву курсу",
       editModuleTitle: "Редагувати назву модуля",

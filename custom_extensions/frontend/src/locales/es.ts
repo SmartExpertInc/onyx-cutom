@@ -1435,7 +1435,7 @@ export const es = {
       projectNotFound: "Proyecto no encontrado o datos no disponibles.",
       courseOutline: "Plan del Curso",
       courseTitle: "Título del Curso",
-      moduleTitle: "Título del Módulo",
+      moduleTitle: "Módulo",
       lessonTitle: "Título de la Lección",
       editCourseTitle: "Editar título del curso",
       editModuleTitle: "Editar título del módulo",
