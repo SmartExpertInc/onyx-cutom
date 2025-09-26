@@ -1128,7 +1128,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
@@ -1175,7 +1175,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
@@ -1222,7 +1222,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
@@ -1269,7 +1269,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
