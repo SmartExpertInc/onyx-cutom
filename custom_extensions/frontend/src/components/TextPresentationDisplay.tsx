@@ -1075,7 +1075,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           {/* List icon picker for bullet lists */}
           {isEditing && !!onTextChange && !isNumbered && (
             <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
-            style={{ left: isNumbered ? '-10px' : '3px' }}>
+            style={{ left: isNumbered ? '-10px' : '5px' }}>
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
