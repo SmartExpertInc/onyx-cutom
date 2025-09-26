@@ -1861,11 +1861,11 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/40 hover:bg-white/30 transition-all duration-200 text-sm font-medium text-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/40 transition-all duration-200 text-sm font-medium text-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-3 right-3 text-gray-600 text-lg font-bold">+</span>
+                      <span className="absolute top-3 right-3 text-gray-600 text-lg font-semibold">+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />
