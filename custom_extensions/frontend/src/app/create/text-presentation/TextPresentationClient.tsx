@@ -1091,6 +1091,7 @@ export default function TextPresentationClient() {
 
       console.log("DEBUG: handleFinalize - contentToSend length:", contentToSend.length);
       console.log("DEBUG: handleFinalize - isCleanContent:", isCleanContent);
+      console.log("DEBUG: handleFinalize - aiResponse preview:", contentToSend.substring(0, 500));
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/finalize`, {
         method: 'POST',

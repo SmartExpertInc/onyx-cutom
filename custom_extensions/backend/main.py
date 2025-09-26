@@ -8565,7 +8565,9 @@ The entire output must be a single, valid JSON object and must include all relev
                 parsed_json_data['mainTitle'] = project_name
             elif target_model == PdfLessonDetails and ('lessonTitle' not in parsed_json_data or not parsed_json_data['lessonTitle']):
                 parsed_json_data['lessonTitle'] = project_name
-            
+            elif target_model == TextPresentationDetails and ('textTitle' not in parsed_json_data or not parsed_json_data['textTitle']):
+                parsed_json_data['textTitle'] = project_name
+
             # Round hours to integers before validation to prevent float validation errors
             if target_model == TrainingPlanDetails:
                 parsed_json_data = round_hours_in_content(parsed_json_data)
@@ -21955,7 +21957,6 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] use_direct_parser: {use_direct_parser}")
         
-        # ---------- 2) DIRECT PARSER PATH: No changes made, use cached data directly ----------
         # NEW: Choose parsing strategy based on user edits
         if use_direct_parser:
             # DIRECT PARSER PATH: Use cached content directly since no changes were made
@@ -22842,10 +22843,6 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
                 project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
-        else:
-            # Fallback to payload prompt
-            project_name = payload.prompt
-            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -22906,7 +22903,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 content_to_parse = payload.aiResponse
         
         # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
+        parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
             ai_response=content_to_parse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,
@@ -23057,9 +23054,12 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 parsed_text_presentation.contentBlocks = valid_content_blocks
         
         # Always use the consistent project name for database storage
-        # The text title from parsed_text_presentation.textTitle is used for display purposes only
-        final_project_name = project_name
-        
+        if not payload.outlineId:
+            # Standalone presentation - use lesson title or default
+            final_project_name = parsed_text_presentation.textTitle or project_name
+        else:
+            final_project_name = project_name
+
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
         # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline

@@ -2308,7 +2308,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
 
       // 1) Prefer explicitly stored instance name if it's provided and not a generic template label
-      const instanceName: string | undefined = p?.microproduct_name?.trim?.();
+      const instanceName: string | undefined = p?.projectName?.trim() || p?.microproduct_name?.trim();
       const genericNames = new Set([
         'Slide Deck', 'Quiz', 'Video Lesson', 'Text Presentation', 'PDF Lesson', 'Video Lesson Presentation'
       ]);
