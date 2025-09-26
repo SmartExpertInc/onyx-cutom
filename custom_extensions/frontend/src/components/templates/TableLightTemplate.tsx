@@ -250,7 +250,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     tableLayout: 'fixed' // Ensures consistent column widths
   };
 
-  // Header styles - using theme colors, no borders
+  // Header styles - using theme colors, with vertical borders only
   const headerStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
     color: '#ffffff',
@@ -258,11 +258,12 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     fontSize: '1rem',
     textAlign: 'center',
     padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
     height: '60px' // Fixed height for perfect alignment
   };
 
-  // First column (row headers) styles - using theme colors, no borders
+  // First column (row headers) styles - using theme colors, with vertical borders only
   const firstColumnStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
     color: '#000000',
@@ -270,17 +271,19 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     fontSize: '0.95rem',
     textAlign: 'left',
     padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
     height: '60px' // Fixed height for perfect alignment
   };
 
-  // Data cell styles - no borders
+  // Data cell styles - with vertical borders only
   const dataCellStyles: React.CSSProperties = {
     backgroundColor: '#ffffff',
     color: '#000000',
     fontSize: '0.95rem',
     textAlign: 'center',
     padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
     height: '60px' // Fixed height for perfect alignment
   };
@@ -352,7 +355,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
               
               {/* Team headers */}
               {tableData.headers.map((header, index) => (
-                <th key={index} style={headerStyles}>
+                <th key={index} style={{
+                  ...headerStyles,
+                  borderRight: index === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
+                }}>
                   {editingHeader === index && isEditable ? (
                     <InlineEditor
                       initialValue={header}
@@ -411,7 +417,11 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
               
               {/* Add column button */}
               {isEditable && (
-                <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}>
+                <th style={{ 
+                  ...headerStyles, 
+                  backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
+                  borderRight: 'none'
+                }}>
                   <button
                     onClick={addColumn}
                     style={addButtonStyles}
@@ -435,7 +445,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   return (
                     <td 
                       key={colIndex}
-                      style={isFirstColumn ? firstColumnStyles : dataCellStyles}
+                      style={{
+                        ...(isFirstColumn ? firstColumnStyles : dataCellStyles),
+                        borderRight: colIndex === row.length - 1 ? 'none' : '1px solid #E0E0E0'
+                      }}
                     >
                       {isEditingThisCell && isEditable ? (
                         <InlineEditor
@@ -467,7 +480,12 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 
                 {/* Delete row button - appears on hover */}
                 {isEditable && (
-                  <td style={{ ...dataCellStyles, textAlign: 'center', position: 'relative' }}>
+                  <td style={{ 
+                    ...dataCellStyles, 
+                    textAlign: 'center', 
+                    position: 'relative',
+                    borderRight: 'none'
+                  }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
                       style={{
