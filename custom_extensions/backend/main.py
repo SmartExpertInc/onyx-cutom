@@ -6407,6 +6407,24 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error adding is_standalone column (may already exist): {e}")
 
+            # Add course_id field to projects table to track standalone vs outline-based products
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS course_id INTEGER DEFAULT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_course_id ON projects(course_id);")
+                logger.info("Added course_id column to projects table.")
+
+                # Add same field to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS course_id INTEGER DEFAULT NULL;")
+                logger.info("Added course_id column to trashed_projects table.")
+
+                # For legacy support: Set course_id = NULL for all existing products
+                # This allows the frontend filtering logic to handle legacy products gracefully
+                # New products will have this field explicitly set during creation
+                logger.info("Legacy support: course_id field defaults to NULL for existing products.")
+
+            except Exception as e:
+                logger.warning(f"Error adding course_id column (may already exist): {e}")
+
             # ============================
             # SMART DRIVE DATABASE MIGRATIONS
             # ============================
@@ -7017,6 +7035,7 @@ class ProjectApiResponse(BaseModel):
     order: Optional[int] = None
     source_chat_session_id: Optional[str] = None
     is_standalone: Optional[bool] = None  # Track whether this is standalone or part of an outline
+    course_id: Optional[int] = None  # Track associated course ID for non-standalone products
     model_config = {"from_attributes": True}
 
 class ProjectDetailForEditResponse(BaseModel):
@@ -11710,12 +11729,12 @@ Return ONLY the JSON object.
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id,
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, course_id, created_at, folder_id,
             source_context_type, source_context_data
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11, $12, $13)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id,
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, course_id, created_at, folder_id,
                   source_context_type, source_context_data;
     """
 
@@ -11731,6 +11750,7 @@ Return ONLY the JSON object.
                 project_data.design_template_id,
                 project_data.chatSessionId,
                 is_standalone_product,
+                project_data.outlineId,
                 project_data.folder_id,
                 project_data.source_context_type,
                 project_data.source_context_data
@@ -11944,7 +11964,7 @@ async def get_user_projects_list_from_db(
         SELECT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone
+               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone, p.course_id
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         WHERE p.onyx_user_id = $1 {folder_filter}
@@ -11955,7 +11975,7 @@ async def get_user_projects_list_from_db(
         SELECT DISTINCT p.id, p.project_name, p.microproduct_name, p.created_at, p.design_template_id,
                dt.template_name as design_template_name,
                dt.microproduct_type as design_microproduct_type,
-               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone
+               p.folder_id, p."order", p.microproduct_content, p.source_chat_session_id, p.is_standalone, p.course_id
         FROM projects p
         LEFT JOIN design_templates dt ON p.design_template_id = dt.id
         INNER JOIN product_access pa ON p.id = pa.product_id
@@ -12093,7 +12113,8 @@ async def get_user_projects_list_from_db(
                 folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
                 microproduct_content=row_dict.get("microproduct_content"),
                 source_chat_session_id=source_chat_session_id,
-                is_standalone=row_dict.get("is_standalone")
+                is_standalone=row_dict.get("is_standalone"),
+                course_id=row_dict.get("course_id")
             )
         
         # Process shared projects (will override owned if same ID, which is fine)
@@ -12113,7 +12134,8 @@ async def get_user_projects_list_from_db(
                 folder_id=row_dict.get("folder_id"), order=row_dict.get("order"),
                 microproduct_content=row_dict.get("microproduct_content"),
                 source_chat_session_id=source_chat_session_id,
-                is_standalone=row_dict.get("is_standalone")
+                is_standalone=row_dict.get("is_standalone"),
+                course_id=row_dict.get("course_id")
             )
     
     # Convert to list and sort
@@ -22104,11 +22126,11 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, course_id, created_at, folder_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, course_id, created_at, folder_id;
         """
         
         async with pool.acquire() as conn:
@@ -22123,6 +22145,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
                 is_standalone_quiz,  # is_standalone
+                payload.outlineId if payload.outlineId else None,  # course_id
                 int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
             )
         
@@ -23005,11 +23028,11 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id
+            microproduct_name, microproduct_content, design_template_id, source_chat_session_id, is_standalone, course_id, created_at, folder_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), $10)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11)
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, created_at, folder_id;
+                  microproduct_content, design_template_id, source_chat_session_id, is_standalone, course_id, created_at, folder_id;
         """
         
         async with pool.acquire() as conn:
@@ -23024,6 +23047,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
                 is_standalone_text_presentation,  # is_standalone - consistent with outline connection
+                payload.outlineId if payload.outlineId else None,  # course_id
                 int(payload.folderId) if hasattr(payload, 'folderId') and payload.folderId else None  # folder_id
             )
         
@@ -23824,9 +23848,9 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                             onyx_user_id, project_name, product_type, microproduct_type, 
                             microproduct_name, microproduct_content, design_template_id, 
                             created_at, source_chat_session_id, folder_id, "order", 
-                            is_standalone, completion_time, custom_rate, quality_tier
+                            is_standalone, course_id, completion_time, custom_rate, quality_tier
                         )
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
                         RETURNING id
                         """,
                         user_id,
@@ -23841,6 +23865,7 @@ async def duplicate_project(project_id: int, request: Request, user_id: str = De
                         orig['folder_id'],
                         orig['order'],
                         orig['is_standalone'],
+                        orig['course_id'],
                         orig['completion_time'],
                         orig['custom_rate'],
                         orig['quality_tier']

@@ -229,9 +229,9 @@ const findMicroproductByTitle = (
   titleToMatch: string | undefined | null,
   parentProjectName: string | undefined,
   allUserMicroproducts: ProjectListItem[] | undefined,
-  excludeComponentTypes: string[] = []
+  excludeComponentTypes: string[] = [],
+  projectId?: number
 ): ProjectListItem | undefined => {
-
   if (!allUserMicroproducts || !parentProjectName || !titleToMatch) {
     return undefined;
   }
@@ -244,6 +244,12 @@ const findMicroproductByTitle = (
       const mpMicroName = mp.microProductName ?? (mp as any).microproduct_name;
       const mpProjectName = mp.projectName?.trim();
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      const mpCourseId = (mp as any).courseId;
+
+      // Skip if projectId is provided and does not match microproduct's courseId
+      if (projectId !== undefined && projectId !== null && mpCourseId !== undefined && mpCourseId !== null && mpCourseId !== projectId) {
+        return false;
+      }
 
       console.log(`🔍 [FIND_MICROPRODUCT] Checking product:`, {
         id: mp.id,
@@ -251,7 +257,9 @@ const findMicroproductByTitle = (
         microProductName: mpMicroName,
         designMicroproductType: mpDesignMicroproductType,
         excludeComponentTypes,
-        isExcluded: excludeComponentTypes.includes(mpDesignMicroproductType)
+        isExcluded: excludeComponentTypes.includes(mpDesignMicroproductType),
+        mpCourseId,
+        projectId
       });
 
       // Skip if this component type should be excluded
@@ -455,7 +463,13 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     console.log(`🔍 [LESSON_DISCOVERY] Excluding component types: ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation", "LessonPlanDisplay", "LessonPlan", "Lesson Plan"]`);
     
     // Find presentations/lessons but exclude quizzes, text presentations, and lesson plans to avoid double-matching
-    const result = findMicroproductByTitle(lessonTitle, parentProjectName, allUserMicroproducts, ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation", "LessonPlanDisplay", "LessonPlan", "Lesson Plan"]);
+    const result = findMicroproductByTitle(
+      lessonTitle, 
+      parentProjectName, 
+      allUserMicroproducts, 
+      ["Quiz", "TextPresentationDisplay", "TextPresentation", "Text Presentation", "LessonPlanDisplay", "LessonPlan", "Lesson Plan"],
+      projectId
+    );
     
     if (result) {
       console.log(`✅ [LESSON_DISCOVERY] Found lesson:`, {
@@ -516,15 +530,22 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     // Find all quizzes first - check multiple possible component types
     const allQuizzes = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      const mpCourseId = (mp as any).courseId;
       const isQuiz = mpDesignMicroproductType === "QuizDisplay" || 
                      mpDesignMicroproductType === "Quiz" ||
                      mpDesignMicroproductType === "quiz" ||
                      mpDesignMicroproductType?.toLowerCase() === "quizdisplay";
+      // Skip if projectId is provided and does not match microproduct's courseId
+      if (projectId !== undefined && projectId !== null && mpCourseId !== undefined && mpCourseId !== null && mpCourseId !== projectId) {
+        return false;
+      }
       console.log(`🔍 [QUIZ_DISCOVERY] Checking product:`, {
         id: mp.id,
         projectName: mp.projectName,
         designMicroproductType: mpDesignMicroproductType,
-        isQuiz
+        isQuiz,
+        mpCourseId,
+        projectId
       });
       return isQuiz;
     });
@@ -678,16 +699,23 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     // Find all one-pagers first - check multiple possible component types
     const allOnePagers = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      const mpCourseId = (mp as any).courseId;
       const isOnePager = mpDesignMicroproductType === "TextPresentationDisplay" || 
                          mpDesignMicroproductType === "TextPresentation" ||
                          mpDesignMicroproductType === "Text Presentation" ||
                          mpDesignMicroproductType === "textpresentation" ||
                          mpDesignMicroproductType?.toLowerCase() === "textpresentationdisplay";
+      // Skip if projectId is provided and does not match microproduct's courseId
+      if (projectId !== undefined && projectId !== null && mpCourseId !== undefined && mpCourseId !== null && mpCourseId !== projectId) {
+        return false;
+      }
       console.log(`🔍 [ONE_PAGER_DISCOVERY] Checking product:`, {
         id: mp.id,
         projectName: mp.projectName,
         designMicroproductType: mpDesignMicroproductType,
         isOnePager,
+        mpCourseId,
+        projectId,
         expectedTypes: ["TextPresentationDisplay", "TextPresentation", "Text Presentation", "textpresentation", "textpresentationdisplay"]
       });
       return isOnePager;
@@ -821,15 +849,22 @@ const TrainingPlanTable: React.FC<TrainingPlanTableProps> = ({
     // Filter to lesson plans only
     const allLessonPlans = allUserMicroproducts.filter(mp => {
       const mpDesignMicroproductType = (mp as any).design_microproduct_type;
+      const mpCourseId = (mp as any).courseId;
       const isLessonPlan = mpDesignMicroproductType === "LessonPlanDisplay" || 
                            mpDesignMicroproductType === "LessonPlan" ||
                            mpDesignMicroproductType === "Lesson Plan" ||
                            mpDesignMicroproductType?.toLowerCase() === "lessonplandisplay";
+      // Skip if projectId is provided and does not match microproduct's courseId
+      if (projectId !== undefined && projectId !== null && mpCourseId !== undefined && mpCourseId !== null && mpCourseId !== projectId) {
+        return false;
+      }
       console.log(`🔍 [LESSON_PLAN_DISCOVERY] Checking product:`, {
         id: mp.id,
         projectName: mp.projectName,
         designMicroproductType: mpDesignMicroproductType,
         isLessonPlan,
+        mpCourseId,
+        projectId,
         expectedTypes: ["LessonPlanDisplay", "LessonPlan", "Lesson Plan", "lessonplandisplay"]
       });
       return isLessonPlan;
