@@ -357,12 +357,12 @@ export default function PublicAuditPage() {
                     es: 'Auditoría IA',
                     ua: 'AI-аудит',
                     ru: 'AI-аудит'
-                  })}  
+                  })}
                   <span className="text-[#09090B]">{getLocalizedText(language, {
-                    en: 'for company',
-                    es: 'para empresa',
-                    ua: 'для компанії',
-                    ru: 'для компании'
+                    en: ' for company',
+                    es: ' para empresa',
+                    ua: ' для компанії',
+                    ru: ' для компании'
                   })} {companyName}
                   </span>
                 </h1>
