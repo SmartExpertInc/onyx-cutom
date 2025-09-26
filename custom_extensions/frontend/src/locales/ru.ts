@@ -1556,7 +1556,7 @@ export const ru = {
         pdfdocument: "PDF Документ",
         createdfromscratch: "Создано с нуля"
       }
-    }
+    },
     examples: {
       adaptIndustry: {
         short: "Адаптировать под специфику отрасли США",

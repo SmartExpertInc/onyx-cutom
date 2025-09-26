@@ -1579,7 +1579,7 @@ export const es = {
         pdfdocument: "Documento PDF",
         createdfromscratch: "Creado desde cero"
       }
-    }
+    },
     smartEdit: {
       examples: {
         makeAllTests: {
