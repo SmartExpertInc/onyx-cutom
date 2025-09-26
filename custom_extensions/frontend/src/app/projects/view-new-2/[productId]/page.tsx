@@ -874,7 +874,7 @@ export default function ProductViewNewPage() {
           <div className="flex items-center gap-x-4">
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded px-[15px] py-[8px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
               style={{
                 color: '#0F58F9',
                 fontSize: '14px',
@@ -959,9 +959,9 @@ export default function ProductViewNewPage() {
         )}
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[80px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[200px]">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-3 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
               {isEditingField('mainTitle') ? (
@@ -1325,7 +1325,7 @@ export default function ProductViewNewPage() {
           </div>
 
           {/* Right Panel - Course Summary */}
-          {/* <div className="lg:col-span-1">
+          <div className="lg:col-span-1 hidden">
             <CustomViewCard
               projectId={productId}
               sources={getSourcesFromProject()}
@@ -1341,31 +1341,33 @@ export default function ProductViewNewPage() {
                 progress: progress
               }}
             />
-          </div> */}
+          </div>
         </div>
       </div>
 
       {/* Error display */}
-      <div 
-        className="fixed top-4 right-4 rounded px-[15px] py-[5px] pr-[20px] z-50 flex items-center gap-2 transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-        style={{
-          backgroundColor: '#DC2626',
-          color: 'white',
-          fontSize: '14px',
-          fontWeight: '600',
-          lineHeight: '140%',
-          letterSpacing: '0.05em'
-        }}
-      >
-        <ShieldAlert size={14} style={{ color: 'white' }} />
-        <span>{saveError || "Error message placeholder"}</span>
-        <button
-          onClick={() => setSaveError(null)}
-          className="ml-2 text-white hover:text-gray-200 transition-colors"
+      {saveError && (
+        <div 
+          className="fixed top-4 right-4 rounded px-[15px] py-[8px] pr-[20px] z-50 flex items-center gap-2 transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+          style={{
+            backgroundColor: '#DC2626',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
+          }}
         >
-          ✕
-        </button>
-      </div>
+          <ShieldAlert size={14} style={{ color: 'white' }} />
+          <span>{saveError}</span>
+          <button
+            onClick={() => setSaveError(null)}
+            className="ml-2 text-white hover:text-gray-200 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Regenerate Confirmation Modal */}
       {showRegenerateModal.isOpen && (
