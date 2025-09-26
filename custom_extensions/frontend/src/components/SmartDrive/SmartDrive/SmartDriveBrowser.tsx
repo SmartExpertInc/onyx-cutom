@@ -257,8 +257,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				if (!res.ok) throw new Error(`token-estimate failed: ${res.status}`);
 				const data = await res.json();
 				const tokens = Number(data?.tokens ?? 0);
-				const durationSec = Math.max(3, Math.ceil(tokens / INDEX_TOKENS_PER_SEC));
-				console.log('[SmartDrive] token-estimate response:', { path: p, tokens, durationSec, source: data?.source });
+				const baseDurationSec = Math.max(3, Math.ceil(tokens / INDEX_TOKENS_PER_SEC));
+				// Speed up PDFs ~4x by reducing the estimated duration
+				const isPdf = p.toLowerCase().endsWith('.pdf');
+				const durationSec = isPdf ? Math.max(1, Math.ceil(baseDurationSec / 4)) : baseDurationSec;
+				console.log('[SmartDrive] token-estimate response:', { path: p, tokens, durationSec, source: data?.source, isPdf });
 				return { path: p, tokens, durationMs: durationSec * 1000 };
 			}));
 			const now = Date.now();

@@ -70,6 +70,12 @@ function GenerateProductPicker() {
     connectorSources: string[];
   } | null>(null);
 
+  // Also carry over any pre-selected files coming from Smart Drive
+  const selectedFiles = searchParams?.get('selectedFiles')
+    ?.split(',')
+    .filter(Boolean)
+    .map(file => decodeURIComponent(file)) || [];
+
   // Load connector context from sessionStorage
   useEffect(() => {
     if (isFromConnectors) {
@@ -257,10 +263,19 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
+    }
+
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     // Pass ISO language code to preview page
