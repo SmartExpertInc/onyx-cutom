@@ -1127,7 +1127,7 @@ export default function DynamicAuditLandingPage() {
           data.courseTemplates = data.courseTemplates.map((template: any) => ({
             ...template,
             image: template.image && template.image.startsWith('/static_design_images/') 
-              ? `${CUSTOM_BACKEND_URL}${template.image}`
+              ? `${window.location.protocol}//${window.location.host}${template.image}`
               : template.image
           }))
           
