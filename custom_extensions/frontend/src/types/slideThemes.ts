@@ -40,42 +40,6 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     }
   },
   
-  'light-modern': {
-    id: 'light-modern',
-    name: 'Light Modern',
-    colors: {
-      backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a',
-      subtitleColor: '#6b7280',
-      contentColor: '#374151',
-      accentColor: '#3b82f6'
-    },
-    fonts: {
-      titleFont: 'Inter, sans-serif',
-      contentFont: 'Martel Sans, sans-serif',
-      titleSize: '36px',
-      contentSize: '16px'
-    }
-  },
-  
-  'corporate-blue': {
-    id: 'corporate-blue',
-    name: 'Corporate Blue',
-    colors: {
-      backgroundColor: '#1e3a8a',
-      titleColor: '#ffffff',
-      subtitleColor: '#bfdbfe',
-      contentColor: '#e0e7ff',
-      accentColor: '#60a5fa'
-    },
-    fonts: {
-      titleFont: 'Roboto, sans-serif',
-      contentFont: 'Martel Sans, sans-serif',
-      titleSize: '40px',
-      contentSize: '16px'
-    }
-  },
-
   'chudo-theme': {
     id: 'chudo-theme',
     name: 'Chudo Theme',

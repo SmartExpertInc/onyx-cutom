@@ -18,11 +18,12 @@ import {
   Clock,
   User,
   Star,
-  ArrowUpDown,
+  ListFilter ,
   LayoutGrid,
   List,
   Plus,
   ChevronsUpDown,
+  ArrowUpDown,
   LucideIcon,
   Share2,
   Trash2,
@@ -31,8 +32,6 @@ import {
   Link as LinkIcon,
   RefreshCw,
   AlertTriangle,
-  FolderMinus,
-  Folder,
   ChevronRight,
   ChevronDown,
   CheckSquare,
@@ -45,11 +44,47 @@ import {
   HelpCircle,
   FileText,
   ClipboardCheck,
-  TableOfContents
+  TableOfContents,
+  Search
 } from "lucide-react";
-import FolderSettingsModal from "../app/projects/FolderSettingsModal";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
+import { ProjectCard as CustomProjectCard } from "./ui/project-card";
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Progress } from "@/components/ui/progress"
+import useFeaturePermission from "../hooks/useFeaturePermission";
+import { timeEvent } from "../lib/mixpanelClient"
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -77,15 +112,32 @@ const getDesignMicroproductIcon = (type: string): React.ReactElement => {
 const getProductTypeDisplayName = (type: string): string => {
   switch (type) {
     case "Training Plan":
-      return "Course Outline";
+      return "Course";
     case "Slide Deck":
       return "Presentation";
     case "Text Presentation":
-      return "Onepager";
+      return "One-pager";
     default:
       return type;
   }
 };
+
+const TitleIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="#6A7282" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M4 12H20M4 8H20M4 16H12" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+);
+
+const TypeIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg height={size} width={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="create-note" className="icon glyph" fill="#6A7282"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M20.71,3.29a2.91,2.91,0,0,0-2.2-.84,3.25,3.25,0,0,0-2.17,1L9.46,10.29s0,0,0,0a.62.62,0,0,0-.11.17,1,1,0,0,0-.1.18l0,0L8,14.72A1,1,0,0,0,9,16a.9.9,0,0,0,.28,0l4-1.17,0,0,.18-.1a.62.62,0,0,0,.17-.11l0,0,6.87-6.88a3.25,3.25,0,0,0,1-2.17A2.91,2.91,0,0,0,20.71,3.29Z"></path><path d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z" style={{fill:"#6A728"}}></path></g></svg>
+);
+
+const CreatedIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M3 9H21M17 13.0014L7 13M10.3333 17.0005L7 17M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="#6A7282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+);
+
+const CreatorIcon: React.FC<{ size?: number }> = ({ size }) => (
+  <svg height={size} width={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12 5C10.3431 5 9 6.34315 9 8C9 9.65685 10.3431 11 12 11C13.6569 11 15 9.65685 15 8C15 6.34315 13.6569 5 12 5ZM7 8C7 5.23858 9.23858 3 12 3C14.7614 3 17 5.23858 17 8C17 10.7614 14.7614 13 12 13C9.23858 13 7 10.7614 7 8ZM7.45609 16.7264C6.40184 17.1946 6 17.7858 6 18.5C6 18.7236 6.03976 18.8502 6.09728 18.942C6.15483 19.0338 6.29214 19.1893 6.66219 19.3567C7.45312 19.7145 9.01609 20 12 20C14.9839 20 16.5469 19.7145 17.3378 19.3567C17.7079 19.1893 17.8452 19.0338 17.9027 18.942C17.9602 18.8502 18 18.7236 18 18.5C18 17.7858 17.5982 17.1946 16.5439 16.7264C15.4614 16.2458 13.8722 16 12 16C10.1278 16 8.53857 16.2458 7.45609 16.7264ZM6.64442 14.8986C8.09544 14.2542 10.0062 14 12 14C13.9938 14 15.9046 14.2542 17.3556 14.8986C18.8348 15.5554 20 16.7142 20 18.5C20 18.9667 19.9148 19.4978 19.5973 20.0043C19.2798 20.5106 18.7921 20.8939 18.1622 21.1789C16.9531 21.7259 15.0161 22 12 22C8.98391 22 7.04688 21.7259 5.83781 21.1789C5.20786 20.8939 4.72017 20.5106 4.40272 20.0043C4.08524 19.4978 4 18.9667 4 18.5C4 16.7142 5.16516 15.5554 6.64442 14.8986Z" fill="#364153"></path> </g></svg>
+);
+
 
 // Helper function to calculate dynamic text width based on column width
 const calculateTextWidth = (
@@ -173,24 +225,28 @@ const FolderExportLoadingModal: React.FC<{
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center backdrop-blur-sm bg-black/20">
-      <div className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-md mx-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          {t("actions.generatingPdf", "Generating PDF")}
-        </h3>
-        <p className="text-gray-600 text-center mb-4">
-          {t("actions.creatingPdfExport", "Creating PDF export for folder")}{" "}
-          <span className="font-semibold text-blue-600">"{folderName}"</span>
-        </p>
-        <p className="text-sm text-gray-500 text-center">
-          {t(
-            "modals.folderExport.description",
-            "This may take a few moments depending on the number of files..."
-          )}
-        </p>
-      </div>
-    </div>,
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center">
+            {t("actions.generatingPdf", "Generating PDF")}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex flex-col items-center p-6">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-6"></div>
+          <DialogDescription className="text-center mb-4">
+            {t("actions.creatingPdfExport", "Creating PDF export for folder")}{" "}
+            <span className="font-semibold text-blue-600">"{folderName}"</span>
+          </DialogDescription>
+          <p className="text-sm text-gray-500 text-center">
+            {t(
+              "modals.folderExport.description",
+              "This may take a few moments depending on the number of files..."
+            )}
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>,
     document.body
   );
 };
@@ -331,56 +387,31 @@ const ClientNameModal: React.FC<{
   // Check if any items are selected (folders or projects)
   const hasAnySelection = selectedFolders.size > 0 || selectedProjects.size > 0;
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/30"
-      onClick={handleBackdropClick}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative border border-gray-100">
-        <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 cursor-pointer"
-          onClick={onClose}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-gray-900">
             {t("interface.customizePDF", "Customize PDF")}
-          </h2>
-          <p className="text-gray-600">
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
             {t(
               "interface.customizePDFDescription",
               "Enter a client name and select which folders/products to include in the PDF."
             )}
-          </p>
-        </div>
+          </DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
+            <Label
               htmlFor="client-name"
               className="block text-sm font-semibold text-gray-700 mb-2"
             >
               {t("interface.clientNameOptional", "Client Name (optional)")}
-            </label>
-            <input
+            </Label>
+            <Input
               id="client-name"
               type="text"
               value={clientName}
@@ -392,35 +423,33 @@ const ClientNameModal: React.FC<{
                 }
               }}
               placeholder={t("interface.enterClientName", "Enter client name")}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white hover:border-gray-300 cursor-text"
+              className="border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 bg-white hover:border-gray-300"
               autoFocus
             />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-semibold text-gray-700">
+              <Label className="block text-sm font-semibold text-gray-700">
                 {t(
                   "interface.selectFoldersAndProducts",
                   "Select Folders & Products"
                 )}
-              </label>
+              </Label>
               <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                <Badge variant="secondary" className="text-blue-600 bg-blue-50">
                   {selectedProjects.size} {t("interface.selected", "selected")}
-                </span>
+                </Badge>
                 {(folders.length > 0 || unassignedProjects.length > 0) && (
-                  <label className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer transition-colors">
-                    <input
-                      type="checkbox"
+                  <Label className="flex items-center justify-center gap-2 text-sm text-gray-800 hover:text-gray-900 cursor-pointer transition-colors">
+                    <Checkbox
                       checked={isAllSelected}
-                      onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
+                      onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                     />
                     <span className="text-xs font-medium">
                       {t("interface.selectAll", "Select all")}
                     </span>
-                  </label>
+                  </Label>
                 )}
               </div>
             </div>
@@ -433,14 +462,12 @@ const ClientNameModal: React.FC<{
                   </div>
                   {folders.map((folder) => (
                     <div key={folder.id} className="mb-2">
-                      <label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
-                        <input
-                          type="checkbox"
+                      <Label className="flex items-center gap-3 py-2 px-3 hover:bg-blue-50 rounded-lg cursor-pointer transition-all duration-200 group">
+                        <Checkbox
                           checked={selectedFolders.has(folder.id)}
-                          onChange={(e) =>
-                            handleFolderSelection(folder.id, e.target.checked)
+                          onCheckedChange={(checked) =>
+                            handleFolderSelection(folder.id, checked as boolean)
                           }
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
                         <div className="flex items-center gap-2 flex-1">
                           <svg
@@ -458,32 +485,31 @@ const ClientNameModal: React.FC<{
                               strokeLinejoin="round"
                             />
                           </svg>
-                          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                          <span className="text-sm font-medium text-gray-900 group-hover:text-black">
                             {folder.name}
                           </span>
-                          <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          <Badge variant="outline" className="ml-2 text-xs text-gray-700 bg-gray-100">
                             {getTotalItemsInFolder(folder, folderProjects)}{" "}
                             {getTotalItemsInFolder(folder, folderProjects) === 1
                               ? t("interface.item", "item")
                               : t("interface.items", "items")}
-                          </span>
+                          </Badge>
                         </div>
-                      </label>
+                      </Label>
 
                       {/* Projects in this folder */}
                       {folderProjects[folder.id] &&
                         folderProjects[folder.id].length > 0 && (
                           <div className="ml-8 mt-2 space-y-1">
                             {folderProjects[folder.id].map((project) => (
-                              <label
+                              <Label
                                 key={project.id}
                                 className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group"
                               >
-                                <input
-                                  type="checkbox"
+                                <Checkbox
                                   checked={selectedProjects.has(project.id)}
-                                  onChange={(e) => {
-                                    if (e.target.checked) {
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
                                       setSelectedProjects(
                                         (prev) => new Set([...prev, project.id])
                                       );
@@ -495,12 +521,11 @@ const ClientNameModal: React.FC<{
                                       });
                                     }
                                   }}
-                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                                 />
-                                <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
+                                <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                                   {project.title}
                                 </span>
-                              </label>
+                              </Label>
                             ))}
                           </div>
                         )}
@@ -520,15 +545,14 @@ const ClientNameModal: React.FC<{
                   </div>
                   <div className="space-y-1">
                     {unassignedProjects.map((project) => (
-                      <label
+                      <Label
                         key={project.id}
                         className="flex items-center gap-3 py-1.5 px-3 hover:bg-gray-50 rounded-md cursor-pointer transition-all duration-200 group"
                       >
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={selectedProjects.has(project.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
+                          onCheckedChange={(checked) => {
+                            if (checked) {
                               setSelectedProjects(
                                 (prev) => new Set([...prev, project.id])
                               );
@@ -540,19 +564,18 @@ const ClientNameModal: React.FC<{
                               });
                             }
                           }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 transition-all duration-200 cursor-pointer"
                         />
-                        <span className="text-sm text-gray-600 group-hover:text-gray-800 flex-1">
+                        <span className="text-sm text-gray-800 group-hover:text-gray-900 flex-1">
                           {project.title}
                         </span>
-                      </label>
+                      </Label>
                     ))}
                   </div>
                 </div>
               )}
 
               {folders.length === 0 && unassignedProjects.length === 0 && (
-                <div className="text-sm text-gray-500 text-center py-8">
+                <div className="text-sm text-gray-700 text-center py-8">
                   <svg
                     width="48"
                     height="48"
@@ -578,28 +601,25 @@ const ClientNameModal: React.FC<{
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={handleCancel}
-              className="px-6 py-2.5 text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all duration-200 font-medium border border-gray-200 hover:border-gray-300 cursor-pointer"
+              className="text-gray-600 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
             >
               {t("common.cancel", "Cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={!hasAnySelection}
-              className={`px-6 py-2.5 rounded-lg transition-all duration-200 font-semibold shadow-sm ${
-                hasAnySelection
-                  ? "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
+              className={hasAnySelection ? "rounded-full bg-blue-600 text-white hover:bg-blue-700 hover:shadow-md cursor-pointer" : "bg-gray-300 rounded-full text-gray-500 cursor-not-allowed"}
             >
               {t("common.downloadPdf", "Download PDF")}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -867,7 +887,6 @@ const FolderRow: React.FC<{
   level: number;
   index: number;
   trashMode: boolean;
-  columnVisibility: ColumnVisibility;
   columnWidths: ColumnWidths;
   expandedFolders: Set<number>;
   folderProjects: Record<number, Project[]>;
@@ -906,7 +925,6 @@ const FolderRow: React.FC<{
   level,
   index,
   trashMode,
-  columnVisibility,
   columnWidths,
   expandedFolders,
   folderProjects,
@@ -931,6 +949,7 @@ const FolderRow: React.FC<{
   allFolders,
 }) => {
   const { t } = useLanguage();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const hasChildren = folder.children && folder.children.length > 0;
   const isExpanded = expandedFolders.has(folder.id);
@@ -939,7 +958,7 @@ const FolderRow: React.FC<{
   return (
     <>
       {/* Folder row */}
-      <tr
+      <TableRow
         key={`folder-${folder.id}`}
         data-folder-id={folder.id}
         className={`hover:bg-gray-50 transition group ${
@@ -988,104 +1007,62 @@ const FolderRow: React.FC<{
         }}
         onClick={() => toggleFolder(folder.id)}
       >
-        {columnVisibility.title && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            -
+          </TableCell>
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
             <span
               className="inline-flex items-center"
               style={{ paddingLeft: `${level * 20}px` }}
             >
-              <div className="mr-3 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing group-hover:text-gray-600 transition-colors">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="opacity-60 group-hover:opacity-100"
-                >
-                  <circle cx="9" cy="5" r="2" />
-                  <circle cx="9" cy="12" r="2" />
-                  <circle cx="9" cy="19" r="2" />
-                  <circle cx="15" cy="5" r="2" />
-                  <circle cx="15" cy="12" r="2" />
-                  <circle cx="15" cy="19" r="2" />
-                </svg>
-              </div>
-              <button className="mr-2 text-blue-600 hover:text-blue-800 transition-transform duration-200 cursor-pointer">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="mr-2 text-blue-600 hover:text-blue-800"
+              >
                 <ChevronRight
                   size={16}
                   className={`transition-transform duration-200 ${
                     isExpanded ? "rotate-90" : ""
                   }`}
                 />
-              </button>
-              <Folder
-                size={16}
+              </Button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
                 style={{ color: getFolderTierColor(folder, allFolders) }}
                 className="mr-2"
-              />
+              >
+                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+              </svg>
               <DynamicText
                 text={folder.name}
                 columnWidthPercent={columnWidths.title}
                 className="font-semibold text-blue-700"
                 title={folder.name}
               />
-              <span className="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+              <Badge variant="outline" className="ml-2 text-xs text-gray-700 bg-gray-100">
                 {getTotalItemsInFolder(folder, folderProjects)}{" "}
                 {getTotalItemsInFolder(folder, folderProjects) === 1
                   ? t("interface.item", "item")
                   : t("interface.items", "items")}
-              </span>
+              </Badge>
             </span>
-          </td>
-        )}
-        {columnVisibility.type && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            -
-          </td>
-        )}
-        {columnVisibility.created && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          </TableCell>
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
             {formatDate(folder.created_at)}
-          </td>
-        )}
-        {columnVisibility.creator && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          </TableCell>
+          <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
             <span className="inline-flex items-center">
               <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                 <span className="text-xs font-bold text-gray-700">Y</span>
               </span>
               You
             </span>
-          </td>
-        )}
-        {columnVisibility.numberOfLessons && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalLessons = getTotalLessonsInFolder(folder);
-              return totalLessons > 0 ? totalLessons : "-";
-            })()}
-          </td>
-        )}
-        {columnVisibility.estCreationTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalHours = getTotalHoursInFolder(folder);
-              return totalHours > 0 ? `${totalHours}h` : "-";
-            })()}
-          </td>
-        )}
-        {columnVisibility.estCompletionTime && (
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-            {(() => {
-              const totalCompletionTime =
-                getTotalCompletionTimeInFolder(folder);
-              return totalCompletionTime > 0
-                ? formatCompletionTimeLocalized(totalCompletionTime)
-                : "-";
-            })()}
-          </td>
-        )}
-        <td
+          </TableCell>
+        <TableCell
           className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
           onClick={(e) => e.stopPropagation()}
         >
@@ -1095,14 +1072,14 @@ const FolderRow: React.FC<{
             trashMode={trashMode}
             onDeleteFolder={handleDeleteFolder}
           />
-        </td>
-      </tr>
+        </TableCell>
+      </TableRow>
 
       {/* Expanded folder content - projects */}
       {isExpanded &&
         folderProjectsList.length > 0 &&
         folderProjectsList.map((p: Project, projectIndex: number) => (
-          <tr
+          <TableRow
             key={`folder-project-${p.id}`}
             className={`hover:bg-gray-50 transition group bg-gray-50 ${
               !getModalState()
@@ -1151,47 +1128,7 @@ const FolderRow: React.FC<{
               handleDragEnd(e);
             }}
           >
-            {columnVisibility.title && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <span
-                  className="inline-flex items-center"
-                  style={{ paddingLeft: `${(level + 1) * 20}px` }}
-                >
-                  <div
-                    className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                      getModalState()
-                        ? "cursor-grab active:cursor-grabbing"
-                        : "cursor-default opacity-30"
-                    }`}
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="opacity-60 group-hover:opacity-100"
-                    >
-                      <circle cx="9" cy="5" r="2" />
-                      <circle cx="9" cy="12" r="2" />
-                      <circle cx="9" cy="19" r="2" />
-                      <circle cx="15" cy="5" r="2" />
-                      <circle cx="15" cy="12" r="2" />
-                      <circle cx="15" cy="19" r="2" />
-                    </svg>
-                  </div>
-                  <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
-                  <Star size={16} className="text-gray-300 mr-2" />
-                  <DynamicText
-                    text={p.title}
-                    columnWidthPercent={columnWidths.title}
-                    href={trashMode ? "#" : `/projects/view/${p.id}`}
-                    title={p.title}
-                  />
-                </span>
-              </td>
-            )}
-            {columnVisibility.type && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {p.designMicroproductType ? (
                   <span className="text-gray-500 font-medium">
                     {getProductTypeDisplayName(p.designMicroproductType)}
@@ -1199,52 +1136,40 @@ const FolderRow: React.FC<{
                 ) : (
                   "-"
                 )}
-              </td>
-            )}
-            {columnVisibility.created && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(p.createdAt)}
-              </td>
-            )}
-            {columnVisibility.creator && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <span className="inline-flex items-center">
-                  <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                    <span className="text-xs font-bold text-gray-700">Y</span>
-                  </span>
-                  You
+              </TableCell>
+              <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <span
+                  className="inline-flex items-center"
+                  style={{ paddingLeft: `${(level + 1) * 20}px` }}
+                >
+                  <div className="w-4 h-4 border-l-2 border-blue-200 mr-3"></div>
+                  {/* <Star size={16} className="text-gray-300 mr-2" /> */}
+                  <DynamicText
+                    text={p.title}
+                    columnWidthPercent={columnWidths.title}
+                    href={trashMode ? "#" : (
+                      p.designMicroproductType === "Video Lesson Presentation" 
+                        ? `/projects-2/view/${p.id}`
+                        : (p.designMicroproductType === "Training Plan"
+                          ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
+                          : `/projects/view/${p.id}`)
+                    )}
+                    title={p.title}
+                  />
                 </span>
-              </td>
-            )}
-            {columnVisibility.numberOfLessons && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData ? lessonData.lessonCount : "-";
-                })()}
-              </td>
-            )}
-            {columnVisibility.estCreationTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData && lessonData.totalHours
-                    ? `${lessonData.totalHours}h`
-                    : "-";
-                })()}
-              </td>
-            )}
-            {columnVisibility.estCompletionTime && (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {(() => {
-                  const lessonData = lessonDataCache[p.id];
-                  return lessonData
-                    ? formatCompletionTimeLocalized(lessonData.completionTime)
-                    : "-";
-                })()}
-              </td>
-            )}
-            <td
+              </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {formatDate(p.createdAt)}
+            </TableCell>
+            <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <span className="inline-flex items-center">
+                <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                  <span className="text-xs font-bold text-gray-700">Y</span>
+                </span>
+                You
+              </span>
+            </TableCell>
+            <TableCell
               className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
               onClick={(e) => e.stopPropagation()}
             >
@@ -1257,21 +1182,21 @@ const FolderRow: React.FC<{
                 onDeletePermanently={handleDeletePermanently}
                 folderId={folder.id}
               />
-            </td>
-          </tr>
+            </TableCell>
+          </TableRow>
         ))}
 
       {/* Loading state for folder projects */}
       {isExpanded && folderProjectsList.length === 0 && !hasChildren && (
-        <tr>
-          <td
-            colSpan={Object.values(columnVisibility).filter(Boolean).length + 1}
+        <TableRow>
+          <TableCell
+            colSpan={4}
             className="px-6 py-4 text-sm text-gray-500 text-center bg-gray-50"
             style={{ paddingLeft: `${(level + 1) * 20}px` }}
           >
             Loading projects...
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
 
       {/* Recursively render child folders */}
@@ -1284,7 +1209,6 @@ const FolderRow: React.FC<{
             level={level + 1}
             index={childIndex}
             trashMode={trashMode}
-            columnVisibility={columnVisibility}
             columnWidths={columnWidths}
             expandedFolders={expandedFolders}
             folderProjects={folderProjects}
@@ -1313,797 +1237,6 @@ const FolderRow: React.FC<{
   );
 };
 
-const ProjectCard: React.FC<{
-  project: Project;
-  onDelete: (id: number, scope: "self" | "all") => void;
-  onRestore: (id: number) => void;
-  onDeletePermanently: (id: number) => void;
-  isTrashMode: boolean;
-  folderId?: number | null;
-}> = ({
-  project,
-  onDelete,
-  onRestore,
-  onDeletePermanently,
-  isTrashMode,
-  folderId,
-}) => {
-  const { t, language } = useLanguage();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] =
-    useState(false);
-  const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
-  const [showRestorePrompt, setShowRestorePrompt] = useState(false);
-  const [renameModalOpen, setRenameModalOpen] = useState(false);
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [newName, setNewName] = useState(
-    project.title || project.instanceName || "Product"
-  );
-  const [menuPosition, setMenuPosition] = useState<"above" | "below">("below");
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const isOutline =
-    (project.designMicroproductType || "").toLowerCase() === "training plan";
-  const displayTitle = isOutline
-    ? project.title
-    : project.instanceName || project.title;
-
-  const stringToColor = (str: string): string => {
-    let hash = 0;
-    if (!str) return "#CCCCCC";
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    let color = "#";
-    for (let i = 0; i < 3; i++) {
-      let value = (hash >> (i * 8)) & 0xff;
-      color += ("00" + value.toString(16)).substr(-2);
-    }
-    return color;
-  };
-
-  const bgColor = stringToColor(project.title);
-  const avatarColor = stringToColor(project.createdBy);
-
-  const handleRemoveFromFolder = async () => {
-    try {
-      const CUSTOM_BACKEND_URL =
-        process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL ||
-        "/api/custom-projects-backend";
-      const headers: HeadersInit = { "Content-Type": "application/json" };
-      const devUserId = "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === "development") {
-        headers["X-Dev-Onyx-User-ID"] = devUserId;
-      }
-
-      const response = await fetch(
-        `${CUSTOM_BACKEND_URL}/projects/${project.id}/folder`,
-        {
-          method: "PUT",
-          headers,
-          credentials: "same-origin",
-          body: JSON.stringify({ folder_id: null }),
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          redirectToMainAuth("/auth/login");
-          return;
-        }
-        throw new Error(`Failed to remove from folder: ${response.status}`);
-      }
-
-      // Refresh the page to update the view
-      window.location.reload();
-    } catch (error) {
-      console.error("Error removing from folder:", error);
-      alert("Failed to remove project from folder");
-    }
-  };
-
-  const handleMenuToggle = () => {
-    if (!menuOpen && buttonRef.current) {
-      // Calculate if there's enough space below
-      const buttonRect = buttonRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const spaceBelow = viewportHeight - buttonRect.bottom;
-      const menuHeight = 300; // Approximate menu height
-
-      // Also check if we're inside a folder (nested structure)
-      const isInsideFolder = folderId !== null;
-
-      setMenuPosition(spaceBelow < menuHeight ? "above" : "below");
-    }
-    setMenuOpen((prev) => {
-      if (!prev && typeof window !== "undefined")
-        (window as any).__modalOpen = true;
-      if (prev && typeof window !== "undefined")
-        (window as any).__modalOpen = false;
-      return !prev;
-    });
-  };
-
-  const handleDragStart = (e: React.DragEvent) => {
-    // Check if any modal is open - prevent dragging completely
-    const isModalOpen = getModalState();
-    if (isModalOpen) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-
-    // Add visual feedback to the dragged element
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = "0.5";
-    target.style.transform = "rotate(5deg)";
-
-    e.dataTransfer.setData(
-      "application/json",
-      JSON.stringify({
-        projectId: project.id,
-        projectName: project.title,
-        type: "project",
-      })
-    );
-    e.dataTransfer.effectAllowed = "move";
-
-    // Set a custom drag image (optional)
-    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
-    dragImage.style.width = "200px";
-    dragImage.style.height = "auto";
-    document.body.appendChild(dragImage);
-    e.dataTransfer.setDragImage(dragImage, 100, 50);
-
-    // Clean up the drag image after a short delay
-    setTimeout(() => {
-      if (document.body.contains(dragImage)) {
-        document.body.removeChild(dragImage);
-      }
-    }, 0);
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    // Reset visual feedback
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = "1";
-    target.style.transform = "rotate(0deg)";
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        // Check if the click is on the portal modal
-        const target = event.target as Element;
-        if (target.closest("[data-modal-portal]")) {
-          return; // Don't close if clicking inside the modal
-        }
-        setMenuOpen(false);
-        if (typeof window !== "undefined") (window as any).__modalOpen = false;
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      if (typeof window !== "undefined") (window as any).__modalOpen = false;
-    };
-  }, []);
-
-  const handleTrashRequest = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setMenuOpen(false);
-    if (project.designMicroproductType === "Training Plan") {
-      setTrashConfirmOpen(true);
-    } else {
-      onDelete(project.id, "self");
-    }
-  };
-
-  const handleRestoreProject = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setMenuOpen(false);
-    onRestore(project.id);
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    if (isTrashMode) {
-      e.preventDefault();
-      setShowRestorePrompt(true);
-    }
-  };
-
-  const handleDuplicateProject = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setMenuOpen(false);
-    //console.log("Duplicating project", project.id);
-    try {
-      const resp = await fetch(
-        `/api/custom-projects-backend/projects/duplicate/${project.id}`,
-        { method: "POST" }
-      );
-      if (resp.ok) {
-        window.location.reload();
-      } else {
-        const err = await resp.text();
-        alert("Failed to duplicate project: " + err);
-      }
-    } catch (error) {
-      alert("Failed to duplicate project: " + (error as Error).message);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return new Date(dateString).toLocaleDateString(
-      language === "en"
-        ? "en-US"
-        : language === "es"
-        ? "es-ES"
-        : language === "ru"
-        ? "ru-RU"
-        : "uk-UA",
-      options
-    );
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      className={`bg-white rounded-xl shadow-sm group transition-all duration-200 hover:shadow-lg border border-gray-200 relative ${
-        !getModalState()
-          ? "cursor-grab active:cursor-grabbing"
-          : "cursor-default"
-      }`}
-      draggable={!isTrashMode && !getModalState()}
-      onDragStart={(e) => {
-        if (getModalState()) {
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        }
-        handleDragStart(e);
-      }}
-      onDragEnd={(e) => {
-        if (getModalState()) {
-          e.preventDefault();
-          return;
-        }
-        handleDragEnd(e);
-      }}
-    >
-      <Link
-        href={isTrashMode ? "#" : `/projects/view/${project.id}`}
-        onClick={handleCardClick}
-        className="block"
-      >
-        <div
-          className="relative h-40 rounded-t-lg"
-          style={{
-            backgroundColor: bgColor,
-            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-              project.title.split("").reverse().join("")
-            )}99)`,
-          }}
-        >
-          {project.designMicroproductType && (
-            <div
-              style={{
-                position: "absolute",
-                top: 8,
-                left: 8,
-                background: "#fff",
-                borderRadius: "6px",
-                padding: "4px",
-                zIndex: 2,
-                backdropFilter: "blur(2px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {getDesignMicroproductIcon(project.designMicroproductType)}
-            </div>
-          )}
-          {project.isGamma ? (
-            <div className="p-4 text-white flex flex-col justify-between h-full">
-              <div>
-                <div className="text-xs font-semibold">GAMMA</div>
-                <h3 className="font-bold text-2xl mt-2">Tips and tricks ⚡️</h3>
-              </div>
-              <p className="text-xs">
-                Ready to learn how to take your gammas to the next level?
-              </p>
-            </div>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center p-4 text-white">
-              <h3
-                className="font-bold text-lg text-center truncate max-w-full"
-                title={displayTitle}
-              >
-                {displayTitle}
-              </h3>
-            </div>
-          )}
-        </div>
-        <div className="p-4">
-          <h3
-            className="font-semibold text-gray-800 mb-2 truncate text-sm max-w-full"
-            title={displayTitle}
-          >
-            {displayTitle}
-          </h3>
-          <div className="flex items-center text-xs text-gray-500 mb-3">
-            {project.isPrivate && (
-              <div className="flex items-center gap-1.5 bg-gray-100 rounded-md px-2 py-0.5">
-                <Lock size={12} />
-                <span className="text-gray-700">
-                  {t("interface.private", "Private")}
-                </span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                style={{ backgroundColor: avatarColor }}
-              >
-                {project.createdBy.slice(0, 1).toUpperCase()}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">
-                  {t("interface.createdByYou", "Created by you")}
-                </span>
-                <span className="text-xs text-gray-500">
-                  {formatDate(project.createdAt)}
-                </span>
-              </div>
-            </div>
-            <div className="w-7 h-7" />
-          </div>
-        </div>
-      </Link>
-      <div className="absolute bottom-4 right-3" ref={menuRef}>
-        <button
-          ref={buttonRef}
-          onClick={handleMenuToggle}
-          className="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer"
-        >
-          <MoreHorizontal size={16} />
-        </button>
-        {menuOpen && (
-          <div
-            data-modal-portal="true"
-            className={`fixed w-60 bg-white rounded-lg shadow-2xl z-[9999] border border-gray-100 p-1 ${
-              menuPosition === "above" ? "bottom-auto mb-2" : "top-auto mt-2"
-            }`}
-            style={{
-              left: buttonRef.current
-                ? buttonRef.current.getBoundingClientRect().right - 240
-                : 0,
-              top: buttonRef.current
-                ? menuPosition === "above"
-                  ? buttonRef.current.getBoundingClientRect().top - 320
-                  : buttonRef.current.getBoundingClientRect().bottom + 8
-                : 0,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-3 py-2 border-b border-gray-100">
-              <p className="font-semibold text-sm text-gray-900 truncate">
-                {project.title}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                {t("actions.created", "Created {date}").replace(
-                  "{date}",
-                  formatDate(project.createdAt)
-                )}
-              </p>
-            </div>
-            {isTrashMode ? (
-              <div className="py-1">
-                <button
-                  onClick={handleRestoreProject}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                >
-                  <RefreshCw size={14} />
-                  <span>{t("actions.restore", "Restore")}</span>
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setMenuOpen(false);
-                    setPermanentDeleteConfirmOpen(true);
-                  }}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
-                >
-                  <Trash2 size={14} />
-                  <span>
-                    {t("actions.deletePermanently", "Delete permanently")}
-                  </span>
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <Share2 size={16} className="text-gray-500" />
-                    <span>{t("actions.share", "Share...")}</span>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      setRenameModalOpen(true);
-                    }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                  >
-                    <PenLine size={16} className="text-gray-500" />
-                    <span>{t("actions.rename", "Rename...")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <Star size={16} className="text-gray-500" />
-                    <span>
-                      {t("actions.addToFavorites", "Add to favorites")}
-                    </span>
-                  </button>
-                  <button
-                    onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                  >
-                    <Copy size={16} className="text-gray-500" />
-                    <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
-                    <LinkIcon size={16} className="text-gray-500" />
-                    <span>{t("actions.copyLink", "Copy link")}</span>
-                  </button>
-                  {isOutline && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        setShowSettingsModal(true);
-                      }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                    >
-                      <Settings size={16} className="text-gray-500" />
-                      <span>{t("actions.settings", "Settings")}</span>
-                    </button>
-                  )}
-                  {folderId && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        handleRemoveFromFolder();
-                      }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
-                    >
-                      <FolderMinus size={16} className="text-orange-500" />
-                      <span>
-                        {t("actions.removeFromFolder", "Remove from Folder")}
-                      </span>
-                    </button>
-                  )}
-                </div>
-                <div className="py-1 border-t border-gray-100">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(false);
-                      handleTrashRequest(e);
-                    }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
-                  >
-                    <Trash2 size={14} />
-                    <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-
-      {permanentDeleteConfirmOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
-          onClick={() => setPermanentDeleteConfirmOpen(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl p-6 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h4 className="font-semibold text-lg mb-2 text-gray-900">
-              {t("actions.areYouSure", "Are you sure?")}
-            </h4>
-            <p className="text-sm text-gray-600 mb-4">
-              {t(
-                "actions.actionPermanent",
-                "This action is permanent and cannot be undone. The project will be deleted forever."
-              )}
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => setPermanentDeleteConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
-              >
-                {t("actions.cancel", "Cancel")}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  onDeletePermanently(project.id);
-                  setPermanentDeleteConfirmOpen(false);
-                }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
-              >
-                {t("actions.deletePermanentlyButton", "Delete Permanently")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {trashConfirmOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
-          onClick={() => setTrashConfirmOpen(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl p-6 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h4 className="font-semibold text-lg mb-2 text-gray-900">
-              {t("actions.moveToTrash", "Move to Trash")}
-            </h4>
-            <p className="text-sm text-gray-600 mb-4">
-              {t(
-                "actions.courseOutlineTrashMessage",
-                "This is a Course Outline. Do you want to move just the outline, or the outline and all its lessons?"
-              )}
-            </p>
-            <div className="flex justify-center gap-3">
-              <button
-                onClick={() => setTrashConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
-              >
-                {t("actions.cancel", "Cancel")}
-              </button>
-              <button
-                onClick={() => {
-                  onDelete(project.id, "self");
-                  setTrashConfirmOpen(false);
-                }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
-              >
-                {t("actions.outlineOnly", "Outline Only")}
-              </button>
-              <button
-                onClick={() => {
-                  onDelete(project.id, "all");
-                  setTrashConfirmOpen(false);
-                }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
-              >
-                {t("actions.moveAll", "Move All")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showRestorePrompt && (
-        <div
-          className="fixed inset-0 bg-black/10 flex items-center justify-center p-4 z-40"
-          onClick={() => setShowRestorePrompt(false)}
-        >
-          <div
-            className="bg-orange-100 border border-orange-200 rounded-lg py-3 px-4 shadow-lg flex items-center gap-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <AlertTriangle
-              className="text-orange-500 flex-shrink-0"
-              size={20}
-            />
-            <p className="text-sm text-orange-900">
-              {t(
-                "actions.wantToEditInTrash",
-                "Want to edit this? It's in the trash."
-              )}
-              &nbsp;
-              <button
-                onClick={() => {
-                  onRestore(project.id);
-                  setShowRestorePrompt(false);
-                }}
-                className="font-semibold underline hover:text-orange-700 cursor-pointer"
-              >
-                {t("actions.restoreIt", "Restore it")}
-              </button>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* ---------------- Rename Modal ---------------- */}
-      {renameModalOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
-          onClick={() => {
-            if (!isRenaming) setRenameModalOpen(false);
-          }}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">
-              {t("actions.rename", "Rename")}
-            </h4>
-
-            <div className="mb-6">
-              <label
-                htmlFor="newName"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {t("actions.newName", "New Name:")}
-              </label>
-              <input
-                id="newName"
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              />
-            </div>
-
-            <div className="flex justify-start gap-3">
-              <button
-                onClick={() => {
-                  if (!isRenaming) setRenameModalOpen(false);
-                }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
-                disabled={isRenaming}
-              >
-                {t("actions.cancel", "Cancel")}
-              </button>
-              <button
-                onClick={async () => {
-                  setIsRenaming(true);
-                  try {
-                    const CUSTOM_BACKEND_URL =
-                      process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL ||
-                      "/api/custom-projects-backend";
-                    const headers: HeadersInit = {
-                      "Content-Type": "application/json",
-                    };
-                    const devUserId = "dummy-onyx-user-id-for-testing";
-                    if (devUserId && process.env.NODE_ENV === "development") {
-                      headers["X-Dev-Onyx-User-ID"] = devUserId;
-                    }
-
-                    const updateProject = async (
-                      id: number,
-                      bodyPayload: any
-                    ) => {
-                      const resp = await fetch(
-                        `${CUSTOM_BACKEND_URL}/projects/update/${id}`,
-                        {
-                          method: "PUT",
-                          headers,
-                          credentials: "same-origin",
-                          body: JSON.stringify(bodyPayload),
-                        }
-                      );
-                      if (!resp.ok) {
-                        if (resp.status === 401 || resp.status === 403) {
-                          redirectToMainAuth("/auth/login");
-                          return;
-                        }
-                        const errTxt = await resp.text();
-                        throw new Error(
-                          `Failed to update project ${id}: ${resp.status} ${errTxt}`
-                        );
-                      }
-                    };
-
-                    const tasks: Promise<void>[] = [];
-                    const oldProjectName = project.title;
-
-                    if (isOutline) {
-                      tasks.push(
-                        updateProject(project.id, { projectName: newName })
-                      );
-                      const listResp = await fetch(
-                        `${CUSTOM_BACKEND_URL}/projects`,
-                        {
-                          headers,
-                          cache: "no-store",
-                          credentials: "same-origin",
-                        }
-                      );
-                      if (listResp.ok) {
-                        const listData: any[] = await listResp.json();
-                        listData
-                          .filter(
-                            (p) =>
-                              p.projectName === oldProjectName &&
-                              p.id !== project.id
-                          )
-                          .forEach((p) =>
-                            tasks.push(
-                              updateProject(p.id, { projectName: newName })
-                            )
-                          );
-                      } else if (
-                        listResp.status === 401 ||
-                        listResp.status === 403
-                      ) {
-                        redirectToMainAuth("/auth/login");
-                        return;
-                      }
-                    } else {
-                      tasks.push(
-                        updateProject(project.id, { microProductName: newName })
-                      );
-                    }
-
-                    await Promise.all(tasks);
-
-                    setRenameModalOpen(false);
-                    window.location.reload();
-                  } catch (error) {
-                    console.error(error);
-                    alert((error as Error).message);
-                  } finally {
-                    setIsRenaming(false);
-                  }
-                }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
-                disabled={isRenaming || !newName.trim()}
-              >
-                {isRenaming
-                  ? t("actions.saving", "Saving...")
-                  : t("actions.rename", "Rename")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Project Settings Modal */}
-      {showSettingsModal && (
-        <ProjectSettingsModal
-          open={showSettingsModal}
-          onClose={() => setShowSettingsModal(false)}
-          projectName={project.title}
-          projectId={project.id}
-          onTierChange={(tier) => {
-            console.log("Project tier changed to:", tier);
-          }}
-        />
-      )}
-    </div>
-  );
-};
 
 const ProjectRowMenu: React.FC<{
   project: Project;
@@ -2138,6 +1271,8 @@ const ProjectRowMenu: React.FC<{
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const isOutline =
     (project.designMicroproductType || "").toLowerCase() === "training plan";
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -2249,13 +1384,13 @@ const ProjectRowMenu: React.FC<{
 
   return (
     <div ref={menuRef} className="inline-block">
-      <button
+      <Button
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 cursor-pointer"
+        className="text-gray-400 shadow-none border-none hover:text-gray-600 cursor-pointer"
         onClick={handleMenuToggle}
       >
         <MoreHorizontal size={20} />
-      </button>
+      </Button>
       {menuOpen &&
         createPortal(
           <div
@@ -2269,7 +1404,7 @@ const ProjectRowMenu: React.FC<{
                 : 0,
               top: buttonRef.current
                 ? menuPosition === "above"
-                  ? buttonRef.current.getBoundingClientRect().top - 320
+                  ? buttonRef.current.getBoundingClientRect().top - 200
                   : buttonRef.current.getBoundingClientRect().bottom + 8
                 : 0,
             }}
@@ -2285,7 +1420,7 @@ const ProjectRowMenu: React.FC<{
             </div>
             {trashMode ? (
               <div className="py-1">
-                <button
+                <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -2296,8 +1431,8 @@ const ProjectRowMenu: React.FC<{
                 >
                   <RefreshCw size={14} />
                   <span>Restore</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -2308,88 +1443,91 @@ const ProjectRowMenu: React.FC<{
                 >
                   <Trash2 size={14} />
                   <span>Delete permanently</span>
-                </button>
+                </Button>
               </div>
             ) : (
               <>
                 <div className="py-1">
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Share2 size={16} className="text-gray-500" />
                     <span>{t("actions.share", "Share...")}</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       setRenameModalOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <PenLine size={16} className="text-gray-500" />
                     <span>{t("actions.rename", "Rename...")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </Button>
+                  {/* <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <Star size={16} className="text-gray-500" />
                     <span>
                       {t("actions.addToFavorites", "Add to favorites")}
                     </span>
-                  </button>
-                  <button
+                  </Button> */}
+                  <Button
                     onClick={handleDuplicateProject}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Copy size={16} className="text-gray-500" />
                     <span>{t("actions.duplicate", "Duplicate")}</span>
-                  </button>
-                  <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                  </Button>
+                  {/* <Button className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none">
                     <LinkIcon size={16} className="text-gray-500" />
                     <span>{t("actions.copyLink", "Copy link")}</span>
-                  </button>
-                  {isOutline && (
-                    <button
+                  </Button> */}
+                  {isOutline && qualityTierEnabled && (
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         setShowSettingsModal(true);
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
                       <Settings size={16} className="text-gray-500" />
                       <span>{t("actions.settings", "Settings")}</span>
-                    </button>
+                    </Button>
                   )}
                   {folderId && (
-                    <button
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         setMenuOpen(false);
                         handleRemoveFromFolder();
                       }}
-                      className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-orange-600 hover:bg-orange-50 rounded-md cursor-pointer"
+                      className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-none cursor-pointer border-0 shadow-none"
                     >
-                      <FolderMinus size={16} className="text-orange-500" />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-orange-500">
+                        <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                        <path d="M8 12h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
                       <span>
                         {t("actions.removeFromFolder", "Remove from Folder")}
                       </span>
-                    </button>
+                    </Button>
                   )}
                 </div>
-                <div className="py-1 border-t border-gray-100">
-                  <button
+                <div className="py-1">
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
                       setMenuOpen(false);
                       handleTrashRequest(e);
                     }}
-                    className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                    className="flex items-center justify-start gap-2 w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                   >
                     <Trash2 size={14} />
                     <span>{t("actions.sendToTrash", "Send to trash")}</span>
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
@@ -2414,23 +1552,23 @@ const ProjectRowMenu: React.FC<{
               deleted forever.
             </p>
             <div className="flex justify-center gap-4">
-              <button
+              <Button
                 onClick={() => setPermanentDeleteConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
                   onDeletePermanently(project.id);
                   setPermanentDeleteConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
+                variant="destructive"
               >
                 {t("actions.deletePermanentlyButton", "Delete Permanently")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2438,7 +1576,7 @@ const ProjectRowMenu: React.FC<{
       {/* Trash Confirm Modal */}
       {trashConfirmOpen && (
         <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => setTrashConfirmOpen(false)}
         >
           <div
@@ -2455,30 +1593,33 @@ const ProjectRowMenu: React.FC<{
               )}
             </p>
             <div className="flex justify-center gap-3">
-              <button
+              <Button
                 onClick={() => setTrashConfirmOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
+                className="text-gray-600 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 hover:border-gray-300"
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onDelete(project.id, "self");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
+                variant="outline"
+                className="rounded-full bg-white hover:bg-gray-50"
               >
                 {t("actions.outlineOnly", "Outline Only")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onDelete(project.id, "all");
                   setTrashConfirmOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 cursor-pointer"
+                variant="download"
+                className="rounded-full bg-red-300 hover:bg-red-400 border border-red-400 hover:border-red-500"
               >
                 {t("actions.moveAll", "Move All")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2486,7 +1627,7 @@ const ProjectRowMenu: React.FC<{
       {/* Rename Modal */}
       {renameModalOpen && (
         <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-40"
+          className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={() => {
             if (!isRenaming) setRenameModalOpen(false);
           }}
@@ -2495,33 +1636,34 @@ const ProjectRowMenu: React.FC<{
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">Rename</h4>
+            <h4 className="font-semibold text-lg mb-4 text-gray-900 text-left">{t("actions.rename", "Rename")}</h4>
             <div className="mb-6">
-              <label
+              <Label
                 htmlFor="newName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 text-left"
               >
-                New Name:
-              </label>
-              <input
+                {t("actions.newName", "New Name:")}
+              </Label>
+              <Input
                 id="newName"
                 type="text"
+                variant="shadow"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                className="w-full px-3 py-2"
               />
             </div>
-            <div className="flex justify-end gap-3">
-              <button
+            <div className="flex justify-start gap-3">
+              <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
                 disabled={isRenaming}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={async () => {
                   setIsRenaming(true);
                   try {
@@ -2608,13 +1750,13 @@ const ProjectRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                variant="download"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
                   ? t("actions.saving", "Saving...")
                   : t("actions.rename", "Rename")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -2627,7 +1769,7 @@ const ProjectRowMenu: React.FC<{
           onClose={() => setShowSettingsModal(false)}
           projectName={project.title}
           projectId={project.id}
-          onTierChange={(tier) => {
+          onTierChange={(tier: string) => {
             console.log("Project tier changed to:", tier);
           }}
         />
@@ -2718,6 +1860,9 @@ const FolderRowMenu: React.FC<{
     setShowSettingsModal(true);
   };
 
+  // Feature flag for quality tier (controls visibility of Settings in folder menu)
+  const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
+
   const handleExportFolder = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -2781,13 +1926,13 @@ const FolderRowMenu: React.FC<{
   return (
     <>
       <div ref={menuRef} className="inline-block">
-        <button
+        <Button
           ref={buttonRef}
           className="text-gray-400 hover:text-gray-600 cursor-pointer"
           onClick={handleMenuToggle}
         >
           <MoreHorizontal size={20} />
-        </button>
+        </Button>
         {menuOpen &&
           createPortal(
             <div
@@ -2801,7 +1946,7 @@ const FolderRowMenu: React.FC<{
                   : 0,
                 top: buttonRef.current
                   ? menuPosition === "above"
-                    ? buttonRef.current.getBoundingClientRect().top - 220
+                    ? buttonRef.current.getBoundingClientRect().top - 200
                     : buttonRef.current.getBoundingClientRect().bottom + 8
                   : 0,
               }}
@@ -2817,40 +1962,42 @@ const FolderRowMenu: React.FC<{
                 </p>
               </div>
               <div className="py-1">
-                <button className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+                <Button className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none">
                   <Share2 size={16} className="text-gray-500" />
                   <span>{t("actions.share", "Share")}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleRenameClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <PenLine size={16} className="text-gray-500" />
                   <span>{t("actions.rename", "Rename")}</span>
-                </button>
-                <button
-                  onClick={handleSettingsClick}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-                >
-                  <Settings size={16} className="text-gray-500" />
-                  <span>{t("actions.settings", "Settings")}</span>
-                </button>
-                <button
+                </Button>
+                {qualityTierEnabled && (
+                  <Button
+                    onClick={handleSettingsClick}
+                    className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
+                  >
+                    <Settings size={16} className="text-gray-500" />
+                    <span>{t("actions.settings", "Settings")}</span>
+                  </Button>
+                )}
+                <Button
                   onClick={handleExportFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Download size={16} className="text-gray-500" />
                   <span>{t("actions.exportAsFile", "Export as file")}</span>
-                </button>
+                </Button>
               </div>
               <div className="py-1 border-t border-gray-100">
-                <button
+                <Button
                   onClick={handleDeleteFolder}
-                  className="flex items-center gap-3 w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  className="flex items-center gap-3 w-full justify-start px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-none cursor-pointer border-0 shadow-none"
                 >
                   <Trash2 size={14} />
                   <span>{t("actions.delete", "Delete")}</span>
-                </button>
+                </Button>
               </div>
             </div>,
             document.body
@@ -2860,7 +2007,7 @@ const FolderRowMenu: React.FC<{
       {/* ---------------- Rename Modal ---------------- */}
       {renameModalOpen && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/20 p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm p-4"
           onClick={() => {
             if (!isRenaming) setRenameModalOpen(false);
           }}
@@ -2869,18 +2016,18 @@ const FolderRowMenu: React.FC<{
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            <h4 className="font-semibold text-lg mb-4 text-gray-900">
+            <h4 className="font-semibold text-lg mb-4 text-gray-900 text-left">
               {t("actions.renameFolder", "Rename Folder")}
             </h4>
 
             <div className="mb-6">
-              <label
+              <Label
                 htmlFor="newFolderName"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 mb-1 text-left"
               >
                 {t("actions.newName", "New Name:")}
-              </label>
-              <input
+              </Label>
+              <Input
                 id="newFolderName"
                 type="text"
                 value={newName}
@@ -2890,16 +2037,16 @@ const FolderRowMenu: React.FC<{
             </div>
 
             <div className="flex justify-start gap-3">
-              <button
+              <Button
                 onClick={() => {
                   if (!isRenaming) setRenameModalOpen(false);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 cursor-pointer"
+                variant="outline"
                 disabled={isRenaming}
               >
                 {t("actions.cancel", "Cancel")}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={async () => {
                   setIsRenaming(true);
                   try {
@@ -2952,28 +2099,18 @@ const FolderRowMenu: React.FC<{
                     setIsRenaming(false);
                   }
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60"
+                variant="download"
                 disabled={isRenaming || !newName.trim()}
               >
                 {isRenaming
                   ? t("actions.saving", "Saving...")
                   : t("actions.rename", "Rename")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       )}
 
-      <FolderSettingsModal
-        open={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
-        folderName={folder.name}
-        folderId={folder.id}
-        currentTier={folder.quality_tier || "medium"}
-        onTierChange={(tier) => {
-          console.log("Folder tier changed to:", tier);
-        }}
-      />
 
       {/* Loading Modal for Folder Export */}
       <FolderExportLoadingModal isOpen={isExporting} folderName={folder.name} />
@@ -2987,12 +2124,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed">(
+  const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed" | "creator">(
     "lastViewed"
   );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -3010,6 +2148,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   );
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [contentTypeFilter, setContentTypeFilter] = useState("All");
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(
     new Set()
   );
@@ -3026,15 +2165,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
     >
   >({});
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
-    title: true,
-    created: false,
-    creator: false,
-    numberOfLessons: true,
-    estCreationTime: true,
-    estCompletionTime: true,
-    type: false,
-  });
   const [columnWidths, setColumnWidths] = useState<ColumnWidths>({
     title: 48,
     created: 15,
@@ -3044,8 +2174,53 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     estCompletionTime: 13.5,
     type: 5,
   });
-  const [showColumnsDropdown, setShowColumnsDropdown] = useState(false);
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+
+  // Helper to compute a human-friendly display title for the products page
+  // Prefer unique instance names for non-outline products; fall back to content-derived titles
+  const computeDisplayTitleFromProjectApi = useCallback((p: any): string => {
+    try {
+      const typeRaw: string = p?.design_microproduct_type || '';
+      const type = String(typeRaw).toLowerCase();
+
+      // Treat outlines specially; keep the project name as the display name
+      if (type === 'training plan' || type === 'course outline') {
+        return p?.projectName || p?.microproduct_name || 'Untitled';
+      }
+
+      // 1) Prefer explicitly stored instance name if it's provided and not a generic template label
+      const instanceName: string | undefined = p?.projectName?.trim() || p?.microproduct_name?.trim();
+      const genericNames = new Set([
+        'Slide Deck', 'Quiz', 'Video Lesson', 'Text Presentation', 'PDF Lesson', 'Video Lesson Presentation'
+      ]);
+      if (instanceName && !genericNames.has(instanceName)) {
+        return instanceName;
+      }
+
+      // 2) Try to extract a meaningful title from the content payload
+      const content = p?.microproduct_content || {};
+      if (content && typeof content === 'object') {
+        const candidates = [
+          content.lessonTitle,
+          content.title,
+          content.quizTitle,
+          content.name,
+        ].filter(Boolean);
+        if (candidates.length > 0) {
+          const candidate = String(candidates[0]).trim();
+          if (candidate.length > 0) {
+            return candidate;
+          }
+        }
+      }
+
+      // 3) Fallbacks
+      return p?.projectName || instanceName || 'Untitled';
+    } catch (e) {
+      console.warn('[PRODUCTS PAGE] computeDisplayTitleFromProjectApi error:', e);
+      return p?.projectName || p?.microproduct_name || 'Untitled';
+    }
+  }, []);
 
   // Drag and drop reordering state
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
@@ -3057,39 +2232,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Client name modal state
   const [showClientNameModal, setShowClientNameModal] = useState(false);
 
-  // Column resizing functionality
-  const handleColumnResize = (columnKey: string, newWidth: number) => {
-    setColumnWidths((prev) => ({
-      ...prev,
-      [columnKey]: Math.max(10, Math.min(80, newWidth)), // Min 10%, Max 80%
-    }));
+  // Handle sorting
+  const handleSort = (column: typeof sortBy) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
   };
 
-  const handleResizeStart = (e: React.MouseEvent, columnKey: string) => {
-    e.preventDefault();
-    setResizingColumn(columnKey);
-
-    const startX = e.clientX;
-    const startWidth = columnWidths[columnKey as keyof ColumnWidths];
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startX;
-      const containerWidth =
-        (e.target as Element).closest("table")?.clientWidth || 1000;
-      const deltaPercent = (deltaX / containerWidth) * 100;
-      const newWidth = startWidth + deltaPercent;
-      handleColumnResize(columnKey, newWidth);
-    };
-
-    const handleMouseUp = () => {
-      setResizingColumn(null);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
+  // Feature flag: enable outline-related filtering (hides products generated from course outlines)
+  const ENABLE_OUTLINE_FILTERING = false;
 
   // Add a refresh function that can be called externally
   const refreshProjects = useCallback(async () => {
@@ -3141,9 +2295,46 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       }
 
       const projectsData = await projectsResponse.json();
+      
+      // 🔍 DEBUG: Log projects data for workspace access debugging
+      console.log('🔍 [PROJECTS DEBUG] Raw projects data from API:', {
+        totalProjects: projectsData.length,
+        apiUrl: projectsApiUrl,
+        projects: projectsData.map((p: any) => ({
+          id: p.id,
+          projectName: p.projectName,
+          microproduct_name: p.microproduct_name,
+          design_microproduct_type: p.design_microproduct_type,
+          created_at: p.created_at,
+          has_content: !!p.microproduct_content,
+          content_keys: p?.microproduct_content ? Object.keys(p.microproduct_content) : []
+        }))
+      });
+      
+      // 📦 EXTRA DEBUG: Print full objects and computed display titles to find real name field
+      try {
+        projectsData.forEach((p: any) => {
+          const computedTitle = computeDisplayTitleFromProjectApi(p);
+          const nameCandidates = {
+            projectName: p?.projectName,
+            microproduct_name: p?.microproduct_name,
+            content_title: p?.microproduct_content?.title,
+            content_lessonTitle: p?.microproduct_content?.lessonTitle,
+            content_quizTitle: p?.microproduct_content?.quizTitle,
+          };
+          console.groupCollapsed(`📄 [PRODUCT] #${p?.id} (${p?.design_microproduct_type || 'unknown'})`);
+          console.log('Raw:', p);
+          console.log('Name candidates:', nameCandidates);
+          console.log('Computed displayTitle:', computedTitle);
+          console.groupEnd();
+        });
+      } catch (e) {
+        console.warn('[PRODUCTS PAGE] Error during debug logging:', e);
+      }
+      
       const processedProjects = projectsData.map((p: any) => ({
         id: p.id,
-        title: p.projectName || p.microproduct_name || "Untitled",
+        title: computeDisplayTitleFromProjectApi(p),
         imageUrl: p.imageUrl || "",
         lastViewed: p.lastViewed || "Never",
         createdAt: p.created_at,
@@ -3158,7 +2349,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         source_chat_session_id: p.source_chat_session_id,
       }));
 
-      // Sort projects by order field
+      // Sort projects by order field (default sorting)
       const sortedProjects = processedProjects.sort(
         (a: Project, b: Project) => (a.order || 0) - (b.order || 0)
       );
@@ -3324,12 +2515,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         return filteredProjects;
       };
 
-      const allProjects = deduplicateProjects(sortedProjects);
+      const allProjects = ENABLE_OUTLINE_FILTERING
+        ? deduplicateProjects(sortedProjects)
+        : sortedProjects;
       setProjects(allProjects);
 
       // Calculate folder projects mapping for all folders
       const folderProjectsMap: Record<number, Project[]> = {};
-      allProjects.forEach((project) => {
+      allProjects.forEach((project: Project) => {
         if (project.folderId) {
           if (!folderProjectsMap[project.folderId]) {
             folderProjectsMap[project.folderId] = [];
@@ -3398,7 +2591,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         const projectsData = await response.json();
         const processedProjects = projectsData.map((p: any) => ({
           id: p.id,
-          title: p.projectName || p.microproduct_name || "Untitled",
+          title: computeDisplayTitleFromProjectApi(p),
           imageUrl: p.imageUrl || "",
           lastViewed: p.lastViewed || "Never",
           createdAt: p.created_at,
@@ -3451,14 +2644,124 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 
   // Helper function to get unassigned projects
   const getUnassignedProjects = useCallback(() => {
-    return projects.filter((p) => p.folderId === null);
-  }, [projects]);
+    let filteredProjects = projects.filter((p) => p.folderId === null);
 
-  // Helper function to get projects for a specific folder (including subfolders)
+    // Apply content type filter
+    if (contentTypeFilter !== "All") {
+      filteredProjects = filteredProjects.filter((p) => {
+        const designType = (p.designMicroproductType || "").toLowerCase();
+        switch (contentTypeFilter) {
+          case "Course":
+            return designType === "training plan";
+          case "Presentation":
+            return designType === "slide deck";
+          case "Quiz":
+            return designType === "quiz";
+          case "Video Lesson":
+            return designType === "video lesson presentation";
+          default:
+            return true;
+        }
+      });
+    }
+
+    // Apply search filter if search term exists
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filteredProjects = filteredProjects.filter((p) => {
+        const title = (p.title || "").toLowerCase();
+        const instanceName = (p.instanceName || "").toLowerCase();
+        const designType = (p.designMicroproductType || "").toLowerCase();
+        const createdBy = (p.createdBy || "").toLowerCase();
+        
+        return (
+          title.includes(searchLower) ||
+          instanceName.includes(searchLower) ||
+          designType.includes(searchLower) ||
+          createdBy.includes(searchLower)
+        );
+      });
+    }
+
+    return filteredProjects;
+  }, [projects, searchTerm, contentTypeFilter]);
+
+  // Helper function to get projects for a specific folder (including subfolders) with search
   const getProjectsForFolder = useCallback(
     (targetFolderId: number | null) => {
+      let filteredProjects = projects;
+
+      // Apply content type filter
+      if (contentTypeFilter !== "All") {
+        filteredProjects = filteredProjects.filter((p) => {
+          const designType = (p.designMicroproductType || "").toLowerCase();
+          switch (contentTypeFilter) {
+            case "Course":
+              return designType === "training plan";
+            case "Presentation":
+              return designType === "slide deck";
+            case "Quiz":
+              return designType === "quiz";
+            case "Video Lesson":
+              return designType === "video lesson presentation";
+            default:
+              return true;
+          }
+        });
+      }
+
+      // Apply search filter if search term exists
+      if (searchTerm.trim()) {
+        const searchLower = searchTerm.toLowerCase().trim();
+        filteredProjects = filteredProjects.filter((p) => {
+          const title = (p.title || "").toLowerCase();
+          const instanceName = (p.instanceName || "").toLowerCase();
+          const designType = (p.designMicroproductType || "").toLowerCase();
+          const createdBy = (p.createdBy || "").toLowerCase();
+          
+          return (
+            title.includes(searchLower) ||
+            instanceName.includes(searchLower) ||
+            designType.includes(searchLower) ||
+            createdBy.includes(searchLower)
+          );
+        });
+      }
+
+      // Apply sorting to filtered projects
+      const sortedFilteredProjects = filteredProjects.sort((a: Project, b: Project) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortBy) {
+          case 'title':
+            aValue = a.title.toLowerCase();
+            bValue = b.title.toLowerCase();
+            break;
+          case 'created':
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+            break;
+          case 'lastViewed':
+            aValue = a.lastViewed === "Never" ? new Date(0) : new Date(a.lastViewed);
+            bValue = b.lastViewed === "Never" ? new Date(0) : new Date(b.lastViewed);
+            break;
+          case 'creator':
+            aValue = a.createdBy.toLowerCase();
+            bValue = b.createdBy.toLowerCase();
+            break;
+          default:
+            aValue = a.order || 0;
+            bValue = b.order || 0;
+        }
+
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+
       if (targetFolderId === null) {
-        return projects;
+        return sortedFilteredProjects;
       }
 
       // Get all projects that belong to this folder or any of its subfolders
@@ -3474,11 +2777,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       };
 
       const folderIds = getFolderAndSubfolderIds(targetFolderId);
-      return projects.filter(
+      return sortedFilteredProjects.filter(
         (p) => p.folderId && folderIds.includes(p.folderId)
       );
     },
-    [projects, folders]
+    [projects, folders, searchTerm, sortBy, sortOrder, lessonDataCache, contentTypeFilter]
   );
 
   // Helper function to calculate lesson data for a project
@@ -3586,23 +2889,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     return () => window.removeEventListener("refreshProjects", handleRefresh);
   }, [refreshProjects]);
 
-  // Handle clicking outside the columns dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (!target.closest("[data-columns-dropdown]")) {
-        setShowColumnsDropdown(false);
-      }
-    };
-
-    if (showColumnsDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showColumnsDropdown]);
 
   useEffect(() => {
     localStorage.setItem("projectsViewMode", viewMode);
@@ -4210,13 +3496,29 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     t("interface.all", "All"),
     t("interface.recentlyViewed", "Recently viewed"),
     t("interface.createdByYou", "Created by you"),
-    t("interface.favorites", "Favorites"),
+    // t("interface.favorites", "Favorites"),
   ];
   const filterIcons: Record<string, LucideIcon> = {
     [t("interface.all", "All")]: Home,
     [t("interface.recentlyViewed", "Recently viewed")]: Clock,
     [t("interface.createdByYou", "Created by you")]: User,
-    [t("interface.favorites", "Favorites")]: Star,
+    // [t("interface.favorites", "Favorites")]: Star,
+  };
+
+  // Content type filters for list view
+  const contentTypeFilters = [
+    "All",
+    "Course", 
+    "Presentation",
+    "Quiz",
+    "Video Lesson"
+  ];
+  const contentTypeFilterIcons: Record<string, LucideIcon> = {
+    "All": Home,
+    "Course": TableOfContents,
+    "Presentation": Presentation,
+    "Quiz": HelpCircle,
+    "Video Lesson": Video,
   };
 
   // Add PDF download function
@@ -4244,8 +3546,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       queryParams.append("folder_id", folderId.toString());
     }
 
-    // Add column visibility settings
-    queryParams.append("column_visibility", JSON.stringify(columnVisibility));
 
     // Add column widths settings
     queryParams.append("column_widths", JSON.stringify(columnWidths));
@@ -4274,13 +3574,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     window.open(pdfUrl, "_blank");
   };
 
+  const handleCreateProduct = () => {
+    // Clear previous state of product creation
+    if (sessionStorage.getItem('createProductFailed')) {
+      sessionStorage.removeItem('createProductFailed');
+    }
+    // Start timer
+    timeEvent('Create Product');
+  };
+
   // Add these just before the render block
-  const visibleProjects =
-    viewMode === "list"
+  const visibleProjects = ENABLE_OUTLINE_FILTERING
+    ? viewMode === "list"
       ? getProjectsForFolder(folderId).filter(
           (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
         )
-      : getProjectsForFolder(folderId);
+      : getProjectsForFolder(folderId)
+    : getProjectsForFolder(folderId);
 
   const visibleUnassignedProjects =
     viewMode === "list"
@@ -4314,146 +3624,127 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-            <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-              <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-white bg-gradient-to-r from-[#002864] via-[#003EA8] to-[#63A2FF] hover:opacity-90 active:scale-95 transition-shadow shadow-lg cursor-pointer">
-                <Plus size={16} className="text-white" />
-                {t("interface.createNew", "Create new")}
-                <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                  AI
-                </span>
-              </button>
-            </Link>
-            <button className="flex items-center gap-2 pl-4 pr-4 py-2 rounded-full text-sm font-semibold text-gray-800 bg-white border border-gray-300 hover:bg-gray-50 active:scale-95 transition-shadow shadow-sm cursor-pointer">
-              {t("interface.import", "Import")}
-              <ChevronsUpDown size={16} className="text-gray-500" />
-            </button>
+              <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
+                <Button 
+                  variant="gradient" 
+                  className="rounded-full font-semibold"
+                  onClick={handleCreateProduct}
+                  asChild
+                >
+                  <div>
+                  <Plus size={16} className="text-white" />
+                  {t("interface.createNew", "Create new")}
+                  <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                    AI
+                  </span>
+                  </div>
+                </Button>
+              </Link>
           </div>
         </div>
       )}
 
       {!trashMode && (
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2">
-            {filters.map((filter) => {
-              const Icon = filterIcons[filter];
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
-                    activeFilter === filter
-                      ? "bg-white shadow-sm border border-gray-200 text-black"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <Icon size={16} />
-                  {filter}
-                </button>
-              );
-            })}
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 z-10" size={16} />
+            <Input
+              type="text"
+              variant="shadow"
+              placeholder={t('interface.searchPlaceholderProjects', 'Search projects...')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer">
-              <ArrowUpDown size={16} className="text-gray-800" />
-              {t("interface.sort", "Sort")}
-            </button>
+           <div className="flex items-center gap-4">
+           {viewMode === "grid" && (
+            <DropdownMenu>
+               <DropdownMenuTrigger asChild>
+                 <Button 
+                   variant="sort" 
+                   className="flex items-center gap-2 text-sm font-semibold"
+                 >
+                   <ListFilter size={16} className="text-gray-800" />
+                   {contentTypeFilter}
+                   <ChevronDown size={14} className="text-gray-600" />
+                 </Button>
+               </DropdownMenuTrigger>
+               <DropdownMenuContent className="w-48">
+                 <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+                   <p className="font-semibold text-sm text-gray-900">
+                     {t("interface.filterBy", "Filter by")}
+                   </p>
+                 </DropdownMenuLabel>
+                 <DropdownMenuSeparator />
+                 {contentTypeFilters.map((filter) => {
+                   const Icon = contentTypeFilterIcons[filter];
+                   return (
+                     <DropdownMenuItem
+                       key={filter}
+                       onClick={() => setContentTypeFilter(filter)}
+                       className={`flex items-center gap-2 px-3 py-2 text-sm ${
+                         contentTypeFilter === filter 
+                           ? "bg-blue-50 text-blue-700 font-semibold" 
+                           : "text-gray-700 hover:bg-gray-50"
+                       }`}
+                     >
+                       <Icon size={16} />
+                       {filter}
+                     </DropdownMenuItem>
+                   );
+                 })}
+               </DropdownMenuContent>
+             </DropdownMenu>
+            )}
 
-            {/* Columns Dropdown - only show in list view */}
+            {/* Content Type Filter - only show in list view */}
             {viewMode === "list" && (
-              <div className="relative" data-columns-dropdown>
-                <button
-                  onClick={() => setShowColumnsDropdown(!showColumnsDropdown)}
-                  className="flex items-center gap-2 text-sm font-semibold text-black hover:text-gray-700 cursor-pointer"
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                <Button
+                  variant="columns"
+                  className="flex items-center gap-2 text-sm font-semibold"
                 >
-                  <List size={16} className="text-gray-800" />
-                  {t("interface.columns", "Columns")}
+                    <ListFilter size={16} className="text-gray-800" />
+                    {contentTypeFilter}
                   <ChevronDown size={14} className="text-gray-600" />
-                </button>
-
-                {showColumnsDropdown && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="p-2">
-                      <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
-                        {t("interface.showColumns", "Show columns")}
-                      </div>
-                      {[
-                        { key: "title", label: t("interface.title", "Title") },
-                        {
-                          key: "type",
-                          label: t("interface.type", "Type"),
-                        },
-                        {
-                          key: "created",
-                          label: t("interface.created", "Created"),
-                        },
-                        {
-                          key: "creator",
-                          label: t("interface.creator", "Creator"),
-                        },
-                        {
-                          key: "numberOfLessons",
-                          label: t(
-                            "interface.numberOfLessonsShort",
-                            "Number of lessons"
-                          ),
-                        },
-                        {
-                          key: "estCreationTime",
-                          label: t(
-                            "interface.estCreationTimeShort",
-                            "Est. creation time"
-                          ),
-                        },
-                        {
-                          key: "estCompletionTime",
-                          label: t(
-                            "interface.estCompletionTimeShort",
-                            "Est. completion time"
-                          ),
-                        },
-                      ].map((column) => (
-                        <label
-                          key={column.key}
-                          className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                        >
-                          {columnVisibility[
-                            column.key as keyof ColumnVisibility
-                          ] ? (
-                            <CheckSquare size={16} className="text-blue-600" />
-                          ) : (
-                            <Square size={16} className="text-gray-400" />
-                          )}
-                          <span className="text-sm text-gray-700">
-                            {column.label}
-                          </span>
-                          <input
-                            type="checkbox"
-                            checked={
-                              columnVisibility[
-                                column.key as keyof ColumnVisibility
-                              ]
-                            }
-                            onChange={(e) => {
-                              setColumnVisibility((prev) => ({
-                                ...prev,
-                                [column.key]: e.target.checked,
-                              }));
-                            }}
-                            className="sr-only"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48">
+                  <DropdownMenuLabel className="px-3 py-2 border-b border-gray-100">
+                    <p className="font-semibold text-sm text-gray-900">
+                      {t("interface.filterBy", "Filter by")}
+                    </p>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {contentTypeFilters.map((filter) => {
+                    const Icon = contentTypeFilterIcons[filter];
+                    return (
+                      <DropdownMenuItem
+                        key={filter}
+                        onClick={() => setContentTypeFilter(filter)}
+                        className={`flex items-center gap-2 px-3 py-2 text-sm ${
+                          contentTypeFilter === filter 
+                            ? "bg-blue-50 text-blue-700 font-semibold" 
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Icon size={16} />
+                        {filter}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
 
             {/* PDF Download Button - only show in list view */}
-            {viewMode === "list" && (
-              <button
+            {/* {viewMode === "list" && (
+              <Button
                 onClick={handlePdfDownload}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors cursor-pointer"
+                variant="download"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
                 title={t(
                   "interface.downloadPDF",
                   "Download projects list as PDF"
@@ -4461,26 +3752,22 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               >
                 <ArrowDownToLine size={16} />
                 {t("common.downloadPdf", "Download PDF")}
-              </button>
-            )}
+              </Button>
+            )} */}
 
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
-              <button
+              <Button
                 onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-md cursor-pointer ${
-                  viewMode === "grid" ? "bg-white shadow-sm" : ""
-                }`}
+                variant={viewMode === "grid" ? "view-active" : "view"}
               >
                 <LayoutGrid size={16} className="text-gray-800" />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setViewMode("list")}
-                className={`p-1.5 rounded-md cursor-pointer ${
-                  viewMode === "list" ? "bg-white shadow-sm" : ""
-                }`}
+                variant={viewMode === "list" ? "view-active" : "view"}
               >
                 <List size={16} className="text-gray-800" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -4490,7 +3777,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {getProjectsForFolder(folderId).map((p: Project) => (
-              <ProjectCard
+              <CustomProjectCard
                 key={p.id}
                 project={p}
                 onDelete={handleDeleteProject}
@@ -4498,174 +3785,83 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 onDeletePermanently={handleDeletePermanently}
                 isTrashMode={trashMode}
                 folderId={folderId}
+                t={t}
+                language={language}
               />
             ))}
           </div>
         ) : (
           // List view (table/row style)
           <div
-            className={`bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto ${
+            className={`bg-white rounded-xl border border-gray-200 overflow-x-auto ${
               isReordering ? "ring-2 ring-blue-200" : ""
             }`}
           >
-            <style jsx>{`
-              .cursor-col-resize {
-                cursor: col-resize !important;
-              }
-              .cursor-col-resize:hover {
-                background-color: #3b82f6 !important;
-              }
-              .resizing {
-                user-select: none;
-              }
-            `}</style>
-            <table
-              className={`min-w-full divide-y divide-gray-200 ${
-                resizingColumn ? "resizing" : ""
-              }`}
+            <Table
+              className="min-w-full divide-y divide-gray-200"
             >
-              <thead className="bg-gray-50">
-                <tr>
-                  {columnVisibility.title && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.title}%` }}
-                    >
-                      {t("interface.title", "Title")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "title")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.created && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.created}%` }}
-                    >
-                      {t("interface.created", "Created")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "created")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.type && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+              <TableHeader className="bg-white">
+                <TableRow>
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative"
                       style={{ width: `${columnWidths.type}%` }}
                     >
-                      {t("interface.type", "Type")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "type")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.creator && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
+                      <div className="flex items-center gap-2">
+                        <TypeIcon size={15} />
+                        {t("interface.type", "Type")}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      style={{ width: `${columnWidths.title}%` }}
+                      onClick={() => handleSort('title')}
+                    >
+                      <div className="flex items-center gap-2">
+                        <TitleIcon size={15} />
+                        {t("interface.title", "Title")}
+                        {sortBy === 'title' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
                       style={{ width: `${columnWidths.creator}%` }}
+                      onClick={() => handleSort('creator')}
                     >
-                      {t("interface.creator", "Creator")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) => handleResizeStart(e, "creator")}
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.numberOfLessons && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.numberOfLessons}%` }}
+                      <div className="flex items-center gap-2">
+                        <CreatorIcon size={15} />
+                        {t("interface.creator", "Creator")}
+                        {sortBy === 'creator' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      className="px-6 py-3 text-left text-xs font-normal text-gray-500 tracking-wider relative cursor-pointer hover:bg-gray-50"
+                      style={{ width: `${columnWidths.created}%` }}
+                      onClick={() => handleSort('created')}
                     >
-                      {t("interface.numberOfLessons", "Number of Lessons")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "numberOfLessons")
-                        }
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.estCreationTime && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.estCreationTime}%` }}
-                    >
-                      {t("interface.estCreationTime", "Est. Creation Time")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCreationTime")
-                        }
-                      />
-                    </th>
-                  )}
-                  {columnVisibility.estCompletionTime && (
-                    <th
-                      className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider relative"
-                      style={{ width: `${columnWidths.estCompletionTime}%` }}
-                    >
-                      {t("interface.estCompletionTime", "Est. Completion Time")}
-                      <div
-                        className="absolute right-0 top-2 bottom-2 w-0.5 cursor-col-resize bg-gray-200 hover:bg-blue-400 hover:w-1 rounded-full transition-all duration-200"
-                        onMouseDown={(e) =>
-                          handleResizeStart(e, "estCompletionTime")
-                        }
-                      />
-                    </th>
-                  )}
-                  <th
-                    className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
+                      <div className="flex items-center gap-2">
+                        <CreatedIcon size={15} />
+                        {t("interface.created", "Created")}
+                        {sortBy === 'created' && (
+                          <ArrowUpDown size={12} className={sortOrder === 'asc' ? 'rotate-180' : ''} />
+                        )}
+                      </div>
+                    </TableHead>
+                  <TableHead
+                    className="px-6 py-3 text-right text-xs text-uppercase font-normal text-gray-500 tracking-wider"
                     style={{ width: "80px" }}
                   >
-                    {t("interface.actions", "Actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {/* Show nested folders as expandable rows when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  buildFolderTree(folders).map((folder, folderIndex) => (
-                    <FolderRow
-                      key={`folder-${folder.id}`}
-                      folder={folder}
-                      level={0}
-                      index={folderIndex}
-                      trashMode={trashMode}
-                      columnVisibility={columnVisibility}
-                      columnWidths={columnWidths}
-                      expandedFolders={expandedFolders}
-                      folderProjects={filteredFolderProjects}
-                      lessonDataCache={lessonDataCache}
-                      draggedFolder={draggedFolder}
-                      draggedProject={draggedProject}
-                      dragOverIndex={dragOverIndex}
-                      isDragging={isDragging}
-                      isReordering={isReordering}
-                      formatDate={formatDate}
-                      formatCompletionTime={formatCompletionTimeLocalized}
-                      toggleFolder={toggleFolder}
-                      handleDragStart={handleDragStart}
-                      handleDragOver={handleDragOver}
-                      handleDragLeave={handleDragLeave}
-                      handleDrop={handleDrop}
-                      handleDragEnd={handleDragEnd}
-                      handleDeleteProject={handleDeleteProject}
-                      handleRestoreProject={handleRestoreProject}
-                      handleDeletePermanently={handleDeletePermanently}
-                      handleDeleteFolder={handleDeleteFolder}
-                      allFolders={folders}
-                    />
-                  ))}
-
-                {/* Show unassigned projects when not viewing a specific folder */}
-                {!trashMode &&
-                  folderId === null &&
-                  visibleUnassignedProjects.map((p: Project, index: number) => (
-                    <tr
+                    {t("interface.actions", "ACTIONS")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="bg-white divide-y divide-gray-100">
+                {/* Show filtered projects based on folder */}
+                {visibleProjects.map((p: Project, index: number) => (
+                    <TableRow
                       key={p.id}
                       className={`hover:bg-gray-50 transition group ${
                         !getModalState()
@@ -4714,43 +3910,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                         handleDragEnd(e);
                       }}
                     >
-                      {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : `/projects/view/${p.id}`}
-                              title={p.title}
-                            />
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {p.designMicroproductType ? (
                             <span className="text-gray-500 font-medium">
                               {getProductTypeDisplayName(p.designMicroproductType)}
@@ -4758,15 +3918,25 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           ) : (
                             "-"
                           )}
-                        </td>
-                      )}
-                      {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </td>
-                      )}
-                      {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        </TableCell>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <span className="inline-flex items-center">
+                            {/* <Star size={16} className="text-gray-300 mr-2" /> */}
+                            <DynamicText
+                              text={p.title}
+                              columnWidthPercent={columnWidths.title}
+                              href={trashMode ? "#" : (
+                                p.designMicroproductType === "Video Lesson Presentation" 
+                                  ? `/projects-2/view/${p.id}`
+                                  : (p.designMicroproductType === "Training Plan"
+                                    ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
+                                    : `/projects/view/${p.id}`)
+                              )}
+                              title={p.title}
+                            />
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           <span className="inline-flex items-center">
                             <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
                               <span className="text-xs font-bold text-gray-700">
@@ -4775,39 +3945,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             </span>
                             You
                           </span>
-                        </td>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      <td
+                        </TableCell>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(p.createdAt)}
+                        </TableCell>
+                      <TableCell
                         className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -4820,173 +3962,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                           onDeletePermanently={handleDeletePermanently}
                           folderId={folderId}
                         />
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-
-                {/* Show projects for specific folder or all projects in trash mode */}
-                {(trashMode || folderId !== null) &&
-                  visibleProjects.map((p: Project, index: number) => (
-                    <tr
-                      key={p.id}
-                      className={`hover:bg-gray-50 transition group ${
-                        !getModalState()
-                          ? "cursor-grab active:cursor-grabbing"
-                          : "cursor-default"
-                      } ${
-                        dragOverIndex === index
-                          ? "bg-blue-50 border-t-2 border-blue-300"
-                          : ""
-                      } ${draggedProject?.id === p.id ? "opacity-50" : ""}`}
-                      draggable={!trashMode && !getModalState()}
-                      onDragStart={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          return;
-                        }
-                        handleDragStart(e, p, "project");
-                      }}
-                      onDragOver={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragOver(e, index);
-                      }}
-                      onDragLeave={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragLeave(e);
-                      }}
-                      onDrop={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDrop(e, index);
-                      }}
-                      onDragEnd={(e) => {
-                        if (getModalState()) {
-                          e.preventDefault();
-                          return;
-                        }
-                        handleDragEnd(e);
-                      }}
-                    >
-                      {columnVisibility.title && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          <span className="inline-flex items-center">
-                            <div
-                              className={`mr-3 text-gray-400 hover:text-gray-600 group-hover:text-gray-600 transition-colors ${
-                                getModalState()
-                                  ? "cursor-grab active:cursor-grabbing"
-                                  : "cursor-default opacity-30"
-                              }`}
-                            >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="opacity-60 group-hover:opacity-100"
-                              >
-                                <circle cx="9" cy="5" r="2" />
-                                <circle cx="9" cy="12" r="2" />
-                                <circle cx="9" cy="19" r="2" />
-                                <circle cx="15" cy="5" r="2" />
-                                <circle cx="15" cy="12" r="2" />
-                                <circle cx="15" cy="19" r="2" />
-                              </svg>
-                            </div>
-                            <Star size={16} className="text-gray-300 mr-2" />
-                            <DynamicText
-                              text={p.title}
-                              columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : `/projects/view/${p.id}`}
-                              title={p.title}
-                            />
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.type && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {p.designMicroproductType ? (
-                            <span className="text-gray-500 font-medium">
-                              {getProductTypeDisplayName(p.designMicroproductType)}
-                            </span>
-                          ) : (
-                            "-"
-                          )}
-                        </td>
-                      )}
-                      {columnVisibility.created && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(p.createdAt)}
-                        </td>
-                      )}
-                      {columnVisibility.creator && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <span className="inline-flex items-center">
-                            <span className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center mr-2">
-                              <span className="text-xs font-bold text-gray-700">
-                                Y
-                              </span>
-                            </span>
-                            You
-                          </span>
-                        </td>
-                      )}
-                      {columnVisibility.numberOfLessons && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData ? lessonData.lessonCount : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCreationTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData && lessonData.totalHours
-                              ? `${lessonData.totalHours}h`
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      {columnVisibility.estCompletionTime && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {(() => {
-                            const lessonData = lessonDataCache[p.id];
-                            return lessonData
-                              ? formatCompletionTimeLocalized(
-                                  lessonData.completionTime
-                                )
-                              : "-";
-                          })()}
-                        </td>
-                      )}
-                      <td
-                        className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ProjectRowMenu
-                          project={p}
-                          formatDate={formatDate}
-                          trashMode={trashMode}
-                          onDelete={handleDeleteProject}
-                          onRestore={handleRestoreProject}
-                          onDeletePermanently={handleDeletePermanently}
-                          folderId={folderId}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )
       ) : (

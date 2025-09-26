@@ -416,10 +416,8 @@
                     {% if block_type == 'headline' %}
                         <div class="headline-block h{{ level }}"
                              style="{% if block_data.backgroundColor %}background-color: {{ block_data.backgroundColor }};{% endif %} {% if block_data.textColor %}color: {{ block_data.textColor }}; fill: {{block_data.textColor}};{% endif %}">
-                            {% if is_last_main_header_for_star_flag %}
-                                {{ render_icon_svg_macro(None, None, 'icon-last-section-star', depth, true) }}
-                            {% elif level == 4 and is_important %}
-                                 {{ render_icon_svg_macro(block_data.iconName, 'h4-important', 'icon-lesson-goal' ) }}
+                            {% if block_data.iconName %}
+                                {{ render_icon_svg_macro(block_data.iconName) }}
                             {% endif %}
                             <span>{% set segments = text_content.split('**') %}{% for segment in segments %}{% if loop.index0 is odd %}<span style="font-weight: var(--font-weight-medium); color: var(--color-text-black);">{{ segment }}</span>{% else %}{{ segment }}{% endif %}{% endfor %}</span>
                         </div>

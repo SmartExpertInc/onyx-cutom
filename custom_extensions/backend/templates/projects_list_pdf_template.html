@@ -5,122 +5,418 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projects List</title>
     
-    {% set theme_name = 'cherry' %}
-    {% set theme_config = {
-        'cherry': {
-            'courseHeaderBg': '#f8fafc',
-            'moduleHeaderBg': '#F1F1F1',
-            'courseHeaderTextColor': '#1e293b',
-            'numberColor': '#6B7280',
-            'iconColor': '#FF1414'
-        }
-    } %}
-    {% set current_theme = theme_config.get(theme_name, theme_config['cherry']) %}
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 12px;
-            color: #374151;
-            background: #fff;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
             margin: 0;
             padding: 0;
-            line-height: 1.4;
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            font-size: 13px;
+            color: #334155;
+            background: #ffffff;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        
+        .pdf-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Header */
         .pdf-header {
-            background: {{ current_theme.courseHeaderBg }};
-            color: {{ current_theme.courseHeaderTextColor }};
-            padding: 32px 24px 24px 24px;
-            border-bottom: 1px solid #e5e7eb;
+            background: white;
+            color: black;
+            padding: 12px 32px;
+            margin-bottom: 0;
+            border-radius: 0;
         }
+        
         .pdf-header h1 {
-            margin: 0;
-            font-size: 1.75rem;
+            font-size: 24px;
             font-weight: 600;
-            color: #1f2937;
+            letter-spacing: -0.025em;
+            margin: 0;
         }
+        
+        /* Table Container */
+        .table-container {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 0 24px 0;
+        }
+        
+        /* Table */
         .projects-table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
+            background: white;
+            font-size: 13px;
         }
-        th, td {
-            font-family: 'Inter', Arial, sans-serif;
-            font-size: 12px;
-            padding: 10px 8px;
-            border: none;
-            vertical-align: middle;
+        
+        /* Table Header */
+        .table-header {
+            background: #2D7C21;
+            border-bottom: 2px solid #e2e8f0;
         }
-        .product-title {
-            font-size: 12px;
-        }
-        th {
-            color: #6b7280;
-            font-weight: 600;
+        
+        .table-header th {
+            padding: 10px 12px;
             text-align: left;
-            background: #f9fafb;
-            font-size: 9px;
-            letter-spacing: 0.02em;
-            border-bottom: 1px solid #e5e7eb;
-            line-height: 1.3;
+            font-weight: 700;
+            font-size: 12px;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: none;
         }
-        td {
-            border-bottom: 1px solid #f3f4f6;
+        
+        .table-header th:first-child {
+            padding-left: 24px;
         }
+        
+        .table-header th:last-child {
+            padding-right: 24px;
+        }
+        
+        .table-header .text-center {
+            text-align: center;
+        }
+        
+        /* Folder Rows */
         .folder-row {
-            background: #fff;
-            font-weight: 600;
+            background: #E6F2EB;
+            border-bottom: 1px solid #e2e8f0;
         }
+        
+        .folder-row td {
+            padding: 12px;
+            vertical-align: middle;
+            border: none;
+        }
+        
+        .folder-row td:first-child {
+            padding-left: 24px;
+        }
+        
+        .folder-row td:last-child {
+            padding-right: 24px;
+        }
+        
         .folder-title {
-            color: #2563eb;
             font-weight: 600;
+            color: #000000;
+            font-size: 14px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .product-row {
-            background: #fafbfc;
-            font-weight: 400;
+        
+        .folder-icon {
+            width: 18px;
+            height: 18px;
+            color: #2D7C21;
+            flex-shrink: 0;
         }
+        
+        /* Make icons green in folder rows (neutral green background) */
+        .folder-row .lesson-icon,
+        .folder-row .timer-icon {
+            color: #2D7C21 !important;
+        }
+        
+        /* Project Rows */
+        .product-row {
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
         .product-row.unassigned {
             background: #fff;
         }
+        
+        .product-row td {
+            padding: 12px;
+            vertical-align: middle;
+            border: none;
+        }
+        
+        .product-row td:first-child {
+            padding-left: 44px;
+        }
+        
+        .product-row td:last-child {
+            padding-right: 24px;
+        }
+        
         .product-title {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #374151;
+            gap: 10px;
+            color: #1e293b;
             font-weight: 500;
-            font-size: 12px;
+            font-size: 13px;
         }
+        
         .product-number {
-            background: #e5e7eb;
-            color: #6b7280;
-            font-size: 9px;
+            background: #2D7C21;
+            color: white;
+            font-size: 11px;
             font-weight: 600;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
-        .indent-0 { padding-left: 16px; }
-        .indent-1 { padding-left: 40px; }
+        
+        /* Data cells */
+        .data-cell {
+            text-align: left;
+            color: #475569;
+            font-weight: 400;
+            font-size: 13px;
+            padding-left: 16px;
+        }
+        
+        .data-cell.bold {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        /* Product row data cells - black text */
+        .product-row .data-cell {
+            color: #1e293b;
+        }
+        
+        /* Lesson icon styles */
+        .lesson-icon {
+            width: 14px;
+            height: 14px;
+            margin-right: 6px;
+            color: #2D7C21;
+        }
+        
+        .lesson-cell {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 16px;
+        }
+        
+        /* Timer icon styles */
+        .timer-icon {
+            width: 14px !important;
+            height: 14px !important;
+            margin-right: 6px;
+            color: #2D7C21;
+            vertical-align: middle;
+            display: inline-block;
+        }
+        
+
+        
+
+        
+        /* Indentation */
+        .indent-0 { padding-left: 24px; }
+        .indent-1 { padding-left: 44px; }
         .indent-2 { padding-left: 64px; }
-        .indent-3 { padding-left: 88px; }
-        .indent-4 { padding-left: 112px; }
-        .indent-5 { padding-left: 136px; }
-        .unassigned-header { display: none; }
-        .column-projects { width: {{ column_widths.get('title', 60) }}%; }
-        .column-lessons { width: {{ column_widths.get('numberOfLessons', 13) }}%; }
-        .column-creation { width: {{ column_widths.get('estCreationTime', 13.5) }}%; }
-        .column-completion { width: {{ column_widths.get('estCompletionTime', 13.5) }}%; }
+        .indent-3 { padding-left: 84px; }
+        .indent-4 { padding-left: 104px; }
+        .indent-5 { padding-left: 124px; }
+        
+        /* Unassigned Section */
+        .unassigned-section {
+            margin-top: 24px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .unassigned-header {
+            background: #fef3c7;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .unassigned-header .icon {
+            width: 18px;
+            height: 18px;
+            color: #d97706;
+        }
+        
+        .unassigned-header .title {
+            font-weight: 600;
+            color: #92400e;
+            font-size: 14px;
+        }
+        
+        .unassigned-header .subtitle {
+            font-size: 12px;
+            color: #a16207;
+            margin-left: auto;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        /* Column widths */
+        .column-projects { width: {{ column_widths.get('title', 45) }}%; }
+        .column-quality-tier { width: 12%; }
+        .column-lessons { width: {{ column_widths.get('numberOfLessons', 14) }}%; }
+        .column-creation { width: {{ column_widths.get('estCreationTime', 15) }}%; }
+        .column-completion { width: {{ column_widths.get('estCompletionTime', 14) }}%; }
+
+        /* Quality tier column styling */
+        .quality-tier-cell {
+            text-align: center;
+            padding: 12px 8px;
+        }
+
+        .quality-tier-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+
+        /* Quality tier badge styling - matching lesson settings modal */
+        .tier-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 9999px;
+            -webkit-border-radius: 9999px;
+            -moz-border-radius: 9999px;
+            letter-spacing: 0.05em;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        /* Quality tier colors - matching lesson settings modal */
+        .tier-basic { 
+            color: #059669; 
+            background-color: #f0fdf4; 
+            border: 1px solid #bbf7d0; 
+        }
+        .tier-interactive { 
+            color: #ea580c; 
+            background-color: #fff7ed; 
+            border: 1px solid #fed7aa; 
+        }
+        .tier-advanced { 
+            color: #7c3aed; 
+            background-color: #faf5ff; 
+            border: 1px solid #e9d5ff; 
+        }
+        .tier-immersive { 
+            color: #2563eb; 
+            background-color: #eff6ff; 
+            border: 1px solid #bfdbfe; 
+        }
+
+        /* Consistent grey color for all dashes */
+        .dash {
+            color: #64748b !important;
+        }
+
+        /* Icons */
+        .folder-svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .warning-svg {
+            fill: currentColor;
+        }
+
+        /* Product type icon styles */
+        .product-type-svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Page break controls for pie chart */
+        .pie-chart-container {
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin: 0 0 24px 0;
+        }
+        
+        .pie-chart-header {
+            page-break-after: avoid;
+            break-after: avoid;
+        }
+        
+        .pie-chart-content {
+            page-break-before: avoid;
+            break-before: avoid;
+        }
+
+        /* Table page break controls */
+        .table-container {
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+        
+        .projects-table {
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+        
+        /* Ensure table rows don't break inappropriately */
+        .folder-row,
+        .product-row {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        /* Additional PDF-specific styling for better margins */
+        @media print {
+            .pdf-container {
+                padding: 0 32px;
+            }
+            
+            .table-container,
+            .mini-summary-container,
+            .pie-chart-container {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 <body>
-    <div style="max-width: 900px; margin: 0 auto; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <div class="pdf-container">
+        <!-- Header -->
         <div class="pdf-header">
             <h1>{{ client_name if client_name else 'Production Time Estimate' }}</h1>
         </div>
@@ -131,82 +427,82 @@
                     {% if column_visibility.numberOfLessons %}<th class="column-lessons" style="text-align:center;">NUMBER OF<br>LESSONS</th>{% endif %}
                     {% if column_visibility.estCreationTime %}<th class="column-creation" style="text-align:center;">EST. CREATION<br>TIME</th>{% endif %}
                     {% if column_visibility.estCompletionTime %}<th class="column-completion" style="text-align:center;">EST. COMPLETION<br>TIME</th>{% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% set product_counter = namespace(value=1) %}
-                {% macro render_folder_rows(folders, level=0) %}
-                    {% for folder in folders %}
-                        <tr class="folder-row">
-                            <td class="folder-title indent-{{level}}">
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set product_counter = namespace(value=1) %}
+                    {% macro render_folder_rows(folders, level=0) %}
+                        {% for folder in folders %}
+                            <tr class="folder-row">
+                                <td class="folder-title indent-{{level}}">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
                                         <path d="M6 9l6 6 6-6" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                     {{ folder.name }}
-                                </div>
-                            </td>
-                            {% if column_visibility.numberOfLessons %}
+                                    </div>
+                                </td>
+                                {% if column_visibility.numberOfLessons %}
                                 <td style="text-align:center;">{{ folder.total_lessons if folder.total_lessons > 0 else '-' }}</td>
-                            {% endif %}
-                            {% if column_visibility.estCreationTime %}
+                                {% endif %}
+                                {% if column_visibility.estCreationTime %}
                                 <td style="text-align:center;">
-                                    {% if folder.total_hours > 0 %}
-                                        {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
+                                        {% if folder.total_hours > 0 %}
+                                            {% if folder.total_hours == folder.total_hours|int %}{{ folder.total_hours|int }}h{% else %}{{ folder.total_hours }}h{% endif %}
                                     {% else %}-{% endif %}
-                                </td>
-                            {% endif %}
-                            {% if column_visibility.estCompletionTime %}
-                                <td style="text-align:center;">
-                                    {% if folder.total_completion_time > 0 %}
-                                        {% set h = folder.total_completion_time // 60 %}
-                                        {% set m = folder.total_completion_time % 60 %}
-                                        {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                        {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
-                                    {% else %}-{% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                        {% if folder.id in folder_projects %}
-                            {% for project in folder_projects[folder.id] %}
-                                <tr class="product-row">
-                                    <td class="product-title indent-{{level+1}}">
-                                        <div class="product-number">{{ product_counter.value }}</div>
-                                        {{ project.title }}
                                     </td>
-                                    {% if column_visibility.numberOfLessons %}
+                                {% endif %}
+                                {% if column_visibility.estCompletionTime %}
+                                <td style="text-align:center;">
+                                        {% if folder.total_completion_time > 0 %}
+                                            {% set h = folder.total_completion_time // 60 %}
+                                            {% set m = folder.total_completion_time % 60 %}
+                                            {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                            {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                    {% else %}-{% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% if folder.id in folder_projects %}
+                                {% for project in folder_projects[folder.id] %}
+                                    <tr class="product-row">
+                                    <td class="product-title indent-{{level+1}}">
+                                            <div class="product-number">{{ product_counter.value }}</div>
+                                            {{ project.title }}
+                                        </td>
+                                        {% if column_visibility.numberOfLessons %}
                                         <td style="text-align:center;">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
-                                    {% endif %}
-                                    {% if column_visibility.estCreationTime %}
+                                        {% endif %}
+                                        {% if column_visibility.estCreationTime %}
                                         <td style="text-align:center;">
-                                            {% if project.total_hours > 0 %}
-                                                {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
+                                                {% if project.total_hours > 0 %}
+                                                    {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
                                             {% else %}-{% endif %}
-                                        </td>
-                                    {% endif %}
-                                    {% if column_visibility.estCompletionTime %}
+                                            </td>
+                                        {% endif %}
+                                        {% if column_visibility.estCompletionTime %}
                                         <td style="text-align:center;">
-                                            {% if project.total_completion_time > 0 %}
-                                                {% set h = project.total_completion_time // 60 %}
-                                                {% set m = project.total_completion_time % 60 %}
-                                                {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
-                                                {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
+                                                {% if project.total_completion_time > 0 %}
+                                                    {% set h = project.total_completion_time // 60 %}
+                                                    {% set m = project.total_completion_time % 60 %}
+                                                    {% set minute_unit = 'м' if lang == 'ru' else ('хв' if lang == 'uk' else 'm') %}
+                                                    {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}{{ minute_unit }}{% endif %}
                                             {% else %}-{% endif %}
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                                {% set product_counter.value = product_counter.value + 1 %}
-                            {% endfor %}
-                        {% endif %}
-                        {% if folder.children %}
-                            {{ render_folder_rows(folder.children, level+1) }}
-                        {% endif %}
-                    {% endfor %}
-                {% endmacro %}
-                {% if folders %}
-                    {{ render_folder_rows(folders) }}
-                {% endif %}
-                {% if unassigned_projects %}
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% set product_counter.value = product_counter.value + 1 %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if folder.children %}
+                                {{ render_folder_rows(folder.children, level+1) }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endmacro %}
+                    {% if folders %}
+                        {{ render_folder_rows(folders) }}
+                    {% endif %}
+                    {% if unassigned_projects %}
                     {# No header row for unassigned projects #}
                     {% for project in unassigned_projects %}
                         <tr class="product-row unassigned">
@@ -215,33 +511,49 @@
                                 {{ project.title }}
                             </td>
                             {% if column_visibility.numberOfLessons %}
-                                <td style="text-align:center;">{{ project.total_lessons if project.total_lessons > 0 else '-' }}</td>
+                                <td class="data-cell bold lesson-cell">
+                                    {% set total_lessons = unassigned_projects | sum(attribute='total_lessons') %}
+                                    {% if total_lessons > 0 %}
+                                        <svg class="lesson-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        {{ total_lessons }}
+                                    {% else %}
+                                        <span class="dash">-</span>
+                                    {% endif %}
+                                </td>
                             {% endif %}
                             {% if column_visibility.estCreationTime %}
-                                <td style="text-align:center;">
-                                    {% if project.total_hours > 0 %}
-                                        {% if project.total_hours == project.total_hours|int %}{{ project.total_hours|int }}h{% else %}{{ project.total_hours }}h{% endif %}
-                                    {% else %}-{% endif %}
+                                <td class="data-cell bold">
+                                    {% set total_hours = unassigned_projects | sum(attribute='total_hours') %}
+                                    {% if total_hours > 0 %}
+                                        <svg class="timer-icon" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1"/>
+                                            <polyline points="6,3 6,6 8,7" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        {% if total_hours == total_hours|int %}{{ total_hours|int }}h{% else %}{{ total_hours }}h{% endif %}
+                                    {% else %}<span class="dash">-</span>{% endif %}
                                 </td>
                             {% endif %}
                             {% if column_visibility.estCompletionTime %}
                                 <td style="text-align:center;">
-                                    {% if project.total_completion_time > 0 %}
-                                        {% set h = project.total_completion_time // 60 %}
-                                        {% set m = project.total_completion_time % 60 %}
+                                        {% if project.total_completion_time > 0 %}
+                                            {% set h = project.total_completion_time // 60 %}
+                                            {% set m = project.total_completion_time % 60 %}
                                         {% if h > 0 %}{{ h }}h{% endif %}{% if h > 0 and m > 0 %} {% endif %}{% if m > 0 %}{{ m }}m{% endif %}
                                     {% else %}-{% endif %}
-                                </td>
-                            {% endif %}
-                        </tr>
-                        {% set product_counter.value = product_counter.value + 1 %}
-                    {% endfor %}
-                {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                            {% set product_counter.value = product_counter.value + 1 %}
+                        {% endfor %}
+                    {% endif %}
                 {% if not folders and not unassigned_projects %}
                     <tr><td colspan="4" style="text-align:center; color:#888;">No projects found.</td></tr>
-                {% endif %}
-            </tbody>
-        </table>
+                    {% endif %}
+                </tbody>
+            </table>
     </div>
 </body>
-</html> 
+</html>

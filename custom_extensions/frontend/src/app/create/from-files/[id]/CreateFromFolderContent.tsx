@@ -16,6 +16,11 @@ import {
 import Link from "next/link";
 import { useDocumentsContext, FileResponse } from "../../../../components/documents/DocumentsContext";
 import { useLanguage } from "../../../../contexts/LanguageContext";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface CreateFromFolderContentProps {
   folderId: number;
@@ -37,13 +42,10 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
   const isFailed = status === 'FAILED';
 
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-      isReady
-        ? 'bg-green-100 text-green-800' 
-        : isFailed
-        ? 'bg-red-100 text-red-800'
-        : 'bg-yellow-100 text-yellow-800'
-    }`}>
+    <Badge 
+      variant={isReady ? "default" : isFailed ? "destructive" : "secondary"}
+      className="inline-flex items-center gap-1"
+    >
       {isProcessing && (
         <div className="w-3 h-3 border border-yellow-600 border-t-transparent rounded-full animate-spin"></div>
       )}
@@ -52,7 +54,7 @@ const FileStatusBadge: React.FC<{ file: FileResponse }> = ({ file }) => {
         : isFailed
         ? t('actions.failed', 'Failed')
         : t('actions.processing', 'Processing')}
-    </span>
+    </Badge>
   );
 };
 
@@ -87,41 +89,43 @@ const FileItem: React.FC<FileItemProps> = ({ file, isSelected, onToggleSelect })
   const isFileProcessing = ['INDEXING', 'REINDEXING', 'PROCESSING'].includes(file.status?.toUpperCase() || '');
 
   return (
-    <div 
-      className={`p-4 border rounded-lg transition-all ${
+    <Card 
+      className={`transition-all cursor-pointer ${
         isFileReady 
           ? (isSelected 
-              ? 'border-blue-500 bg-blue-50 cursor-pointer' 
-              : 'border-gray-200 hover:border-gray-300 bg-white cursor-pointer')
-          : 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-75'
+              ? 'border-blue-500 bg-blue-50' 
+              : 'hover:border-gray-300')
+          : 'cursor-not-allowed opacity-75'
       }`}
       onClick={isFileReady ? onToggleSelect : undefined}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1">
-          <span className="text-2xl">{getFileIcon(file)}</span>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
-            <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-              {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} {t('actions.tokens', 'tokens')}</span>}
-              <FileStatusBadge file={file} />
-              {isFileProcessing && <span className="text-xs text-gray-400">{t('actions.pleaseWait', 'Please wait...')}</span>}
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <span className="text-2xl">{getFileIcon(file)}</span>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-gray-900 truncate">{file.name}</h3>
+              <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
+                {file.token_count && file.token_count > 0 && <span>{file.token_count.toLocaleString()} {t('actions.tokens', 'tokens')}</span>}
+                <FileStatusBadge file={file} />
+                {isFileProcessing && <span className="text-xs text-gray-400">{t('actions.pleaseWait', 'Please wait...')}</span>}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex-shrink-0">
-          {isFileReady ? (
-            isSelected ? (
-              <CheckCircle2 className="h-5 w-5 text-blue-500" />
+          <div className="flex-shrink-0">
+            {isFileReady ? (
+              isSelected ? (
+                <CheckCircle2 className="h-5 w-5 text-blue-500" />
+              ) : (
+                <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
+              )
             ) : (
-              <div className="h-5 w-5 border-2 border-gray-300 rounded-full" />
-            )
-          ) : (
-            <div className="h-5 w-5 border-2 border-gray-200 rounded-full bg-gray-100" />
-          )}
+              <div className="h-5 w-5 border-2 border-gray-200 rounded-full bg-gray-100" />
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -450,32 +454,35 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
       {/* Header - removed white background */}
       <div className="p-6 pb-0">
         {/* Breadcrumb Navigation */}
-        <nav className="flex items-center text-sm text-gray-600 mb-6">
-          <Link
-            href="/projects"
-            className="flex items-center hover:text-gray-900 transition-colors"
-          >
-            <HomeIcon className="h-4 w-4" />
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-          <Link
-            href="/create"
-            className="hover:text-gray-900 transition-colors"
-          >
-            Create
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-          <Link
-            href="/create/from-files"
-            className="hover:text-gray-900 transition-colors"
-          >
-            Browse Files
-          </Link>
-          <ChevronRight className="h-4 w-4 mx-2 text-gray-400" />
-          <span className="text-gray-900 font-medium">
-            {currentFolder?.name || "Folder"}
-          </span>
-        </nav>
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/projects" className="flex items-center">
+                  <HomeIcon className="h-4 w-4" />
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/create">Create</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/create/from-files">Browse Files</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                {currentFolder?.name || "Folder"}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         {/* Header Content */}
         <div className="flex items-center justify-between mb-6">
@@ -495,12 +502,13 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
             <h1 className="text-3xl font-bold text-gray-900">
               {currentFolder?.name || "Folder"}
             </h1>
-            <button
+            <Button
               onClick={() => getFolderDetails(folderId)}
-              className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+              variant="ghost"
+              size="sm"
             >
               {t('actions.refresh', 'Refresh')}
-            </button>
+            </Button>
           </div>
           <p className="text-gray-600">
             {t('actions.selectFilesToCreate', 'Select files to create educational content from your documents')}
@@ -513,23 +521,25 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
         {/* Add Website + File Upload Side-by-Side */}
         <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Add Website Section */}
-          <div className="border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-lg p-6 text-center transition-all">
-            <LinkIcon className="h-10 w-10 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('actions.addWebsite', 'Add a website')}</h3>
-            <p className="text-gray-600 mb-4">{t('actions.addWebsiteHelp', 'Paste a URL to include the page content in this folder')}</p>
+          <Card className="border-2 border-dashed border-gray-300 hover:border-gray-400 text-center transition-all">
+            <CardContent className="p-6">
+              <LinkIcon className="h-10 w-10 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('actions.addWebsite', 'Add a website')}</h3>
+              <p className="text-gray-600 mb-4">{t('actions.addWebsiteHelp', 'Paste a URL to include the page content in this folder')}</p>
             <div className="mt-1 flex items-center gap-2 max-w-lg mx-auto">
-              <input
+              <Input
                 type="text"
                 value={linkUrl}
                 onChange={(e) => setLinkUrl(e.target.value)}
                 onKeyDown={handleUrlKeyDown}
                 placeholder={t('actions.enterUrl', 'Enter URL (e.g., https://example.com/article)')}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-white text-gray-900 placeholder-gray-600"
+                className="flex-1"
               />
-              <button
+              <Button
                 onClick={handleCreateFromWebsite}
                 disabled={isCreatingFromUrl || !linkUrl.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                variant="download"
+                className="inline-flex items-center gap-2"
               >
                 {isCreatingFromUrl ? (
                   <>
@@ -542,7 +552,7 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                     {t('actions.addUrl', 'Add URL')}
                   </>
                 )}
-              </button>
+              </Button>
             </div>
             {urlError && <p className="text-sm text-red-600 mt-2">{urlError}</p>}
             {isCreatingFromUrl && (
@@ -553,21 +563,22 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                 <p className="text-xs text-gray-500 mt-2">{t('actions.fetchingAndIndexing', 'Fetching and indexing content...')}</p>
               </div>
             )}
-          </div>
+            </CardContent>
+          </Card>
 
           {/* File Upload Section */}
-          <div>
-            <div 
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-                isDragging 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
+          <Card 
+            className={`border-2 border-dashed text-center transition-all ${
+              isDragging 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            <CardContent className="p-6">
               {uploadProgress ? (
                 <UploadProgressDisplay 
                   fileCount={uploadProgress.fileCount}
@@ -585,13 +596,14 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                   <p className="text-xs text-gray-500 mb-4">
                     {t('actions.filesWillBeProcessed', 'Files will be automatically processed and indexed for content creation')}
                   </p>
-                  <button
+                  <Button
                     onClick={handleFileSelect}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    variant="download"
+                    className="inline-flex items-center gap-2"
                   >
                     <Plus className="h-4 w-4" />
                     {t('actions.selectFiles', 'Select Files')}
-                  </button>
+                  </Button>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -602,13 +614,13 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                   />
                 </>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Files Section */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b">
+        <Card className="shadow-sm bg-white">
+          <CardContent className="p-6 border-b">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">{t('actions.filesInThisFolder', 'Files in this folder')}</h2>
@@ -623,24 +635,26 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
               </div>
               {readyFiles.length > 0 && (
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={handleSelectAll}
-                    className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                    variant="outline"
+                    size="sm"
                   >
                     {t('actions.selectAll', 'Select All')}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleDeselectAll}
-                    className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                    variant="outline"
+                    size="sm"
                   >
                     {t('actions.clear', 'Clear')}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
-          </div>
+          </CardContent>
 
-          <div className="p-6">
+          <CardContent className="p-6">
             {folderFiles.length === 0 ? (
               <div className="text-center py-8">
                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -659,8 +673,8 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Fixed Bottom Action Bar */}
@@ -676,13 +690,14 @@ const CreateFromFolderContent: React.FC<CreateFromFolderContentProps> = ({ folde
                   {t('actions.readyToCreateContent', 'Ready to create content from these documents')}
                 </p>
               </div>
-              <button
+              <Button
                 onClick={handleCreateFromFiles}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                variant="download"
+                className="inline-flex items-center gap-2 font-medium"
               >
                 <Sparkles className="h-4 w-4" />
                 {t('actions.createContent', 'Create Content')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

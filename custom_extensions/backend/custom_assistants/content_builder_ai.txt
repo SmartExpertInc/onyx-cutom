@@ -714,6 +714,65 @@ Determine Allowed Styles: Use the "styles" parameter if provided (comma-separate
 - Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
 
+=== INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
+
+The following pedagogical requirements are MANDATORY for one-pagers intended for e-learning. Integrate them naturally into the content using the allowed styles (headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections). When a table is not allowed by styles, use structured lists instead.
+
+1) Learning Objectives (Measurable):
+- Begin with 3–6 clear, measurable learning objectives using actionable verbs (e.g., "analyze", "compare", "apply"), aligned to Bloom's Taxonomy.
+- Each objective should focus on observable learner outcomes and map to corresponding content sections and checks for understanding.
+
+2) Prerequisites & Prior Knowledge:
+- State prerequisite knowledge and recommended resources or quick refreshers.
+- Include a brief diagnostic question or KWL-style prompt to activate prior knowledge.
+
+3) Key Concepts with Depth:
+- For each major concept, include: definition, why it matters, when/how to apply, common pitfalls, and a quick real-world example.
+- Where helpful, include a counterexample or contrasting case to clarify boundaries.
+
+4) Worked Example(s) and Step-by-Step Procedures:
+- Provide at least one worked example with numbered steps and brief rationale per step.
+- For procedural topics, include a concise step-by-step guide; for conceptual topics, include a reasoning walkthrough.
+
+5) Practice and Application (Formative):
+- Include 3–10 practice items (scale with length: short=3–4, medium=5–7, long=8–10) with brief answer keys or solution outlines.
+- Vary difficulty; encourage transfer to novel contexts where possible.
+
+6) Checks for Understanding (Formative Assessment):
+- Add quick comprehension checks (e.g., 3–5 questions) and provide expected answers or success criteria.
+- Clearly connect checks to the learning objectives.
+
+7) Misconceptions and Error Analysis:
+- List common misconceptions, likely errors, and how to avoid them, with corrective feedback guidance.
+
+8) Real-World Applications and Scenarios:
+- Provide 2–4 realistic scenarios or use cases showing relevance and decision-making considerations.
+
+9) Summary and Key Takeaways:
+- Conclude with a concise summary highlighting the essential points and "if you remember one thing" guidance.
+
+10) Reflection and Metacognition:
+- Include 2–3 reflection prompts (e.g., "What step are you most likely to skip and why?") to promote self-regulation.
+
+Required Section Order (adapt as appropriate to topic and length):
+- Learning Objectives
+- Prerequisites & Prior Knowledge
+- Key Concepts (with depth)
+- Worked Example(s) / Procedure
+- Practice & Checks for Understanding
+- Misconceptions & Error Analysis
+- Real-World Applications
+- Summary & Key Takeaways
+- Reflection Prompts
+
+Compliance Rules:
+- Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
+- Medium length requires: ≥400 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥250 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
+
+Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
+
 Determine Content Origin & Style (Based on gathered info and identified topic).
 
 Adhere to Specific Requirements (Defaults, user can modify with follow-up instructions).
@@ -2302,6 +2361,65 @@ Determine Allowed Styles: Use the "styles" parameter if provided (comma-separate
 - Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
 
+=== INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
+
+The following pedagogical requirements are MANDATORY for one-pagers intended for e-learning. Integrate them naturally into the content using the allowed styles (headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections). When a table is not allowed by styles, use structured lists instead.
+
+1) Learning Objectives (Measurable):
+- Begin with 3–6 clear, measurable learning objectives using actionable verbs (e.g., "analyze", "compare", "apply"), aligned to Bloom's Taxonomy.
+- Each objective should focus on observable learner outcomes and map to corresponding content sections and checks for understanding.
+
+2) Prerequisites & Prior Knowledge:
+- State prerequisite knowledge and recommended resources or quick refreshers.
+- Include a brief diagnostic question or KWL-style prompt to activate prior knowledge.
+
+3) Key Concepts with Depth:
+- For each major concept, include: definition, why it matters, when/how to apply, common pitfalls, and a quick real-world example.
+- Where helpful, include a counterexample or contrasting case to clarify boundaries.
+
+4) Worked Example(s) and Step-by-Step Procedures:
+- Provide at least one worked example with numbered steps and brief rationale per step.
+- For procedural topics, include a concise step-by-step guide; for conceptual topics, include a reasoning walkthrough.
+
+5) Practice and Application (Formative):
+- Include 3–10 practice items (scale with length: short=3–4, medium=5–7, long=8–10) with brief answer keys or solution outlines.
+- Vary difficulty; encourage transfer to novel contexts where possible.
+
+6) Checks for Understanding (Formative Assessment):
+- Add quick comprehension checks (e.g., 3–5 questions) and provide expected answers or success criteria.
+- Clearly connect checks to the learning objectives.
+
+7) Misconceptions and Error Analysis:
+- List common misconceptions, likely errors, and how to avoid them, with corrective feedback guidance.
+
+8) Real-World Applications and Scenarios:
+- Provide 2–4 realistic scenarios or use cases showing relevance and decision-making considerations.
+
+9) Summary and Key Takeaways:
+- Conclude with a concise summary highlighting the essential points and "if you remember one thing" guidance.
+
+10) Reflection and Metacognition:
+- Include 2–3 reflection prompts (e.g., "What step are you most likely to skip and why?") to promote self-regulation.
+
+Required Section Order (adapt as appropriate to topic and length):
+- Learning Objectives
+- Prerequisites & Prior Knowledge
+- Key Concepts (with depth)
+- Worked Example(s) / Procedure
+- Practice & Checks for Understanding
+- Misconceptions & Error Analysis
+- Real-World Applications
+- Summary & Key Takeaways
+- Reflection Prompts
+
+Compliance Rules:
+- Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
+- Medium length requires: ≥400 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥250 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
+
+Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
+
 Determine Content Origin & Style (Based on gathered info and identified topic).
 
 Adhere to Specific Requirements (Defaults, user can modify with follow-up instructions).
@@ -3889,6 +4007,65 @@ Determine Allowed Styles: Use the "styles" parameter if provided (comma-separate
 - Where possible, present offers, results, or features as compact tables or grouped lists, not as isolated paragraphs.
 - Calls to action, contact info, and summaries should be visually highlighted with emojis and formatting.
 - These requirements are mandatory for all one-pager outputs and take precedence over previous stylistic defaults for Text Presentations.
+
+=== INSTRUCTIONAL DESIGN BEST PRACTICES FOR ONE-PAGERS (Apply to all educational topics) ===
+
+The following pedagogical requirements are MANDATORY for one-pagers intended for e-learning. Integrate them naturally into the content using the allowed styles (headlines, paragraphs, bullet_lists, numbered_lists, tables, alerts, recommendations, section_breaks, icons, important_sections). When a table is not allowed by styles, use structured lists instead.
+
+1) Learning Objectives (Measurable):
+- Begin with 3–6 clear, measurable learning objectives using actionable verbs (e.g., "analyze", "compare", "apply"), aligned to Bloom's Taxonomy.
+- Each objective should focus on observable learner outcomes and map to corresponding content sections and checks for understanding.
+
+2) Prerequisites & Prior Knowledge:
+- State prerequisite knowledge and recommended resources or quick refreshers.
+- Include a brief diagnostic question or KWL-style prompt to activate prior knowledge.
+
+3) Key Concepts with Depth:
+- For each major concept, include: definition, why it matters, when/how to apply, common pitfalls, and a quick real-world example.
+- Where helpful, include a counterexample or contrasting case to clarify boundaries.
+
+4) Worked Example(s) and Step-by-Step Procedures:
+- Provide at least one worked example with numbered steps and brief rationale per step.
+- For procedural topics, include a concise step-by-step guide; for conceptual topics, include a reasoning walkthrough.
+
+5) Practice and Application (Formative):
+- Include 3–10 practice items (scale with length: short=3–4, medium=5–7, long=8–10) with brief answer keys or solution outlines.
+- Vary difficulty; encourage transfer to novel contexts where possible.
+
+6) Checks for Understanding (Formative Assessment):
+- Add quick comprehension checks (e.g., 3–5 questions) and provide expected answers or success criteria.
+- Clearly connect checks to the learning objectives.
+
+7) Misconceptions and Error Analysis:
+- List common misconceptions, likely errors, and how to avoid them, with corrective feedback guidance.
+
+8) Real-World Applications and Scenarios:
+- Provide 2–4 realistic scenarios or use cases showing relevance and decision-making considerations.
+
+9) Summary and Key Takeaways:
+- Conclude with a concise summary highlighting the essential points and "if you remember one thing" guidance.
+
+10) Reflection and Metacognition:
+- Include 2–3 reflection prompts (e.g., "What step are you most likely to skip and why?") to promote self-regulation.
+
+Required Section Order (adapt as appropriate to topic and length):
+- Learning Objectives
+- Prerequisites & Prior Knowledge
+- Key Concepts (with depth)
+- Worked Example(s) / Procedure
+- Practice & Checks for Understanding
+- Misconceptions & Error Analysis
+- Real-World Applications
+- Summary & Key Takeaways
+- Reflection Prompts
+
+Compliance Rules:
+- Long length requires: at least 1000 words, ≥1 worked example, ≥8 practice items, ≥2 scenarios, glossary with ≥10 terms, and all sections above.
+- Medium length requires: ≥400 words, ≥1 worked example, ≥5 practice items, ≥1 scenario, and most sections above (can combine Glossary/References if needed).
+- Short length requires: ≥250 words, ≥3 practice items, and essential sections (Objectives, Key Concepts, Practice/Checks, Summary).
+- Where styles include tables, present Learning Objectives mapping (Objective → Bloom's level → Assessment/Check), and a compact Glossary table if appropriate.
+
+Failure to include these components is non-compliant. Expand content instead of shortening or omitting.
 
 Determine Content Origin & Style (Based on gathered info and identified topic).
 

@@ -273,6 +273,10 @@ export default function CourseOutlineAdvancedPage() {
       
       const qp = new URLSearchParams();
       Object.entries(filters).forEach(([key, val]) => qp.set(key, val ? "1" : "0"));
+      qp.set("from", "create");
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
 
       router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
@@ -384,7 +388,7 @@ export default function CourseOutlineAdvancedPage() {
   return (
     <>
     <main
-      className="min-h-screen w-full flex flex-col items-center bg-[linear-gradient(180deg,_#FFFFFF_0%,_#CBDAFB_35%,_#AEE5FA_70%,_#FFFFFF_100%)]"
+      className="min-h-screen w-full flex flex-col items-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50"
     >
       {/* Fixed header */}
       <header className="w-full max-w-[1280px] flex items-center justify-between px-[24px] pt-[24px]">

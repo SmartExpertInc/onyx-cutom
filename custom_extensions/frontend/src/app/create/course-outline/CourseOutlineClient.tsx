@@ -6,10 +6,17 @@
 
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, Plus, Sparkles, ChevronDown, Settings, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles, Settings, AlignLeft, AlignCenter, AlignRight, Edit } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage } from "../../../utils/promptUtils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { trackCreateProduct } from "../../../lib/mixpanelClient"
+
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -200,8 +207,16 @@ export default function CourseOutlineClient() {
   const params = useSearchParams();
   const [prompt, setPrompt] = useState(getPromptFromUrlOrStorage(params?.get("prompt") || ""));
   const [modules, setModules] = useState<number>(Number(params?.get("modules") || 4));
-  const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3-4");
+  const [lessonsPerModule, setLessonsPerModule] = useState<string>(params?.get("lessons") || "3 - 4");
   const [language, setLanguage] = useState<string>(params?.get("lang") || "en");
+  
+  // Derive filters from URL params with defaults to true if not explicitly set to "0"
+  const filters = useMemo(() => ({
+    knowledgeCheck: params?.get("knowledgeCheck") === "0" ? false : true,
+    contentAvailability: params?.get("contentAvailability") === "0" ? false : true,
+    informationSource: params?.get("informationSource") === "0" ? false : true,
+    time: params?.get("time") === "0" ? false : true,
+  }), [params]);
 
   // File context for creation from documents
   const isFromFiles = params?.get("fromFiles") === "true";
@@ -209,7 +224,25 @@ export default function CourseOutlineClient() {
   // Text context for creation from user text
   const isFromText = params?.get("fromText") === "true";
   const textMode = params?.get("textMode") as 'context' | 'base' | null;
+  
+  // Knowledge Base context for creation from Knowledge Base search
+  const isFromKnowledgeBase = params?.get("fromKnowledgeBase") === "true";
   const [userText, setUserText] = useState('');
+  
+  // Connector context for creation from selected connectors
+  const isFromConnectors = params?.get("fromConnectors") === "true";
+  const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
+  const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+  const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean).map(file => decodeURIComponent(file)) || [];
+  
+  console.log('🔍 [STEP 4] Course Outline Client loaded with URL params:', {
+    isFromConnectors,
+    connectorIds,
+    connectorSources,
+    selectedFiles,
+    fullUrl: window.location.href,
+    searchParams: window.location.search
+  });
   
   // Retrieve user text from sessionStorage
   useEffect(() => {
@@ -422,7 +455,7 @@ export default function CourseOutlineClient() {
     return () => {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [loading, modules, lessonsPerModule, prompt, language]);
 
   // Kick off chat-session creation on first mount when absent.
@@ -437,7 +470,6 @@ export default function CourseOutlineClient() {
         setLessonsPerModule(parsedData.lessonsPerModule);
         setLanguage(parsedData.language);
         setChatId(parsedData.chatId);
-        setFilters(parsedData.filters);
         setRawOutline(parsedData.rawOutline || "");
         lastPreviewParamsRef.current = {
           prompt: parsedData.prompt,
@@ -475,7 +507,7 @@ export default function CourseOutlineClient() {
       }
     };
     createChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   // Auto-fetch preview when parameters change (debounced to avoid spamming)
@@ -550,6 +582,37 @@ export default function CourseOutlineClient() {
             requestBody.textMode = textMode;
             requestBody.userText = userText;
           }
+
+          // Add Knowledge Base context if creating from Knowledge Base
+          if (isFromKnowledgeBase) {
+            requestBody.fromKnowledgeBase = true;
+          }
+
+          // Add connector context if creating from connectors
+          if (isFromConnectors) {
+            console.log('🔍 [STEP 5] Adding connector context to backend request:', {
+              isFromConnectors,
+              connectorIds,
+              connectorSources,
+              selectedFiles,
+              connectorIdsJoined: connectorIds.join(','),
+              connectorSourcesJoined: connectorSources.join(','),
+              selectedFilesJoined: selectedFiles.join(',')
+            });
+            
+            requestBody.fromConnectors = true;
+            requestBody.connectorIds = connectorIds.join(',');
+            requestBody.connectorSources = connectorSources.join(',');
+            if (selectedFiles.length > 0) {
+              requestBody.selectedFiles = selectedFiles.join(',');
+              console.log('🔍 [STEP 5] Added selectedFiles to request body:', requestBody.selectedFiles);
+            } else {
+              console.log('🔍 [STEP 5] No selectedFiles to add (length = 0)');
+            }
+          }
+
+          console.log('🔍 [STEP 5] Final request body being sent to backend:', requestBody);
+          console.log('🔍 [STEP 5] Request body keys:', Object.keys(requestBody));
 
           const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/preview`, {
             method: "POST",
@@ -697,6 +760,7 @@ export default function CourseOutlineClient() {
     // Ensure the preview spinner / fake-thoughts are not shown while we're in finalize mode
     setLoading(false);
     setError(null);
+    const activeProductType = sessionStorage.getItem('activeProductType');
     try {
       const outlineForBackend = {
         mainTitle: prompt,
@@ -743,6 +807,13 @@ export default function CourseOutlineClient() {
       // Add folder context if coming from inside a folder
       if (folderContext?.folderId) {
         finalizeBody.folderId = folderContext.folderId;
+      }
+
+      // Add connector context if creating from connectors
+      if (isFromConnectors) {
+        finalizeBody.fromConnectors = true;
+        finalizeBody.connectorIds = connectorIds.join(',');
+        finalizeBody.connectorSources = connectorSources.join(',');
       }
 
       const res = await fetchWithRetry(`${CUSTOM_BACKEND_URL}/course-outline/finalize`, {
@@ -827,18 +898,71 @@ export default function CourseOutlineClient() {
         throw new Error("Invalid response from server: missing project ID");
       }
 
-      // Build query params to encode which additional info columns should be shown in the product view
+      // Build query params for the product view
       const qp = new URLSearchParams();
       qp.set("knowledgeCheck", filters.knowledgeCheck ? "1" : "0");
       qp.set("contentAvailability", filters.contentAvailability ? "1" : "0");
       qp.set("informationSource", filters.informationSource ? "1" : "0");
       qp.set("time", filters.time ? "1" : "0");
+      qp.set("from", "create");
 
-      // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
-      // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
-      // leave the custom frontend and hit the main app's /projects route.
-      router.push(`/projects/view/${data.id}?${qp.toString()}`);
+      await trackCreateProduct(
+        "Completed",
+        sessionStorage.getItem('lessonContext') != null ? true : false,
+        isFromFiles,
+        isFromText,
+        isFromKnowledgeBase,
+        isFromConnectors,
+        language, 
+        activeProductType ?? undefined,
+        undefined,
+        advancedModeState
+      );
+      
+      // Clear the failed state since we successfully completed
+      try {
+        if (sessionStorage.getItem('createProductFailed')) {
+          sessionStorage.removeItem('createProductFailed');
+        }
+      } catch (error) {
+        console.error('Error clearing failed state:', error);
+      }
+
+      if (typeof window !== 'undefined') {
+        try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
+      }
+      // Check the 'course_table' feature via API (can't use hook inside handler)
+      let courseTableEnabled = false;
+      try {
+        const resp = await fetch(`${CUSTOM_BACKEND_URL}/features/check/course_table`, { credentials: 'same-origin' });
+        if (resp.ok) {
+          const json = await resp.json();
+          courseTableEnabled = Boolean(json?.is_enabled);
+        }
+      } catch {}
+      const basePath = courseTableEnabled ? '/projects/view' : '/projects/view-new-2';
+      router.push(`${basePath}/${data.id}?${qp.toString()}`);
     } catch (e: any) {
+      try {
+        // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events
+        if (!sessionStorage.getItem('createProductFailed')) {
+          await trackCreateProduct(
+            "Failed",
+            sessionStorage.getItem('lessonContext') != null ? true : false,
+            isFromFiles,
+            isFromText,
+            isFromKnowledgeBase,
+            isFromConnectors,
+            language, 
+            activeProductType ?? undefined, 
+            undefined,
+            advancedModeState
+          );
+          sessionStorage.setItem('createProductFailed', 'true');
+        }
+      } catch (error) {
+        console.error('Error setting failed state:', error);
+      }
       setError(e.message);
       // allow UI interaction again
       setIsGenerating(false);
@@ -936,28 +1060,7 @@ export default function CourseOutlineClient() {
     });
   };
 
-  // Extra boolean filters (all true by default)
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState(() => ({
-    knowledgeCheck: params?.get("knowledgeCheck") === "0" ? false : true,
-    contentAvailability: params?.get("contentAvailability") === "0" ? false : true,
-    informationSource: params?.get("informationSource") === "0" ? false : true,
-    time: params?.get("time") === "0" ? false : true,
-  }));
 
-  // Ref for closing the dropdown when clicking outside
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showFilters) return;
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowFilters(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showFilters]);
 
   // Total characters in editable outline preview (titles + lessons)
   const charCount = useMemo(() => {
@@ -1125,37 +1228,39 @@ export default function CourseOutlineClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const handleAdvancedModeClick = () => {
+    if (advancedModeClicked == false) {
+      setAdvancedModeState("Clicked");
+      setAdvancedModeClicked(true);
+    }
+  };
 
   const outlineExamples: { short: string; detailed: string }[] = [
     {
-      short: "Adapt to U.S. industry specifics",
-      detailed:
-        "Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don't align with the American context.",
+      short: t('interface.generate.courseOutlineExamples.adaptIndustry.short', 'Adapt to U.S. industry specifics'),
+      detailed: t('interface.generate.courseOutlineExamples.adaptIndustry.detailed', 'Update the course Outline structure based on U.S. industry and cultural specifics: adjust module and lesson titles, replace topics, examples, and wording that don\'t align with the American context.'),
     },
     {
-      short: "Adopt trends and latest practices",
-      detailed:
-        "Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.",
+      short: t('interface.generate.courseOutlineExamples.adoptTrends.short', 'Adopt trends and latest practices'),
+      detailed: t('interface.generate.courseOutlineExamples.adoptTrends.detailed', 'Update the Outline structure by adding modules and lessons that reflect current trends and best practices in the field. Remove outdated elements and replace them with up-to-date content.'),
     },
     {
-      short: "Incorporate top industry examples",
-      detailed:
-        "Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.",
+      short: t('interface.generate.courseOutlineExamples.topExamples.short', 'Incorporate top industry examples'),
+      detailed: t('interface.generate.courseOutlineExamples.topExamples.detailed', 'Analyze the best courses on the market in this topic and restructure the Outline accordingly: rename or add modules and lessons where others present content more effectively. Focus on content flow and clarity.'),
     },
     {
-      short: "Simplify and restructure the content",
-      detailed:
-        "Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.",
+      short: t('interface.generate.courseOutlineExamples.simplify.short', 'Simplify and restructure the content'),
+      detailed: t('interface.generate.courseOutlineExamples.simplify.detailed', 'Rewrite the Outline structure to make it more logical and user-friendly. Remove redundant modules, merge overlapping lessons, and rephrase titles for clarity and simplicity.'),
     },
     {
-      short: "Increase value and depth of content",
-      detailed:
-        "Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.",
+      short: t('interface.generate.courseOutlineExamples.increaseDepth.short', 'Increase value and depth of content'),
+      detailed: t('interface.generate.courseOutlineExamples.increaseDepth.detailed', 'Strengthen the Outline by adding modules and lessons that deepen understanding and bring advanced-level value. Refine wording to clearly communicate skills and insights being delivered.'),
     },
     {
-      short: "Add case studies and applications",
-      detailed:
-        "Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.",
+      short: t('interface.generate.courseOutlineExamples.addApplications.short', 'Add case studies and applications'),
+      detailed: t('interface.generate.courseOutlineExamples.addApplications.detailed', 'Revise the Outline structure to include applied content in each module — such as real-life cases, examples, or actionable approaches — while keeping the theoretical foundation intact.'),
     },
   ];
 
@@ -1185,124 +1290,145 @@ export default function CourseOutlineClient() {
   return (
     <>
     <main
-      /* Shared pastel gradient (identical to generate page) */
       className="min-h-screen py-4 pb-24 px-4 flex flex-col items-center"
       style={{
-        background: "linear-gradient(180deg, #FFFFFF 0%, #CBDAFB 35%, #AEE5FA 70%, #FFFFFF 100%)",
+        background: `linear-gradient(110.08deg, rgba(0, 187, 255, 0.2) 19.59%, rgba(0, 187, 255, 0.05) 80.4%), #FFFFFF`
       }}
     >
+      {/* Back button */}
+      <Link
+        href="/create/generate"
+          className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+        style={{
+          color: '#0F58F9',
+          fontSize: '14px',
+          fontWeight: '600',
+          lineHeight: '140%',
+          letterSpacing: '0.05em'
+        }}
+      >
+        <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 9L1 5L5 1" stroke="#0F58F9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        {t('interface.generate.back', 'Back')}
+      </Link>
+
       <div className="w-full max-w-3xl flex flex-col gap-6 text-gray-900 relative">
-        {/* Back button */}
-        <Link
-          href="/create/generate"
-          className="fixed top-6 left-6 flex items-center gap-1 text-sm text-brand-primary hover:text-brand-primary-hover rounded-full px-3 py-1 border border-gray-300 bg-white z-20"
-        >
-          <ArrowLeft size={14} /> Back
-        </Link>
 
         {/* Page title */}
-        <h1 className="text-2xl font-semibold text-center text-black mt-2">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-center text-[64px] font-semibold leading-none text-[#191D30] mt-[97px] mb-9">{t('interface.generate.title', 'Generate')}</h1>
 
         {/* Controls */}
-        <div className="flex flex-wrap justify-center gap-2">
-          <div className="relative">
-          <select
-            value={modules}
-            onChange={(e) => setModules(Number(e.target.value))}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} {t('interface.generate.modules', 'Modules')}</option>
-            ))}
-          </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-          </div>
-          <div className="relative">
-          <select
-            value={lessonsPerModule}
-            onChange={(e) => setLessonsPerModule(e.target.value)}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            {["1-2", "3-4", "5-7", "8-10"].map((rng) => (
-              <option key={rng} value={rng}>{rng} {t('interface.generate.perModule', 'per module')}</option>
-            ))}
-          </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-          </div>
-          <div className="relative">
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-              className="appearance-none pr-8 px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black"
-          >
-            <option value="en">{t('interface.generate.english', 'English')}</option>
-            <option value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</option>
-            <option value="es">{t('interface.generate.spanish', 'Spanish')}</option>
-            <option value="ru">{t('interface.generate.russian', 'Russian')}</option>
-          </select>
-            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-          </div>
-
-          {/* Additional Info dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setShowFilters((prev) => !prev)}
-              className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black flex items-center gap-1"
-            >
-              {t('interface.courseOutline.additionalInfo', 'Additional Info')} <ChevronDown size={14} />
-            </button>
-
-            {showFilters && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-300 rounded-md shadow-lg p-3 z-20">
-                {[
-                  { key: "knowledgeCheck", label: t('interface.courseOutline.assessmentType', 'Assessment Type') },
-                  { key: "contentAvailability", label: t('interface.courseOutline.contentVolume', 'Content Volume') },
-                  { key: "informationSource", label: t('interface.courseOutline.source', 'Source') },
-                  { key: "time", label: t('interface.courseOutline.productionHours', 'Production Hours') },
-                ].map(({ key, label }) => (
-                  // @ts-ignore dynamic key
-                  <label key={key} className="flex items-center gap-2 text-sm text-gray-700 py-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-4 w-4 text-brand-primary"
-                      // @ts-ignore dynamic key
-                      checked={filters[key]}
-                      onChange={() =>
-                        // @ts-ignore dynamic key
-                        setFilters((prev) => ({ ...prev, [key]: !prev[key] }))
-                      }
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-            )}
+        <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+          <div className="flex items-center">
+            {/* Modules dropdown */}
+            <div className="flex-1 flex items-center justify-center">
+              <Select
+                value={modules.toString()}
+                onValueChange={(value: string) => setModules(Number(value))}
+              >
+                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                  <div className="flex items-center gap-2">
+                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                    </svg>
+                    <span className="text-[#09090B] opacity-50">{t('interface.generate.modules', 'Modules')}:</span>
+                    <span className="text-[#09090B]">{modules}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+                  {Array.from({ length: Math.max(10, modules) }, (_, i) => i + 1).map((n) => (
+                    <SelectItem key={n} value={n.toString()}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Divider */}
+            <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+            
+            {/* Lessons per module dropdown */}
+            <div className="flex-1 flex items-center justify-center">
+              <Select
+                value={lessonsPerModule}
+                onValueChange={setLessonsPerModule}
+              >
+                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                  <div className="flex items-center gap-2">
+                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3483 1.00069C13.3461 1.00099 13.3439 1.00131 13.3418 1.00164H7.02321C6.18813 1.00164 5.5 1.68603 5.5 2.52111V15.7169C5.5 16.552 6.18813 17.2401 7.02321 17.2401H15.9777C16.8128 17.2401 17.5 16.552 17.5 15.7169V5.12632C17.4992 5.11946 17.4982 5.11261 17.4971 5.10578C17.496 5.0788 17.4925 5.05197 17.4869 5.02557C17.4843 5.01269 17.4812 4.99993 17.4775 4.98732C17.4678 4.95493 17.4547 4.92366 17.4384 4.89404C17.436 4.88997 17.4335 4.88594 17.4309 4.88194C17.4109 4.84801 17.3868 4.81669 17.3591 4.78868L13.7139 1.13966C13.6869 1.11319 13.6568 1.09002 13.6243 1.07064C13.6182 1.06707 13.612 1.06364 13.6057 1.06035C13.5272 1.01663 13.438 0.995976 13.3483 1.00069ZM7.02322 1.9577H12.8996V4.07974C12.8996 4.91481 13.5878 5.60294 14.4228 5.60294H16.5449V15.7169C16.5449 16.0393 16.3002 16.2849 15.9777 16.2849H7.02322C6.70078 16.2849 6.45516 16.0393 6.45516 15.7169V2.52109C6.45516 2.19865 6.70078 1.9577 7.02322 1.9577ZM13.8548 2.63395L15.8677 4.64686H14.4228C14.1004 4.64686 13.8548 4.40218 13.8548 4.07974V2.63395ZM8.30297 7.48898C8.17679 7.48923 8.05584 7.5394 7.96653 7.62853C7.87722 7.71767 7.82682 7.83852 7.82633 7.9647C7.82608 8.02749 7.83822 8.08972 7.86206 8.14781C7.88589 8.20591 7.92094 8.25873 7.96522 8.30327C8.00949 8.3478 8.06211 8.38316 8.12006 8.40733C8.17802 8.43151 8.24017 8.44401 8.30297 8.44413H14.698C14.761 8.44438 14.8235 8.43215 14.8818 8.40814C14.94 8.38414 14.993 8.34883 15.0376 8.30426C15.0821 8.25969 15.1174 8.20674 15.1414 8.14846C15.1654 8.09018 15.1777 8.02773 15.1774 7.9647C15.1772 7.90198 15.1646 7.83993 15.1404 7.78208C15.1161 7.72423 15.0808 7.67172 15.0362 7.62754C14.9917 7.58337 14.9389 7.5484 14.8809 7.52462C14.8229 7.50085 14.7607 7.48874 14.698 7.48898H8.30297ZM8.30297 10.1996C8.24017 10.1997 8.17802 10.2122 8.12006 10.2364C8.06211 10.2606 8.00949 10.2959 7.96521 10.3405C7.92094 10.385 7.88589 10.4378 7.86206 10.4959C7.83822 10.554 7.82608 10.6162 7.82633 10.679C7.82682 10.8052 7.87723 10.9261 7.96653 11.0152C8.05584 11.1043 8.17679 11.1545 8.30297 11.1547H14.698C14.7607 11.155 14.8229 11.1429 14.8809 11.1191C14.9389 11.0953 14.9917 11.0604 15.0362 11.0162C15.0808 10.972 15.1161 10.9195 15.1404 10.8617C15.1646 10.8038 15.1772 10.7418 15.1774 10.679C15.1777 10.616 15.1654 10.5535 15.1414 10.4953C15.1174 10.437 15.0821 10.384 15.0376 10.3395C14.993 10.2949 14.94 10.2596 14.8818 10.2356C14.8235 10.2116 14.761 10.1993 14.698 10.1996H8.30297ZM8.30297 12.9111C8.24017 12.9113 8.17802 12.9238 8.12006 12.9479C8.06211 12.9721 8.00949 13.0075 7.96521 13.052C7.92094 13.0965 7.88589 13.1494 7.86206 13.2075C7.83822 13.2656 7.82608 13.3278 7.82633 13.3906C7.82682 13.5168 7.87723 13.6376 7.96653 13.7267C8.05584 13.8159 8.17679 13.866 8.30297 13.8663H14.698C14.7607 13.8665 14.8229 13.8544 14.8809 13.8307C14.9389 13.8069 14.9917 13.7719 15.0362 13.7277C15.0808 13.6836 15.1161 13.631 15.1404 13.5732C15.1646 13.5154 15.1772 13.4533 15.1774 13.3906C15.1777 13.3275 15.1654 13.2651 15.1414 13.2068C15.1174 13.1485 15.0821 13.0956 15.0376 13.051C14.993 13.0064 14.94 12.9711 14.8818 12.9471C14.8235 12.9231 14.761 12.9109 14.698 12.9111H8.30297Z" fill="black"/>
+                    </svg>
+                    <span className="text-[#09090B] opacity-50">{t('interface.generate.lessonsPerModule', 'Lessons per module')}:</span>
+                    <span className="text-[#09090B]">{lessonsPerModule}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="border-white max-h-[200px]" sideOffset={15} align="center">
+                  {["1 - 2", "3 - 4", "5 - 7", "8 - 10"].map((rng) => (
+                    <SelectItem key={rng} value={rng}>{rng}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Divider */}
+            <div className="w-px h-6 bg-[#E0E0E0] mx-4"></div>
+            
+            {/* Language dropdown */}
+            <div className="flex-1 flex items-center justify-center">
+              <Select
+                value={language}
+                onValueChange={setLanguage}
+              >
+                <SelectTrigger className="border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none">
+                  <div className="flex items-center gap-2">
+                    <svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17.1562 5.46446V4.59174C17.1562 3.69256 16.4421 2.97851 15.543 2.97851H9.6719L9.59256 2.76694C9.40744 2.29091 8.95785 2 8.45537 2H3.11322C2.21405 2 1.5 2.71405 1.5 3.61322V13.9008C1.5 14.8 2.21405 15.514 3.11322 15.514H15.8868C16.786 15.514 17.5 14.8 17.5 13.9008V6.2843C17.5 5.96694 17.3678 5.67603 17.1562 5.46446ZM15.543 4.14215C15.781 4.14215 15.9661 4.32727 15.9661 4.56529V5.06777H10.5182L10.1479 4.14215H15.543ZM16.3099 13.9008C16.3099 14.1388 16.1248 14.324 15.8868 14.324H3.11322C2.87521 14.324 2.69008 14.1388 2.69008 13.9008V3.58678C2.69008 3.34876 2.87521 3.16364 3.11322 3.16364L8.48182 3.19008L9.56612 5.8876C9.64545 6.12562 9.88347 6.25785 10.1215 6.25785H16.2835C16.2835 6.25785 16.3099 6.25785 16.3099 6.2843V13.9008Z" fill="black"/>
+                    </svg>
+                    <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
+                    <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="border-white" sideOffset={15}>
+                  <SelectItem value="en">{t('interface.generate.english', 'English')}</SelectItem>
+                  <SelectItem value="uk">{t('interface.generate.ukrainian', 'Ukrainian')}</SelectItem>
+                  <SelectItem value="es">{t('interface.generate.spanish', 'Spanish')}</SelectItem>
+                  <SelectItem value="ru">{t('interface.generate.russian', 'Russian')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
         {/* Prompt textarea with regenerate button */}
         <div className="flex gap-2 items-start">
-          <textarea
-            ref={promptRef}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
-            rows={1}
-            className="flex-1 border border-gray-300 rounded-md p-3 resize-none overflow-hidden bg-white/90 placeholder-gray-500 min-h-[56px]"
-          />
+          <div className="relative group flex-1">
+            <Textarea
+              ref={promptRef}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={t('interface.courseOutline.describeWhatToMake', "Describe what you'd like to make")}
+              rows={1}
+              className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+              style={{ background: "rgba(255,255,255,0.95)" }}
+            />
+            <Edit 
+              size={16} 
+              className="absolute top-[23px] right-7 text-gray-400 pointer-events-none flex items-center justify-center" 
+            />
+          </div>
           {lastPreviewParamsRef.current && lastPreviewParamsRef.current.prompt !== prompt && (
-            <button
+            <Button
               type="button"
               onClick={() => {
                 // Force regeneration by clearing lastPreviewParamsRef
                 lastPreviewParamsRef.current = null;
               }}
+              variant="secondary"
               className="px-4 rounded-md bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 active:scale-95 transition-transform flex items-center gap-2 whitespace-nowrap min-h-[56px]"
             >
               <Sparkles size={16} />
               <span>{t('interface.courseOutline.regenerate', 'Regenerate')}</span>
-            </button>
+            </Button>
           )}
         </div>
 
@@ -1320,7 +1446,7 @@ export default function CourseOutlineClient() {
           {error && <p className="text-red-600">{error}</p>}
           {preview.length > 0 && (
             <div
-              className="bg-white rounded-xl p-6 flex flex-col gap-6 relative"
+              className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative"
               style={{ animation: 'fadeInDown 0.25s ease-out both' }}
             >
               {loadingPreview && (
@@ -1329,23 +1455,34 @@ export default function CourseOutlineClient() {
                 </div>
               )}
               {preview.map((mod: ModulePreview, modIdx: number) => (
-                <div key={mod.id} className="flex rounded-xl shadow-sm overflow-hidden">
-                  {/* Left colored bar with index */}
-                  <div className={`w-[60px] ${currentTheme.headerBg} flex items-start justify-center pt-5`}>
-                    <span className={`${currentTheme.numberColor} font-semibold text-base select-none`}>{modIdx + 1}</span>
+                <div key={mod.id} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                  {/* Left blue square with number */}
+                  <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
+                    {modIdx + 1}
                   </div>
 
-                  {/* Main card */}
-                  <div className="flex-1 bg-white border border-gray-300 rounded-r-xl p-5">
+                  {/* Main content section */}
+                  <div className="flex-1">
                     {/* Module title */}
-                    <input
-                      type="text"
-                      value={mod.title}
-                      onChange={(e) => handleModuleChange(modIdx, e.target.value)}
-                      data-modtitle={modIdx}
-                      className="w-full font-medium text-lg border-none focus:ring-0 text-gray-900 mb-3"
-                      placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
-                    />
+                    <div className="mb-2">
+                      <div className="relative group">
+                        <Input
+                          type="text"
+                          value={mod.title}
+                          onChange={(e) => handleModuleChange(modIdx, e.target.value)}
+                          data-modtitle={modIdx}
+                          className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
+                          placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
+                          disabled={loading || loadingPreview || isGenerating}
+                        />
+                        {mod.title && (
+                          <Edit 
+                            size={16} 
+                            className="absolute top-[10px] right-[12px] text-gray-400 opacity-100 transition-opacity duration-200 pointer-events-none"
+                          />
+                        )}
+                      </div>
+                    </div>
 
                     {/* Lessons list */}
                     <ul className="flex flex-col gap-1 text-gray-900">
@@ -1361,18 +1498,27 @@ export default function CourseOutlineClient() {
                            titleLine = first.replace(/^\s*[\*\-]\s*/, "");
                          }
                          return (
-                           <li key={lessonIdx} className="flex items-start gap-2 py-0.5">
-                             <span className="text-lg leading-none select-none">•</span>
-                             <input
-                               type="text"
-                               value={titleLine}
-                               onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
-                               onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
-                               data-mod={modIdx}
-                               data-les={lessonIdx}
-                               className="flex-grow bg-transparent border-none p-0 text-sm text-gray-900 focus:outline-none focus:ring-0"
-                               placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
-                             />
+                           <li key={lessonIdx} className="flex items-center gap-2 py-0.5">
+                             <div className="w-2 h-2 bg-[#0F58F9] rounded-full flex-shrink-0"></div>
+                             <div className="relative group flex-grow">
+                               <Input
+                                 type="text"
+                                 value={titleLine}
+                                 onChange={(e) => handleLessonTitleChange(modIdx, lessonIdx, e.target.value)}
+                                 onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
+                                 data-mod={modIdx}
+                                 data-les={lessonIdx}
+                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
+                                 placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
+                                 disabled={loading || loadingPreview || isGenerating}
+                               />
+                               {titleLine && (
+                                 <Edit 
+                                   size={16} 
+                                   className="absolute top-[10px] right-[12px] text-gray-400 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity duration-200 pointer-events-none"
+                                 />
+                               )}
+                             </div>
                            </li>
                          );
                        })}
@@ -1381,16 +1527,17 @@ export default function CourseOutlineClient() {
                 </div>
               ))}
               {/* Add-module button – pill style, full-width */}
-              <button
+              <Button
                 type="button"
                 onClick={handleAddModule}
-                className="w-full mt-4 flex items-center justify-center gap-2 rounded-full border border-[#D5DDF8] text-[#20355D] py-3 font-medium hover:bg-[#F0F4FF] active:scale-95 transition"
+                className="w-full flex items-center justify-center gap-2 rounded-[4px] text-white py-[19px] font-medium bg-[#0F58F9] hover:shadow-lg"
+                disabled={loading || loadingPreview || isGenerating}
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
-              </button>
+              </Button>
               {/* Status row – identical style mock */}
-              <div className="mt-3 flex items-center justify-between text-sm text-[#858587]">
+              <div className="mt-[30px] flex items-center justify-between text-sm text-[#858587]">
                 <span className="select-none">{preview.reduce((sum, m) => sum + m.lessons.length, 0)} {t('interface.courseOutline.lessonsTotal', 'lessons total')}</span>
                 <div className="flex-1 flex justify-center">
                   <span className="flex items-center gap-1 select-none">
@@ -1416,12 +1563,13 @@ export default function CourseOutlineClient() {
         {!loading && preview.length > 0 && (
           <>
             {showAdvanced && (
-              <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-                <textarea
+              <div className="w-full bg-white rounded-xl p-4 flex flex-col gap-3 mb-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+                <Textarea
                   value={editPrompt}
                   onChange={(e) => setEditPrompt(e.target.value)}
                   placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
-                  className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black"
+                  className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                  style={{ background: "rgba(255,255,255,0.95)" }}
                 />
 
                 {/* Example prompts */}
@@ -1431,10 +1579,10 @@ export default function CourseOutlineClient() {
                       key={ex.short}
                       type="button"
                       onClick={() => toggleExample(ex)}
-                      className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors ${
+                      className={`relative text-left rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-all duration-200 ${
                         selectedExamples.includes(ex.short)
-                          ? 'bg-white shadow'
-                          : 'bg-[#D9ECFF] hover:bg-white'
+                          ? 'bg-[#B8D4F0]'
+                          : 'bg-[#D9ECFF] hover:shadow-lg'
                       }`}
                     >
                       {ex.short}
@@ -1443,35 +1591,49 @@ export default function CourseOutlineClient() {
                   ))}
                 </div>
                 <div className="flex justify-end">
-                  <button
+                  <Button
                     type="button"
                     disabled={loadingPreview || !editPrompt.trim()}
-                    onClick={handleApplyEdit}
-                    className={`px-6 py-2 rounded-full ${currentTheme.accentBg} text-white text-sm font-medium ${currentTheme.accentBgHover} disabled:opacity-50 flex items-center gap-1`}
+                    onClick={() => {
+                      handleApplyEdit();
+                      setAdvancedModeState("Used");
+                    }}
+                    className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg disabled:opacity-50"
+                    style={{
+                      background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                      fontWeight: 500
+                    }}
                   >
-                    {loadingPreview ? <LoadingAnimation message="Applying..." /> : (<>Edit <Sparkles size={14} /></>)}
-                  </button>
+                    {loadingPreview ? <LoadingAnimation message="Applying..." /> : 'Edit'}
+                  </Button>
                 </div>
               </div>
             )}
             <div className="w-full flex justify-center mt-2 mb-6">
-                              <button
+                <button
                   type="button"
-                  onClick={() => setShowAdvanced((prev) => !prev)}
-                  className="flex items-center gap-1 text-sm text-[#396EDF] hover:opacity-80 transition-opacity select-none"
+                  onClick={() => {
+                    setShowAdvanced((prev) => !prev);
+                    handleAdvancedModeClick();
+                  }}
+                  className="flex items-center gap-2 px-[25px] py-[14px] rounded-full text-white font-medium text-sm leading-[140%] tracking-[0.05em] select-none transition-shadow hover:shadow-lg"
+                  style={{
+                    background: 'linear-gradient(90deg, #0F58F9 55.31%, #1023A1 100%)',
+                    fontWeight: 500
+                  }}
                 >
-                  {t('interface.generate.advancedMode', 'Advanced Mode')}
-                  <Settings size={14} className={`${showAdvanced ? 'rotate-180' : ''} transition-transform`} />
+                  <Sparkles size={16} />
+                  Smart Edit
                 </button>
             </div>
           </>
         )}
 
         {!loading && preview.length > 0 && (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-3" style={{ display: 'none' }}>
             <h2 className="text-sm font-medium text-[#20355D]">{t('interface.generate.setupContentBuilder', 'Set up your Contentbuilder')}</h2>
-            <div className="bg-white border border-gray-300 rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
-            <div className="flex items-center justify-between">
+            <div className="bg-white rounded-xl px-6 pt-5 pb-6 flex flex-col gap-4" style={{ animation: 'fadeInDown 0.25s ease-out both' }}>
+              <div className="flex items-center justify-between">
                 <div className="flex flex-col">
                   <h2 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.themes', 'Themes')}</h2>
                   <p className="mt-1 text-[#858587] font-medium text-sm">{t('interface.generate.themesDescription', 'Use one of our popular themes below or browse others')}</p>
@@ -1480,115 +1642,92 @@ export default function CourseOutlineClient() {
                   type="button"
                   className="flex items-center gap-1 text-sm text-[#20355D] hover:opacity-80 transition-opacity"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    className="lucide lucide-palette-icon lucide-palette w-4 h-4"
-                  >
-                    <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
-                    <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
-                    <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
-                    <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
-                    <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
-                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-palette-icon lucide-palette w-4 h-4"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
                   <span>{t('interface.generate.viewMore', 'View more')}</span>
-              </button>
-            </div>
-              {/* New themes grid */}
-              <div className="grid grid-cols-3 gap-5 justify-items-center">
-                {themeOptions.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setSelectedTheme(t.id)}
-                    className={`flex flex-col rounded-lg overflow-hidden border border-transparent shadow-sm transition-all p-2 gap-2 ${selectedTheme === t.id ? 'bg-[#cee2fd]' : ''}`}
-                  >
-                    {/* Preview */}
-                    <div className="w-[214px] h-[116px] flex items-center justify-center">
-                      {(() => {
-                        const Svg = ThemeSvgs[t.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
-                        return <Svg />;
-                      })()}
-                    </div>
-                    {/* Label with optional checkmark */}
-                    <div className="flex items-center gap-1 px-2">
-                      {/* Reserve space so left padding matches regardless of selection */}
-                      <span className={`w-4 ${currentTheme.accentText} ${selectedTheme === t.id ? '' : 'opacity-0'}`}>✔</span>
-                      <span className="text-sm text-[#20355D] font-medium select-none">{t.label}</span>
-                    </div>
-                  </button>
-                ))}
+                </button>
               </div>
 
-              {/* Content section */}
-              <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
-                <p className="text-sm text-[#858587] font-medium">{t('interface.generate.contentDescription', 'Adjust text and image styles for your gamma')}</p>
+              <div className="flex flex-col gap-5">
+                {/* Themes grid */}
+                <div className="grid grid-cols-3 gap-5 justify-items-center">
+                  {themeOptions.map((theme) => {
+                    const isSelected = selectedTheme === theme.id;
 
-                {/* Amount of text per card */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
-                  <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
-                    {[
-                      { id: "brief", label: t('interface.courseOutline.brief', 'Brief'), icon: <AlignLeft size={14} /> },
-                      { id: "medium", label: t('interface.courseOutline.medium', 'Medium'), icon: <AlignCenter size={14} /> },
-                      { id: "detailed", label: t('interface.courseOutline.detailed', 'Detailed'), icon: <AlignRight size={14} /> },
-                    ].map((opt) => (
+                    return (
                       <button
-                        key={opt.id}
+                        key={theme.id}
                         type="button"
-                        onClick={() => setTextDensity(opt.id as any)}
-                        className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${
-                          textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'
-                        }`}
+                        onClick={() => setSelectedTheme(theme.id)}
+                        className={`flex flex-col rounded-lg overflow-hidden border border-gray-100 transition-all p-2 gap-2 ${isSelected
+                          ? 'bg-[#cee2fd]'
+                          : 'hover:shadow-lg'
+                          }`}
                       >
-                        {opt.icon}
-                        {opt.label}
+                        <div className="w-[214px] h-[116px] flex items-center justify-center">
+                          {(() => {
+                            const Svg = ThemeSvgs[theme.id as keyof typeof ThemeSvgs] || ThemeSvgs.default;
+                            return <Svg />;
+                          })()}
+                        </div>
+                        <div className="flex items-center gap-1 px-2">
+                          <span className={`w-4 ${currentTheme.accentText} ${isSelected ? '' : 'opacity-0'}`}>
+                            ✔
+                          </span>
+                          <span className="text-sm text-[#20355D] font-medium select-none">
+                            {theme.label}
+                          </span>
+                        </div>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
-                {/* Image source */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.imageSource', 'Image source')}</label>
-                  <div className="relative w-full">
-                    <select
-                      value={imageSource}
-                      onChange={(e) => setImageSource(e.target.value)}
-                      className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                    >
-                      <option value="ai">{t('interface.courseOutline.aiImages', 'AI images')}</option>
-                      <option value="stock">{t('interface.courseOutline.stockImages', 'Stock images')}</option>
-                      <option value="none">{t('interface.courseOutline.noImages', 'No images')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                  </div>
-                </div>
+                {/* Content section - Hidden */}
+                {false && (
+                  <div className="border-t border-gray-200 pt-5 flex flex-col gap-4">
+                    <h3 className="text-lg font-semibold text-[#20355D]">{t('interface.generate.content', 'Content')}</h3>
+                    <p className="text-sm text-[#858587] font-medium">{t('interface.generate.adjustPresentationStyles', 'Adjust text and image styles for your presentation')}</p>
 
-                {/* AI image model */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-gray-800 select-none">{t('interface.courseOutline.aiImageModel', 'AI image model')}</label>
-                  <div className="relative w-full">
-                    <select
-                      value={aiModel}
-                      onChange={(e) => setAiModel(e.target.value)}
-                      className="appearance-none pr-8 w-full px-4 py-2 rounded-full border border-gray-300 bg-white text-sm text-black"
-                    >
-                      <option value="flux-fast">{t('interface.courseOutline.fluxKontextFast', 'Flux Kontext Fast')}</option>
-                      <option value="flux-quality">{t('interface.courseOutline.fluxKontextHQ', 'Flux Kontext HQ')}</option>
-                      <option value="stable">{t('interface.courseOutline.stableDiffusion', 'Stable Diffusion 2.1')}</option>
-                    </select>
-                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.amountOfTextPerCard', 'Amount of text per card')}</label>
+                      <div className="flex w-full border border-gray-300 rounded-full overflow-hidden text-sm font-medium text-[#20355D] select-none">
+                        {[{ id: "brief", label: t('interface.generate.brief', 'Brief'), icon: <AlignLeft size={14} /> }, { id: "medium", label: t('interface.generate.medium', 'Medium'), icon: <AlignCenter size={14} /> }, { id: "detailed", label: t('interface.generate.detailed', 'Detailed'), icon: <AlignRight size={14} /> }].map((opt) => (
+                          <button key={opt.id} type="button" onClick={() => setTextDensity(opt.id as any)} className={`flex-1 py-2 flex items-center justify-center gap-1 transition-colors ${textDensity === opt.id ? 'bg-[#d6e6fd]' : 'bg-white'}`}>
+                            {opt.icon} {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.imageSource', 'Image source')}</label>
+                      <Select value={imageSource} onValueChange={setImageSource}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300" side="top">
+                          <SelectItem value="ai">{t('interface.generate.aiImages', 'AI images')}</SelectItem>
+                          <SelectItem value="stock">{t('interface.generate.stockImages', 'Stock images')}</SelectItem>
+                          <SelectItem value="none">{t('interface.generate.noImages', 'No images')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-800 select-none">{t('interface.generate.aiImageModel', 'AI image model')}</label>
+                      <Select value={aiModel} onValueChange={setAiModel}>
+                        <SelectTrigger className="w-full px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-black cursor-pointer focus:ring-0 focus-visible:ring-0 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="border-gray-300" side="top">
+                          <SelectItem value="flux-fast">{t('interface.generate.fluxFast', 'Flux Kontext Fast')}</SelectItem>
+                          <SelectItem value="flux-quality">{t('interface.generate.fluxQuality', 'Flux Kontext HQ')}</SelectItem>
+                          <SelectItem value="stable">{t('interface.generate.stableDiffusion', 'Stable Diffusion 2.1')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </section>
@@ -1623,17 +1762,19 @@ export default function CourseOutlineClient() {
                 <span className="select-none font-semibold">{t('interface.courseOutline.generate', 'Generate')}</span>
               </button>
             </div>
-      </div>
+          </div>
 
           {/* Help button (disabled) */}
-          <button
+          <Button
             type="button"
             disabled
-            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
+            variant="outline"
+            size="sm"
+            className="w-9 h-9 bg-white rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center opacity-60 cursor-not-allowed select-none font-bold"
             aria-label={t('interface.courseOutline.helpComingSoon', 'Help (coming soon)')}
           >
             ?
-          </button>
+          </Button>
         </div>
       )}
     </main>

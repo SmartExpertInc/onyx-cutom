@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ details.mainTitle | default('Course Outline') }}</title>
+    
+    <style type="text/css">
+        /* Reset and base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: #1f2937;
+            background-color: #f9fafb;
+        }
+        
+        /* Utility classes */
+        .flex { display: flex; }
+        .grid { display: grid; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .p-4 { padding: 1rem; }
+        .p-8 { padding: 2rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .text-gray-600 { color: #6b7280; }
+        .text-gray-900 { color: #111827; }
+        .bg-white { background-color: #ffffff; }
+        .bg-gray-50 { background-color: #f9fafb; }
+        .border { border: 1px solid #e5e7eb; }
+        .border-b { border-bottom: 1px solid #e5e7eb; }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); }
+        
+        /* Grid layouts */
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .lg\\:col-span-1 { grid-column: span 1 / span 1; }
+        .lg\\:col-span-2 { grid-column: span 2 / span 2; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        
+        @media (min-width: 1024px) {
+            .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .lg\\:col-span-1 { grid-column: span 1 / span 1; }
+            .lg\\:col-span-2 { grid-column: span 2 / span 2; }
+        }
+
+        /* Print styles */
+        @page {
+            size: A4 portrait;
+            margin: 0in;
+        }
+        @media print {
+            body { background-color: #f9fafb !important; }
+            .shadow-lg { box-shadow: none !important; }
+        }
+        
+        /* Course outline specific styles */
+        .course-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        .module-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .lesson-item:last-child {
+            border-bottom: none;
+        }
+        
+        .border-bottom-divider {
+            border-bottom: 1px solid #b4b4b4;
+            margin: 1rem -1.5rem;
+        }
+        
+        .lesson-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+        
+        .lesson-icons {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .icon-placeholder {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .icon-blue {
+            color: #0F58F9;
+        }
+        
+        .icon-gray {
+            color: #7e848f;
+        }
+        
+        /* Content Types Section */
+        .content-types-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .content-types-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+        
+        .content-types-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .content-type-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .content-type-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .video-icon {
+            color: #2563EB; /* Blue for video lessons */
+        }
+        
+        .presentation-icon {
+            color: #7C3AED; /* Purple for presentations */
+        }
+        
+        .one-pager-icon {
+            color: #059669; /* Green for one-pagers */
+        }
+        
+        .quiz-icon {
+            color: #EA580C; /* Orange for quizzes */
+        }
+        
+        .content-type-label {
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        
+        /* Sources Section */
+        .sources-section {
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .sources-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+        
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .source-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 0.5rem;
+            background-color: #F9FAFB;
+            transition: background-color 0.2s;
+        }
+        
+        .source-icon {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .notion-icon {
+            color: #000000;
+        }
+        
+        .google-drive-icon {
+            color: #4285F4;
+        }
+        
+        .dropbox-icon {
+            color: #0061FF;
+        }
+        
+        .slack-icon {
+            color: #4A154B;
+        }
+        
+        .confluence-icon {
+            color: #0052CC;
+        }
+        
+        .pdf-icon {
+            color: #DC2626;
+        }
+        
+        .create-icon {
+            color: #2563EB;
+        }
+        
+        .default-icon {
+            color: #6B7280;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .metric-item:last-child {
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .metric-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="p-4 md:p-8">
+        <!-- Course Header -->
+        <div class="course-header">
+            <h1 class="text-3xl font-semibold text-gray-900 mb-2">
+                {{ details.mainTitle | default('Course Outline') }}
+            </h1>
+        </div>
+
+        <!-- Main Content Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <div class="lg:col-span-1">
+                <div class="summary-card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Course Summary</h3>
+                    
+                    <div class="metric-item">
+                        <span class="metric-label">Total Modules</span>
+                        <span class="metric-value">{{ details.sections|length }}</span>
+                    </div>
+                    
+                    <div class="metric-item">
+                        <span class="metric-label">Total Lessons</span>
+                        <span class="metric-value">
+                            {% set total_lessons = details.sections|map(attribute='lessons')|sum(start=[])|length %}
+                            {{ total_lessons }}
+                        </span>
+                    </div>
+                    
+                    {% if details.sources %}
+                    <div class="sources-section">
+                        <h3 class="sources-title">Sources</h3>
+                        <div class="sources-grid">
+                            {% for source in details.sources %}
+                            <div class="source-item">
+                                {% if source.name == 'notion' %}
+                                    <div class="source-icon notion-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466l1.823 1.447zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933l3.222-.186z"/>
+                                        </svg>
+                                    </div>
+                                {% elif source.name == 'google_drive' %}
+                                    <div class="source-icon google-drive-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M7.71 6.29L3.42 10.58C2.53 11.46 2.53 12.85 3.42 13.73L7.71 18.02C8.1 18.41 8.73 18.41 9.12 18.02C9.51 17.63 9.51 17 9.12 16.61L5.41 12.9C5.02 12.51 5.02 11.88 5.41 11.49L9.12 7.78C9.51 7.39 9.51 6.76 9.12 6.37C8.73 5.98 8.1 5.98 7.71 6.29Z"/>
+                                        </svg>
+                                    </div>
+                                {% elif source.name == 'dropbox' %}
+                                    <div class="source-icon dropbox-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2L8 6h8l-4-4zm0 4l-4 4h8l-4-4zm-4 4l4 4-4 4-4-4 4-4zm8 0l4 4-4 4-4-4 4-4z"/>
+                                        </svg>
+                                    </div>
+                                {% elif source.name == 'slack' %}
+                                    <div class="source-icon slack-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.527 2.527 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+                                        </svg>
+                                    </div>
+                                {% elif source.name == 'confluence' %}
+                                    <div class="source-icon confluence-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.004 5.367 18.637.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.418-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.928.875 1.418 2.026 1.418 3.323s-.49 2.448-1.418 3.244c-.875.807-2.026 1.297-3.323 1.297zm7.118 0c-1.297 0-2.448-.49-3.323-1.297-.928-.807-1.418-1.958-1.418-3.244s.49-2.448 1.418-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.928.875 1.418 2.026 1.418 3.323s-.49 2.448-1.418 3.244c-.875.807-2.026 1.297-3.323 1.297z"/>
+                                        </svg>
+                                    </div>
+                                {% elif source.name == 'PDF Document' %}
+                                    <div class="source-icon pdf-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                        </svg>
+                                    </div>
+                                {% elif source.name == 'Create from scratch' %}
+                                    <div class="source-icon create-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                        </svg>
+                                    </div>
+                                {% else %}
+                                    <div class="source-icon default-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Content Types Section -->
+                    <div class="content-types-section">
+                        <h3 class="content-types-title">Content Types</h3>
+                        <div class="content-types-list">
+                            <div class="content-type-item">
+                                <div class="content-type-icon video-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                <span class="content-type-label">Video Lessons</span>
+                            </div>
+                            
+                            <div class="content-type-item">
+                                <div class="content-type-icon presentation-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"></path>
+                                        <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M12 7L12 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M16 8L16 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M8 9L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                <span class="content-type-label">Presentations</span>
+                            </div>
+                            
+                            <div class="content-type-item">
+                                <div class="content-type-icon one-pager-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                <span class="content-type-label">One-pagers</span>
+                            </div>
+                            
+                            <div class="content-type-item">
+                                <div class="content-type-icon quiz-icon">
+                                    <svg width="16" height="16" strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"></circle>
+                                        <path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path>
+                                        <circle cx="12" cy="16" r="1" fill="currentColor"></circle>
+                                    </svg>
+                                </div>
+                                <span class="content-type-label">Quizzes</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Course Outline and Modules -->
+            <div class="lg:col-span-2 space-y-4">
+                {% for section in details.sections %}
+                <div class="module-card">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">
+                        Module {{ loop.index }}: {{ section.title }}
+                    </h2>
+                    <p class="text-sm text-gray-600 mb-6">
+                        {{ section.lessons|length }} lessons
+                    </p>
+                    <div class="border-bottom-divider"></div>
+                    
+                    {% if section.lessons %}
+                    <div>
+                        {% for lesson in section.lessons %}
+                        <div class="lesson-item">
+                            <div class="flex items-center gap-2">
+                                <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.78446 3.30541C6.32191 3.61252 6.32191 4.38748 5.78446 4.69459L1.19691 7.31605C0.663586 7.62081 1.60554e-07 7.23571 1.87404e-07 6.62146L4.16579e-07 1.37854C4.43429e-07 0.764285 0.663586 0.379192 1.19691 0.683949L5.78446 3.30541Z" fill="#0F58F9"/>
+                                </svg>
+                                <span class="lesson-title">{{ lesson.title }}</span>
+                            </div>
+                            <div class="lesson-icons">
+                                <!-- Presentation Icon -->
+                                <div class="icon-placeholder {% if lesson.contentStatus.presentation.exists %}icon-blue{% else %}icon-gray{% endif %}">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 7C3 5.11438 3 4.17157 3.58579 3.58579C4.17157 3 5.11438 3 7 3H12H17C18.8856 3 19.8284 3 20.4142 3.58579C21 4.17157 21 5.11438 21 7V10V13C21 14.8856 21 15.8284 20.4142 16.4142C19.8284 17 18.8856 17 17 17H12H7C5.11438 17 4.17157 17 3.58579 16.4142C3 15.8284 3 14.8856 3 13V10V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"></path>
+                                        <path d="M9 21L11.625 17.5V17.5C11.8125 17.25 12.1875 17.25 12.375 17.5V17.5L15 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M12 7L12 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M16 8L16 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M8 9L8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                
+                                <!-- One-Pager Icon -->
+                                <div class="icon-placeholder {% if lesson.contentStatus.onePager.exists %}icon-blue{% else %}icon-gray{% endif %}">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M8 8H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                        <path d="M8 12H12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                                
+                                <!-- Quiz Icon -->
+                                <div class="icon-placeholder {% if lesson.contentStatus.quiz.exists %}icon-blue{% else %}icon-gray{% endif %}">
+                                    <svg width="16" height="16" strokeWidth="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"></circle>
+                                        <path d="M10.125 8.875C10.125 7.83947 10.9645 7 12 7C13.0355 7 13.875 7.83947 13.875 8.875C13.875 9.56245 13.505 10.1635 12.9534 10.4899C12.478 10.7711 12 11.1977 12 11.75V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path>
+                                        <circle cx="12" cy="16" r="1" fill="currentColor"></circle>
+                                    </svg>
+                                </div>
+                                
+                                <!-- Video Lesson Icon -->
+                                <div class="icon-placeholder {% if lesson.contentStatus.videoLesson.exists %}icon-blue{% else %}icon-gray{% endif %}">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16 10L18.5768 8.45392C19.3699 7.97803 19.7665 7.74009 20.0928 7.77051C20.3773 7.79703 20.6369 7.944 20.806 8.17433C21 8.43848 21 8.90095 21 9.8259V14.1741C21 15.099 21 15.5615 20.806 15.8257C20.6369 16.056 20.3773 16.203 20.0928 16.2295C19.7665 16.2599 19.3699 16.022 18.5768 15.5461L16 14M6.2 18H12.8C13.9201 18 14.4802 18 14.908 17.782C15.2843 17.5903 15.5903 17.2843 15.782 16.908C16 16.4802 16 15.9201 16 14.8V9.2C16 8.0799 16 7.51984 15.782 7.09202C15.5903 6.71569 15.2843 6.40973 14.908 6.21799C14.4802 6 13.9201 6 12.8 6H6.2C5.0799 6 4.51984 6 4.09202 6.21799C3.71569 6.40973 3.40973 6.71569 3.21799 7.09202C3 7.51984 3 8.07989 3 9.2V14.8C3 15.9201 3 16.4802 3.21799 16.908C3.40973 17.2843 3.71569 17.5903 4.09202 17.782C4.51984 18 5.07989 18 6.2 18Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+        </div>
+    </div>
+</body>
+</html>

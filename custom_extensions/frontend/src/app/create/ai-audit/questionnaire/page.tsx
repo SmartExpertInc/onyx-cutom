@@ -93,7 +93,7 @@ export default function AiAuditQuestionnaire() {
         if (data.messages) setProgressMessages(data.messages);
         if (data.result && (data.result.folderId || data.result.id)) {
           setGenerationDone(true);
-          setFinalRedirectUrl(data.result.folderId ? `/projects?folder=${data.result.folderId}` : `/projects/view/${data.result.id}`);
+          setFinalRedirectUrl(data.result.folderId ? `/projects?folder=${data.result.folderId}` : `/projects/view/${data.result.id}?from=create`);
           setLoading(false);
         }
       }, 2000);
@@ -166,7 +166,7 @@ export default function AiAuditQuestionnaire() {
       } else if (data.folderId || data.id) {
         // fallback: immediate result
         setGenerationDone(true);
-        setFinalRedirectUrl(data.folderId ? `/projects?folder=${data.folderId}` : `/projects/view/${data.id}`);
+        setFinalRedirectUrl(data.folderId ? `/projects?folder=${data.folderId}` : `/projects/view/${data.id}?from=create`);
         setLoading(false);
       }
     } catch (err: any) {

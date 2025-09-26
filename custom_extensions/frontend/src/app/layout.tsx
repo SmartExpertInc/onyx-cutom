@@ -3,6 +3,8 @@ import './globals.css'; // Your global styles and Tailwind imports
 import React from 'react';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { MontFontLoader } from '../components/MontFontLoader';
+import { AvatarDisplayManager } from '../components/AvatarDisplayManager';
+import MixpanelProvider from './MixpanelProvider';
 
 export const metadata = {
   title: 'Content Builder AI',
@@ -40,7 +42,11 @@ export default function RootLayout({
       <body className="h-full bg-app-gradient">
         <MontFontLoader />
         <LanguageProvider>
-          {children}
+          <AvatarDisplayManager>
+            <MixpanelProvider>
+              {children}
+            </MixpanelProvider>
+          </AvatarDisplayManager>
         </LanguageProvider>
       </body>
     </html>

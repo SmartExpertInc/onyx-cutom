@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, CheckCircle, RotateCcw } from "lucide-react";
+import { Plus, CheckCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackSmartEdit } from '../lib/mixpanelClient'
 
 interface SmartPromptEditorProps {
   projectId: number;
@@ -37,28 +38,28 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
   const outlineExamples: { short: string; detailed: string }[] = [
     {
-      short: "Make all lessons have assessment type 'test'",
-      detailed: "Update all lessons in the training plan to have assessment type 'test' instead of their current assessment types.",
+      short: t('smartEdit.examples.makeAllTests.short', "Make all lessons have assessment type 'test'"),
+      detailed: t('smartEdit.examples.makeAllTests.detailed', "Update all lessons in the training plan to have assessment type 'test' instead of their current assessment types."),
     },
     {
-      short: "Add practical exercises to each module",
-      detailed: "Add practical exercises or hands-on activities to each module in the training plan to enhance learning engagement.",
+      short: t('smartEdit.examples.addExercises.short', 'Add practical exercises to each module'),
+      detailed: t('smartEdit.examples.addExercises.detailed', 'Add practical exercises or hands-on activities to each module in the training plan to enhance learning engagement.'),
     },
     {
-      short: "Restructure into shorter modules",
-      detailed: "Reorganize the content into shorter, more digestible modules while maintaining the learning flow and objectives.",
+      short: t('smartEdit.examples.restructureShorter.short', 'Restructure into shorter modules'),
+      detailed: t('smartEdit.examples.restructureShorter.detailed', 'Reorganize the content into shorter, more digestible modules while maintaining the learning flow and objectives.'),
     },
     {
-      short: "Add case studies and real examples",
-      detailed: "Include relevant case studies and real-world examples in each module to provide practical context for learners.",
+      short: t('smartEdit.examples.addCaseStudies.short', 'Add case studies and real examples'),
+      detailed: t('smartEdit.examples.addCaseStudies.detailed', 'Include relevant case studies and real-world examples in each module to provide practical context for learners.'),
     },
     {
-      short: "Increase advanced content depth",
-      detailed: "Enhance the training plan with more advanced-level content and deeper insights while maintaining accessibility.",
+      short: t('smartEdit.examples.increaseAdvancedDepth.short', 'Increase advanced content depth'),
+      detailed: t('smartEdit.examples.increaseAdvancedDepth.detailed', 'Enhance the training plan with more advanced-level content and deeper insights while maintaining accessibility.'),
     },
     {
-      short: "Add assessment quizzes",
-      detailed: "Include assessment quizzes and knowledge checks throughout the training plan to reinforce learning.",
+      short: t('smartEdit.examples.addQuizzes.short', 'Add assessment quizzes'),
+      detailed: t('smartEdit.examples.addQuizzes.detailed', 'Include assessment quizzes and knowledge checks throughout the training plan to reinforce learning.'),
     },
   ];
 
@@ -113,6 +114,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
       const decoder = new TextDecoder();
       let buffer = "";
+      let hasTrackedCompletion = false;
 
       while (true) {
         const { value, done } = await reader.read();
@@ -127,6 +129,11 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           try {
             const packet = JSON.parse(line);
             if (packet.type === "done" && packet.updatedContent) {
+              if (!hasTrackedCompletion) {
+                trackSmartEdit("Completed");
+                hasTrackedCompletion = true;
+              }
+
               if (packet.isPreview) {
                 // This is a preview - show confirmation UI and immediately update the display
                 setPreviewContent(packet.updatedContent);
@@ -150,6 +157,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
         }
       }
     } catch (error: any) {
+      trackSmartEdit("Failed");
       onError(error.message || "Failed to apply edit");
     } finally {
       setLoadingEdit(false);
@@ -208,40 +216,53 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
 
   if (showConfirmation) {
     return (
-      <div className="w-full bg-white border border-gray-300 rounded-xl p-6 mb-4 shadow-sm">
+      <div className="w-full bg-white rounded-lg p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">{t('actions.reviewChanges', 'Review Changes')}</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
-            {t('actions.changesPreview', 'Changes Preview')}
-          </div>
         </div>
         
         <p className="text-gray-700 mb-6">
-          Please review the changes below. The updated content is now displayed in the table. 
-          You can accept these changes to save them permanently, or revert to go back to the original content.
+          {t('actions.reviewChangesMessage', 'Please review the changes below. The updated content is now displayed in the table. You can accept these changes to save them permanently, or revert to go back to the original content.')}
         </p>
         
         <div className="flex items-center gap-3">
           <button
             onClick={handleConfirmChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#059669',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              lineHeight: '140%',
+              letterSpacing: '0.05em'
+            }}
           >
             {loadingConfirm ? (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
             ) : (
-              <CheckCircle size={16} />
+              <>
+                <CheckCircle size={14} style={{ color: 'white' }} />
+                {t('actions.acceptChanges', 'Accept Changes')}
+              </>
             )}
-            {loadingConfirm ? t('actions.saving', 'Saving...') : t('actions.acceptChanges', 'Accept Changes')}
           </button>
           
           <button
             onClick={handleRevertChanges}
             disabled={loadingConfirm}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#6B7280',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '600',
+              lineHeight: '140%',
+              letterSpacing: '0.05em'
+            }}
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={14} style={{ color: 'white' }} />
             {t('actions.revertChanges', 'Revert Changes')}
           </button>
         </div>
@@ -253,7 +274,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
     <>
       {/* Advanced mode panel - always shown */}
       {showAdvanced && (
-        <div className="w-full bg-white border border-gray-300 rounded-xl p-4 flex flex-col gap-3 mb-4 shadow-sm">
+        <div className="w-full bg-white rounded-lg p-4 sm:p-6 md:p-8 flex flex-col gap-3 mb-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{t('actions.smartEdit', 'Smart Edit')}</h3>
             <button
@@ -267,8 +288,9 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
           <textarea
             value={editPrompt}
             onChange={(e) => setEditPrompt(e.target.value)}
-            placeholder="Describe what you'd like to improve..."
-            className="w-full border border-gray-300 rounded-md p-3 resize-none min-h-[80px] text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder={t('interface.courseOutline.describeImprovements', "Describe what you'd like to improve...")}
+            className="w-full px-7 py-5 rounded-2xl bg-white text-sm text-black resize-none overflow-y-auto min-h-[80px] border border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+            style={{ background: 'rgba(255,255,255,0.95)' }}
             disabled={loadingEdit}
           />
 
@@ -280,10 +302,10 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
                 type="button"
                 onClick={() => toggleExample(ex)}
                 disabled={loadingEdit}
-                className={`relative text-left border border-gray-200 rounded-md px-4 py-3 text-sm w-full cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-black ${
+                className={`relative text-left rounded-md px-4 py-4 text-sm w-full cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black ${
                   selectedExamples.includes(ex.short)
-                    ? 'bg-white shadow border-blue-300'
-                    : 'bg-blue-50 hover:bg-white'
+                    ? 'bg-[#B8D4F0]'
+                    : 'bg-[#D9ECFF] hover:shadow-lg'
                 }`}
               >
                 {ex.short}
@@ -297,12 +319,24 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
             <button
               onClick={handleApplyEdit}
               disabled={!editPrompt.trim() || loadingEdit}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="flex items-center gap-2 rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: '#3B82F6',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '600',
+                lineHeight: '140%',
+                letterSpacing: '0.05em'
+              }}
             >
-              {loadingEdit && (
+              {loadingEdit ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+              ) : (
+                <>
+                  <Sparkles size={14} style={{ color: 'white' }} />
+                  {t('actions.applyEdit', 'Apply Edit')}
+                </>
               )}
-              {loadingEdit ? t('actions.applying', 'Applying...') : t('actions.applyEdit', 'Apply Edit')}
             </button>
           </div>
         </div>

@@ -1,0 +1,387 @@
+{
+  "lessonTitle": "Digital Marketing Strategy: Customer Acquisition and Retention",
+  "slides": [
+    {
+      "slideId": "slide_1_marketing_intro",
+      "slideNumber": 1,
+      "slideTitle": "Section: Digital Marketing Strategy Excellence",
+      "templateId": "title-slide",
+      "previewKeyPoints": [
+        "Comprehensive digital marketing framework for customer acquisition and retention",
+        "Data-driven approaches to optimize marketing spend and improve ROI",
+        "Multi-channel strategy integration across digital and traditional platforms",
+        "Performance measurement and continuous optimization methodologies"
+      ],
+      "props": {
+        "title": "Digital Marketing Strategy Excellence",
+        "subtitle": "Customer Acquisition, Retention, and Growth Optimization",
+        "author": "Marketing Excellence Academy"
+      }
+    },
+    {
+      "slideId": "slide_2_customer_journey",
+      "slideNumber": 2,
+      "slideTitle": "Digital Marketing Strategy — Customer Journey Mapping and Touchpoint Analysis",
+      "templateId": "timeline",
+      "previewKeyPoints": [
+        "Complete customer journey from awareness to advocacy with key decision points",
+        "Critical touchpoints where customers interact with brand messaging and experiences",
+        "Conversion optimization opportunities at each stage of the funnel",
+        "Attribution modeling to understand multi-touch conversion paths"
+      ],
+      "props": {
+        "title": "Customer Journey Stages and Optimization Points",
+        "events": [
+          {
+            "date": "Awareness",
+            "title": "Discovery Phase",
+            "description": "Content marketing, SEO, social media advertising, and influencer partnerships to build brand recognition and establish thought leadership in target market segments."
+          },
+          {
+            "date": "Consideration",
+            "title": "Evaluation Phase", 
+            "description": "Email nurturing sequences, product demos, comparison guides, and retargeting campaigns to educate prospects and address common objections."
+          },
+          {
+            "date": "Purchase",
+            "title": "Conversion Phase",
+            "description": "Landing page optimization, checkout flow improvements, abandoned cart recovery, and personalized offers to maximize conversion rates."
+          },
+          {
+            "date": "Retention",
+            "title": "Loyalty Phase",
+            "description": "Onboarding sequences, customer success programs, loyalty rewards, and upselling campaigns to increase lifetime value and reduce churn."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_3_channel_performance",
+      "slideNumber": 3,
+      "slideTitle": "Digital Marketing Strategy — Marketing Channel Performance Analysis",
+      "templateId": "metrics-analytics",
+      "previewKeyPoints": [
+        "Performance metrics across all digital marketing channels with trend analysis",
+        "Cost per acquisition and return on ad spend for budget allocation decisions",
+        "Channel attribution and multi-touch conversion tracking insights",
+        "Seasonal trends and optimization opportunities for each marketing channel"
+      ],
+      "props": {
+        "title": "Channel Performance Dashboard",
+        "metrics": [
+          { "number": "$2.34", "text": "Average cost per acquisition across all paid channels with 15% improvement over last quarter through audience refinement and creative optimization." },
+          { "number": "4.2x", "text": "Return on ad spend for Google Ads campaigns driven by improved keyword targeting, negative keyword lists, and landing page conversion optimization." },
+          { "number": "23%", "text": "Email marketing conversion rate achieved through segmentation, personalization, and automated behavioral trigger campaigns for different customer lifecycle stages." },
+          { "number": "156%", "text": "Social media engagement increase through user-generated content campaigns, community building, and authentic brand storytelling across multiple platforms." },
+          { "number": "67%", "text": "Organic search traffic growth from technical SEO improvements, content optimization, and strategic link building initiatives over the past 12 months." },
+          { "number": "89%", "text": "Customer retention rate maintained through personalized onboarding, proactive support, loyalty programs, and continuous value delivery optimization." }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_4_audience_segmentation",
+      "slideNumber": 4,
+      "slideTitle": "Advanced Audience Segmentation and Persona Development",
+      "templateId": "pie-chart-infographics",
+      "previewKeyPoints": [
+        "Customer segmentation based on behavioral data, demographics, and purchase patterns",
+        "Persona development with specific pain points, motivations, and preferred channels",
+        "Segment-specific messaging strategies and content personalization approaches",
+        "Performance tracking and optimization for each customer segment"
+      ],
+      "props": {
+        "title": "Customer Segment Distribution",
+        "chartData": {
+          "segments": [
+            { "label": "Enterprise B2B", "value": 42, "color": "#2563eb" },
+            { "label": "SMB Growth", "value": 28, "color": "#7c3aed" },
+            { "label": "Startup Early", "value": 18, "color": "#059669" },
+            { "label": "Individual Pro", "value": 12, "color": "#dc2626" }
+          ]
+        },
+        "monthlyData": [45, 52, 48, 55, 61, 58, 63, 67, 71, 69, 74, 78],
+        "chartSize": "medium"
+      }
+    },
+    {
+      "slideId": "slide_5_content_strategy",
+      "slideNumber": 5,
+      "slideTitle": "Content Marketing Strategy and Distribution Framework",
+      "templateId": "pyramid",
+      "previewKeyPoints": [
+        "Content hierarchy from foundational educational content to premium thought leadership",
+        "Distribution strategy across owned, earned, and paid media channels",
+        "Content performance measurement and optimization based on engagement metrics",
+        "SEO integration and topic cluster development for organic visibility"
+      ],
+      "props": {
+        "title": "Content Marketing Pyramid",
+        "levels": [
+          { "text": "Thought Leadership", "description": "Industry insights, original research, executive interviews, and strategic whitepapers that establish brand authority and attract high-value prospects." },
+          { "text": "Solution-Focused Content", "description": "Product demos, case studies, comparison guides, and implementation tutorials that address specific customer pain points and drive conversions." },
+          { "text": "Educational Resources", "description": "How-to guides, best practice articles, webinars, and tool recommendations that provide value while building brand trust and awareness." },
+          { "text": "Foundational Content", "description": "Blog posts, social media updates, newsletters, and basic educational content that supports SEO goals and maintains consistent brand presence." }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_6_automation_workflows",
+      "slideNumber": 6,
+      "slideTitle": "Marketing Automation and Lead Nurturing Workflows",
+      "templateId": "process-steps",
+      "previewKeyPoints": [
+        "Automated lead scoring and qualification processes based on behavioral triggers",
+        "Multi-channel nurturing sequences that guide prospects through the sales funnel",
+        "Personalization engines that deliver relevant content based on user preferences",
+        "Integration between marketing automation and CRM systems for seamless handoffs"
+      ],
+      "props": {
+        "title": "Lead Nurturing Automation Workflow",
+        "steps": [
+          "Capture leads through multiple touchpoints including content downloads, webinar registrations, free trial signups, and contact form submissions with progressive profiling to gather qualification data",
+          "Score and segment leads automatically based on demographic fit, behavioral engagement, content consumption patterns, and explicit interest indicators using machine learning algorithms",
+          "Deploy targeted nurturing sequences via email, social media, and retargeting ads with personalized content recommendations based on lead score, industry, and stage in buyer journey",
+          "Trigger sales alerts and handoffs when leads reach qualification thresholds, providing sales teams with complete context including engagement history and recommended next actions",
+          "Continue post-sale nurturing for customer onboarding, upselling opportunities, and retention campaigns while measuring attribution and ROI across the entire customer lifecycle"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_7_competitive_analysis",
+      "slideNumber": 7,
+      "slideTitle": "Competitive Landscape and Market Positioning",
+      "templateId": "comparison-slide",
+      "previewKeyPoints": [
+        "Detailed analysis of key competitors' marketing strategies and positioning",
+        "Feature and pricing comparisons across major market players",
+        "Competitive advantages and differentiation opportunities identification",
+        "Market share trends and competitive response strategies"
+      ],
+      "props": {
+        "title": "Competitive Feature Matrix",
+        "subtitle": "Key differentiators and market positioning analysis",
+        "tableData": {
+          "headers": ["Feature/Capability", "Our Solution", "Competitor A", "Competitor B"],
+          "rows": [
+            ["Advanced Analytics", "Real-time dashboards + AI insights", "Basic reporting", "Standard analytics"],
+            ["Integration Ecosystem", "200+ native integrations", "50+ integrations", "Limited API access"],
+            ["Customer Support", "24/7 dedicated success manager", "Business hours only", "Self-service primarily"],
+            ["Pricing Model", "Usage-based + enterprise tiers", "Per-seat pricing", "Flat rate monthly"],
+            ["Implementation Time", "2-4 weeks with training", "8-12 weeks", "4-6 weeks"],
+            ["Customization", "Full white-label + API", "Limited branding", "No customization"]
+          ]
+        }
+      }
+    },
+    {
+      "slideId": "slide_8_budget_allocation",
+      "slideNumber": 8,
+      "slideTitle": "Marketing Budget Allocation and ROI Optimization",
+      "templateId": "market-share",
+      "previewKeyPoints": [
+        "Budget distribution across channels based on performance and growth potential",
+        "ROI analysis and attribution modeling for investment decision making",
+        "Seasonal budget adjustments and campaign planning considerations",
+        "Testing budget allocation for new channels and experimental initiatives"
+      ],
+      "props": {
+        "title": "Marketing Budget Allocation by Channel",
+        "subtitle": "Q4 2024 budget distribution and performance targets",
+        "chartData": [
+          { "label": "Paid Search", "description": "Google Ads, Bing Ads, shopping campaigns", "percentage": 35, "color": "#1d4ed8", "year": 2024 },
+          { "label": "Social Media", "description": "Facebook, LinkedIn, Instagram, TikTok ads", "percentage": 25, "color": "#7c2d12", "year": 2024 },
+          { "label": "Content Marketing", "description": "Blog, video, webinars, thought leadership", "percentage": 20, "color": "#059669", "year": 2024 },
+          { "label": "Email & Automation", "description": "Nurturing, retention, lifecycle campaigns", "percentage": 12, "color": "#7c3aed", "year": 2024 },
+          { "label": "Experimental", "description": "New channels, testing, innovation", "percentage": 8, "color": "#dc2626", "year": 2024 }
+        ],
+        "bottomText": "15% increase in experimental budget for Q1 2025 to test emerging channels."
+      }
+    },
+    {
+      "slideId": "slide_9_campaign_optimization",
+      "slideNumber": 9,
+      "slideTitle": "A/B Testing and Campaign Optimization Methodology",
+      "templateId": "challenges-solutions",
+      "previewKeyPoints": [
+        "Systematic approach to testing hypotheses and improving campaign performance",
+        "Statistical significance requirements and proper test design principles",
+        "Common optimization challenges and proven solution frameworks",
+        "Continuous improvement processes and performance monitoring systems"
+      ],
+      "props": {
+        "title": "Campaign Optimization Challenges and Solutions",
+        "challengesTitle": "Common Optimization Challenges",
+        "solutionsTitle": "Proven Solution Frameworks",
+        "challenges": [
+          "Insufficient traffic volume makes it difficult to reach statistical significance for A/B tests, leading to inconclusive results and delayed optimization decisions",
+          "Multiple simultaneous tests create interaction effects and contaminate results, making it impossible to isolate the impact of individual changes",
+          "Short-term metrics focus can miss long-term customer value impacts, leading to optimizations that hurt lifetime value while improving immediate conversions"
+        ],
+        "solutions": [
+          "Implement sequential testing protocols with proper sample size calculations, use multi-armed bandit algorithms for low-traffic scenarios, and focus tests on high-impact elements",
+          "Create testing roadmaps with non-overlapping segments, use holdout groups for interaction detection, and establish clear testing hierarchies and schedules",
+          "Balance short-term conversion metrics with long-term value indicators, implement cohort analysis for lifetime value tracking, and use predictive models for optimization decisions"
+        ]
+      }
+    },
+    {
+      "slideId": "slide_10_personalization",
+      "slideNumber": 10,
+      "slideTitle": "Advanced Personalization and Dynamic Content Strategies",
+      "templateId": "big-image-left",
+      "previewKeyPoints": [
+        "Real-time personalization engines that adapt content based on user behavior",
+        "Dynamic website experiences that change based on visitor characteristics",
+        "Personalized email campaigns with individualized product recommendations",
+        "AI-powered content optimization for maximum engagement and conversion"
+      ],
+      "props": {
+        "title": "AI-Powered Personalization at Scale",
+        "subtitle": "Modern personalization goes beyond basic demographic targeting to create individualized experiences using machine learning algorithms that analyze behavioral patterns, predict preferences, and deliver the most relevant content, products, and offers to each visitor in real-time across all digital touchpoints.",
+        "imagePrompt": "Marketing professionals working with personalization technology in a modern digital agency office. Multiple screens display dynamic website interfaces, customer journey maps, and real-time personalization dashboards showing user segments and content variations. Team members analyzing behavioral data and A/B test results for personalization campaigns. Screens and data visualizations are [COLOR1], marketing professionals and workstations are [COLOR2], modern office environment is [COLOR3]. Cinematic photography with natural lighting, 28mm wide-angle lens, environmental view, realistic depth of field.",
+        "imageAlt": "Marketing team implementing personalization technology",
+        "imageSize": "large"
+      }
+    },
+    {
+      "slideId": "slide_11_attribution_modeling",
+      "slideNumber": 11,
+      "slideTitle": "Multi-Touch Attribution and Customer Journey Analytics",
+      "templateId": "table-dark",
+      "previewKeyPoints": [
+        "Attribution models that accurately track multi-channel customer journeys",
+        "Data-driven attribution using machine learning for accurate credit assignment",
+        "Cross-device tracking and identity resolution for complete customer view",
+        "Attribution insights for budget optimization and channel strategy decisions"
+      ],
+      "props": {
+        "title": "Attribution Model Comparison",
+        "tableData": {
+          "headers": ["Attribution Model", "Use Case", "Accuracy", "Implementation"],
+          "rows": [
+            ["First-Touch", "Brand awareness campaigns", "Low", "Simple"],
+            ["Last-Touch", "Direct response campaigns", "Medium", "Simple"],
+            ["Linear", "Full funnel optimization", "Medium", "Moderate"],
+            ["Time-Decay", "Long sales cycle B2B", "High", "Moderate"],
+            ["Position-Based", "Lead generation focus", "High", "Complex"],
+            ["Data-Driven", "Advanced optimization", "Highest", "Complex"]
+          ]
+        },
+        "showCheckmarks": true,
+        "colors": {
+          "headerBg": "#1e293b",
+          "rowAltBg": "#334155"
+        }
+      }
+    },
+    {
+      "slideId": "slide_12_mobile_optimization",
+      "slideNumber": 12,
+      "slideTitle": "Mobile-First Marketing and App Engagement Strategies",
+      "templateId": "two-column",
+      "previewKeyPoints": [
+        "Mobile-optimized campaigns designed for smartphone and tablet experiences",
+        "App store optimization and mobile app marketing best practices",
+        "Location-based marketing and proximity targeting strategies",
+        "Mobile attribution and in-app analytics for performance measurement"
+      ],
+      "props": {
+        "title": "Mobile Marketing Excellence Framework",
+        "leftTitle": "Mobile Web Optimization",
+        "leftContent": "Responsive design with fast loading times optimized for mobile networks, ensuring seamless user experiences across all device types and screen sizes\nMobile-specific landing pages with simplified forms, thumb-friendly navigation, and click-to-call functionality for immediate conversion opportunities\nAccelerated Mobile Pages (AMP) implementation for improved search visibility and faster content loading on mobile search results\nMobile-first email templates with optimized subject lines, preheader text, and single-column layouts for better readability and engagement",
+        "rightTitle": "App Marketing Strategy",
+        "rightContent": "App Store Optimization (ASO) with keyword research, compelling app descriptions, high-quality screenshots, and positive review management strategies\nIn-app engagement campaigns using push notifications, in-app messages, and personalized content recommendations to increase retention and lifetime value\nDeep linking strategies that connect external marketing campaigns directly to specific app content, reducing friction and improving conversion rates\nMobile attribution tracking with tools like AppsFlyer or Adjust to measure campaign performance, user acquisition costs, and lifetime value across channels"
+      }
+    },
+    {
+      "slideId": "slide_13_events_calendar",
+      "slideNumber": 13,
+      "slideTitle": "Marketing Calendar and Campaign Timeline",
+      "templateId": "event-list",
+      "previewKeyPoints": [
+        "Strategic marketing calendar aligned with business objectives and seasonal trends",
+        "Campaign launch dates coordinated across all marketing channels",
+        "Key industry events and partnership opportunities for brand visibility",
+        "Performance review checkpoints and optimization milestones"
+      ],
+      "props": {
+        "events": [
+          { "date": "2024-11-15", "description": "Holiday season campaign launch with email sequences, social media content, and paid advertising across all channels targeting gift purchasers and end-of-year buyers." },
+          { "date": "2024-12-01", "description": "Cyber Monday flash sale promotion with limited-time offers, countdown timers, and urgency messaging to maximize conversion during peak shopping period." },
+          { "date": "2024-12-15", "description": "Year-end customer appreciation campaign featuring loyalty rewards, exclusive content, and personalized thank-you messages to strengthen relationships." },
+          { "date": "2025-01-08", "description": "New Year new goals campaign targeting resolution-focused audiences with motivational content, goal-setting tools, and fresh start messaging themes." },
+          { "date": "2025-01-22", "description": "Industry conference presence with thought leadership presentations, networking events, and lead generation activities for Q1 pipeline building." }
+        ],
+        "titleColor": "#1e293b",
+        "descriptionColor": "#475569",
+        "backgroundColor": "#f8fafc"
+      }
+    },
+    {
+      "slideId": "slide_14_kpi_dashboard",
+      "slideNumber": 14,
+      "slideTitle": "Marketing KPI Dashboard and Performance Tracking",
+      "templateId": "big-numbers",
+      "previewKeyPoints": [
+        "Key performance indicators that align with business objectives and revenue goals",
+        "Real-time dashboard monitoring for quick identification of performance issues",
+        "Benchmark comparisons and industry standard performance metrics"
+      ],
+      "props": {
+        "title": "Marketing Performance Scorecard",
+        "steps": [
+          {
+            "value": "312%",
+            "label": "Marketing Qualified Lead Growth",
+            "description": "Year-over-year increase in qualified leads through improved targeting, content strategy, and conversion optimization across all digital channels."
+          },
+          {
+            "value": "$4.67",
+            "label": "Customer Acquisition Cost",
+            "description": "Blended CAC across all channels with 23% improvement through better attribution modeling, audience optimization, and conversion rate improvements."
+          },
+          {
+            "value": "18.3%",
+            "label": "Marketing Contribution to Pipeline",
+            "description": "Percentage of sales pipeline directly attributable to marketing activities, measured through multi-touch attribution and lead scoring systems."
+          }
+        ]
+      }
+    },
+    {
+      "slideId": "slide_15_future_strategy",
+      "slideNumber": 15,
+      "slideTitle": "Emerging Trends and Future Marketing Strategy",
+      "templateId": "four-box-grid",
+      "previewKeyPoints": [
+        "Emerging marketing technologies and their potential impact on strategy",
+        "Privacy-first marketing approaches in response to data regulations",
+        "AI and machine learning applications for marketing optimization",
+        "Voice search and conversational marketing opportunities"
+      ],
+      "props": {
+        "title": "Future Marketing Innovation Areas",
+        "boxes": [
+          {
+            "heading": "AI-Powered Automation",
+            "text": "Advanced machine learning for predictive customer behavior, automated content generation, and real-time campaign optimization across channels."
+          },
+          {
+            "heading": "Privacy-First Strategies",
+            "text": "First-party data collection, cookieless tracking solutions, and consent-based personalization for sustainable long-term growth."
+          },
+          {
+            "heading": "Voice & Conversational",
+            "text": "Voice search optimization, chatbot automation, and conversational commerce integration for enhanced customer experiences."
+          },
+          {
+            "heading": "Immersive Experiences",
+            "text": "AR/VR marketing applications, interactive content formats, and virtual event strategies for deeper customer engagement."
+          }
+        ]
+      }
+    }
+  ],
+  "currentSlideId": "slide_1_marketing_intro",
+  "detectedLanguage": "en"
+} 

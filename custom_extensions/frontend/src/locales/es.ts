@@ -49,6 +49,7 @@ export const es = {
     acceptChanges: "Aceptar cambios",
     revertChanges: "Revertir cambios",
     reviewChanges: "Revisar cambios",
+    reviewChangesMessage: "Por favor, revisa los cambios a continuación. El contenido actualizado ahora se muestra en la tabla. Puedes aceptar estos cambios para guardarlos permanentemente, o revertir para volver al contenido original.",
     changesPreview: "Vista previa de cambios",
     outlineOnly: "Solo esquema",
     moveAll: "Mover todo",
@@ -188,6 +189,14 @@ export const es = {
         "Crear una lección de video con narración y elementos visuales",
       soon: "Pronto",
       alreadyCreated: "Ya creado",
+      recommended: "Recomendado",
+      recommendedDescription: "Tipos de contenido sugeridos por IA perfectos para esta lección",
+      orExploreMore: "o explorar más opciones",
+      customizeRecommendations: "Personalizar Recomendaciones",
+      selectRecommendedProducts: "Selecciona qué productos deben mostrarse como recomendados para esta lección.",
+      allOptions: "Todos los tipos de contenido",
+      seeAllContentTypes: "Ver todos los tipos de contenido",
+      backToRecommended: "Volver a recomendados"
     },
     openContent: {
       title: "Abrir Contenido",
@@ -293,9 +302,30 @@ export const es = {
     folderExport: {
       title: "Generando PDF",
       subtitle: "Creando exportación PDF para carpeta",
-      description:
-        "Esto puede tomar unos momentos dependiendo del número de archivos...",
+      description: "Esto puede tomar unos momentos dependiendo del número de archivos..."
     },
+    lessonSettings: {
+      title: 'Configuración de la lección',
+      subtitle: 'Configurar calidad de producción para',
+      tier: 'Nivel',
+      contentExamples: 'Ejemplos de contenido',
+      hoursRange: 'Rango de horas',
+      example: 'Ejemplo',
+      lessonQualityTier: 'Nivel de calidad de la lección establecido en',
+      perCompletionHour: 'h por hora de finalización',
+      cancel: 'Cancelar',
+      saveChanges: 'Guardar cambios',
+      saving: 'Guardando...',
+      failedToSave: 'No se pudo guardar la configuración del nivel de la lección',
+      lessonTitle: 'Título de la lección',
+      advanced: 'Avanzado'
+    },
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video'
+    }
   },
   projects: {
     loading: "Cargando productos...",
@@ -319,6 +349,9 @@ export const es = {
   interface: {
     // Header
     products: "Productos",
+    smartDrive: "Disco Inteligente",
+    offers: "Ofertas",
+    exportToLMS: "Exportar a LMS",
     trash: "Papelera",
     getUnlimitedAI: "Obtener IA ilimitada",
     credits: "créditos",
@@ -334,6 +367,208 @@ export const es = {
       "Organiza tus productos por tema y compártelos con tu equipo",
     templates: "Plantillas",
     themes: "Temas",
+    createFirstFolder: "Crear primera carpeta",
+    organizeCourses: "Organiza tus cursos en carpetas, manténlos estructurados y trabaja más eficientemente",
+
+    // Smart Drive content
+    smartDriveBrowser: "Navegador de Disco Inteligente",
+    browseAndManageFiles: "Explora y gestiona tus archivos en la nube",
+    browseAndSelectFiles: "Explora y selecciona archivos de tu almacenamiento en la nube",
+    connectors: "Conectores",
+    popularConnectors: "Conectores populares",
+    allConnectors: "Todos los conectores",
+    showAll: "Mostrar todo",
+    hideAll: "Ocultar todo",
+    connect: "Conectar",
+    manage: "Gestionar",
+    active: "Activo",
+    hideBrowser: "Ocultar navegador",
+    showBrowser: "Mostrar navegador",
+    selectConnectors: "Seleccionar conectores",
+    chooseDataSources: "Elige fuentes de datos para incluir en tu contenido",
+    searchConnectors: "Buscar conectores...",
+    noConnectorsFound: "No se encontraron conectores que coincidan con tu búsqueda.",
+    noConnectorsAvailable: "No hay conectores disponibles.",
+    tryAdjustingSearch: "Intenta ajustar tus términos de búsqueda.",
+    connectFirstDataSource: "Conecta tu primera fuente de datos para comenzar.",
+    loadingConnectors: "Cargando conectores...",
+    contentCreationNotImplemented: "La funcionalidad de creación de contenido se implementará en el backend",
+    contentCreation: "Creación de contenido",
+    transformFilesToContent: "Transforma tus archivos en contenido con IA",
+    selectedConnectors: "Conectores seleccionados",
+    selectedFiles: "Archivos seleccionados",
+    filesFromSmartDrive: "Archivos del Disco Inteligente",
+    connector: "conector",
+    connectorPlural: "conectores",
+    file: "archivo",
+    filePlural: "archivos",
+    docs: "docs",
+    createContentFromSelected: "Crear contenido desde {count} fuente seleccionada",
+    connectorStatusLabels: {
+      active: "activo",
+      syncing: "sincronizando",
+      error: "error",
+      paused: "pausado"
+    },
+
+    // LMS Export
+    lmsAccountQuestion: "¿Tienes una cuenta en Smart Expert LMS?",
+    lmsAccountYes: "Sí, tengo una cuenta",
+    lmsAccountNo: "No, necesito crear una",
+    lmsSetupWaiting: "Configurando tu cuenta...",
+    lmsSelectProducts: "Seleccionar productos para exportar",
+    lmsSelectCourseOutlines: "Seleccionar esquemas de curso para exportar",
+    noCourseOutlines: "No se encontraron esquemas de curso",
+    lmsExport: "Exportar a LMS",
+    lmsExporting: "Exportando...",
+    lmsNoProductsSelected: "Por favor, selecciona al menos un esquema de curso para exportar",
+
+    // Offers page
+    searchOffers: "Buscar ofertas...",
+    allStatuses: "Todos los estados",
+    draft: "Borrador",
+    internalReview: "Revisión interna",
+    approved: "Aprobado",
+    sentToClient: "Enviado al cliente",
+    viewedByClient: "Visto por el cliente",
+    negotiation: "Negociación",
+    accepted: "Aceptado",
+    rejected: "Rechazado",
+    archived: "Archivado",
+    createOffer: "Crear oferta",
+    offerName: "Nombre de la oferta",
+    offer: "Oferta",
+    name: "Nombre",
+    createdOn: "Creado en",
+    manager: "Gerente",
+    status: "Estado",
+    totalHours: "Horas totales",
+    link: "Enlace",
+    noOffers: "No se encontraron ofertas",
+    createYourFirstOffer: "Crea tu primera oferta para comenzar",
+    retry: "Reintentar",
+    shareError: "Error al generar enlace para compartir",
+    copyError: "Error al copiar enlace",
+    shareOffer: "Compartir oferta",
+    shareOfferDescription: "Comparte esta oferta con cualquiera, incluso sin una cuenta",
+    shareOfferSubtext: "Los destinatarios pueden ver los detalles completos de la oferta sin crear una cuenta",
+    generatingLink: "Generando enlace...",
+    shareableLink: "Enlace compartible",
+    copied: "¡Copiado!",
+    copyLink: "Copiar enlace",
+    linkCopied: "¡Enlace copiado al portapapeles!",
+    editOffer: "Editar oferta",
+    company: "Empresa",
+    updating: "Actualizando...",
+    deleteOfferConfirmation: "¿Estás seguro de que quieres eliminar esta oferta? Esta acción no se puede deshacer.",
+    locale: "es-ES",
+
+    // Connector Management
+    connectorStatus: "Estado",
+    documentsIndexed: "Documentos indexados",
+    lastIndexed: "Último indexado",
+    never: "Nunca",
+    connectorInvalidState: "El conector está en un estado inválido",
+    checkConfigurationAndRetry: "Por favor, verifica tu configuración e inténtalo de nuevo.",
+    index: "Indexar",
+    fullReindex: "Re-indexado completo",
+    pause: "Pausar",
+    resume: "Reanudar",
+    connectorMustBePaused: "El conector debe estar pausado antes de eliminarlo",
+    configuration: "Configuración",
+    connectorName: "Nombre del conector",
+    source: "Fuente",
+    credential: "Credencial",
+    accessType: "Tipo de acceso",
+    refreshFrequency: "Frecuencia de actualización",
+    pruneFrequency: "Frecuencia de limpieza",
+
+    // Create Offer Modal
+    loadingClients: "Cargando clientes...",
+    selectClient: "Selecciona un cliente...",
+
+    // Workspace Members
+    workspace: "Espacio de trabajo",
+    workspaceMembers: "Miembros del espacio de trabajo",
+    workspaceMembersDescription: "Gestiona los miembros del equipo y su acceso al espacio de trabajo",
+    addMember: "Agregar miembro",
+    inviteMember: "Invitar miembro",
+    memberName: "Nombre",
+    memberEmail: "Email",
+    memberRole: "Rol",
+    memberStatus: "Estado",
+    memberInvitationDate: "Fecha de invitación",
+    memberActions: "Acciones",
+    roles: {
+      admin: "Administrador",
+      member: "Miembro",
+      viewer: "Observador",
+      manager: "Gerente",
+      editor: "Editor"
+    },
+    statuses: {
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado",
+      pending: "Pendiente"
+    },
+    workspaceActions: {
+      delete: "Eliminar",
+      suspend: "Suspender",
+      activate: "Activar",
+      unblock: "Desbloquear",
+      resendInvitation: "Reenviar invitación"
+    },
+    filters: {
+      allStatuses: "Todos los estados",
+      active: "Activo",
+      suspended: "Suspendido",
+      blocked: "Bloqueado"
+    },
+    addMemberModal: {
+      title: "Agregar miembro",
+      description: "Invitar a un nuevo miembro al espacio de trabajo",
+      emailLabel: "Email",
+      emailPlaceholder: "Ingrese dirección de email",
+      roleLabel: "Rol",
+      rolePlaceholder: "Seleccionar rol",
+      statusLabel: "Estado",
+      sendInvitation: "Enviar invitación",
+      cancel: "Cancelar"
+    },
+    noMembers: "No se encontraron miembros del espacio de trabajo",
+    searchPlaceholder: "Buscar miembros...",
+    searchPlaceholderProjects: "Buscar proyectos...",
+    manageRoles: "Gestionar roles",
+
+    // Role Management
+    roleManager: {
+      title: "Gestionar roles personalizados",
+      description: "Crear roles personalizados con permisos y colores específicos",
+      addNewRole: "Agregar nuevo rol",
+      roleNamePlaceholder: "Ingrese nombre del rol",
+      permissions: "Permisos",
+      addRole: "Agregar rol",
+      existingRoles: "Roles existentes",
+      close: "Cerrar"
+    },
+
+    // Permissions
+    permissions: {
+      fullAccess: "Acceso completo",
+      manageUsers: "Gestionar usuarios",
+      manageSettings: "Gestionar configuración",
+      viewProjects: "Ver proyectos",
+      editOwnWork: "Editar trabajo propio",
+      viewOnly: "Solo ver",
+      manageProjects: "Gestionar proyectos",
+      assignTasks: "Asignar tareas",
+      editContent: "Editar contenido",
+      reviewWork: "Revisar trabajo"
+    },
+    enterOfferName: "Ingresa el nombre de la oferta...",
+    enterManager: "Ingresa el nombre del gerente...",
+    creating: "Creando...",
 
     // Main content
     all: "Todos",
@@ -356,7 +591,7 @@ export const es = {
     numberOfLessons: "Número de lecciones",
     estCreationTime: "Tiempo est. creación",
     estCompletionTime: "Tiempo est. finalización",
-    actions: "Acciones",
+    actions: "ACCIONES",
 
     // Project actions
     rename: "Renombrar",
@@ -375,6 +610,11 @@ export const es = {
     renameFolder: "Renombrar carpeta",
     deleteFolder: "Eliminar carpeta",
     moveFolder: "Mover carpeta",
+    creatingFolders: "Creando carpetas...",
+    createFolders: "Crear carpeta",
+    createNewFolder: "Crear nueva carpeta",
+    enterFolderNamePlaceholder: "Ingrese el nombre de la carpeta...",
+    organizeProjectsByFolder: "Organiza tus proyectos por carpeta para una mejor gestión",
 
     // Modals
     createFolder: "Crear o unirse a una carpeta",
@@ -654,10 +894,10 @@ export const es = {
     pasteInTextDescription:
       "Crear desde notas, un esquema o contenido existente",
     generateDescription: "Crear desde un prompt de una línea en segundos",
-    importFileOrUrl: "Importar archivo o URL",
+    importFileOrUrl: "Crear desde archivos",
     importFileOrUrlDescription:
       "Mejorar documentos, presentaciones o páginas web existentes",
-    popular: "POPULAR",
+    popular: "Popular",
 
     // Projects table toolbar
     createNew: "Crear nuevo",
@@ -756,6 +996,7 @@ export const es = {
       errorLoadingProject: "Error: {error}",
       projectNotFound: "Proyecto no encontrado o datos no disponibles.",
       back: "Atrás",
+      ManageAccess: "Administrar acceso",
       openProducts: "Abrir productos",
       downloadPdf: "Descargar PDF",
       smartEdit: "Edición inteligente",
@@ -929,6 +1170,17 @@ export const es = {
       select: "Seleccionar",
       selected: "Seleccionado",
       file: "archivo",
+      chooseMethod: "Elige tu método preferido para crear contenido desde tus archivos",
+      createFromKnowledgeBase: "Crear desde la Base de Conocimientos",
+      knowledgeBaseDescription: "Genera contenido buscando en toda tu Base de Conocimientos información relevante. Perfecto para la creación integral de contenido.",
+      createFromSpecificFiles: "Crear desde Archivos Específicos",
+      specificFilesDescription: "Selecciona archivos y carpetas específicos para usar como material fuente. Ideal para la creación dirigida de contenido.",
+      whyChooseMethods: "¿Por qué elegir estos métodos?",
+      knowledgeBaseSearch: "Búsqueda en Base de Conocimientos",
+      knowledgeBaseSearchDesc: "Aprovecha toda tu colección de documentos para encontrar la información más relevante para tus necesidades de creación de contenido.",
+      specificFileSelection: "Selección de Archivos Específicos",
+      specificFileSelectionDesc: "Elige exactamente qué archivos incluir, dándote control preciso sobre tu material fuente.",
+      backToCreateFromFiles: "Volver a Crear desde Archivos",
     },
     // Course Outline Page
     courseOutline: {
@@ -992,7 +1244,7 @@ export const es = {
         "La IA usará tu texto como material de referencia y contexto para crear nuevo contenido educativo.",
       aiWillBuildUponText:
         "La IA desarrollará tu estructura de contenido existente para crear materiales educativos.",
-      courseOutline: "Plan del curso",
+      courseOutline: "Curso",
       videoLesson: "Lección de video",
       presentation: "Presentación",
       quiz: "Cuestionario",
@@ -1041,6 +1293,17 @@ export const es = {
       sectionBreaks: "Saltos de sección",
       icons: "Iconos",
       importantSections: "Secciones importantes",
+      // Style purposes for tooltips
+      headlinesPurpose: "Títulos de sección y encabezados",
+      paragraphsPurpose: "Bloques de texto regulares",
+      bulletListsPurpose: "Listas desordenadas con viñetas",
+      numberedListsPurpose: "Listas ordenadas con números",
+      tablesPurpose: "Datos en filas y columnas",
+      alertsPurpose: "Advertencias o consejos importantes",
+      recommendationsPurpose: "Consejos prácticos",
+      sectionBreaksPurpose: "Separadores visuales entre secciones",
+      iconsPurpose: "Emojis y elementos visuales",
+      importantSectionsPurpose: "Contenido crítico resaltado",
       // One-pager specific translations
       onePagerContent: "Contenido de Una Página",
       generatingOnePagerContent: "Generando contenido de una página...",
@@ -1078,7 +1341,7 @@ export const es = {
         "¿Quieres crear una página desde un plan de curso existente?",
       yesContentForOnePager: "Sí, contenido para la página desde el plan",
       noStandaloneOnePager: "No, quiero una página independiente",
-      backButton: "← Atrás",
+      backButton: "Al paso anterior",
       // Additional keys for preview pages
       loading: "Generando...",
       lessonQuestion:
@@ -1102,14 +1365,124 @@ export const es = {
       creatingQuiz: "Creando cuestionario...",
       finalizingQuiz: "Finalizando cuestionario...",
       words: "palabras",
+      questionSingular: "pregunta",
+      questionTypesSelected: "Tipos seleccionados",
       short: "Corto",
       medium: "Medio",
       long: "Largo",
+      english: "Inglés",
+      ukrainian: "Ucraniano",
+      spanish: "Español",
+      russian: "Ruso",
+      courseOutlineExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar el plan del curso según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar el plan del curso añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar los mejores planes de cursos del mercado en esta temática y reestructurar nuestro plan en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir el plan del curso para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer el plan del curso añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar el plan del curso para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
+      quizExamples: {
+        moreChallenging: {
+          short: "Hacer las preguntas más desafiantes",
+          detailed: "Aumentar el nivel de dificultad de las preguntas del cuestionario añadiendo escenarios más complejos, requiriendo un análisis más profundo e incorporando habilidades de pensamiento de orden superior.",
+        },
+        morePractical: {
+          short: "Añadir más ejemplos prácticos",
+          detailed: "Incluir más ejemplos del mundo real y estudios de caso en las preguntas para hacerlas más aplicables y atractivas para los alumnos.",
+        },
+        improveClarity: {
+          short: "Mejorar la claridad de las preguntas",
+          detailed: "Reescribir las preguntas para que sean más claras y concisas, garantizando que sean fáciles de entender y evitando ambigüedades.",
+        },
+        addVariety: {
+          short: "Añadir variedad de tipos de preguntas",
+          detailed: "Incorporar diferentes tipos de preguntas (opción múltiple, verdadero/falso, respuesta corta) para hacer el cuestionario más atractivo y completo.",
+        },
+        focusObjectives: {
+          short: "Centrarse en los objetivos clave de aprendizaje",
+          detailed: "Reestructurar el cuestionario para alinearlo mejor con los principales objetivos de aprendizaje y asegurarse de que las preguntas evalúan los conceptos más importantes.",
+        },
+        includeFeedback: {
+          short: "Incluir retroalimentación y explicaciones",
+          detailed: "Añadir explicaciones detalladas para respuestas correctas e incorrectas para ayudar a los alumnos a entender el razonamiento detrás de cada respuesta.",
+        },
+      },
+      onePagerExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar la estructura del one-pager según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar la estructura del one-pager añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar los mejores one-pagers del mercado en esta temática y reestructurar nuestro contenido en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir la estructura del one-pager para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer el one-pager añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar la estructura del one-pager para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
+      lessonExamples: {
+        adaptIndustry: {
+          short: "Adaptar a la especificidad de la industria de EE.UU.",
+          detailed: "Actualizar la estructura de la lección según las especificidades industriales y culturales de EE.UU.: ajustar el contenido, reemplazar temas, ejemplos y redacciones que no se alineen con el contexto estadounidense.",
+        },
+        adoptTrends: {
+          short: "Adoptar tendencias y mejores prácticas",
+          detailed: "Actualizar la estructura de la lección añadiendo contenido que refleje las tendencias actuales y las mejores prácticas del sector. Eliminar elementos obsoletos y reemplazarlos por contenido actualizado.",
+        },
+        topExamples: {
+          short: "Incorporar ejemplos líderes del sector",
+          detailed: "Analizar las mejores lecciones del mercado en esta temática y reestructurar nuestra lección en consecuencia: cambiar o añadir contenido que otros presentan de manera más efectiva. Enfocarse en el flujo y la claridad del contenido.",
+        },
+        simplify: {
+          short: "Simplificar y reestructurar el contenido",
+          detailed: "Reescribir la estructura de la lección para que sea más lógica y fácil de usar. Eliminar secciones redundantes, unir contenido superpuesto y reformular para mayor claridad y simplicidad.",
+        },
+        increaseDepth: {
+          short: "Aumentar el valor y la profundidad del contenido",
+          detailed: "Fortalecer la lección añadiendo contenido que profundice la comprensión y aporte valor de nivel avanzado. Refinar redacciones para comunicar claramente las habilidades e ideas.",
+        },
+        addApplications: {
+          short: "Añadir estudios de caso y aplicaciones",
+          detailed: "Revisar la estructura de la lección para incluir contenido aplicado —como casos reales, ejemplos o enfoques prácticos— manteniendo la base teórica.",
+        },
+      },
     },
 
     // Module and Lesson Settings Modals
     modals: {
-      // ... existing code ...
+
       moduleSettings: {
         title: "Configuración del módulo",
         subtitle: "Configurar calidad de producción para",
@@ -1142,6 +1515,13 @@ export const es = {
       },
     },
 
+    rates: {
+      presentation: 'Tarifa de presentación',
+      onePager: 'Tarifa de una página',
+      quiz: 'Tarifa de cuestionario',
+      videoLesson: 'Tarifa de lección de video',
+    },
+
     // Theme picker translations
     themePicker: {
       title: "Temas de Presentación",
@@ -1150,6 +1530,83 @@ export const es = {
       applying: "Aplicando...",
       footerInfo:
         "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
+    },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Atrás",
+      openProducts: "Abrir Productos",
+      smartEdit: "Edición Inteligente",
+      smartEditTooltip: "Edición inteligente con IA",
+      downloadPdfTooltip: "Descargar contenido como PDF",
+      loadingProjectDetails: "Cargando detalles del proyecto...",
+      error: "Error:",
+      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
+      courseOutline: "Plan del Curso",
+      courseTitle: "Título del Curso",
+      moduleTitle: "Módulo",
+      lessonTitle: "Título de la Lección",
+      editCourseTitle: "Editar título del curso",
+      editModuleTitle: "Editar título del módulo",
+      editLessonTitle: "Editar título de la lección",
+      noModulesFound: "No se encontraron módulos en este plan de curso.",
+      lessons: "lecciones",
+      create: "Crear",
+      createContent: "Crear contenido",
+      presentation: "Presentación",
+      onePager: "Una Página",
+      quiz: "Cuestionario",
+      videoLesson: "Video",
+      regenerate: "Regenerar",
+      regenerateProduct: "Regenerar Producto",
+      regenerateDescription: "Estás a punto de crear un nuevo producto. El anterior será eliminado.",
+      cancel: "Cancelar",
+      ok: "OK",
+      // View-new-2 specific tooltips
+      view: "Ver",
+      add: "Agregar",
+      viewProduct: "Ver producto",
+      regenerateProductTooltip: "Regenerar producto",
+      addProduct: "Agregar producto"
+    },
+    customViewCard: {
+      courseSummary: "Resumen del Curso",
+      totalModules: "Total de Módulos",
+      totalLessons: "Total de Lecciones",
+      sources: "Fuentes",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "Documento PDF",
+        createdfromscratch: "Creado desde cero"
+      }
+    },
+    smartEdit: {
+      examples: {
+        makeAllTests: {
+          short: "Hacer que todos los lecciones tengan tipo de evaluación 'test'",
+          detailed: "Actualizar todas las lecciones del plan de formación para que el tipo de evaluación sea 'test' en lugar de los tipos actuales.",
+        },
+        addExercises: {
+          short: "Añadir ejercicios prácticos a cada módulo",
+          detailed: "Añadir ejercicios prácticos o actividades a cada módulo del plan para aumentar la participación del aprendizaje.",
+        },
+        restructureShorter: {
+          short: "Reestructurar en módulos más cortos",
+          detailed: "Reorganizar el contenido en módulos más cortos y fáciles de asimilar, manteniendo el flujo y los objetivos de aprendizaje.",
+        },
+        addCaseStudies: {
+          short: "Añadir estudios de caso y ejemplos reales",
+          detailed: "Incluir estudios de caso relevantes y ejemplos del mundo real en cada módulo para aportar contexto práctico.",
+        },
+        increaseAdvancedDepth: {
+          short: "Aumentar la profundidad del contenido avanzado",
+          detailed: "Mejorar el plan de formación con contenido de nivel avanzado y perspectivas más profundas manteniendo la accesibilidad.",
+        },
+        addQuizzes: {
+          short: "Añadir cuestionarios de evaluación",
+          detailed: "Incluir cuestionarios y comprobaciones de conocimiento a lo largo del plan de formación para reforzar el aprendizaje.",
+        },
+      },
     },
   },
 };

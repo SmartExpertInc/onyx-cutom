@@ -12,6 +12,7 @@ import { getAllTemplates, getTemplate } from './templates/registry';
 import { Plus, ChevronDown, X, Volume2, Palette } from 'lucide-react';
 import AutomaticImageGenerationManager from './AutomaticImageGenerationManager';
 
+
 interface SmartSlideDeckViewerProps {
   /** The slide deck data - must be in component-based format */
   deck: ComponentBasedSlideDeck | any;
@@ -66,7 +67,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
+  
   // Theme picker state
   const [showThemePicker, setShowThemePicker] = useState(false);
 
@@ -115,8 +116,58 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     slide.voiceoverText || slide.props?.voiceoverText
   );
 
-  // Get available templates
-  const availableTemplates = getAllTemplates();
+  // Get available templates (presentation mode: hide video-lesson-only templates)
+  const availableTemplates = (() => {
+    const all = getAllTemplates();
+    const cutoff = all.findIndex(t => t.id === 'avatar-service-slide');
+    if (cutoff === -1) return all;
+    // Exclude 'avatar-service-slide' and any that follow
+    return all.slice(0, cutoff);
+  })();
+
+  // =============================================================
+  // Inline editing for Presentation Title (Header)
+  // =============================================================
+  const [isEditingHeaderTitle, setIsEditingHeaderTitle] = useState<boolean>(false);
+  const [headerTitleDraft, setHeaderTitleDraft] = useState<string>('');
+  const headerInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditHeaderTitle = useCallback(() => {
+    if (!isEditable || !componentDeck) return;
+    setHeaderTitleDraft(componentDeck.lessonTitle || '');
+    setIsEditingHeaderTitle(true);
+    // Focus next tick to ensure input is mounted
+    setTimeout(() => headerInputRef.current?.focus(), 0);
+  }, [isEditable, componentDeck]);
+
+  const cancelEditHeaderTitle = useCallback(() => {
+    setIsEditingHeaderTitle(false);
+    setHeaderTitleDraft('');
+  }, []);
+
+  const commitEditHeaderTitle = useCallback(() => {
+    if (!componentDeck) return cancelEditHeaderTitle();
+    const newTitle = headerTitleDraft.trim();
+    const updatedDeck: ComponentBasedSlideDeck = {
+      ...componentDeck,
+      lessonTitle: newTitle.length ? newTitle : (componentDeck.lessonTitle || '')
+    } as ComponentBasedSlideDeck;
+    setComponentDeck(updatedDeck);
+    onSave?.(updatedDeck);
+    setIsEditingHeaderTitle(false);
+  }, [componentDeck, headerTitleDraft, onSave, cancelEditHeaderTitle]);
+
+  const handleHeaderKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      commitEditHeaderTitle();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEditHeaderTitle();
+    }
+  }, [commitEditHeaderTitle, cancelEditHeaderTitle]);
+
+  // =============================================================
 
   // ✅ NEW: Handle generation started for a specific placeholder
   const handleGenerationStarted = useCallback((elementId: string) => {
@@ -340,12 +391,19 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
         setComponentDeck(deckWithTheme as ComponentBasedSlideDeck);
         
+        // Expose slide data to window object for video generation
+        (window as any).currentSlideData = {
+          deck: deckWithTheme
+        };
+        
         console.log('✅ Component-based slides loaded with theme:', {
           slideCount: deck.slides.length,
           theme: deckWithTheme.theme,
           themeColors: currentThemeData.colors,
           templates: deck.slides.map((s: any) => s.templateId)
           });
+        
+        console.log('🎬 Exposed slide data to window for video generation:', (window as any).currentSlideData);
         
       } catch (err) {
         console.error('❌ Error processing slide deck:', err);
@@ -355,7 +413,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       }
     };
 
-    processDeck();
+      processDeck();
   }, [deck, theme, currentThemeData.colors]);
 
   // Improved synchronized scrolling with voiceover panel
@@ -430,51 +488,12 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
 
     const updatedDeck = {
-      ...componentDeck,
+        ...componentDeck,
       slides: updatedSlides
-    };
+      };
 
-    setComponentDeck(updatedDeck);
-    
-    // 🔍 LOGGING: Log what data is being sent to backend on slide update
-    console.log('🔍 SmartSlideDeckViewer: handleSlideUpdate - onSave called with updated deck:', {
-      slideCount: updatedDeck.slides.length,
-      theme: updatedDeck.theme,
-      updatedSlideId: updatedSlide.slideId,
-      updatedSlideTemplate: updatedSlide.templateId,
-      bigImageLeftSlides: updatedDeck.slides.filter(s => s.templateId === 'big-image-left').map(s => {
-        // Filter out base64 image data from logging
-        const imagePath = s.props?.imagePath || '';
-        const imageInfo = imagePath.startsWith('data:') 
-          ? `[BASE64 DATA URL - ${imagePath.length} characters]`
-          : imagePath || 'NOT SET';
-        
-        // Log text positioning data
-        const metadata = s.metadata || {};
-        const elementPositions = metadata.elementPositions || {};
-        const slideId = s.slideId;
-        const titleId = `draggable-${slideId}-0`;
-        const subtitleId = `draggable-${slideId}-1`;
-        
-        const titlePosition = elementPositions[titleId];
-        const subtitlePosition = elementPositions[subtitleId];
-        
-        return {
-          slideId: s.slideId,
-          title: s.props?.title || 'NOT SET',
-          subtitle: s.props?.subtitle || 'NOT SET',
-          imagePath: imageInfo,
-          objectFit: s.props?.objectFit || 'NOT SET',
-          // Text positioning data
-          titlePosition: titlePosition,
-          subtitlePosition: subtitlePosition,
-          elementPositionsKeys: Object.keys(elementPositions),
-          metadataKeys: Object.keys(metadata)
-        };
-      })
-    });
-    
-    onSave?.(updatedDeck);
+      setComponentDeck(updatedDeck);
+      onSave?.(updatedDeck);
   };
 
   const handleTemplateChange = (slideId: string, newTemplateId: string) => {
@@ -485,7 +504,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     );
 
     const updatedDeck = {
-      ...componentDeck,
+        ...componentDeck,
       slides: updatedSlides
     };
 
@@ -497,7 +516,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     if (!componentDeck) return;
 
     const updatedSlides = componentDeck.slides.map((slide: ComponentBasedSlide) =>
-      slide.slideId === slideId 
+          slide.slideId === slideId 
         ? { 
             ...slide, 
             voiceoverText: newVoiceoverText,
@@ -506,7 +525,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
               voiceoverText: newVoiceoverText
             }
           }
-        : slide
+            : slide
     );
 
     const updatedDeck = {
@@ -514,8 +533,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
       slides: updatedSlides
     };
 
-    setComponentDeck(updatedDeck);
-    onSave?.(updatedDeck);
+      setComponentDeck(updatedDeck);
+      onSave?.(updatedDeck);
   };
 
   // Add new slide with template selection - FIXED VERSION
@@ -601,8 +620,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div style={{
-        display: 'flex',
+      <div style={{ 
+        display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '400px',
@@ -676,7 +695,37 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             color: '#111827',
             margin: 0
           }}>
-            {componentDeck.lessonTitle || 'Slide Deck'}
+            {isEditingHeaderTitle ? (
+              <input
+                type="text"
+                value={headerTitleDraft}
+                onChange={(e) => setHeaderTitleDraft(e.target.value)}
+                onBlur={commitEditHeaderTitle}
+                onKeyDown={handleHeaderKeyDown}
+                ref={headerInputRef}
+                style={{
+                  width: '100%',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: '#111827',
+                  border: 'none',
+                  outline: 'none',
+                  background: 'transparent',
+                  padding: '0',
+                  margin: '0',
+                  display: 'block',
+                  boxSizing: 'border-box'
+                }}
+              />
+            ) : (
+              <span
+                onClick={isEditable ? startEditHeaderTitle : undefined}
+                style={{ cursor: isEditable ? 'text' : 'default' }}
+                title={isEditable ? 'Click to edit title' : undefined}
+              >
+                {componentDeck.lessonTitle || 'Slide Deck'}
+              </span>
+            )}
           </h1>
           <div style={{
             fontSize: '14px',
@@ -795,6 +844,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                     theme={currentTheme}
                     getPlaceholderGenerationState={getPlaceholderGenerationState}
                   />
+
                 </div>
               </div>
             </div>
@@ -804,7 +854,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
       {/* Right-side Vertical Panel - Always visible */}
       {!showThemePicker && (hasAnyVoiceover || !isVoiceoverPanelOpen) && (
-        <div
+        <div 
           ref={dropdownRef}
           style={{
             position: 'fixed',
@@ -881,14 +931,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
             onMouseEnter={(e) => {
               if (!isChangingTheme) {
                 e.currentTarget.style.backgroundColor = '#374151';
-                e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.transform = 'scale(1.05)';
                 e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
               }
             }}
             onMouseLeave={(e) => {
               if (!isChangingTheme) {
                 e.currentTarget.style.backgroundColor = '#6b7280';
-                e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
               }
             }}
@@ -1041,8 +1091,8 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+        </div>
+      )}
 
           {/* Voiceover Button - Only show for video lessons */}
           {hasAnyVoiceover && (
@@ -1053,31 +1103,31 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
                 backgroundColor: '#3b82f6',
                 border: 'none',
                 borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
                 justifyContent: 'center',
-                cursor: 'pointer',
+                        cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
               }}
               onClick={() => setIsVoiceoverPanelOpen(!isVoiceoverPanelOpen)}
-              onMouseEnter={(e) => {
+                      onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#2563eb';
                 e.currentTarget.style.transform = 'scale(1.05)';
                 e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
+                      }}
+                      onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#3b82f6';
                 e.currentTarget.style.transform = 'scale(1)';
                 e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }}
+                      }}
               title={isVoiceoverPanelOpen ? "Close Voiceover Panel" : "Open Voiceover Panel"}
-            >
+                    >
               <Volume2 className="w-4 h-4 text-white" />
-            </button>
-          )}
-        </div>
-      )}
+                    </button>
+                  )}
+                </div>
+              )}
 
       {/* Voiceover Panel */}
       {hasAnyVoiceover && (
@@ -1127,7 +1177,7 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
 
       {/* Generation Progress Indicator - REMOVED */}
       {/* The generation process now runs silently in the background without showing a modal */}
-    </div>
+      </div>
   );
 };
 

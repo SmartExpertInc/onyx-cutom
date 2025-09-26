@@ -2,6 +2,7 @@
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
 import { useEffect } from "react";
+import { initMixpanel } from "@/lib/mixpanelClient";
 
 const isPostHogEnabled = !!(
   process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST
@@ -9,6 +10,7 @@ const isPostHogEnabled = !!(
 
 export function PHProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    initMixpanel();
     if (isPostHogEnabled) {
       posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST!,

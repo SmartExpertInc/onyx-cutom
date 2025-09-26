@@ -514,106 +514,6 @@ async def log_image_fit_properties(slide_data: dict, slide_index: int = None, te
     
     image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
 
-async def log_image_fit_properties(slide_data: dict, slide_index: int = None, template_id: str = None):
-    """Log image fit properties specifically for debugging fit styles in PDF."""
-    slide_info = f"slide {slide_index}" if slide_index else "slide"
-    template_info = f" ({template_id})" if template_id else ""
-    
-    image_fit_logger.info(f"=== IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
-    
-    if isinstance(slide_data, dict):
-        template_id = slide_data.get('templateId', 'Unknown')
-        props = slide_data.get('props', {})
-        
-        # Check if this is a template with images
-        if template_id in ['big-image-left', 'big-image-top', 'bullet-points', 'bullet-points-right']:
-            image_fit_logger.info(f"Template: {template_id}")
-            
-            # Log image path without base64 data
-            image_path = props.get('imagePath')
-            if image_path:
-                if image_path.startswith('data:'):
-                    image_fit_logger.info(f"Image path: [BASE64 DATA URL - {len(image_path)} characters]")
-                else:
-                    image_fit_logger.info(f"Image path: {image_path}")
-            else:
-                image_fit_logger.info(f"Image path: NOT SET")
-            
-            # Log size and fit properties
-            width_px = props.get('widthPx')
-            height_px = props.get('heightPx')
-            object_fit = props.get('objectFit')
-            image_scale = props.get('imageScale')
-            image_offset = props.get('imageOffset')
-            
-            image_fit_logger.info(f"Width: {width_px}px")
-            image_fit_logger.info(f"Height: {height_px}px")
-            image_fit_logger.info(f"Object fit: {object_fit}")
-            image_fit_logger.info(f"Image scale: {image_scale}")
-            image_fit_logger.info(f"Image offset: {image_offset}")
-            
-            # Check if objectFit is missing
-            if object_fit is None:
-                image_fit_logger.warning(f"⚠️ OBJECT FIT IS MISSING for {slide_info}{template_info}")
-                image_fit_logger.warning(f"⚠️ This will cause PDF to use default 'cover' instead of user-selected fit style")
-            else:
-                image_fit_logger.info(f"✅ Object fit is present: {object_fit}")
-            
-            # Log what the PDF template will receive
-            pdf_object_fit = object_fit if object_fit else 'cover'
-            image_fit_logger.info(f"PDF template will use object-fit: {pdf_object_fit}")
-            
-        elif template_id == 'two-column':
-            image_fit_logger.info(f"Template: {template_id}")
-            
-            # Log left image properties without base64
-            left_image_path = props.get('leftImagePath')
-            left_object_fit = props.get('leftObjectFit')
-            left_width_px = props.get('leftWidthPx')
-            left_height_px = props.get('leftHeightPx')
-            
-            if left_image_path:
-                if left_image_path.startswith('data:'):
-                    image_fit_logger.info(f"Left image path: [BASE64 DATA URL - {len(left_image_path)} characters]")
-                else:
-                    image_fit_logger.info(f"Left image path: {left_image_path}")
-            else:
-                image_fit_logger.info(f"Left image path: NOT SET")
-                
-            image_fit_logger.info(f"Left object fit: {left_object_fit}")
-            image_fit_logger.info(f"Left width: {left_width_px}px")
-            image_fit_logger.info(f"Left height: {left_height_px}px")
-            
-            if left_object_fit is None:
-                image_fit_logger.warning(f"⚠️ LEFT OBJECT FIT IS MISSING for {slide_info}{template_info}")
-            else:
-                image_fit_logger.info(f"✅ Left object fit is present: {left_object_fit}")
-            
-            # Log right image properties without base64
-            right_image_path = props.get('rightImagePath')
-            right_object_fit = props.get('rightObjectFit')
-            right_width_px = props.get('rightWidthPx')
-            right_height_px = props.get('rightHeightPx')
-            
-            if right_image_path:
-                if right_image_path.startswith('data:'):
-                    image_fit_logger.info(f"Right image path: [BASE64 DATA URL - {len(right_image_path)} characters]")
-                else:
-                    image_fit_logger.info(f"Right image path: {right_image_path}")
-            else:
-                image_fit_logger.info(f"Right image path: NOT SET")
-                
-            image_fit_logger.info(f"Right object fit: {right_object_fit}")
-            image_fit_logger.info(f"Right width: {right_width_px}px")
-            image_fit_logger.info(f"Right height: {right_height_px}px")
-            
-            if right_object_fit is None:
-                image_fit_logger.warning(f"⚠️ RIGHT OBJECT FIT IS MISSING for {slide_info}{template_info}")
-            else:
-                image_fit_logger.info(f"✅ Right object fit is present: {right_object_fit}")
-    
-    image_fit_logger.info(f"=== END IMAGE FIT ANALYSIS for {slide_info}{template_info} ===")
-
 async def log_html_content(html_content: str, slide_index: int = None, template_id: str = None):
     """Log detailed HTML content analysis for debugging."""
     slide_info = f"slide {slide_index}" if slide_index else "slide"
@@ -2942,3 +2842,226 @@ async def log_text_positioning_properties(slide_data: dict, slide_index: int = N
             logger.info(f"  metadata keys: {list(metadata.keys()) if metadata else 'None'}")
     
     logger.info(f"=== END TEXT POSITIONING ANALYSIS for {slide_info}{template_info} ===")
+
+async def generate_presentation_pdf(product_data, user_id: str) -> bytes:
+    """Generate PDF for presentations using existing PDF generator"""
+    from app.core.database import get_connection
+    from fastapi import HTTPException
+    import logging
+    import json as _json
+
+    _log = logging.getLogger(__name__)
+    _log.info(f"[PDF] Presentation generation start | product_id={product_data['id']} user={user_id}")
+
+    async with get_connection() as connection:
+        slides_row = await connection.fetchrow(
+            "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+            product_data['id'], user_id
+        )
+
+    if not slides_row or not slides_row.get('microproduct_content'):
+        _log.error("[PDF] Presentation content not found")
+        raise HTTPException(status_code=404, detail="Presentation content not found")
+
+    raw_content = slides_row['microproduct_content']
+
+    # Normalize to list[dict]
+    slides_list = None
+    try:
+        content_obj = raw_content
+        if isinstance(content_obj, str):
+            try:
+                content_obj = _json.loads(content_obj)
+            except Exception:
+                # Some storages might store an array-string; try to wrap
+                _log.warning("[PDF] Content is string and not JSON-decodable; attempting best-effort handling")
+        if isinstance(content_obj, dict):
+            slides_list = (
+                content_obj.get('slides')
+                or (content_obj.get('details') or {}).get('slides')
+                or (content_obj.get('microProductContent') or {}).get('slides')
+            )
+        elif isinstance(content_obj, list):
+            slides_list = content_obj
+
+        # Coerce string items to dicts if needed
+        if isinstance(slides_list, list):
+            fixed_list = []
+            for item in slides_list:
+                if isinstance(item, str):
+                    try:
+                        item = _json.loads(item)
+                    except Exception:
+                        pass
+                if isinstance(item, dict):
+                    fixed_list.append(item)
+            slides_list = fixed_list
+    except Exception as norm_err:
+        _log.error(f"[PDF] Failed to normalize slides content: {norm_err}")
+        slides_list = None
+
+    if not isinstance(slides_list, list) or not slides_list:
+        _log.error("[PDF] Invalid slides data after normalization")
+        raise HTTPException(status_code=500, detail="Failed to generate slide deck PDF: Invalid slides data")
+
+    # Determine theme from stored content with sensible defaults
+    theme_value = "dark-purple"
+    try:
+        if isinstance(raw_content, dict):
+            theme_value = (
+                raw_content.get("theme")
+                or (raw_content.get("details") or {}).get("theme")
+                or theme_value
+            )
+        elif isinstance(content_obj, dict):
+            theme_value = (
+                content_obj.get("theme")
+                or (content_obj.get("details") or {}).get("theme")
+                or theme_value
+            )
+    except Exception:
+        # Fallback to default on any parsing issue
+        theme_value = "dark-purple"
+
+    output_filename = f"presentation_{product_data['id']}.pdf"
+    pdf_path = await generate_slide_deck_pdf_with_dynamic_height(
+        slides_list,
+        theme_value,
+        output_filename,
+        use_cache=False
+    )
+
+    with open(pdf_path, 'rb') as pdf_file:
+        data = pdf_file.read()
+        _log.info(f"[PDF] Presentation generated | path={pdf_path} size={len(data)}B")
+        return data
+
+
+async def generate_onepager_pdf(product_data, user_id: str) -> bytes:
+    """Generate PDF for one-pagers using existing PDF generator"""
+    from app.core.database import get_connection
+    from fastapi import HTTPException
+    import logging
+    import json as _json
+
+    _log = logging.getLogger(__name__)
+    _log.info(f"[PDF] One-pager generation start | product_id={product_data['id']} user={user_id}")
+
+    async with get_connection() as connection:
+        onepager_row = await connection.fetchrow(
+            "SELECT microproduct_content FROM projects WHERE id = $1 AND onyx_user_id = $2",
+            product_data['id'], user_id
+        )
+
+    if not onepager_row or not onepager_row.get('microproduct_content'):
+        _log.error("[PDF] One-pager content not found")
+        raise HTTPException(status_code=404, detail="One-pager content not found")
+
+    raw_content = onepager_row['microproduct_content']
+
+    context_data = raw_content
+    try:
+        if isinstance(context_data, str):
+            context_data = _json.loads(context_data)
+    except Exception as e:
+        _log.warning(f"[PDF] One-pager content not JSON; passing raw string. err={e}")
+
+    if not isinstance(context_data, dict):
+        context_data = {"details": context_data}
+
+    # Choose an appropriate template with fallback
+    mtype = str(product_data.get('microproduct_type') or '').strip().lower()
+    comp_name = str(product_data.get('component_name') or '').strip().lower()
+
+    # Normalize data_for_template_render similar to main.py flow
+    data_for_template_render = None
+    if isinstance(context_data, dict) and 'details' not in context_data:
+        data_for_template_render = json.loads(json.dumps(context_data)) if isinstance(context_data, dict) else {}
+    elif isinstance(context_data, dict) and 'details' in context_data:
+        # If earlier branch wrapped as {details: ...}, unwrap to details payload
+        data_for_template_render = context_data.get('details') or {}
+    else:
+        data_for_template_render = {}
+
+    if not isinstance(data_for_template_render, dict):
+        data_for_template_render = {}
+
+    # Ensure detectedLanguage present
+    detected_lang_for_pdf = 'en'
+    try:
+        if isinstance(data_for_template_render, dict):
+            if data_for_template_render.get('detectedLanguage'):
+                detected_lang_for_pdf = data_for_template_render.get('detectedLanguage')
+            elif isinstance(product_data.get('project_name'), str):
+                detected_lang_for_pdf = 'en'
+            data_for_template_render.setdefault('detectedLanguage', detected_lang_for_pdf)
+    except Exception:
+        pass
+
+    # Build wrapper contexts expected by templates (details/locale)
+    # We'll construct the exact wrapper per template when rendering to keep compatibility across templates
+    candidates = []
+    # Prefer template by component/type; fall back to the other
+    if comp_name in ("pdf lesson", "pdflesson") or mtype in ("pdf lesson", "pdflesson"):
+        candidates = [
+            'pdf_lesson_pdf_template.html',
+            'text_presentation_pdf_template.html'
+        ]
+    else:
+        candidates = [
+            'text_presentation_pdf_template.html',
+            'pdf_lesson_pdf_template.html'
+        ]
+
+    output_filename = f"onepager_{product_data['id']}.pdf"
+
+    last_error: Exception = None
+    for tpl in candidates:
+        _log.info(f"[PDF] One-pager: trying template '{tpl}' (mtype='{mtype}', component='{comp_name}')")
+        try:
+            # Build context per template to satisfy expected structure
+            if tpl == 'pdf_lesson_pdf_template.html':
+                # pdf_lesson template expects details.details
+                wrapper_context = {
+                    'details': {
+                        'details': data_for_template_render,
+                        'parentProjectName': product_data.get('parent_project_name') or product_data.get('parentProjectName'),
+                        'lessonNumber': product_data.get('lesson_number') or product_data.get('lessonNumber'),
+                        'locale': {}
+                    }
+                }
+            else:
+                # text presentation expects details.* directly
+                wrapper_context = {
+                    'details': data_for_template_render,
+                    'locale': {}
+                }
+
+            pdf_path = await generate_pdf_from_html_template(
+                tpl,
+                wrapper_context,
+                output_filename,
+                use_cache=False
+            )
+            with open(pdf_path, 'rb') as pdf_file:
+                data = pdf_file.read()
+                _log.info(f"[PDF] One-pager generated | path={pdf_path} size={len(data)}B template={tpl}")
+                return data
+        except HTTPException as e:
+            # If template missing, try next candidate; otherwise re-raise
+            detail = str(getattr(e, 'detail', '')).lower()
+            if 'not found' in detail and 'template' in detail:
+                _log.warning(f"[PDF] Template '{tpl}' not found, trying next candidate if any...")
+                last_error = e
+                continue
+            last_error = e
+            break
+        except Exception as e:
+            _log.error(f"[PDF] One-pager generation failed with template '{tpl}': {e}")
+            last_error = e
+            break
+
+    # If we reach here, all candidates failed
+    if isinstance(last_error, HTTPException):
+        raise last_error
+    raise HTTPException(status_code=500, detail=f"Failed to generate one-pager PDF: {last_error}")

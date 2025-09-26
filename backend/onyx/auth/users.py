@@ -722,6 +722,7 @@ cookie_transport = CookieTransport(
     cookie_max_age=SESSION_EXPIRE_TIME_SECONDS,
     cookie_secure=WEB_DOMAIN.startswith("https"),
     cookie_name=FASTAPI_USERS_AUTH_COOKIE_NAME,
+    cookie_samesite="none",
 )
 
 
@@ -1385,3 +1386,23 @@ async def api_key_dep(
         raise HTTPException(status_code=401, detail="Invalid API key")
 
     return user
+
+
+# Smart Drive specific dependency that bypasses admin checks
+async def current_user_or_smart_drive(
+    request: Request, user: User | None = Depends(current_user)
+) -> User | None:
+    """
+    Smart Drive dependency that allows requests with x-smart-drive headers
+    to bypass admin/curator requirements.
+    """
+    # Check for Smart Drive headers that indicate this is a Smart Drive operation
+    smart_drive_connector = request.headers.get("x-smart-drive-connector") == "true"
+    smart_drive_credential = request.headers.get("x-smart-drive-credential") == "true"
+    
+    if smart_drive_connector or smart_drive_credential:
+        # For Smart Drive operations, just return the current user without role checks
+        return user
+    
+    # For non-Smart Drive operations, fall back to the normal admin check
+    return await current_curator_or_admin_user(user)

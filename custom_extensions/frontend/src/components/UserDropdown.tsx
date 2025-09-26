@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LogOut, User, Settings, Bell } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { UserRole } from "../lib/types"; 
 import { checkUserIsNoAuthUser, logout } from "../lib/user"; 
-import { LOGOUT_DISABLED } from "../lib/constants"; 
+import { LOGOUT_DISABLED } from "../lib/constants";
+import { resetUserIdentity } from "../lib/mixpanelClient"
 
 interface DropdownOptionProps {
   href?: string;
@@ -45,18 +46,38 @@ const DropdownOption: React.FC<DropdownOptionProps> = ({
   }
 };
 
-// Mock user hook - replace with actual implementation when UserProvider is available
+// User hook to get actual user data
 const useUser = () => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/me', {
+          credentials: 'same-origin',
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   return {
-    user: {
-      id: "1",
-      email: "user@example.com",
-      role: UserRole.ADMIN,
-      is_active: true,
-      is_superuser: false,
-      is_verified: true,
-    },
-    isCurator: false,
+    user,
+    isCurator: user?.role === 'curator',
+    loading,
   };
 };
 
@@ -65,7 +86,7 @@ export function UserDropdown({
 }: {
   hideUserDropdown?: boolean;
 }) {
-  const { user, isCurator } = useUser();
+  const { user, isCurator, loading } = useUser();
   const [userInfoVisible, setUserInfoVisible] = useState(false);
   const userInfoRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -88,6 +109,9 @@ export function UserDropdown({
         return;
       }
 
+      // Reset mixpanel
+      resetUserIdentity();
+
       // Redirect to main app's login page after logout
       // This follows the same pattern as the authentication check in projects page
       const currentUrl = window.location.pathname + window.location.search;
@@ -95,7 +119,7 @@ export function UserDropdown({
     });
   };
 
-  const showAdminPanel = !user || user.role === UserRole.ADMIN;
+  const showAdminPanel = !loading && user && user.role === 'admin';
   const showCuratorPanel = user && isCurator;
   const showLogout = user && !checkUserIsNoAuthUser(user.id) && !LOGOUT_DISABLED;
 
@@ -122,6 +146,22 @@ export function UserDropdown({
               />
             ) : (
               <>
+                {/* User Email Section */}
+                {user?.email && (
+                  <>
+                    <div className="px-3 py-2 text-gray-900 text-xs font-semibold border-b border-gray-100">
+                      {user.email}
+                    </div>
+                  </>
+                )}
+                
+                {showAdminPanel && (
+                  <DropdownOption
+                    href="/admin/main"
+                    icon={<Settings size={16} className="my-auto" />}
+                    label="Admin Settings"
+                  />
+                )}
                 {showLogout && (
                   <DropdownOption
                     onClick={handleLogout}

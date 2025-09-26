@@ -1,0 +1,70 @@
+/* Compact slide mode styles for projects-2 interface */
+.compact-slide-mode {
+  --slide-font-size: 0.875rem;
+  --slide-padding: 0.75rem;
+  --slide-spacing: 0.5rem;
+  --slide-title-size: 1.5rem;
+  --slide-subtitle-size: 1.125rem;
+}
+
+/* Override slide template styles for compact mode */
+.compact-slide-mode .slide-container,
+.compact-slide-mode .component-based-slide-deck {
+  font-size: var(--slide-font-size) !important;
+}
+
+.compact-slide-mode h1,
+.compact-slide-mode .slide-title,
+.compact-slide-mode [class*="title"] {
+  font-size: var(--slide-title-size) !important;
+  line-height: 1.2 !important;
+  margin-bottom: var(--slide-spacing) !important;
+}
+
+.compact-slide-mode h2,
+.compact-slide-mode .slide-subtitle,
+.compact-slide-mode [class*="subtitle"] {
+  font-size: var(--slide-subtitle-size) !important;
+  line-height: 1.3 !important;
+  margin-bottom: var(--slide-spacing) !important;
+}
+
+.compact-slide-mode p,
+.compact-slide-mode .slide-content,
+.compact-slide-mode [class*="content"] {
+  font-size: var(--slide-font-size) !important;
+  line-height: 1.4 !important;
+  margin-bottom: var(--slide-spacing) !important;
+}
+
+.compact-slide-mode .slide-container > div,
+.compact-slide-mode .component-based-slide-deck > div {
+  padding: var(--slide-padding) !important;
+}
+
+/* Adjust spacing for compact mode */
+.compact-slide-mode * {
+  margin-top: calc(var(--slide-spacing) * 0.5) !important;
+  margin-bottom: calc(var(--slide-spacing) * 0.5) !important;
+}
+
+.compact-slide-mode *:first-child {
+  margin-top: 0 !important;
+}
+
+.compact-slide-mode *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Optimize button and interactive elements for compact mode */
+.compact-slide-mode button,
+.compact-slide-mode [class*="button"] {
+  padding: calc(var(--slide-padding) * 0.5) !important;
+  font-size: calc(var(--slide-font-size) * 0.9) !important;
+}
+
+/* Adjust grid and flex layouts for compact mode */
+.compact-slide-mode [class*="grid"],
+.compact-slide-mode [class*="flex"] {
+  gap: var(--slide-spacing) !important;
+}
