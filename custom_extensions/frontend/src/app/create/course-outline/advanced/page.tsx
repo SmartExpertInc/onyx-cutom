@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sparkles, Filter, Lock, ListOrdered, Presentation, Video, ClipboardCheck, Plus } from "lucide-react";
 
-
 interface ModulePreview {
   id: string;
   title: string;
@@ -106,7 +105,6 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
 
 export default function CourseOutlineAdvancedPage() {
   const router = useRouter();
-  
 
   // Left sidebar state
   const [textAction, setTextAction] = useState('generate');

@@ -1146,13 +1146,7 @@ const FolderRow: React.FC<{
                   <DynamicText
                     text={p.title}
                     columnWidthPercent={columnWidths.title}
-                    href={trashMode ? "#" : (
-                      p.designMicroproductType === "Video Lesson Presentation" 
-                        ? `/projects-2/view/${p.id}`
-                        : (p.designMicroproductType === "Training Plan"
-                          ? (useFeaturePermission('course_table').isEnabled ? `/projects/view/${p.id}` : `/projects/view-new/${p.id}`)
-                          : `/projects/view/${p.id}`)
-                    )}
+                    href={trashMode ? "#" : getViewUrl(p)}
                     title={p.title}
                   />
                 </span>
@@ -1271,7 +1265,6 @@ const ProjectRowMenu: React.FC<{
   const isOutline =
     (project.designMicroproductType || "").toLowerCase() === "training plan";
   const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
-  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -2173,6 +2166,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     type: 5,
   });
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
+
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   // Helper to compute a human-friendly display title for the products page
   // Prefer unique instance names for non-outline products; fall back to content-derived titles
@@ -3609,6 +3604,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         )
       : folderProjects;
 
+  const getViewUrl = (project: Project) => {
+    if (project.designMicroproductType === "Video Lesson Presentation") {
+      return `/projects-2/view/${project.id}`;
+    } else if (project.designMicroproductType === "Training Plan") {
+      // Course Table feature flag controls which view to use for course outlines
+      return courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new/${project.id}`;
+    } else {
+      return `/projects/view/${project.id}`;
+    }
+  };
+
   if (loading) {
     return <div className="text-center p-8">Loading projects...</div>;
   }
@@ -3923,13 +3929,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                             <DynamicText
                               text={p.title}
                               columnWidthPercent={columnWidths.title}
-                              href={trashMode ? "#" : (
-                                p.designMicroproductType === "Video Lesson Presentation" 
-                                  ? `/projects-2/view/${p.id}`
-                                  : (p.designMicroproductType === "Training Plan"
-                                    ? (useFeaturePermission('course_table').isEnabled ? `/projects/view/${p.id}` : `/projects/view-new/${p.id}`)
-                                    : `/projects/view/${p.id}`)
-                              )}
+                              href={trashMode ? "#" : getViewUrl(p)}
                               title={p.title}
                             />
                           </span>

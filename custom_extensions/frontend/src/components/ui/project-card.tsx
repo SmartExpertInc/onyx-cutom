@@ -181,6 +181,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [menuPosition, setMenuPosition] = useState<"above" | "below">("below");
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
   const menuRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -419,6 +420,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
+  const getViewUrl = () => {
+    if (project.designMicroproductType === "Video Lesson Presentation") {
+      return `/projects-2/view/${project.id}`;
+    } else if (project.designMicroproductType === "Training Plan") {
+      // Course Table feature flag controls which view to use for course outlines
+      return courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new/${project.id}`;
+    } else {
+      return `/projects/view/${project.id}`;
+    }
+  };
+
   return (
     <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
       !getModalState()
@@ -426,13 +438,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         : "cursor-default"
     }`}>
       <Link
-        href={isTrashMode ? "#" : (
-          project.designMicroproductType === "Video Lesson Presentation" 
-            ? `/projects-2/view/${project.id}`
-            : (project.designMicroproductType === "Training Plan"
-              ? (useFeaturePermission('course_table').isEnabled ? `/projects/view/${project.id}` : `/projects/view-new/${project.id}`)
-              : `/projects/view/${project.id}`)
-        )}
+        href={isTrashMode ? "#" : getViewUrl()}
         onClick={handleCardClick}
         className="block h-full"
       >
