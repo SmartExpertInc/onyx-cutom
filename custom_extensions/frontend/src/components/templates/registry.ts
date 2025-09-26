@@ -48,7 +48,6 @@ import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
 import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
 
-// Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'title-slide': {
     id: 'title-slide',
