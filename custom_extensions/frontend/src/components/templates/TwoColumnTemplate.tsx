@@ -264,13 +264,13 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '2.9rem',
+    fontSize: '3.1rem',
     fontFamily: currentTheme.fonts.titleFont,
     color: currentTheme.colors.titleColor,
     textAlign: 'center',
     marginBottom: '20px',
     lineHeight: 1.2,
-    maxWidth: '340px',
+    maxWidth: '375px',
     wordWrap: 'break-word',
     fontWeight: 'bold',
     position: 'relative',
@@ -284,7 +284,7 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
     fontFamily: currentTheme.fonts.contentFont,
     color: currentTheme.colors.subtitleColor,
     textAlign: 'center',
-    marginBottom: '40px',
+    marginBottom: '60px',
     marginTop: '10px',
     lineHeight: 1.4,
     maxWidth: '500px',
