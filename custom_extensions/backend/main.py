@@ -25581,7 +25581,19 @@ async def get_smartdrive_login_credentials(
                     # Clean default skeleton files immediately after account creation using comprehensive cleanup
                     try:
                         deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                        logger.info(f"[SmartDrive] Cleaned {deleted_count} default files for new user {userid}")
+                        logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
+                        
+                        # Wait briefly and run cleanup again to catch any files that might get recreated
+                        import asyncio
+                        await asyncio.sleep(2)
+                        additional_deleted = await cleanup_nextcloud_default_files(base_url, userid, new_password)
+                        if additional_deleted > 0:
+                            logger.info(f"[SmartDrive] Second cleanup: removed {additional_deleted} additional files that were recreated")
+                        else:
+                            logger.info(f"[SmartDrive] ✅ Account completely clean - no additional files found")
+                        
+                        total_deleted = deleted_count + additional_deleted
+                        logger.info(f"[SmartDrive] TOTAL CLEANUP: Removed {total_deleted} default files for user {userid}")
                     except Exception as cleanup_err:
                         logger.warning(f"[SmartDrive] Default file cleanup failed (non-fatal): {cleanup_err}")
 
@@ -25852,7 +25864,42 @@ async def list_smartdrive_files(
                     # Clean default skeleton files using comprehensive cleanup function
                     try:
                         deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
-                        logger.info(f"[SmartDrive] Cleaned {deleted_count} default files for new user {userid}")
+                        logger.info(f"[SmartDrive] Initial cleanup: removed {deleted_count} default files for new user {userid}")
+                        
+                        # Additional aggressive cleanup to catch any missed or recreated files
+                        webdav_base = f"{base_url}/remote.php/dav/files/{userid}"
+                        async with httpx.AsyncClient(timeout=15.0) as final_client:
+                            # Final check for any remaining files
+                            final_prop = await final_client.request(
+                                "PROPFIND", f"{webdav_base}/", auth=(userid, new_password),
+                                headers={"Depth": "1", "Content-Type": "application/xml"},
+                                content='<?xml version="1.0"?><d:propfind xmlns:d="DAV:"><d:prop><d:displayname/></d:prop></d:propfind>'
+                            )
+                            
+                            if final_prop.status_code == 207:
+                                import xml.etree.ElementTree as ET_final
+                                root_final = ET_final.fromstring(final_prop.text)
+                                remaining_files = []
+                                for resp in root_final.findall('.//{DAV:}response'):
+                                    href = resp.find('.//{DAV:}href')
+                                    if href and href.text and href.text.rstrip('/') != f"/remote.php/dav/files/{userid}":
+                                        remaining_files.append(href.text)
+                                
+                                if remaining_files:
+                                    logger.warning(f"[SmartDrive] 🔥 AGGRESSIVE CLEANUP: Found {len(remaining_files)} remaining files")
+                                    additional_deleted = 0
+                                    for file_href in remaining_files:
+                                        try:
+                                            del_resp = await final_client.delete(f"{base_url}{file_href}", auth=(userid, new_password))
+                                            if del_resp.status_code in (204, 404):
+                                                additional_deleted += 1
+                                                logger.info(f"[SmartDrive] 🔥 Deleted remaining: {file_href.split('/')[-1]}")
+                                        except Exception:
+                                            pass
+                                    logger.info(f"[SmartDrive] Aggressive cleanup: removed {additional_deleted} additional files")
+                                else:
+                                    logger.info(f"[SmartDrive] ✅ Account completely clean after initial cleanup")
+                        
                     except Exception as cleanup_err:
                         logger.warning(f"[SmartDrive] Default file cleanup failed (non-fatal): {cleanup_err}")
 
@@ -26108,7 +26155,12 @@ async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: 
                     common_skeleton_items = [
                         "Documents", "Photos", "Templates", "Music", "Videos", 
                         "welcome.txt", "Readme.md", "Nextcloud intro.mp4",
-                        "Nextcloud Manual.pdf", "Example.md", "Example.odt"
+                        "Nextcloud Manual.pdf", "Example.md", "Example.odt",
+                        # Additional files that commonly appear in Nextcloud
+                        "Nextcloud.png", "Reasons to use Nextcloud.pdf", 
+                        "Templates credits.md", "Nextcloud.pdf",
+                        "Talk", "Contacts", "Calendar", "Tasks",
+                        "Deck", "Notes", "Flow", "Forms"
                     ]
                     
                     for item_name in common_skeleton_items:
@@ -26118,8 +26170,64 @@ async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: 
                             if delete_resp.status_code == 204:  # Successfully deleted
                                 deleted_count += 1
                                 logger.info(f"[SmartDrive] ✓ Deleted common skeleton item: {item_name}")
-                        except Exception:
-                            pass  # Ignore errors for items that don't exist
+                            elif delete_resp.status_code == 404:
+                                logger.debug(f"[SmartDrive] Skeleton item not found (expected): {item_name}")
+                            else:
+                                logger.warning(f"[SmartDrive] Failed to delete skeleton item {item_name}: HTTP {delete_resp.status_code}")
+                        except Exception as e:
+                            logger.warning(f"[SmartDrive] Exception deleting skeleton item {item_name}: {e}")
+
+                    # Final verification: do another PROPFIND to check what remains
+                    try:
+                        final_check = await cleanup_client.request(
+                            "PROPFIND",
+                            f"{webdav_base}/",
+                            auth=(userid, password),
+                            headers={"Depth": "1", "Content-Type": "application/xml"},
+                            content="""<?xml version="1.0"?>
+                            <d:propfind xmlns:d="DAV:">
+                              <d:prop>
+                                <d:displayname/>
+                              </d:prop>
+                            </d:propfind>"""
+                        )
+                        
+                        if final_check.status_code in (207, 200):
+                            import xml.etree.ElementTree as ET_final
+                            try:
+                                root_final = ET_final.fromstring(final_check.text)
+                                remaining_files = []
+                                for resp in root_final.findall('.//{DAV:}response'):
+                                    href = resp.find('.//{DAV:}href')
+                                    if href and href.text:
+                                        h = href.text
+                                        if h.rstrip('/') != f"/remote.php/dav/files/{userid}":
+                                            display_elem = resp.find('.//{DAV:}displayname')
+                                            if display_elem is not None and display_elem.text:
+                                                remaining_files.append(display_elem.text)
+                                            else:
+                                                remaining_files.append(h.split('/')[-1])
+                                
+                                if remaining_files:
+                                    logger.warning(f"[SmartDrive] Files still remaining after cleanup: {remaining_files}")
+                                    # Try to delete remaining files one more time
+                                    for remaining_file in remaining_files:
+                                        try:
+                                            final_del_url = f"{webdav_base}/{remaining_file}"
+                                            final_delete_resp = await cleanup_client.delete(final_del_url, auth=(userid, password))
+                                            if final_delete_resp.status_code == 204:
+                                                deleted_count += 1
+                                                logger.info(f"[SmartDrive] ✓ Final cleanup - deleted: {remaining_file}")
+                                            else:
+                                                logger.error(f"[SmartDrive] Failed final deletion of {remaining_file}: HTTP {final_delete_resp.status_code}")
+                                        except Exception as e:
+                                            logger.error(f"[SmartDrive] Exception in final cleanup of {remaining_file}: {e}")
+                                else:
+                                    logger.info(f"[SmartDrive] ✅ Account is completely clean - no files remaining")
+                            except Exception as parse_error:
+                                logger.warning(f"[SmartDrive] Error parsing final check response: {parse_error}")
+                    except Exception as final_check_error:
+                        logger.warning(f"[SmartDrive] Final verification failed: {final_check_error}")
                             
                     logger.info(f"[SmartDrive] Cleanup complete: removed {deleted_count} default items for user {userid}")
                     
@@ -26132,6 +26240,84 @@ async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: 
         logger.error(f"[SmartDrive] Comprehensive file cleanup failed: {cleanup_error}")
         
     return deleted_count
+
+async def aggressive_cleanup_remaining_files(base_url: str, userid: str, password: str) -> int:
+    """
+    Additional aggressive cleanup to catch any files that might have been missed or recreated.
+    This runs after the main cleanup to ensure the account is completely empty.
+    """
+    logger.info(f"[SmartDrive] Running aggressive cleanup for any remaining files for user: {userid}")
+    additional_deleted = 0
+    
+    try:
+        webdav_base = f"{base_url}/remote.php/dav/files/{userid}"
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Do a fresh PROPFIND to see what's currently in the account
+            prop = await client.request(
+                "PROPFIND",
+                f"{webdav_base}/",
+                auth=(userid, password),
+                headers={"Depth": "1", "Content-Type": "application/xml"},
+                content="""<?xml version="1.0"?>
+                <d:propfind xmlns:d="DAV:">
+                  <d:prop>
+                    <d:displayname/>
+                    <d:resourcetype/>
+                  </d:prop>
+                </d:propfind>"""
+            )
+            
+            if prop.status_code in (207, 200):
+                import xml.etree.ElementTree as ET
+                try:
+                    root = ET.fromstring(prop.text)
+                    remaining_items = []
+                    
+                    for resp in root.findall('.//{DAV:}response'):
+                        href = resp.find('.//{DAV:}href')
+                        if not href or not href.text:
+                            continue
+                            
+                        h = href.text
+                        # Skip the root directory itself
+                        if h.rstrip('/') == f"/remote.php/dav/files/{userid}":
+                            continue
+                            
+                        # Get display name if available
+                        display_elem = resp.find('.//{DAV:}displayname')
+                        display_name = display_elem.text if display_elem is not None and display_elem.text else h.split('/')[-1]
+                        
+                        remaining_items.append((h, display_name))
+                    
+                    if remaining_items:
+                        logger.warning(f"[SmartDrive] Found {len(remaining_items)} files still remaining after initial cleanup")
+                        for item_href, item_name in remaining_items:
+                            logger.warning(f"[SmartDrive] Remaining: {item_name} ({item_href})")
+                        
+                        # Delete everything that remains
+                        for h, display_name in remaining_items:
+                            try:
+                                del_url = f"{base_url}{h}"
+                                delete_resp = await client.delete(del_url, auth=(userid, password))
+                                if delete_resp.status_code in (204, 404):
+                                    additional_deleted += 1
+                                    logger.info(f"[SmartDrive] 🔥 AGGRESSIVE: Deleted remaining item: {display_name}")
+                                else:
+                                    logger.error(f"[SmartDrive] Failed aggressive deletion of {display_name}: HTTP {delete_resp.status_code}")
+                            except Exception as e:
+                                logger.error(f"[SmartDrive] Exception in aggressive cleanup of {display_name}: {e}")
+                    else:
+                        logger.info(f"[SmartDrive] ✅ No additional files found - account is clean")
+                        
+                except Exception as parse_error:
+                    logger.error(f"[SmartDrive] Error parsing aggressive cleanup response: {parse_error}")
+            else:
+                logger.error(f"[SmartDrive] Aggressive cleanup PROPFIND failed: HTTP {prop.status_code}")
+                
+    except Exception as cleanup_error:
+        logger.error(f"[SmartDrive] Aggressive cleanup failed: {cleanup_error}")
+        
+    return additional_deleted
 
 async def get_mock_files_response(path: str) -> Dict:
     """Fallback mock data when Nextcloud is unavailable"""
