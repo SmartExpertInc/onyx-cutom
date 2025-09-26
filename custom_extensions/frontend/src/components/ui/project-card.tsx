@@ -144,8 +144,8 @@ const stringToColor = (str: string): string => {
     "#03045E", // Darkest navy blue
     "#0077B6", // Medium dark blue
     "#00B4D8", // Bright cyan/turquoise
-    "#90E0EF", // Light sky blue
-    "#CAF0F8"  // Very light sky blue/pale blue
+    "#61cbde", // Light sky blue
+    "#74d9ed"  // Very light sky blue/pale blue
   ];
   
   // Use hash to select from palette
