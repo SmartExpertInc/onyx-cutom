@@ -1009,7 +1009,7 @@ const ProjectsPageInner: React.FC = () => {
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
-        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
+        <main className="flex-1 overflow-y-auto p-8 bg-[var(--background-third)]">
           {isSmartDrive ? (
             <SmartDriveConnectors />
           ) : isOffersAllowed ? (
