@@ -9976,9 +9976,6 @@ async def extract_single_file_context(file_id: int, cookies: Dict[str, str]) -> 
         3. What are the main topics, concepts, or subjects?
         4. What information would be most relevant for lesson planning or content creation?
         
-        If you can see/access the file, please proceed with the description.
-        If you absolutely cannot provide requested information, simply say "FILE_ACCESS_ERROR".
-        
         Format your response as:
         SUMMARY: [what this file contains/shows]
         TOPICS: [main topics or subjects, comma-separated]  
