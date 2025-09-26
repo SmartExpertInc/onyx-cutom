@@ -9696,29 +9696,23 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                 
             logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions from {current_size} to {request.width}x{request.height}")
         
-        # Get Gemini client
+        # Get Gemini client using the new API
         if not GEMINI_API_KEY:
             raise ValueError("No Gemini API key configured. Set GEMINI_API_KEY environment variable.")
-        genai.configure(api_key=GEMINI_API_KEY)
         
-        # Generate image using Gemini
-        model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
+        from google import genai
+        client = genai.Client(api_key=GEMINI_API_KEY)
         
-        # Create generation config for image generation
-        generation_config = genai.types.GenerationConfig(
-            max_output_tokens=8192,
-        )
-        
-        # Generate image with proper configuration
-        response = model.generate_content(
-            request.prompt,
-            generation_config=generation_config
+        # Generate image using Gemini with the new API
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-image-preview",
+            contents=[request.prompt],
         )
         
         if not response.candidates or len(response.candidates) == 0:
             raise Exception("No image data received from Gemini")
         
-        # Get the generated image data (base64)
+        # Get the generated image data (base64) using the new API structure
         image_data_b64 = None
         for part in response.candidates[0].content.parts:
             if hasattr(part, 'inline_data') and part.inline_data:
