@@ -4,9 +4,9 @@ import React, { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { FileText, Sparkles, UploadCloud, Home as HomeIcon } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useLanguage } from "../../contexts/LanguageContext";
-import { CustomCard } from "@/components/ui/custom-card";
-import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { useLanguage } from "../../../contexts/LanguageContext";
+import { CustomCard } from "@/components/ui/custom-card-new";
+import { HeadTextCustom } from "@/components/ui/head-text-custom-new";
 
 // ---------------------------------------------------------------------------
 // Card shown on the landing page. It tries to mimic the folder-looking cards
@@ -23,14 +23,13 @@ interface OptionCardProps {
   gradientTo: string;
   iconColor: string;
   labelColor: string;
-  glowColor?: string;
 }
 
 const ImportIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg width={size} height={size} viewBox="0 0 56 47" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect x="9.33337" y="-0.000244141" width="37.3333" height="18.6667" rx="6.22222" fill="url(#paint0_linear_886_2508)"/>
   <foreignObject x="-9.33333" y="-3.11129" width="74.6667" height="59.1111"><div style={{backdropFilter:'blur(4.67px)',clipPath:'url(#bgblur_0_886_2508_clip_path)',height:'100%',width:'100%'}}></div></foreignObject><g filter="url(#filter0_i_886_2508)" data-figma-bg-blur-radius="9.33333">
-  <rect y="6.22205" width="56" height="40.4444" rx="9.33333" fill="#8E44AD" fill-opacity="0.2"/>
+  <rect y="6.22205" width="56" height="40.4444" rx="9.33333" fill="#0088FF" fill-opacity="0.2"/>
   <rect x="0.311111" y="6.53316" width="55.3778" height="39.8222" rx="9.02222" stroke="url(#paint1_linear_886_2508)" stroke-opacity="0.1" stroke-width="0.622222"/>
   </g>
   <g filter="url(#filter1_i_886_2508)">
@@ -44,29 +43,29 @@ const ImportIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.55556"/>
   <feGaussianBlur stdDeviation="3.11111"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.4 0 0 0 0 0.6 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2508"/>
   </filter>
   <clipPath id="bgblur_0_886_2508_clip_path" transform="translate(9.33333 3.11129)"><rect y="6.22205" width="56" height="40.4444" rx="9.33333"/>
-  </clipPath>  <filter id="filter1_i_886_2508" x="15.5555" y="12.4442" width="24.8889" height="29.5556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  </clipPath><filter id="filter1_i_886_2508" x="15.5555" y="12.4442" width="24.8889" height="29.5556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
   <feFlood flood-opacity="0" result="BackgroundImageFix"/>
   <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
   <feOffset dy="1.55556"/>
   <feGaussianBlur stdDeviation="0.777778"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.4 0 0 0 0 0.6 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2508"/>
   </filter>
   <linearGradient id="paint0_linear_886_2508" x1="9.39998" y1="14.2741" x2="47" y2="14.2741" gradientUnits="userSpaceOnUse">
-  <stop stop-color="#8E44AD"/>
-  <stop offset="0.297014" stop-color="#A569BD"/>
-  <stop offset="0.666416" stop-color="#BB8FCE" stop-opacity="0.95"/>
-  <stop offset="1" stop-color="#D2B4DE" stop-opacity="0.71"/>
+  <stop stop-color="#1158C3"/>
+  <stop offset="0.297014" stop-color="#2979DD"/>
+  <stop offset="0.666416" stop-color="#388DED" stop-opacity="0.95"/>
+  <stop offset="1" stop-color="#49A4FF" stop-opacity="0.71"/>
   </linearGradient>
   <linearGradient id="paint1_linear_886_2508" x1="1.75" y1="8.06043" x2="56" y2="8.06043" gradientUnits="userSpaceOnUse">
-  <stop stop-color="#D2B4DE"/>
-  <stop offset="1" stop-color="#A569BD"/>
+  <stop stop-color="#7EE5FF"/>
+  <stop offset="1" stop-color="#41A9FF"/>
   </linearGradient>
   </defs>
   </svg>
@@ -115,7 +114,7 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <svg width={size} height={size} viewBox="0 0 53 53" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M14.5833 2.91675C16.1942 2.91675 17.5 4.22258 17.5 5.83341L17.5 46.6667C17.5 48.2776 16.1942 49.5834 14.5833 49.5834L5.83333 49.5834C2.61167 49.5834 -1.83564e-08 46.9717 1.22467e-07 43.7501L1.65237e-06 8.75008C1.79319e-06 5.52842 2.61167 2.91675 5.83333 2.91675L14.5833 2.91675Z" fill="url(#paint0_linear_886_2462)"/>
   <foreignObject x="5.83325" y="-8.75" width="55.4167" height="70"><div style={{backdropFilter:'blur(4.38px)',clipPath:'url(#bgblur_0_886_2462_clip_path)',height:'100%',width:'100%'}}></div></foreignObject><g filter="url(#filter0_i_886_2462)" data-figma-bg-blur-radius="8.75">
-  <path d="M14.5833 5.83333C14.5833 3.08347 14.5833 1.70854 15.4375 0.854272C16.2918 0 17.6667 0 20.4166 0L40.8332 0C46.333 0 49.0828 0 50.7914 1.70854C52.4999 3.41709 52.4999 6.16695 52.4999 11.6667V40.8333C52.4999 46.3331 52.4999 49.0829 50.7914 50.7915C49.0828 52.5 46.333 52.5 40.8333 52.5H20.4166C17.6667 52.5 16.2918 52.5 15.4375 51.6457C14.5833 50.7915 14.5833 49.4165 14.5833 46.6667V5.83333Z" fill="#E67E22" fill-opacity="0.2"/>
+  <path d="M14.5833 5.83333C14.5833 3.08347 14.5833 1.70854 15.4375 0.854272C16.2918 0 17.6667 0 20.4166 0L40.8332 0C46.333 0 49.0828 0 50.7914 1.70854C52.4999 3.41709 52.4999 6.16695 52.4999 11.6667V40.8333C52.4999 46.3331 52.4999 49.0829 50.7914 50.7915C49.0828 52.5 46.333 52.5 40.8333 52.5H20.4166C17.6667 52.5 16.2918 52.5 15.4375 51.6457C14.5833 50.7915 14.5833 49.4165 14.5833 46.6667V5.83333Z" fill="#0088FF" fill-opacity="0.2"/>
   <path d="M20.4163 0.291992H40.8333C43.5914 0.291992 45.631 0.292582 47.1956 0.50293C48.7515 0.712168 49.7942 1.12407 50.5852 1.91504C51.3761 2.70605 51.7881 3.74869 51.9973 5.30469C52.2077 6.86923 52.2083 8.90889 52.2083 11.667V40.833C52.2083 43.5911 52.2077 45.6308 51.9973 47.1953C51.7881 48.7513 51.3761 49.7939 50.5852 50.585C49.7942 51.3759 48.7515 51.7878 47.1956 51.9971C45.631 52.2074 43.5914 52.208 40.8333 52.208H20.4163C19.0333 52.208 18.0254 52.208 17.2551 52.1045C16.4932 52.0021 16.0077 51.8034 15.6438 51.4395C15.2799 51.0755 15.0812 50.59 14.9788 49.8281C14.8752 49.0579 14.8752 48.0499 14.8752 46.667V5.83301C14.8752 4.45006 14.8752 3.4421 14.9788 2.67188C15.0812 1.90997 15.2799 1.42446 15.6438 1.06055C16.0077 0.696635 16.4932 0.497943 17.2551 0.395508C18.0254 0.291965 19.0333 0.291992 20.4163 0.291992Z" stroke="url(#paint1_linear_886_2462)" stroke-opacity="0.1" stroke-width="0.583333"/>
   </g>
   <g filter="url(#filter1_i_886_2462)">
@@ -135,18 +134,18 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="2.91667"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <clipPath id="bgblur_0_886_2462_clip_path" transform="translate(-5.83325 8.75)"><path d="M14.5833 5.83333C14.5833 3.08347 14.5833 1.70854 15.4375 0.854272C16.2918 0 17.6667 0 20.4166 0L40.8332 0C46.333 0 49.0828 0 50.7914 1.70854C52.4999 3.41709 52.4999 6.16695 52.4999 11.6667V40.8333C52.4999 46.3331 52.4999 49.0829 50.7914 50.7915C49.0828 52.5 46.333 52.5 40.8333 52.5H20.4166C17.6667 52.5 16.2918 52.5 15.4375 51.6457C14.5833 50.7915 14.5833 49.4165 14.5833 46.6667V5.83333Z"/>
-  </clipPath>  <filter id="filter1_i_886_2462" x="20.4167" y="11.6667" width="17.5" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  </clipPath><filter id="filter1_i_886_2462" x="20.4167" y="11.6667" width="17.5" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
   <feFlood flood-opacity="0" result="BackgroundImageFix"/>
   <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
   <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="0.729167"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <filter id="filter2_i_886_2462" x="20.4167" y="23.3333" width="26.25" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -156,7 +155,7 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="0.729167"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <filter id="filter3_i_886_2462" x="20.4167" y="35" width="26.25" height="7.29171" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -166,18 +165,18 @@ const TextIcon: React.FC<{ size?: number }> = ({ size }) => (
   <feOffset dy="1.45833"/>
   <feGaussianBlur stdDeviation="0.729167"/>
   <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-  <feColorMatrix type="matrix" values="0 0 0 0 0.8 0 0 0 0 0.7 0 0 0 0 0.2 0 0 0 0.4 0"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0"/>
   <feBlend mode="normal" in2="shape" result="effect1_innerShadow_886_2462"/>
   </filter>
   <linearGradient id="paint0_linear_886_2462" x1="4.11777" y1="3" x2="4.11777" y2="50" gradientUnits="userSpaceOnUse">
-  <stop stop-color="#E67E22"/>
-  <stop offset="0.297014" stop-color="#F39C12"/>
-  <stop offset="0.666416" stop-color="#F7DC6F" stop-opacity="0.95"/>
-  <stop offset="1" stop-color="#F8C471" stop-opacity="0.71"/>
+  <stop stop-color="#1158C3"/>
+  <stop offset="0.297014" stop-color="#2979DD"/>
+  <stop offset="0.666416" stop-color="#388DED" stop-opacity="0.95"/>
+  <stop offset="1" stop-color="#49A4FF" stop-opacity="0.71"/>
   </linearGradient>
   <linearGradient id="paint1_linear_886_2462" x1="15.7681" y1="2.38636" x2="52.4999" y2="2.38636" gradientUnits="userSpaceOnUse">
-  <stop stop-color="#F8C471"/>
-  <stop offset="1" stop-color="#F39C12"/>
+  <stop stop-color="#7EE5FF"/>
+  <stop offset="1" stop-color="#41A9FF"/>
   </linearGradient>
   </defs>
   </svg>
@@ -194,7 +193,6 @@ const OptionCard: React.FC<OptionCardProps> = ({
   gradientTo,
   iconColor,
   labelColor,
-  glowColor,
 }: OptionCardProps) => {
   const router = useRouter();
   
@@ -238,7 +236,6 @@ const OptionCard: React.FC<OptionCardProps> = ({
       pillLabel={pillLabel}
       iconColor={iconColor}
       labelColor={labelColor}
-      glowColor={glowColor}
       disabled={disabled}
       href={href}
       onClick={handleClick}
@@ -313,7 +310,7 @@ export default function DataSourceLanding() {
       <main
         className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6"
         style={{
-          background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
+          background: `linear-gradient(135deg, var(--background-new-first) 0%, var(--background-new-second) 50%, var(--background-new-third) 100%)`
         }}
       >
       {/* Top-left home button */}
@@ -341,11 +338,10 @@ export default function DataSourceLanding() {
             title={t('interface.pasteInText', 'Paste in text')}
             description={t('interface.pasteInTextDescription', 'Create from notes, an outline, or existing content')}
             href="/create/paste-text"
-            gradientFrom="from-orange-300"
-            gradientTo="to-yellow-200"
-            iconColor="text-orange-600"
-            labelColor="text-orange-600"
-            glowColor="#F7DC6F"
+            gradientFrom="from-blue-300"
+            gradientTo="to-purple-200"
+            iconColor="text-blue-600"
+            labelColor="text-blue-600"
           />
           <OptionCard
             Icon={GenerateIcon}
@@ -363,11 +359,10 @@ export default function DataSourceLanding() {
             title={t('interface.importFileOrUrl', 'Create from files')}
             description={t('interface.importFileOrUrlDescription', 'Enhance existing docs, presentations, or webpages')}
             href="/create/from-files"
-            gradientFrom="from-pink-300"
-            gradientTo="to-rose-200"
-            iconColor="text-pink-600"
-            labelColor="text-pink-600"
-            glowColor="#BB8FCE"
+            gradientFrom="from-purple-300"
+            gradientTo="to-pink-200"
+            iconColor="text-[oklch(74%_0.238_322.16)]"
+            labelColor="text-[oklch(74%_0.238_322.16)]"
           />
         </div>
 

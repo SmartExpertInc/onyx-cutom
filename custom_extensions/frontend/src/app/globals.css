@@ -306,17 +306,23 @@ body:has([aria-modal="true"]) [draggable="true"] {
 :root {
   --background: linear-gradient(135deg, #e0c8fa 0%, #b3d9f1 100%);
   --background-first: oklch(0.8576 0.0809 315.9);
+  --background-new-first: oklch(0.4836 0.1976 277.7);
   --background-second: oklch(0.8341 0.071 266.01);
+  --background-new-second: oklch(0.5515 0.2189 320.42);
   --background-third: oklch(0.9529 0.0286 329.29);
+  --background-new-third: oklch(0.7734 0.1279 31.33);
   --foreground: oklch(0 0 0);
+  --foreground-new: oklch(1 0 0);
   --card: oklch(0.9940 0 0);
   --card-foreground: oklch(0.546 0.245 262.881);
+  --card-foreground-new: oklch(0.5668 0.1467 316.65);
   --popover: oklch(0.9911 0 0);
   --popover-foreground: oklch(0 0 0);
   --primary: oklch(0.5460 0.2450 262.8810);
   --primary-foreground: oklch(1.0000 0 0);
   --secondary: oklch(0.9540 0.0063 255.4755);
-  --secondary-foreground: oklch(0 0 0);
+  --secondary-foreground: oklch(0.5497 0.0301 251.85);
+  --secondary-foreground-new: oklch(1 0 0);
   --muted: oklch(0.9702 0 0);
   --muted-foreground: oklch(0.4386 0 0);
   --accent: oklch(0.9393 0.0288 266.3680);

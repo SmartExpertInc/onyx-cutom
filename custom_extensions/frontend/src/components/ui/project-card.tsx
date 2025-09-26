@@ -124,19 +124,33 @@ const redirectToMainAuth = (path: string) => {
 };
 
 
-// Generate color from string
+// Generate color from string using combined violet and blue palette
 const stringToColor = (str: string): string => {
   let hash = 0;
-  if (!str) return "#CCCCCC";
+  if (!str) return "#00B4D8";
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  let color = "#";
-  for (let i = 0; i < 3; i++) {
-    let value = (hash >> (i * 8)) & 0xff;
-    color += ("00" + value.toString(16)).substr(-2);
-  }
-  return color;
+  
+  // Combined violet and blue color palette
+  const colorPalette = [
+    // Violet shades
+    "#231942", // Darkest violet
+    "#5E548E", // Medium-dark violet
+    "#9F86C0", // Medium violet/lavender
+    "#BE95C4", // Light violet/lilac
+    "#E0B1CB", // Very light pinkish-violet
+    // Blue shades
+    "#03045E", // Darkest navy blue
+    "#0077B6", // Medium dark blue
+    "#00B4D8", // Bright cyan/turquoise
+    "#90E0EF", // Light sky blue
+    "#CAF0F8"  // Very light sky blue/pale blue
+  ];
+  
+  // Use hash to select from palette
+  const paletteIndex = Math.abs(hash) % colorPalette.length;
+  return colorPalette[paletteIndex];
 };
 
 // Format date
@@ -193,6 +207,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
+  
+  // Generate complementary gradient using combined palette
+  const generateVioletGradient = (baseColor: string) => {
+    const colorPalette = [
+      // Violet shades
+      "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
+      // Blue shades
+      "#03045E", "#0077B6", "#00B4D8", "#90E0EF", "#CAF0F8"
+    ];
+    const currentIndex = colorPalette.indexOf(baseColor);
+    const nextIndex = (currentIndex + 1) % colorPalette.length;
+    const thirdIndex = (currentIndex + 2) % colorPalette.length;
+    return `linear-gradient(135deg, ${baseColor} 0%, ${colorPalette[nextIndex]} 50%, ${colorPalette[thirdIndex]} 100%)`;
+  };
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -420,11 +448,42 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
+    <Card className={`group rounded-xl shadow-md transition-all duration-300 hover:shadow-xl border-0 relative overflow-hidden ${
       !getModalState()
         ? "cursor-grab active:cursor-grabbing"
         : "cursor-default"
-    }`}>
+    }`}
+      style={{
+        background: generateVioletGradient(bgColor),
+      }}>
+      {/* Decorative sparkles and elements covering entire card */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Sparkle elements distributed across entire card */}
+        <div className="absolute top-4 left-6 w-3 h-3 bg-white/70 rounded-full shadow-lg"></div>
+        <div className="absolute top-8 right-8 w-5 h-5 bg-white/70 rounded-full shadow-md"></div>
+        <div className="absolute top-12 left-12 w-2 h-2 bg-white/75 rounded-full shadow-md"></div>
+        <div className="absolute top-6 right-4 w-7 h-7 bg-white/60 rounded-full shadow-md"></div>
+        <div className="absolute top-10 left-8 w-12 h-12 bg-white/80 rounded-full shadow-md"></div>
+        
+        {/* Bottom section sparkles */}
+        <div className="absolute bottom-16 left-4 w-2 h-2 bg-white/70 rounded-full shadow-md"></div>
+        <div className="absolute bottom-20 right-6 w-5 h-5 bg-white/60 rounded-full shadow-md"></div>
+        <div className="absolute bottom-12 left-8 w-3 h-3 bg-white/50 rounded-full shadow-lg"></div>
+        <div className="absolute bottom-8 right-12 w-10 h-10 bg-white/80 rounded-full shadow-md"></div>
+        <div className="absolute bottom-14 left-12 w-2 h-2 bg-white/65 rounded-full shadow-md"></div>
+        
+        {/* Middle section sparkles */}
+        {/* <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div> */}
+        <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
+        <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white/60 rounded-full shadow-md"></div>
+        
+        {/* Decorative circles */}
+        <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/15 rounded-full"></div>
+        <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/10 rounded-full"></div>
+        <div className="absolute -bottom-6 -right-4 w-10 h-10 bg-white/12 rounded-full"></div>
+        <div className="absolute -bottom-2 -left-8 w-8 h-8 bg-white/8 rounded-full"></div>
+      </div>
+      
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
@@ -437,19 +496,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
+          className="relative h-40 flex flex-col justify-between p-4"
           style={{
-            backgroundColor: bgColor,
-            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-              displayTitle.split("").reverse().join("")
-            )}99)`,
+            background: generateVioletGradient(bgColor),
           }}
         >
+
           {/* Top row with badge positioned absolutely */}
-          <div className="relative">
+          <div className="relative z-10">
             {/* Private badge positioned absolutely in top-right */}
             {project.isPrivate && (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-gray-200">
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5">
                 <Lock size={8} className="text-gray-600" />
                 <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
@@ -459,25 +516,33 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
           
            {/* Truncated title in center */}
-           <div className="flex items-center justify-center flex-1 px-2">
+           <div className="flex items-center justify-center flex-1 px-2 relative z-10">
              <h3 
-               className="font-semibold text-md text-center leading-tight line-clamp-2"
-                style={{ color: "white" }}
+               className="font-bold text-lg text-center leading-tight line-clamp-2 text-white drop-shadow-lg"
              >
                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
              </h3>
            </div>
         </div>
         
-        {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 min-h-28 flex flex-col justify-between gap-2">
-          {/* Full title */}
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
+        {/* Lower section with lighter overlay background */}
+        <div className="relative bg-white/30 p-4 min-h-30 flex flex-col justify-between gap-2 rounded-xl z-20"
+          style={{
+            backdropFilter: 'blur(30px)'
+          }}
+        >
+          {/* Full title with better typography */}
+          <h3 className="font-bold text-white/90 text-base leading-tight line-clamp-1" 
+            style={{
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+              fontWeight: '700'
+            }}
+            title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-gray-50 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
+              className="inline-flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
@@ -498,10 +563,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-900 leading-tight">
+                <span className="text-xs font-medium text-white leading-tight" 
+                style={{
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                }}>
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-500 leading-tight">
+                <span className="text-xs text-gray-100/80 leading-tight"
+                style={{
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                }}>
                   {formatDate(project.createdAt)}
                 </span>
               </div>
@@ -513,7 +584,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 hover:bg-gray-100"
+                  className="h-6 w-6 p-0 bg-white/50 border border-white/70 hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();

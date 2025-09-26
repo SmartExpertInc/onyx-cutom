@@ -16,7 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import { HeadTextCustom } from "@/components/ui/head-text-custom-new";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
@@ -1127,7 +1127,7 @@ function GenerateProductPicker() {
     <main
       className="min-h-screen flex flex-col items-center pt-24 pb-16 px-6"
       style={{
-        background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
+        background: `linear-gradient(135deg, var(--background-new-first) 0%, var(--background-new-second) 50%, var(--background-new-third) 100%)`
       }}
     >
       <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
@@ -1139,8 +1139,8 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--primary)] mt-8">{t('interface.generate.title', 'Generate')}</h1>
-        <p className="text-center text-[var(--secondary-foreground)] text-lg -mt-1">
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--foreground-new)] mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <p className="text-center text-[var(--foreground-new)] text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
            isFromKnowledgeBase ? t('interface.generate.subtitleFromKnowledgeBase', 'Create content by searching your Knowledge Base') :
@@ -1307,7 +1307,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1344,7 +1344,7 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && useExistingOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1462,7 +1462,7 @@ function GenerateProductPicker() {
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1624,7 +1624,7 @@ function GenerateProductPicker() {
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1796,7 +1796,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-white flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
@@ -1838,7 +1838,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 transition-all duration-200 hover:shadow-xl"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 relative z-10"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={6}
             />
@@ -1861,11 +1861,11 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/40 transition-all duration-200 text-sm font-medium text-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/30 transition-all duration-200 text-sm font-semibold text-gray-800 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-3 right-3 text-gray-600 text-lg font-semibold">+</span>
+                      <span className="absolute top-3 right-3 text-gray-600 text-lg font-bold">+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />

@@ -12,7 +12,6 @@ interface CustomCardProps extends React.HTMLAttributes<HTMLDivElement> {
   pillLabel?: string;
   iconColor?: string;
   labelColor?: string;
-  glowColor?: string;
   disabled?: boolean;
   href?: string;
   onClick?: (e: React.MouseEvent) => void;
@@ -40,7 +39,6 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
     pillLabel,
     iconColor = "text-blue-600",
     labelColor = "text-blue-600",
-    glowColor = "var(--primary)",
     disabled = false,
     href,
     onClick,
@@ -55,7 +53,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full hover:scale-95",
+          "group rounded-md relative overflow-hidden transition-all duration-200 w-full h-full hover:scale-75",
           useCSSVariables 
             ? "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-2xl"
             : "bg-[var(--card)] border-[var(--border)] shadow-lg hover:shadow-2xl",
@@ -64,10 +62,10 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
             : selectable 
               ? `cursor-pointer ${
                   isSelected 
-                    ? 'border-[var(--primary)] shadow-xl bg-[var(--accent)] hover:scale-102' 
-                    : 'border-[var(--border)] hover:shadow-2xl hover:border-[var(--primary)] hover:scale-102'
+                    ? 'border-[var(--primary)] shadow-xl bg-[var(--accent)] hover:scale-105' 
+                    : 'border-[var(--border)] hover:shadow-2xl hover:border-[var(--primary)] hover:scale-105'
                 }`
-              : "cursor-pointer shadow-lg hover:shadow-2xl hover:scale-102",
+              : "cursor-pointer shadow-lg hover:shadow-2xl hover:scale-105",
           className
         )}
         {...props}
@@ -111,7 +109,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           {Icon && (
             <div className="flex items-center justify-center h-16 relative mb-4">
               <div className="relative">
-                <div className="absolute inset-0 rounded-lg blur-sm" style={{background: `linear-gradient(to bottom right, ${glowColor}20, ${glowColor}10)`}}></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/10 rounded-lg blur-sm"></div>
                 <Icon 
                   size={53} 
                   className={cn(
@@ -129,7 +127,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {title && (
                 <h3 className={cn(
                   "text-2xl font-semibold text-center leading-tight tracking-tight",
-                  useCSSVariables ? "text-[var(--card-foreground)]" : "text-[var(--card-foreground)]"
+                  useCSSVariables ? "text-[var(--card-foreground-new)]" : "text-[var(--card-foreground-new)]"
                 )}>
                   {title}
                 </h3>

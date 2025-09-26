@@ -3714,7 +3714,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             }`}
           >
             <Table
-              className="min-w-full divide-y divide-gray-200"
+              className="min-w-full divide-y divide-[var(--border)]"
             >
               <TableHeader className="bg-white">
                 <TableRow>
