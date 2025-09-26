@@ -1074,7 +1074,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
           {/* List icon picker for bullet lists */}
           {isEditing && !!onTextChange && !isNumbered && (
-            <div className="absolute top-0 left-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1">
+            <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
+            style={{ left: !isNumbered ? '-10px' : '3px' }}>
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
@@ -1143,7 +1144,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                           <span className="text-black text-xs leading-snug">{styledItemText}</span>
                         )
                       ) : Array.isArray(item) ? (
-                          <div className="flex flex-col -left-10">
+                          <div className="flex flex-col">
                               {(item as AnyContentBlock[]).map((block, blockIndex) => (
                                   <RenderBlock
                                       key={blockIndex}
@@ -1160,7 +1161,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               ))}
                           </div>
                       ) : (
-                        <div className="-left-10">
+                        <div className="flex flex-col">
                           <RenderBlock 
                               block={item as AnyContentBlock}
                               depth={(depth || 0) + 1}
