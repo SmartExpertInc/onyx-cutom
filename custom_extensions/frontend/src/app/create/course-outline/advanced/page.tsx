@@ -8,7 +8,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sparkles, Filter, Lock, ListOrdered, Presentation, Video, ClipboardCheck, Plus } from "lucide-react";
-import useFeaturePermission from "../../../hooks/useFeaturePermission";
+
 
 interface ModulePreview {
   id: string;
@@ -106,7 +106,7 @@ function parseOutlineMarkdown(md: string): ModulePreview[] {
 
 export default function CourseOutlineAdvancedPage() {
   const router = useRouter();
-  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
+  
 
   // Left sidebar state
   const [textAction, setTextAction] = useState('generate');
@@ -280,7 +280,7 @@ export default function CourseOutlineAdvancedPage() {
         try { sessionStorage.setItem('last_created_product_id', String(data.id)); } catch (_) {}
       }
 
-      router.push(`${courseTableEnabled ? `/projects/view/${data.id}` : `/projects/view-new/${data.id}`}?${qp.toString()}`);
+      router.push(`/projects/view/${data.id}?${qp.toString()}`);
     } catch (e: any) {
       setError(e.message || "Failed to generate course");
     } finally {
