@@ -1394,7 +1394,7 @@ export const ru = {
       createContent: "Создать контент",
       presentation: "Презентация",
       onePager: "Одностраничник",
-      quiz: "Викторина",
+      quiz: "Тест",
       videoLesson: "Видео Урок",
       regenerate: "Пересоздать",
       regenerateProduct: "Пересоздать Продукт",
@@ -1406,5 +1406,15 @@ export const ru = {
       regenerateProductTooltip: "Пересоздать продукт",
       addProduct: "Добавить продукт"
     },
+    customViewCard: {
+      totalModules: "Всего модулей",
+      totalLessons: "Всего уроков",
+      sources: "Источники",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Документ",
+        createdfromscratch: "Создано с нуля"
+      }
+    }
   },
 };

@@ -1425,7 +1425,7 @@ export const uk = {
       createContent: "Створити контент",
       presentation: "Презентація",
       onePager: "Односторінка",
-      quiz: "Вікторина",
+      quiz: "Тест",
       videoLesson: "Відео Урок",
       regenerate: "Перестворити",
       regenerateProduct: "Перестворити Продукт",
@@ -1437,5 +1437,15 @@ export const uk = {
       regenerateProductTooltip: "Перестворити продукт",
       addProduct: "Додати продукт"
     },
+    customViewCard: {
+      totalModules: "Всього модулів",
+      totalLessons: "Всього уроків",
+      sources: "Джерела",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Документ",
+        createdfromscratch: "Створено з нуля"
+      }
+    }
   },
 };

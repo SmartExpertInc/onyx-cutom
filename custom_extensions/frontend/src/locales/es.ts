@@ -1458,5 +1458,15 @@ export const es = {
       regenerateProductTooltip: "Regenerar producto",
       addProduct: "Agregar producto"
     },
+    customViewCard: {
+      totalModules: "Total de Módulos",
+      totalLessons: "Total de Lecciones",
+      sources: "Fuentes",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "Documento PDF",
+        createdfromscratch: "Creado desde cero"
+      }
+    }
   },
 };

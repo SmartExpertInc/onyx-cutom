@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface CourseMetrics {
   totalModules: number;
@@ -56,6 +57,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
   className = "",
   projectId
 }) => {
+  const { t } = useLanguage();
   const {
     totalModules,
     totalLessons,
@@ -69,19 +71,19 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
   return (
     <div className={`bg-white rounded-lg p-6 ${className}`}>
       {/* Title */}
-      <h2 className="text-xl font-medium text-gray-800 mb-4">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">
         {title}
       </h2>
 
       {/* Metrics Section */}
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Total Modules</span>
+          <span className="text-sm text-gray-500">{t('interface.customViewCard.totalModules', 'Total Modules')}</span>
           <span className="text-sm font-medium text-gray-800">{totalModules}</span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-500">Total Lessons</span>
+          <span className="text-sm text-gray-500">{t('interface.customViewCard.totalLessons', 'Total Lessons')}</span>
           <span className="text-sm font-medium text-gray-800">{totalLessons}</span>
         </div>
         
@@ -92,14 +94,14 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
 
       {/* Sources Section */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">Sources</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-4">{t('interface.customViewCard.sources', 'Sources')}</h3>
         <div className="space-y-2">
           {sources.map((source, index) => (
             <div key={index} className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-50">
                 {source.icon}
               </div>
-              <span className="text-sm text-gray-500">{source.name}</span>
+              <span className="text-sm text-gray-500">{t(`interface.customViewCard.source.${source.name.toLowerCase().replace(/\s+/g, '')}`, source.name)}</span>
             </div>
           ))}
         </div>

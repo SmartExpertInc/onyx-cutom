@@ -1326,5 +1326,15 @@ export const en = {
       regenerateProductTooltip: "Regenerate product",
       addProduct: "Add product"
     },
+    customViewCard: {
+      totalModules: "Total Modules",
+      totalLessons: "Total Lessons",
+      sources: "Sources",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Document",
+        createdfromscratch: "Created from scratch"
+      }
+    }
   },
 };
