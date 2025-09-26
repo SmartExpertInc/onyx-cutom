@@ -947,7 +947,7 @@ export default function ProductViewNewPage() {
 
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-[120px]">
+          <div className="px-[80px]">
             <SmartPromptEditor
               projectId={projectData.project_id}
               onContentUpdate={handleSmartEditContentUpdate}
@@ -960,7 +960,7 @@ export default function ProductViewNewPage() {
         )}
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[80px]">
           {/* Main Content Area - Course Outline and Modules */}
           <div className="lg:col-span-2 space-y-4">
             {/* Course Outline Title */}
@@ -1048,26 +1048,24 @@ export default function ProductViewNewPage() {
                   {/* Product Types Header */}
                   <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center px-2`}>
                     <div className="text-sm font-medium text-gray-700">
-                      
+                      {/* {t('interface.viewNew.lessonTitle', 'Lesson Title')} */}
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
-                      <LessonPresentationIcon size={16} />
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <LessonPresentationIcon size={16} color="#2563eb" />
                       <span>{t('interface.viewNew.presentation', 'Presentation')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
-                      <TextPresentationIcon size={16} />
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <TextPresentationIcon size={16} color="#2563eb" />
                       <span>{t('interface.viewNew.onePager', 'One-Pager')}</span>
                     </div>
-                    <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
-                      <QuizIcon size={16} />
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <QuizIcon size={16} color="#2563eb" />
                       <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
                     </div>
-                    {videoLessonEnabled && (
-                      <div className="flex flex-col items-center text-[10px] font-medium text-[#9A9DA2] justify-center gap-1">
-                        <VideoScriptIcon size={16} />
-                        <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
-                      </div>
-                    )}
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <VideoScriptIcon size={16} color="#2563eb" />
+                      <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
+                    </div>
                   </div>
 
                   {section.lessons && section.lessons.length > 0 && (
