@@ -1117,15 +1117,6 @@ const ProjectsPageInner: React.FC = () => {
             <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
           )}
         </main>
-        <div className="fixed bottom-4 right-4">
-          <button
-            type="button"
-            className="w-9 h-9 rounded-full border-[0.5px] border-[#63A2FF] text-[#000d4e] flex items-center justify-center select-none font-bold hover:bg-[#f0f7ff] active:scale-95 transition"
-            aria-label="Help"
-          >
-            ?
-          </button>
-        </div>
       </div>
       <FolderModal open={showFolderModal} onClose={() => setShowFolderModal(false)} onFolderCreated={handleFolderCreated} existingFolders={folders} />
       {showCreateOfferModal && (
