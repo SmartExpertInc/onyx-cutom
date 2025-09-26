@@ -139,6 +139,50 @@ const stringToColor = (str: string): string => {
   return color;
 };
 
+// Function to determine if a color is light or dark
+const isLightColor = (color: string): boolean => {
+  // Remove # if present
+  const hex = color.replace('#', '');
+  
+  // Convert to RGB
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  // Calculate luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  return luminance > 0.5;
+};
+
+// Function to get appropriate text color and style based on background
+const getTextStyle = (bgColor: string) => {
+  const isLight = isLightColor(bgColor);
+  
+  if (isLight) {
+    // For light backgrounds, use dark text with golden gradient
+    return {
+      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+      textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.6)',
+      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+      fontWeight: '800',
+      letterSpacing: '0.05em'
+    };
+  } else {
+    // For dark backgrounds, use white text with glow
+    return {
+      color: 'white',
+      textShadow: '0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.6)',
+      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+      fontWeight: '800',
+      letterSpacing: '0.05em'
+    };
+  }
+};
+
 // Format date
 const formatDate = (dateString: string, language: string = "en") => {
   const options: Intl.DateTimeFormatOptions = {
@@ -420,7 +464,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className={`group rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border-0 relative overflow-hidden ${
+    <Card className={`group rounded-xl shadow-md transition-all duration-300 hover:shadow-xl border-0 relative overflow-hidden ${
       !getModalState()
         ? "cursor-grab active:cursor-grabbing"
         : "cursor-default"
@@ -479,6 +523,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}99)`,
           }}
         >
+          {/* Sparkles for top section */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+            {/* Top section sparkles */}
+            <div className="absolute top-4 left-6 w-3 h-3 bg-white/70 rounded-full shadow-lg animate-pulse"></div>
+            <div className="absolute top-8 right-8 w-2 h-2 bg-white/60 rounded-full shadow-md animate-pulse delay-100"></div>
+            <div className="absolute top-12 left-12 w-6 h-6 bg-white/75 rounded-full shadow-md animate-pulse delay-200"></div>
+            <div className="absolute top-6 right-4 w-2 h-2 bg-white/60 rounded-full shadow-md animate-pulse delay-300"></div>
+            <div className="absolute top-10 left-8 w-12 h-12 bg-white/80 rounded-full shadow-md animate-pulse delay-75"></div>
+            
+            {/* Decorative circles for top section */}
+            <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/15 rounded-full"></div>
+            <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/10 rounded-full"></div>
+          </div>
 
           {/* Top row with badge positioned absolutely */}
           <div className="relative z-10">
@@ -509,11 +566,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             backdropFilter: 'blur(30px)'
           }}
         >
-          {/* Subtle glow effect at top */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-          
           {/* Full title with better typography */}
-          <h3 className="font-bold text-white/50 text-base leading-tight line-clamp-1" title={displayTitle}>
+          <h3 className="font-bold text-base leading-tight line-clamp-1" style={getTextStyle(bgColor)} title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
