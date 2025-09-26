@@ -2263,19 +2263,57 @@ export default function DynamicAuditLandingPage() {
                       </svg>
   
                       <span className="font-semibold text-[20px]">
-                    {getLocalizedText(landingPageData?.language, {
-                      en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                      es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                      ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
-                      ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
-                    })}
+                    {editingField === 'lossesFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                          `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
+                        onSave={(value) => handleTextSave('lossesFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('lossesFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full losses title"
+                      >
+                        {landingPageData?.workforceCrisis?.losses?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                            en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                            es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                            ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
+                            ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
+                          })}
+                      </span>
+                    )}
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {landingPageData?.language === 'en' ? (
-                        <><span className="font-medium text-[#09090B]">Company losses</span> per year for unfilled<br/> positions, including lost<br/> profits, overtime, and downtime.</>
+                      {editingField === 'lossesFullDescription' ? (
+                        <InlineEditor
+                          initialValue={landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                            'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.'}
+                          onSave={(value) => handleTextSave('lossesFullDescription', value)}
+                          onCancel={handleTextCancel}
+                          multiline={true}
+                          className="font-normal"
+                          style={{ fontSize: '14px', color: '#71717A' }}
+                        />
                       ) : (
-                        <><span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой<br/> позиции в год, включая упущенную<br/> прибыль, переработки и простои.</>
+                        <span 
+                          onClick={() => startEditing('lossesFullDescription')}
+                          className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                          title="Click to edit full losses description"
+                        >
+                          {landingPageData?.workforceCrisis?.losses?.fullDescription || 
+                            getLocalizedText(landingPageData?.language, {
+                              en: 'Company losses per year for unfilled positions, including lost profits, overtime, and downtime.',
+                              es: 'Pérdidas de la empresa por año por posiciones no cubiertas, incluyendo ganancias perdidas, horas extra y tiempo de inactividad.',
+                              ua: 'Збитки компанії на рік за незакриті позиції, включаючи втрачені прибутки, понаднормові та простої.',
+                              ru: 'Потери компании при незакрытой позиции в год, включая упущенную прибыль, переработки и простои.'
+                            })}
+                        </span>
                       )}
                     </p>
                   </div>
