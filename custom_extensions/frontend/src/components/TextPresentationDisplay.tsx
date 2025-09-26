@@ -1100,31 +1100,31 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           )}
           
           <ListTag className={`${listStyle} ${textIndentClass} space-y-1.5`} style={{ fontSize: fontSize || '10px' }}>
-            {/* List icon picker for numbered lists */}
+            {/* List icon picker for numbered lists - positioned further left */}
             {isEditing && !!onTextChange && isNumbered && (
-              <div className="absolute top-0 -left-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1">
-                <div className="relative">
-                  <button 
-                    className="p-1 rounded hover:bg-gray-200" 
-                    onClick={() => setIsBulletPickerOpen(v => !v)} 
-                    title="Choose bullet icon"
-                  >
-                    <StarIcon className="w-4 h-4" />
-                  </button>
-                  {isBulletPickerOpen && (
-                    <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
-                      <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
-                        <span className="text-xs font-medium">No Icon</span>
-                      </button>
-                      {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
-                        <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
-                          {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+              <div className="absolute top-0 -left-20 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1">
+                  <div className="relative">
+                    <button 
+                      className="p-1 rounded hover:bg-gray-200" 
+                      onClick={() => setIsBulletPickerOpen(v => !v)} 
+                      title="Choose bullet icon"
+                    >
+                      <StarIcon className="w-4 h-4" />
+                    </button>
+                    {isBulletPickerOpen && (
+                      <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                        <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                          <span className="text-xs font-medium">No Icon</span>
                         </button>
-                      ))}
-                    </div>
-                  )}
+                        {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                          <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                            {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
             )}
             {items.map((item, index) => {
               const isLastItem = index === items.length - 1;
@@ -1163,6 +1163,30 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Remove item" onClick={() => removeItemAt(index)}>
                                 <Trash2 className="w-3.5 h-3.5 text-red-600" />
                               </button>
+                            </div>
+                            {/* Individual bullet icon picker for numbered list items */}
+                            <div className="absolute -left-20 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40">
+                              <div className="relative">
+                                <button 
+                                  className="p-1 rounded hover:bg-gray-200" 
+                                  onClick={() => setIsBulletPickerOpen(v => !v)} 
+                                  title="Choose bullet icon"
+                                >
+                                  <StarIcon className="w-4 h-4" />
+                                </button>
+                                {isBulletPickerOpen && (
+                                  <div className="absolute left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 grid grid-cols-6 gap-2 z-50 max-h-56 overflow-auto min-w-[260px] text-gray-800">
+                                    <button className="p-2 rounded hover:bg-gray-100 col-span-2 flex items-center justify-center border border-gray-200" onClick={() => { onTextChange?.([...basePath, 'iconName'], 'none'); setIsBulletPickerOpen(false); }} title="No icon">
+                                      <span className="text-xs font-medium">No Icon</span>
+                                    </button>
+                                    {Object.keys(iconMap).filter(k => k !== 'new-bullet').map((name) => (
+                                      <button key={name} className="p-2 rounded hover:bg-gray-100 flex items-center justify-center" onClick={() => { onTextChange?.([...basePath, 'iconName'], name); setIsBulletPickerOpen(false); }} title={name}>
+                                        {React.createElement(iconMap[name], { className: 'w-6 h-6 text-[#FF1414]' })}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ) : (
