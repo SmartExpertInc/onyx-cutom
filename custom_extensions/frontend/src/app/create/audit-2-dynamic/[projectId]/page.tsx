@@ -1122,6 +1122,22 @@ export default function DynamicAuditLandingPage() {
           })
         }
         
+        // 🖼️ [IMAGE URL FIX] Process course template images to ensure full URLs
+        if (data.courseTemplates && Array.isArray(data.courseTemplates)) {
+          data.courseTemplates = data.courseTemplates.map((template: any) => ({
+            ...template,
+            image: template.image && template.image.startsWith('/static_design_images/') 
+              ? `${CUSTOM_BACKEND_URL}${template.image}`
+              : template.image
+          }))
+          
+          // 📊 LOG: Course template images processed
+          console.log(`🖼️ [IMAGE URL FIX] Course templates processed:`)
+          data.courseTemplates.forEach((template: any, index: number) => {
+            console.log(`🖼️ [IMAGE URL FIX] - Template ${index + 1}: "${template.title}" -> "${template.image}"`)
+          })
+        }
+        
         setLandingPageData(data)
         console.log(`✅ [FRONTEND DATA FLOW] Landing page data set successfully`)
         
@@ -2416,8 +2432,19 @@ export default function DynamicAuditLandingPage() {
                   {landingPageData?.courseTemplates && landingPageData.courseTemplates.length > 0 && landingPageData.courseTemplates.map((template, index) => (
                     <div key={index} className={`border border-[#E0E0E0] rounded-[4px] overflow-hidden xl:w-[360px] ${index >= 4 ? 'hidden xl:block' : ''}`} style={{ boxShadow: '2px 2px 10px 0px #0000001A' }}>
                       {/* Card Top */}
-                      <div className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: `url(${template.image})` }}>
-                        <span className="font-semibold text-[16px] text-white">
+                      <div 
+                        className="h-[140px] bg-cover bg-center bg-no-repeat flex items-center justify-center" 
+                        style={{ 
+                          backgroundImage: template.image 
+                            ? `url(${template.image})` 
+                            : `url(/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png)`,
+                          backgroundColor: template.image ? 'transparent' : '#f3f4f6'
+                        }}
+                        onError={() => {
+                          console.error(`🖼️ [IMAGE ERROR] Failed to load image: ${template.image}`)
+                        }}
+                      >
+                        <span className="font-semibold text-[16px] text-white drop-shadow-lg">
                           {template.title}
                         </span>
                       </div>
@@ -2564,7 +2591,16 @@ export default function DynamicAuditLandingPage() {
                   </h4>
                   
                   <div className="flex flex-col gap-[30px] xl:gap-[20px] xl:px-[30px] xl:py-[30px] xl:shadow-[2px_2px_10px_0px_#0000001A] xl:rounded-[6px]">
-                    <div className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: `url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})` }}>
+                    <div 
+                      className="h-[140px] xl:h-[240px] rounded-[4px] bg-cover bg-center bg-no-repeat relative" 
+                      style={{ 
+                        backgroundImage: `url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})`,
+                        backgroundColor: landingPageData?.courseTemplates?.[0]?.image ? 'transparent' : '#f3f4f6'
+                      }}
+                      onError={() => {
+                        console.error(`🖼️ [IMAGE ERROR] Failed to load main course image: ${landingPageData?.courseTemplates?.[0]?.image}`)
+                      }}
+                    >
                       <div className="absolute bottom-[5px] xl:bottom-[10px] left-[6px] xl:left-[20px] flex gap-[6px] items-center">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3.65231 12.7952V13.9691C3.65231 14.9474 2.83057 15.7691 1.85231 15.7691H1.42188V17.0604C4.08274 16.2778 6.54796 16.6691 8.62187 17.9996V9.35175C6.54796 8.02132 4.08274 7.63001 1.42188 8.37349V10.9561H1.85231C2.8697 10.9952 3.65231 11.7778 3.65231 12.7952Z" fill="#0F58F9"/>
