@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import useFeaturePermission from "../../../hooks/useFeaturePermission";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -355,6 +356,7 @@ export default function CourseOutlineClient() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const router = useRouter();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   // Keep a reference to the current in-flight preview request so we can cancel it
   const previewAbortRef = useRef<AbortController | null>(null);
@@ -933,7 +935,7 @@ export default function CourseOutlineClient() {
       // Navigate to the newly-created product view. Using router.push ensures Next.js automatically
       // prefixes the configured `basePath` (e.g. "/custom-projects-ui") so we don't accidentally
       // leave the custom frontend and hit the main app's /projects route.
-      router.push(`/projects/view/${data.id}?${qp.toString()}`);
+      router.push(`${courseTableEnabled ? `/projects/view/${data.id}` : `/projects/view-new/${data.id}`}?${qp.toString()}`);
     } catch (e: any) {
       try {
         // Mark that a "Failed" event has been tracked to prevent subsequent "Clicked" events

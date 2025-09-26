@@ -1042,7 +1042,7 @@ const FolderRow: React.FC<{
                 className="font-semibold text-blue-700"
                 title={folder.name}
               />
-              <Badge variant="outline" className="ml-2 text-xs text-gray-500 bg-gray-100">
+              <Badge variant="outline" className="ml-2 text-xs text-gray-700 bg-gray-100">
                 {getTotalItemsInFolder(folder, folderProjects)}{" "}
                 {getTotalItemsInFolder(folder, folderProjects) === 1
                   ? t("interface.item", "item")
@@ -1150,7 +1150,7 @@ const FolderRow: React.FC<{
                       p.designMicroproductType === "Video Lesson Presentation" 
                         ? `/projects-2/view/${p.id}`
                         : (p.designMicroproductType === "Training Plan"
-                          ? `/projects/view-new/${p.id}`
+                          ? (useFeaturePermission('course_table').isEnabled ? `/projects/view/${p.id}` : `/projects/view-new/${p.id}`)
                           : `/projects/view/${p.id}`)
                     )}
                     title={p.title}
@@ -1271,6 +1271,7 @@ const ProjectRowMenu: React.FC<{
   const isOutline =
     (project.designMicroproductType || "").toLowerCase() === "training plan";
   const { isEnabled: qualityTierEnabled } = useFeaturePermission('col_quality_tier');
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -3925,7 +3926,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                               href={trashMode ? "#" : (
                                 p.designMicroproductType === "Video Lesson Presentation" 
                                   ? `/projects-2/view/${p.id}`
-                                  : `/projects/view/${p.id}`
+                                  : (p.designMicroproductType === "Training Plan"
+                                    ? (useFeaturePermission('course_table').isEnabled ? `/projects/view/${p.id}` : `/projects/view-new/${p.id}`)
+                                    : `/projects/view/${p.id}`)
                               )}
                               title={p.title}
                             />
