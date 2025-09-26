@@ -132,13 +132,18 @@ const stringToColor = (str: string): string => {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   
-  // Violet color palette based on the image
+  // Violet color palette based on the images
   const violetPalette = [
     "#231942", // Darkest violet
     "#5E548E", // Medium-dark violet
     "#9F86C0", // Medium violet/lavender
     "#BE95C4", // Light violet/lilac
-    "#E0B1CB"  // Very light pinkish-violet
+    "#E0B1CB", // Very light pinkish-violet
+    "#FFD6FF", // Very light pinkish-violet (pastel)
+    "#E7C6FF", // Light lavender (pastel)
+    "#C8B6FF", // Medium violet/light purple (pastel)
+    "#B8C0FF", // Saturated violet/medium purple (pastel)
+    "#BBD0FF"  // Light blue-violet/periwinkle (pastel)
   ];
   
   // Use hash to select from palette
@@ -204,11 +209,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   // Generate complementary violet gradient
   const generateVioletGradient = (baseColor: string) => {
     const violetPalette = [
-      "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB"
+      "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
+      "#FFD6FF", "#E7C6FF", "#C8B6FF", "#B8C0FF", "#BBD0FF"
     ];
     const currentIndex = violetPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % violetPalette.length;
-    return `linear-gradient(135deg, ${baseColor} 0%, ${violetPalette[nextIndex]} 50%, ${baseColor} 100%)`;
+    const thirdIndex = (currentIndex + 2) % violetPalette.length;
+    return `linear-gradient(135deg, ${baseColor} 0%, ${violetPalette[nextIndex]} 50%, ${violetPalette[thirdIndex]} 100%)`;
   };
 
   const handleRemoveFromFolder = async () => {
@@ -495,7 +502,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="relative z-10">
             {/* Private badge positioned absolutely in top-right */}
             {project.isPrivate && (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-white/20">
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5">
                 <Lock size={8} className="text-gray-600" />
                 <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
@@ -523,7 +530,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* Full title with better typography */}
           <h3 className="font-bold text-white/90 text-base leading-tight line-clamp-1" 
             style={{
-              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
               fontWeight: '700'
             }}
             title={displayTitle}>
@@ -531,7 +538,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full p-1 w-fit shadow-sm"
+              className="inline-flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
@@ -552,10 +559,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-white leading-tight">
+                <span className="text-xs font-medium text-white leading-tight" 
+                style={{
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                }}>
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-100/80 leading-tight">
+                <span className="text-xs text-gray-100/80 leading-tight"
+                style={{
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                }}>
                   {formatDate(project.createdAt)}
                 </span>
               </div>
