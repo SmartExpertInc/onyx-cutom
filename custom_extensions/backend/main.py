@@ -18535,10 +18535,17 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 user_prompt = (
                     f"ORIGINAL JSON:\n{original_json_str}\n\n" +
                     f"EDIT INSTRUCTION (language={payload.language or 'en'}):\n{payload.prompt}\n\n" +
+                    f"IMPORTANT EDIT POLICY:\n" +
+                    f"- Apply minimal edits to ORIGINAL JSON.\n" +
+                    f"- Preserve ALL unchanged modules, lessons, IDs, order, and existing fields.\n" +
+                    f"- Only modify what the instruction explicitly targets.\n" +
+                    f"- NEVER delete, rename, or reorder modules/lessons unless explicitly requested.\n" +
+                    f"- Maintain existing IDs for modules/lessons; do not regenerate IDs.\n\n" +
                     f"CRITICAL OUTPUT FORMAT (JSON-ONLY):\n" +
-                    f"You MUST output ONLY a single JSON object for the Training Plan edit, strictly following this example structure:\n" +
+                    f"Return ONE JSON object representing the minimally edited Training Plan.\n" +
+                    f"It MUST strictly follow this example structure:\n" +
                     f"{DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM}\n" +
-                    f"Do NOT include code fences, markdown or extra commentary. Return JSON object only."
+                    f"Do NOT include code fences, markdown, or commentary. Return JSON object only."
                 )
                 
                 messages = [
