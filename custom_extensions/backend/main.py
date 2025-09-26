@@ -1781,31 +1781,7 @@ async def normalize_slide_props(slides: List[Dict], component_name: str = None) 
                         normalized_props['title'] = sentences[0]
                         normalized_props['subtitle'] = '. '.join(sentences[1:])
                         
-            # Fix template selection for analytics/evaluation content
-            if (template_id == 'metrics-analytics' and 
-                'metrics' in normalized_props and 
-                isinstance(normalized_props['metrics'], list) and 
-                len(normalized_props['metrics']) <= 3):
-                # If metrics-analytics has only bullet points, convert to bullet-points template
-                logger.info(f"Converting slide {slide_index + 1} from metrics-analytics to bullet-points (better fit)")
-                normalized_slide['templateId'] = 'bullet-points'
-                template_id = 'bullet-points'
-                normalized_props['bullets'] = normalized_props.pop('metrics')
-                # Add image prompt for bullet-points
-                if not normalized_props.get('imagePrompt'):
-                    title = normalized_props.get('title', 'concepts')
-                    title_lower = title.lower()
-                    
-                    # Generate contextual, detailed image prompts for metrics/analytics content
-                    if 'metric' in title_lower or 'analytic' in title_lower or 'performance' in title_lower:
-                        normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern data analytics workspace. The scene features a professional data analyst sitting at a clean desk with a laptop displaying simple geometric charts and performance dashboards (no readable text). A large monitor shows flowing data visualizations with abstract patterns and trends. The workspace includes notebooks, a coffee cup, and modern office accessories. Natural light streams through large windows. The laptop charts and data visualizations are [COLOR1], the monitor and office equipment are [COLOR2], and the workspace environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                    elif 'tracking' in title_lower or 'monitoring' in title_lower:
-                        normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern monitoring and tracking center. The scene features a professional analyst standing next to a large wall display showing flowing geometric patterns representing tracking systems and monitoring data. A clean workstation with a tablet displaying simple interface elements sits nearby. The environment is bright and contemporary with floor-to-ceiling windows. The wall display and tracking patterns are [COLOR1], the analyst's attire and tablet are [COLOR2], and the monitoring center environment are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                    else:
-                        # General professional data/analytics fallback
-                        normalized_props['imagePrompt'] = f"Minimalist flat design illustration of a modern professional workspace focused on {title.lower()}. The scene features a diverse professional in business attire working at a contemporary desk with a laptop displaying simple data interface elements and geometric visualizations (no readable text). Professional tools like a tablet, notebooks, and a coffee cup are positioned around the clean workspace. Large windows provide natural light to the modern office environment. The laptop interface and data displays are [COLOR1], the professional's attire and desk accessories are [COLOR2], and the office environment and furniture are [COLOR3]. The style is modern corporate vector art with clean geometric shapes and flat colors. The background is [BACKGROUND], completely clean and isolated."
-                    
-                    normalized_props['imageAlt'] = f"Professional illustration for {title}"
+            # Removed fallback logic that converted metrics-analytics to bullet-points
                     
             # This big-numbers conversion logic is moved to after big-numbers normalization below
                 
