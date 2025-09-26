@@ -992,7 +992,7 @@ export default function ProductViewNewPage() {
                     className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
                     title={t('interface.viewNew.editCourseTitle', 'Edit course title')}
                   >
-                    <Edit3 size={16} className="text-gray-500 hover:text-gray-700" />
+                    <Edit3 size={16} className="text-gray-500 hover:text-gray-700 flex-shrink-0" />
                   </button>
                 </div>
               )}
@@ -1034,7 +1034,7 @@ export default function ProductViewNewPage() {
                         className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                         title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
                       >
-                        <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                        <Edit3 size={14} className="text-gray-500 hover:text-gray-700 flex-shrink-0" />
                       </button>
                     </div>
                   )}
@@ -1071,7 +1071,7 @@ export default function ProductViewNewPage() {
                                   className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                                   title={t('interface.viewNew.editLessonTitle', 'Edit lesson title')}
                                 >
-                                  <Edit3 size={14} className="text-gray-500 hover:text-gray-700" />
+                                  <Edit3 size={14} className="text-gray-500 hover:text-gray-700 flex-shrink-0" />
                                 </button>
                               </div>
                             )}
