@@ -18519,8 +18519,6 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 
     # Fast path variables - delay initialization until needed
     existing_content = row["microproduct_content"]
-    print("RAW existing_content:", type(existing_content))
-    print("RAW existing_content 2:", type({"hey": 13}))
 
     # Stream the response
     async def streamer():
@@ -18532,10 +18530,8 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 model = LLM_DEFAULT_MODEL
                 
                 # Use free text with forcing instructions like course outline preview
-                original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
+                original_json_str = existing_content
                 logger.info(f"[SMART_EDIT_DEBUG] Original JSON length: {len(original_json_str)}")
-                logger.info(f"[SMART_EDIT_DEBUG] Original mainTitle: {existing_content.get('mainTitle', 'N/A') if isinstance(existing_content, dict) else 'N/A'}")
-                logger.info(f"[SMART_EDIT_DEBUG] Original sections count: {len(existing_content.get('sections', [])) if isinstance(existing_content, dict) else 0}")
                 
                 user_prompt = (
                     f"ORIGINAL JSON:\n{original_json_str}\n\n" +
