@@ -349,7 +349,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
         <table style={tableStyles}>
           {/* Headers */}
           <thead>
-            <tr>
+            <tr className="group">
               {/* Empty corner cell */}
               <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}></th>
               
@@ -406,6 +406,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                             right: '8px'
                           }}
                           className="group-hover:opacity-100"
+                          title="Remove Column"
                         >
                           ✗
                         </button>
@@ -415,16 +416,20 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 </th>
               ))}
               
-              {/* Add column button */}
+              {/* Add column button - appears on hover */}
               {isEditable && (
                 <th style={{ 
                   ...headerStyles, 
-                  backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
-                  borderRight: 'none'
+                  backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9'
                 }}>
                   <button
                     onClick={addColumn}
-                    style={addButtonStyles}
+                    style={{
+                      ...addButtonStyles,
+                      opacity: 0,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                    className="group-hover:opacity-100"
                     title="Add Column"
                   >
                     +
@@ -483,8 +488,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   <td style={{ 
                     ...dataCellStyles, 
                     textAlign: 'center', 
-                    position: 'relative',
-                    borderRight: 'none'
+                    position: 'relative'
                   }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
