@@ -268,6 +268,11 @@ def should_use_hybrid_approach(payload) -> bool:
     )
     
     logger.info(f"🔍 [HYBRID_CHECK] Final has_connector_filtering: {has_connector_filtering}")
+
+    has_text_context = (
+        hasattr(payload, 'fromText') and payload.fromText and 
+        hasattr(payload, 'userText') and payload.userText
+    )
     
     # Use hybrid approach when there's file context, text context, Knowledge Base search, or connector filtering
     use_hybrid = has_files or has_text_context or has_knowledge_base or has_connector_filtering
