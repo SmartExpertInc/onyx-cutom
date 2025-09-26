@@ -8567,6 +8567,8 @@ The entire output must be a single, valid JSON object and must include all relev
                 parsed_json_data['lessonTitle'] = project_name
             elif target_model == TextPresentationDetails and ('textTitle' not in parsed_json_data or not parsed_json_data['textTitle']):
                 parsed_json_data['textTitle'] = project_name
+            elif target_model == QuizData and ('quizTitle' not in parsed_json_data or not parsed_json_data['quizTitle']):
+                parsed_json_data['quizTitle'] = project_name
 
             # Round hours to integers before validation to prevent float validation errors
             if target_model == TrainingPlanDetails:
@@ -21922,8 +21924,6 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         # CONSISTENT NAMING: Use the same pattern as lesson presentations
         # Determine the project name - if connected to outline, use correct naming convention
         project_name = None
-        
-        # If no cached extraction worked, use outline-based naming or fallback
         if payload.outlineId:
             try:
                 # Fetch outline name from database
@@ -21942,10 +21942,6 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
                 # Continue with plain title if outline fetch fails
                 project_name = payload.lesson.strip() if payload.lesson.strip() else "Untitled Quiz"
-        else:            
-            # Fallback to payload prompt
-            project_name = payload.prompt
-            logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -21965,7 +21961,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
             
-            parsed_quiz = await parse_ai_response_with_llm(
+            parsed_quiz: QuizData = await parse_ai_response_with_llm(
                 ai_response=content_to_parse,
                 project_name=project_name,
                 target_model=QuizData,
@@ -22079,7 +22075,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 """
             
             # Parse the quiz data using LLM - only call once with consistent project name
-            parsed_quiz = await parse_ai_response_with_llm(
+            parsed_quiz: QuizData = await parse_ai_response_with_llm(
                 ai_response=payload.aiResponse,
                 project_name=project_name,  # Use consistent project name
                 target_model=QuizData,
@@ -22095,18 +22091,6 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
-        
-        # NEW: Hardcoded title extraction from first line of AI response
-        try:
-            extracted_title = project_name.split(":")[0].replace("Quiz - ", "").strip()
-        except Exception as e:
-            logger.error(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Error extracting title: {e}")
-            extracted_title = None
-        
-        # Use extracted title if available, otherwise use parsed title or fallback
-        if extracted_title:
-            parsed_quiz.quizTitle = project_name.split(":")[-1].strip()
-            logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Using hardcoded title: '{parsed_quiz.quizTitle}'")
         
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
@@ -22156,8 +22140,11 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 parsed_quiz.questions = valid_questions
         
         # Always use the consistent project name for database storage
-        # The quiz title from parsed_quiz.quizTitle is used for display purposes only
-        final_project_name = project_name
+        if not payload.outlineId:
+            # Standalone quiz - use lesson title or default
+            final_project_name = parsed_quiz.quizTitle or project_name
+        else:
+            final_project_name = project_name
         
         logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
