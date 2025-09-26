@@ -420,11 +420,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className={`group rounded-xl shadow-sm transition-all duration-200 hover:shadow-lg border border-gray-200 relative overflow-hidden ${
+    <Card className={`group rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl border-0 relative overflow-hidden ${
       !getModalState()
         ? "cursor-grab active:cursor-grabbing"
         : "cursor-default"
-    }`}>
+    }`}
+    style={{
+      backgroundColor: bgColor,
+      backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
+        displayTitle.split("").reverse().join("")
+      )}99)`,
+    }}>
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
@@ -437,7 +443,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 bg-gradient-to-br from-blue-300 to-blue-500 shadow-md flex flex-col justify-between p-4"
+          className="relative h-40 flex flex-col justify-between p-4"
           style={{
             backgroundColor: bgColor,
             backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
@@ -445,11 +451,25 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}99)`,
           }}
         >
+          {/* Decorative sparkles and elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Sparkle elements */}
+            <div className="absolute top-4 left-6 w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
+            <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-white/40 rounded-full animate-pulse delay-100"></div>
+            <div className="absolute top-12 left-12 w-1 h-1 bg-white/50 rounded-full animate-pulse delay-200"></div>
+            <div className="absolute top-6 right-4 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-300"></div>
+            <div className="absolute top-10 left-8 w-1 h-1 bg-white/60 rounded-full animate-pulse delay-75"></div>
+            
+            {/* Decorative circles */}
+            <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/10 rounded-full"></div>
+            <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/5 rounded-full"></div>
+          </div>
+
           {/* Top row with badge positioned absolutely */}
-          <div className="relative">
+          <div className="relative z-10">
             {/* Private badge positioned absolutely in top-right */}
             {project.isPrivate && (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-gray-200">
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-white/20">
                 <Lock size={8} className="text-gray-600" />
                 <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
@@ -459,25 +479,32 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
           
            {/* Truncated title in center */}
-           <div className="flex items-center justify-center flex-1 px-2">
+           <div className="flex items-center justify-center flex-1 px-2 relative z-10">
              <h3 
-               className="font-semibold text-md text-center leading-tight line-clamp-2"
-                style={{ color: "white" }}
+               className="font-bold text-lg text-center leading-tight line-clamp-2 text-white drop-shadow-lg"
              >
                {displayTitle.length > 30 ? `${displayTitle.substring(0, 30)}...` : displayTitle}
              </h3>
            </div>
         </div>
         
-        {/* Lower section with white background (25-30% of height) */}
-        <div className="bg-white p-4 min-h-28 flex flex-col justify-between gap-2">
-          {/* Full title */}
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1" title={displayTitle}>
+        {/* Lower section with lighter overlay background */}
+        <div className="relative p-4 min-h-28 flex flex-col justify-between gap-2"
+          style={{
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,248,248,0.9) 100%)',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          {/* Subtle glow effect at top */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          
+          {/* Full title with better typography */}
+          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-gray-50 backdrop-blur-sm rounded-full px-2 py-1 border border-gray-200 w-fit"
+              className="inline-flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 border border-white/40 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}

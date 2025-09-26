@@ -1307,7 +1307,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1344,7 +1344,7 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && useExistingOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1462,7 +1462,7 @@ function GenerateProductPicker() {
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1624,7 +1624,7 @@ function GenerateProductPicker() {
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1796,7 +1796,7 @@ function GenerateProductPicker() {
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 shadow-sm hover:shadow-lg">
+          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
@@ -1861,7 +1861,7 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/30 transition-all duration-200 text-sm font-semibold text-blue-700 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/30 transition-all duration-200 text-sm font-medium text-[var(--ring)] shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
