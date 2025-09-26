@@ -999,6 +999,7 @@ export default function LessonPresentationClient() {
           lengthRange: lengthRangeForOption(lengthOption),
           // Send original JSON if available, otherwise send markdown content
           aiResponse: originalJsonResponse || content,
+          prompt: currentPrompt,
           chatSessionId: chatId || undefined,
           slidesCount: slidesCount,
           productType: productType, // Pass product type for video lesson vs regular presentation

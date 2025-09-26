@@ -657,7 +657,7 @@ export default function QuizClient() {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
      
-  }, [loading, selectedQuestionCount, selectedQuestionTypes, prompt, language]);
+  }, [loading, selectedQuestionCount, selectedQuestionTypes, currentPrompt, language]);
 
   // Fetch lessons when a course outline is selected
   useEffect(() => {
@@ -882,7 +882,7 @@ export default function QuizClient() {
         previewAbortRef.current.abort();
       }
     };
-  }, [prompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, fromKnowledgeBase, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
+  }, [currentPrompt, selectedOutlineId, selectedLesson, selectedQuestionTypes, selectedLanguage, fromFiles, fromText, fromKnowledgeBase, memoizedFolderIds, memoizedFileIds, textMode, selectedQuestionCount, courseName, retryTrigger]);
 
   // Auto-scroll textarea as new content streams in
   useEffect(() => {
@@ -934,7 +934,7 @@ export default function QuizClient() {
         },
         body: JSON.stringify({
           aiResponse: contentToSend,
-          prompt: prompt,
+          prompt: currentPrompt,
           outlineId: selectedOutlineId,
           lesson: selectedLesson,
           courseName: courseName,

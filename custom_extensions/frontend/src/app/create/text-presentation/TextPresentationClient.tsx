@@ -947,7 +947,7 @@ export default function TextPresentationClient() {
     return () => {
       if (previewAbortRef.current) previewAbortRef.current.abort();
     };
-  }, [useExistingOutline, selectedOutlineId, selectedLesson, prompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
+  }, [useExistingOutline, selectedOutlineId, selectedLesson, currentPrompt, language, length, selectedStyles, isFromFiles, isFromText, textMode, folderIds.join(','), fileIds.join(','), userText]);
 
   // // Auto-scroll textarea as new content streams in
   // useEffect(() => {
@@ -1042,7 +1042,7 @@ export default function TextPresentationClient() {
       if (thoughtTimerRef.current) clearTimeout(thoughtTimerRef.current);
     };
      
-  }, [loading, length, selectedStyles, prompt, language]);
+  }, [loading, length, selectedStyles, currentPrompt, language]);
 
 
   // Once streaming is done, strip the first line that contains metadata (project, product type, etc.)
@@ -1118,6 +1118,7 @@ export default function TextPresentationClient() {
         },
         body: JSON.stringify({
           aiResponse: contentToSend,
+          prompt: currentPrompt,
           hasUserEdits: hasUserEdits,
           originalContent: originalContent,
           isCleanContent: isCleanContent,

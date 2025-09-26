@@ -2687,21 +2687,19 @@ AnyQuizQuestion = Union[
 ]
 
 class QuizData(BaseModel):
-    quizTitle: str
+    quizTitle: Optional[str] = None
     questions: List[AnyQuizQuestion] = Field(default_factory=list)
     lessonNumber: Optional[int] = None  # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
     model_config = {"from_attributes": True, "use_enum_values": True}
 
-# --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
 class TextPresentationDetails(BaseModel):
-    textTitle: str
+    textTitle: Optional[str] = None
     contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
     detectedLanguage: Optional[str] = None
     model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
+
+# --- End: Add New Quiz Models ---
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
@@ -3873,22 +3871,7 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
 # --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
@@ -5036,22 +5019,7 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
 # --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
@@ -7003,22 +6971,6 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
-# --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 
@@ -8609,7 +8561,11 @@ The entire output must be a single, valid JSON object and must include all relev
                 parsed_json_data['mainTitle'] = project_name
             elif target_model == PdfLessonDetails and ('lessonTitle' not in parsed_json_data or not parsed_json_data['lessonTitle']):
                 parsed_json_data['lessonTitle'] = project_name
-            
+            elif target_model == TextPresentationDetails and ('textTitle' not in parsed_json_data or not parsed_json_data['textTitle']):
+                parsed_json_data['textTitle'] = project_name
+            elif target_model == QuizData and ('quizTitle' not in parsed_json_data or not parsed_json_data['quizTitle']):
+                parsed_json_data['quizTitle'] = project_name
+
             # Round hours to integers before validation to prevent float validation errors
             if target_model == TrainingPlanDetails:
                 parsed_json_data = round_hours_in_content(parsed_json_data)
@@ -16324,8 +16280,43 @@ async def init_course_outline_chat(request: Request):
 # ======================= End Wizard Section ==============================
 
 # === Wizard Outline helpers & cache ===
-OUTLINE_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw markdown outline
-QUIZ_PREVIEW_CACHE: Dict[str, str] = {}  # chat_session_id -> raw quiz content
+from collections import OrderedDict
+from typing import OrderedDict as OrderedDictType
+
+class LRUCache:
+    def __init__(self, maxsize: int = 100):
+        self.maxsize = maxsize
+        self.cache: OrderedDictType[str, str] = OrderedDict()
+    
+    def get(self, key: str, default=None):
+        if key in self.cache:
+            # Move to end (most recent)
+            self.cache.move_to_end(key)
+            return self.cache[key]
+        return default
+    
+    def __setitem__(self, key: str, value: str):
+        if key in self.cache:
+            # Update existing key
+            self.cache[key] = value
+            self.cache.move_to_end(key)
+        else:
+            # Add new key
+            self.cache[key] = value
+            if len(self.cache) > self.maxsize:
+                # Remove oldest item
+                oldest_key = next(iter(self.cache))
+                del self.cache[oldest_key]
+    
+    def __contains__(self, key: str) -> bool:
+        return key in self.cache
+    
+    def __delitem__(self, key: str):
+        if key in self.cache:
+            del self.cache[key]
+
+OUTLINE_PREVIEW_CACHE = LRUCache(100)  # chat_session_id -> raw markdown outline
+QUIZ_PREVIEW_CACHE = LRUCache(100)  # chat_session_id -> raw quiz content
 
 # Global tracking for live streaming progress to avoid duplicates
 LIVE_STREAM_TRACKING: Dict[str, Dict[str, set]] = {}  # chat_id -> {"modules": set(), "lessons": set()}
@@ -16623,6 +16614,7 @@ class LessonWizardFinalize(BaseModel):
     lessonTitle: str
     lengthRange: Optional[str] = None
     aiResponse: str                        # User-edited markdown / plain text
+    prompt: str
     chatSessionId: Optional[str] = None
     slidesCount: Optional[int] = 5         # Number of slides to generate
     productType: Optional[str] = "lesson_presentation"  # "lesson_presentation" or "video_lesson_presentation"
@@ -17225,7 +17217,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lessonTitle.strip()
+        project_name = payload.lessonTitle.strip() if payload.lessonTitle else "Video Lesson Presentation"
         if payload.outlineProjectId:
             try:
                 # Fetch outline name from database
@@ -17248,7 +17240,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=template_id,
-            microProductName=None,
+            microProductName=project_name,
             aiResponse=(json.dumps(regenerated_json) if regenerated_json else payload.aiResponse.strip()),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
@@ -19267,9 +19259,6 @@ async def finalize_training_plan_edit(payload: TrainingPlanEditFinalize, request
         """, json.dumps(training_plan_details.dict()), payload.projectId, onyx_user_id)
         
         logger.info(f"[FINALIZE_SUCCESS] Updated training plan projectId={payload.projectId}")
-        
-        # Clean up the cache
-        OUTLINE_PREVIEW_CACHE.pop(payload.chatSessionId, None)
         
         return {"success": True, "message": "Training plan updated successfully"}
         
@@ -21559,9 +21548,10 @@ class QuizWizardPreview(BaseModel):
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
-    lesson: str
+    lesson: str                      # May be explicitly empty string for no-lesson quizzes
     courseName: Optional[str] = None  # Course name (outline name) for proper course context
     aiResponse: str                        # User-edited quiz data
+    prompt: str
     chatSessionId: Optional[str] = None
     questionTypes: str = "multiple-choice,multi-select,matching,sorting,open-answer"
     questionCount: int = 10  # Number of questions to generate
@@ -22110,7 +22100,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         
         # CONSISTENT NAMING: Use the same pattern as lesson presentations
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lesson.strip()
+        project_name = None
         if payload.outlineId:
             try:
                 # Fetch outline name from database
@@ -22127,9 +22117,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                         logger.warning(f"[QUIZ_FINALIZE_NAMING] Outline not found for ID {payload.outlineId}, using lesson title only")
             except Exception as e:
                 logger.warning(f"[QUIZ_FINALIZE_NAMING] Failed to fetch outline name for quiz naming: {e}")
-                # Continue with plain lesson title if outline fetch fails
-        else:
-            logger.info(f"[QUIZ_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
+                # Continue with plain title if outline fetch fails
+                project_name = payload.lesson.strip() if payload.lesson.strip() else "Untitled Quiz"
         
         logger.info(f"[QUIZ_FINALIZE_START] Starting quiz finalization for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -22139,6 +22128,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARAMS] language: {payload.language}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] quiz_key: {quiz_key}")
         logger.info(f"[QUIZ_FINALIZE_PARAMS] isCleanContent: {payload.isCleanContent}")
+        logger.info(f"[QUIZ_FINALIZE_PARAMS] use_direct_parser: {use_direct_parser}")
         
         # NEW: Choose parsing strategy based on user edits
         if use_direct_parser:
@@ -22148,7 +22138,7 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
             # Use the original content for parsing since no changes were made
             content_to_parse = payload.originalContent if payload.originalContent else payload.aiResponse
             
-            parsed_quiz = await parse_ai_response_with_llm(
+            parsed_quiz: QuizData = await parse_ai_response_with_llm(
                 ai_response=content_to_parse,
                 project_name=project_name,
                 target_model=QuizData,
@@ -22261,8 +22251,8 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 - TITLE EXTRACTION: Focus on extracting the specific quiz title, not the course name or generic labels
                 """
             
-                        # Parse the quiz data using LLM - only call once with consistent project name
-            parsed_quiz = await parse_ai_response_with_llm(
+            # Parse the quiz data using LLM - only call once with consistent project name
+            parsed_quiz: QuizData = await parse_ai_response_with_llm(
                 ai_response=payload.aiResponse,
                 project_name=project_name,  # Use consistent project name
                 target_model=QuizData,
@@ -22278,18 +22268,6 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsing completed successfully for project: {project_name}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Parsed quiz title: {parsed_quiz.quizTitle}")
         logger.info(f"[QUIZ_FINALIZE_PARSE] Number of questions: {len(parsed_quiz.questions)}")
-        
-        # NEW: Hardcoded title extraction from first line of AI response
-        try:
-            extracted_title = project_name.split(":")[0].replace("Quiz - ", "").strip()
-        except Exception as e:
-            logger.error(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Error extracting title: {e}")
-            extracted_title = None
-        
-        # Use extracted title if available, otherwise use parsed title or fallback
-        if extracted_title:
-            parsed_quiz.quizTitle = project_name.split(":")[-1].strip()
-            logger.info(f"[QUIZ_FINALIZE_TITLE_EXTRACTION] Using hardcoded title: '{parsed_quiz.quizTitle}'")
         
         # Detect language if not provided
         if not parsed_quiz.detectedLanguage:
@@ -22339,8 +22317,11 @@ async def quiz_finalize(payload: QuizWizardFinalize, request: Request, pool: asy
                 parsed_quiz.questions = valid_questions
         
         # Always use the consistent project name for database storage
-        # The quiz title from parsed_quiz.quizTitle is used for display purposes only
-        final_project_name = project_name
+        if not payload.outlineId:
+            # Standalone quiz - use lesson title or default
+            final_project_name = parsed_quiz.quizTitle or project_name
+        else:
+            final_project_name = project_name
         
         logger.info(f"[QUIZ_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
@@ -22590,6 +22571,7 @@ class TextPresentationWizardPreview(BaseModel):
 
 class TextPresentationWizardFinalize(BaseModel):
     aiResponse: str
+    prompt: str
     outlineId: Optional[int] = None  # Add outlineId for consistent naming
     lesson: Optional[str] = None
     courseName: Optional[str] = None
@@ -23006,7 +22988,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
         
         # CONSISTENT NAMING: Use the same pattern as lesson presentations
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
+        project_name = None
         if payload.outlineId:
             try:
                 # Fetch outline name from database
@@ -23024,8 +23006,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
             except Exception as e:
                 logger.warning(f"[TEXT_PRESENTATION_FINALIZE_NAMING] Failed to fetch outline name for text presentation naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
-        else:
-            logger.info(f"[TEXT_PRESENTATION_FINALIZE_NAMING] No outline ID provided, using standalone naming: {project_name}")
+                project_name = payload.lesson.strip() if payload.lesson else "Standalone Presentation"
         
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_START] Starting text presentation finalization for project: {project_name}")
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_PARAMS] aiResponse length: {len(payload.aiResponse)}")
@@ -23086,7 +23067,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 content_to_parse = payload.aiResponse
         
         # Parse the text presentation data using LLM - only call once with consistent project name
-        parsed_text_presentation = await parse_ai_response_with_llm(
+        parsed_text_presentation: TextPresentationDetails = await parse_ai_response_with_llm(
             ai_response=content_to_parse,
             project_name=project_name,  # Use consistent project name
             target_model=TextPresentationDetails,
@@ -23237,9 +23218,12 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 parsed_text_presentation.contentBlocks = valid_content_blocks
         
         # Always use the consistent project name for database storage
-        # The text title from parsed_text_presentation.textTitle is used for display purposes only
-        final_project_name = project_name
-        
+        if not payload.outlineId:
+            # Standalone presentation - use lesson title or default
+            final_project_name = parsed_text_presentation.textTitle or project_name
+        else:
+            final_project_name = project_name
+
         logger.info(f"[TEXT_PRESENTATION_FINALIZE_CREATE] Creating project with name: {final_project_name}")
         
         # CONSISTENT STANDALONE FLAG: Set based on whether connected to outline
@@ -23264,7 +23248,7 @@ async def text_presentation_finalize(payload: TextPresentationWizardFinalize, re
                 final_project_name,  # Use final_project_name for project_name to match the expected pattern
                 "Text Presentation",  # product_type
                 COMPONENT_NAME_TEXT_PRESENTATION,  # microproduct_type - use the correct component name
-                project_name,  # microproduct_name
+                final_project_name,  # microproduct_name
                 parsed_text_presentation.model_dump(mode='json', exclude_none=True),  # microproduct_content
                 template_id,  # design_template_id
                 payload.chatSessionId,  # source_chat_session_id
