@@ -169,6 +169,7 @@ interface WorkforceCrisisData {
   fullTitle: string
   missingPersonnelDescription: string
   burnout: {
+    title: string
     months: string
     industryName: string
     fullDescription: string
@@ -355,7 +356,7 @@ export default function DynamicAuditLandingPage() {
           `Missing per year in ${landingPageData?.workforceCrisis?.industry || 'HVAC'} sector — and the gap is growing.`;
         break
       case 'burnoutTitle':
-        currentValue = 'Burnout'; // Static title, but we'll make it editable
+        currentValue = landingPageData.workforceCrisis?.burnout?.title || 'Burnout';
         break
       case 'burnoutDescription':
         currentValue = landingPageData.workforceCrisis?.burnout?.months || '24';
@@ -501,8 +502,10 @@ export default function DynamicAuditLandingPage() {
         }
         break
       case 'burnoutTitle':
-        // This is a static title, but we'll allow editing for consistency
-        console.log('✅ [TEXT SAVE] Burnout title updated (static field)');
+        if (updatedData.workforceCrisis?.burnout) {
+          updatedData.workforceCrisis.burnout.title = newValue
+          console.log('✅ [TEXT SAVE] Successfully updated burnoutTitle');
+        }
         break
       case 'burnoutDescription':
         if (updatedData.workforceCrisis?.burnout) {
@@ -704,7 +707,9 @@ export default function DynamicAuditLandingPage() {
               }
               break;
             case 'burnoutTitle':
-              // Static title, no data to update
+              if (recoveredData.workforceCrisis?.burnout) {
+                recoveredData.workforceCrisis.burnout.title = newValue;
+              }
               break;
             case 'burnoutDescription':
               if (recoveredData.workforceCrisis?.burnout) {
@@ -1853,7 +1858,7 @@ export default function DynamicAuditLandingPage() {
                   <span className="font-semibold text-[20px]">
                     {editingField === 'burnoutTitle' ? (
                       <InlineEditor
-                        initialValue="Burnout"
+                        initialValue={landingPageData?.workforceCrisis?.burnout?.title || 'Burnout'}
                         onSave={(value) => handleTextSave('burnoutTitle', value)}
                         onCancel={handleTextCancel}
                         className="font-semibold"
@@ -1865,7 +1870,7 @@ export default function DynamicAuditLandingPage() {
                         className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                         title="Click to edit burnout title"
                       >
-                        {getLocalizedText(landingPageData?.language, {
+                        {landingPageData?.workforceCrisis?.burnout?.title || getLocalizedText(landingPageData?.language, {
                     en: 'Burnout',
                     es: 'Agotamiento',
                     ua: 'Вигорання',
@@ -2130,7 +2135,7 @@ export default function DynamicAuditLandingPage() {
                       <span className="font-semibold text-[20px]">
                         {editingField === 'burnoutTitle' ? (
                           <InlineEditor
-                            initialValue="Burnout"
+                            initialValue={landingPageData?.workforceCrisis?.burnout?.title || 'Burnout'}
                             onSave={(value) => handleTextSave('burnoutTitle', value)}
                             onCancel={handleTextCancel}
                             className="font-semibold"
@@ -2142,7 +2147,7 @@ export default function DynamicAuditLandingPage() {
                             className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                             title="Click to edit burnout title"
                           >
-                            {getLocalizedText(landingPageData?.language, {
+                            {landingPageData?.workforceCrisis?.burnout?.title || getLocalizedText(landingPageData?.language, {
                         en: 'Burnout',
                         es: 'Agotamiento',
                         ua: 'Вигорання',
