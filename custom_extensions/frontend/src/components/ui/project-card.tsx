@@ -214,7 +214,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       // Violet shades
       "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
       // Blue shades
-      "#03045E", "#0077B6", "#00B4D8", "#90E0EF", "#CAF0F8"
+      "#0a1d92", "#0077B6", "#00B4D8", "#61cbde", "#74d9ed"
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
@@ -552,7 +552,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           
           {/* Creator info and options */}
-          <div className="flex items-center justify-between">
+          <div className="flex mt-2 items-center justify-between">
             <div className="flex items-center gap-2">
               {/* Avatar */}
               <div
