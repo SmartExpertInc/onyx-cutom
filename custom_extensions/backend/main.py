@@ -9700,14 +9700,12 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         if not GEMINI_API_KEY:
             raise ValueError("No Gemini API key configured. Set GEMINI_API_KEY environment variable.")
         
-        from google import genai
-        client = genai.Client(api_key=GEMINI_API_KEY)
+        # Configure the existing genai module with API key
+        genai.configure(api_key=GEMINI_API_KEY)
         
-        # Generate image using Gemini with the new API
-        response = client.models.generate_content(
-            model="gemini-2.5-flash-image-preview",
-            contents=[request.prompt],
-        )
+        # Generate image using Gemini
+        model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
+        response = model.generate_content(request.prompt)
         
         if not response.candidates or len(response.candidates) == 0:
             raise Exception("No image data received from Gemini")
