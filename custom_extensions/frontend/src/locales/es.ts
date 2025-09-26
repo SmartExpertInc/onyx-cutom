@@ -1448,7 +1448,7 @@ export const es = {
       presentation: "Presentación",
       onePager: "Una Página",
       quiz: "Cuestionario",
-      videoLesson: "Lección en Video",
+      videoLesson: "Video",
       regenerate: "Regenerar",
       regenerateProduct: "Regenerar Producto",
       regenerateDescription: "Estás a punto de crear un nuevo producto. El anterior será eliminado.",
