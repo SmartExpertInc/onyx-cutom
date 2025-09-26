@@ -141,7 +141,7 @@ const stringToColor = (str: string): string => {
     "#BE95C4", // Light violet/lilac
     "#E0B1CB", // Very light pinkish-violet
     // Blue shades
-    "#03045E", // Darkest navy blue
+    "#0a1d92", // Darkest navy blue
     "#0077B6", // Medium dark blue
     "#00B4D8", // Bright cyan/turquoise
     "#61cbde", // Light sky blue
@@ -526,9 +526,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with lighter overlay background */}
-        <div className="relative bg-white/30 p-4 min-h-30 flex flex-col justify-between gap-2 rounded-xl z-20"
+        <div className="relative bg-white/30 p-4 min-h-30 pb-8 flex flex-col justify-between gap-2 rounded-xl z-20"
           style={{
-            backdropFilter: 'blur(30px)'
+            backdropFilter: 'blur(30px)',
+            marginTop: '-8px' // Overlap to eliminate line between sections
           }}
         >
           {/* Full title with better typography */}
