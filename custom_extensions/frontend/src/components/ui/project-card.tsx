@@ -124,31 +124,33 @@ const redirectToMainAuth = (path: string) => {
 };
 
 
-// Generate violet-based color from string
+// Generate color from string using combined violet and blue palette
 const stringToColor = (str: string): string => {
   let hash = 0;
-  if (!str) return "#9F86C0";
+  if (!str) return "#00B4D8";
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   
-  // Violet color palette based on the images
-  const violetPalette = [
+  // Combined violet and blue color palette
+  const colorPalette = [
+    // Violet shades
     "#231942", // Darkest violet
     "#5E548E", // Medium-dark violet
     "#9F86C0", // Medium violet/lavender
     "#BE95C4", // Light violet/lilac
     "#E0B1CB", // Very light pinkish-violet
-    "#FFD6FF", // Very light pinkish-violet (pastel)
-    "#E7C6FF", // Light lavender (pastel)
-    "#C8B6FF", // Medium violet/light purple (pastel)
-    "#B8C0FF", // Saturated violet/medium purple (pastel)
-    "#BBD0FF"  // Light blue-violet/periwinkle (pastel)
+    // Blue shades
+    "#03045E", // Darkest navy blue
+    "#0077B6", // Medium dark blue
+    "#00B4D8", // Bright cyan/turquoise
+    "#90E0EF", // Light sky blue
+    "#CAF0F8"  // Very light sky blue/pale blue
   ];
   
   // Use hash to select from palette
-  const paletteIndex = Math.abs(hash) % violetPalette.length;
-  return violetPalette[paletteIndex];
+  const paletteIndex = Math.abs(hash) % colorPalette.length;
+  return colorPalette[paletteIndex];
 };
 
 // Format date
@@ -206,16 +208,18 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
   
-  // Generate complementary violet gradient
+  // Generate complementary gradient using combined palette
   const generateVioletGradient = (baseColor: string) => {
-    const violetPalette = [
+    const colorPalette = [
+      // Violet shades
       "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
-      "#FFD6FF", "#E7C6FF", "#C8B6FF", "#B8C0FF", "#BBD0FF"
+      // Blue shades
+      "#03045E", "#0077B6", "#00B4D8", "#90E0EF", "#CAF0F8"
     ];
-    const currentIndex = violetPalette.indexOf(baseColor);
-    const nextIndex = (currentIndex + 1) % violetPalette.length;
-    const thirdIndex = (currentIndex + 2) % violetPalette.length;
-    return `linear-gradient(135deg, ${baseColor} 0%, ${violetPalette[nextIndex]} 50%, ${violetPalette[thirdIndex]} 100%)`;
+    const currentIndex = colorPalette.indexOf(baseColor);
+    const nextIndex = (currentIndex + 1) % colorPalette.length;
+    const thirdIndex = (currentIndex + 2) % colorPalette.length;
+    return `linear-gradient(135deg, ${baseColor} 0%, ${colorPalette[nextIndex]} 50%, ${colorPalette[thirdIndex]} 100%)`;
   };
 
   const handleRemoveFromFolder = async () => {
