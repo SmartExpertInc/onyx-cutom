@@ -236,46 +236,53 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     lineHeight: '1.1'
   };
 
-  // Table container styles - clean, no background
+  // Table container styles - clean, no background, perfectly aligned
   const tableContainerStyles: React.CSSProperties = {
     width: '100%',
     borderRadius: '8px',
     overflow: 'hidden',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    border: '1px solid #E0E0E0'
+    border: '1px solid #E0E0E0',
+    display: 'flex',
+    justifyContent: 'center'
   };
 
-  // Table styles
+  // Table styles - perfectly aligned
   const tableStyles: React.CSSProperties = {
     width: '100%',
     borderCollapse: 'collapse',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    tableLayout: 'fixed' // Ensures consistent column widths
   };
 
-  // Header styles - blue background as in photo
+  // Header styles - using theme colors, perfectly aligned
   const headerStyles: React.CSSProperties = {
-    backgroundColor: '#2176FF',
+    backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0'
+    borderRight: '1px solid #E0E0E0',
+    verticalAlign: 'middle',
+    height: '60px' // Fixed height for perfect alignment
   };
 
-  // First column (row headers) styles
+  // First column (row headers) styles - using theme colors, perfectly aligned
   const firstColumnStyles: React.CSSProperties = {
-    backgroundColor: '#F8F8F8',
+    backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
     color: '#000000',
     fontWeight: 'bold',
     fontSize: '0.95rem',
     textAlign: 'left',
     padding: '16px 12px',
     borderRight: '1px solid #E0E0E0',
-    borderBottom: '1px solid #E0E0E0'
+    borderBottom: '1px solid #E0E0E0',
+    verticalAlign: 'middle',
+    height: '60px' // Fixed height for perfect alignment
   };
 
-  // Data cell styles
+  // Data cell styles - perfectly aligned
   const dataCellStyles: React.CSSProperties = {
     backgroundColor: '#ffffff',
     color: '#000000',
@@ -283,12 +290,14 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     textAlign: 'center',
     padding: '16px 12px',
     borderRight: '1px solid #E0E0E0',
-    borderBottom: '1px solid #E0E0E0'
+    borderBottom: '1px solid #E0E0E0',
+    verticalAlign: 'middle',
+    height: '60px' // Fixed height for perfect alignment
   };
 
-  // Add button styles
+  // Add button styles - using theme colors, perfectly aligned
   const addButtonStyles: React.CSSProperties = {
-    backgroundColor: '#2176FF',
+    backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
     color: '#ffffff',
     border: 'none',
     borderRadius: '50%',
@@ -299,10 +308,11 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     justifyContent: 'center',
     cursor: 'pointer',
     fontSize: '16px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    margin: '0 auto' // Perfect centering
   };
 
-  // Delete button styles
+  // Delete button styles - perfectly aligned
   const deleteButtonStyles: React.CSSProperties = {
     backgroundColor: '#FFB6C1',
     color: '#FF0000',
@@ -315,7 +325,8 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     justifyContent: 'center',
     cursor: 'pointer',
     fontSize: '12px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    margin: '0 auto' // Perfect centering
   };
 
   return (
@@ -347,7 +358,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           <thead>
             <tr>
               {/* Empty corner cell */}
-              <th style={{ ...headerStyles, backgroundColor: '#2176FF' }}></th>
+              <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}></th>
               
               {/* Team headers */}
               {tableData.headers.map((header, index) => (
@@ -397,7 +408,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
               
               {/* Add column button */}
               {isEditable && (
-                <th style={{ ...headerStyles, backgroundColor: '#2176FF' }}>
+                <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}>
                   <button
                     onClick={addColumn}
                     style={addButtonStyles}

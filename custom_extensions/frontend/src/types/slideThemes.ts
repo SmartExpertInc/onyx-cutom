@@ -13,6 +13,8 @@ export interface SlideTheme {
     borderColor?: string;
     rightSectionBackgroundColor?: string;
     eventListGradient?: string;
+    tableHeaderColor?: string;
+    tableFirstColumnColor?: string;
   };
   fonts: {
     titleFont: string;
@@ -35,7 +37,9 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#f35657',       // Красный акцент
       borderColor: '#e5e7eb',       // Светло-серая граница
       rightSectionBackgroundColor: '#ffffff',  // Белый для правого блока в EventList
-      eventListGradient: 'linear-gradient(#0F58F9 0%, #1023A1 100%)'  // Новый градиент для EventList
+      eventListGradient: 'linear-gradient(#0F58F9 0%, #1023A1 100%)',  // Новый градиент для EventList
+      tableHeaderColor: '#0F58F9',  // Новый синий цвет для заголовков таблицы
+      tableFirstColumnColor: '#F2F8FE'  // Светло-голубой для первой колонки
     },
     fonts: {
       titleFont: 'Lora, serif',
