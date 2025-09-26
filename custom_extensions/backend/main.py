@@ -18535,31 +18535,43 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 user_prompt = (
                     f"ORIGINAL JSON:\n{original_json_str}\n\n" +
                     f"EDIT INSTRUCTION (language={payload.language or 'en'}):\n{payload.prompt}\n\n" +
-                    f"IMPORTANT EDIT POLICY:\n" +
-                    f"- Apply minimal edits to ORIGINAL JSON.\n" +
-                    f"- Preserve ALL unchanged modules, lessons, IDs, order, and existing fields.\n" +
-                    f"- Only modify what the instruction explicitly targets.\n" +
-                    f"- NEVER delete, rename, or reorder modules/lessons unless explicitly requested.\n" +
-                    f"- Maintain existing IDs for modules/lessons; do not regenerate IDs.\n\n" +
+                    f"CRITICAL EDIT RULES - FOLLOW EXACTLY:\n" +
+                    f"1. COPY the ORIGINAL JSON exactly as your starting point\n" +
+                    f"2. PRESERVE every existing module/section and lesson unchanged\n" +
+                    f"3. ONLY make the specific change requested in the instruction\n" +
+                    f"4. If adding a module: append it to the existing sections array\n" +
+                    f"5. If modifying content: change only that specific part\n" +
+                    f"6. KEEP all existing IDs, titles, hours, sources, assessments\n" +
+                    f"7. FORBIDDEN: Replacing entire course, removing existing modules\n" +
+                    f"8. Result = Original course + minimal requested change\n\n" +
+                    f"CONCRETE EXAMPLE:\n" +
+                    f"Original: 4 modules about Project Management\n" +
+                    f"Request: 'add 5th module about AI tools'\n" +
+                    f"Correct result: ALL 4 original modules + 1 new AI module = 5 total\n" +
+                    f"WRONG result: Only 1 module about AI (this deletes original content!)\n\n" +
                     f"CRITICAL OUTPUT FORMAT (JSON-ONLY):\n" +
-                    f"Return ONE JSON object representing the minimally edited Training Plan.\n" +
-                    f"It MUST strictly follow this example structure:\n" +
+                    f"Return the ORIGINAL JSON with your minimal edits applied.\n" +
+                    f"It MUST follow this structure:\n" +
                     f"{DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM}\n" +
                     f"Do NOT include code fences, markdown, or commentary. Return JSON object only."
                 )
                 
                 messages = [
-                    {"role": "system", "content": "You are ContentBuilder.ai assistant. Follow the instructions in the user message exactly."},
+                    {"role": "system", "content": "You are ContentBuilder.ai assistant. You MUST make minimal edits to preserve existing content. NEVER replace entire training plans unless explicitly requested to do so. Follow the edit rules in the user message exactly."},
                     {"role": "user", "content": user_prompt}
                 ]
                 
                 completion = await client.chat.completions.create(
                     model=model,
                     messages=messages,
-                    temperature=0.2,
+                    temperature=0.1,  # Lower temperature for more deterministic edits
                     max_tokens=6000
                 )
                 content_text = completion.choices[0].message.content or "{}"
+                
+                # Debug: Log what the AI returned
+                logger.info(f"[SMART_EDIT_DEBUG] AI returned content length: {len(content_text)}")
+                logger.info(f"[SMART_EDIT_DEBUG] AI content preview: {content_text[:500]}...")
                 
                 # Parse JSON from free text response
                 try:
