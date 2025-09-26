@@ -96,7 +96,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
         <div className="space-y-2">
           {sources.map((source, index) => (
             <div key={index} className="flex items-center space-x-3">
-              <div className="text-gray-500">
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-50">
                 {source.icon}
               </div>
               <span className="text-sm text-gray-500">{source.name}</span>
@@ -107,11 +107,11 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
 
       
       {/* Divider */}
-      <div className="border-t border-gray-200 mb-6"></div>
+      {/* <div className="border-t border-gray-200 mb-6"></div> */}
 
 
       {/* Content Types Section */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-medium text-gray-700 mb-4">Content Types</h3>
         <div className="space-y-3">
           {contentTypes.map((contentType, index) => (
@@ -123,7 +123,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
