@@ -1226,17 +1226,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '⬜',
     component: TableLightTemplate,
     defaultProps: {
-      title: 'This is a table',
+      title: 'This is table',
       tableData: {
         headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
         rows: [
           ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
           ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Venus', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Jupiter', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Earth', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Moon', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
         ]
       },
       backgroundColor: '#f8fafc',

@@ -93,11 +93,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     rows: [
       ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
       ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Venus', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Jupiter', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Earth', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-      ['Moon', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+      ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
     ]
   },
   backgroundColor = '#ffffff',
@@ -236,13 +232,12 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     lineHeight: '1.1'
   };
 
-  // Table container styles - clean, no background, perfectly aligned
+  // Table container styles - clean, no background, no borders
   const tableContainerStyles: React.CSSProperties = {
     width: '100%',
     borderRadius: '8px',
     overflow: 'hidden',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    border: '1px solid #E0E0E0',
     display: 'flex',
     justifyContent: 'center'
   };
@@ -255,7 +250,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     tableLayout: 'fixed' // Ensures consistent column widths
   };
 
-  // Header styles - using theme colors, perfectly aligned
+  // Header styles - using theme colors, no borders
   const headerStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
     color: '#ffffff',
@@ -263,12 +258,11 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     fontSize: '1rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0',
     verticalAlign: 'middle',
     height: '60px' // Fixed height for perfect alignment
   };
 
-  // First column (row headers) styles - using theme colors, perfectly aligned
+  // First column (row headers) styles - using theme colors, no borders
   const firstColumnStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
     color: '#000000',
@@ -276,21 +270,17 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     fontSize: '0.95rem',
     textAlign: 'left',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0',
-    borderBottom: '1px solid #E0E0E0',
     verticalAlign: 'middle',
     height: '60px' // Fixed height for perfect alignment
   };
 
-  // Data cell styles - perfectly aligned
+  // Data cell styles - no borders
   const dataCellStyles: React.CSSProperties = {
     backgroundColor: '#ffffff',
     color: '#000000',
     fontSize: '0.95rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0',
-    borderBottom: '1px solid #E0E0E0',
     verticalAlign: 'middle',
     height: '60px' // Fixed height for perfect alignment
   };
@@ -379,7 +369,16 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                       }}
                     />
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <div 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '8px',
+                        position: 'relative'
+                      }}
+                      className="group"
+                    >
                       <span 
                         onClick={() => isEditable && setEditingHeader(index)}
                         className={isEditable ? 'cursor-pointer' : ''}
@@ -395,8 +394,12 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                             color: '#ffffff',
                             cursor: 'pointer',
                             fontSize: '12px',
-                            opacity: 0.7
+                            opacity: 0,
+                            transition: 'opacity 0.2s ease',
+                            position: 'absolute',
+                            right: '8px'
                           }}
+                          className="group-hover:opacity-100"
                         >
                           ✗
                         </button>
@@ -424,7 +427,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           {/* Body */}
           <tbody>
             {tableData.rows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
+              <tr key={rowIndex} className="group">
                 {row.map((cell, colIndex) => {
                   const isFirstColumn = colIndex === 0;
                   const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
@@ -462,12 +465,17 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   );
                 })}
                 
-                {/* Delete row button */}
+                {/* Delete row button - appears on hover */}
                 {isEditable && (
-                  <td style={{ ...dataCellStyles, textAlign: 'center' }}>
+                  <td style={{ ...dataCellStyles, textAlign: 'center', position: 'relative' }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
-                      style={deleteButtonStyles}
+                      style={{
+                        ...deleteButtonStyles,
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease'
+                      }}
+                      className="group-hover:opacity-100"
                       title="Remove Row"
                     >
                       ✗
