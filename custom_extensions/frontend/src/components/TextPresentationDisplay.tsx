@@ -1112,7 +1112,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               if (isNumbered) {
                 return (
-                  <li key={index} className="flex items-center gap-3 group/listitem relative">
+                  <li key={index} className="flex items-start gap-3 group/listitem relative">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
@@ -1130,7 +1130,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                 }
                               }}
                             />
-                            <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1">
+                            <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                               <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
                                 <Plus className="w-3.5 h-3.5 text-gray-900" />
                               </button>
@@ -1179,7 +1179,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               // Bullet list items - consistent with numbered list structure
               return (
-                <li key={index} className="flex items-center group/listitem relative">
+                <li key={index} className="flex items-start group/listitem relative">
                   {BulletIconToRender && !isNumbered && (
                     <div className="flex-shrink-0 mr-1.5 flex items-center text-[#FF1414]">
                       <BulletIconToRender />
@@ -1201,7 +1201,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }
                             }}
                           />
-                          <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1">
+                          <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                             <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
                               <Plus className="w-3.5 h-3.5 text-gray-900" />
                             </button>
