@@ -140,24 +140,37 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
         companyName: project.microproduct_content?.companyName
       })));
       
-      // Filter for audit projects only using dedicated microproduct_type
+      // Filter for audit projects only (same logic as ProjectsTable with auditMode)
       const filterCriteria = {
-        microproductType: 'AI Audit'
+        aiAuditPatterns: ['AI-Аудит', 'AI-Audit'],
+        textPresentationTypes: ['Text Presentation', 'TextPresentationDisplay']
       };
       
       console.log('[Audits Tab] Filter Criteria:', filterCriteria);
       
       const auditProjects = data.filter((project: any) => {
-        // Use the dedicated microproduct_type for audits
-        const isAudit = project.microproduct_type === 'AI Audit';
+        // Check if it's an AI audit by project name pattern
+        const isAIAudit = project.projectName && (
+          project.projectName.includes('AI-Аудит') || 
+          project.projectName.includes('AI-Audit')
+        );
+        
+        // Check if it's a Text Presentation (which includes audits)
+        const isTextPresentation = project.designMicroproductType === 'Text Presentation' || 
+                                 project.designMicroproductType === 'TextPresentationDisplay';
+        
+        const isAudit = isAIAudit || isTextPresentation;
         
         // Log individual filter decisions
         console.log(`[Audits Tab] Filter Decision for Project ${project.id} (${project.projectName}):`, {
           projectName: project.projectName,
-          microproductType: project.microproduct_type,
-          isAudit,
+          designMicroproductType: project.designMicroproductType,
+          isAIAudit,
+          isTextPresentation,
           finalDecision: isAudit,
-          reason: isAudit ? 'Matches AI Audit microproduct_type' : 'Does not match audit criteria'
+          reason: isAudit ? 
+            (isAIAudit ? 'Matches AI audit pattern' : 'Matches text presentation type') : 
+            'Does not match audit criteria'
         });
         
         return isAudit;
