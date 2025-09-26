@@ -2678,22 +2678,7 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
 # --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
@@ -3865,22 +3850,7 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
 # --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
@@ -5028,22 +4998,7 @@ AnyQuizQuestion = Union[
     OpenAnswerQuestion
 ]
 
-class QuizData(BaseModel):
-    quizTitle: str
-    questions: List[AnyQuizQuestion] = Field(default_factory=list)
-    lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True, "use_enum_values": True}
-
 # --- End: Add New Quiz Models ---
-
-# +++ NEW MODEL FOR TEXT PRESENTATION +++
-class TextPresentationDetails(BaseModel):
-    textTitle: str
-    contentBlocks: List[AnyContentBlockValue] = Field(default_factory=list)
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-# +++ END NEW MODEL +++
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
 # custom_extensions/backend/main.py
