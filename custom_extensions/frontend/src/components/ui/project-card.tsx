@@ -124,19 +124,26 @@ const redirectToMainAuth = (path: string) => {
 };
 
 
-// Generate color from string
+// Generate violet-based color from string
 const stringToColor = (str: string): string => {
   let hash = 0;
-  if (!str) return "#CCCCCC";
+  if (!str) return "#9F86C0";
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  let color = "#";
-  for (let i = 0; i < 3; i++) {
-    let value = (hash >> (i * 8)) & 0xff;
-    color += ("00" + value.toString(16)).substr(-2);
-  }
-  return color;
+  
+  // Violet color palette based on the image
+  const violetPalette = [
+    "#231942", // Darkest violet
+    "#5E548E", // Medium-dark violet
+    "#9F86C0", // Medium violet/lavender
+    "#BE95C4", // Light violet/lilac
+    "#E0B1CB"  // Very light pinkish-violet
+  ];
+  
+  // Use hash to select from palette
+  const paletteIndex = Math.abs(hash) % violetPalette.length;
+  return violetPalette[paletteIndex];
 };
 
 // Format date
@@ -193,6 +200,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
+  
+  // Generate complementary violet gradient
+  const generateVioletGradient = (baseColor: string) => {
+    const violetPalette = [
+      "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB"
+    ];
+    const currentIndex = violetPalette.indexOf(baseColor);
+    const nextIndex = (currentIndex + 1) % violetPalette.length;
+    return `linear-gradient(135deg, ${baseColor} 0%, ${violetPalette[nextIndex]} 50%, ${baseColor} 100%)`;
+  };
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -426,10 +443,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         : "cursor-default"
     }`}
       style={{
-        backgroundColor: bgColor,
-        backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-          displayTitle.split("").reverse().join("")
-        )}99)`,
+        background: generateVioletGradient(bgColor),
       }}>
       {/* Decorative sparkles and elements covering entire card */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
@@ -448,8 +462,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div className="absolute bottom-14 left-12 w-2 h-2 bg-white/65 rounded-full shadow-md"></div>
         
         {/* Middle section sparkles */}
-        <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div>
-        {/* <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div> */}
+        {/* <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div> */}
+        <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
         <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white/60 rounded-full shadow-md"></div>
         
         {/* Decorative circles */}
@@ -473,10 +487,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <div 
           className="relative h-40 flex flex-col justify-between p-4"
           style={{
-            backgroundColor: bgColor,
-            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-              displayTitle.split("").reverse().join("")
-            )}99)`,
+            background: generateVioletGradient(bgColor),
           }}
         >
 
@@ -510,9 +521,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }}
         >
           {/* Full title with better typography */}
-          <h3 className="font-bold text-base leading-tight line-clamp-1" 
+          <h3 className="font-bold text-white/90 text-base leading-tight line-clamp-1" 
             style={{
-              color: bgColor,
               textShadow: '0 1px 2px rgba(0,0,0,0.1)',
               fontWeight: '700'
             }}
