@@ -1074,7 +1074,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
           {/* List icon picker for bullet lists */}
           {isEditing && !!onTextChange && !isNumbered && (
-            <div className="absolute top-2 -left-12 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
+            <div className="absolute top-2 left-6 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
@@ -2682,7 +2682,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   documentContent={documentContent}
                                 />
                                 {isEditing && (
-                                  <div className="absolute bottom-3 right-1 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200">
+                                  <div className="absolute -bottom-4 right-2 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200 z-50">
                                     <button className="p-1 rounded bg-white/90 border border-gray-200 hover:bg-gray-100 shadow-sm" onClick={() => removeBlockAtIndex(originalSubIndex)} title="Delete This Block">
                                       <Trash2 className="w-4 h-4 text-red-600" />
                                     </button>
