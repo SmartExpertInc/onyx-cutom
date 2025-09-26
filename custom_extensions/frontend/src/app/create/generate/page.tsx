@@ -263,6 +263,9 @@ function GenerateProductPicker() {
       params.set("connectorSources", connectorContext.connectorSources.join(','));
     }
 
+    // Pass ISO language code to preview page
+    params.set("lang", mapLanguageToCode(language));
+
     router.push(`/create/course-outline?${params.toString()}`);
   };
 
@@ -703,7 +706,7 @@ function GenerateProductPicker() {
       params.set("prompt", promptReference);
     }
     
-    params.set("lang", language);
+    params.set("lang", mapLanguageToCode(language));
 
     // Add connector context if coming from connectors
     if (connectorContext?.fromConnectors) {
@@ -740,7 +743,7 @@ function GenerateProductPicker() {
     }
     params.set("questionTypes", selectedQuestionTypes.join(','));
     params.set("questionCount", String(quizQuestionCount));
-    params.set("lang", quizLanguage);
+    params.set("lang", mapLanguageToCode(quizLanguage));
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -958,7 +961,7 @@ function GenerateProductPicker() {
         }
       }
     }
-    params.set("lang", textLanguage);
+    params.set("lang", mapLanguageToCode(textLanguage));
     params.set("length", textLength);
     params.set("styles", textStyles.join(','));
     
@@ -1022,6 +1025,9 @@ function GenerateProductPicker() {
 
     sessionStorage.setItem('stylesState', stylesState ?? ""); 
 
+    // Pass ISO language code to preview page
+    params.set("lang", mapLanguageToCode(language));
+
     router.push(`/create/text-presentation?${params.toString()}`);
   };
 
@@ -1033,7 +1039,7 @@ function GenerateProductPicker() {
     params.set("productType", "video_lesson_presentation"); // Flag to indicate video lesson with voiceover
     params.set("length", lengthRangeForOption(lengthOption));
     params.set("slidesCount", String(slidesCount));
-    params.set("lang", language);
+    params.set("lang", mapLanguageToCode(language));
     
     // Handle different prompt sources
     if (isFromFiles) {
@@ -1094,6 +1100,16 @@ function GenerateProductPicker() {
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
+  };
+
+  // Map UI language selection to ISO code for preview pages
+  const mapLanguageToCode = (label: string): string => {
+    const l = (label || '').toLowerCase();
+    if (l.startsWith('en')) return 'en';
+    if (l.startsWith('uk')) return 'uk';
+    if (l.startsWith('es') || l.startsWith('sp')) return 'es';
+    if (l.startsWith('ru')) return 'ru';
+    return 'en';
   };
 
   return (
