@@ -1838,7 +1838,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 hover:shadow-xl"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 transition-all duration-200 hover:shadow-xl"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={6}
             />
@@ -1861,7 +1861,7 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/30 transition-all duration-200 text-sm font-medium text-[var(--ring)] shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/40 hover:bg-white/30 transition-all duration-200 text-sm font-medium text-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>

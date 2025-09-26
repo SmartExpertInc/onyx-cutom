@@ -420,7 +420,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   return (
-    <Card className={`group rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl border-0 relative overflow-hidden ${
+    <Card className={`group rounded-xl shadow-md transition-all duration-300 hover:shadow-lg border-0 relative overflow-hidden ${
       !getModalState()
         ? "cursor-grab active:cursor-grabbing"
         : "cursor-default"
@@ -489,10 +489,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with lighter overlay background */}
-        <div className="relative p-4 min-h-28 flex flex-col justify-between gap-2"
+        <div className="relative bg-white/60 p-4 min-h-28 flex flex-col justify-between gap-2 rounded-xl"
           style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,248,248,0.9) 100%)',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(30px)'
           }}
         >
           {/* Subtle glow effect at top */}
