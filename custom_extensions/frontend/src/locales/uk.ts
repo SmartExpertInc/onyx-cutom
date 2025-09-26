@@ -49,6 +49,7 @@ export const uk = {
     acceptChanges: "Прийняти зміни",
     revertChanges: "Скасувати зміни",
     reviewChanges: "Перегляд змін",
+    reviewChangesMessage: "Будь ласка, перегляньте зміни нижче. Оновлений вміст тепер відображається в таблиці. Ви можете прийняти ці зміни для постійного збереження або скасувати їх, щоб повернутися до оригінального вмісту.",
     changesPreview: "Попередній перегляд змін",
     outlineOnly: "Тільки план",
     moveAll: "Перемістити все",
@@ -1538,5 +1539,54 @@ export const uk = {
       footerInfo:
         "Зміни теми автоматично зберігаються та будуть застосовані до ваших PDF завантажень.",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Назад",
+      openProducts: "Відкрити Продукти",
+      smartEdit: "Розумне Редагування",
+      smartEditTooltip: "Розумне редагування з ШІ",
+      downloadPdfTooltip: "Завантажити контент як PDF",
+      loadingProjectDetails: "Завантаження деталей проекту...",
+      error: "Помилка:",
+      projectNotFound: "Проект не знайдено або дані недоступні.",
+      courseOutline: "План Курсу",
+      courseTitle: "Назва Курсу",
+      moduleTitle: "Модуль",
+      lessonTitle: "Назва Уроку",
+      editCourseTitle: "Редагувати назву курсу",
+      editModuleTitle: "Редагувати назву модуля",
+      editLessonTitle: "Редагувати назву уроку",
+      noModulesFound: "Модулі в цьому плані курсу не знайдені.",
+      lessons: "уроків",
+      create: "Створити",
+      createContent: "Створити контент",
+      presentation: "Презентація",
+      onePager: "Односторінка",
+      quiz: "Тест",
+      videoLesson: "Відео Урок",
+      regenerate: "Перестворити",
+      regenerateProduct: "Перестворити Продукт",
+      regenerateDescription: "Ви збираєтеся створити новий продукт. Старий буде видалено.",
+      cancel: "Скасувати",
+      ok: "ОК",
+      // View-new-2 specific tooltips
+      view: "Переглянути",
+      add: "Додати",
+      viewProduct: "Переглянути продукт",
+      regenerateProductTooltip: "Перестворити продукт",
+      addProduct: "Додати продукт"
+    },
+    customViewCard: {
+      courseSummary: "Підсумок курсу",
+      totalModules: "Всього модулів",
+      totalLessons: "Всього уроків",
+      sources: "Джерела",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Документ",
+        createdfromscratch: "Створено з нуля"
+      }
+    }
   },
 };

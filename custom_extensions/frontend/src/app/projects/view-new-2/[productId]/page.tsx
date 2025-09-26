@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { FolderOpen, Sparkles, ChevronDown, Edit3, RefreshCcw } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw, ShieldAlert } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes'; 
+import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
@@ -89,6 +89,7 @@ const CustomTooltip: React.FC<{ children: React.ReactNode; content: string; posi
   );
 };
 
+
 type ProductViewNewParams = {
   productId: string;
 };
@@ -104,7 +105,6 @@ export default function ProductViewNewPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
-  const searchParams = useSearchParams();
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -326,64 +326,6 @@ export default function ProductViewNewPage() {
     };
   }, [editingField]);
 
-  // PDF download handler
-  const handlePdfDownload = async () => {
-    if (!projectData || !projectData.project_id) {
-      alert('Project data is not available for download.');
-      return;
-    }
-
-    try {
-      const nameForSlug = projectData.name || 'document';
-      const docNameSlug = nameForSlug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const pdfProjectId = projectData.project_id;
-
-      // Build PDF URL with project ID and document name slug
-      let pdfUrl = `${CUSTOM_BACKEND_URL}/pdf/${pdfProjectId}/${docNameSlug}`;
-      
-      // Add query parameters for training plan PDFs to match the course outline functionality
-      const queryParams = new URLSearchParams();
-      
-      // Add parent project name and lesson number if available (same as main view page)
-      const parentProjectName = searchParams?.get('parentProjectName');
-      const lessonNumber = searchParams?.get('lessonNumber');
-      
-      if (parentProjectName) {
-        queryParams.append('parentProjectName', parentProjectName);
-      }
-      
-      if (lessonNumber) {
-        queryParams.append('lessonNumber', lessonNumber);
-      }
-      
-      // Use course outline template for this view-new page
-      queryParams.append('templateType', 'course-outline');
-      
-      // Add column visibility settings for Training Plan PDFs (same as in the main view page)
-      queryParams.append('knowledgeCheck', '1'); // Default to show all columns
-      queryParams.append('contentAvailability', '1');
-      queryParams.append('informationSource', '1');
-      queryParams.append('time', '1');
-      queryParams.append('estCompletionTime', '1');
-      queryParams.append('qualityTier', '1');
-      queryParams.append('quiz', '1');
-      queryParams.append('onePager', '1');
-      queryParams.append('videoPresentation', '1');
-      queryParams.append('lessonPresentation', '1');
-      
-      // Add the query parameters to the URL
-      if (queryParams.toString()) {
-        pdfUrl += `?${queryParams.toString()}`;
-      }
-      
-      // Open PDF in new tab for download
-      window.open(pdfUrl, '_blank');
-    } catch (error) {
-      console.error('Error downloading PDF:', error);
-      alert('Failed to download PDF. Please try again.');
-    }
-  };
-
   // Fetch user credits on component mount
   useEffect(() => {
     const fetchUserCredits = async () => {
@@ -441,7 +383,7 @@ export default function ProductViewNewPage() {
               if (match) {
                 sources.add(match[1]);
               } else if (lesson.source.includes('PDF') || lesson.source.includes('Document')) {
-                sources.add('Generate');
+                sources.add('PDF Document');
               } else if (lesson.source.includes('text') || lesson.source.includes('Text') || lesson.source === 'Create from scratch') {
                 sources.add(t('interface.customViewCard.source.createdfromscratch'));
               } else {
@@ -472,11 +414,11 @@ export default function ProductViewNewPage() {
         'gmail': <img src="/Gmail.png" alt="Gmail" className="w-5 h-5" />,
         'zendesk': <img src="/Zendesk.svg" alt="Zendesk" className="w-5 h-5" />,
         'PDF Document': <svg className="text-red-500" width={17} height={17} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" stroke-width="0.048"></g><g id="SVGRepo_iconCarrier"> <path d="M12.37 8.87988H17.62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 8.87988L7.13 9.62988L9.38 7.37988" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M12.37 15.8799H17.62" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M6.38 15.8799L7.13 16.6299L9.38 14.3799" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>,
-        [t('interface.customViewCard.source.createdfromscratch')]: <svg className="text-blue-500" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+        [t('interface.customViewCard.source.createdfromscratch')]: <svg className="text-gray-700" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
       };
       
       return connectorMap[connectorName] || 
-       <svg className="text-green-500" width={16} height={16} viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" fill="#05a844" stroke="#05a844"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>globe</title> <desc>Created with Sketch Beta.</desc> <defs> </defs> <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd"> <g id="Icon-Set" transform="translate(-204.000000, -671.000000)" fill="#088c3b"> <path d="M231.596,694.829 C229.681,694.192 227.622,693.716 225.455,693.408 C225.75,691.675 225.907,689.859 225.957,688 L233.962,688 C233.783,690.521 232.936,692.854 231.596,694.829 L231.596,694.829 Z M223.434,700.559 C224.1,698.95 224.645,697.211 225.064,695.379 C226.862,695.645 228.586,696.038 230.219,696.554 C228.415,698.477 226.073,699.892 223.434,700.559 L223.434,700.559 Z M220.971,700.951 C220.649,700.974 220.328,701 220,701 C219.672,701 219.352,700.974 219.029,700.951 C218.178,699.179 217.489,697.207 216.979,695.114 C217.973,695.027 218.98,694.976 220,694.976 C221.02,694.976 222.027,695.027 223.022,695.114 C222.511,697.207 221.822,699.179 220.971,700.951 L220.971,700.951 Z M209.781,696.554 C211.414,696.038 213.138,695.645 214.936,695.379 C215.355,697.211 215.9,698.95 216.566,700.559 C213.927,699.892 211.586,698.477 209.781,696.554 L209.781,696.554 Z M208.404,694.829 C207.064,692.854 206.217,690.521 206.038,688 L214.043,688 C214.093,689.859 214.25,691.675 214.545,693.408 C212.378,693.716 210.319,694.192 208.404,694.829 L208.404,694.829 Z M208.404,679.171 C210.319,679.808 212.378,680.285 214.545,680.592 C214.25,682.325 214.093,684.141 214.043,686 L206.038,686 C206.217,683.479 207.064,681.146 208.404,679.171 L208.404,679.171 Z M216.566,673.441 C215.9,675.05 215.355,676.789 214.936,678.621 C213.138,678.356 211.414,677.962 209.781,677.446 C211.586,675.523 213.927,674.108 216.566,673.441 L216.566,673.441 Z M219.029,673.049 C219.352,673.027 219.672,673 220,673 C220.328,673 220.649,673.027 220.971,673.049 C221.822,674.821 222.511,676.794 223.022,678.886 C222.027,678.973 221.02,679.024 220,679.024 C218.98,679.024 217.973,678.973 216.979,678.886 C217.489,676.794 218.178,674.821 219.029,673.049 L219.029,673.049 Z M223.954,688 C223.9,689.761 223.74,691.493 223.439,693.156 C222.313,693.058 221.168,693 220,693 C218.832,693 217.687,693.058 216.562,693.156 C216.26,691.493 216.1,689.761 216.047,688 L223.954,688 L223.954,688 Z M216.047,686 C216.1,684.239 216.26,682.507 216.562,680.844 C217.687,680.942 218.832,681 220,681 C221.168,681 222.313,680.942 223.438,680.844 C223.74,682.507 223.9,684.239 223.954,686 L216.047,686 L216.047,686 Z M230.219,677.446 C228.586,677.962 226.862,678.356 225.064,678.621 C224.645,676.789 224.1,675.05 223.434,673.441 C226.073,674.108 228.415,675.523 230.219,677.446 L230.219,677.446 Z M231.596,679.171 C232.936,681.146 233.783,683.479 233.962,686 L225.957,686 C225.907,684.141 225.75,682.325 225.455,680.592 C227.622,680.285 229.681,679.808 231.596,679.171 L231.596,679.171 Z M220,671 C211.164,671 204,678.163 204,687 C204,695.837 211.164,703 220,703 C228.836,703 236,695.837 236,687 C236,678.163 228.836,671 220,671 L220,671 Z" id="globe"> </path> </g> </g> </g></svg>;
+      <svg className="text-gray-800" width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>;
     };
     
     return Array.from(sources).map(source => ({
@@ -915,7 +857,7 @@ export default function ProductViewNewPage() {
   if (!projectData) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <div className="p-8 text-center text-gray-500">{t('interface.viewNew.projectNotFound', 'Project not found or data unavailable.')}</div>
+        <div className="p-8 text-center text-[#9A9DA2]">{t('interface.viewNew.projectNotFound', 'Project not found or data unavailable.')}</div>
       </div>
     );
   }
@@ -932,7 +874,7 @@ export default function ProductViewNewPage() {
           <div className="flex items-center gap-x-4">
             <button
               onClick={handleBack}
-              className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+              className="flex items-center gap-2 bg-white rounded px-[15px] py-[8px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
               style={{
                 color: '#0F58F9',
                 fontSize: '14px',
@@ -979,13 +921,13 @@ export default function ProductViewNewPage() {
                 }}
                 title="Smart edit with AI"
               >
-                <Sparkles size={14} style={{ color: 'white' }} /> Smart Edit
+                <Sparkles size={14} style={{ color: 'white' }} /> {t('actions.smartEdit', 'Smart Edit')}
               </button>
             )}
 
             {/* Download PDF button for Course Outline
             <button
-              onClick={handlePdfDownload}
+              onClick={() => {}}
               className="flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60"
               style={{
                 backgroundColor: '#0F58F9',
@@ -1004,7 +946,7 @@ export default function ProductViewNewPage() {
 
         {/* Smart Prompt Editor - positioned between top panel and main content */}
         {showSmartEditor && projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && editableData && (
-          <div className="px-[120px]">
+          <div className="px-[200px]">
             <SmartPromptEditor
               projectId={projectData.project_id}
               onContentUpdate={handleSmartEditContentUpdate}
@@ -1017,9 +959,9 @@ export default function ProductViewNewPage() {
         )}
 
         {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[120px]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-[200px]">
           {/* Main Content Area - Course Outline and Modules */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-3 space-y-4">
             {/* Course Outline Title */}
             <div className="bg-white rounded-lg p-[25px]">
               {isEditingField('mainTitle') ? (
@@ -1051,7 +993,7 @@ export default function ProductViewNewPage() {
                     className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 flex items-center justify-center"
                     title={t('interface.viewNew.editCourseTitle', 'Edit course title')}
                   >
-                    <Edit3 size={16} className="text-gray-500 hover:text-gray-700 flex-shrink-0" />
+                    <Edit3 size={16} className="text-[#9A9DA2] hover:text-gray-700" />
                   </button>
                 </div>
               )}
@@ -1063,7 +1005,7 @@ export default function ProductViewNewPage() {
               if (!trainingPlanData?.sections) {
                 return (
                   <div className="bg-white rounded-lg p-[25px]">
-                    <p className="text-gray-500">{t('interface.viewNew.noModulesFound', 'No modules found in this course outline.')}</p>
+                    <p className="text-[#9A9DA2]">{t('interface.viewNew.noModulesFound', 'No modules found in this course outline.')}</p>
                   </div>
                 );
               }
@@ -1093,7 +1035,7 @@ export default function ProductViewNewPage() {
                         className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
                         title={t('interface.viewNew.editModuleTitle', 'Edit module title')}
                       >
-                        <Edit3 size={14} className="text-gray-500 hover:text-gray-700 flex-shrink-0" />
+                        <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
                       </button>
                     </div>
                   )}
@@ -1101,225 +1043,264 @@ export default function ProductViewNewPage() {
                     {section.lessons?.length || 0} {t('interface.viewNew.lessons', 'lessons')}
                   </p>
                   <hr className="border-gray-200 mb-4 -mx-[25px]" />
+                  
+                  {/* Product Types Header */}
+                  <div className="grid mb-4 grid-cols-[1fr_80px_80px_80px_80px] gap-4 items-center px-2">
+                    <div className="text-sm font-medium text-gray-700">
+                      {/* {t('interface.viewNew.lessonTitle', 'Lesson Title')} */}
+                    </div>
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <LessonPresentationIcon size={18} color="#2563eb" />
+                      <span>{t('interface.viewNew.presentation', 'Presentation')}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <TextPresentationIcon size={18} color="#2563eb" />
+                      <span>{t('interface.viewNew.onePager', 'One-Pager')}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <QuizIcon size={18} color="#2563eb" />
+                      <span>{t('interface.viewNew.quiz', 'Quiz')}</span>
+                    </div>
+                    <div className="flex flex-col items-center text-[10px] font-medium text-blue-600 justify-center gap-1 bg-blue-50 rounded-lg p-2 h-12">
+                      <VideoScriptIcon size={18} color="#2563eb" />
+                      <span>{t('interface.viewNew.videoLesson', 'Video Lesson')}</span>
+                    </div>
+                  </div>
+
                   {section.lessons && section.lessons.length > 0 && (
                     <div>
-                      {section.lessons.map((lesson: Lesson, lessonIndex: number) => (
-                        <div key={lesson?.id || lessonIndex} className="flex items-center justify-between gap-6 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
-                            {isEditingField('lessonTitle', index, lessonIndex) ? (
-                              <input
-                                type="text"
-                                value={lesson.title}
-                                onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
-                                onBlur={handleInputBlur}
-                                className="text-[#191D30] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
-                                placeholder={t('interface.viewNew.lessonTitle', 'Lesson Title')}
-                                autoFocus
-                              />
-                            ) : (
-                              <div className="group flex items-center gap-2">
-                                <span 
-                                  className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer"
-                                  onClick={() => startEditing('lessonTitle', index, lessonIndex)}
-                                >
-                                  {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
-                                </span>
-                                <button
-                                  onClick={() => startEditing('lessonTitle', index, lessonIndex)}
-                                  className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
-                                  title={t('interface.viewNew.editLessonTitle', 'Edit lesson title')}
-                                >
-                                  <Edit3 size={14} className="text-gray-500 hover:text-gray-700 flex-shrink-0" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-6 text-gray-400">
-                              <CustomTooltip content={t('interface.viewNew.presentation', 'Presentation')}>
-                                <div 
-                                  onClick={() => {
-                                    const lessonKey = lesson.id || lesson.title;
-                                    const status = lessonContentStatus[lessonKey];
-                                    if (status?.presentation?.exists && status.presentation.productId) {
-                                      handleIconClick(status.presentation.productId);
-                                    }
-                                  }}
-                                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                                >
-                                  <LessonPresentationIcon 
-                                    color={(() => {
-                                      const lessonKey = lesson.id || lesson.title;
-                                      const status = lessonContentStatus[lessonKey];
-                                      const hasContent = status?.presentation?.exists;
-                                      return hasContent ? '#0F58F9' : undefined;
-                                    })()}
-                                  />
-                                </div>
-                              </CustomTooltip>
-                              <CustomTooltip content={t('interface.viewNew.onePager', 'One-Pager')}>
-                                <div 
-                                  onClick={() => {
-                                    const lessonKey = lesson.id || lesson.title;
-                                    const status = lessonContentStatus[lessonKey];
-                                    if (status?.onePager?.exists && status.onePager.productId) {
-                                      handleIconClick(status.onePager.productId);
-                                    }
-                                  }}
-                                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                                >
-                                  <TextPresentationIcon 
-                                    color={(() => {
-                                      const lessonKey = lesson.id || lesson.title;
-                                      const status = lessonContentStatus[lessonKey];
-                                      const hasContent = status?.onePager?.exists;
-                                      return hasContent ? '#0F58F9' : undefined;
-                                    })()}
-                                  />
-                                </div>
-                              </CustomTooltip>
-                              <CustomTooltip content={t('interface.viewNew.quiz', 'Quiz')}>
-                                <div 
-                                  onClick={() => {
-                                    const lessonKey = lesson.id || lesson.title;
-                                    const status = lessonContentStatus[lessonKey];
-                                    if (status?.quiz?.exists && status.quiz.productId) {
-                                      handleIconClick(status.quiz.productId);
-                                    }
-                                  }}
-                                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                                >
-                                  <QuizIcon 
-                                    color={(() => {
-                                      const lessonKey = lesson.id || lesson.title;
-                                      const status = lessonContentStatus[lessonKey];
-                                      const hasContent = status?.quiz?.exists;
-                                      return hasContent ? '#0F58F9' : undefined;
-                                    })()}
-                                  />
-                                </div>
-                              </CustomTooltip>
-                              {videoLessonEnabled && (
-                                <CustomTooltip content={t('interface.viewNew.videoLesson', 'Video Lesson')}>
-                                  <div 
-                                    onClick={() => {
-                                      const lessonKey = lesson.id || lesson.title;
-                                      const status = lessonContentStatus[lessonKey];
-                                      if (status?.videoLesson?.exists && status.videoLesson.productId) {
-                                        handleIconClick(status.videoLesson.productId);
-                                      }
-                                    }}
-                                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                      {section.lessons.map((lesson: Lesson, lessonIndex: number) => {
+                        const lessonKey = lesson.id || lesson.title;
+                        const status = lessonContentStatus[lessonKey];
+                        const hasPresentation = status?.presentation?.exists;
+                        const hasOnePager = status?.onePager?.exists;
+                        const hasQuiz = status?.quiz?.exists;
+                        const hasVideoLesson = status?.videoLesson?.exists;
+
+                        return (
+                          <div key={lesson?.id || lessonIndex} className="grid py-3 grid-cols-[1fr_80px_80px_80px_80px] gap-4 items-center px-2">
+                            {/* Lesson Title Column */}
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
+                              {isEditingField('lessonTitle', index, lessonIndex) ? (
+                                <input
+                                  type="text"
+                                  value={lesson.title}
+                                  onChange={(e) => handleInputChange(['sections', index, 'lessons', lessonIndex, 'title'], e.target.value)}
+                                  onBlur={handleInputBlur}
+                                  className="text-[#191D30] text-[16px] leading-[100%] font-normal bg-transparent border-none outline-none flex-1"
+                                  placeholder={t('interface.viewNew.lessonTitle', 'Lesson Title')}
+                                  autoFocus
+                                />
+                              ) : (
+                                <div className="group flex items-center gap-2">
+                                  <span 
+                                    className="text-[#191D30] text-[16px] leading-[100%] font-normal cursor-pointer"
+                                    onClick={() => startEditing('lessonTitle', index, lessonIndex)}
                                   >
-                                    <VideoScriptIcon 
-                                      color={(() => {
-                                        const lessonKey = lesson.id || lesson.title;
-                                        const status = lessonContentStatus[lessonKey];
-                                        const hasContent = status?.videoLesson?.exists;
-                                        return hasContent ? '#0F58F9' : undefined;
-                                      })()}
-                                    />
+                                    {lesson.title.replace(/^\d+\.\d*\.?\s*/, '')}
+                                  </span>
+                                  <button
+                                    onClick={() => startEditing('lessonTitle', index, lessonIndex)}
+                                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 flex items-center justify-center"
+                                    title={t('interface.viewNew.editLessonTitle', 'Edit lesson title')}
+                                  >
+                                    <Edit3 size={14} className="text-[#9A9DA2] hover:text-gray-700" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Presentation Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasPresentation ? (
+                                <div className="relative group flex items-center justify-center">
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      onClick={() => {
+                                        if (status?.presentation?.productId) {
+                                          handleIconClick(status.presentation.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                  {/* Regenerate icon on hover */}
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                      <div 
+                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                        onClick={() => {
+                                          setShowRegenerateModal({
+                                            isOpen: true,
+                                            lesson: lesson,
+                                            contentType: 'presentation',
+                                            existingProductId: status?.presentation?.productId || null
+                                          });
+                                        }}
+                                      >
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                      </div>
+                                    </CustomTooltip>
+                                  </div>
+                                </div>
+                              ) : (
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                  <div 
+                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                  >
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
                             </div>
-                            <div className="relative">
-                              <button
-                                onClick={() => setOpenDropdown(openDropdown === (lesson.id || `${index}-${lessonIndex}`) ? null : (lesson.id || `${index}-${lessonIndex}`))}
-                                className="flex items-center gap-1 rounded px-[10px] py-[6px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                                style={{ backgroundColor: '#0F58F9', color: 'white', fontSize: '12px', fontWeight: 600, lineHeight: '120%', letterSpacing: '0.05em' }}
-                                title={t('interface.viewNew.createContent', 'Create content')}
-                              >
-                                {t('interface.viewNew.create', 'Create')}
-                                <ChevronDown size={12} className="ml-1" />
-                              </button>
-                              
-                              {openDropdown === (lesson.id || `${index}-${lessonIndex}`) && (
-                                <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[140px]">
-                                  <div className="p-1">
-                                    {(() => {
-                                      const lessonKey = lesson.id || lesson.title;
-                                      const status = lessonContentStatus[lessonKey];
-                                      const hasPresentation = status?.presentation?.exists;
-                                      const hasOnePager = status?.onePager?.exists;
-                                      const hasQuiz = status?.quiz?.exists;
-                                      const hasVideoLesson = status?.videoLesson?.exists;
 
-                                      return (
-                                        <>
-                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasPresentation ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasPresentation ? () => handleContentTypeClick(lesson, 'presentation') : undefined}>
-                                            <span className={`text-sm ${hasPresentation ? 'text-gray-400' : 'text-gray-700'}`}>
-                                              {t('interface.viewNew.presentation', 'Presentation')}
-                                            </span>
-                                            {hasPresentation && (
-                                              <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
-                                                <button
-                                                  onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                                  className="p-1 cursor-pointer"
-                                                >
-                                                  <RefreshCcw size={14} className="text-gray-700" />
-                                                </button>
-                                              </CustomTooltip>
-                                            )}
-                                          </div>
-                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasOnePager ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasOnePager ? () => handleContentTypeClick(lesson, 'one-pager') : undefined}>
-                                            <span className={`text-sm ${hasOnePager ? 'text-gray-400' : 'text-gray-700'}`}>
-                                              {t('interface.viewNew.onePager', 'One-Pager')}
-                                            </span>
-                                            {hasOnePager && (
-                                              <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
-                                                <button
-                                                  onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                                  className="p-1 cursor-pointer"
-                                                >
-                                                  <RefreshCcw size={14} className="text-gray-700" />
-                                                </button>
-                                              </CustomTooltip>
-                                            )}
-                                          </div>
-                                          <div className={`flex items-center justify-between px-3 py-2 ${!hasQuiz ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasQuiz ? () => handleContentTypeClick(lesson, 'quiz') : undefined}>
-                                            <span className={`text-sm ${hasQuiz ? 'text-gray-400' : 'text-gray-700'}`}>
-                                              {t('interface.viewNew.quiz', 'Quiz')}
-                                            </span>
-                                            {hasQuiz && (
-                                              <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
-                                                <button
-                                                  onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                                  className="p-1 cursor-pointer"
-                                                >
-                                                  <RefreshCcw size={14} className="text-gray-700" />
-                                                </button>
-                                              </CustomTooltip>
-                                            )}
-                                          </div>
-                                          {videoLessonEnabled && (
-                                            <div className={`flex items-center justify-between px-3 py-2 ${!hasVideoLesson ? 'hover:bg-gray-50 cursor-pointer' : ''}`} onClick={!hasVideoLesson ? () => handleContentTypeClick(lesson, 'video-lesson') : undefined}>
-                                              <span className={`text-sm ${hasVideoLesson ? 'text-gray-400' : 'text-gray-700'}`}>
-                                                {t('interface.viewNew.videoLesson', 'Video Lesson')}
-                                              </span>
-                                              {hasVideoLesson && (
-                                                <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
-                                                  <button
-                                                    onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                                    className="p-1 cursor-pointer"
-                                                  >
-                                                    <RefreshCcw size={14} className="text-gray-700" />
-                                                  </button>
-                                                </CustomTooltip>
-                                              )}
-                                            </div>
-                                          )}
-                                        </>
-                                      );
-                                    })()}
+                            {/* One-Pager Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasOnePager ? (
+                                <div className="relative group flex items-center justify-center">
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      onClick={() => {
+                                        if (status?.onePager?.productId) {
+                                          handleIconClick(status.onePager.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                  {/* Regenerate icon on hover */}
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                      <div 
+                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                        onClick={() => {
+                                          setShowRegenerateModal({
+                                            isOpen: true,
+                                            lesson: lesson,
+                                            contentType: 'one-pager',
+                                            existingProductId: status?.onePager?.productId || null
+                                          });
+                                        }}
+                                      >
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                      </div>
+                                    </CustomTooltip>
                                   </div>
                                 </div>
+                              ) : (
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                  <div 
+                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                  >
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
+                                  </div>
+                                </CustomTooltip>
+                              )}
+                            </div>
+
+                            {/* Quiz Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasQuiz ? (
+                                <div className="relative group flex items-center justify-center">
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      onClick={() => {
+                                        if (status?.quiz?.productId) {
+                                          handleIconClick(status.quiz.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                  {/* Regenerate icon on hover */}
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                      <div 
+                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                        onClick={() => {
+                                          setShowRegenerateModal({
+                                            isOpen: true,
+                                            lesson: lesson,
+                                            contentType: 'quiz',
+                                            existingProductId: status?.quiz?.productId || null
+                                          });
+                                        }}
+                                      >
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                      </div>
+                                    </CustomTooltip>
+                                  </div>
+                                </div>
+                              ) : (
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                  <div 
+                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                  >
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
+                                  </div>
+                                </CustomTooltip>
+                              )}
+                            </div>
+
+                            {/* Video Lesson Status Column */}
+                            <div className="flex items-center justify-center">
+                              {hasVideoLesson ? (
+                                <div className="relative group flex items-center justify-center">
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
+                                    <div 
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
+                                      onClick={() => {
+                                        if (status?.videoLesson?.productId) {
+                                          handleIconClick(status.videoLesson.productId);
+                                        }
+                                      }}
+                                    >
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
+                                    </div>
+                                  </CustomTooltip>
+                                  {/* Regenerate icon on hover */}
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-3">
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
+                                      <div 
+                                        className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+                                        onClick={() => {
+                                          setShowRegenerateModal({
+                                            isOpen: true,
+                                            lesson: lesson,
+                                            contentType: 'video-lesson',
+                                            existingProductId: status?.videoLesson?.productId || null
+                                          });
+                                        }}
+                                      >
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
+                                      </div>
+                                    </CustomTooltip>
+                                  </div>
+                                </div>
+                              ) : (
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
+                                  <div 
+                                    className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                  >
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
+                                  </div>
+                                </CustomTooltip>
                               )}
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1344,7 +1325,7 @@ export default function ProductViewNewPage() {
           </div>
 
           {/* Right Panel - Course Summary */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 hidden">
             <CustomViewCard
               projectId={productId}
               sources={getSourcesFromProject()}
@@ -1366,12 +1347,22 @@ export default function ProductViewNewPage() {
 
       {/* Error display */}
       {saveError && (
-        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center">
-          <span className="mr-2">⚠️</span>
+        <div 
+          className="fixed top-4 right-4 rounded px-[15px] py-[8px] pr-[20px] z-50 flex items-center gap-2 transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+          style={{
+            backgroundColor: '#DC2626',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '140%',
+            letterSpacing: '0.05em'
+          }}
+        >
+          <ShieldAlert size={14} style={{ color: 'white' }} />
           <span>{saveError}</span>
           <button
             onClick={() => setSaveError(null)}
-            className="ml-4 text-red-500 hover:text-red-700"
+            className="ml-2 text-white hover:text-gray-200 transition-colors"
           >
             ✕
           </button>

@@ -49,6 +49,7 @@ export const es = {
     acceptChanges: "Aceptar cambios",
     revertChanges: "Revertir cambios",
     reviewChanges: "Revisar cambios",
+    reviewChangesMessage: "Por favor, revisa los cambios a continuación. El contenido actualizado ahora se muestra en la tabla. Puedes aceptar estos cambios para guardarlos permanentemente, o revertir para volver al contenido original.",
     changesPreview: "Vista previa de cambios",
     outlineOnly: "Solo esquema",
     moveAll: "Mover todo",
@@ -1530,6 +1531,55 @@ export const es = {
       footerInfo:
         "Los cambios de tema se guardan automáticamente y se aplicarán a tus descargas PDF.",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Atrás",
+      openProducts: "Abrir Productos",
+      smartEdit: "Edición Inteligente",
+      smartEditTooltip: "Edición inteligente con IA",
+      downloadPdfTooltip: "Descargar contenido como PDF",
+      loadingProjectDetails: "Cargando detalles del proyecto...",
+      error: "Error:",
+      projectNotFound: "Proyecto no encontrado o datos no disponibles.",
+      courseOutline: "Plan del Curso",
+      courseTitle: "Título del Curso",
+      moduleTitle: "Módulo",
+      lessonTitle: "Título de la Lección",
+      editCourseTitle: "Editar título del curso",
+      editModuleTitle: "Editar título del módulo",
+      editLessonTitle: "Editar título de la lección",
+      noModulesFound: "No se encontraron módulos en este plan de curso.",
+      lessons: "lecciones",
+      create: "Crear",
+      createContent: "Crear contenido",
+      presentation: "Presentación",
+      onePager: "Una Página",
+      quiz: "Cuestionario",
+      videoLesson: "Video",
+      regenerate: "Regenerar",
+      regenerateProduct: "Regenerar Producto",
+      regenerateDescription: "Estás a punto de crear un nuevo producto. El anterior será eliminado.",
+      cancel: "Cancelar",
+      ok: "OK",
+      // View-new-2 specific tooltips
+      view: "Ver",
+      add: "Agregar",
+      viewProduct: "Ver producto",
+      regenerateProductTooltip: "Regenerar producto",
+      addProduct: "Agregar producto"
+    },
+    customViewCard: {
+      courseSummary: "Resumen del Curso",
+      totalModules: "Total de Módulos",
+      totalLessons: "Total de Lecciones",
+      sources: "Fuentes",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "Documento PDF",
+        createdfromscratch: "Creado desde cero"
+      }
+    }
     smartEdit: {
       examples: {
         makeAllTests: {

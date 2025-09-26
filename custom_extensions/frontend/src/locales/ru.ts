@@ -49,6 +49,7 @@ export const ru = {
     acceptChanges: "Принять изменения",
     revertChanges: "Отменить изменения",
     reviewChanges: "Просмотр изменений",
+    reviewChangesMessage: "Пожалуйста, просмотрите изменения ниже. Обновленное содержимое теперь отображается в таблице. Вы можете принять эти изменения для постоянного сохранения или отменить их, чтобы вернуться к исходному содержимому.",
     changesPreview: "Предварительный просмотр изменений",
     outlineOnly: "Только план",
     moveAll: "Переместить все",
@@ -1507,6 +1508,55 @@ export const ru = {
       footerInfo:
         "Изменения темы автоматически сохраняются и будут применены к вашим PDF загрузкам.",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Назад",
+      openProducts: "Открыть Продукты",
+      smartEdit: "Умное Редактирование",
+      smartEditTooltip: "Умное редактирование с ИИ",
+      downloadPdfTooltip: "Скачать контент как PDF",
+      loadingProjectDetails: "Загрузка деталей проекта...",
+      error: "Ошибка:",
+      projectNotFound: "Проект не найден или данные недоступны.",
+      courseOutline: "План Курса",
+      courseTitle: "Название Курса",
+      moduleTitle: "Модуль",
+      lessonTitle: "Название Урока",
+      editCourseTitle: "Редактировать название курса",
+      editModuleTitle: "Редактировать название модуля",
+      editLessonTitle: "Редактировать название урока",
+      noModulesFound: "Модули в этом плане курса не найдены.",
+      lessons: "уроков",
+      create: "Создать",
+      createContent: "Создать контент",
+      presentation: "Презентация",
+      onePager: "Одностраничник",
+      quiz: "Тест",
+      videoLesson: "Видео Урок",
+      regenerate: "Пересоздать",
+      regenerateProduct: "Пересоздать Продукт",
+      regenerateDescription: "Вы собираетесь создать новый продукт. Старый будет удален.",
+      cancel: "Отмена",
+      ok: "ОК",
+      // View-new-2 specific tooltips
+      view: "Просмотреть",
+      add: "Добавить",
+      viewProduct: "Просмотреть продукт",
+      regenerateProductTooltip: "Пересоздать продукт",
+      addProduct: "Добавить продукт"
+    },
+    customViewCard: {
+      courseSummary: "Сводка курса",
+      totalModules: "Всего модулей",
+      totalLessons: "Всего уроков",
+      sources: "Источники",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Документ",
+        createdfromscratch: "Создано с нуля"
+      }
+    }
     examples: {
       adaptIndustry: {
         short: "Адаптировать под специфику отрасли США",

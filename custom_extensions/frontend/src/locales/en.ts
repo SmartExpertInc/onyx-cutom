@@ -49,6 +49,7 @@ export const en = {
     acceptChanges: "Accept Changes",
     revertChanges: "Revert Changes",
     reviewChanges: "Review Changes",
+    reviewChangesMessage: "Please review the changes below. The updated content is now displayed in the table. You can accept these changes to save them permanently, or revert to go back to the original content.",
     changesPreview: "Changes Preview",
     outlineOnly: "Outline Only",
     moveAll: "Move All",
@@ -1422,5 +1423,54 @@ export const en = {
       specificFileSelectionDesc: "Choose exactly which files to include, giving you precise control over your source material.",
       backToCreateFromFiles: "Back to Create from Files",
     },
+
+    // View New Page (Course Outline View)
+    viewNew: {
+      back: "Back",
+      openProducts: "Open Products",
+      smartEdit: "Smart Edit",
+      smartEditTooltip: "Smart edit with AI",
+      downloadPdfTooltip: "Download content as PDF",
+      loadingProjectDetails: "Loading project details...",
+      error: "Error:",
+      projectNotFound: "Project not found or data unavailable.",
+      courseOutline: "Course Outline",
+      courseTitle: "Course Title",
+      moduleTitle: "Module",
+      lessonTitle: "Lesson Title",
+      editCourseTitle: "Edit course title",
+      editModuleTitle: "Edit module title",
+      editLessonTitle: "Edit lesson title",
+      noModulesFound: "No modules found in this course outline.",
+      lessons: "lessons",
+      create: "Create",
+      createContent: "Create content",
+      presentation: "Presentation",
+      onePager: "One-Pager",
+      quiz: "Quiz",
+      videoLesson: "Video Lesson",
+      regenerate: "Regenerate",
+      regenerateProduct: "Regenerate Product",
+      regenerateDescription: "You are about to create a new product. The old one will be deleted.",
+      cancel: "Cancel",
+      ok: "OK",
+      // View-new-2 specific tooltips
+      view: "View",
+      add: "Add",
+      viewProduct: "View product",
+      regenerateProductTooltip: "Regenerate product",
+      addProduct: "Add product"
+    },
+    customViewCard: {
+      courseSummary: "Course Summary",
+      totalModules: "Total Modules",
+      totalLessons: "Total Lessons",
+      sources: "Sources",
+      source: {
+        googledrive: "Google Drive",
+        pdfdocument: "PDF Document",
+        createdfromscratch: "Created from scratch"
+      }
+    }
   },
 };

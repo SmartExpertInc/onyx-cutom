@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface CourseMetrics {
   totalModules: number;
@@ -49,13 +50,14 @@ const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   );
 
 const CustomViewCard: React.FC<CustomViewCardProps> = ({
-  title = "Course Summary",
+  title,
   metrics,
   contentTypes = defaultContentTypes,
   sources = defaultSources,
   className = "",
   projectId
 }) => {
+  const { t } = useLanguage();
   const {
     totalModules,
     totalLessons,
@@ -69,20 +71,20 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
   return (
     <div className={`bg-white rounded-lg p-6 ${className}`}>
       {/* Title */}
-      <h2 className="text-xl font-medium text-gray-800 mb-4">
-        {title}
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        {title || t('interface.customViewCard.courseSummary', 'Course Summary')}
       </h2>
 
       {/* Metrics Section */}
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center">
-          <span className="text-md text-gray-500">Total Modules</span>
-          <span className="text-md font-medium text-gray-800">{totalModules}</span>
+          <span className="text-sm text-gray-500">{t('interface.customViewCard.totalModules', 'Total Modules')}</span>
+          <span className="text-sm font-medium text-gray-800">{totalModules}</span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-md text-gray-500">Total Lessons</span>
-          <span className="text-md font-medium text-gray-800">{totalLessons}</span>
+          <span className="text-sm text-gray-500">{t('interface.customViewCard.totalLessons', 'Total Lessons')}</span>
+          <span className="text-sm font-medium text-gray-800">{totalLessons}</span>
         </div>
         
       </div>
@@ -91,12 +93,15 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
       <div className="border-t border-gray-200 mb-6"></div>
 
       {/* Sources Section */}
-      <div className="mb-6">
-        <h3 className="text-md font-medium text-gray-700 mb-4">Sources</h3>
-        <div className="grid grid-cols-4 gap-3">
+      <div>
+        <h3 className="text-[16px] font-semibold text-gray-800 mb-4">{t('interface.customViewCard.sources', 'Sources')}</h3>
+        <div className="space-y-2">
           {sources.map((source, index) => (
-            <div key={index} className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors" title={source.name}>
-              {source.icon}
+            <div key={index} className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-50">
+                {source.icon}
+              </div>
+              <span className="text-sm text-gray-500">{t(`interface.customViewCard.source.${source.name.toLowerCase().replace(/\s+/g, '')}`, source.name)}</span>
             </div>
           ))}
         </div>
@@ -104,11 +109,11 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
 
       
       {/* Divider */}
-      <div className="border-t border-gray-200 mb-6"></div>
+      {/* <div className="border-t border-gray-200 mb-6"></div> */}
 
 
       {/* Content Types Section */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-medium text-gray-700 mb-4">Content Types</h3>
         <div className="space-y-3">
           {contentTypes.map((contentType, index) => (
@@ -120,7 +125,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
