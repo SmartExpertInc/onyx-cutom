@@ -16582,6 +16582,8 @@ class LessonWizardPreview(BaseModel):
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None  # comma-separated connector IDs
     connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: SmartDrive file paths for combined connector + file context
+    selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
 
 
 class LessonWizardFinalize(BaseModel):
@@ -16600,6 +16602,22 @@ class LessonWizardFinalize(BaseModel):
     hasUserEdits: Optional[bool] = False
     originalContent: Optional[str] = None
     editedSlides: Optional[List[Dict[str, Any]]] = None
+    # NEW: file context for creation from documents
+    fromFiles: Optional[bool] = None
+    folderIds: Optional[str] = None  # comma-separated folder IDs
+    fileIds: Optional[str] = None    # comma-separated file IDs
+    # NEW: text context for creation from user text
+    fromText: Optional[bool] = None
+    textMode: Optional[str] = None   # "context" or "base"
+    userText: Optional[str] = None   # User's pasted text
+    # NEW: Knowledge Base context for creation from Knowledge Base search
+    fromKnowledgeBase: Optional[bool] = None
+    # NEW: connector context for creation from selected connectors
+    fromConnectors: Optional[bool] = None
+    connectorIds: Optional[str] = None  # comma-separated connector IDs
+    connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: SmartDrive file paths for combined connector + file context
+    selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
 
 
 @app.post("/api/custom/lesson-presentation/preview")
@@ -21558,6 +21576,8 @@ class QuizWizardPreview(BaseModel):
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None  # comma-separated connector IDs
     connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: SmartDrive file paths for combined connector + file context
+    selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
 
 class QuizWizardFinalize(BaseModel):
     outlineId: Optional[int] = None
@@ -22582,6 +22602,8 @@ class TextPresentationWizardPreview(BaseModel):
     fromConnectors: Optional[bool] = None
     connectorIds: Optional[str] = None  # comma-separated connector IDs
     connectorSources: Optional[str] = None  # comma-separated connector sources
+    # NEW: SmartDrive file paths for combined connector + file context
+    selectedFiles: Optional[str] = None  # comma-separated SmartDrive file paths
     chatSessionId: Optional[str] = None
 
 class TextPresentationWizardFinalize(BaseModel):
