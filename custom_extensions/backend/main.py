@@ -6962,7 +6962,7 @@ AnyQuizQuestion = Union[
 ]
 
 class QuizData(BaseModel):
-    quizTitle: str
+    quizTitle: Optional[str] = None
     questions: List[AnyQuizQuestion] = Field(default_factory=list)
     lessonNumber: Optional[int] = None  # Sequential number in Training Plan
     detectedLanguage: Optional[str] = None
