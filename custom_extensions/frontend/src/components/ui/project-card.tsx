@@ -432,25 +432,25 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         )}99)`,
       }}>
       {/* Decorative sparkles and elements covering entire card */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* Sparkle elements distributed across entire card */}
-        <div className="absolute top-4 left-6 w-3 h-3 bg-white/80 rounded-full animate-pulse shadow-lg"></div>
-        <div className="absolute top-8 right-8 w-2 h-2 bg-white/70 rounded-full animate-pulse delay-100 shadow-md"></div>
-        <div className="absolute top-12 left-12 w-2 h-2 bg-white/75 rounded-full animate-pulse delay-200 shadow-md"></div>
-        <div className="absolute top-6 right-4 w-2 h-2 bg-white/60 rounded-full animate-pulse delay-300 shadow-md"></div>
-        <div className="absolute top-10 left-8 w-2 h-2 bg-white/80 rounded-full animate-pulse delay-75 shadow-md"></div>
+        <div className="absolute top-4 left-6 w-3 h-3 bg-white/70 rounded-full shadow-lg"></div>
+        <div className="absolute top-8 right-8 w-5 h-5 bg-white/70 rounded-full shadow-md"></div>
+        <div className="absolute top-12 left-12 w-2 h-2 bg-white/75 rounded-full shadow-md"></div>
+        <div className="absolute top-6 right-4 w-7 h-7 bg-white/60 rounded-full shadow-md"></div>
+        <div className="absolute top-10 left-8 w-12 h-12 bg-white/80 rounded-full shadow-md"></div>
         
         {/* Bottom section sparkles */}
-        <div className="absolute bottom-16 left-4 w-2 h-2 bg-white/70 rounded-full animate-pulse delay-150 shadow-md"></div>
-        <div className="absolute bottom-20 right-6 w-2 h-2 bg-white/60 rounded-full animate-pulse delay-250 shadow-md"></div>
-        <div className="absolute bottom-12 left-8 w-3 h-3 bg-white/50 rounded-full animate-pulse delay-175 shadow-lg"></div>
-        <div className="absolute bottom-8 right-12 w-2 h-2 bg-white/80 rounded-full animate-pulse delay-125 shadow-md"></div>
-        <div className="absolute bottom-14 left-12 w-2 h-2 bg-white/65 rounded-full animate-pulse delay-225 shadow-md"></div>
+        <div className="absolute bottom-16 left-4 w-2 h-2 bg-white/70 rounded-full shadow-md"></div>
+        <div className="absolute bottom-20 right-6 w-5 h-5 bg-white/60 rounded-full shadow-md"></div>
+        <div className="absolute bottom-12 left-8 w-3 h-3 bg-white/50 rounded-full shadow-lg"></div>
+        <div className="absolute bottom-8 right-12 w-10 h-10 bg-white/80 rounded-full shadow-md"></div>
+        <div className="absolute bottom-14 left-12 w-2 h-2 bg-white/65 rounded-full shadow-md"></div>
         
         {/* Middle section sparkles */}
-        <div className="absolute top-1/2 left-4 w-2 h-2 bg-white/55 rounded-full animate-pulse delay-50 shadow-md"></div>
-        <div className="absolute top-1/2 right-8 w-2 h-2 bg-white/45 rounded-full animate-pulse delay-275 shadow-md"></div>
-        <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-white/60 rounded-full animate-pulse delay-100 shadow-md"></div>
+        <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div>
+        <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
+        <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white/60 rounded-full shadow-md"></div>
         
         {/* Decorative circles */}
         <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/15 rounded-full"></div>
@@ -504,7 +504,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with lighter overlay background */}
-        <div className="relative bg-white/30 p-4 min-h-30 flex flex-col justify-between gap-2 rounded-xl"
+        <div className="relative bg-white/30 p-4 min-h-30 flex flex-col justify-between gap-2 rounded-xl z-20"
           style={{
             backdropFilter: 'blur(30px)'
           }}
@@ -513,7 +513,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           
           {/* Full title with better typography */}
-          <h3 className="font-bold text-white/70 blur-md text-base leading-tight line-clamp-1" title={displayTitle}>
+          <h3 className="font-bold text-white/50 text-base leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
