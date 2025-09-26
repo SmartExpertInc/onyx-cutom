@@ -1508,7 +1508,7 @@ export default function CourseOutlineClient() {
                                  onKeyDown={(e) => handleLessonTitleKeyDown(modIdx, lessonIdx, e)}
                                  data-mod={modIdx}
                                  data-les={lessonIdx}
-                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
+                                 className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
                                  disabled={loading || loadingPreview || isGenerating}
                                />

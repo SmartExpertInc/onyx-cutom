@@ -1884,6 +1884,7 @@ export default function TextPresentationClient() {
                                     if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
                                     if (e.key === 'Escape') handleTitleCancel(idx);
                                   }}
+                                  disabled={!streamDone}
                                 />
                                 {(editedTitles[idx] || lesson.title) && (
                                   <Edit 
@@ -1901,7 +1902,7 @@ export default function TextPresentationClient() {
                                     nextEditingIdRef.current = idx;
                                   }}
                                   onClick={() => {
-                                    setEditingLessonId(idx);
+                                    if (streamDone) setEditingLessonId(idx);
                                   }}
                                 >
                                   {getTitleForLesson(lesson, idx)}
