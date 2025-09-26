@@ -3,80 +3,110 @@
 ## Problem
 Smart Edit is replacing entire course outlines instead of making minimal edits. When user asks to "add 5th module about AI" to a 4-module course, the AI returns only 1 module about AI instead of the original 4 modules + 1 new AI module.
 
+## Root Cause Identified
+From the logs, the issue is clear:
+
+**Original Course (4 modules):**
+```json
+{
+  "mainTitle": "Choosing the Right Pricing Strategy",
+  "sections": [
+    {"id": "№1", "title": "Understanding Pricing Strategies", ...},
+    {"id": "№2", "title": "Market Analysis for Pricing", ...},
+    {"id": "№3", "title": "Implementing Pricing Strategies", ...},
+    {"id": "№4", "title": "Evaluating Pricing Strategies", ...}
+  ]
+}
+```
+
+**AI Response (completely wrong):**
+```json
+{
+  "mainTitle": "Example Training Program",
+  "sections": [
+    {"id": "№1", "title": "Introduction to Topic", ...}
+  ]
+}
+```
+
+The AI is **completely ignoring** the original JSON and using the `DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM` template instead.
+
 ## Changes Applied
-1. **Enhanced OpenAI Prompt** - Updated the user prompt in `custom_extensions/backend/main.py` around line 18535 to include:
-   - Explicit instructions to preserve existing content
-   - Step-by-step rules for minimal editing
-   - Concrete example of correct vs wrong behavior
-   - Clear directive to start with original JSON as base
-
+1. **Enhanced OpenAI Prompt** - Updated the user prompt in `custom_extensions/backend/main.py` around line 18535
 2. **Lower Temperature** - Reduced temperature from 0.2 to 0.1 for more deterministic behavior
+3. **Removed Template Reference** - Removed confusing `DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM` reference
+4. **Added Debug Logging** - Can see exactly what AI returns
 
-## Current Prompt Structure
-```
-ORIGINAL JSON: {existing_course_json}
+## Current Issue
+The AI is still not following the original JSON. The prompt needs to be even more explicit.
 
-EDIT INSTRUCTION: {user_request}
+## Immediate Fix Required
 
-CRITICAL EDIT RULES:
-1. START with the ORIGINAL JSON as your base - do NOT regenerate from scratch
-2. KEEP ALL existing modules/sections and lessons exactly as they are
-3. ONLY ADD, MODIFY, or REMOVE what the instruction specifically requests
-4. If adding a new module: ADD it to the existing sections array
-5. If modifying a lesson: CHANGE only that specific lesson
-6. PRESERVE all existing IDs, titles, hours, sources, and other fields
-7. NEVER replace the entire course with something completely different
-8. The result should be the ORIGINAL + your targeted changes
-
-EXAMPLE: If original has 4 modules and instruction says 'add module 5 about AI', 
-return the SAME 4 modules PLUS the new AI module as the 5th module.
-```
-
-## Issue Still Persists
-Despite these changes, the AI is still replacing the entire course. This suggests:
-
-1. **Model behavior**: The AI model might not be following instructions consistently
-2. **JSON processing**: There might be issues in how the response is parsed/normalized
-3. **Context length**: The original JSON might be too long, causing the AI to summarize instead of preserve
-
-## Additional Recommendations
-
-### 1. Strengthen System Message
-Update the system message to be more explicit:
+### Update the prompt to be extremely explicit:
 ```python
-{"role": "system", "content": "You are ContentBuilder.ai assistant. You MUST make minimal edits to preserve existing content. NEVER replace entire training plans unless explicitly requested to do so. Follow the edit rules in the user message exactly."}
+user_prompt = (
+    f"EXISTING TRAINING PLAN TO EDIT:\n{original_json_str}\n\n" +
+    f"EDIT REQUEST: {payload.prompt}\n\n" +
+    f"CRITICAL: You MUST start with the JSON above and only make the requested change.\n" +
+    f"The current course is about '{existing_content.get('mainTitle', '')}' with {len(existing_content.get('sections', []))} modules.\n" +
+    f"PRESERVE this exact title and all existing modules.\n" +
+    f"If adding a module, add it to the existing sections array.\n" +
+    f"NEVER create a generic 'Example Training Program'.\n\n" +
+    f"Return the complete JSON with your minimal edit applied."
+)
 ```
 
-### 2. Add Debugging
-Add logging to see what the AI actually returns:
+### Add validation after AI response:
 ```python
-logger.info(f"[SMART_EDIT_DEBUG] AI returned content length: {len(content_text)}")
-logger.info(f"[SMART_EDIT_DEBUG] AI content preview: {content_text[:500]}...")
+# After parsing updated_content_dict
+if isinstance(existing_content, dict) and isinstance(updated_content_dict, dict):
+    original_title = existing_content.get("mainTitle", "")
+    updated_title = updated_content_dict.get("mainTitle", "")
+    
+    # Check if AI used wrong template
+    if "Example Training Program" in updated_title or updated_title.lower() != original_title.lower():
+        logger.error(f"[SMART_EDIT_ERROR] AI used wrong template! Original: '{original_title}', Got: '{updated_title}'")
+        # Fallback: merge the new content with original
+        # Or return error to user
 ```
 
-### 3. Consider Alternative Approaches
-- **JSON Patch approach**: Instead of asking for full JSON, ask for JSON Patch operations
-- **Structured prompting**: Use function calling to ensure structured responses
-- **Multi-step process**: First ask what to change, then apply the changes programmatically
+## Alternative Approach: Programmatic Merge
 
-### 4. Validate Response Structure
-Add validation to ensure the response has the same number of modules as the original (unless explicitly requested to remove):
+Instead of relying on AI to preserve content, parse the AI request and apply changes programmatically:
+
+1. **Parse user intent**: "add 5th module about AI"
+2. **Extract new content**: Generate only the new module
+3. **Merge programmatically**: Add new module to existing sections array
+4. **Preserve everything else**: Keep original title, theme, existing modules
+
 ```python
-original_module_count = len(existing_content.get("sections", []))
-updated_module_count = len(updated_content_dict.get("sections", []))
-if updated_module_count < original_module_count:
-    logger.warning(f"Module count decreased from {original_module_count} to {updated_module_count}")
+# Pseudo-code for programmatic approach
+if "add" in payload.prompt.lower() and "module" in payload.prompt.lower():
+    # Generate only the new module content
+    new_module_prompt = f"Create a single training module about: {extract_topic(payload.prompt)}"
+    new_module = await generate_single_module(new_module_prompt)
+    
+    # Merge with existing content
+    updated_content = copy.deepcopy(existing_content)
+    updated_content["sections"].append(new_module)
+    
+    return updated_content
 ```
 
 ## Testing
 To test the fix:
-1. Create a 4-module training plan
-2. Use Smart Edit with prompt: "Add a 5th module about AI tools"
-3. Verify result contains all 4 original modules + 1 new AI module
-4. Check that existing module IDs, titles, and content are preserved
+1. Create a 4-module training plan about "Pricing Strategy"
+2. Use Smart Edit: "add 5th module about AI tools"
+3. **Expected result**: 5 modules total (4 original + 1 new)
+4. **Current wrong result**: 1 generic module
 
 ## Status
 - ✅ Enhanced prompt with explicit preservation rules
-- ✅ Lowered temperature for more deterministic behavior
-- ❌ Issue still persists - AI replacing entire course
-- 🔄 Need additional debugging and possibly alternative approach 
+- ✅ Lowered temperature for more deterministic behavior  
+- ✅ Removed confusing template reference
+- ✅ Added debug logging to see AI responses
+- ❌ **Issue still persists** - AI ignoring original JSON
+- 🔄 **Need immediate fix**: Either stronger prompt or programmatic merge approach
+
+## Recommended Next Action
+Implement the programmatic merge approach as a fallback when AI doesn't preserve original content properly. 

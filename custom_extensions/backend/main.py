@@ -18531,6 +18531,9 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                 
                 # Use free text with forcing instructions like course outline preview
                 original_json_str = json.dumps(existing_content if isinstance(existing_content, dict) else {}, ensure_ascii=False)
+                logger.info(f"[SMART_EDIT_DEBUG] Original JSON length: {len(original_json_str)}")
+                logger.info(f"[SMART_EDIT_DEBUG] Original mainTitle: {existing_content.get('mainTitle', 'N/A') if isinstance(existing_content, dict) else 'N/A'}")
+                logger.info(f"[SMART_EDIT_DEBUG] Original sections count: {len(existing_content.get('sections', [])) if isinstance(existing_content, dict) else 0}")
                 
                 user_prompt = (
                     f"ORIGINAL JSON:\n{original_json_str}\n\n" +
@@ -18550,9 +18553,9 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
                     f"Correct result: ALL 4 original modules + 1 new AI module = 5 total\n" +
                     f"WRONG result: Only 1 module about AI (this deletes original content!)\n\n" +
                     f"CRITICAL OUTPUT FORMAT (JSON-ONLY):\n" +
-                    f"Return the ORIGINAL JSON with your minimal edits applied.\n" +
-                    f"It MUST follow this structure:\n" +
-                    f"{DEFAULT_TRAINING_PLAN_JSON_EXAMPLE_FOR_LLM}\n" +
+                    f"Return the ORIGINAL JSON above with your minimal edits applied.\n" +
+                    f"DO NOT use any example template - use the ORIGINAL JSON as your base.\n" +
+                    f"NEVER create a generic 'Example Training Program' - use the actual course above.\n" +                    
                     f"Do NOT include code fences, markdown, or commentary. Return JSON object only."
                 )
                 
