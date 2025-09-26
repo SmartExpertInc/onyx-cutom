@@ -93,7 +93,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
       <div className="border-t border-gray-200 mb-6"></div>
 
       {/* Sources Section */}
-      <div className="mb-6">
+      <div>
         <h3 className="text-[16px] font-semibold text-gray-800 mb-4">{t('interface.customViewCard.sources', 'Sources')}</h3>
         <div className="space-y-2">
           {sources.map((source, index) => (

@@ -1114,10 +1114,10 @@ export default function ProductViewNewPage() {
                             {/* Presentation Status Column */}
                             <div className="flex items-center justify-center">
                               {hasPresentation ? (
-                                <div className="relative group">
+                                <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         if (status?.presentation?.productId) {
                                           handleIconClick(status.presentation.productId);
@@ -1128,7 +1128,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
@@ -1161,10 +1161,10 @@ export default function ProductViewNewPage() {
                             {/* One-Pager Status Column */}
                             <div className="flex items-center justify-center">
                               {hasOnePager ? (
-                                <div className="relative group">
+                                <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         if (status?.onePager?.productId) {
                                           handleIconClick(status.onePager.productId);
@@ -1175,7 +1175,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
@@ -1208,10 +1208,10 @@ export default function ProductViewNewPage() {
                             {/* Quiz Status Column */}
                             <div className="flex items-center justify-center">
                               {hasQuiz ? (
-                                <div className="relative group">
+                                <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         if (status?.quiz?.productId) {
                                           handleIconClick(status.quiz.productId);
@@ -1222,7 +1222,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
@@ -1255,10 +1255,10 @@ export default function ProductViewNewPage() {
                             {/* Video Lesson Status Column */}
                             <div className="flex items-center justify-center">
                               {hasVideoLesson ? (
-                                <div className="relative group">
+                                <div className="relative group flex items-center justify-center">
                                   <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
-                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
+                                      className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-all duration-200 group-hover:-translate-x-1"
                                       onClick={() => {
                                         if (status?.videoLesson?.productId) {
                                           handleIconClick(status.videoLesson.productId);
@@ -1269,7 +1269,7 @@ export default function ProductViewNewPage() {
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
-                                  <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1">
                                     <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
