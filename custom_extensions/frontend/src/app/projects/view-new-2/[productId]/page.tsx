@@ -1046,7 +1046,7 @@ export default function ProductViewNewPage() {
                   <hr className="border-gray-200 mb-4 -mx-[25px]" />
                   
                   {/* Product Types Header */}
-                  <div className={`grid mb-4 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center px-2`}>
+                  <div className="grid mb-4 grid-cols-[1fr_80px_80px_80px_80px] gap-4 items-center px-2">
                     <div className="text-sm font-medium text-gray-700">
                       {/* {t('interface.viewNew.lessonTitle', 'Lesson Title')} */}
                     </div>
@@ -1079,7 +1079,7 @@ export default function ProductViewNewPage() {
                         const hasVideoLesson = status?.videoLesson?.exists;
 
                         return (
-                          <div key={lesson?.id || lessonIndex} className={`grid py-3 ${videoLessonEnabled ? 'grid-cols-[1fr_80px_80px_80px_80px]' : 'grid-cols-[1fr_80px_80px_80px]'} gap-4 items-center`}>
+                          <div key={lesson?.id || lessonIndex} className="grid py-3 grid-cols-[1fr_80px_80px_80px_80px] gap-4 items-center">
                             {/* Lesson Title Column */}
                             <div className="flex items-center gap-2">
                               <div className="w-2 h-2 bg-[#0F58F9] rounded-full"></div>
@@ -1117,7 +1117,7 @@ export default function ProductViewNewPage() {
                               {hasPresentation ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.presentation?.productId) {
                                         handleIconClick(status.presentation.productId);
@@ -1131,7 +1131,7 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
                                     <Plus size={10} className="text-blue-500" />
@@ -1146,7 +1146,7 @@ export default function ProductViewNewPage() {
                               {hasOnePager ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.onePager?.productId) {
                                         handleIconClick(status.onePager.productId);
@@ -1160,7 +1160,7 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
                                     <Plus size={10} className="text-blue-500" />
@@ -1175,7 +1175,7 @@ export default function ProductViewNewPage() {
                               {hasQuiz ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.quiz?.productId) {
                                         handleIconClick(status.quiz.productId);
@@ -1189,7 +1189,7 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
                                     <Plus size={10} className="text-blue-500" />
@@ -1204,7 +1204,7 @@ export default function ProductViewNewPage() {
                               {hasVideoLesson ? (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
                                     onClick={() => {
                                       if (status?.videoLesson?.productId) {
                                         handleIconClick(status.videoLesson.productId);
@@ -1218,7 +1218,7 @@ export default function ProductViewNewPage() {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <div 
-                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    className="w-4 h-4 rounded-full bg-white border border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                   >
                                     <Plus size={10} className="text-blue-500" />
