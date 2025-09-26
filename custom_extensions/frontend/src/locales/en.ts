@@ -1327,6 +1327,7 @@ export const en = {
       addProduct: "Add product"
     },
     customViewCard: {
+      courseSummary: "Course Summary",
       totalModules: "Total Modules",
       totalLessons: "Total Lessons",
       sources: "Sources",

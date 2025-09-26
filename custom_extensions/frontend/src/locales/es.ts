@@ -1459,6 +1459,7 @@ export const es = {
       addProduct: "Agregar producto"
     },
     customViewCard: {
+      courseSummary: "Resumen del Curso",
       totalModules: "Total de Módulos",
       totalLessons: "Total de Lecciones",
       sources: "Fuentes",

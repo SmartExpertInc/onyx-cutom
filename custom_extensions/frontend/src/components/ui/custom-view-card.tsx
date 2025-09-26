@@ -50,7 +50,7 @@ const LessonPresentationIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   );
 
 const CustomViewCard: React.FC<CustomViewCardProps> = ({
-  title = "Course Summary",
+  title,
   metrics,
   contentTypes = defaultContentTypes,
   sources = defaultSources,
@@ -72,7 +72,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
     <div className={`bg-white rounded-lg p-6 ${className}`}>
       {/* Title */}
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        {title}
+        {title || t('interface.customViewCard.courseSummary', 'Course Summary')}
       </h2>
 
       {/* Metrics Section */}
@@ -94,7 +94,7 @@ const CustomViewCard: React.FC<CustomViewCardProps> = ({
 
       {/* Sources Section */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">{t('interface.customViewCard.sources', 'Sources')}</h3>
+        <h3 className="text-[16px] font-semibold text-gray-700 mb-4">{t('interface.customViewCard.sources', 'Sources')}</h3>
         <div className="space-y-2">
           {sources.map((source, index) => (
             <div key={index} className="flex items-center space-x-3">

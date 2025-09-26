@@ -1438,6 +1438,7 @@ export const uk = {
       addProduct: "Додати продукт"
     },
     customViewCard: {
+      courseSummary: "Підсумок курсу",
       totalModules: "Всього модулів",
       totalLessons: "Всього уроків",
       sources: "Джерела",

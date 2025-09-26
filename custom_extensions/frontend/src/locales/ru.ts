@@ -1407,6 +1407,7 @@ export const ru = {
       addProduct: "Добавить продукт"
     },
     customViewCard: {
+      courseSummary: "Сводка курса",
       totalModules: "Всего модулей",
       totalLessons: "Всего уроков",
       sources: "Источники",
