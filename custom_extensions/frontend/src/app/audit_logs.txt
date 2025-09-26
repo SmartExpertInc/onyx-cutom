@@ -1,16 +1,3 @@
-frontend:
-requests.js:1 
- PUT https://dev4.contentbuilder.ai/api/custom-projects-backend/projects/update/151 400 (Bad Request)
-
-1684-614c13b884d04a5e.js:1 Error updating audit: Error: No update data provided.
-    at m (page-1336b15f881d2359.js:1:26076)
-requests.js:1 
- PUT https://dev4.contentbuilder.ai/api/custom-projects-backend/projects/update/151 400 (Bad Request)
-1684-614c13b884d04a5e.js:1 Error updating audit: Error: No update data provided.
-    at m (page-1336b15f881d2359.js:1:26076)
-
-
-backend:
 custom_backend-1  | INFO:app.services.pdf_generator:PDF Template Directory expected at: /app/templates
 custom_backend-1  | INFO:app.services.video_generation_service:HTTP client initialized successfully
 custom_backend-1  | INFO:main:Video generation service imported successfully
@@ -81,36 +68,517 @@ custom_backend-1  | INFO:main:Deactivated 7 unused feature definitions.
 custom_backend-1  | INFO:main:Created feature entries for 3 existing users.
 custom_backend-1  | INFO:main:Added audit sharing columns to projects table.
 custom_backend-1  | INFO:main:Added audit sharing columns to trashed_projects table.
+custom_backend-1  | INFO:main:Updated 0 existing audits to use 'AI Audit' microproduct_type
+custom_backend-1  | INFO:main:Updated trashed audits to use 'AI Audit' microproduct_type
 custom_backend-1  | INFO:main:Database schema migration completed successfully.
 custom_backend-1  | INFO:main:'lms_exports' table ensured.
 custom_backend-1  | INFO:     Application startup complete.
 custom_backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56890 - "GET /api/custom/features/check/offers_tab HTTP/1.1" 200 OK
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:56884 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56906 - "GET /api/custom/features/check/workspace_tab HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56920 - "GET /api/custom/features/check/ai_audit_templates HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56924 - "GET /api/custom/features/check/deloitte_banner HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56926 - "GET /api/custom/features/check/offers_tab HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56942 - "GET /api/custom/features/check/workspace_tab HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:56932 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
+custom_backend-1  | INFO:main:   - Owned projects: 149
+custom_backend-1  | INFO:main:   - Shared projects: 0
+custom_backend-1  | INFO:main:   - Folder filter: None
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
+custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
+custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:     172.18.0.12:56964 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56952 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
+custom_backend-1  | INFO:main:   - Owned projects: 149
+custom_backend-1  | INFO:main:   - Shared projects: 0
+custom_backend-1  | INFO:main:   - Folder filter: None
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
+custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
+custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:     172.18.0.12:56976 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
+custom_backend-1  | INFO:main:   - Owned projects: 149
+custom_backend-1  | INFO:main:   - Shared projects: 0
+custom_backend-1  | INFO:main:   - Folder filter: None
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
+custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
+custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:     172.18.0.12:56984 - "GET /api/custom/projects HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
-custom_backend-1  | INFO:     172.18.0.12:54480 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:56988 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58014 - "POST /api/custom/ai-audit/landing-page/generate HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Backend received payload: {'companyWebsite': 'https://www.mercedes-benz.pl/', 'language': 'en'}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Backend received language: en
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Backend received companyWebsite: https://www.mercedes-benz.pl/
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Starting landing page generation for job a9b7ef5d-a8a7-4229-9738-820958d57ef0
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Initial payload: {'companyWebsite': 'https://www.mercedes-benz.pl/', 'language': 'en'}
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Starting to scrape: https://www.mercedes-benz.pl/
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Using domain name for search: mercedes-benz.pl
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:58026 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:58034 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58050 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=mercedes-benz.pl+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Received content length: 2179 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2627 chars
+custom_backend-1  | INFO:     172.18.0.12:42940 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42952 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42960 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42976 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:42992 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58132 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58140 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58146 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58184 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58200 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 20 characters
+custom_backend-1  | INFO:main:🏢 [WEBSITE SCRAPING] Extracted company name: Mercedes-Benz Polska
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 2847 chars
+custom_backend-1  | INFO:     172.18.0.12:55406 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55420 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55430 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55440 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 131 characters
+custom_backend-1  | INFO:main:📝 [WEBSITE SCRAPING] Extracted company description: Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and wagons.
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3367 chars
+custom_backend-1  | INFO:     172.18.0.12:55444 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44472 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44486 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44500 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44504 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44520 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58520 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 314 characters
+custom_backend-1  | WARNING:main:⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults
+custom_backend-1  | INFO:main:🌐 [WEBSITE SCRAPING] Successfully scraped data for: Mercedes-Benz Polska
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Scraped company data: Mercedes-Benz Polska
+custom_backend-1  | INFO:     172.18.0.12:58532 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+Company+providing+services+in+luxury+and+performance+vehicles%2C+including+sedans%2C+coupes%2C+convertibles%2C+roadsters%2C+SUVs%2C+and+wagons.&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+Company+providing+services+in+luxury+and+performance+vehicles%2C+including+sedans%2C+coupes%2C+convertibles%2C+roadsters%2C+SUVs%2C+and+wagons.&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%BE+%D0%BA%D0%BE%D0%BC%D0%BF%D0%B0%D0%BD%D0%B8%D0%B8+%D0%B8%D0%BD%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%86%D0%B8%D1%8F+%D0%BA%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D1%8B&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=site%3Ahttps%3A%2F%2Fwww.mercedes-benz.pl%2F+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:58538 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://serpapi.com/search.json?q=Mercedes-Benz+Polska+%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%81%D0%B8%D0%B8+OR+careers+OR+jobs+OR+%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0&engine=google&api_key=ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7&hl=ru "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] SERPAPI summary: [SerpAPI General Info]
+custom_backend-1  | Mercedes-Benz combines luxury with performance across the full line of models including luxury sedans, SUVs, coupes, roadsters, convertibles & more.
+custom_backend-1  | See the entire lineup of Mercedes-Benz sedans & wagons. Explore specific classes and models, and compare features and pricing.
+custom_backend-1  | A
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data length: 2184 characters
+custom_backend-1  | INFO:main:🌐 [AUDIT DATA FLOW] Scraped data preview: [SerpAPI General Info]
+custom_backend-1  | Mercedes-Benz combines luxury with performance across the full line of models including luxury sedans, SUVs, coupes, roadsters, convertibles & more.
+custom_backend-1  | See the entire lineup of Mercedes-Benz sedans & wagons. Explore specific classes and models, and compare features and pricing.
+custom_backend-1  | At Mercedes-Benz of Hoffman Estates, we offer a wide selection of new sedans, coupes, convertibles, and SUVs! Discover all of the buying benefits that come ...
+custom_backend-1  |
+custom_backend-1  | [Website Info]
+custom_backend-1  | (Нет информации по сайту)...
+custom_backend-1  | INFO:main:🏢 [AUDIT DATA FLOW] Generated company name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📝 [AUDIT DATA FLOW] Generated company description: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and wagons.'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Scraped data length: 2184 characters
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3147 chars
+custom_backend-1  | INFO:     172.18.0.12:58540 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58542 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52758 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52774 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52780 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52794 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52806 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55876 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55886 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55898 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55902 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:55912 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54302 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1034 characters
+custom_backend-1  | INFO:main:💼 [WEBSITE SCRAPING] Extracted 8 job positions from website
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted 8 raw positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Formatted 8 positions for frontend
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Need 3 additional positions to reach 11 total
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - will use English prompts
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3724 chars
+custom_backend-1  | INFO:     172.18.0.12:54312 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54324 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54336 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54348 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37344 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37350 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37352 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37358 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37364 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51280 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51288 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 361 characters
+custom_backend-1  | INFO:main:[COURSE TEMPLATES] Raw additional positions response: '```json
+custom_backend-1  | [
+custom_backend-1  |     {"title": "Electric Vehicle Technician", "description": "Training in electric vehicle systems and maintenance."},
+custom_backend-1  |     {"title": "Sales Consultant", "description": "Training in luxury vehicle sales and customer engagement."},
+custom_backend-1  |     {"title": "Quality Assurance Specialist", "description": "Training in quality control processes and standards."}
+custom_backend-1  | ]
+custom_backend-1  | ```'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - raw response length: 361
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language used: English
+custom_backend-1  | INFO:main:[COURSE TEMPLATES] Successfully parsed 3 additional positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Added 3 additional positions
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Final result: 11 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Generated 11 job positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'title': 'Electromechanic', 'description': 'Responsible for the maintenance and repair of electrical and mechanical systems in vehicles.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'title': 'Automotive Mechanic', 'description': 'Diagnoses and repairs vehicle mechanical issues, ensuring optimal performance.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'title': 'Painter', 'description': 'Handles the painting and finishing of vehicles to meet quality standards.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'title': 'Bodywork Technician', 'description': 'Repairs and restores vehicle body structures and surfaces.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'title': 'Parts Salesperson', 'description': 'Sells automotive parts and provides customer service to clients.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 6: {'title': 'Sales Advisor', 'description': 'Advises customers on vehicle options and assists with the sales process.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 7: {'title': 'Logistics Staff', 'description': 'Manages the logistics and supply chain operations within the company.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 8: {'title': 'Working Time Specialist', 'description': 'Oversees working time regulations and employee scheduling.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'title': 'Electric Vehicle Technician', 'description': 'Training in electric vehicle systems and maintenance.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'title': 'Sales Consultant', 'description': 'Training in luxury vehicle sales and customer engagement.', 'icon': '👷'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'title': 'Quality Assurance Specialist', 'description': 'Training in quality control processes and standards.', 'icon': '👷'}
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3185 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3417 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3441 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3217 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3132 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 5249 chars
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 4137 chars
+custom_backend-1  | INFO:     172.18.0.12:51294 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51300 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51304 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59180 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 19 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted industry: automotive industry
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 29 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted search time data: {'days': '30–60'}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 35 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted losses data: {'amount': '$10K–$20K'}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 67 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Raw burnout response: '```json
+custom_backend-1  | {"months": "24", "industryName": "automotive industry"}
+custom_backend-1  | ```'
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted burnout data: {'months': '24', 'industryName': 'automotive industry'}
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 82 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Extracted turnover data: {'percentage': '15', 'earlyExit': {'percentage': '20', 'months': '3'}}
+custom_backend-1  | INFO:     172.18.0.12:59194 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59206 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:59220 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 502 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated yearly shortage data:
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Industry: Automotive Manufacturing
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Yearly Shortage: 50000 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Description: The automotive industry in Poland is experiencing a significant shortage of skilled specialists, particularly in areas such as automotive mechanics, electricians, and production roles. With the growth of electric and luxury vehicle production, the demand for qualified personnel has increased, leading to an estimated yearly shortage of around 50,000 specialists to meet the industry's needs.
+custom_backend-1  | INFO:     172.18.0.12:59222 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44808 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44812 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44818 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44830 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44840 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1056 characters
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated personnel shortage chart data:
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Industry: Automotive Manufacturing
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Total shortage: 48700
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Trend: growth
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Chart data points: 12
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 1: January - 3200 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 2: February - 3100 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 3: March - 3500 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 4: April - 3600 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 5: May - 4000 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 6: June - 4500 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 7: July - 4300 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 8: August - 3900 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 9: September - 4100 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 10: October - 4600 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 11: November - 4400 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] - Month 12: December - 4800 specialists
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Generated workforce crisis data: {'industry': 'automotive industry', 'industryForms': {'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'crisis_in': 'в automotive industry отрасли', 'shortage_in': 'в automotive industry секторе', 'of_industry': 'automotive industry отрасли'}, 'burnout': {'months': '24', 'industryName': 'automotive industry'}, 'turnover': {'percentage': '15', 'earlyExit': {'percentage': '20', 'months': '3'}}, 'losses': {'amount': '$10K–$20K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3600}, {'month': 'May', 'shortage': 4000}, {'month': 'June', 'shortage': 4500}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4600}, {'month': 'November', 'shortage': 4400}, {'month': 'December', 'shortage': 4800}], 'totalShortage': 48700, 'trend': 'growth', 'description': 'The automotive manufacturing industry has experienced a consistent growth in personnel shortage over the past year, driven by increased production demands and a competitive labor market. Seasonal fluctuations were noted, particularly in August when many workers took vacations, leading to a temporary decrease in available personnel.'}, 'yearlyShortage': {'yearlyShortage': 50000, 'industry': 'Automotive Manufacturing', 'description': "The automotive industry in Poland is experiencing a significant shortage of skilled specialists, particularly in areas such as automotive mechanics, electricians, and production roles. With the growth of electric and luxury vehicle production, the demand for qualified personnel has increased, leading to an estimated yearly shortage of around 50,000 specialists to meet the industry's needs."}}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Generated workforce crisis data: {'industry': 'automotive industry', 'industryForms': {'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'crisis_in': 'в automotive industry отрасли', 'shortage_in': 'в automotive industry секторе', 'of_industry': 'automotive industry отрасли'}, 'burnout': {'months': '24', 'industryName': 'automotive industry'}, 'turnover': {'percentage': '15', 'earlyExit': {'percentage': '20', 'months': '3'}}, 'losses': {'amount': '$10K–$20K'}, 'searchTime': {'days': '30–60'}, 'chartData': {'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3600}, {'month': 'May', 'shortage': 4000}, {'month': 'June', 'shortage': 4500}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4600}, {'month': 'November', 'shortage': 4400}, {'month': 'December', 'shortage': 4800}], 'totalShortage': 48700, 'trend': 'growth', 'description': 'The automotive manufacturing industry has experienced a consistent growth in personnel shortage over the past year, driven by increased production demands and a competitive labor market. Seasonal fluctuations were noted, particularly in August when many workers took vacations, leading to a temporary decrease in available personnel.'}, 'yearlyShortage': {'yearlyShortage': 50000, 'industry': 'Automotive Manufacturing', 'description': "The automotive industry in Poland is experiencing a significant shortage of skilled specialists, particularly in areas such as automotive mechanics, electricians, and production roles. With the growth of electric and luxury vehicle production, the demand for qualified personnel has increased, leading to an estimated yearly shortage of around 50,000 specialists to meet the industry's needs."}}
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Generating course outline for position: Electromechanic
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3734 chars
+custom_backend-1  | INFO:     172.18.0.12:50258 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50260 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50266 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50274 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50278 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37384 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37388 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37398 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37406 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:37418 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41456 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41466 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41474 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:41484 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 1615 characters
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 1: Foundations of Electromechanics with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Understanding Electromechanical Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Basic Electrical Theory and Applications
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Introduction to Automotive Electronics
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Safety Protocols in Electromechanical Work
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Tools and Equipment for Electromechanics
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 2: Advanced Diagnostics and Troubleshooting with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Using Diagnostic Tools and Software
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Interpreting Electrical Schematics
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Common Electrical Issues in Vehicles
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Troubleshooting Techniques for Electromechanical Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Case Studies: Real-World Problem Solving
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 3: Maintenance and Repair Practices with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: Routine Maintenance Procedures for Electromechanical Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Repairing Electrical Components in Luxury Vehicles
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Battery Management and Charging Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Understanding and Repairing Sensors and Actuators
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Quality Control and Assurance in Repairs
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Module 4: Integration of Technology in Electromechanics with 5 lessons
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 1: The Role of AI in Modern Automotive Systems
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 2: Future Trends in Electromechanical Engineering
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 3: Sustainable Practices in Automotive Repair
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 4: Collaboration with Other Departments: A Team Approach
+custom_backend-1  | INFO:main:[COURSE OUTLINE] - Lesson 5: Continuous Learning and Development in Electromechanics
+custom_backend-1  | INFO:main:[COURSE OUTLINE] Generated 4 modules with lessons for landing page
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Generated course outline with 4 modules
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Foundations of Electromechanics', 'lessons': ['Understanding Electromechanical Systems', 'Basic Electrical Theory and Applications', 'Introduction to Automotive Electronics', 'Safety Protocols in Electromechanical Work', 'Tools and Equipment for Electromechanics']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 2: {'title': 'Advanced Diagnostics and Troubleshooting', 'lessons': ['Using Diagnostic Tools and Software', 'Interpreting Electrical Schematics', 'Common Electrical Issues in Vehicles', 'Troubleshooting Techniques for Electromechanical Systems', 'Case Studies: Real-World Problem Solving']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 3: {'title': 'Maintenance and Repair Practices', 'lessons': ['Routine Maintenance Procedures for Electromechanical Systems', 'Repairing Electrical Components in Luxury Vehicles', 'Battery Management and Charging Systems', 'Understanding and Repairing Sensors and Actuators', 'Quality Control and Assurance in Repairs']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 4: {'title': 'Integration of Technology in Electromechanics', 'lessons': ['The Role of AI in Modern Automotive Systems', 'Future Trends in Electromechanical Engineering', 'Sustainable Practices in Automotive Repair', 'Collaboration with Other Departments: A Team Approach', 'Continuous Learning and Development in Electromechanics']}
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Starting course templates generation
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Real job positions: 11
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Course outline data: 4 modules, 20 lessons
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3153 chars
+custom_backend-1  | INFO:     172.18.0.12:41488 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54870 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54872 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54880 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54888 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:54902 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50862 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 49 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Electromechanic
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Electromechanic act...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+custom_backend-1  | E0000 00:00:1758872202.654133       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | ERROR:main:[AI_IMAGE_GENERATION] Error generating image: No image data received from Gemini
+custom_backend-1  | Traceback (most recent call last):
+custom_backend-1  |   File "/app/main.py", line 9719, in generate_ai_image
+custom_backend-1  |     raise Exception("No image data received from Gemini")
+custom_backend-1  | Exception: No image data received from Gemini
+custom_backend-1  | ERROR:main:❌ [COURSE IMAGE] Error generating image for Electromechanic: 500: AI image generation failed: No image data received from Gemini
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /custom-projects-ui/images/audit-section-5-job-1-mobile.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3157 chars
+custom_backend-1  | INFO:     172.18.0.12:50876 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50892 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50904 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:50916 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60324 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:60338 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 59 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Automotive Mechanic
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Automotive Mechanic...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758872214.633069       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_753658bd-8806-492c-b9f8-9b39d29e3ead.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Automotive Mechanic: /static_design_images/ai_generated_753658bd-8806-492c-b9f8-9b39d29e3ead.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_753658bd-8806-492c-b9f8-9b39d29e3ead.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3145 chars
+custom_backend-1  | INFO:     172.18.0.12:60346 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51822 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51838 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51850 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51854 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:51868 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 44 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Painter
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Painter actively wo...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758872226.057547       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_c95084c8-bd8d-499a-8bfb-dbf59ddaddf6.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Painter: /static_design_images/ai_generated_c95084c8-bd8d-499a-8bfb-dbf59ddaddf6.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_c95084c8-bd8d-499a-8bfb-dbf59ddaddf6.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3157 chars
+custom_backend-1  | INFO:     172.18.0.12:51878 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44090 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44106 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44112 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44128 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44142 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:44148 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52698 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52710 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 56 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Bodywork Technician
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Bodywork Technician...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758872244.074643       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_b48d4489-4a6b-4aa0-8087-e5a7e2471960.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Bodywork Technician: /static_design_images/ai_generated_b48d4489-4a6b-4aa0-8087-e5a7e2471960.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_b48d4489-4a6b-4aa0-8087-e5a7e2471960.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3155 chars
+custom_backend-1  | INFO:     172.18.0.12:52718 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58398 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58408 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58420 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58434 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58442 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:58446 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 67 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Parts Salesperson
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Parts Salesperson a...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758872258.610819       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_9664b59d-6275-43d0-b992-86b18e30a094.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Parts Salesperson: /static_design_images/ai_generated_9664b59d-6275-43d0-b992-86b18e30a094.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_9664b59d-6275-43d0-b992-86b18e30a094.png
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Starting direct OpenAI request with model gpt-4o-mini
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Prompt length: 3151 chars
+custom_backend-1  | INFO:     172.18.0.12:58460 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57068 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57082 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57092 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57102 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:57110 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39164 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39180 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:39194 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:[OPENAI_DIRECT] Response received: 47 characters
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generating AI image for position: Sales Advisor
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Starting generation with prompt: 'A professional photograph of a Sales Advisor activ...'
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Dimensions: 1792x1024, Quality: standard, Style: vivid
+custom_backend-1  | E0000 00:00:1758872276.156067       1 alts_credentials.cc:93] ALTS creds ignored. Not running on GCP and untrusted ALTS is not enabled.
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...
+custom_backend-1  | INFO:main:[AI_IMAGE_GENERATION] Image saved successfully: /static_design_images/ai_generated_fe71ecc7-0e4a-4c94-910e-27e4813b22e5.png
+custom_backend-1  | INFO:main:🎨 [COURSE IMAGE] Generated image for Sales Advisor: /static_design_images/ai_generated_fe71ecc7-0e4a-4c94-910e-27e4813b22e5.png
+custom_backend-1  | INFO:main:🎨 [COURSE TEMPLATES] Generated AI image path: /static_design_images/ai_generated_fe71ecc7-0e4a-4c94-910e-27e4813b22e5.png
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] Generated 6 course templates
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 1: Electromechanic
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 2: Automotive Mechanic
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 3: Painter
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 4: Bodywork Technician
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 5: Parts Salesperson
+custom_backend-1  | INFO:main:🎓 [COURSE TEMPLATES] - Template 6: Sales Advisor
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Generated 6 course templates
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 1: Electromechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 2: Automotive Mechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 3: Painter
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 4: Bodywork Technician
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Parts Salesperson
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Sales Advisor
+custom_backend-1  | INFO:     172.18.0.12:39202 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Landing page data - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Landing page data - payload.language: 'en'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] Landing page data structure created:
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyName: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - companyDescription: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and wagons.'
+custom_backend-1  | INFO:main:📦 [AUDIT DATA FLOW] - originalPayload keys: ['companyWebsite', 'language']
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Successfully created project with ID: 157
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project saved to database with ID: 157
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:🔧 [AUDIT DATA FLOW] Assigned landing page to existing folder: 21
+custom_backend-1  | INFO:main:[AI-Audit Landing Page] Finished the Landing Page Generation
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data: {'id': 157, 'name': 'AI-Аудит Landing Page: Mercedes-Benz Polska', 'companyName': 'Mercedes-Benz Polska', 'companyDescription': 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and wagons.'}
+custom_backend-1  | INFO:     172.18.0.12:47532 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47542 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47546 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47552 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47558 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47562 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48270 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48274 - "GET /api/custom/ai-audit/progress?jobId=a9b7ef5d-a8a7-4229-9738-820958d57ef0 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48304 - "GET /api/custom/features/check/offers_tab HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET https://apis.elai.io/api/v1/avatars "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:app.services.video_generation_service:Successfully fetched 65 avatars
+custom_backend-1  | INFO:     172.18.0.12:48288 - "GET /api/custom/video/avatars HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48314 - "GET /api/custom/features/check/workspace_tab HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54490 - "GET /api/custom/features/check/offers_tab HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54506 - "GET /api/custom/features/check/workspace_tab HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48328 - "GET /api/custom/features/check/ai_audit_templates HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54520 - "GET /api/custom/features/check/deloitte_banner HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54536 - "GET /api/custom/features/check/offers_tab HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54516 - "GET /api/custom/features/check/ai_audit_templates HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54546 - "GET /api/custom/features/check/workspace_tab HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54548 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54568 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48336 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
 custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
-custom_backend-1  | INFO:main:   - Owned projects: 147
+custom_backend-1  | INFO:main:   - Owned projects: 150
 custom_backend-1  | INFO:main:   - Shared projects: 0
 custom_backend-1  | INFO:main:   - Folder filter: None
-custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 118, 139, 4, 3, 12, 23, 24, 119, 14, 29, 140, 144, 19, 71, 61, 6, 30, 120, 82, 141, 145, 51, 31, 72, 121, 142, 146, 17, 13, 73, 143, 32, 90, 122, 147, 22, 33, 89, 52, 103, 123, 148, 34, 92, 74, 83, 124, 149, 7, 8, 35, 53, 91, 75, 125, 150, 36, 26, 93, 76, 104, 126, 151, 20, 37, 94, 54, 84, 86, 127, 38, 95, 105, 128, 39, 96, 106, 129, 40, 55, 97, 107, 130, 41, 98, 108, 131, 42, 43, 25, 58, 56, 62, 109, 65, 132, 133, 44, 57, 78, 85, 110, 134, 45, 66, 99, 111, 135, 100, 46, 112, 136, 137, 77, 79, 47, 59, 113, 67, 80, 101, 48, 81, 114, 68, 49, 115, 102, 60, 69, 116, 16, 21, 50, 70, 117, 10]
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 157, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
 custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
 custom_backend-1  | INFO:main:   - User workspace memberships: 0
 custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
@@ -118,16 +586,27 @@ custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared p
 custom_backend-1  | INFO:main:   - User workspace memberships: 0
 custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
 custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:     172.18.0.12:48318 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48346 - "GET /api/custom/features/check/deloitte_banner HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54562 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:54582 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48352 - "GET /api/custom/features/check/offers_tab HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48362 - "GET /api/custom/features/check/workspace_tab HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48368 - "GET /api/custom/projects/folders HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48380 - "GET /api/custom/credits/me HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48400 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
-custom_backend-1  | INFO:main:   - Owned projects: 147
+custom_backend-1  | INFO:main:   - Owned projects: 150
 custom_backend-1  | INFO:main:   - Shared projects: 0
 custom_backend-1  | INFO:main:   - Folder filter: None
-custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 118, 139, 4, 3, 12, 23, 24, 119, 14, 29, 140, 144, 19, 71, 61, 6, 30, 120, 82, 141, 145, 51, 31, 72, 121, 142, 146, 17, 13, 73, 143, 32, 90, 122, 147, 22, 33, 89, 52, 103, 123, 148, 34, 92, 74, 83, 124, 149, 7, 8, 35, 53, 91, 75, 125, 150, 36, 26, 93, 76, 104, 126, 151, 20, 37, 94, 54, 84, 86, 127, 38, 95, 105, 128, 39, 96, 106, 129, 40, 55, 97, 107, 130, 41, 98, 108, 131, 42, 43, 25, 58, 56, 62, 109, 65, 132, 133, 44, 57, 78, 85, 110, 134, 45, 66, 99, 111, 135, 100, 46, 112, 136, 137, 77, 79, 47, 59, 113, 67, 80, 101, 48, 81, 114, 68, 49, 115, 102, 60, 69, 116, 16, 21, 50, 70, 117, 10]
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 157, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
 custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
 custom_backend-1  | INFO:main:   - User workspace memberships: 0
 custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
@@ -135,240 +614,264 @@ custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared p
 custom_backend-1  | INFO:main:   - User workspace memberships: 0
 custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
 custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
-custom_backend-1  | INFO:     172.18.0.12:54594 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48392 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48406 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54606 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48410 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54620 - "GET /api/custom/projects/90/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47674 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54622 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47690 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54636 - "GET /api/custom/projects/89/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47698 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:54652 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47712 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55194 - "GET /api/custom/projects/85/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47724 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55208 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47740 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55214 - "GET /api/custom/projects/84/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47746 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55220 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47760 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47764 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55244 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:     172.18.0.12:55232 - "GET /api/custom/projects/83/lesson-data HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47772 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55252 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47776 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55266 - "GET /api/custom/projects/82/lesson-data HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55282 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55284 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55292 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55294 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55308 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55312 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55316 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55318 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55334 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55340 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55342 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55348 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55358 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55368 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55378 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55386 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55398 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55402 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55416 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55428 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55438 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55454 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55456 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55470 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55484 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55490 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55496 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55504 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55516 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55532 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55548 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55554 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:55570 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47594 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47606 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47610 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47616 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47620 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47626 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47630 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47644 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47654 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47656 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47672 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47682 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47698 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47706 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47722 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47748 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
-custom_backend-1  | INFO:main:   - Owned projects: 147
-custom_backend-1  | INFO:main:   - Shared projects: 0
-custom_backend-1  | INFO:main:   - Folder filter: None
-custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 118, 139, 4, 3, 12, 23, 24, 119, 14, 29, 140, 144, 19, 71, 61, 6, 30, 120, 82, 141, 145, 51, 31, 72, 121, 142, 146, 17, 13, 73, 143, 32, 90, 122, 147, 22, 33, 89, 52, 103, 123, 148, 34, 92, 74, 83, 124, 149, 7, 8, 35, 53, 91, 75, 125, 150, 36, 26, 93, 76, 104, 126, 151, 20, 37, 94, 54, 84, 86, 127, 38, 95, 105, 128, 39, 96, 106, 129, 40, 55, 97, 107, 130, 41, 98, 108, 131, 42, 43, 25, 58, 56, 62, 109, 65, 132, 133, 44, 57, 78, 85, 110, 134, 45, 66, 99, 111, 135, 100, 46, 112, 136, 137, 77, 79, 47, 59, 113, 67, 80, 101, 48, 81, 114, 68, 49, 115, 102, 60, 69, 116, 16, 21, 50, 70, 117, 10]
-custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
-custom_backend-1  | INFO:main:   - User workspace memberships: 0
-custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
-custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
-custom_backend-1  | INFO:main:   - User workspace memberships: 0
-custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
-custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
-custom_backend-1  | INFO:     172.18.0.12:47732 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47754 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
-custom_backend-1  | INFO:main:   - Owned projects: 147
-custom_backend-1  | INFO:main:   - Shared projects: 0
-custom_backend-1  | INFO:main:   - Folder filter: None
-custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 118, 139, 4, 3, 12, 23, 24, 119, 14, 29, 140, 144, 19, 71, 61, 6, 30, 120, 82, 141, 145, 51, 31, 72, 121, 142, 146, 17, 13, 73, 143, 32, 90, 122, 147, 22, 33, 89, 52, 103, 123, 148, 34, 92, 74, 83, 124, 149, 7, 8, 35, 53, 91, 75, 125, 150, 36, 26, 93, 76, 104, 126, 151, 20, 37, 94, 54, 84, 86, 127, 38, 95, 105, 128, 39, 96, 106, 129, 40, 55, 97, 107, 130, 41, 98, 108, 131, 42, 43, 25, 58, 56, 62, 109, 65, 132, 133, 44, 57, 78, 85, 110, 134, 45, 66, 99, 111, 135, 100, 46, 112, 136, 137, 77, 79, 47, 59, 113, 67, 80, 101, 48, 81, 114, 68, 49, 115, 102, 60, 69, 116, 16, 21, 50, 70, 117, 10]
-custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
-custom_backend-1  | INFO:main:   - User workspace memberships: 0
-custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
-custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
-custom_backend-1  | INFO:main:   - User workspace memberships: 0
-custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
-custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
-custom_backend-1  | INFO:     172.18.0.12:47770 - "GET /api/custom/projects HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47782 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47794 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47792 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:     172.18.0.12:47808 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47812 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47818 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47820 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47834 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47826 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47846 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47832 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47860 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47840 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47864 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47844 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47870 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47848 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47878 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47862 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47892 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47874 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47886 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47896 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47904 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47894 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:     172.18.0.12:47908 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47918 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47920 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47924 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:     172.18.0.12:47932 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47982 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47942 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:     172.18.0.12:47954 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47948 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47962 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47968 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47974 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:     172.18.0.12:47986 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:47988 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:     172.18.0.12:47994 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:47998 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 custom_backend-1  | INFO:     172.18.0.12:48002 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] ===========================================
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] Project ID: 151
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] User ID: b9ad451e-4c02-4008-9965-d5931ff02aa0
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] Timestamp: 2025-09-25T23:27:02.550815
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] Request data type: <class 'main.ProjectUpdateRequest'>
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] MicroProductName: None
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] MicroProductContent type: <class 'NoneType'>
+custom_backend-1  | INFO:     172.18.0.12:48008 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 151 - No content to store (content_to_store_for_db is None)
-custom_backend-1  | ERROR:main:❌ [API ERROR] HTTP Exception for project 151: No update data provided.
-custom_backend-1  | ERROR:main:❌ [API ERROR] Status code: 400
-custom_backend-1  | ERROR:main:❌ [API ERROR] Timestamp: 2025-09-25T23:27:02.657891
-custom_backend-1  | INFO:     172.18.0.12:52330 - "PUT /api/custom/projects/update/151 HTTP/1.1" 400 Bad Request
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] ===========================================
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] Project ID: 151
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] User ID: b9ad451e-4c02-4008-9965-d5931ff02aa0
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] Timestamp: 2025-09-25T23:27:10.952541
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] Request data type: <class 'main.ProjectUpdateRequest'>
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] MicroProductName: None
-custom_backend-1  | INFO:main:🔄 [PROJECT UPDATE START] MicroProductContent type: <class 'NoneType'>
 custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
-custom_backend-1  | INFO:main:💾 [BACKEND SAVE] Project 151 - No content to store (content_to_store_for_db is None)
-custom_backend-1  | ERROR:main:❌ [API ERROR] HTTP Exception for project 151: No update data provided.
-custom_backend-1  | ERROR:main:❌ [API ERROR] Status code: 400
-custom_backend-1  | ERROR:main:❌ [API ERROR] Timestamp: 2025-09-25T23:27:11.029564
-custom_backend-1  | INFO:     172.18.0.12:40108 - "PUT /api/custom/projects/update/151 HTTP/1.1" 400 Bad Request
+custom_backend-1  | INFO:     172.18.0.12:48018 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48048 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48032 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48038 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48062 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48068 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48076 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48084 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48094 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48100 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48108 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48116 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48120 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48130 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48166 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:48178 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48148 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48144 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48152 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:48146 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:52484 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52504 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52532 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52492 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52520 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52528 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:52536 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52570 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52564 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52594 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52584 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52550 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:52606 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52630 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52660 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52670 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52644 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52616 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:52676 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52688 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52698 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52736 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52724 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52708 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:52790 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52748 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52776 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52770 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52762 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52798 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:     172.18.0.12:52806 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:52802 - "GET /api/custom/features/check/col_quality_tier HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
+custom_backend-1  | INFO:main:   - Owned projects: 150
+custom_backend-1  | INFO:main:   - Shared projects: 0
+custom_backend-1  | INFO:main:   - Folder filter: None
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 157, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
+custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
+custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:     172.18.0.12:52814 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [WORKSPACE ACCESS] User b9ad451e-4c02-4008-9965-d5931ff02aa0 (email: makshm1307@gmail.com) projects query results:
+custom_backend-1  | INFO:main:   - Owned projects: 150
+custom_backend-1  | INFO:main:   - Shared projects: 0
+custom_backend-1  | INFO:main:   - Folder filter: None
+custom_backend-1  | INFO:main:   - Owned project IDs: [11, 9, 15, 18, 28, 27, 2, 1, 88, 87, 4, 3, 12, 23, 24, 14, 29, 119, 140, 144, 19, 71, 61, 6, 30, 82, 118, 139, 120, 51, 31, 72, 141, 145, 121, 142, 146, 123, 148, 17, 13, 73, 150, 32, 90, 22, 143, 122, 147, 104, 33, 89, 52, 103, 34, 74, 83, 92, 124, 149, 127, 111, 135, 7, 8, 35, 53, 75, 91, 125, 36, 26, 76, 151, 93, 126, 20, 37, 54, 84, 94, 86, 38, 95, 105, 128, 39, 96, 106, 129, 101, 40, 55, 97, 107, 155, 130, 41, 98, 108, 131, 156, 42, 43, 25, 58, 56, 133, 62, 109, 157, 65, 132, 110, 44, 57, 78, 134, 85, 45, 66, 99, 100, 112, 46, 136, 77, 79, 137, 47, 59, 113, 67, 80, 48, 81, 114, 68, 115, 49, 60, 69, 102, 116, 16, 21, 50, 117, 70, 10]
+custom_backend-1  | INFO:main:🔍 [WORKSPACE DEBUG] No shared projects found for user b9ad451e-4c02-4008-9965-d5931ff02aa0. Investigating...
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   ❌ User b9ad451e-4c02-4008-9965-d5931ff02aa0 is not a member of any workspace!
+custom_backend-1  | INFO:main:   💡 Add user to a workspace to enable shared project access
+custom_backend-1  | INFO:main:   - User workspace memberships: 0
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:main:   - No workspace memberships found - user needs to be added to a workspace
+custom_backend-1  | INFO:     172.18.0.12:52824 - "GET /api/custom/projects HTTP/1.1" 200 OK
+custom_backend-1  | INFO:main:📥 [AUDIT DATA FLOW] Landing page data request for project ID: 157
+custom_backend-1  | INFO:httpx:HTTP Request: GET http://api_server:8080/me "HTTP/1.1 200 OK"
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: <class 'dict'>
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] Retrieved project data from database:
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Project name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:💾 [AUDIT DATA FLOW] - Content keys: ['language', 'companyName', 'jobPositions', 'courseTemplates', 'originalPayload', 'workforceCrisis', 'companyDescription', 'courseOutlineModules']
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] Extracted dynamic data:
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:🔍 [AUDIT DATA FLOW] - Company description: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and wagons.'
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Starting job positions extraction:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Job positions in content: 11 positions
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] Job positions found in landing page data:
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 1: {'icon': '👷', 'title': 'Electromechanic', 'description': 'Responsible for the maintenance and repair of electrical and mechanical systems in vehicles.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 2: {'icon': '👷', 'title': 'Automotive Mechanic', 'description': 'Diagnoses and repairs vehicle mechanical issues, ensuring optimal performance.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 3: {'icon': '👷', 'title': 'Painter', 'description': 'Handles the painting and finishing of vehicles to meet quality standards.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 4: {'icon': '👷', 'title': 'Bodywork Technician', 'description': 'Repairs and restores vehicle body structures and surfaces.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 5: {'icon': '👷', 'title': 'Parts Salesperson', 'description': 'Sells automotive parts and provides customer service to clients.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 6: {'icon': '👷', 'title': 'Sales Advisor', 'description': 'Advises customers on vehicle options and assists with the sales process.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 7: {'icon': '👷', 'title': 'Logistics Staff', 'description': 'Manages the logistics and supply chain operations within the company.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 8: {'icon': '👷', 'title': 'Working Time Specialist', 'description': 'Oversees working time regulations and employee scheduling.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 9: {'icon': '👷', 'title': 'Electric Vehicle Technician', 'description': 'Training in electric vehicle systems and maintenance.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 10: {'icon': '👷', 'title': 'Sales Consultant', 'description': 'Training in luxury vehicle sales and customer engagement.'}
+custom_backend-1  | INFO:main:💼 [AUDIT DATA FLOW] - Position 11: {'icon': '👷', 'title': 'Quality Assurance Specialist', 'description': 'Training in quality control processes and standards.'}
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] Workforce crisis data extraction:
+custom_backend-1  | INFO:main:📊 [AUDIT DATA FLOW] - Workforce crisis data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive industry'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '20'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3600}, {'month': 'May', 'shortage': 4000}, {'month': 'June', 'shortage': 4500}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4600}, {'month': 'November', 'shortage': 4400}, {'month': 'December', 'shortage': 4800}], 'description': 'The automotive manufacturing industry has experienced a consistent growth in personnel shortage over the past year, driven by increased production demands and a competitive labor market. Seasonal fluctuations were noted, particularly in August when many workers took vacations, leading to a temporary decrease in available personnel.', 'totalShortage': 48700}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': "The automotive industry in Poland is experiencing a significant shortage of skilled specialists, particularly in areas such as automotive mechanics, electricians, and production roles. With the growth of electric and luxury vehicle production, the demand for qualified personnel has increased, leading to an estimated yearly shortage of around 50,000 specialists to meet the industry's needs.", 'yearlyShortage': 50000}}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] Course outline modules extraction:
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Course outline modules count: 4
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 1: {'title': 'Foundations of Electromechanics', 'lessons': ['Understanding Electromechanical Systems', 'Basic Electrical Theory and Applications', 'Introduction to Automotive Electronics', 'Safety Protocols in Electromechanical Work', 'Tools and Equipment for Electromechanics']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 2: {'title': 'Advanced Diagnostics and Troubleshooting', 'lessons': ['Using Diagnostic Tools and Software', 'Interpreting Electrical Schematics', 'Common Electrical Issues in Vehicles', 'Troubleshooting Techniques for Electromechanical Systems', 'Case Studies: Real-World Problem Solving']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 3: {'title': 'Maintenance and Repair Practices', 'lessons': ['Routine Maintenance Procedures for Electromechanical Systems', 'Repairing Electrical Components in Luxury Vehicles', 'Battery Management and Charging Systems', 'Understanding and Repairing Sensors and Actuators', 'Quality Control and Assurance in Repairs']}
+custom_backend-1  | INFO:main:📚 [AUDIT DATA FLOW] - Module 4: {'title': 'Integration of Technology in Electromechanics', 'lessons': ['The Role of AI in Modern Automotive Systems', 'Future Trends in Electromechanical Engineering', 'Sustainable Practices in Automotive Repair', 'Collaboration with Other Departments: A Team Approach', 'Continuous Learning and Development in Electromechanics']}
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] Course templates extraction:
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Course templates count: 6
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 1: Electromechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 2: Automotive Mechanic
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 3: Painter
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 4: Bodywork Technician
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 5: Parts Salesperson
+custom_backend-1  | INFO:main:🎓 [AUDIT DATA FLOW] - Template 6: Sales Advisor
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] Final response data:
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project ID: 157
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Project Name: 'AI-Аудит Landing Page: Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Name: 'Mercedes-Benz Polska'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Company Description: 'Company providing services in luxury and performance vehicles, including sedans, coupes, convertibles, roadsters, SUVs, and wagons.'
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Job Positions Count: 11
+custom_backend-1  | INFO:main:📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {'losses': {'amount': '$10K–$20K'}, 'burnout': {'months': '24', 'industryName': 'automotive industry'}, 'industry': 'automotive industry', 'turnover': {'earlyExit': {'months': '3', 'percentage': '20'}, 'percentage': '15'}, 'chartData': {'trend': 'growth', 'industry': 'Automotive Manufacturing', 'chartData': [{'month': 'January', 'shortage': 3200}, {'month': 'February', 'shortage': 3100}, {'month': 'March', 'shortage': 3500}, {'month': 'April', 'shortage': 3600}, {'month': 'May', 'shortage': 4000}, {'month': 'June', 'shortage': 4500}, {'month': 'July', 'shortage': 4300}, {'month': 'August', 'shortage': 3900}, {'month': 'September', 'shortage': 4100}, {'month': 'October', 'shortage': 4600}, {'month': 'November', 'shortage': 4400}, {'month': 'December', 'shortage': 4800}], 'description': 'The automotive manufacturing industry has experienced a consistent growth in personnel shortage over the past year, driven by increased production demands and a competitive labor market. Seasonal fluctuations were noted, particularly in August when many workers took vacations, leading to a temporary decrease in available personnel.', 'totalShortage': 48700}, 'searchTime': {'days': '30–60'}, 'industryForms': {'crisis_in': 'в automotive industry отрасли', 'in_sector': 'в automotive industry секторе', 'in_industry': 'в automotive industry отрасли', 'of_industry': 'automotive industry отрасли', 'shortage_in': 'в automotive industry секторе'}, 'yearlyShortage': {'industry': 'Automotive Manufacturing', 'description': "The automotive industry in Poland is experiencing a significant shortage of skilled specialists, particularly in areas such as automotive mechanics, electricians, and production roles. With the growth of electric and luxury vehicle production, the demand for qualified personnel has increased, leading to an estimated yearly shortage of around 50,000 specialists to meet the industry's needs.", 'yearlyShortage': 50000}}
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data - language: 'en'
+custom_backend-1  | INFO:main:🔍 [LANGUAGE FLOW DEBUG] Response data keys: ['projectId', 'projectName', 'companyName', 'companyDescription', 'jobPositions', 'workforceCrisis', 'courseOutlineModules', 'courseTemplates', 'language']
+custom_backend-1  | INFO:     172.18.0.12:53750 - "GET /api/custom/ai-audit/landing-page/157 HTTP/1.1" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53762 - "GET /static_design_images/ai_generated_753658bd-8806-492c-b9f8-9b39d29e3ead.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53778 - "GET /static_design_images/ai_generated_c95084c8-bd8d-499a-8bfb-dbf59ddaddf6.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53808 - "GET /static_design_images/ai_generated_b48d4489-4a6b-4aa0-8087-e5a7e2471960.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53820 - "GET /static_design_images/ai_generated_fe71ecc7-0e4a-4c94-910e-27e4813b22e5.png HTTP/1.0" 200 OK
+custom_backend-1  | INFO:     172.18.0.12:53792 - "GET /static_design_images/ai_generated_9664b59d-6275-43d0-b992-86b18e30a094.png HTTP/1.0" 200 OK

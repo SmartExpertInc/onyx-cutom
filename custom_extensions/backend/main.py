@@ -9703,7 +9703,17 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         
         # Generate image using Gemini
         model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
-        response = model.generate_content(request.prompt)
+        
+        # Create generation config for image generation
+        generation_config = genai.types.GenerationConfig(
+            max_output_tokens=8192,
+        )
+        
+        # Generate image with proper configuration
+        response = model.generate_content(
+            request.prompt,
+            generation_config=generation_config
+        )
         
         if not response.candidates or len(response.candidates) == 0:
             raise Exception("No image data received from Gemini")
@@ -16809,7 +16819,7 @@ async def generate_company_description_from_data(duckduckgo_summary: str, payloa
 
 async def generate_ai_image_for_job_position(job_title: str, company_name: str) -> str:
     """
-    Generate an AI image for a specific job position using DALL-E 3.
+    Generate an AI image for a specific job position using Google Gemini.
     """
     try:
         # Create a professional prompt for the job position with enhanced framing
@@ -16841,7 +16851,7 @@ async def generate_ai_image_for_job_position(job_title: str, company_name: str) 
             height=height,
             quality="standard",
             style="vivid",
-            model="dall-e-3"
+            model="gemini-2.5-flash-image-preview"
         )
         
         # Generate the image
