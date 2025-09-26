@@ -431,7 +431,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           project.designMicroproductType === "Video Lesson Presentation" 
             ? `/projects-2/view/${project.id}`
             : (project.designMicroproductType === "Training Plan"
-              ? (courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new/${project.id}`)
+              ? (courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new-2/${project.id}`)
               : `/projects/view/${project.id}`)
         )}
         onClick={handleCardClick}

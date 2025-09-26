@@ -940,7 +940,7 @@ export default function CourseOutlineClient() {
           courseTableEnabled = Boolean(json?.is_enabled);
         }
       } catch {}
-      const basePath = courseTableEnabled ? '/projects/view' : '/projects/view-new';
+      const basePath = courseTableEnabled ? '/projects/view' : '/projects/view-new-2';
       router.push(`${basePath}/${data.id}?${qp.toString()}`);
     } catch (e: any) {
       try {

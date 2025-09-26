@@ -1151,7 +1151,7 @@ const FolderRow: React.FC<{
                       p.designMicroproductType === "Video Lesson Presentation" 
                         ? `/projects-2/view/${p.id}`
                         : (p.designMicroproductType === "Training Plan"
-                          ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new/${p.id}`)
+                          ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
                           : `/projects/view/${p.id}`)
                     )}
                     title={p.title}
@@ -3929,7 +3929,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                                 p.designMicroproductType === "Video Lesson Presentation" 
                                   ? `/projects-2/view/${p.id}`
                                   : (p.designMicroproductType === "Training Plan"
-                                    ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new/${p.id}`)
+                                    ? (courseTableEnabled ? `/projects/view/${p.id}` : `/projects/view-new-2/${p.id}`)
                                     : `/projects/view/${p.id}`)
                               )}
                               title={p.title}
