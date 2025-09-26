@@ -363,7 +363,7 @@ export default function DynamicAuditLandingPage() {
         break
       case 'burnoutFullDescription':
         currentValue = landingPageData.workforceCrisis?.burnout?.fullDescription || 
-          `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '24'} months.`;
+          `Average work duration in ${landingPageData?.workforceCrisis?.burnout?.industryName || 'HVAC companies'} — less than ${landingPageData?.workforceCrisis?.burnout?.months || '14'} months.`;
         break
       case 'turnoverPercentage':
         currentValue = landingPageData.workforceCrisis?.turnover?.percentage || '85';
@@ -377,7 +377,7 @@ export default function DynamicAuditLandingPage() {
           `${landingPageData?.workforceCrisis?.turnover?.earlyExit?.percentage || '45'}% quit in the first ${landingPageData?.workforceCrisis?.turnover?.earlyExit?.months || '3'} months`;
         break
       case 'turnoverEarlyExit':
-        currentValue = landingPageData.workforceCrisis?.turnover?.earlyExit?.percentage || '20';
+        currentValue = landingPageData.workforceCrisis?.turnover?.earlyExit?.percentage || '45';
         break
       case 'turnoverEarlyExitMonths':
         currentValue = landingPageData.workforceCrisis?.turnover?.earlyExit?.months || '3';
@@ -1992,12 +1992,7 @@ export default function DynamicAuditLandingPage() {
                     {editingField === 'lossesFullTitle' ? (
                       <InlineEditor
                         initialValue={landingPageData?.workforceCrisis?.losses?.fullTitle || 
-                          getLocalizedText(landingPageData?.language, {
-                            en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                            es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                            ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
-                            ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
-                          })}
+                          `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`}
                         onSave={(value) => handleTextSave('lossesFullTitle', value)}
                         onCancel={handleTextCancel}
                         className="font-semibold"
@@ -2061,12 +2056,7 @@ export default function DynamicAuditLandingPage() {
                     {editingField === 'searchTimeFullTitle' ? (
                       <InlineEditor
                         initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
-                          getLocalizedText(landingPageData?.language, {
-                            en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
-                            es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
-                            ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
-                            ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
-                          })}
+                          `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`}
                         onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
                         onCancel={handleTextCancel}
                         className="font-semibold"
