@@ -224,7 +224,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   const imageContainerStyles: React.CSSProperties = {
     width: '100%', // Полная ширина
-    height: '300px', // Точная высота 50% от 600px
+    height: '50%', // Точная высота 50% от 600px
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -245,7 +245,7 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
 
   const contentContainerStyles: React.CSSProperties = {
     width: '100%', // Полная ширина
-    height: '300px', // Точная высота 50% от 600px
+    height: '50%', // Точная высота 50% от 600px
     padding: '40px 40px',
     display: 'flex',
     flexDirection: 'column',

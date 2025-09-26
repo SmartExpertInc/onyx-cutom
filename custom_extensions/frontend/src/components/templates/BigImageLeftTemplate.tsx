@@ -321,7 +321,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   const subtitleStyles: React.CSSProperties = {
     fontSize: currentTheme.fonts.contentSize,
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: titleColor,
     lineHeight: '1.6',
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word'

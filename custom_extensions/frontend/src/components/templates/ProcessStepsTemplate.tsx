@@ -144,7 +144,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
-  const [editingSteps, setEditingSteps] = useState<number[]>([]);
+  const [editingStepTitle, setEditingStepTitle] = useState<number | null>(null);
+  const [editingStepDescription, setEditingStepDescription] = useState<number | null>(null);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Refs for draggable elements
@@ -350,34 +351,60 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
     setEditingSubtitle(false);
   };
 
-  // Handle step editing
-  const handleStepSave = (index: number, field: 'title' | 'description', newValue: string) => {
+  // Handle step title editing
+  const handleStepTitleSave = (index: number, newValue: string) => {
     if (props.onUpdate) {
       const updatedSteps = [...steps];
       if (typeof updatedSteps[index] === 'string') {
-        // Convert string to object format
         updatedSteps[index] = {
-          title: field === 'title' ? newValue : `Step ${index + 1}`,
-          description: field === 'description' ? newValue : updatedSteps[index] as string
+          title: newValue,
+          description: updatedSteps[index] as string
         };
       } else {
-        // Update existing object
         updatedSteps[index] = {
           ...updatedSteps[index],
-          [field]: newValue
+          title: newValue
         };
       }
       props.onUpdate({ steps: updatedSteps });
     }
-    setEditingSteps(editingSteps.filter((i: number) => i !== index));
+    setEditingStepTitle(null);
   };
 
-  const handleStepCancel = (index: number) => {
-    setEditingSteps(editingSteps.filter((i: number) => i !== index));
+  const handleStepTitleCancel = () => {
+    setEditingStepTitle(null);
   };
 
-  const startEditingStep = (index: number) => {
-    setEditingSteps([...editingSteps, index]);
+  // Handle step description editing
+  const handleStepDescriptionSave = (index: number, newValue: string) => {
+    if (props.onUpdate) {
+      const updatedSteps = [...steps];
+      if (typeof updatedSteps[index] === 'string') {
+        updatedSteps[index] = {
+          title: `Step ${index + 1}`,
+          description: newValue
+        };
+      } else {
+        updatedSteps[index] = {
+          ...updatedSteps[index],
+          description: newValue
+        };
+      }
+      props.onUpdate({ steps: updatedSteps });
+    }
+    setEditingStepDescription(null);
+  };
+
+  const handleStepDescriptionCancel = () => {
+    setEditingStepDescription(null);
+  };
+
+  const startEditingStepTitle = (index: number) => {
+    setEditingStepTitle(index);
+  };
+
+  const startEditingStepDescription = (index: number) => {
+    setEditingStepDescription(index);
   };
 
   return (
@@ -509,11 +536,11 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
               {/* Step Content */}
               <div style={stepContentStyles}>
                 {/* Step Title */}
-                {props.isEditable && editingSteps.includes(index) ? (
+                {props.isEditable && editingStepTitle === index ? (
                   <InlineEditor
                     initialValue={stepTitle}
-                    onSave={(newValue) => handleStepSave(index, 'title', newValue)}
-                    onCancel={() => handleStepCancel(index)}
+                    onSave={(newValue) => handleStepTitleSave(index, newValue)}
+                    onCancel={handleStepTitleCancel}
                     multiline={false}
                     placeholder="Enter step title..."
                     className="inline-editor-step-title"
@@ -542,7 +569,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                         return;
                       }
                       if (props.isEditable) {
-                        startEditingStep(index);
+                        startEditingStepTitle(index);
                       }
                     }}
                     className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
@@ -552,11 +579,11 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                 )}
 
                 {/* Step Description */}
-                {props.isEditable && editingSteps.includes(index) ? (
+                {props.isEditable && editingStepDescription === index ? (
                   <InlineEditor
                     initialValue={stepDescription}
-                    onSave={(newValue) => handleStepSave(index, 'description', newValue)}
-                    onCancel={() => handleStepCancel(index)}
+                    onSave={(newValue) => handleStepDescriptionSave(index, newValue)}
+                    onCancel={handleStepDescriptionCancel}
                     multiline={true}
                     placeholder="Enter step description..."
                     className="inline-editor-step-description"
@@ -585,7 +612,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                         return;
                       }
                       if (props.isEditable) {
-                        startEditingStep(index);
+                        startEditingStepDescription(index);
                       }
                     }}
                     className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}

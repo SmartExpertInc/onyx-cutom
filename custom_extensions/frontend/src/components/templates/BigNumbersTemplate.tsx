@@ -207,11 +207,11 @@ export const BigNumbersTemplate: React.FC<BigNumbersTemplateProps> = ({
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    fontSize: '1.5rem',
     fontFamily: currentTheme.fonts.contentFont,
     color: currentTheme.colors.subtitleColor, // Use theme subtitle color
     textAlign: 'left',
-    width: '100%',
+    width: '95%',
     wordWrap: 'break-word',
     lineHeight: '1.5',
     opacity: 0.9
