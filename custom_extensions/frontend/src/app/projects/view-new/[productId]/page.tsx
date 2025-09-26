@@ -383,7 +383,7 @@ export default function ProductViewNewPage() {
                 sources.add(match[1]);
               } else if (lesson.source.includes('PDF') || lesson.source.includes('Document')) {
                 sources.add('PDF Document');
-              } else if (lesson.source.includes('text') || lesson.source.includes('Text') || lesson.source === 'scratch') {
+              } else if (lesson.source.includes('text') || lesson.source.includes('Text') || lesson.source === 'Create from scratch') {
                 sources.add(t('interface.customViewCard.source.createdfromscratch'));
               } else {
                 sources.add(lesson.source);
