@@ -2327,12 +2327,30 @@ export default function DynamicAuditLandingPage() {
                       </svg>
   
                       <span className="font-semibold text-[20px]">
-                    {getLocalizedText(landingPageData?.language, {
-                      en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
-                      es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
-                      ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
-                      ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
-                    })}
+                    {editingField === 'searchTimeFullTitle' ? (
+                      <InlineEditor
+                        initialValue={landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                          `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`}
+                        onSave={(value) => handleTextSave('searchTimeFullTitle', value)}
+                        onCancel={handleTextCancel}
+                        className="font-semibold"
+                        style={{ fontSize: '20px' }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => startEditing('searchTimeFullTitle')}
+                        className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
+                        title="Click to edit full search time title"
+                      >
+                        {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
+                          getLocalizedText(landingPageData?.language, {
+                            en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
+                            es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
+                            ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
+                            ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
+                          })}
+                      </span>
+                    )}
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
