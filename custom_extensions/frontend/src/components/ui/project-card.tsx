@@ -431,6 +431,33 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         displayTitle.split("").reverse().join("")
       )}99)`,
     }}>
+      {/* Decorative sparkles and elements covering entire card */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Sparkle elements distributed across entire card */}
+        <div className="absolute top-4 left-6 w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
+        <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-white/40 rounded-full animate-pulse delay-100"></div>
+        <div className="absolute top-12 left-12 w-1 h-1 bg-white/50 rounded-full animate-pulse delay-200"></div>
+        <div className="absolute top-6 right-4 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-300"></div>
+        <div className="absolute top-10 left-8 w-1 h-1 bg-white/60 rounded-full animate-pulse delay-75"></div>
+        
+        {/* Bottom section sparkles */}
+        <div className="absolute bottom-16 left-4 w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse delay-150"></div>
+        <div className="absolute bottom-20 right-6 w-1 h-1 bg-white/40 rounded-full animate-pulse delay-250"></div>
+        <div className="absolute bottom-12 left-8 w-2 h-2 bg-white/30 rounded-full animate-pulse delay-175"></div>
+        <div className="absolute bottom-8 right-12 w-1.5 h-1.5 bg-white/60 rounded-full animate-pulse delay-125"></div>
+        <div className="absolute bottom-14 left-12 w-1 h-1 bg-white/45 rounded-full animate-pulse delay-225"></div>
+        
+        {/* Middle section sparkles */}
+        <div className="absolute top-1/2 left-4 w-1 h-1 bg-white/35 rounded-full animate-pulse delay-50"></div>
+        <div className="absolute top-1/2 right-8 w-1.5 h-1.5 bg-white/25 rounded-full animate-pulse delay-275"></div>
+        <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-white/40 rounded-full animate-pulse delay-100"></div>
+        
+        {/* Decorative circles */}
+        <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/10 rounded-full"></div>
+        <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/5 rounded-full"></div>
+        <div className="absolute -bottom-6 -right-4 w-10 h-10 bg-white/8 rounded-full"></div>
+        <div className="absolute -bottom-2 -left-8 w-8 h-8 bg-white/6 rounded-full"></div>
+      </div>
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
@@ -451,19 +478,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}99)`,
           }}
         >
-          {/* Decorative sparkles and elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Sparkle elements */}
-            <div className="absolute top-4 left-6 w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>
-            <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-white/40 rounded-full animate-pulse delay-100"></div>
-            <div className="absolute top-12 left-12 w-1 h-1 bg-white/50 rounded-full animate-pulse delay-200"></div>
-            <div className="absolute top-6 right-4 w-1.5 h-1.5 bg-white/30 rounded-full animate-pulse delay-300"></div>
-            <div className="absolute top-10 left-8 w-1 h-1 bg-white/60 rounded-full animate-pulse delay-75"></div>
-            
-            {/* Decorative circles */}
-            <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/10 rounded-full"></div>
-            <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/5 rounded-full"></div>
-          </div>
 
           {/* Top row with badge positioned absolutely */}
           <div className="relative z-10">
@@ -489,7 +503,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with lighter overlay background */}
-        <div className="relative bg-white/60 p-4 min-h-28 flex flex-col justify-between gap-2 rounded-xl"
+        <div className="relative bg-white/40 p-4 min-h-28 flex flex-col justify-between gap-2 rounded-xl"
           style={{
             backdropFilter: 'blur(30px)'
           }}
@@ -498,7 +512,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
           
           {/* Full title with better typography */}
-          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-1" title={displayTitle}>
+          <h3 className="font-bold text-white/80 text-base leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
