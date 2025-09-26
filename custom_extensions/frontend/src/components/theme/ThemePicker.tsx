@@ -3,8 +3,9 @@
 
 import React, { useEffect, useRef } from 'react';
 import { X, Palette } from 'lucide-react';
-import { THEME_OPTIONS, getThemeSvg } from '@/constants/themeConstants';
+import { getFilteredThemeOptions, getThemeSvg } from '@/constants/themeConstants';
 import { useLanguage } from '@/contexts/LanguageContext';
+import useFeaturePermission from '@/hooks/useFeaturePermission';
 
 interface ThemePickerProps {
   /** Whether the panel is open */
@@ -28,6 +29,12 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
 }) => {
   const { t } = useLanguage();
   const panelRef = useRef<HTMLDivElement>(null);
+  
+  // Check ChudoMarket themes feature flag
+  const { isEnabled: hasChudoMarketThemes } = useFeaturePermission('chudo_market_themes');
+  
+  // Get filtered theme options based on feature flags
+  const availableThemes = getFilteredThemeOptions(hasChudoMarketThemes);
 
   // Handle escape key to close
   useEffect(() => {
@@ -90,7 +97,7 @@ export const ThemePicker: React.FC<ThemePickerProps> = ({
           {/* Theme Grid */}
           <div className="flex-1 overflow-y-auto p-6">
             <div className="grid grid-cols-2 gap-4">
-              {THEME_OPTIONS.map((theme) => {
+              {availableThemes.map((theme) => {
                 const isSelected = theme.id === selectedTheme;
                 const ThemeSvgComponent = getThemeSvg(theme.id);
                 

@@ -14,11 +14,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import PresentationPreview from "../../../components/PresentationPreview";
-import { THEME_OPTIONS, getThemeSvg } from "../../../constants/themeConstants";
+import { THEME_OPTIONS, getThemeSvg, getFilteredThemeOptions } from "../../../constants/themeConstants";
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
 import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import useFeaturePermission from "../../../hooks/useFeaturePermission";
 
 // Base URL so frontend can reach custom backend through nginx proxy
 const CUSTOM_BACKEND_URL =
@@ -1321,8 +1322,11 @@ export default function LessonPresentationClient() {
     }
   };
 
-  // Use the actual theme options from our theme system
-  const themeOptions = THEME_OPTIONS;
+  // Check ChudoMarket themes feature flag
+  const { isEnabled: hasChudoMarketThemes } = useFeaturePermission('chudo_market_themes');
+  
+  // Use filtered theme options based on feature flags
+  const themeOptions = getFilteredThemeOptions(hasChudoMarketThemes);
 
   // Cleanup effect to prevent stuck states
   useEffect(() => {
