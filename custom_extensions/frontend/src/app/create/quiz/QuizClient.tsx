@@ -1691,6 +1691,7 @@ export default function QuizClient() {
                                     if (e.key === 'Enter') handleTitleSave(idx, (e.target as HTMLInputElement).value);
                                     if (e.key === 'Escape') handleTitleCancel(idx);
                                   }}
+                                  disabled={!streamDone || loadingEdit}
                                 />
                                 {(editedTitles[idx] || question.title) && (
                                   <Edit 
@@ -1708,7 +1709,7 @@ export default function QuizClient() {
                                     nextEditingIdRef.current = idx;
                                   }}
                                   onClick={() => {
-                                    setEditingQuestionId(idx);
+                                    if (streamDone) setEditingQuestionId(idx);
                                   }}
                                 >
                                   {getTitleForQuestion(question, idx)}

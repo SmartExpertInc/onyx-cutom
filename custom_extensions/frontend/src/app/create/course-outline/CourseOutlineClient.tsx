@@ -1473,6 +1473,7 @@ export default function CourseOutlineClient() {
                           data-modtitle={modIdx}
                           className="text-[#20355D] font-medium text-[20px] leading-[120%] cursor-pointer border-transparent focus-visible:border-transparent shadow-none bg-[#F3F7FF]"
                           placeholder={`${t('interface.courseOutline.moduleTitle', 'Module')} ${modIdx + 1} ${t('interface.courseOutline.title', 'title')}`}
+                          disabled={loading || loadingPreview || isGenerating}
                         />
                         {mod.title && (
                           <Edit 
@@ -1509,6 +1510,7 @@ export default function CourseOutlineClient() {
                                  data-les={lessonIdx}
                                  className="w-full bg-transparent border-none shadow-none text-[16px] font-normal leading-[140%] text-[#09090B] opacity-60 focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:border-blue-500 cursor-pointer pr-6"
                                  placeholder={`${t('interface.courseOutline.lessonTitle', 'Lesson')} ${lessonIdx + 1}`}
+                                 disabled={loading || loadingPreview || isGenerating}
                                />
                                {titleLine && (
                                  <Edit 
@@ -1529,6 +1531,7 @@ export default function CourseOutlineClient() {
                 type="button"
                 onClick={handleAddModule}
                 className="w-full flex items-center justify-center gap-2 rounded-[4px] text-white py-[19px] font-medium bg-[#0F58F9] hover:shadow-lg"
+                disabled={loading || loadingPreview || isGenerating}
               >
                 <Plus size={18} />
                 <span>{t('interface.courseOutline.addModule', 'Add Module')}</span>
