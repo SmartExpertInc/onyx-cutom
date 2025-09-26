@@ -18519,6 +18519,7 @@ async def edit_training_plan_with_prompt(payload: TrainingPlanEditRequest, reque
 
     # Fast path variables - delay initialization until needed
     existing_content = row["microproduct_content"]
+    print("RAW ROW:", row)
 
     # Stream the response
     async def streamer():
