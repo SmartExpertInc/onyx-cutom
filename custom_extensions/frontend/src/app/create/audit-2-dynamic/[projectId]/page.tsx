@@ -1124,12 +1124,25 @@ export default function DynamicAuditLandingPage() {
         
         // 🖼️ [IMAGE URL FIX] Process course template images to ensure full URLs
         if (data.courseTemplates && Array.isArray(data.courseTemplates)) {
-          data.courseTemplates = data.courseTemplates.map((template: any) => ({
-            ...template,
-            image: template.image && template.image.startsWith('/static_design_images/') 
+          console.log(`🔍 [FRONTEND IMAGE PROCESSING] Processing ${data.courseTemplates.length} course templates`)
+          console.log(`🔍 [FRONTEND IMAGE PROCESSING] Current window location: ${window.location.protocol}//${window.location.host}`)
+          
+          data.courseTemplates = data.courseTemplates.map((template: any, index: number) => {
+            const originalImage = template.image
+            const processedImage = template.image && template.image.startsWith('/static_design_images/') 
               ? `${window.location.protocol}//${window.location.host}${template.image}`
               : template.image
-          }))
+            
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] Template ${index + 1}: "${template.title}"`)
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] - Original image: "${originalImage}"`)
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] - Processed image: "${processedImage}"`)
+            console.log(`🔍 [FRONTEND IMAGE PROCESSING] - Image changed: ${originalImage !== processedImage}`)
+            
+            return {
+              ...template,
+              image: processedImage
+            }
+          })
           
           // 📊 LOG: Course template images processed
           console.log(`🖼️ [IMAGE URL FIX] Course templates processed:`)
@@ -2440,8 +2453,19 @@ export default function DynamicAuditLandingPage() {
                             : `url(/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png)`,
                           backgroundColor: template.image ? 'transparent' : '#f3f4f6'
                         }}
-                        onError={() => {
-                          console.error(`🖼️ [IMAGE ERROR] Failed to load image: ${template.image}`)
+                        onLoad={() => {
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Course template ${index + 1} image loaded successfully`)
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Template title: ${template.title}`)
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Image URL: ${template.image || `/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`}`)
+                          console.log(`🖼️ [FRONTEND IMAGE LOAD] Background image CSS: url(${template.image || `/custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`})`)
+                        }}
+                        onError={(e) => {
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Failed to load course template ${index + 1} image`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Template title: ${template.title}`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Image URL: ${template.image}`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Fallback URL: /custom-projects-ui/images/audit-section-5-job-${index + 1}-mobile.png`)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Error event:`, e)
+                          console.error(`🖼️ [FRONTEND IMAGE ERROR] Element style:`, e.currentTarget.style.backgroundImage)
                         }}
                       >
                         <span className="font-semibold text-[16px] text-white drop-shadow-lg">
@@ -2597,8 +2621,17 @@ export default function DynamicAuditLandingPage() {
                         backgroundImage: `url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})`,
                         backgroundColor: landingPageData?.courseTemplates?.[0]?.image ? 'transparent' : '#f3f4f6'
                       }}
-                      onError={() => {
-                        console.error(`🖼️ [IMAGE ERROR] Failed to load main course image: ${landingPageData?.courseTemplates?.[0]?.image}`)
+                      onLoad={() => {
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Main course image loaded successfully`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Image URL: ${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'}`)
+                        console.log(`🖼️ [FRONTEND IMAGE LOAD] Background image CSS: url(${landingPageData?.courseTemplates?.[0]?.image || '/custom-projects-ui/images/audit-section-5-job-4-desktop.png'})`)
+                      }}
+                      onError={(e) => {
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Failed to load main course image`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Image URL: ${landingPageData?.courseTemplates?.[0]?.image}`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Fallback URL: /custom-projects-ui/images/audit-section-5-job-4-desktop.png`)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Error event:`, e)
+                        console.error(`🖼️ [FRONTEND IMAGE ERROR] Element style:`, e.currentTarget.style.backgroundImage)
                       }}
                     >
                       <div className="absolute bottom-[5px] xl:bottom-[10px] left-[6px] xl:left-[20px] flex gap-[6px] items-center">

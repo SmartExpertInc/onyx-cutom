@@ -9705,39 +9705,157 @@ async def generate_ai_image(request: AIImageGenerationRequest):
         
         # Generate image using Gemini
         model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
+        
+        # 🔍 ENHANCED LOGGING: Log the request being sent to Gemini
+        logger.info(f"🔍 [GEMINI API REQUEST] Sending request to Gemini API")
+        logger.info(f"🔍 [GEMINI API REQUEST] Model: gemini-2.5-flash-image-preview")
+        logger.info(f"🔍 [GEMINI API REQUEST] Prompt length: {len(request.prompt)} characters")
+        logger.info(f"🔍 [GEMINI API REQUEST] Full prompt: '{request.prompt}'")
+        
         response = model.generate_content(request.prompt)
         
+        # 🔍 ENHANCED LOGGING: Log raw response from Gemini
+        logger.info(f"🔍 [GEMINI API RESPONSE] Raw response received from Gemini")
+        logger.info(f"🔍 [GEMINI API RESPONSE] Response type: {type(response)}")
+        logger.info(f"🔍 [GEMINI API RESPONSE] Response has candidates: {hasattr(response, 'candidates')}")
+        
+        if hasattr(response, 'candidates'):
+            logger.info(f"🔍 [GEMINI API RESPONSE] Number of candidates: {len(response.candidates) if response.candidates else 0}")
+            if response.candidates:
+                logger.info(f"🔍 [GEMINI API RESPONSE] First candidate type: {type(response.candidates[0])}")
+                if hasattr(response.candidates[0], 'content'):
+                    logger.info(f"🔍 [GEMINI API RESPONSE] Content type: {type(response.candidates[0].content)}")
+                    if hasattr(response.candidates[0].content, 'parts'):
+                        logger.info(f"🔍 [GEMINI API RESPONSE] Number of parts: {len(response.candidates[0].content.parts)}")
+        
         if not response.candidates or len(response.candidates) == 0:
+            logger.error(f"❌ [GEMINI API ERROR] No candidates in response")
             raise Exception("No image data received from Gemini")
         
         # Get the generated image data (base64) using the new API structure
         image_data_b64 = None
-        for part in response.candidates[0].content.parts:
+        logger.info(f"🔍 [BASE64 EXTRACTION] Searching for image data in response parts...")
+        
+        for i, part in enumerate(response.candidates[0].content.parts):
+            logger.info(f"🔍 [BASE64 EXTRACTION] Part {i}: type={type(part)}")
+            logger.info(f"🔍 [BASE64 EXTRACTION] Part {i} has inline_data: {hasattr(part, 'inline_data')}")
+            
             if hasattr(part, 'inline_data') and part.inline_data:
-                image_data_b64 = part.inline_data.data
-                break
+                logger.info(f"🔍 [BASE64 EXTRACTION] Found inline_data in part {i}")
+                logger.info(f"🔍 [BASE64 EXTRACTION] inline_data type: {type(part.inline_data)}")
+                logger.info(f"🔍 [BASE64 EXTRACTION] inline_data has data: {hasattr(part.inline_data, 'data')}")
+                
+                if hasattr(part.inline_data, 'data'):
+                    image_data_b64 = part.inline_data.data
+                    logger.info(f"🔍 [BASE64 EXTRACTION] Extracted base64 data")
+                    logger.info(f"🔍 [BASE64 EXTRACTION] Base64 data type: {type(image_data_b64)}")
+                    logger.info(f"🔍 [BASE64 EXTRACTION] Base64 data length: {len(image_data_b64) if image_data_b64 else 0}")
+                    if image_data_b64:
+                        logger.info(f"🔍 [BASE64 EXTRACTION] Base64 first 100 chars: {image_data_b64[:100]}")
+                        logger.info(f"🔍 [BASE64 EXTRACTION] Base64 last 100 chars: {image_data_b64[-100:]}")
+                    break
         
         if not image_data_b64:
+            logger.error(f"❌ [BASE64 EXTRACTION ERROR] No image data found in response parts")
             raise Exception("No image data received from Gemini")
+        
+        logger.info(f"✅ [BASE64 EXTRACTION] Successfully extracted base64 data")
+        logger.info(f"🔍 [BASE64 VALIDATION] Base64 data length: {len(image_data_b64)}")
+        logger.info(f"🔍 [BASE64 VALIDATION] Base64 starts with: {image_data_b64[:20]}")
+        logger.info(f"🔍 [BASE64 VALIDATION] Base64 ends with: {image_data_b64[-20:]}")
+        
+        # Validate base64 format
+        try:
+            import base64
+            # Test if it's valid base64
+            test_decode = base64.b64decode(image_data_b64, validate=True)
+            logger.info(f"✅ [BASE64 VALIDATION] Base64 format is valid")
+            logger.info(f"🔍 [BASE64 VALIDATION] Decoded data size: {len(test_decode)} bytes")
+        except Exception as e:
+            logger.error(f"❌ [BASE64 VALIDATION ERROR] Invalid base64 format: {e}")
+            raise Exception(f"Invalid base64 data received from Gemini: {e}")
         
         logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...")
         
         # Convert base64 to bytes
         import base64
+        logger.info(f"🔍 [BASE64 DECODING] Starting base64 decode...")
         image_data = base64.b64decode(image_data_b64)
+        logger.info(f"✅ [BASE64 DECODING] Successfully decoded base64")
+        logger.info(f"🔍 [BASE64 DECODING] Decoded binary data size: {len(image_data)} bytes")
+        
+        # Validate that it's actually image data
+        if len(image_data) < 100:
+            logger.error(f"❌ [IMAGE VALIDATION ERROR] Decoded data too small: {len(image_data)} bytes")
+            raise Exception("Decoded image data is too small to be a valid image")
+        
+        # Check for PNG/JPEG headers
+        if image_data.startswith(b'\x89PNG'):
+            logger.info(f"✅ [IMAGE VALIDATION] Detected PNG format")
+        elif image_data.startswith(b'\xff\xd8\xff'):
+            logger.info(f"✅ [IMAGE VALIDATION] Detected JPEG format")
+        else:
+            logger.warning(f"⚠️ [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
+        
+        logger.info(f"🔍 [IMAGE VALIDATION] Image data first 20 bytes: {image_data[:20]}")
+        logger.info(f"🔍 [IMAGE VALIDATION] Image data last 20 bytes: {image_data[-20:]}")
         
         # Save the image to disk
         safe_filename_base = str(uuid.uuid4())
         unique_filename = f"ai_generated_{safe_filename_base}.png"
         file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
         
+        logger.info(f"🔍 [FILE WRITING] Starting file write operation")
+        logger.info(f"🔍 [FILE WRITING] Static images directory: {STATIC_DESIGN_IMAGES_DIR}")
+        logger.info(f"🔍 [FILE WRITING] Unique filename: {unique_filename}")
+        logger.info(f"🔍 [FILE WRITING] Full file path: {file_path_on_disk}")
+        logger.info(f"🔍 [FILE WRITING] Data size to write: {len(image_data)} bytes")
+        
+        # Check if directory exists
+        if not os.path.exists(STATIC_DESIGN_IMAGES_DIR):
+            logger.error(f"❌ [FILE WRITING ERROR] Directory does not exist: {STATIC_DESIGN_IMAGES_DIR}")
+            raise Exception(f"Static images directory does not exist: {STATIC_DESIGN_IMAGES_DIR}")
+        
+        logger.info(f"✅ [FILE WRITING] Directory exists: {STATIC_DESIGN_IMAGES_DIR}")
+        
         try:
+            logger.info(f"🔍 [FILE WRITING] Opening file for writing: {file_path_on_disk}")
             with open(file_path_on_disk, "wb") as buffer:
-                buffer.write(image_data)
+                logger.info(f"🔍 [FILE WRITING] File opened successfully, writing data...")
+                bytes_written = buffer.write(image_data)
+                logger.info(f"✅ [FILE WRITING] Successfully wrote {bytes_written} bytes to file")
+            
+            # Verify file was written correctly
+            if os.path.exists(file_path_on_disk):
+                file_size = os.path.getsize(file_path_on_disk)
+                logger.info(f"✅ [FILE VERIFICATION] File exists on disk")
+                logger.info(f"🔍 [FILE VERIFICATION] File size on disk: {file_size} bytes")
+                logger.info(f"🔍 [FILE VERIFICATION] Expected size: {len(image_data)} bytes")
+                
+                if file_size == len(image_data):
+                    logger.info(f"✅ [FILE VERIFICATION] File size matches expected size")
+                else:
+                    logger.error(f"❌ [FILE VERIFICATION ERROR] File size mismatch! Expected: {len(image_data)}, Actual: {file_size}")
+                
+                # Try to read the file back to verify integrity
+                try:
+                    with open(file_path_on_disk, "rb") as verify_buffer:
+                        verify_data = verify_buffer.read()
+                        if verify_data == image_data:
+                            logger.info(f"✅ [FILE VERIFICATION] File content matches original data")
+                        else:
+                            logger.error(f"❌ [FILE VERIFICATION ERROR] File content does not match original data")
+                            logger.error(f"❌ [FILE VERIFICATION ERROR] Original first 20 bytes: {image_data[:20]}")
+                            logger.error(f"❌ [FILE VERIFICATION ERROR] File first 20 bytes: {verify_data[:20]}")
+                except Exception as verify_error:
+                    logger.error(f"❌ [FILE VERIFICATION ERROR] Could not read file for verification: {verify_error}")
+            else:
+                logger.error(f"❌ [FILE VERIFICATION ERROR] File does not exist after writing: {file_path_on_disk}")
             
             web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
-            
-            logger.info(f"[AI_IMAGE_GENERATION] Image saved successfully: {web_accessible_path}")
+            logger.info(f"✅ [FILE WRITING] Image saved successfully: {web_accessible_path}")
+            logger.info(f"🔍 [FILE WRITING] Web accessible path: {web_accessible_path}")
+            logger.info(f"🔍 [FILE WRITING] Full URL would be: https://dev4.contentbuilder.ai{web_accessible_path}")
             
             return {
                 "file_path": web_accessible_path,
@@ -9748,7 +9866,9 @@ async def generate_ai_image(request: AIImageGenerationRequest):
             }
             
         except Exception as e:
-            logger.error(f"[AI_IMAGE_GENERATION] Error saving image to disk: {e}", exc_info=not IS_PRODUCTION)
+            logger.error(f"❌ [FILE WRITING ERROR] Error saving image to disk: {e}", exc_info=not IS_PRODUCTION)
+            logger.error(f"❌ [FILE WRITING ERROR] File path attempted: {file_path_on_disk}")
+            logger.error(f"❌ [FILE WRITING ERROR] Data size: {len(image_data)} bytes")
             detail_msg = "Could not save generated image." if IS_PRODUCTION else f"Could not save generated image: {str(e)}"
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
             
@@ -32354,4 +32474,61 @@ async def startup_event_lms_exports():
             logger.info("'lms_exports' table ensured.")
     except Exception as e:
         logger.error(f"Failed to ensure lms_exports table: {e}")
+
+# 🔍 STATIC FILE LOGGING MIDDLEWARE
+@app.middleware("http")
+async def log_static_file_requests(request: Request, call_next):
+    """Middleware to log all requests to static files, especially AI-generated images"""
+    
+    # Check if this is a request to static design images
+    if request.url.path.startswith(f"/{STATIC_DESIGN_IMAGES_DIR}/"):
+        logger.info(f"🔍 [STATIC FILE REQUEST] Incoming request for static file")
+        logger.info(f"🔍 [STATIC FILE REQUEST] Path: {request.url.path}")
+        logger.info(f"🔍 [STATIC FILE REQUEST] Method: {request.method}")
+        logger.info(f"🔍 [STATIC FILE REQUEST] Headers: {dict(request.headers)}")
+        
+        # Check if file exists on disk
+        file_path = os.path.join(STATIC_DESIGN_IMAGES_DIR, os.path.basename(request.url.path))
+        logger.info(f"🔍 [STATIC FILE REQUEST] Expected file path: {file_path}")
+        logger.info(f"🔍 [STATIC FILE REQUEST] File exists: {os.path.exists(file_path)}")
+        
+        if os.path.exists(file_path):
+            file_size = os.path.getsize(file_path)
+            logger.info(f"🔍 [STATIC FILE REQUEST] File size on disk: {file_size} bytes")
+            
+            # Check file content
+            try:
+                with open(file_path, "rb") as f:
+                    first_bytes = f.read(20)
+                    logger.info(f"🔍 [STATIC FILE REQUEST] File first 20 bytes: {first_bytes}")
+            except Exception as e:
+                logger.error(f"❌ [STATIC FILE REQUEST ERROR] Could not read file: {e}")
+    
+    # Process the request
+    response = await call_next(request)
+    
+    # Log response details for static files
+    if request.url.path.startswith(f"/{STATIC_DESIGN_IMAGES_DIR}/"):
+        logger.info(f"🔍 [STATIC FILE RESPONSE] Response status: {response.status_code}")
+        logger.info(f"🔍 [STATIC FILE RESPONSE] Response headers: {dict(response.headers)}")
+        
+        # Log content length if available
+        content_length = response.headers.get("content-length")
+        if content_length:
+            logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Length: {content_length} bytes")
+        else:
+            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Length header")
+        
+        # Log content type
+        content_type = response.headers.get("content-type")
+        if content_type:
+            logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Type: {content_type}")
+        else:
+            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Type header")
+        
+        # Check if response is suspiciously small
+        if content_length and int(content_length) < 1000:
+            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
+    
+    return response
     
