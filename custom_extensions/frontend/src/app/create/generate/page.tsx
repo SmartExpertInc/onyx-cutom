@@ -724,10 +724,19 @@ function GenerateProductPicker() {
     params.set("lang", mapLanguageToCode(language));
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
+    }
+
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
@@ -805,17 +814,19 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
 
-    // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     router.push(`/create/quiz?${params.toString()}`);
@@ -1025,17 +1036,19 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
 
-    // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     sessionStorage.setItem('stylesState', stylesState ?? ""); 
@@ -1101,17 +1114,19 @@ function GenerateProductPicker() {
     }
 
     // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
+    const effectiveFromConnectors = (connectorContext?.fromConnectors) || isFromConnectors || (selectedFiles.length > 0);
+    const effectiveConnectorIds = (connectorContext?.connectorIds?.length ? connectorContext.connectorIds : connectorIds);
+    const effectiveConnectorSources = (connectorContext?.connectorSources?.length ? connectorContext.connectorSources : connectorSources);
+
+    if (effectiveFromConnectors) {
       params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+      if (effectiveConnectorIds.length > 0) params.set("connectorIds", effectiveConnectorIds.join(','));
+      if (effectiveConnectorSources.length > 0) params.set("connectorSources", effectiveConnectorSources.join(','));
     }
 
-    // Add connector context if coming from connectors
-    if (connectorContext?.fromConnectors) {
-      params.set("fromConnectors", "true");
-      params.set("connectorIds", connectorContext.connectorIds.join(','));
-      params.set("connectorSources", connectorContext.connectorSources.join(','));
+    // Forward selected files chosen in Smart Drive
+    if (selectedFiles.length > 0) {
+      params.set("selectedFiles", selectedFiles.join(','));
     }
 
     router.push(`/create/lesson-presentation?${params.toString()}`);
