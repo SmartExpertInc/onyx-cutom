@@ -449,7 +449,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         
         {/* Middle section sparkles */}
         <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div>
-        <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
+        {/* <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div> */}
         <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white/60 rounded-full shadow-md"></div>
         
         {/* Decorative circles */}
@@ -510,7 +510,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }}
         >
           {/* Full title with better typography */}
-          <h3 className="font-bold text-white/60 text-base leading-tight line-clamp-1" title={displayTitle}>
+          <h3 className="font-bold text-base leading-tight line-clamp-1" 
+            style={{
+              color: bgColor,
+              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+              fontWeight: '700'
+            }}
+            title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
@@ -539,7 +545,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <span className="text-xs font-medium text-white leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-100 leading-tight">
+                <span className="text-xs text-gray-100/80 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>
@@ -551,7 +557,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 bg-white/70 border border-white hover:bg-gray-100"
+                  className="h-6 w-6 p-0 bg-white/50 border border-white/70 hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
