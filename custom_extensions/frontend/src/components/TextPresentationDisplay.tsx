@@ -838,7 +838,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -936,7 +936,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+              <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1048,7 +1048,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1074,7 +1074,8 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
           {/* List icon picker for bullet lists */}
           {isEditing && !!onTextChange && !isNumbered && (
-            <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-2 py-1 text-xs z-40 flex gap-1">
+            <div className="absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-100 text-gray-900 border border-gray-300 rounded px-0.5 py-0.5 text-xs z-40 flex gap-1"
+            style={{ left: isNumbered ? '-10px' : '5px' }}>
               <div className="relative">
                 <button 
                   className="p-1 rounded hover:bg-gray-200" 
@@ -1112,7 +1113,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               if (isNumbered) {
                 return (
-                  <li key={index} className="flex items-center gap-3 group/listitem relative">
+                  <li key={index} className="flex items-start gap-3 group/listitem relative">
                     <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center font-semibold text-xs">{index + 1}</div>
                     <div className="flex-grow">
                       {itemIsString ? (
@@ -1130,7 +1131,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                                 }
                               }}
                             />
-                            <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1">
+                            <div className="absolute -left-8 top-0 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                               <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
                                 <Plus className="w-3.5 h-3.5 text-gray-900" />
                               </button>
@@ -1160,6 +1161,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               ))}
                           </div>
                       ) : (
+                        <div className="flex flex-col">
                           <RenderBlock 
                               block={item as AnyContentBlock}
                               depth={(depth || 0) + 1}
@@ -1171,6 +1173,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               suppressRecommendationStripe={hasRecommendation}
                               documentContent={documentContent}
                           />
+                        </div>
                       )}
                     </div>
                   </li>
@@ -1179,7 +1182,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
 
               // Bullet list items - consistent with numbered list structure
               return (
-                <li key={index} className="flex items-center group/listitem relative">
+                <li key={index} className="flex items-start group/listitem relative">
                   {BulletIconToRender && !isNumbered && (
                     <div className="flex-shrink-0 mr-1.5 flex items-center text-[#FF1414]">
                       <BulletIconToRender />
@@ -1201,7 +1204,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
                               }
                             }}
                           />
-                          <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1">
+                          <div className="absolute -left-8 -top-1 opacity-0 group-hover/listitem:opacity-100 transition-opacity flex flex-col gap-1 z-50">
                             <button className="p-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200 shadow-sm" title="Add item after" onClick={() => addItemAt(index + 1)}>
                               <Plus className="w-3.5 h-3.5 text-gray-900" />
                             </button>
@@ -1295,7 +1298,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
         >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -1532,7 +1535,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
           <div className={`my-4 group relative`}>
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+              <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1694,7 +1697,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             >
             {/* Arrow buttons for reordering */}
             {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+              <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
                 <button
                   onClick={() => onMoveBlockUp(contentBlockIndex)}
                   disabled={isFirstBlock}
@@ -1849,7 +1852,7 @@ const RenderBlock: React.FC<RenderBlockProps> = (props) => {
             >
           {/* Arrow buttons for reordering */}
           {isEditing && contentBlockIndex !== undefined && onMoveBlockUp && onMoveBlockDown && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
+            <div className="absolute top-1 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded px-2 py-1 text-xs text-gray-800 z-40 flex gap-1">
               <button
                 onClick={() => onMoveBlockUp(contentBlockIndex)}
                 disabled={isFirstBlock}
@@ -2682,7 +2685,7 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
                                   documentContent={documentContent}
                                 />
                                 {isEditing && (
-                                  <div className="absolute bottom-1 left-1 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200">
+                                  <div className="absolute -bottom-3 -right-2 opacity-0 group-hover/block:opacity-100 transition-opacity duration-200 z-50">
                                     <button className="p-1 rounded bg-white/90 border border-gray-200 hover:bg-gray-100 shadow-sm" onClick={() => removeBlockAtIndex(originalSubIndex)} title="Delete This Block">
                                       <Trash2 className="w-4 h-4 text-red-600" />
                                     </button>
