@@ -6622,6 +6622,7 @@ async def startup_event():
                     ('deloitte_banner', 'Deloitte Banner', 'Show Deloitte banner on Projects page', 'Branding'),
                     ('offers_tab', 'Offers Tab', 'Access to Offers tab in Projects', 'Navigation'),
                     ('workspace_tab', 'Workspace Tab', 'Access to Workspace tab in Projects', 'Navigation'),
+                    ('export_to_lms', 'Export to LMS', 'Access to LMS export tab and functionality', 'Navigation'),
                     ('video_lesson', 'Video Lesson', 'Allow creating Video Lessons in Generate page', 'Creation'),
                     ('lesson_draft', 'Lesson Draft', 'Allow creating and viewing Lesson Drafts', 'Creation'),
                     ('col_assessment_type', 'Column: Assessment Type', 'Shows the Assessment Type column', 'Columns'),
@@ -7905,7 +7906,8 @@ USER_TYPES = {
         "features": [
             "col_one_pager",
             "col_lesson_presentation", 
-            "col_quiz"
+            "col_quiz",
+            "export_to_lms"
         ]
     },
     "enterprise": {

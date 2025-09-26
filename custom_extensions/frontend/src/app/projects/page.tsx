@@ -377,6 +377,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const { isEnabled: deloitteBannerEnabled } = useFeaturePermission('deloitte_banner');
   const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
   const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
+  const { isEnabled: exportToLMSEnabled } = useFeaturePermission('export_to_lms');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
@@ -514,17 +515,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <span>{t('interface.workspace', 'Workspace')}</span>
           </Link>
         )}
-        <Link
-          href="/projects?tab=export-lms"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => {
+        {exportToLMSEnabled && (
+          <Link
+            href="/projects?tab=export-lms"
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'export-lms' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            onClick={() => {
             trackPageView("Export to LMS");
             onFolderSelect(null);
           }}
-        >
-          <Upload size={18} />
-          <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
-        </Link>
+          >
+            <Upload size={18} />
+            <span>{t('interface.exportToLMS', 'Export to LMS')}</span>
+          </Link>
+        )}
       </nav>
       <div className="mt-4">
         <div className="flex justify-between items-center text-gray-500 font-semibold mb-2">
@@ -685,8 +688,10 @@ const ProjectsPageInner: React.FC = () => {
   // Feature flags for conditional tabs/content
   const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
   const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
+  const { isEnabled: exportToLMSEnabled } = useFeaturePermission('export_to_lms');
   const isOffersAllowed = isOffers && offersTabEnabled;
   const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
+  const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
 
   // Debug logging for state changes
   useEffect(() => {
@@ -1084,7 +1089,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
           {isSmartDrive ? (
             <SmartDriveConnectors />
@@ -1092,7 +1097,7 @@ const ProjectsPageInner: React.FC = () => {
             <OffersTable companyId={selectedFolderId} />
           ) : isWorkspaceAllowed ? (
             <WorkspaceMembers />
-          ) : isExportLMS ? (
+          ) : isExportLMSAllowed ? (
             <>
               {lmsAccountStatus === 'no-account' && (
                 <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
