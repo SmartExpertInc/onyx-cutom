@@ -1115,7 +1115,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasPresentation ? (
                                 <div className="relative group">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')}>
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
                                       className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1124,12 +1124,12 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} strokeWidth={2.5} className="text-white" />
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
                                   <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
                                         onClick={() => {
@@ -1141,18 +1141,18 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
                                 </div>
                               ) : (
-                                <CustomTooltip content={t('interface.viewNew.add', 'Add')}>
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
-                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1162,7 +1162,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasOnePager ? (
                                 <div className="relative group">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')}>
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
                                       className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1171,12 +1171,12 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} strokeWidth={2.5} className="text-white" />
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
                                   <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
                                         onClick={() => {
@@ -1188,18 +1188,18 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
                                 </div>
                               ) : (
-                                <CustomTooltip content={t('interface.viewNew.add', 'Add')}>
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
-                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1209,7 +1209,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasQuiz ? (
                                 <div className="relative group">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')}>
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
                                       className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1218,12 +1218,12 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} strokeWidth={2.5} className="text-white" />
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
                                   <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
                                         onClick={() => {
@@ -1235,18 +1235,18 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
                                 </div>
                               ) : (
-                                <CustomTooltip content={t('interface.viewNew.add', 'Add')}>
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
-                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1256,7 +1256,7 @@ export default function ProductViewNewPage() {
                             <div className="flex items-center justify-center">
                               {hasVideoLesson ? (
                                 <div className="relative group">
-                                  <CustomTooltip content={t('interface.viewNew.view', 'View')}>
+                                  <CustomTooltip content={t('interface.viewNew.view', 'View')} position="top">
                                     <div 
                                       className="w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
                                       onClick={() => {
@@ -1265,12 +1265,12 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} strokeWidth={2.5} className="text-white" />
+                                      <Check size={10} strokeWidth={3.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
                                   <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
+                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')} position="top">
                                       <div 
                                         className="w-[18px] h-[18px] rounded-full bg-yellow-500 flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
                                         onClick={() => {
@@ -1282,18 +1282,18 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={3.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
                                 </div>
                               ) : (
-                                <CustomTooltip content={t('interface.viewNew.add', 'Add')}>
+                                <CustomTooltip content={t('interface.viewNew.add', 'Add')} position="top">
                                   <div 
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                   >
-                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
+                                    <Plus size={10} strokeWidth={3.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
