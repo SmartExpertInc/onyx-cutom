@@ -139,50 +139,6 @@ const stringToColor = (str: string): string => {
   return color;
 };
 
-// Function to determine if a color is light or dark
-const isLightColor = (color: string): boolean => {
-  // Remove # if present
-  const hex = color.replace('#', '');
-  
-  // Convert to RGB
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  
-  // Calculate luminance
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  
-  return luminance > 0.5;
-};
-
-// Function to get appropriate text color and style based on background
-const getTextStyle = (bgColor: string) => {
-  const isLight = isLightColor(bgColor);
-  
-  if (isLight) {
-    // For light backgrounds, use dark text with golden gradient
-    return {
-      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FF8C00 100%)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text',
-      textShadow: '0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.6)',
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-      fontWeight: '800',
-      letterSpacing: '0.05em'
-    };
-  } else {
-    // For dark backgrounds, use white text with glow
-    return {
-      color: 'white',
-      textShadow: '0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.6)',
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
-      fontWeight: '800',
-      letterSpacing: '0.05em'
-    };
-  }
-};
-
 // Format date
 const formatDate = (dateString: string, language: string = "en") => {
   const options: Intl.DateTimeFormatOptions = {
@@ -523,19 +479,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}99)`,
           }}
         >
-          {/* Sparkles for top section */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {/* Top section sparkles */}
-            <div className="absolute top-4 left-6 w-3 h-3 bg-white/70 rounded-full shadow-lg animate-pulse"></div>
-            <div className="absolute top-8 right-8 w-2 h-2 bg-white/60 rounded-full shadow-md animate-pulse delay-100"></div>
-            <div className="absolute top-12 left-12 w-6 h-6 bg-white/75 rounded-full shadow-md animate-pulse delay-200"></div>
-            <div className="absolute top-6 right-4 w-2 h-2 bg-white/60 rounded-full shadow-md animate-pulse delay-300"></div>
-            <div className="absolute top-10 left-8 w-12 h-12 bg-white/80 rounded-full shadow-md animate-pulse delay-75"></div>
-            
-            {/* Decorative circles for top section */}
-            <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/15 rounded-full"></div>
-            <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/10 rounded-full"></div>
-          </div>
 
           {/* Top row with badge positioned absolutely */}
           <div className="relative z-10">
@@ -567,12 +510,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           }}
         >
           {/* Full title with better typography */}
-          <h3 className="font-bold text-base leading-tight line-clamp-1" style={getTextStyle(bgColor)} title={displayTitle}>
+          <h3 className="font-bold text-white/60 text-base leading-tight line-clamp-1" title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 border border-white/40 w-fit shadow-sm"
+              className="inline-flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full p-1 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
@@ -593,10 +536,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-900 leading-tight">
+                <span className="text-xs font-medium text-white leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-500 leading-tight">
+                <span className="text-xs text-gray-100 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>
@@ -608,7 +551,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 hover:bg-gray-100"
+                  className="h-6 w-6 p-0 bg-white/70 border border-white hover:bg-gray-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
