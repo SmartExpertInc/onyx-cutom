@@ -69,7 +69,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const [lastIndex, setLastIndex] = useState<number | null>(null);
 	const [uploading, setUploading] = useState<UploadProgress[]>([]);
 	const [indexing, setIndexing] = useState<IndexingState>({});
-	const [previewPath, setPreviewPath] = useState<string | null>(null);
 	const [mkdirOpen, setMkdirOpen] = useState(false);
 	const [mkdirName, setMkdirName] = useState('');
 
@@ -135,14 +134,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const onRowClick = (idx: number, it: SmartDriveItem, e: React.MouseEvent) => {
 		if (it.type === 'directory') {
 			setCurrentPath(it.path.endsWith('/') ? it.path : `${it.path}/`);
-			setPreviewPath(null);
-			setLastIndex(null);
 			return;
 		}
 		// toggle selection on row click (multi-select)
 		toggle(it.path);
 		setLastIndex(idx);
-		// no preview on row click
 	};
 
 	const selectAll = () => setSelected(new Set(filtered.map(i => i.path)));
@@ -481,11 +477,6 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const canMoveCopy = selected.size > 0;
 	const canDownload = Array.from(selected).some(p => items.find(i => i.path === p && i.type === 'file'));
 
-	const previewItem = useMemo(() => {
-		if (!previewPath) return null;
-		return items.find(i => i.path === previewPath) || null;
-	}, [previewPath, items]);
-
 	// In select mode, notify parent on every selection change to enable downstream buttons immediately
 	useEffect(() => {
 		if (mode === 'select' && onFilesSelected) {
@@ -555,48 +546,45 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				) : filtered.length === 0 ? (
 					<div className="p-10 text-center text-slate-600">This folder is empty</div>
 				) : (
-					<>
-						{previewItem ? (
-							<div className="grid grid-cols-12 min-h-0 flex-1">
-								<div className="col-span-12 lg:col-span-7 divide-y divide-slate-200 flex flex-col min-h-0">
-									<div className="flex items-center px-3 py-2 text-xs uppercase text-slate-500 font-medium bg-slate-50/50 flex-shrink-0">
-										<div className="w-8"/>
-										<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
-											Name <ArrowUpDown className="w-3 h-3 ml-1"/>
-										</button>
-										<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
-											Size <ArrowUpDown className="w-3 h-3 ml-1"/>
-										</button>
-										<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
-											Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
-										</button>
-										<div className="w-8"/>
-									</div>
-									<div className="flex-1 overflow-y-auto">
-										{filtered.map((it, idx) => {
-											const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
-												setSelected(new Set([it.path]));
-												switch(action) {
-													case 'rename': rename(); break;
-													case 'move': doMoveCopy('move'); break;
-													case 'copy': doMoveCopy('copy'); break;
-													case 'delete': del(); break;
-													case 'download': download(); break;
-												}
-											};
-											
-											return (
-											<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer border-b border-slate-100 last:border-0" onClick={(e)=>onRowClick(idx, it, e)}>
-												<div className="w-8">
-													<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
-												</div>
-												<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
-													{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
-												</div>
-												<div className="flex-1">
-													<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
-													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-													{it.type === 'file' && (() => { 
+					<div className="flex flex-col min-h-0 flex-1">
+						<div className="flex items-center px-3 py-2 text-xs uppercase text-slate-500 font-medium bg-slate-50/50 flex-shrink-0">
+							<div className="w-8"/>
+							<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
+								Name <ArrowUpDown className="w-3 h-3 ml-1"/>
+							</button>
+							<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
+								Size <ArrowUpDown className="w-3 h-3 ml-1"/>
+							</button>
+							<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
+								Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
+							</button>
+							<div className="w-8"/>
+						</div>
+						<div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+							{filtered.map((it, idx) => {
+								const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
+									setSelected(new Set([it.path]));
+									switch(action) {
+										case 'rename': rename(); break;
+										case 'move': doMoveCopy('move'); break;
+										case 'copy': doMoveCopy('copy'); break;
+										case 'delete': del(); break;
+										case 'download': download(); break;
+									}
+								};
+								
+								return (
+									<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
+										<div className="w-8">
+											<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
+										</div>
+										<div className="w-5 h-5">
+											{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
+										</div>
+										<div className="flex-1">
+											<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
+											<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
+											{it.type === 'file' && (() => { 
 												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
 												const shouldShow = s && s.status !== 'done';
 												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
@@ -618,127 +606,30 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 													})()}
 												</div>
 											)}
-												</div>
-												<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-												<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
-												<div className="w-8 flex justify-end">
-													<DropdownMenu>
-														<DropdownMenuTrigger asChild>
-															<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
-															</Button>
-														</DropdownMenuTrigger>
-														<DropdownMenuContent align="end">
-															<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-															<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-															<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-															<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-															<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
-														</DropdownMenuContent>
-													</DropdownMenu>
-												</div>
-											</div>
-											);
-										})}
-									</div>
-								</div>
-								<div className="hidden lg:block col-span-5 border-l border-slate-200 bg-gradient-to-b from-white/90 to-slate-50 flex flex-col min-h-0">
-									<div className="p-4 space-y-2">
-										<div className="text-sm text-slate-500 font-medium">Preview</div>
-										<div className="font-semibold text-slate-800">{previewItem?.name}</div>
-										<div className="rounded-lg border border-slate-200 overflow-hidden shadow-sm flex-1">
-											{previewItem && renderPreview(previewItem)}
+										</div>
+										<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
+										<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
+										<div className="w-8 flex justify-end">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
+														<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
+													<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
+													<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
+													<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
+													<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
 										</div>
 									</div>
-								</div>
-							</div>
-						) : (
-							<div className="flex flex-col min-h-0 flex-1">
-								<div className="flex items-center px-3 py-2 text-xs uppercase text-slate-500 font-medium bg-slate-50/50 flex-shrink-0">
-									<div className="w-8"/>
-									<button className="flex-1 inline-flex items-center" onClick={()=>{setSortKey('name'); setSortAsc(k=>sortKey==='name'?!k:true);}}>
-										Name <ArrowUpDown className="w-3 h-3 ml-1"/>
-									</button>
-									<button className="w-24 inline-flex items-center justify-end" onClick={()=>{setSortKey('size'); setSortAsc(k=>sortKey==='size'?!k:true);}}>
-										Size <ArrowUpDown className="w-3 h-3 ml-1"/>
-									</button>
-									<button className="w-44 inline-flex items-center justify-end" onClick={()=>{setSortKey('modified'); setSortAsc(k=>sortKey==='modified'?!k:true);}}>
-										Modified <ArrowUpDown className="w-3 h-3 ml-1"/>
-									</button>
-									<div className="w-8"/>
-								</div>
-								<div className="flex-1 overflow-y-auto divide-y divide-slate-100">
-									{filtered.map((it, idx) => {
-										const handleMenuAction = (action: 'rename' | 'move' | 'copy' | 'delete' | 'download') => {
-											setSelected(new Set([it.path]));
-											switch(action) {
-												case 'rename': rename(); break;
-												case 'move': doMoveCopy('move'); break;
-												case 'copy': doMoveCopy('copy'); break;
-												case 'delete': del(); break;
-												case 'download': download(); break;
-											}
-										};
-										
-										return (
-											<div key={it.path} className="flex items-center gap-3 px-3 py-2 hover:bg-blue-50/50 cursor-pointer" onClick={(e)=>onRowClick(idx, it, e)}>
-												<div className="w-8">
-													<Checkbox checked={selected.has(it.path)} onCheckedChange={() => toggle(it.path)} />
-												</div>
-												<div className="w-5 h-5" onClick={(e)=>{e.stopPropagation(); setPreviewPath(it.type==='file'? it.path : null);}}>
-													{it.type === 'directory' ? <Folder className="w-5 h-5 text-blue-500"/> : <File className="w-5 h-5 text-slate-500"/>}
-												</div>
-												<div className="flex-1">
-													<div className="font-medium text-slate-800">{(() => { try { return decodeURIComponent(it.name); } catch { return it.name; } })()}</div>
-													<div className="text-xs text-slate-500">{it.type === 'file' ? formatSize(it.size) : 'Folder' }{it.modified ? ` • ${new Date(it.modified).toLocaleString()}` : ''}</div>
-													{it.type === 'file' && (() => { 
-												const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
-												const shouldShow = s && s.status !== 'done';
-												console.log(`[SmartDrive] Progress bar check for '${it.path}':`, {
-													indexingState: s,
-													shouldShow,
-													allIndexing: indexing
-												});
-												return shouldShow;
-											})() && (
-												<div className="mt-1" title="We are indexing this file so it can be searched and used by AI. This usually takes a short moment.">
-													{(() => { 
-														const s = indexing[it.path] || indexing[(() => { try { return decodeURIComponent(it.path); } catch { return it.path; } })()] || indexing[encodeURI(it.path)]; 
-														const pct = s?.etaPct ?? 10; 
-														return (
-															<div className="h-1.5 w-56 md:w-64 bg-slate-200 rounded overflow-hidden">
-																<div className="h-full bg-blue-500" style={{ width: `${pct}%` }} />
-															</div>
-														);
-													})()}
-												</div>
-											)}
-												</div>
-												<div className="w-24 text-right text-sm text-slate-700">{it.type === 'file' ? formatSize(it.size) : ''}</div>
-												<div className="w-44 text-right text-sm text-slate-700">{it.modified ? new Date(it.modified).toLocaleDateString() : ''}</div>
-												<div className="w-8 flex justify-end">
-													<DropdownMenu>
-														<DropdownMenuTrigger asChild>
-															<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100" onClick={(e: React.MouseEvent)=>e.stopPropagation()}>
-																<MoreHorizontal className="w-4 h-4 text-slate-400 hover:text-slate-600" />
-															</Button>
-														</DropdownMenuTrigger>
-														<DropdownMenuContent align="end">
-															<DropdownMenuItem onSelect={() => handleMenuAction('rename')}><Pencil className="w-4 h-4 mr-2"/>Rename</DropdownMenuItem>
-															<DropdownMenuItem onSelect={() => handleMenuAction('move')}><MoveRight className="w-4 h-4 mr-2"/>Move</DropdownMenuItem>
-															<DropdownMenuItem onSelect={() => handleMenuAction('copy')}><Copy className="w-4 h-4 mr-2"/>Copy</DropdownMenuItem>
-															<DropdownMenuItem onSelect={() => handleMenuAction('delete')}><Trash2 className="w-4 h-4 mr-2"/>Delete</DropdownMenuItem>
-															<DropdownMenuItem disabled={it.type !== 'file'} onSelect={() => handleMenuAction('download')}><Download className="w-4 h-4 mr-2"/>Download</DropdownMenuItem>
-														</DropdownMenuContent>
-													</DropdownMenu>
-												</div>
-											</div>
-										);
-									})}
-								</div>
-							</div>
-						)}
-					</>
+								);
+							})}
+						</div>
+					</div>
 				)}
 			</div>
 
@@ -752,17 +643,6 @@ function formatSize(bytes?: number | null): string {
 	const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
 	const i = Math.min(sizes.length - 1, Math.floor(Math.log(Math.max(bytes, 1)) / Math.log(1024)));
 	return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
-}
-
-function renderPreview(item: SmartDriveItem) {
-	const name = item.name.toLowerCase();
-	if (/(\.png|\.jpg|\.jpeg|\.gif|\.webp)$/.test(name)) {
-		return <img src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(item.path)}`} alt={item.name} className="max-h-[380px] w-full object-contain bg-gray-50" />;
-	}
-	if (name.endsWith('.pdf')) {
-		return <iframe src={`${CUSTOM_BACKEND_URL}/smartdrive/download?path=${encodeURIComponent(item.path)}`} className="w-full h-[380px] bg-gray-50" />;
-	}
-	return <div className="p-6 text-center text-gray-700 text-sm">No inline preview.</div>;
 }
 
 export default SmartDriveBrowser; 

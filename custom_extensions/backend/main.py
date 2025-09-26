@@ -25577,6 +25577,14 @@ async def get_smartdrive_login_credentials(
                         """,
                         row["onyx_user_id"], userid, encrypted, base_url, datetime.now(timezone.utc)
                     )
+
+                    # Clean default skeleton files immediately after account creation using comprehensive cleanup
+                    try:
+                        deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
+                        logger.info(f"[SmartDrive] Cleaned {deleted_count} default files for new user {userid}")
+                    except Exception as cleanup_err:
+                        logger.warning(f"[SmartDrive] Default file cleanup failed (non-fatal): {cleanup_err}")
+
                     account = {"nextcloud_username": userid, "nextcloud_password_encrypted": encrypted, "nextcloud_base_url": base_url}
                 except HTTPException:
                     raise
@@ -25841,43 +25849,12 @@ async def list_smartdrive_files(
                         onyx_user_id, userid, encrypted, base_url, datetime.now(timezone.utc)
                     )
 
-                    # Clean Nextcloud skeleton files so the account starts empty
+                    # Clean default skeleton files using comprehensive cleanup function
                     try:
-                        webdav_base = f"{base_url}/remote.php/dav/files/{userid}"
-                        async with httpx.AsyncClient(timeout=30.0) as c2:
-                            # Depth:1 PROPFIND
-                            prop = await c2.request(
-                                "PROPFIND",
-                                f"{webdav_base}/",
-                                auth=(userid, new_password),
-                                headers={"Depth": "1", "Content-Type": "application/xml"},
-                                content="""<?xml version=\"1.0\"?>
-                                <d:propfind xmlns:d=\"DAV:\">
-                                  <d:prop><d:resourcetype/></d:prop>
-                                </d:propfind>"""
-                            )
-                            if prop.status_code in (207, 200):
-                                import xml.etree.ElementTree as ET
-                                try:
-                                    root = ET.fromstring(prop.text)
-                                    for resp in root.findall('.//{DAV:}response'):
-                                        href = resp.find('.//{DAV:}href')
-                                        if not href or not href.text:
-                                            continue
-                                        h = href.text
-                                        # skip the root itself
-                                        if h.rstrip('/') == f"/remote.php/dav/files/{userid}":
-                                            continue
-                                        # Delete child
-                                        del_url = f"{ocs_base}{h}"
-                                        try:
-                                            await c2.delete(del_url, auth=(userid, new_password))
-                                        except Exception:
-                                            pass
-                                except Exception:
-                                    pass
-                    except Exception:
-                        pass
+                        deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
+                        logger.info(f"[SmartDrive] Cleaned {deleted_count} default files for new user {userid}")
+                    except Exception as cleanup_err:
+                        logger.warning(f"[SmartDrive] Default file cleanup failed (non-fatal): {cleanup_err}")
 
                     # Reload account row
                     account = await conn.fetchrow(
@@ -26062,6 +26039,99 @@ def decrypt_password(encrypted_password: str) -> str:
     except Exception as e:
         logger.error(f"Failed to decrypt password: {e}")
         raise HTTPException(status_code=500, detail="Decryption failed")
+
+async def cleanup_nextcloud_default_files(base_url: str, userid: str, password: str) -> int:
+    """
+    Comprehensive cleanup of Nextcloud skeleton/default files for a new user account.
+    Returns the number of items deleted.
+    """
+    logger.info(f"[SmartDrive] Starting comprehensive cleanup of default files for user: {userid}")
+    deleted_count = 0
+    
+    try:
+        webdav_base = f"{base_url}/remote.php/dav/files/{userid}"
+        async with httpx.AsyncClient(timeout=30.0) as cleanup_client:
+            # First, get all files and folders in user's root directory with detailed properties
+            prop = await cleanup_client.request(
+                "PROPFIND",
+                f"{webdav_base}/",
+                auth=(userid, password),
+                headers={"Depth": "1", "Content-Type": "application/xml"},
+                content="""<?xml version="1.0"?>
+                <d:propfind xmlns:d="DAV:">
+                  <d:prop>
+                    <d:resourcetype/>
+                    <d:displayname/>
+                  </d:prop>
+                </d:propfind>"""
+            )
+            
+            if prop.status_code in (207, 200):
+                import xml.etree.ElementTree as ET
+                try:
+                    root = ET.fromstring(prop.text)
+                    items_to_delete = []
+                    
+                    for resp in root.findall('.//{DAV:}response'):
+                        href = resp.find('.//{DAV:}href')
+                        if not href or not href.text:
+                            continue
+                            
+                        h = href.text
+                        # Skip the root directory itself
+                        if h.rstrip('/') == f"/remote.php/dav/files/{userid}":
+                            continue
+                            
+                        # Get display name if available
+                        display_name = None
+                        display_elem = resp.find('.//{DAV:}displayname')
+                        if display_elem is not None and display_elem.text:
+                            display_name = display_elem.text
+                        
+                        items_to_delete.append((h, display_name))
+                    
+                    # Delete all found items
+                    for h, display_name in items_to_delete:
+                        del_url = f"{base_url}{h}"
+                        try:
+                            delete_resp = await cleanup_client.delete(del_url, auth=(userid, password))
+                            if delete_resp.status_code in (204, 404):  # 204 = deleted, 404 = already gone
+                                deleted_count += 1
+                                item_name = display_name or h.split('/')[-1]
+                                logger.info(f"[SmartDrive] ✓ Deleted default item: {item_name}")
+                            else:
+                                logger.warning(f"[SmartDrive] Failed to delete {h}: HTTP {delete_resp.status_code}")
+                        except Exception as e:
+                            logger.warning(f"[SmartDrive] Exception deleting {h}: {e}")
+                    
+                    # Also try to delete common Nextcloud skeleton files by name (in case PROPFIND missed some)
+                    common_skeleton_items = [
+                        "Documents", "Photos", "Templates", "Music", "Videos", 
+                        "welcome.txt", "Readme.md", "Nextcloud intro.mp4",
+                        "Nextcloud Manual.pdf", "Example.md", "Example.odt"
+                    ]
+                    
+                    for item_name in common_skeleton_items:
+                        try:
+                            del_url = f"{webdav_base}/{item_name}"
+                            delete_resp = await cleanup_client.delete(del_url, auth=(userid, password))
+                            if delete_resp.status_code == 204:  # Successfully deleted
+                                deleted_count += 1
+                                logger.info(f"[SmartDrive] ✓ Deleted common skeleton item: {item_name}")
+                        except Exception:
+                            pass  # Ignore errors for items that don't exist
+                            
+                    logger.info(f"[SmartDrive] Cleanup complete: removed {deleted_count} default items for user {userid}")
+                    
+                except Exception as parse_error:
+                    logger.error(f"[SmartDrive] Error parsing cleanup response: {parse_error}")
+            else:
+                logger.error(f"[SmartDrive] Failed to list files for cleanup: HTTP {prop.status_code}")
+                
+    except Exception as cleanup_error:
+        logger.error(f"[SmartDrive] Comprehensive file cleanup failed: {cleanup_error}")
+        
+    return deleted_count
 
 async def get_mock_files_response(path: str) -> Dict:
     """Fallback mock data when Nextcloud is unavailable"""
