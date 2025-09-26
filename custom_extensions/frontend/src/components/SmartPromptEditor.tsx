@@ -214,8 +214,7 @@ const SmartPromptEditor: React.FC<SmartPromptEditorProps> = ({
         </div>
         
         <p className="text-gray-700 mb-6">
-          Please review the changes below. The updated content is now displayed in the table. 
-          You can accept these changes to save them permanently, or revert to go back to the original content.
+          {t('actions.reviewChangesMessage', 'Please review the changes below. The updated content is now displayed in the table. You can accept these changes to save them permanently, or revert to go back to the original content.')}
         </p>
         
         <div className="flex items-center gap-3">

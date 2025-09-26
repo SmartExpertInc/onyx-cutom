@@ -49,6 +49,7 @@ export const es = {
     acceptChanges: "Aceptar cambios",
     revertChanges: "Revertir cambios",
     reviewChanges: "Revisar cambios",
+    reviewChangesMessage: "Por favor, revisa los cambios a continuación. El contenido actualizado ahora se muestra en la tabla. Puedes aceptar estos cambios para guardarlos permanentemente, o revertir para volver al contenido original.",
     changesPreview: "Vista previa de cambios",
     outlineOnly: "Solo esquema",
     moveAll: "Mover todo",

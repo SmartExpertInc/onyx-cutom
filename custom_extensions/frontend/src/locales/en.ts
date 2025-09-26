@@ -49,6 +49,7 @@ export const en = {
     acceptChanges: "Accept Changes",
     revertChanges: "Revert Changes",
     reviewChanges: "Review Changes",
+    reviewChangesMessage: "Please review the changes below. The updated content is now displayed in the table. You can accept these changes to save them permanently, or revert to go back to the original content.",
     changesPreview: "Changes Preview",
     outlineOnly: "Outline Only",
     moveAll: "Move All",
