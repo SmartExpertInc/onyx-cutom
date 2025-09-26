@@ -1115,39 +1115,28 @@ export default function ProductViewNewPage() {
                             {/* Presentation Status Column */}
                             <div className="flex items-center justify-center">
                               {hasPresentation ? (
-                                <div className="group flex items-center gap-1">
-                                  <CustomTooltip content={t('interface.viewNew.viewProduct', 'View product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                      onClick={() => {
-                                        if (status?.presentation?.productId) {
-                                          handleIconClick(status.presentation.productId);
-                                        }
-                                      }}
-                                    >
-                                      <Check size={14} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
-                                  <CustomTooltip content={t('interface.viewNew.regenerateProductTooltip', 'Regenerate product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
-                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                    >
-                                      <RefreshCcw size={12} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    onClick={() => {
+                                      if (status?.presentation?.productId) {
+                                        handleIconClick(status.presentation.productId);
+                                      }
+                                    }}
+                                  >
+                                    <Check size={10} className="text-green-500" />
+                                  </div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1">
-                                  <CustomTooltip content={t('interface.viewNew.addProduct', 'Add product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'presentation')}
-                                    >
-                                      <Plus size={14} className="text-gray-600" />
-                                    </div>
-                                  </CustomTooltip>
-                                  <div className="w-6 h-6"></div>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'presentation')}
+                                  >
+                                    <Plus size={10} className="text-blue-500" />
+                                  </div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>
                               )}
                             </div>
@@ -1155,39 +1144,28 @@ export default function ProductViewNewPage() {
                             {/* One-Pager Status Column */}
                             <div className="flex items-center justify-center">
                               {hasOnePager ? (
-                                <div className="group flex items-center gap-1">
-                                  <CustomTooltip content={t('interface.viewNew.viewProduct', 'View product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                      onClick={() => {
-                                        if (status?.onePager?.productId) {
-                                          handleIconClick(status.onePager.productId);
-                                        }
-                                      }}
-                                    >
-                                      <Check size={14} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
-                                  <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
-                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                    >
-                                      <RefreshCcw size={12} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    onClick={() => {
+                                      if (status?.onePager?.productId) {
+                                        handleIconClick(status.onePager.productId);
+                                      }
+                                    }}
+                                  >
+                                    <Check size={10} className="text-green-500" />
+                                  </div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1">
-                                  <CustomTooltip content={t('interface.viewNew.addProduct', 'Add product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'one-pager')}
-                                    >
-                                      <Plus size={14} className="text-gray-600" />
-                                    </div>
-                                  </CustomTooltip>
-                                  <div className="w-6 h-6"></div>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'one-pager')}
+                                  >
+                                    <Plus size={10} className="text-blue-500" />
+                                  </div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>
                               )}
                             </div>
@@ -1195,84 +1173,60 @@ export default function ProductViewNewPage() {
                             {/* Quiz Status Column */}
                             <div className="flex items-center justify-center">
                               {hasQuiz ? (
-                                <div className="group flex items-center gap-1">
-                                  <CustomTooltip content={t('interface.viewNew.viewProduct', 'View product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                      onClick={() => {
-                                        if (status?.quiz?.productId) {
-                                          handleIconClick(status.quiz.productId);
-                                        }
-                                      }}
-                                    >
-                                      <Check size={14} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
-                                  <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
-                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                    >
-                                      <RefreshCcw size={12} className="text-white" />
-                                    </div>
-                                  </CustomTooltip>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    onClick={() => {
+                                      if (status?.quiz?.productId) {
+                                        handleIconClick(status.quiz.productId);
+                                      }
+                                    }}
+                                  >
+                                    <Check size={10} className="text-green-500" />
+                                  </div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1">
-                                  <CustomTooltip content={t('interface.viewNew.addProduct', 'Add product')}>
-                                    <div 
-                                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                      onClick={() => handleContentTypeClick(lesson, 'quiz')}
-                                    >
-                                      <Plus size={14} className="text-gray-600" />
-                                    </div>
-                                  </CustomTooltip>
-                                  <div className="w-6 h-6"></div>
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'quiz')}
+                                  >
+                                    <Plus size={10} className="text-blue-500" />
+                                  </div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
                                 </div>
                               )}
                             </div>
 
                             {/* Video Lesson Status Column */}
-                            {videoLessonEnabled && (
-                              <div className="flex items-center justify-center">
-                                {hasVideoLesson ? (
-                                  <div className="group flex items-center gap-1">
-                                    <CustomTooltip content={t('interface.viewNew.viewProduct', 'View product')}>
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center cursor-pointer hover:bg-green-600 transition-colors"
-                                        onClick={() => {
-                                          if (status?.videoLesson?.productId) {
-                                            handleIconClick(status.videoLesson.productId);
-                                          }
-                                        }}
-                                      >
-                                        <Check size={14} className="text-white" />
-                                      </div>
-                                    </CustomTooltip>
-                                    <CustomTooltip content={t('interface.viewNew.regenerate', 'Regenerate')}>
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-[#0F58F9] flex items-center justify-center cursor-pointer hover:bg-[#0E4FD1] transition-colors opacity-0 group-hover:opacity-100"
-                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                      >
-                                        <RefreshCcw size={12} className="text-white" />
-                                      </div>
-                                    </CustomTooltip>
+                            <div className="flex items-center justify-center">
+                              {hasVideoLesson ? (
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-green-500 flex items-center justify-center cursor-pointer hover:border-green-600 transition-colors"
+                                    onClick={() => {
+                                      if (status?.videoLesson?.productId) {
+                                        handleIconClick(status.videoLesson.productId);
+                                      }
+                                    }}
+                                  >
+                                    <Check size={10} className="text-green-500" />
                                   </div>
-                                ) : (
-                                  <div className="flex items-center gap-1">
-                                    <CustomTooltip content={t('interface.viewNew.addProduct', 'Add product')}>
-                                      <div 
-                                        className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors"
-                                        onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
-                                      >
-                                        <Plus size={14} className="text-gray-600" />
-                                      </div>
-                                    </CustomTooltip>
-                                    <div className="w-6 h-6"></div>
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">View</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-4 h-4 rounded-full bg-white border-2 border-blue-500 flex items-center justify-center cursor-pointer hover:border-blue-600 transition-colors"
+                                    onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
+                                  >
+                                    <Plus size={10} className="text-blue-500" />
                                   </div>
-                                )}
-                              </div>
-                            )}
+                                  <span className="text-xs text-blue-600 underline cursor-pointer">Add</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
