@@ -1947,9 +1947,12 @@ export default function LessonPresentationClient() {
                                       />
                                     </div>
                                   ))}
+                                  {/* Add bullet button removed from preview */}
+                                  {false && (
                                   <button type="button" onClick={() => addBulletForSlide(slideIdx)} disabled={!streamDone} className="self-start text-xs text-[#396EDF] hover:opacity-80">
                                     + {t('interface.generate.addBullet', 'Add bullet')}
                                   </button>
+                                  )}
                                 </div>
                               );
                             } catch (_) { return null; }
