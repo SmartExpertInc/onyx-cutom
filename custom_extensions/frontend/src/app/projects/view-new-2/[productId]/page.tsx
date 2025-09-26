@@ -1124,7 +1124,7 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} className="text-white" />
+                                      <Check size={10} strokeWidth={2.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
@@ -1141,7 +1141,7 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1152,7 +1152,7 @@ export default function ProductViewNewPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'presentation')}
                                   >
-                                    <Plus size={10} className="text-white" />
+                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1171,7 +1171,7 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} className="text-white" />
+                                      <Check size={10} strokeWidth={2.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
@@ -1188,7 +1188,7 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1199,7 +1199,7 @@ export default function ProductViewNewPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'one-pager')}
                                   >
-                                    <Plus size={10} className="text-white" />
+                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1218,7 +1218,7 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} className="text-white" />
+                                      <Check size={10} strokeWidth={2.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
@@ -1235,7 +1235,7 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1246,7 +1246,7 @@ export default function ProductViewNewPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'quiz')}
                                   >
-                                    <Plus size={10} className="text-white" />
+                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}
@@ -1265,7 +1265,7 @@ export default function ProductViewNewPage() {
                                         }
                                       }}
                                     >
-                                      <Check size={10} className="text-white" />
+                                      <Check size={10} strokeWidth={2.5} className="text-white" />
                                     </div>
                                   </CustomTooltip>
                                   {/* Regenerate icon on hover */}
@@ -1282,7 +1282,7 @@ export default function ProductViewNewPage() {
                                           });
                                         }}
                                       >
-                                        <RefreshCw size={10} className="text-white" />
+                                        <RefreshCw size={10} strokeWidth={2.5} className="text-white" />
                                       </div>
                                     </CustomTooltip>
                                   </div>
@@ -1293,7 +1293,7 @@ export default function ProductViewNewPage() {
                                     className="w-[18px] h-[18px] rounded-full bg-blue-500 flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors"
                                     onClick={() => handleContentTypeClick(lesson, 'video-lesson')}
                                   >
-                                    <Plus size={10} className="text-white" />
+                                    <Plus size={10} strokeWidth={2.5} className="text-white" />
                                   </div>
                                 </CustomTooltip>
                               )}

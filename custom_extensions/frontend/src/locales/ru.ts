@@ -1403,6 +1403,8 @@ export const ru = {
       cancel: "Отмена",
       ok: "ОК",
       // View-new-2 specific tooltips
+      view: "Просмотреть",
+      add: "Добавить",
       viewProduct: "Просмотреть продукт",
       regenerateProductTooltip: "Пересоздать продукт",
       addProduct: "Добавить продукт"

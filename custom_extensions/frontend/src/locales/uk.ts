@@ -1434,6 +1434,8 @@ export const uk = {
       cancel: "Скасувати",
       ok: "ОК",
       // View-new-2 specific tooltips
+      view: "Переглянути",
+      add: "Додати",
       viewProduct: "Переглянути продукт",
       regenerateProductTooltip: "Перестворити продукт",
       addProduct: "Додати продукт"

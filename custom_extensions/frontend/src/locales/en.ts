@@ -1323,6 +1323,8 @@ export const en = {
       cancel: "Cancel",
       ok: "OK",
       // View-new-2 specific tooltips
+      view: "View",
+      add: "Add",
       viewProduct: "View product",
       regenerateProductTooltip: "Regenerate product",
       addProduct: "Add product"
