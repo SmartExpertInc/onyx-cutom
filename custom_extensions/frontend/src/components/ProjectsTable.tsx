@@ -3585,10 +3585,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Add these just before the render block
   const visibleProjects = ENABLE_OUTLINE_FILTERING
     ? viewMode === "list"
-    : getProjectsForFolder(folderId)
-    ? getProjectsForFolder(folderId).filter(
-        (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
-      )
+      ? getProjectsForFolder(folderId).filter(
+          (p) => (p.designMicroproductType || "").toLowerCase() !== "quiz"
+        )
+      : getProjectsForFolder(folderId)
     : getProjectsForFolder(folderId);
 
   const visibleUnassignedProjects =
