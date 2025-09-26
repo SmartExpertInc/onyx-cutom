@@ -9745,8 +9745,33 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                 logger.info(f"🔍 [BASE64 EXTRACTION] inline_data type: {type(part.inline_data)}")
                 logger.info(f"🔍 [BASE64 EXTRACTION] inline_data has data: {hasattr(part.inline_data, 'data')}")
                 
-                if hasattr(part.inline_data, 'data'):
-                    image_data_raw = part.inline_data.data
+                # 🔧 ROBUST DATA EXTRACTION: Try multiple ways to get the data
+                extracted_data = None
+                
+                if hasattr(part.inline_data, 'data') and part.inline_data.data:
+                    extracted_data = part.inline_data.data
+                    logger.info(f"🔧 [EXTRACTION METHOD 1] Got data via .data attribute")
+                elif hasattr(part.inline_data, 'data') and part.inline_data.data is not None:
+                    extracted_data = part.inline_data.data
+                    logger.info(f"🔧 [EXTRACTION METHOD 2] Got data via .data attribute (None check)")
+                else:
+                    # Try to access data through other possible attributes
+                    logger.info(f"🔧 [EXTRACTION DEBUG] inline_data attributes: {dir(part.inline_data)}")
+                    
+                    # Check if there are other attributes that might contain the data
+                    for attr_name in dir(part.inline_data):
+                        if not attr_name.startswith('_'):
+                            attr_value = getattr(part.inline_data, attr_name)
+                            logger.info(f"🔧 [EXTRACTION DEBUG] {attr_name}: {type(attr_value)} - {len(attr_value) if hasattr(attr_value, '__len__') else 'No length'}")
+                            
+                            # If we find binary data that looks like an image
+                            if isinstance(attr_value, bytes) and len(attr_value) > 1000 and (attr_value.startswith(b'\x89PNG') or attr_value.startswith(b'\xff\xd8\xff')):
+                                extracted_data = attr_value
+                                logger.info(f"🔧 [EXTRACTION METHOD 3] Found image data in {attr_name}")
+                                break
+                
+                if extracted_data:
+                    image_data_raw = extracted_data
                     logger.info(f"🔍 [DATA EXTRACTION] Extracted image data from Gemini")
                     logger.info(f"🔍 [DATA EXTRACTION] Data type: {type(image_data_raw)}")
                     logger.info(f"🔍 [DATA EXTRACTION] Data length: {len(image_data_raw) if image_data_raw else 0}")
@@ -9754,9 +9779,21 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                         logger.info(f"🔍 [DATA EXTRACTION] First 100 chars: {image_data_raw[:100]}")
                         logger.info(f"🔍 [DATA EXTRACTION] Last 100 chars: {image_data_raw[-100:]}")
                     break
+                else:
+                    logger.warning(f"⚠️ [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
         
         if not image_data_raw:
             logger.error(f"❌ [DATA EXTRACTION ERROR] No image data found in response parts")
+            logger.error(f"❌ [DATA EXTRACTION ERROR] Response had {len(response.candidates[0].content.parts)} parts")
+            for i, part in enumerate(response.candidates[0].content.parts):
+                logger.error(f"❌ [DATA EXTRACTION ERROR] Part {i} details:")
+                logger.error(f"❌ [DATA EXTRACTION ERROR] - Has inline_data: {hasattr(part, 'inline_data')}")
+                if hasattr(part, 'inline_data') and part.inline_data:
+                    logger.error(f"❌ [DATA EXTRACTION ERROR] - inline_data type: {type(part.inline_data)}")
+                    logger.error(f"❌ [DATA EXTRACTION ERROR] - Has data attr: {hasattr(part.inline_data, 'data')}")
+                    if hasattr(part.inline_data, 'data'):
+                        logger.error(f"❌ [DATA EXTRACTION ERROR] - Data is None: {part.inline_data.data is None}")
+                        logger.error(f"❌ [DATA EXTRACTION ERROR] - Data length: {len(part.inline_data.data) if part.inline_data.data else 'N/A'}")
             raise Exception("No image data received from Gemini")
         
         logger.info(f"✅ [DATA EXTRACTION] Successfully extracted image data")
