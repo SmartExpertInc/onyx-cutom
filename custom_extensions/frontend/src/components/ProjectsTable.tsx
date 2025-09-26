@@ -2123,6 +2123,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
   const [projects, setProjects] = useState<Project[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
