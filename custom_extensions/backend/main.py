@@ -9732,8 +9732,8 @@ async def generate_ai_image(request: AIImageGenerationRequest):
             logger.error(f"❌ [GEMINI API ERROR] No candidates in response")
             raise Exception("No image data received from Gemini")
         
-        # Get the generated image data (base64) using the new API structure
-        image_data_b64 = None
+        # Get the generated image data using the new API structure
+        image_data_raw = None
         logger.info(f"🔍 [BASE64 EXTRACTION] Searching for image data in response parts...")
         
         for i, part in enumerate(response.candidates[0].content.parts):
@@ -9746,43 +9746,42 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                 logger.info(f"🔍 [BASE64 EXTRACTION] inline_data has data: {hasattr(part.inline_data, 'data')}")
                 
                 if hasattr(part.inline_data, 'data'):
-                    image_data_b64 = part.inline_data.data
-                    logger.info(f"🔍 [BASE64 EXTRACTION] Extracted base64 data")
-                    logger.info(f"🔍 [BASE64 EXTRACTION] Base64 data type: {type(image_data_b64)}")
-                    logger.info(f"🔍 [BASE64 EXTRACTION] Base64 data length: {len(image_data_b64) if image_data_b64 else 0}")
-                    if image_data_b64:
-                        logger.info(f"🔍 [BASE64 EXTRACTION] Base64 first 100 chars: {image_data_b64[:100]}")
-                        logger.info(f"🔍 [BASE64 EXTRACTION] Base64 last 100 chars: {image_data_b64[-100:]}")
+                    image_data_raw = part.inline_data.data
+                    logger.info(f"🔍 [DATA EXTRACTION] Extracted image data from Gemini")
+                    logger.info(f"🔍 [DATA EXTRACTION] Data type: {type(image_data_raw)}")
+                    logger.info(f"🔍 [DATA EXTRACTION] Data length: {len(image_data_raw) if image_data_raw else 0}")
+                    if image_data_raw:
+                        logger.info(f"🔍 [DATA EXTRACTION] First 100 chars: {image_data_raw[:100]}")
+                        logger.info(f"🔍 [DATA EXTRACTION] Last 100 chars: {image_data_raw[-100:]}")
                     break
         
-        if not image_data_b64:
-            logger.error(f"❌ [BASE64 EXTRACTION ERROR] No image data found in response parts")
+        if not image_data_raw:
+            logger.error(f"❌ [DATA EXTRACTION ERROR] No image data found in response parts")
             raise Exception("No image data received from Gemini")
         
-        logger.info(f"✅ [BASE64 EXTRACTION] Successfully extracted base64 data")
-        logger.info(f"🔍 [BASE64 VALIDATION] Base64 data length: {len(image_data_b64)}")
-        logger.info(f"🔍 [BASE64 VALIDATION] Base64 starts with: {image_data_b64[:20]}")
-        logger.info(f"🔍 [BASE64 VALIDATION] Base64 ends with: {image_data_b64[-20:]}")
+        logger.info(f"✅ [DATA EXTRACTION] Successfully extracted image data")
         
-        # Validate base64 format
-        try:
-            import base64
-            # Test if it's valid base64
-            test_decode = base64.b64decode(image_data_b64, validate=True)
-            logger.info(f"✅ [BASE64 VALIDATION] Base64 format is valid")
-            logger.info(f"🔍 [BASE64 VALIDATION] Decoded data size: {len(test_decode)} bytes")
-        except Exception as e:
-            logger.error(f"❌ [BASE64 VALIDATION ERROR] Invalid base64 format: {e}")
-            raise Exception(f"Invalid base64 data received from Gemini: {e}")
+        # 🔧 CRITICAL FIX: Detect if data is already binary or base64 string
+        if isinstance(image_data_raw, bytes):
+            # Data is already binary (PNG/JPEG), use directly
+            logger.info(f"🔧 [DATA TYPE FIX] Data is already binary format - using directly")
+            image_data = image_data_raw
+        elif isinstance(image_data_raw, str):
+            # Data is base64 string, decode it
+            logger.info(f"🔧 [DATA TYPE FIX] Data is base64 string - decoding")
+            try:
+                import base64
+                image_data = base64.b64decode(image_data_raw, validate=True)
+                logger.info(f"✅ [BASE64 DECODING] Successfully decoded base64 string")
+            except Exception as e:
+                logger.error(f"❌ [BASE64 DECODING ERROR] Failed to decode base64 string: {e}")
+                raise Exception(f"Invalid base64 data received from Gemini: {e}")
+        else:
+            logger.error(f"❌ [DATA TYPE ERROR] Unexpected data type: {type(image_data_raw)}")
+            raise Exception(f"Unexpected data type from Gemini: {type(image_data_raw)}")
         
-        logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, processing base64 data...")
-        
-        # Convert base64 to bytes
-        import base64
-        logger.info(f"🔍 [BASE64 DECODING] Starting base64 decode...")
-        image_data = base64.b64decode(image_data_b64)
-        logger.info(f"✅ [BASE64 DECODING] Successfully decoded base64")
-        logger.info(f"🔍 [BASE64 DECODING] Decoded binary data size: {len(image_data)} bytes")
+        logger.info(f"🔍 [FINAL DATA] Final image data size: {len(image_data)} bytes")
+        logger.info(f"🔍 [FINAL DATA] Data type: {type(image_data)}")
         
         # Validate that it's actually image data
         if len(image_data) < 100:
