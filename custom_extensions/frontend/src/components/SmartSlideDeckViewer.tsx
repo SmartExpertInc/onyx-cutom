@@ -116,8 +116,14 @@ export const SmartSlideDeckViewer: React.FC<SmartSlideDeckViewerProps> = ({
     slide.voiceoverText || slide.props?.voiceoverText
   );
 
-  // Get available templates
-  const availableTemplates = getAllTemplates();
+  // Get available templates (presentation mode: hide video-lesson-only templates)
+  const availableTemplates = (() => {
+    const all = getAllTemplates();
+    const cutoff = all.findIndex(t => t.id === 'avatar-service-slide');
+    if (cutoff === -1) return all;
+    // Exclude 'avatar-service-slide' and any that follow
+    return all.slice(0, cutoff);
+  })();
 
   // =============================================================
   // Inline editing for Presentation Title (Header)
