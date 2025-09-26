@@ -17035,7 +17035,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         onyx_user_id = await get_current_onyx_user_id(request)
         
         # Determine the project name - if connected to outline, use correct naming convention
-        project_name = payload.lessonTitle.strip() if payload.lessonTitle.strip() else "Video Lesson Presentation"
+        project_name = payload.lessonTitle.strip() if payload.lessonTitle else "Video Lesson Presentation"
         if payload.outlineProjectId:
             try:
                 # Fetch outline name from database
@@ -17050,10 +17050,6 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
             except Exception as e:
                 logger.warning(f"Failed to fetch outline name for lesson naming: {e}")
                 # Continue with plain lesson title if outline fetch fails
-        else:
-            # Fallback to payload prompt
-            project_name = payload.prompt
-            logger.info(f"[DIRECT_PATH] Using fallback project name: {project_name}")
 
         # Build source context from payload
         source_context_type, source_context_data = build_source_context(payload)
@@ -17062,7 +17058,7 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
         project_data = ProjectCreateRequest(
             projectName=project_name,
             design_template_id=template_id,
-            microProductName=None,
+            microProductName=project_name,
             aiResponse=(json.dumps(regenerated_json) if regenerated_json else payload.aiResponse.strip()),
             chatSessionId=payload.chatSessionId,
             outlineId=payload.outlineProjectId,  # Pass outlineId for consistent naming
