@@ -3,7 +3,7 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw } from 'lucide-react';
+import { FolderOpen, Sparkles, Edit3, Check, Plus, RefreshCw, ShieldAlert } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { ProjectInstanceDetail, TrainingPlanData, Lesson } from '@/types/projectSpecificTypes';
 import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view-card';
@@ -1325,7 +1325,7 @@ export default function ProductViewNewPage() {
           </div>
 
           {/* Right Panel - Course Summary */}
-          <div className="lg:col-span-1">
+          {/* <div className="lg:col-span-1">
             <CustomViewCard
               projectId={productId}
               sources={getSourcesFromProject()}
@@ -1341,23 +1341,31 @@ export default function ProductViewNewPage() {
                 progress: progress
               }}
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Error display */}
-      {saveError && (
-        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 flex items-center">
-          <span className="mr-2">⚠️</span>
-          <span>{saveError}</span>
-          <button
-            onClick={() => setSaveError(null)}
-            className="ml-4 text-red-500 hover:text-red-700"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+      <div 
+        className="fixed top-4 right-4 rounded px-[15px] py-[5px] pr-[20px] z-50 flex items-center gap-2 transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+        style={{
+          backgroundColor: '#DC2626',
+          color: 'white',
+          fontSize: '14px',
+          fontWeight: '600',
+          lineHeight: '140%',
+          letterSpacing: '0.05em'
+        }}
+      >
+        <ShieldAlert size={14} style={{ color: 'white' }} />
+        <span>{saveError || "Error message placeholder"}</span>
+        <button
+          onClick={() => setSaveError(null)}
+          className="ml-2 text-white hover:text-gray-200 transition-colors"
+        >
+          ✕
+        </button>
+      </div>
 
       {/* Regenerate Confirmation Modal */}
       {showRegenerateModal.isOpen && (
