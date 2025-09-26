@@ -140,6 +140,7 @@ export default function TextPresentationClient() {
   const isFromConnectors = params?.get("fromConnectors") === "true";
   const connectorIds = params?.get("connectorIds")?.split(",").filter(Boolean) || [];
   const connectorSources = params?.get("connectorSources")?.split(",").filter(Boolean) || [];
+  const selectedFiles = params?.get("selectedFiles")?.split(",").filter(Boolean).map(file => decodeURIComponent(file)) || [];
 
   // Check for folder context from sessionStorage (when coming from inside a folder)
   const [folderContext, setFolderContext] = useState<{ folderId: string } | null>(null);
@@ -831,6 +832,9 @@ export default function TextPresentationClient() {
             requestBody.fromConnectors = true;
             requestBody.connectorIds = connectorIds.join(',');
             requestBody.connectorSources = connectorSources.join(',');
+            if (selectedFiles.length > 0) {
+              requestBody.selectedFiles = selectedFiles.join(',');
+            }
           }
 
           const res = await fetch(`${CUSTOM_BACKEND_URL}/text-presentation/generate`, {
@@ -1133,6 +1137,9 @@ export default function TextPresentationClient() {
             fromConnectors: true,
             connectorIds: connectorIds.join(','),
             connectorSources: connectorSources.join(','),
+            ...(selectedFiles.length > 0 && {
+              selectedFiles: selectedFiles.join(','),
+            }),
           }),
         }),
         signal: abortController.signal

@@ -62,6 +62,7 @@ export default function QuizClient() {
   const fromConnectors = searchParams?.get("fromConnectors") === "true";
   const connectorIds = searchParams?.get("connectorIds")?.split(",").filter(Boolean) || [];
   const connectorSources = searchParams?.get("connectorSources")?.split(",").filter(Boolean) || [];
+  const selectedFiles = searchParams?.get("selectedFiles")?.split(",").filter(Boolean).map(file => decodeURIComponent(file)) || [];
   const folderIds = searchParams?.get("folderIds")?.split(",").filter(Boolean) || [];
   const fileIds = searchParams?.get("fileIds")?.split(",").filter(Boolean) || [];
   const textMode = searchParams?.get("textMode");
@@ -782,6 +783,9 @@ export default function QuizClient() {
               fromConnectors: true,
               connectorIds: connectorIds.join(','),
               connectorSources: connectorSources.join(','),
+              ...(selectedFiles.length > 0 && {
+                selectedFiles: selectedFiles.join(','),
+              }),
             }),
           };
 
@@ -981,6 +985,9 @@ export default function QuizClient() {
             fromConnectors: true,
             connectorIds: connectorIds.join(','),
             connectorSources: connectorSources.join(','),
+            ...(selectedFiles.length > 0 && {
+              selectedFiles: selectedFiles.join(','),
+            }),
           }),
         }),
       });
@@ -1098,6 +1105,9 @@ export default function QuizClient() {
             fromConnectors: true,
             connectorIds: connectorIds.join(','),
             connectorSources: connectorSources.join(','),
+            ...(selectedFiles.length > 0 && {
+              selectedFiles: selectedFiles.join(','),
+            }),
           }),
         }),
       });

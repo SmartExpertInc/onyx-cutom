@@ -47,13 +47,13 @@ export default [
       // ...hooksPlugin.configs.recommended.rules, // Example
       // ...nextPlugin.configs["core-web-vitals"].rules, // Example
       
-      // --- Your overrides ---
-      "@typescript-eslint/no-explicit-any": "warn", // Downgrade to warning
-      "@typescript-eslint/no-unused-vars": [
-        "warn", // Downgrade to warning
-        { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }
-      ],
-      "@typescript-eslint/no-empty-object-type": "warn", // Downgrade to warning
+      // --- Your overrides - More lenient like web directory ---
+      "@typescript-eslint/no-explicit-any": "off", // Completely disable
+      "@typescript-eslint/no-unused-vars": "off", // Completely disable like web config
+      "no-unused-vars": "off", // Also disable base rule
+      "@typescript-eslint/no-empty-object-type": "off", // Completely disable
+      "react-hooks/exhaustive-deps": "off", // Disable like web config
+      "@next/next/no-img-element": "off", // Disable like web config
       // Add any other specific rule overrides if needed
     },
     settings: { // If using react plugin
