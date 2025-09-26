@@ -949,6 +949,7 @@ const FolderRow: React.FC<{
   allFolders,
 }) => {
   const { t } = useLanguage();
+  const { isEnabled: courseTableEnabled } = useFeaturePermission('course_table');
 
   const hasChildren = folder.children && folder.children.length > 0;
   const isExpanded = expandedFolders.has(folder.id);
