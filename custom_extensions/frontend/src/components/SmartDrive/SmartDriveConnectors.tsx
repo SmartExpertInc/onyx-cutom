@@ -834,7 +834,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             ) : (
                               <Button
                                 variant="outline"
-                                onClick={(e) => {
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                   e.stopPropagation();
                                   console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
                                   if (!showManagementPage && !isManagementOpening) {
@@ -894,7 +894,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
       {/* Connector Creation Modal */}
       {showConnectorModal && selectedConnector && (
-        <div className="fixed inset-0 bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-100">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">

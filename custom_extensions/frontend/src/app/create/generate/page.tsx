@@ -1251,41 +1251,7 @@ function GenerateProductPicker() {
           </div>
         )}
 
-        {/* Knowledge Base context indicator */}
-        {isFromKnowledgeBase && (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center">
-                <Search className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-blue-900">
-                  {t('interface.generate.creatingFromKnowledgeBase', 'Creating from Knowledge Base')}
-                </h3>
-                <p className="text-sm text-blue-700 mt-1">
-                  {t('interface.generate.aiWillSearchKnowledgeBase', 'The AI will search your entire Knowledge Base to find relevant information and create educational content.')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Connector context indicator */}
-        {isFromConnectors && connectorContext && (
-          <div className="w-full max-w-3xl bg-gradient-to-l from-[#00BBFF66]/40 to-[#00BBFF66]/10 border-2 border-[#CCF1FF] rounded-xl p-6 mb-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-3">
-               <Network className="h-10 w-10 text-blue-600" />
-              <div>
-                <h3 className="text-lg font-semibold text-blue-600">
-                  {t('interface.generate.creatingFromConnectors', 'Creating from Selected Connectors')}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {t('interface.generate.aiWillUseConnectorData', 'The AI will use data from your selected connectors to create educational content.')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Tab selector */}
         <div className="w-full max-w-3xl flex flex-wrap justify-center gap-3 sm:gap-3 md:gap-4 lg:gap-5 mb-1 px-1">
