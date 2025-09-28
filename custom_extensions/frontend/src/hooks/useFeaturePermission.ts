@@ -6,21 +6,13 @@ interface FeaturePermissionResult {
   error: string | null;
 }
 
-// Singleton cache for feature permissions
-const featureCache = new Map<string, { isEnabled: boolean; timestamp: number }>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+// Request deduplication for concurrent requests to same feature
 const pendingRequests = new Map<string, Promise<boolean>>();
 
 const checkFeaturePermissionAPI = async (featureName: string, signal?: AbortSignal): Promise<boolean> => {
   const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
   
-  // Check cache first
-  const cached = featureCache.get(featureName);
-  if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
-    return cached.isEnabled;
-  }
-
-  // Check if there's already a pending request
+  // Check if there's already a pending request for the same feature
   const existingRequest = pendingRequests.get(featureName);
   if (existingRequest) {
     return existingRequest;
@@ -40,9 +32,6 @@ const checkFeaturePermissionAPI = async (featureName: string, signal?: AbortSign
 
       const data = await response.json();
       const isEnabled = data.is_enabled || false;
-      
-      // Cache the result
-      featureCache.set(featureName, { isEnabled, timestamp: Date.now() });
       
       return isEnabled;
     } finally {
@@ -109,11 +98,12 @@ export const useFeaturePermission = (featureName: string): FeaturePermissionResu
   return { isEnabled, loading, error };
 };
 
-// Export function to pre-cache multiple features at once
+// Export function to preload multiple features (without caching - for immediate permission updates)
 export const preloadFeaturePermissions = async (features: string[]): Promise<Record<string, boolean>> => {
   const results: Record<string, boolean> = {};
   
   try {
+    // Process features in parallel but with request deduplication
     const promises = features.map(async (feature) => {
       try {
         const result = await checkFeaturePermissionAPI(feature);

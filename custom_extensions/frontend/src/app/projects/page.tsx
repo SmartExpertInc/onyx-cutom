@@ -727,7 +727,7 @@ const ProjectsPageInner: React.FC = () => {
         identifyUser(user.id);
         updateUserProfile(user.email);
 
-        // Pre-cache common feature permissions to reduce multiple requests
+        // Batch load common feature permissions to reduce initial request load
         preloadFeaturePermissions([
           'course_table',
           'col_quality_tier',

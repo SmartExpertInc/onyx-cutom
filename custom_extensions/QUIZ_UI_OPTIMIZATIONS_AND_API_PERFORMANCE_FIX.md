@@ -30,11 +30,8 @@ custom_backend-1  | INFO: GET http://api_server:8080/me "HTTP/1.1 200 OK"
 const { isEnabled } = useFeaturePermission('course_table'); // New request each time
 ```
 
-**After**: Singleton cache + request deduplication + cancellation support
+**After**: Request deduplication + cancellation support (no caching for immediate permission updates)
 ```typescript
-// Singleton cache with 5-minute TTL
-const featureCache = new Map<string, { isEnabled: boolean; timestamp: number }>();
-
 // Request deduplication - multiple components share same request
 const pendingRequests = new Map<string, Promise<boolean>>();
 
@@ -46,10 +43,10 @@ export const useFeaturePermission = (featureName: string) => {
 ```
 
 **Benefits:**
-- ✅ **Cache hits avoid duplicate requests** (5min TTL)
 - ✅ **Request deduplication** when multiple components need same permission
 - ✅ **Proper cleanup** with AbortController cancellation
 - ✅ **Batch preloading** with `preloadFeaturePermissions()`
+- ✅ **Immediate permission updates** (no caching delays)
 
 ### 2. **Non-Blocking Lesson Data Loading**
 `/src/components/ProjectsTable.tsx`
@@ -110,8 +107,8 @@ preloadFeaturePermissions([
 
 **Benefits:**
 - ✅ **Single batch request** instead of individual requests per component
-- ✅ **Immediate response** for subsequent permission checks
-- ✅ **Reduces API load** dramatically
+- ✅ **Request deduplication** prevents duplicate concurrent requests
+- ✅ **Immediate permission updates** when access changes
 
 ### 4. **Quiz Matching Questions UI Fix**
 `/src/components/QuizDisplay.tsx` + `/src/utils/quizRenderUtils.tsx`
@@ -142,7 +139,7 @@ Items → Options → Correct Matches → Items (again!) → Correct Matches (ag
 ### **After Optimization:**
 - ✅ **Immediate button responsiveness** 
 - ✅ **Progressive data loading** with loading states
-- ✅ **95% reduction in API requests** via caching
+- ✅ **Reduced duplicate requests** via deduplication
 - ✅ **Proper request cancellation** on navigation
 - ✅ **Clean, maintainable code** with shared utilities
 
@@ -152,9 +149,9 @@ Items → Options → Correct Matches → Items (again!) → Correct Matches (ag
 
 **Example with 20 training plan projects:**
 
-| Before | After | Reduction |
-|--------|-------|-----------|
-| 60+ feature checks | 5 feature checks (cached) | **92% reduction** |
+| Before | After | Improvement |
+|--------|-------|------------|
+| 60+ individual feature checks | Batched + deduplicated requests | **Reduced duplicates** |
 | 20 sequential lesson-data calls | 20 parallel batched calls | **Same total, 3x faster** |
 | No cancellation | Full abort support | **Immediate navigation** |
 
@@ -163,19 +160,19 @@ Items → Options → Correct Matches → Items (again!) → Correct Matches (ag
 ## 🔧 **Technical Implementation Details**
 
 ### **Key Files Modified:**
-- `hooks/useFeaturePermission.ts` - Added caching, deduplication, cancellation
+- `hooks/useFeaturePermission.ts` - Added request deduplication, cancellation
 - `components/ProjectsTable.tsx` - Non-blocking parallel data loading  
-- `app/projects/page.tsx` - Feature permissions pre-caching
+- `app/projects/page.tsx` - Feature permissions batch loading
 - `components/QuizDisplay.tsx` - Fixed matching questions UI duplication
 - `utils/quizRenderUtils.tsx` - New shared quiz rendering utilities
 
 ### **Patterns Introduced:**
-- **Singleton caching** for expensive API calls
 - **Request deduplication** to prevent duplicate network requests
 - **Progressive UI updates** with loading states  
 - **Batched parallel processing** for better performance
 - **Proper cleanup** with AbortController cancellation
 - **Shared utility functions** to eliminate code duplication
+- **Immediate permission updates** (no caching delays)
 
 ---
 
