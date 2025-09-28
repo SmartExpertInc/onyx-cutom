@@ -378,6 +378,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
   const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
   const { isEnabled: exportToLMSEnabled } = useFeaturePermission('export_to_lms');
+  const { isEnabled: eventPostersEnabled } = useFeaturePermission('event_posters');
 
   // Check if any modal is open
   const isModalOpen = getModalState();
@@ -583,10 +584,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
         )}
       </div>
       <nav className="flex flex-col gap-1 mt-auto">
-        <Link href="/create/event-poster/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
-          <Presentation size={18} />
-          <span>{t('interface.eventPoster', 'Event Poster')}</span>
-        </Link>
+        {eventPostersEnabled && (
+          <Link href="/create/event-poster/questionnaire" className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+            <Presentation size={18} />
+            <span>{t('interface.eventPoster', 'Event Poster')}</span>
+          </Link>
+        )}
         <Link href="/projects?tab=trash" className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'trash' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}>
           <Trash2 size={18} />
           <span>{t('interface.trash', 'Trash')}</span>

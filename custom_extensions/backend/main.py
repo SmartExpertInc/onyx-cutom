@@ -6578,6 +6578,7 @@ async def startup_event():
                     ('course_table', 'Course Table', 'Use classic course table (view) instead of new course view (view-new)', 'Navigation'),
                     ('video_lesson', 'Video Lesson', 'Allow creating Video Lessons in Generate page', 'Creation'),
                     ('lesson_draft', 'Lesson Draft', 'Allow creating and viewing Lesson Drafts', 'Creation'),
+                    ('event_posters', 'Event Posters', 'Access to Event Poster creation functionality', 'Creation'),
                     ('chudo_market_themes', 'ChudoMarket Themes', 'Access to Chudo, Chudo 2, Forta, and Forta 2 presentation themes', 'Themes'),
                     ('col_assessment_type', 'Column: Assessment Type', 'Shows the Assessment Type column', 'Columns'),
                     ('col_content_volume', 'Column: Content Volume', 'Shows the Content Volume column', 'Columns'),

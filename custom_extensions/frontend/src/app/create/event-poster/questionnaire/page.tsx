@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLanguage } from '../../../../contexts/LanguageContext';
 
 export default function EventPosterQuestionnaire() {
   const router = useRouter();
+  const { t } = useLanguage();
   
   // Pre-populated data as specified
   const [eventName, setEventName] = useState("Велика онлайн-конференція");
@@ -98,10 +100,10 @@ export default function EventPosterQuestionnaire() {
                     <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z" fill="currentColor"/>
                   </svg>
                 </div>
-                Event Poster Questionnaire
+                {t('eventPoster.title', 'Event Poster Questionnaire')}
               </h1>
               <p className="text-blue-100 text-lg">
-                Fill out the form below to create your event poster template
+                {t('eventPoster.subtitle', 'Fill out the form below to create your event poster template')}
               </p>
             </div>
           </div>
@@ -112,41 +114,41 @@ export default function EventPosterQuestionnaire() {
               {/* Event Information Section */}
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                  Event Information
+                  {t('eventPoster.eventInformation', 'Event Information')}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">Назва події (Event Name)</label>
+                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.eventNameUkrainian', 'Назва події (Event Name)')}</label>
                     <input
                       type="text"
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                       value={eventName}
                       onChange={e => setEventName(e.target.value)}
-                      placeholder="Enter event name"
+                      placeholder={t('eventPoster.eventNamePlaceholder', 'Enter event name')}
                     />
                   </div>
                   
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">Дата (Date)</label>
+                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.dateUkrainian', 'Дата (Date)')}</label>
                     <input
                       type="text"
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                       value={date}
                       onChange={e => setDate(e.target.value)}
-                      placeholder="Enter date"
+                      placeholder={t('eventPoster.datePlaceholder', 'Enter date')}
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Тема/Заголовок (Topic/Title)</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.topicUkrainian', 'Тема/Заголовок (Topic/Title)')}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                     value={topic}
                     onChange={e => setTopic(e.target.value)}
-                    placeholder="Enter topic/title"
+                    placeholder={t('eventPoster.topicPlaceholder', 'Enter topic/title')}
                   />
                 </div>
               </div>
@@ -154,38 +156,38 @@ export default function EventPosterQuestionnaire() {
               {/* Speaker Information Section */}
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                  Speaker Information
+                  {t('eventPoster.speakerInformation', 'Speaker Information')}
                 </h3>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Головний спікер (Main Speaker)</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.mainSpeakerUkrainian', 'Головний спікер (Main Speaker)')}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                     value={mainSpeaker}
                     onChange={e => setMainSpeaker(e.target.value)}
-                    placeholder="Enter main speaker name"
+                    placeholder={t('eventPoster.mainSpeakerPlaceholder', 'Enter main speaker name')}
                   />
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Опис спікера (Speaker Description)</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.speakerDescriptionUkrainian', 'Опис спікера (Speaker Description)')}</label>
                   <textarea
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400 resize-none"
                     value={speakerDescription}
                     onChange={e => setSpeakerDescription(e.target.value)}
-                    placeholder="Enter speaker description"
+                    placeholder={t('eventPoster.speakerDescriptionPlaceholder', 'Enter speaker description')}
                     rows={3}
                   />
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Додаткові спікери (Additional Speakers)</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.additionalSpeakersUkrainian', 'Додаткові спікери (Additional Speakers)')}</label>
                   <textarea
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400 resize-none"
                     value={additionalSpeakers}
                     onChange={e => setAdditionalSpeakers(e.target.value)}
-                    placeholder="Enter additional speakers"
+                    placeholder={t('eventPoster.additionalSpeakersPlaceholder', 'Enter additional speakers')}
                     rows={2}
                   />
                 </div>
@@ -194,46 +196,46 @@ export default function EventPosterQuestionnaire() {
               {/* Ticket Information Section */}
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                  Ticket Information
+                  {t('eventPoster.ticketInformation', 'Ticket Information')}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">Ціна квитка (Ticket Price)</label>
+                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.ticketPriceUkrainian', 'Ціна квитка (Ticket Price)')}</label>
                     <input
                       type="text"
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                       value={ticketPrice}
                       onChange={e => setTicketPrice(e.target.value)}
-                      placeholder="Enter ticket price"
+                      placeholder={t('eventPoster.ticketPricePlaceholder', 'Enter ticket price')}
                     />
                   </div>
                   
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">Тип квитка (Ticket Type)</label>
+                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.ticketTypeUkrainian', 'Тип квитка (Ticket Type)')}</label>
                     <input
                       type="text"
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                       value={ticketType}
                       onChange={e => setTicketType(e.target.value)}
-                      placeholder="Enter ticket type"
+                      placeholder={t('eventPoster.ticketTypePlaceholder', 'Enter ticket type')}
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Умови безкоштовного доступу (Free Access Conditions)</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.freeAccessConditionsUkrainian', 'Умови безкоштовного доступу (Free Access Conditions)')}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                     value={freeAccessConditions}
                     onChange={e => setFreeAccessConditions(e.target.value)}
-                    placeholder="Enter free access conditions"
+                    placeholder={t('eventPoster.freeAccessConditionsPlaceholder', 'Enter free access conditions')}
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">Фото спікера (Speaker Photo)</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPoster.speakerPhotoUkrainian', 'Фото спікера (Speaker Photo)')}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -242,7 +244,7 @@ export default function EventPosterQuestionnaire() {
                   />
                   {speakerImage && (
                     <div className="mt-3">
-                      <p className="text-sm text-green-600 mb-2">✓ Image uploaded successfully</p>
+                      <p className="text-sm text-green-600 mb-2">{t('eventPoster.imageUploadedSuccessfully', '✓ Image uploaded successfully')}</p>
                       <img 
                         src={speakerImage} 
                         alt="Speaker preview" 
@@ -263,7 +265,7 @@ export default function EventPosterQuestionnaire() {
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    Generate Event Poster
+                    {t('eventPoster.generateEventPoster', 'Generate Event Poster')}
                   </div>
                 </button>
               </div>
