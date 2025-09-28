@@ -12,6 +12,8 @@ import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
 import { AnyQuizQuestion, MultipleChoiceQuestion, MultiSelectQuestion, MatchingQuestion, SortingQuestion, OpenAnswerQuestion } from '@/types/quizTypes';
 import { TextPresentationData, AnyContentBlock, HeadlineBlock, ParagraphBlock, BulletListBlock } from '@/types/textPresentation';
 import Image from 'next/image';
+import { useLanguage } from '../contexts/LanguageContext';
+import { renderQuestionByType } from '@/utils/quizRenderUtils';
 
 const CUSTOM_BACKEND_URL = '/api/custom-projects-backend';
 
@@ -1698,13 +1700,14 @@ const CarouselSlideDeckViewer: React.FC<{ deck: ComponentBasedSlideDeck }> = ({ 
   );
 };
 
-// Carousel version of QuizDisplay - exact copy but with carousel navigation
+// Carousel version of QuizDisplay - now uses shared utilities and supports all question types
 const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(true); // Always show answers in lesson plan view
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
+  const { t } = useLanguage();
   
   if (!dataToDisplay || !dataToDisplay.questions || dataToDisplay.questions.length === 0) {
   return (
@@ -1739,90 +1742,8 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
   const currentQuestion = questions[currentQuestionIndex];
   const questionNumber = currentQuestionIndex + 1;
 
-  // Exact same renderMultipleChoice as QuizDisplay
-  const renderMultipleChoice = (question: MultipleChoiceQuestion, index: number) => {
-    const isCorrect = userAnswers[index] === question.correct_option_id;
-    const showResult = showAnswers;
-
-    return (
-      <div className="mt-4">
-        <div className="space-y-2">
-          {question.options.map((option, optIndex) => (
-            <div key={option.id} className="flex items-start">
-              <div className="flex items-center h-5">
-                <div 
-                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                    option.id === question.correct_option_id ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'
-                  }`}
-                >
-                  {option.id === question.correct_option_id && (
-                    <div className="w-2 h-2 bg-white rounded-full" />
-                  )}
-      </div>
-              </div>
-              <div className="ml-3 flex-1">
-                <div className="flex items-center">
-                  <span className="font-medium mr-2 text-black">
-                    {String.fromCharCode(65 + optIndex)}.
-                  </span>
-                  <span className="text-black">{option.text}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-      </div>
-      
-        </div>
-    );
-  };
-
-  // Exact same renderMultiSelect as QuizDisplay  
-  const renderMultiSelect = (question: MultiSelectQuestion, index: number) => {
-    const userAnswer = userAnswers[index] || [];
-
-    let correctIds: string[] = [];
-    if (Array.isArray(question.correct_option_ids)) {
-      correctIds = question.correct_option_ids;
-    } else if (typeof question.correct_option_ids === 'string') {
-      correctIds = question.correct_option_ids.split(',').filter(id => id.trim() !== '');
-    }
-
-    const isCorrect = correctIds.every((id: string) => userAnswer.includes(id)) &&
-                     userAnswer.every((id: string) => correctIds.includes(id));
-    const showResult = showAnswers;
-
-    return (
-      <div className="mt-4">
-        <div className="space-y-2">
-          {question.options.map((option) => (
-            <div key={option.id} className="flex items-start">
-              <div className="flex items-center h-5">
-                <div 
-                  className={`w-4 h-4 rounded border flex items-center justify-center ${
-                    correctIds.includes(option.id) ? 'border-[#2563eb] bg-[#2563eb]' : 'border-gray-300'
-                  }`}
-                >
-                  {correctIds.includes(option.id) && (
-                    <div className="w-2 h-2 bg-white" />
-                  )}
-      </div>
-      </div>
-              <div className="ml-3 flex-1">
-                <div className="flex items-center">
-                  <span className="text-black">{option.text}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // Exact same renderQuestion as QuizDisplay
+  // Use shared rendering utilities that support all question types
   const renderQuestion = (question: AnyQuizQuestion, index: number) => {
-    const questionType = question.question_type;
-
     return (
       <div className="mb-8 p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="flex items-start mb-4">
@@ -1831,10 +1752,17 @@ const CarouselQuizDisplay: React.FC<{ dataToDisplay: any }> = ({ dataToDisplay }
           </span>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-black">{question.question_text}</h3>
+          </div>
         </div>
-        </div>
-        {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
-        {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
+        {renderQuestionByType({
+          question,
+          index,
+          userAnswers,
+          showAnswers,
+          isSubmitted: false, // Lesson plan view doesn't have submit functionality
+          isEditing: false,   // Lesson plan view is read-only
+          t
+        })}
       </div>
     );
   };
