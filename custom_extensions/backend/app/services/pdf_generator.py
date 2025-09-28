@@ -81,9 +81,9 @@ MAX_CONCURRENT_SLIDES = 2  # Reduced from 3 to 2 for stability
 BROWSER_MEMORY_LIMIT = 512  # Reduced from 1024 to 512 MB
 
 # --- Setup Jinja2 Environment ---
-TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
+TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates")
 if not os.path.exists(TEMPLATE_DIR):
-    TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates")
+    TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 
 logger.info(f"PDF Template Directory expected at: {TEMPLATE_DIR}")
 if not os.path.isdir(TEMPLATE_DIR):
