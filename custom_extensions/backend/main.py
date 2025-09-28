@@ -16975,9 +16975,119 @@ VIDEO LESSON SPECIFIC REQUIREMENTS:
             try:
                 # Step 1: Extract context from Onyx
                 if payload.fromConnectors and payload.connectorSources:
-                    # For connector-based filtering, extract context from specific connectors
-                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    if payload.selectedFiles:
+                        # Combined context: connectors + SmartDrive files
+                        logger.info(f"[HYBRID_CONTEXT] Extracting COMBINED context from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
+                        
+                        # Extract connector context
+                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        
+                        # Map SmartDrive paths to Onyx file IDs with proper normalization
+                        raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                        
+                        # Normalize paths to handle URL encoding and character variations
+                        smartdrive_file_paths = []
+                        for path in raw_paths:
+                            # Handle URL encoding
+                            try:
+                                from urllib.parse import unquote
+                                normalized_path = unquote(path)
+                            except:
+                                normalized_path = path
+                            
+                            # Handle `+` character variations (some systems use `+` in filenames)
+                            # Try both with and without `+` to match database records
+                            smartdrive_file_paths.append(normalized_path)
+                            if '+' in normalized_path:
+                                smartdrive_file_paths.append(normalized_path.replace('+', ''))
+                            
+                        onyx_user_id = await get_current_onyx_user_id(request)
+                        
+                        # DEBUG: Log the mapping attempt
+                        logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
+                        logger.info(f"[SMARTDRIVE_DEBUG] Raw paths: {raw_paths}")
+                        logger.info(f"[SMARTDRIVE_DEBUG] Normalized paths: {smartdrive_file_paths}")
+                        
+                        file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
+                        
+                        if file_ids:
+                            logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                            # Extract file context and combine with connector context
+                            file_context_from_smartdrive = await extract_file_context_from_onyx(file_ids, [], cookies)
+                            
+                            # Combine both contexts
+                            file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
+                        else:
+                            logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths, using only connector context")
+                            file_context = connector_context
+                    else:
+                        # For connector-based filtering only, extract context from specific connectors
+                        logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
+                        file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromConnectors and payload.selectedFiles:
+                    # SmartDrive files only (no connectors)
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
+                    
+                    # Map SmartDrive paths to Onyx file IDs
+                    raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                    
+                    # Normalize paths to handle URL encoding and character variations
+                    smartdrive_file_paths = []
+                    for path in raw_paths:
+                        # Try multiple variations to match database records
+                        from urllib.parse import unquote, quote
+                        import re
+                        
+                        candidates = []
+                        # Base variants
+                        candidates.append(path)
+                        try:
+                            decoded_path = unquote(path)
+                            candidates.append(decoded_path)
+                        except:
+                            decoded_path = path
+                        try:
+                            encoded_path = quote(path, safe='/')
+                            candidates.append(encoded_path)
+                        except:
+                            pass
+                        
+                        # Character normalization variants
+                        for candidate in list(candidates):
+                            # Handle spaces encoded as + or %20
+                            if '+' in candidate:
+                                candidates.append(candidate.replace('+', ' '))
+                                candidates.append(candidate.replace('+', '%20'))
+                            if '%20' in candidate:
+                                candidates.append(candidate.replace('%20', ' '))
+                                candidates.append(candidate.replace('%20', '+'))
+                            if ' ' in candidate:
+                                candidates.append(candidate.replace(' ', '+'))
+                                candidates.append(candidate.replace(' ', '%20'))
+                        
+                        # Remove duplicates while preserving order
+                        seen = set()
+                        for candidate in candidates:
+                            if candidate not in seen:
+                                smartdrive_file_paths.append(candidate)
+                                seen.add(candidate)
+                    
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    
+                    # DEBUG: Log the mapping attempt
+                    logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Raw paths: {raw_paths}")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Normalized paths: {smartdrive_file_paths}")
+                    
+                    file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
+                    
+                    if file_ids:
+                        logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                        # Extract file context from SmartDrive files
+                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                    else:
+                        logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
+                        file_context = ""
                 elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
@@ -21843,6 +21953,70 @@ async def quiz_generate(payload: QuizWizardPreview, request: Request):
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
                     file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromConnectors and payload.selectedFiles:
+                    # SmartDrive files only (no connectors)
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
+                    
+                    # Map SmartDrive paths to Onyx file IDs
+                    raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                    
+                    # Normalize paths to handle URL encoding and character variations
+                    smartdrive_file_paths = []
+                    for path in raw_paths:
+                        # Try multiple variations to match database records
+                        from urllib.parse import unquote, quote
+                        import re
+                        
+                        candidates = []
+                        # Base variants
+                        candidates.append(path)
+                        try:
+                            decoded_path = unquote(path)
+                            candidates.append(decoded_path)
+                        except:
+                            decoded_path = path
+                        try:
+                            encoded_path = quote(path, safe='/')
+                            candidates.append(encoded_path)
+                        except:
+                            pass
+                        
+                        # Character normalization variants
+                        for candidate in list(candidates):
+                            # Handle spaces encoded as + or %20
+                            if '+' in candidate:
+                                candidates.append(candidate.replace('+', ' '))
+                                candidates.append(candidate.replace('+', '%20'))
+                            if '%20' in candidate:
+                                candidates.append(candidate.replace('%20', ' '))
+                                candidates.append(candidate.replace('%20', '+'))
+                            if ' ' in candidate:
+                                candidates.append(candidate.replace(' ', '+'))
+                                candidates.append(candidate.replace(' ', '%20'))
+                        
+                        # Remove duplicates while preserving order
+                        seen = set()
+                        for candidate in candidates:
+                            if candidate not in seen:
+                                smartdrive_file_paths.append(candidate)
+                                seen.add(candidate)
+                    
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    
+                    # DEBUG: Log the mapping attempt
+                    logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Raw paths: {raw_paths}")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Normalized paths: {smartdrive_file_paths}")
+                    
+                    file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
+                    
+                    if file_ids:
+                        logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                        # Extract file context from SmartDrive files
+                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                    else:
+                        logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
+                        file_context = ""
                 elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
@@ -22786,6 +22960,70 @@ async def text_presentation_generate(payload: TextPresentationWizardPreview, req
                     # For connector-based filtering, extract context from specific connectors
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
                     file_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                elif payload.fromConnectors and payload.selectedFiles:
+                    # SmartDrive files only (no connectors)
+                    logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
+                    
+                    # Map SmartDrive paths to Onyx file IDs
+                    raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
+                    
+                    # Normalize paths to handle URL encoding and character variations
+                    smartdrive_file_paths = []
+                    for path in raw_paths:
+                        # Try multiple variations to match database records
+                        from urllib.parse import unquote, quote
+                        import re
+                        
+                        candidates = []
+                        # Base variants
+                        candidates.append(path)
+                        try:
+                            decoded_path = unquote(path)
+                            candidates.append(decoded_path)
+                        except:
+                            decoded_path = path
+                        try:
+                            encoded_path = quote(path, safe='/')
+                            candidates.append(encoded_path)
+                        except:
+                            pass
+                        
+                        # Character normalization variants
+                        for candidate in list(candidates):
+                            # Handle spaces encoded as + or %20
+                            if '+' in candidate:
+                                candidates.append(candidate.replace('+', ' '))
+                                candidates.append(candidate.replace('+', '%20'))
+                            if '%20' in candidate:
+                                candidates.append(candidate.replace('%20', ' '))
+                                candidates.append(candidate.replace('%20', '+'))
+                            if ' ' in candidate:
+                                candidates.append(candidate.replace(' ', '+'))
+                                candidates.append(candidate.replace(' ', '%20'))
+                        
+                        # Remove duplicates while preserving order
+                        seen = set()
+                        for candidate in candidates:
+                            if candidate not in seen:
+                                smartdrive_file_paths.append(candidate)
+                                seen.add(candidate)
+                    
+                    onyx_user_id = await get_current_onyx_user_id(request)
+                    
+                    # DEBUG: Log the mapping attempt
+                    logger.info(f"[SMARTDRIVE_DEBUG] Attempting to map paths for user {onyx_user_id}:")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Raw paths: {raw_paths}")
+                    logger.info(f"[SMARTDRIVE_DEBUG] Normalized paths: {smartdrive_file_paths}")
+                    
+                    file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
+                    
+                    if file_ids:
+                        logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                        # Extract file context from SmartDrive files
+                        file_context = await extract_file_context_from_onyx(file_ids, [], cookies)
+                    else:
+                        logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
+                        file_context = ""
                 elif payload.fromKnowledgeBase:
                     # For Knowledge Base searches, extract context from the entire Knowledge Base
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from entire Knowledge Base for topic: {payload.prompt}")
