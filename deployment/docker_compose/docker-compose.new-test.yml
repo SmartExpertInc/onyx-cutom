@@ -278,6 +278,7 @@ services:
       args:
         - NEXT_PUBLIC_API_BASE_URL_ARG=/api/custom-projects-backend 
         - NEXT_PUBLIC_MIXPANEL_TOKEN=${NEXT_PUBLIC_MIXPANEL_TOKEN}
+        - NEXT_PUBLIC_USERBACK_TOKEN=${NEXT_PUBLIC_USERBACK_TOKEN}
     # ports:
       # - "3001:3001"
     restart: always
