@@ -28479,6 +28479,50 @@ async def create_smartdrive_connector(
                 else:
                     connector_specific_config[key] = value
         
+        # Filter connector config to only include supported parameters
+        supported_connector_params = {
+            'google_drive': [
+                'include_shared_drives', 'include_my_drives', 'include_files_shared_with_me',
+                'shared_drive_urls', 'my_drive_emails', 'shared_folder_urls', 
+                'specific_user_emails', 'batch_size',
+                # Legacy parameters (deprecated but still supported)
+                'folder_paths', 'include_shared', 'follow_shortcuts', 
+                'only_org_public', 'continue_on_failure'
+            ],
+            'notion': [
+                'root_page_id', 'recursive_search', 'follow_links', 
+                'retrieve_blocks', 'include_people', 'include_databases'
+            ],
+            'slack': [
+                'channel_ids', 'include_public_channels', 'include_private_channels',
+                'include_direct_messages', 'include_thread_replies', 'message_limit'
+            ],
+            'github': [
+                'repo_owner', 'repositories', 'include_prs', 'include_issues',
+                'include_code', 'include_releases', 'include_wikis'
+            ],
+            'confluence': [
+                'confluence_url', 'space_keys', 'include_attachments',
+                'include_archived', 'include_drafts'
+            ],
+            'web': [
+                'base_url', 'web_connector_type', 'scroll_before_scraping',
+                'recurse_depth', 'sitemap_url'
+            ]
+        }
+        
+        if connector_id in supported_connector_params:
+            supported_params = supported_connector_params[connector_id]
+            filtered_config = {
+                key: value for key, value in connector_specific_config.items() 
+                if key in supported_params
+            }
+            # Log if any parameters were filtered out
+            filtered_out = set(connector_specific_config.keys()) - set(filtered_config.keys())
+            if filtered_out:
+                logger.warning(f"Filtered unsupported parameters for {connector_id}: {filtered_out}")
+            connector_specific_config = filtered_config
+        
         # Create the connector payload
         connector_payload = {
             "name": name,
