@@ -28511,6 +28511,27 @@ async def create_smartdrive_connector(
             ]
         }
         
+        # First, remove common frontend form control parameters that should never be passed to connectors
+        frontend_only_params = {
+            'indexing_scope', 'everything', 'specific_folders',  # Tab structure parameters
+            'tabs', 'fields', 'sections',  # Form structure parameters
+            'file_types', 'folder_ids',  # Legacy/unsupported parameters
+            'submitEndpoint', 'oauthSupported', 'oauthConfig'  # Form config parameters
+        }
+        
+        # Remove frontend-only parameters
+        cleaned_config = {
+            key: value for key, value in connector_specific_config.items() 
+            if key not in frontend_only_params
+        }
+        
+        # Log if any frontend parameters were filtered out
+        frontend_filtered = set(connector_specific_config.keys()) - set(cleaned_config.keys())
+        if frontend_filtered:
+            logger.info(f"Removed frontend form parameters for {connector_id}: {frontend_filtered}")
+        
+        connector_specific_config = cleaned_config
+        
         if connector_id in supported_connector_params:
             supported_params = supported_connector_params[connector_id]
             filtered_config = {
@@ -28600,15 +28621,24 @@ async def create_smartdrive_connector(
             linking_headers = auth_headers.copy()
             linking_headers['x-smart-drive-credential'] = 'true'
             
+            # Sanitize name to prevent JSON issues
+            safe_name = str(name).replace('"', '\\"').replace("'", "\\'") if name else f'Smart Drive {connector_id}'
+            
+            # Create payload with sanitized data
+            cc_pair_payload = {
+                "name": safe_name,
+                "access_type": "private",
+                "groups": [],  # Must be an empty list, not None
+                "auto_sync_options": auto_sync_options
+            }
+            
+            # Log the payload for debugging (without sensitive data)
+            logger.info(f"Creating connector-credential pair with payload: {cc_pair_payload}")
+            
             cc_pair_response = await client.put(
                 ensure_https_url(f"/api/manage/connector/{connector_id}/credential/{credential_id}"),
                 headers=linking_headers,
-                json={
-                    "name": name,
-                    "access_type": "private",
-                    "groups": [],  # Must be an empty list, not None
-                    "auto_sync_options": auto_sync_options
-                }
+                json=cc_pair_payload
             )
             
             if not cc_pair_response.is_success:

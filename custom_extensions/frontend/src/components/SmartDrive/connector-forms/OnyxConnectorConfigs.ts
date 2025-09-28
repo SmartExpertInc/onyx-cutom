@@ -369,39 +369,12 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     description: "Configure Google Drive connector",
     values: [
       {
-        type: "tab",
-        name: "indexing_scope",
-        label: "How should we index your Google Drive?",
+        type: "list",
+        query: "Enter shared folder URLs (optional):",
+        label: "Shared Folder URLs",
+        name: "shared_folder_urls",
+        description: "Specify folder URLs to index. Leave empty to index based on the checkboxes below.",
         optional: true,
-        tabs: [
-          {
-            value: "specific_folders",
-            label: "Specific Folders",
-            fields: [
-              {
-                type: "list",
-                query: "Enter folder URLs:",
-                label: "Folder URLs",
-                name: "shared_folder_urls",
-                description: "Specify 0 or more folder URLs to index from.",
-                optional: true,
-              },
-            ],
-          },
-          {
-            value: "everything",
-            label: "Everything",
-            fields: [
-              {
-                type: "string_tab",
-                label: "Everything",
-                name: "everything",
-                description:
-                  "This connector will index all files and folders the provided credentials have access to!",
-              },
-            ],
-          },
-        ],
       },
       {
         type: "checkbox",
@@ -431,9 +404,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         default: false,
       },
     ],
-    advanced_values: [
-      // Removed file_types parameter as it's not supported by GoogleDriveConnector
-    ],
+    advanced_values: [],
   },
   zendesk: {
     description: "Configure Zendesk connector",
