@@ -2129,6 +2129,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"title" | "created" | "lastViewed" | "creator">(
     "lastViewed"
@@ -2784,9 +2785,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     [projects, folders, searchTerm, sortBy, sortOrder, lessonDataCache, contentTypeFilter]
   );
 
-  // Helper function to calculate lesson data for a project
+  // Helper function to calculate lesson data for a project with cancellation support
   const getLessonData = useCallback(
-    async (project: Project) => {
+    async (project: Project, signal?: AbortSignal) => {
       if (project.designMicroproductType !== "Training Plan") {
         return { lessonCount: "-", totalHours: "-", completionTime: "-" };
       }
@@ -2807,6 +2808,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
             method: "GET",
             headers,
             credentials: "same-origin",
+            signal, // Add AbortSignal support
           }
         );
 
@@ -2825,6 +2827,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           return { lessonCount: "?", totalHours: "?", completionTime: "?" };
         }
       } catch (error) {
+        // Don't log errors if the request was cancelled
+        if (error instanceof Error && error.name === 'AbortError') {
+          return { lessonCount: "...", totalHours: "...", completionTime: "..." };
+        }
         console.error("Error fetching lesson data:", error);
         return { lessonCount: "?", totalHours: "?", completionTime: "?" };
       }
@@ -2837,44 +2843,98 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     return formatCompletionTimeLocalized(minutes);
   };
 
-  // Load lesson data for all Training Plan projects on mount
+  // Load lesson data for Training Plan projects in parallel (non-blocking)
   useEffect(() => {
-    const loadLessonData = async () => {
-      const trainingPlanProjects = projects.filter(
-        (p) => p.designMicroproductType === "Training Plan"
-      );
-      const newCache: Record<
-        number,
-        {
-          lessonCount: number | string;
-          totalHours: number | string;
-          completionTime: number | string;
-        }
-      > = {};
+    const trainingPlanProjects = projects.filter(
+      (p) => p.designMicroproductType === "Training Plan"
+    );
 
-      for (const project of trainingPlanProjects) {
-        try {
-          const data = await getLessonData(project);
-          newCache[project.id] = data;
-        } catch (error) {
-          console.error(
-            `Error loading lesson data for project ${project.id}:`,
-            error
-          );
-          newCache[project.id] = {
-            lessonCount: "?",
-            totalHours: "?",
-            completionTime: "?",
-          };
+    if (trainingPlanProjects.length === 0) {
+      return;
+    }
+
+    // Cancel any existing requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    const currentController = abortControllerRef.current;
+
+    // Initialize cache with loading state
+    const loadingCache: Record<number, any> = {};
+    trainingPlanProjects.forEach(project => {
+      loadingCache[project.id] = {
+        lessonCount: "...",
+        totalHours: "...",
+        completionTime: "...",
+      };
+    });
+    setLessonDataCache(prev => ({ ...prev, ...loadingCache }));
+
+    // Load lesson data in parallel (non-blocking)
+    const loadLessonDataParallel = async () => {
+      try {
+        // Process projects in batches of 3 to avoid overwhelming the server
+        const batchSize = 3;
+        
+        for (let i = 0; i < trainingPlanProjects.length; i += batchSize) {
+          const batch = trainingPlanProjects.slice(i, i + batchSize);
+          
+          const batchPromises = batch.map(async (project) => {
+            try {
+              const data = await getLessonData(project, currentController.signal);
+              
+              // Update cache immediately when each request completes
+              if (!currentController.signal.aborted) {
+                setLessonDataCache(prev => ({
+                  ...prev,
+                  [project.id]: data,
+                }));
+              }
+              
+              return { projectId: project.id, data };
+            } catch (error) {
+              if (!currentController.signal.aborted) {
+                const errorData = {
+                  lessonCount: "?",
+                  totalHours: "?",
+                  completionTime: "?",
+                };
+                setLessonDataCache(prev => ({
+                  ...prev,
+                  [project.id]: errorData,
+                }));
+              }
+              return { projectId: project.id, data: null };
+            }
+          });
+
+          // Wait for current batch before starting next batch
+          await Promise.all(batchPromises);
+          
+          // Small delay between batches to be nice to the server
+          if (i + batchSize < trainingPlanProjects.length && !currentController.signal.aborted) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+        }
+      } catch (error) {
+        if (!currentController.signal.aborted) {
+          console.error('Error in parallel lesson data loading:', error);
         }
       }
-
-      setLessonDataCache(newCache);
     };
 
-    if (projects.length > 0) {
-      loadLessonData();
-    }
+    // Start loading in background (don't await - non-blocking)
+    loadLessonDataParallel();
+
+    // Cleanup function
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [projects, getLessonData]);
 
   useEffect(() => {

@@ -37,7 +37,7 @@ import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
 import WorkspaceMembers from '../../components/WorkspaceMembers';
-import useFeaturePermission from '../../hooks/useFeaturePermission';
+import useFeaturePermission, { preloadFeaturePermissions } from '../../hooks/useFeaturePermission';
 import workspaceService from '../../services/workspaceService';
 import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
 import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
@@ -679,10 +679,11 @@ const ProjectsPageInner: React.FC = () => {
   const [currentUser, setUser] = useState<User | null>(null);
   const [userback, setUserback] = useState<UserbackWidget | null>(null);
 
-  // Feature flags for conditional tabs/content
-  const { isEnabled: offersTabEnabled } = useFeaturePermission('offers_tab');
-  const { isEnabled: workspaceTabEnabled } = useFeaturePermission('workspace_tab');
-  const { isEnabled: exportToLMSEnabled } = useFeaturePermission('export_to_lms');
+  // Feature flags for conditional tabs/content (optimized to avoid multiple requests)
+  const { isEnabled: offersTabEnabled, loading: offersLoading } = useFeaturePermission('offers_tab');
+  const { isEnabled: workspaceTabEnabled, loading: workspaceLoading } = useFeaturePermission('workspace_tab');
+  const { isEnabled: exportToLMSEnabled, loading: exportLoading } = useFeaturePermission('export_to_lms');
+  
   const isOffersAllowed = isOffers && offersTabEnabled;
   const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
   const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
@@ -725,6 +726,17 @@ const ProjectsPageInner: React.FC = () => {
         // Identify user for Mixpanel
         identifyUser(user.id);
         updateUserProfile(user.email);
+
+        // Pre-cache common feature permissions to reduce multiple requests
+        preloadFeaturePermissions([
+          'course_table',
+          'col_quality_tier',
+          'offers_tab',
+          'workspace_tab',
+          'export_to_lms'
+        ]).catch(error => {
+          console.warn('Failed to preload feature permissions:', error);
+        });
       } catch (error) {
         setUser(null);
         resetUserIdentity();
