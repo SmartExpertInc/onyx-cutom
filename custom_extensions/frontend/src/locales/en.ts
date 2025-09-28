@@ -1474,8 +1474,8 @@ export const en = {
       }
     },
 
-    // Event Poster
-    eventPoster: {
+    // Event Poster Questionnaire
+    eventPosterForm: {
       title: "Event Poster Questionnaire",
       subtitle: "Fill out the form below to create your event poster template",
       eventInformation: "Event Information",
