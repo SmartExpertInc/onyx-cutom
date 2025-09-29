@@ -3646,18 +3646,73 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     timeEvent('Create Product');
   };
 
-  // Handle category selection to show/hide questions
+  // Survey step state
+  const [surveyStep, setSurveyStep] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [surveyData, setSurveyData] = useState({
+    category: '',
+    workRole: '',
+    companySize: '',
+    industry: '',
+    personalUse: '',
+    additionalInfo: ''
+  });
+
+  // Handle category selection and move to next step
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const workQuestions = document.getElementById('work-questions');
-    const personalQuestions = document.getElementById('personal-questions');
-    
-    if (event.target.value === 'work') {
-      workQuestions?.classList.remove('hidden');
-      personalQuestions?.classList.add('hidden');
-    } else if (event.target.value === 'personal') {
-      personalQuestions?.classList.remove('hidden');
-      workQuestions?.classList.add('hidden');
-    }
+    const category = event.target.value;
+    setSelectedCategory(category);
+    setSurveyData(prev => ({ ...prev, category }));
+    setSurveyStep(2);
+  };
+
+  // Handle work role selection
+  const handleWorkRoleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSurveyData(prev => ({ ...prev, workRole: event.target.value }));
+    setSurveyStep(3);
+  };
+
+  // Handle company size selection
+  const handleCompanySizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSurveyData(prev => ({ ...prev, companySize: event.target.value }));
+    setSurveyStep(4);
+  };
+
+  // Handle industry selection
+  const handleIndustryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSurveyData(prev => ({ ...prev, industry: event.target.value }));
+    setSurveyStep(5);
+  };
+
+  // Handle personal use selection
+  const handlePersonalUseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSurveyData(prev => ({ ...prev, personalUse: event.target.value }));
+    setSurveyStep(2); // For personal, we can go directly to completion
+  };
+
+  // Handle additional info and complete survey
+  const handleAdditionalInfoChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSurveyData(prev => ({ ...prev, additionalInfo: event.target.value }));
+  };
+
+  // Complete survey
+  const completeSurvey = () => {
+    console.log('Survey completed:', surveyData);
+    handleCreateProduct();
+  };
+
+  // Reset survey when modal opens
+  const resetSurvey = () => {
+    setSurveyStep(1);
+    setSelectedCategory('');
+    setSurveyData({
+      category: '',
+      workRole: '',
+      companySize: '',
+      industry: '',
+      personalUse: '',
+      additionalInfo: ''
+    });
   };
 
   // Add these just before the render block
@@ -3717,7 +3772,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </div>
                 </Button>
               </Link>
-              <Dialog>
+              <Dialog onOpenChange={(open) => open && resetSurvey()}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="download" 
@@ -3733,151 +3788,174 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
-                    <DialogTitle>What do you plan to use the ContentBuilder for?</DialogTitle>
+                    <DialogTitle>
+                      {surveyStep === 1 && "What do you plan to use the ContentBuilder for?"}
+                      {surveyStep === 2 && selectedCategory === 'work' && "What best describes your role?"}
+                      {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
+                      {surveyStep === 4 && selectedCategory === 'work' && "What industry are you in?"}
+                      {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
+                    </DialogTitle>
                     <DialogDescription>
                       Help us understand your needs and provide you with the best ContentBuilder experience.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-6 py-4">
-                    {/* Main Category Selection */}
-                    <div className="space-y-4">
-                      <Label className="text-base font-semibold">
-                        What do you plan to use the ContentBuilder for?
-                      </Label>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <input type="radio" id="work" name="main-category" value="work" className="w-4 h-4" onChange={handleCategoryChange} />
-                          <Label htmlFor="work" className="text-sm font-medium">Work</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <input type="radio" id="personal" name="main-category" value="personal" className="w-4 h-4" onChange={handleCategoryChange} />
-                          <Label htmlFor="personal" className="text-sm font-medium">Personal</Label>
+                    {/* Step 1: Main Category Selection */}
+                    {surveyStep === 1 && (
+                      <div className="space-y-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <input type="radio" id="work" name="main-category" value="work" className="w-4 h-4" onChange={handleCategoryChange} />
+                            <Label htmlFor="work" className="text-sm font-medium">Work</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <input type="radio" id="personal" name="main-category" value="personal" className="w-4 h-4" onChange={handleCategoryChange} />
+                            <Label htmlFor="personal" className="text-sm font-medium">Personal</Label>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Work Questions */}
-                    <div id="work-questions" className="space-y-4 hidden">
-                      <div className="space-y-2">
-                        <Label className="text-base font-semibold">
-                          What best describes your role?
-                        </Label>
+                    {/* Step 2: Work Role */}
+                    {surveyStep === 2 && selectedCategory === 'work' && (
+                      <div className="space-y-4">
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="marketer" name="work-role" value="marketer" className="w-4 h-4" />
+                            <input type="radio" id="marketer" name="work-role" value="marketer" className="w-4 h-4" onChange={handleWorkRoleChange} />
                             <Label htmlFor="marketer" className="text-sm">Marketer</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="hr-ld" name="work-role" value="hr-ld" className="w-4 h-4" />
+                            <input type="radio" id="hr-ld" name="work-role" value="hr-ld" className="w-4 h-4" onChange={handleWorkRoleChange} />
                             <Label htmlFor="hr-ld" className="text-sm">HR / L&D</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="business-owner" name="work-role" value="business-owner" className="w-4 h-4" />
+                            <input type="radio" id="business-owner" name="work-role" value="business-owner" className="w-4 h-4" onChange={handleWorkRoleChange} />
                             <Label htmlFor="business-owner" className="text-sm">Business Owner</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="content-creator" name="work-role" value="content-creator" className="w-4 h-4" />
+                            <input type="radio" id="content-creator" name="work-role" value="content-creator" className="w-4 h-4" onChange={handleWorkRoleChange} />
                             <Label htmlFor="content-creator" className="text-sm">Content Creator</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="developer" name="work-role" value="developer" className="w-4 h-4" />
+                            <input type="radio" id="developer" name="work-role" value="developer" className="w-4 h-4" onChange={handleWorkRoleChange} />
                             <Label htmlFor="developer" className="text-sm">Developer</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="work-other" name="work-role" value="other" className="w-4 h-4" />
+                            <input type="radio" id="work-other" name="work-role" value="other" className="w-4 h-4" onChange={handleWorkRoleChange} />
                             <Label htmlFor="work-other" className="text-sm">Other</Label>
                           </div>
                         </div>
                       </div>
+                    )}
 
-                      <div className="space-y-2">
-                        <Label className="text-base font-semibold">
-                          What is the size of your company?
-                        </Label>
+                    {/* Step 3: Company Size */}
+                    {surveyStep === 3 && selectedCategory === 'work' && (
+                      <div className="space-y-4">
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-1-10" name="company-size" value="1-10" className="w-4 h-4" />
+                            <input type="radio" id="size-1-10" name="company-size" value="1-10" className="w-4 h-4" onChange={handleCompanySizeChange} />
                             <Label htmlFor="size-1-10" className="text-sm">1–10</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-11-50" name="company-size" value="11-50" className="w-4 h-4" />
+                            <input type="radio" id="size-11-50" name="company-size" value="11-50" className="w-4 h-4" onChange={handleCompanySizeChange} />
                             <Label htmlFor="size-11-50" className="text-sm">11–50</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-51-500" name="company-size" value="51-500" className="w-4 h-4" />
+                            <input type="radio" id="size-51-500" name="company-size" value="51-500" className="w-4 h-4" onChange={handleCompanySizeChange} />
                             <Label htmlFor="size-51-500" className="text-sm">51–500</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-500-plus" name="company-size" value="500+" className="w-4 h-4" />
+                            <input type="radio" id="size-500-plus" name="company-size" value="500+" className="w-4 h-4" onChange={handleCompanySizeChange} />
                             <Label htmlFor="size-500-plus" className="text-sm">500+</Label>
                           </div>
                         </div>
                       </div>
+                    )}
 
-                      <div className="space-y-2">
-                        <Label className="text-base font-semibold">
-                          What industry best describes your work?
-                        </Label>
+                    {/* Step 4: Industry */}
+                    {surveyStep === 4 && selectedCategory === 'work' && (
+                      <div className="space-y-4">
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="video-production" name="work-industry" value="video-production" className="w-4 h-4" />
+                            <input type="radio" id="video-production" name="work-industry" value="video-production" className="w-4 h-4" onChange={handleIndustryChange} />
                             <Label htmlFor="video-production" className="text-sm">Video Production</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="digital-marketing" name="work-industry" value="digital-marketing" className="w-4 h-4" />
+                            <input type="radio" id="digital-marketing" name="work-industry" value="digital-marketing" className="w-4 h-4" onChange={handleIndustryChange} />
                             <Label htmlFor="digital-marketing" className="text-sm">Digital Marketing</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="learning-development" name="work-industry" value="learning-development" className="w-4 h-4" />
+                            <input type="radio" id="learning-development" name="work-industry" value="learning-development" className="w-4 h-4" onChange={handleIndustryChange} />
                             <Label htmlFor="learning-development" className="text-sm">Learning & Development</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="internal-communications" name="work-industry" value="internal-communications" className="w-4 h-4" />
+                            <input type="radio" id="internal-communications" name="work-industry" value="internal-communications" className="w-4 h-4" onChange={handleIndustryChange} />
                             <Label htmlFor="internal-communications" className="text-sm">Internal Communications</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="creative-branding" name="work-industry" value="creative-branding" className="w-4 h-4" />
+                            <input type="radio" id="creative-branding" name="work-industry" value="creative-branding" className="w-4 h-4" onChange={handleIndustryChange} />
                             <Label htmlFor="creative-branding" className="text-sm">Creative / Branding</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="work-industry-other" name="work-industry" value="other" className="w-4 h-4" />
+                            <input type="radio" id="work-industry-other" name="work-industry" value="other" className="w-4 h-4" onChange={handleIndustryChange} />
                             <Label htmlFor="work-industry-other" className="text-sm">Other</Label>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Personal Questions */}
-                    <div id="personal-questions" className="space-y-4 hidden">
-                      <div className="space-y-2">
-                        <Label className="text-base font-semibold">
-                          What will you mainly use the platform for?
-                        </Label>
+                    {/* Step 2: Personal Use */}
+                    {surveyStep === 2 && selectedCategory === 'personal' && (
+                      <div className="space-y-4">
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="personal-projects" name="personal-use" value="personal-projects" className="w-4 h-4" />
+                            <input type="radio" id="personal-projects" name="personal-use" value="personal-projects" className="w-4 h-4" onChange={handlePersonalUseChange} />
                             <Label htmlFor="personal-projects" className="text-sm">Personal projects</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="learning-skills" name="personal-use" value="learning-skills" className="w-4 h-4" />
+                            <input type="radio" id="learning-skills" name="personal-use" value="learning-skills" className="w-4 h-4" onChange={handlePersonalUseChange} />
                             <Label htmlFor="learning-skills" className="text-sm">Learning new skills</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="portfolio-creation" name="personal-use" value="portfolio-creation" className="w-4 h-4" />
+                            <input type="radio" id="portfolio-creation" name="personal-use" value="portfolio-creation" className="w-4 h-4" onChange={handlePersonalUseChange} />
                             <Label htmlFor="portfolio-creation" className="text-sm">Portfolio creation</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="social-media" name="personal-use" value="social-media" className="w-4 h-4" />
+                            <input type="radio" id="social-media" name="personal-use" value="social-media" className="w-4 h-4" onChange={handlePersonalUseChange} />
                             <Label htmlFor="social-media" className="text-sm">Social media content</Label>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Final Step: Additional Info */}
+                    {surveyStep === 5 && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="additional-info" className="text-base font-semibold">
+                            Additional Information (Optional)
+                          </Label>
+                          <textarea
+                            id="additional-info"
+                            placeholder="Tell us more about your specific needs or goals..."
+                            className="w-full p-3 border border-gray-300 rounded-md h-20 resize-none"
+                            onChange={handleAdditionalInfoChange}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
+                  
                   <DialogFooter>
-                    <Button type="submit" onClick={handleCreateProduct} className="w-full">
-                      Complete Registration
-                    </Button>
+                    {surveyStep === 5 ? (
+                      <Button type="submit" onClick={completeSurvey} className="w-full">
+                        Complete Registration
+                      </Button>
+                    ) : (
+                      <div className="w-full text-center text-sm text-gray-500">
+                        Step {surveyStep} of {selectedCategory === 'work' ? '5' : '2'}
+                      </div>
+                    )}
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
