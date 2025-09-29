@@ -114,6 +114,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
   const [editingHeader, setEditingHeader] = useState<number | null>(null);
+  
+  // State for hover effects
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -326,22 +330,32 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
     <div style={slideStyles}>
       {/* Title */}
       <div style={{ marginBottom: '30px' }}>
-        {editingTitle && isEditable ? (
-          <InlineEditor
-            initialValue={title}
-            onSave={handleTitleUpdate}
-            onCancel={() => setEditingTitle(false)}
-            style={titleStyles}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={() => isEditable && setEditingTitle(true)}
-            className={isEditable ? 'cursor-pointer' : ''}
-          >
-            {title}
-          </h1>
-        )}
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
+          {editingTitle && isEditable ? (
+            <InlineEditor
+              initialValue={title}
+              onSave={handleTitleUpdate}
+              onCancel={() => setEditingTitle(false)}
+              style={titleStyles}
+            />
+          ) : (
+            <h1 
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) setEditingTitle(true);
+              }}
+              className={isEditable ? 'cursor-pointer' : ''}
+            >
+              {title}
+            </h1>
+          )}
+        </div>
       </div>
 
       {/* Table Container - NO BACKGROUND */}
@@ -349,69 +363,83 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
         <table style={tableStyles}>
           {/* Headers */}
           <thead>
-            <tr className="group">
+            <tr>
               {/* Empty corner cell */}
               <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9' }}></th>
               
               {/* Team headers */}
               {tableData.headers.map((header, index) => (
-                <th key={index} style={{
-                  ...headerStyles,
-                  borderRight: index === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
-                }}>
-                  {editingHeader === index && isEditable ? (
-                    <InlineEditor
-                      initialValue={header}
-                      onSave={(value) => handleHeaderUpdate(index, value)}
-                      onCancel={() => setEditingHeader(null)}
-                      style={{
-                        color: '#ffffff',
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        outline: 'none'
-                      }}
-                    />
-                  ) : (
-                    <div 
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center', 
-                        gap: '8px',
-                        position: 'relative'
-                      }}
-                    >
-                      <span 
-                        onClick={() => isEditable && setEditingHeader(index)}
-                        className={isEditable ? 'cursor-pointer' : ''}
+                <th 
+                  key={index} 
+                  style={{
+                    ...headerStyles,
+                    borderRight: index === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
+                  }}
+                  onMouseEnter={() => setHoveredColumn(index)}
+                  onMouseLeave={() => setHoveredColumn(null)}
+                >
+                  <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+                    {editingHeader === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={header}
+                        onSave={(value) => handleHeaderUpdate(index, value)}
+                        onCancel={() => setEditingHeader(null)}
+                        style={{
+                          color: '#ffffff',
+                          textAlign: 'center',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          outline: 'none'
+                        }}
+                      />
+                    ) : (
+                      <div 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '8px',
+                          position: 'relative'
+                        }}
                       >
-                        {header}
-                      </span>
-                      {isEditable && (
-                        <button
-                          onClick={() => removeColumn(index)}
-                          style={{
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            color: '#ffffff',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            opacity: 0,
-                            transition: 'opacity 0.2s ease',
-                            position: 'absolute',
-                            right: '8px'
+                        <span 
+                          onClick={(e) => {
+                            const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                            if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              return;
+                            }
+                            if (isEditable) setEditingHeader(index);
                           }}
-                          className="group-hover:opacity-100"
-                          title="Remove Column"
+                          className={isEditable ? 'cursor-pointer' : ''}
                         >
-                          ✗
-                        </button>
-                      )}
-                    </div>
-                  )}
+                          {header}
+                        </span>
+                        {isEditable && (
+                          <button
+                            onClick={() => removeColumn(index)}
+                            style={{
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              color: '#ffffff',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              opacity: hoveredColumn === index ? 1 : 0,
+                              transition: 'opacity 0.2s ease',
+                              position: 'absolute',
+                              right: '8px'
+                            }}
+                            title="Remove Column"
+                          >
+                            ✗
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </th>
               ))}
               
@@ -440,7 +468,11 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
           {/* Body */}
           <tbody>
             {tableData.rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="group">
+              <tr 
+                key={rowIndex}
+                onMouseEnter={() => setHoveredRow(rowIndex)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
                 {row.map((cell, colIndex) => {
                   const isFirstColumn = colIndex === 0;
                   const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
@@ -453,30 +485,40 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                         borderRight: colIndex === row.length - 1 ? 'none' : '1px solid #E0E0E0'
                       }}
                     >
-                      {isEditingThisCell && isEditable ? (
-                        <InlineEditor
-                          initialValue={cell}
-                          onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
-                          onCancel={() => setEditingCell(null)}
-                          style={{
-                            color: '#000000',
-                            textAlign: isFirstColumn ? 'left' : 'center',
-                            fontSize: '0.95rem',
-                            fontWeight: isFirstColumn ? 'bold' : 'normal',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            outline: 'none',
-                            width: '100%'
-                          }}
-                        />
-                      ) : (
-                        <span 
-                          onClick={() => isEditable && setEditingCell({ row: rowIndex, col: colIndex })}
-                          className={isEditable ? 'cursor-pointer' : ''}
-                        >
-                          {cell}
-                        </span>
-                      )}
+                      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+                        {isEditingThisCell && isEditable ? (
+                          <InlineEditor
+                            initialValue={cell}
+                            onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
+                            onCancel={() => setEditingCell(null)}
+                            style={{
+                              color: '#000000',
+                              textAlign: isFirstColumn ? 'left' : 'center',
+                              fontSize: '0.95rem',
+                              fontWeight: isFirstColumn ? 'bold' : 'normal',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              outline: 'none',
+                              width: '100%'
+                            }}
+                          />
+                        ) : (
+                          <span 
+                            onClick={(e) => {
+                              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return;
+                              }
+                              if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
+                            }}
+                            className={isEditable ? 'cursor-pointer' : ''}
+                          >
+                            {cell}
+                          </span>
+                        )}
+                      </div>
                     </td>
                   );
                 })}
@@ -492,10 +534,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                       onClick={() => removeRow(rowIndex)}
                       style={{
                         ...deleteButtonStyles,
-                        opacity: 0,
+                        opacity: hoveredRow === rowIndex ? 1 : 0,
                         transition: 'opacity 0.2s ease'
                       }}
-                      className="group-hover:opacity-100"
                       title="Remove Row"
                     >
                       ✗
@@ -507,7 +548,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
             
             {/* Add row button - appears on hover */}
             {isEditable && (
-              <tr className="group">
+              <tr 
+                onMouseEnter={() => setHoveredRow(-1)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
                 <td style={{ 
                   ...firstColumnStyles, 
                   textAlign: 'center',
@@ -518,14 +562,13 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     onClick={addRow}
                     style={{
                       ...addButtonStyles,
-                      opacity: 0,
+                      opacity: hoveredRow === -1 ? 1 : 0,
                       transition: 'opacity 0.2s ease',
                       position: 'absolute',
                       top: '50%',
                       left: '50%',
                       transform: 'translate(-50%, -50%)'
                     }}
-                    className="group-hover:opacity-100"
                     title="Add Row"
                   >
                     +
