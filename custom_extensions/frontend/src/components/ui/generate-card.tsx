@@ -17,7 +17,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         className={cn(
           "group relative rounded-md border-[var(--border)] bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-28 h-20 xs:w-24 xs:h-18 sm:w-32 sm:h-23 md:w-36 md:h-25 lg:w-40 lg:h-27 xl:w-44 xl:h-30",
+          "w-26 h-20 xs:w-22 xs:h-18 sm:w-30 sm:h-23 md:w-34 md:h-25 lg:w-38 lg:h-27 xl:w-42 xl:h-30",
           "hover:scale-105",
           active && "border-[var(--ring)]",
           className
@@ -49,12 +49,12 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
                     size={35}
                     className={cn(
                       "w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
-                      active ? "text-white" : "text-black"
+                      active ? "text-white" : "text-gray-600"
                     )}
                   style={{
-                    color: active ? 'white' : 'black',
-                    fill: active ? 'white' : 'black',
-                    stroke: active ? 'white' : 'black',
+                    color: active ? 'white' : '#4b5563',
+                    fill: active ? 'white' : '#4b5563',
+                    stroke: active ? 'white' : '#4b5563',
                     '--tw-text-opacity': '1',
                   }}
                 />
@@ -62,7 +62,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             )}
             <span 
               className={cn(
-                "text-xs xs:text-sm sm:text-sm lg:text-lg xl:text-lg leading-tight text-center px-1 font-semibold text-gray-900",
+                "text-xs xs:text-sm sm:text-sm lg:text-base xl:text-base leading-tight text-center px-1 font-semibold text-gray-900",
                 active ? "text-[var(--ring)]" : "text-gray-900"
               )}
             >
