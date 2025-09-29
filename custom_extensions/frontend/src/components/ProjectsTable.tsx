@@ -3676,14 +3676,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <Button
                 onClick={() => setViewMode("grid")}
                 variant={viewMode === "grid" ? "view-active" : "view"}
+                className={viewMode === "grid" ? "bg-[#A952F4] text-white hover:bg-[#6E18F0]" : ""}
               >
-                <LayoutGrid size={16} className="text-gray-800" />
+                <LayoutGrid size={16} className={viewMode === "grid" ? "text-white" : "text-gray-800"} />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
                 variant={viewMode === "list" ? "view-active" : "view"}
+                className={viewMode === "list" ? "bg-[#A952F4] text-white hover:bg-[#6E18F0]" : ""}
               >
-                <List size={16} className="text-gray-800" />
+                <List size={16} className={viewMode === "list" ? "text-white" : "text-gray-800"} />
               </Button>
             </div>
           </div>
