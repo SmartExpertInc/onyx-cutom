@@ -20,7 +20,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           "group relative rounded-md border-[var(--border)] bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-20 xs:w-20 xs:h-18 sm:w-28 sm:h-23 md:w-32 md:h-25 lg:w-36 lg:h-27 xl:w-40 xl:h-30",
           "hover:scale-105 focus:outline-none focus:border-[var(--ring)]",
-          active && "border-[var(--ring)]",
+          active && "border-[var(--generate-card-border-active)]",
           className
         )}
         style={{
@@ -70,7 +70,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             <span 
               className={cn(
                 "text-xs xs:text-sm sm:text-sm lg:text-base xl:text-base leading-tight text-center px-1 font-semibold text-gray-900",
-                active ? "text-[var(--ring)]" : "text-gray-900"
+                active ? "text-[var(--generate-card-icon-active)]" : "text-gray-900"
               )}
             >
               {label}
