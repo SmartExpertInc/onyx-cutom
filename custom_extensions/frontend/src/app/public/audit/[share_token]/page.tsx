@@ -82,6 +82,7 @@ interface LandingPageData {
     rating: string
     image: string
   }>
+  serviceTemplatesDescription?: string
   language?: string
   isPublicView?: boolean
   sharedAt?: string
@@ -893,11 +894,12 @@ export default function PublicAuditPage() {
                   </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
-                      {language === 'en' ? (
-                        <><span className="font-medium text-[#09090B]">Company losses</span> per year for unfilled<br/> positions, including lost<br/> profits, overtime, and downtime.</>
-                      ) : (
-                        <><span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой<br/> позиции в год, включая упущенную<br/> прибыль, переработки и простои.</>
-                      )}
+                      {workforceCrisis?.losses?.fullDescription || getLocalizedText(language, {
+                        en: <><span className="font-medium text-[#09090B]">Company losses</span> per year for unfilled<br/> positions, including lost<br/> profits, overtime, and downtime.</>,
+                        es: <><span className="font-medium text-[#09090B]">Pérdidas de la empresa</span> por año por posiciones no cubiertas, incluyendo ganancias perdidas, horas extra y tiempo de inactividad.</>,
+                        ua: <><span className="font-medium text-[#09090B]">Збитки компанії</span> на рік за незакриті позиції, включаючи втрачені прибутки, понаднормові та простої.</>,
+                        ru: <><span className="font-medium text-[#09090B]">Потери компании</span> при незакрытой<br/> позиции в год, включая упущенную<br/> прибыль, переработки и простои.</>
+                      })}
                     </p>
                   </div>
                   
@@ -961,31 +963,35 @@ export default function PublicAuditPage() {
                 </div>
                 
                 <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
-                  {getLocalizedText(language, {
-                    en: 'Buy ready-made course templates',
-                    es: 'Compre plantillas de cursos listas',
-                    ua: 'Купуйте готові шаблони курсів',
-                    ru: 'Купите готовые шаблоны'
-                  })} <br className="xl:hidden"/> {getLocalizedText(language, {
-                    en: 'for onboarding',
-                    es: 'para incorporación',
-                    ua: 'для онбордингу',
-                    ru: 'курсов для онбординга'
-                  })}<br className="hidden xl:block"/> {getLocalizedText(language, {
-                    en: 'and',
-                    es: 'y',
-                    ua: 'і',
-                    ru: 'и'
-                  })} <br className="xl:hidden"/> {getLocalizedText(language, {
-                    en: 'training:',
-                    es: 'entrenamiento:',
-                    ua: 'навчання:',
-                    ru: 'обучения:'
-                  })}
+                  {auditData?.serviceTemplatesDescription || (
+                    <>
+                      {getLocalizedText(language, {
+                        en: 'Buy ready-made course templates',
+                        es: 'Compre plantillas de cursos listas',
+                        ua: 'Купуйте готові шаблони курсів',
+                        ru: 'Купите готовые шаблоны'
+                      })} <br className="xl:hidden"/> {getLocalizedText(language, {
+                        en: 'for onboarding',
+                        es: 'para incorporación',
+                        ua: 'для онбордингу',
+                        ru: 'курсов для онбординга'
+                      })}<br className="hidden xl:block"/> {getLocalizedText(language, {
+                        en: 'and',
+                        es: 'y',
+                        ua: 'і',
+                        ru: 'и'
+                      })} <br className="xl:hidden"/> {getLocalizedText(language, {
+                        en: 'training:',
+                        es: 'entrenamiento:',
+                        ua: 'навчання:',
+                        ru: 'обучения:'
+                      })}
+                    </>
+                  )}
                 </h3>
   
                 <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
-                  {getLocalizedText(language, {
+                  {auditData?.serviceTemplatesDescription || getLocalizedText(language, {
                     en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
                     es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
                     ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
