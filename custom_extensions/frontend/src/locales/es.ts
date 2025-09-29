@@ -257,6 +257,7 @@ export const es = {
       // Content features
       slides: "Diapositivas",
       slidesLowercase: "diapositivas",
+      slidesPlural: "diapositivas",
       slide: "diapositiva",
       text: "Texto",
       simpleTests: "Pruebas Simples",
@@ -1268,7 +1269,6 @@ export const es = {
       language: "Idioma",
       length: "Longitud",
       slidesCount: "Cantidad de diapositivas",
-      slides: "diapositivas",
       questionCount: "Cantidad de preguntas",
       questions: "preguntas",
       questionsLowercase: "preguntas",

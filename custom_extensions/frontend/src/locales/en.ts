@@ -1007,6 +1007,7 @@ export const en = {
       question: "question",
       slides: "Slides",
       slidesLowercase: "slides",
+      slidesPlural: "slides",
       slide: "slide",
       lesson: "Lesson",
       generatingLessonContent: "Generating lesson content...",

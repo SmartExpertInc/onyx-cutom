@@ -1286,7 +1286,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-5xl grid grid-cols-5 gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-items-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-5 shadow-lg transition-all duration-200 hover:shadow-xl">
+        <div className="w-full max-w-6xl grid grid-cols-5 gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-items-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-5 shadow-lg transition-all duration-200 hover:shadow-xl">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
@@ -1432,10 +1432,21 @@ function GenerateProductPicker() {
                         <CustomPillSelector
                           value={slidesCount.toString()}
                           onValueChange={(value) => setSlidesCount(Number(value))}
-                          options={Array.from({ length: 14 }, (_, i) => ({
-                            value: (i + 2).toString(),
-                            label: `${i + 2} ${i === 0 ? t('interface.generate.slide', 'slide') : t('interface.generate.slidesLowercase', 'slides')}`
-                          }))}
+                          options={Array.from({ length: 14 }, (_, i) => {
+                            const count = i + 2;
+                            let slideText;
+                            if (count === 1) {
+                              slideText = t('interface.generate.slide', 'slide');
+                            } else if (count >= 2 && count <= 4) {
+                              slideText = t('interface.generate.slidesLowercase', 'slides');
+                            } else {
+                              slideText = t('interface.generate.slidesPlural', 'slides');
+                            }
+                            return {
+                              value: count.toString(),
+                              label: `${count} ${slideText}`
+                            };
+                          })}
                           icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
                           label={t('interface.generate.slides', 'Slides')}
                         />
@@ -1462,10 +1473,21 @@ function GenerateProductPicker() {
                     <CustomPillSelector
                       value={slidesCount.toString()}
                       onValueChange={(value) => setSlidesCount(Number(value))}
-                      options={Array.from({ length: 14 }, (_, i) => ({
-                        value: (i + 2).toString(),
-                        label: `${i + 2} ${i === 0 ? t('interface.generate.slide', 'slide') : t('interface.generate.slidesLowercase', 'slides')}`
-                      }))}
+                      options={Array.from({ length: 14 }, (_, i) => {
+                        const count = i + 2;
+                        let slideText;
+                        if (count === 1) {
+                          slideText = t('interface.generate.slide', 'slide');
+                        } else if (count >= 2 && count <= 4) {
+                          slideText = t('interface.generate.slidesLowercase', 'slides');
+                        } else {
+                          slideText = t('interface.generate.slidesPlural', 'slides');
+                        }
+                        return {
+                          value: count.toString(),
+                          label: `${count} ${slideText}`
+                        };
+                      })}
                       icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
                       label={t('interface.generate.slides', 'Slides')}
                     />
@@ -1814,10 +1836,20 @@ function GenerateProductPicker() {
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
-              options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => ({
-                value: count.toString(),
-                label: `${count} ${count === 1 ? t('interface.generate.slide', 'slide') : t('interface.generate.slidesLowercase', 'slides')}`
-              }))}
+              options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => {
+                let slideText;
+                if (count === 1) {
+                  slideText = t('interface.generate.slide', 'slide');
+                } else if (count >= 2 && count <= 4) {
+                  slideText = t('interface.generate.slidesLowercase', 'slides');
+                } else {
+                  slideText = t('interface.generate.slidesPlural', 'slides');
+                }
+                return {
+                  value: count.toString(),
+                  label: `${count} ${slideText}`
+                };
+              })}
               icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
               label={t('interface.generate.slides', 'Slides')}
             />

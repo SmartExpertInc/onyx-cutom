@@ -254,6 +254,7 @@ export const uk = {
       // Content features
       slides: "Слайди",
       slidesLowercase: "слайди",
+      slidesPlural: "слайдів",
       slide: "слайд",
       text: "Текст",
       simpleTests: "Прості тести",
@@ -1249,7 +1250,6 @@ export const uk = {
       language: "Мова",
       length: "Довжина",
       slidesCount: "Кількість слайдів",
-      slides: "слайдів",
       questionCount: "Кількість питань",
       questions: "питань",
       questionsLowercase: "питань",
