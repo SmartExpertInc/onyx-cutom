@@ -256,8 +256,8 @@ export const es = {
       cancel: "Cancelar",
       // Content features
       slides: "Diapositivas",
-      slidesLowercase: "diapositivas",
-      slidesPlural: "diapositivas",
+      slides2to4: "diapositivas",
+      slides5plus: "diapositivas",
       slide: "diapositiva",
       text: "Texto",
       simpleTests: "Pruebas Simples",

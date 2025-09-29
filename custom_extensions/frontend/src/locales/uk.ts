@@ -253,8 +253,8 @@ export const uk = {
       cancel: "Скасувати",
       // Content features
       slides: "Слайди",
-      slidesLowercase: "слайди",
-      slidesPlural: "слайдів",
+      slides2to4: "слайди",
+      slides5plus: "слайдів",
       slide: "слайд",
       text: "Текст",
       simpleTests: "Прості тести",

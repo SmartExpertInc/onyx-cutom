@@ -1130,7 +1130,7 @@ function GenerateProductPicker() {
         background: `linear-gradient(135deg, var(--background-new-first) 0%, var(--background-new-second) 50%, var(--background-new-third) 100%)`
       }}
     >
-      <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
+      <div className="w-full max-w-7xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"

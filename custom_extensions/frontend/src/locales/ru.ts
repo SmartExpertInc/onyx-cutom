@@ -254,8 +254,8 @@ export const ru = {
       cancel: "Отмена",
       // Content features
       slides: "Слайды",
-      slidesLowercase: "слайда",
-      slidesPlural: "слайдов",
+      slides2to4: "слайда",
+      slides5plus: "слайдов",
       slide: "слайд",
       text: "Текст",
       simpleTests: "Простые тесты",

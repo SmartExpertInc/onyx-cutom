@@ -1144,7 +1144,7 @@ function GenerateProductPicker() {
         background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
       }}
     >
-      <div className="w-full max-w-3xl flex flex-col gap-6 items-center">
+      <div className="w-full max-w-7xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1438,9 +1438,9 @@ function GenerateProductPicker() {
                             if (count === 1) {
                               slideText = t('interface.generate.slide', 'slide');
                             } else if (count >= 2 && count <= 4) {
-                              slideText = t('interface.generate.slidesLowercase', 'slides');
+                              slideText = t('interface.generate.slides2to4', 'slides');
                             } else {
-                              slideText = t('interface.generate.slidesPlural', 'slides');
+                              slideText = t('interface.generate.slides5plus', 'slides');
                             }
                             return {
                               value: count.toString(),
@@ -1479,9 +1479,9 @@ function GenerateProductPicker() {
                         if (count === 1) {
                           slideText = t('interface.generate.slide', 'slide');
                         } else if (count >= 2 && count <= 4) {
-                          slideText = t('interface.generate.slidesLowercase', 'slides');
+                          slideText = t('interface.generate.slides2to4', 'slides');
                         } else {
-                          slideText = t('interface.generate.slidesPlural', 'slides');
+                          slideText = t('interface.generate.slides5plus', 'slides');
                         }
                         return {
                           value: count.toString(),
@@ -1841,9 +1841,9 @@ function GenerateProductPicker() {
                 if (count === 1) {
                   slideText = t('interface.generate.slide', 'slide');
                 } else if (count >= 2 && count <= 4) {
-                  slideText = t('interface.generate.slidesLowercase', 'slides');
+                  slideText = t('interface.generate.slides2to4', 'slides');
                 } else {
-                  slideText = t('interface.generate.slidesPlural', 'slides');
+                  slideText = t('interface.generate.slides5plus', 'slides');
                 }
                 return {
                   value: count.toString(),
