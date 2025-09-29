@@ -508,14 +508,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             <span>{t('interface.offers', 'Offers')}</span>
           </Link>
         )}
-        <Link
-          href="/projects?tab=audits"
-          className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
-          onClick={() => onFolderSelect(null)}
-        >
-          <ClipboardCheck size={18} />
-          <span>{t('interface.audits', 'Audits')}</span>
-        </Link>
+        {aiAuditEnabled && (
+          <Link
+            href="/projects?tab=audits"
+            className={`flex items-center gap-3 p-2 rounded-lg ${currentTab === 'audits' ? 'bg-blue-50 text-blue-700 font-semibold' : 'hover:bg-gray-100 text-gray-600'}`}
+            onClick={() => onFolderSelect(null)}
+          >
+            <ClipboardCheck size={18} />
+            <span>{t('interface.audits', 'Audits')}</span>
+          </Link>
+        )}
         {workspaceTabEnabled && (
           <Link
             href="/projects?tab=workspace"

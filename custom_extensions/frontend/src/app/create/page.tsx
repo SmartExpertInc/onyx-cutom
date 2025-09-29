@@ -438,18 +438,6 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
           />
         </div>
 
-        {/* Additional links */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500 mb-2">See examples:</p>
-          <div className="flex gap-4 justify-center">
-            <Link 
-              href="/create/audit-2" 
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
-            >
-              Static AI Audit Landing Page
-            </Link>
-          </div>
-        </div>
       </div>
     </main>
   );
