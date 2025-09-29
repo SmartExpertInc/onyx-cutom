@@ -275,7 +275,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px',
           ...style
         }}
         onKeyDown={handleKeyDown}
@@ -296,9 +295,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           }}
           autoFocus
         />
-        <span style={{ fontSize: '12px', color: '#666' }}>
-          {isChecked ? 'Checked' : 'Unchecked'}
-        </span>
       </div>
     );
   };
@@ -307,7 +303,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    background: 'transparent',
+    background: '#F8F8FF',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
@@ -320,7 +316,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const titleStyles: React.CSSProperties = {
     fontSize: '2.5rem',
     fontWeight: 'bold',
-    color: currentTheme.colors.titleColor || titleColor,
+    color: '#09090B',
     marginBottom: '30px',
     fontFamily: 'Georgia, serif',
     lineHeight: '1.1'
@@ -329,35 +325,37 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   // Table container styles - clean, no background, no borders
   const tableContainerStyles: React.CSSProperties = {
     width: '100%',
-    borderRadius: '8px',
+    borderRadius: '15px',
     overflow: 'hidden',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    backgroundColor: '#ffffff',
     display: 'flex',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    padding: '30px'
   };
 
-  // Table styles - perfectly aligned
+  // Table styles - with spacing between cells
   const tableStyles: React.CSSProperties = {
     width: '100%',
-    borderCollapse: 'collapse',
-    backgroundColor: currentTheme.colors.tableBackgroundColor || tableBackgroundColor,
+    borderCollapse: 'separate',
+    borderSpacing: '8px',
+    backgroundColor: 'rgb(242, 248, 254)',
     tableLayout: 'fixed'
   };
 
-  // Header styles - using theme colors, with vertical borders only
+  // Header styles - no borders, with spacing
   const headerStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-    color: currentTheme.colors.tableHeaderTextColor || headerColor,
+    backgroundColor: currentTheme.colors.tableHeaderColor,
+    color: currentTheme.colors.tableHeaderTextColor,
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: `1px solid ${currentTheme.colors.tableBorderColor || '#E0E0E0'}`,
     verticalAlign: 'middle',
-    height: '60px'
+    height: '60px',
+    borderRadius: '8px'
   };
 
-  // First column (row headers) styles - using theme colors, with vertical borders only
+  // First column (row headers) styles - no borders, with spacing
   const firstColumnStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
     color: currentTheme.colors.tableTextColor || '#000000',
@@ -365,21 +363,21 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     fontSize: '0.95rem',
     textAlign: 'left',
     padding: '16px 12px',
-    borderRight: `1px solid ${currentTheme.colors.tableBorderColor || '#E0E0E0'}`,
     verticalAlign: 'middle',
-    height: '60px'
+    height: '60px',
+    borderRadius: '8px'
   };
 
-  // Data cell styles - with vertical borders only
+  // Data cell styles - no borders, with spacing
   const dataCellStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableDataCellColor || '#ffffff',
     color: currentTheme.colors.tableTextColor || '#000000',
     fontSize: '0.95rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: `1px solid ${currentTheme.colors.tableBorderColor || '#E0E0E0'}`,
     verticalAlign: 'middle',
-    height: '60px'
+    height: '60px',
+    borderRadius: '8px'
   };
 
   // Add button styles - using theme colors, perfectly aligned
@@ -472,10 +470,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               {tableData.headers.map((header, index) => (
                 <th 
                   key={index} 
-                  style={{
-                    ...headerStyles,
-                    borderRight: index === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
-                  }}
+                  style={headerStyles}
                   onMouseEnter={() => setHoveredColumn(index)}
                   onMouseLeave={() => setHoveredColumn(null)}
                 >
@@ -582,10 +577,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   return (
                     <td 
                       key={colIndex}
-                      style={{
-                        ...(isFirstColumn ? firstColumnStyles : dataCellStyles),
-                        borderRight: colIndex === row.length - 1 ? 'none' : '1px solid #E0E0E0'
-                      }}
+                      style={isFirstColumn ? firstColumnStyles : dataCellStyles}
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
@@ -671,7 +663,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 <td style={{ 
                   ...firstColumnStyles, 
                   textAlign: 'center',
-                  borderRight: '1px solid #E0E0E0',
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
@@ -693,10 +684,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
                   <td 
                     key={colIndex} 
-                    style={{ 
-                      ...dataCellStyles, 
-                      borderRight: colIndex === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
-                    }}
+                    style={dataCellStyles}
                   />
                 ))}
                 {/* Empty cell for delete column */}
