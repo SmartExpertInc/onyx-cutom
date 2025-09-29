@@ -39,6 +39,7 @@ interface LandingPageData {
     fullTitle?: string
     missingPersonnelDescription?: string
     burnout: {
+      title?: string
       months: string
       industryName: string
       fullDescription?: string
@@ -701,12 +702,14 @@ export default function PublicAuditPage() {
                     <path d="M13.9639 15.7071C14.1597 15.7071 14.3185 15.5484 14.3185 15.3526C14.3185 15.1568 14.1597 14.998 13.9639 14.998C13.7681 14.998 13.6094 15.1568 13.6094 15.3526C13.6094 15.5484 13.7681 15.7071 13.9639 15.7071Z" fill="white"/>
                     <path d="M14.4483 16.6603C14.6441 16.6603 14.8028 16.5015 14.8028 16.3057C14.8028 16.1099 14.6441 15.9512 14.4483 15.9512C14.2525 15.9512 14.0938 16.1099 14.0938 16.3057C14.0938 16.5015 14.2525 16.6603 14.4483 16.6603Z" fill="white"/>
                   </svg>
-                  <span className="font-semibold text-[20px]">{getLocalizedText(language, {
-                    en: 'Burnout',
-                    es: 'Agotamiento',
-                    ua: 'Вигорання',
-                    ru: 'Выгорание'
-                  })}</span>
+                  <span className="font-semibold text-[20px]">
+                    {auditData?.workforceCrisis?.burnout?.title || getLocalizedText(language, {
+                      en: 'Burnout',
+                      es: 'Agotamiento',
+                      ua: 'Вигорання',
+                      ru: 'Выгорание'
+                    })}
+                  </span>
                 </div>
                 <p className="font-normal text-[14px] text-[#71717A]">
                   {workforceCrisis?.burnout?.fullDescription || getLocalizedText(language, {
@@ -812,12 +815,14 @@ export default function PublicAuditPage() {
                         <path d="M13.9639 15.7071C14.1597 15.7071 14.3185 15.5484 14.3185 15.3526C14.3185 15.1568 14.1597 14.998 13.9639 14.998C13.7681 14.998 13.6094 15.1568 13.6094 15.3526C13.6094 15.5484 13.7681 15.7071 13.9639 15.7071Z" fill="white"/>
                         <path d="M14.4483 16.6603C14.6441 16.6603 14.8028 16.5015 14.8028 16.3057C14.8028 16.1099 14.6441 15.9512 14.4483 15.9512C14.2525 15.9512 14.0938 16.1099 14.0938 16.3057C14.0938 16.5015 14.2525 16.6603 14.4483 16.6603Z" fill="white"/>
                       </svg>
-                      <span className="font-semibold text-[20px]">{getLocalizedText(language, {
-                        en: 'Burnout',
-                        es: 'Agotamiento',
-                        ua: 'Вигорання',
-                        ru: 'Выгорание'
-                      })}</span>
+                      <span className="font-semibold text-[20px]">
+                        {auditData?.workforceCrisis?.burnout?.title || getLocalizedText(language, {
+                          en: 'Burnout',
+                          es: 'Agotamiento',
+                          ua: 'Вигорання',
+                          ru: 'Выгорание'
+                        })}
+                      </span>
                     </div>
                     <p className="font-normal text-[14px] text-[#71717A]">
                       {workforceCrisis?.burnout?.fullDescription || getLocalizedText(language, {
