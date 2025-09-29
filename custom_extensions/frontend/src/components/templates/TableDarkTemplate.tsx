@@ -337,9 +337,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const tableStyles: React.CSSProperties = {
     width: '100%',
     borderCollapse: 'separate',
-    borderSpacing: '8px 8px',
+    borderSpacing: '8px 0px',
     backgroundColor: '#ffffff',
-    tableLayout: 'fixed'
   };
 
   // Header styles - no borders, with spacing
@@ -351,8 +350,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     textAlign: 'center',
     padding: '16px 12px',
     verticalAlign: 'middle',
-    height: '60px',
-    borderRadius: '8px'
+    height: '60px'
   };
 
   // First column (row headers) styles - no borders, with spacing
@@ -364,8 +362,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     textAlign: 'left',
     padding: '16px 12px',
     verticalAlign: 'middle',
-    height: '60px',
-    borderRadius: '8px'
+    height: '60px'
   };
 
   // Data cell styles - no borders, with spacing
@@ -376,8 +373,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     textAlign: 'center',
     padding: '16px 12px',
     verticalAlign: 'middle',
-    height: '60px',
-    borderRadius: '8px'
+    height: '60px'
   };
 
   // Add button styles - using theme colors, perfectly aligned
@@ -457,7 +453,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 ...headerStyles, 
                 backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
                 color: '#000000',
-                textAlign: 'left'
+                textAlign: 'left',
+                borderTopLeftRadius: '15px'
               }}>
                 <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
@@ -470,7 +467,10 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               {tableData.headers.map((header, index) => (
                 <th 
                   key={index} 
-                  style={headerStyles}
+                  style={{
+                    ...headerStyles,
+                    borderTopRightRadius: index === tableData.headers.length - 1 ? '15px' : '0px'
+                  }}
                   onMouseEnter={() => setHoveredColumn(index)}
                   onMouseLeave={() => setHoveredColumn(null)}
                 >
@@ -564,20 +564,27 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
           {/* Body */}
           <tbody>
-            {tableData.rows.map((row, rowIndex) => (
-              <tr 
-                key={rowIndex}
-                onMouseEnter={() => setHoveredRow(rowIndex)}
-                onMouseLeave={() => setHoveredRow(null)}
-              >
-                {row.map((cell, colIndex) => {
-                  const isFirstColumn = colIndex === 0;
-                  const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
-                  
-                  return (
-                    <td 
-                      key={colIndex}
-                      style={isFirstColumn ? firstColumnStyles : dataCellStyles}
+            {tableData.rows.map((row, rowIndex) => {
+              const isLastRow = rowIndex === tableData.rows.length - 1;
+              
+              return (
+                <tr 
+                  key={rowIndex}
+                  onMouseEnter={() => setHoveredRow(rowIndex)}
+                  onMouseLeave={() => setHoveredRow(null)}
+                >
+                  {row.map((cell, colIndex) => {
+                    const isFirstColumn = colIndex === 0;
+                    const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
+                    
+                    return (
+                      <td 
+                        key={colIndex}
+                        style={{
+                          ...(isFirstColumn ? firstColumnStyles : dataCellStyles),
+                          ...(isLastRow && isFirstColumn ? { borderBottomLeftRadius: '15px' } : {}),
+                          ...(isLastRow && colIndex === row.length - 1 ? { borderBottomRightRadius: '15px' } : {})
+                        }}
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
@@ -652,7 +659,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   </td>
                 )}
               </tr>
-            ))}
+              );
+            })}
             
             {/* Add row button - appears on hover */}
             {isEditable && (
