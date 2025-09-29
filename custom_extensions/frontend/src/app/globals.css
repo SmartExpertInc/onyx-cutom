@@ -425,3 +425,27 @@ body:has([aria-modal="true"]) [draggable="true"] {
 body {
   letter-spacing: var(--tracking-normal);
 }
+
+/* Animated spinning border for buttons */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.animate-spin-border {
+  background: conic-gradient(
+    from 0deg,
+    #C55DF6,
+    #BEBCFC,
+    #C55DF6
+  );
+  animation: spin-slow 3s linear infinite;
+}

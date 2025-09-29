@@ -159,16 +159,16 @@ const stringToColor = (str: string): string => {
     // "#6247AA",
 
     //3 colors
-    "#BAEBFF",
-    "#BBDBFE",
-    "#BCCBFD",
-    "#BEBCFC",
-    "#BFACFB",
-    "#C09CFA",
-    "#C18CF9",
-    "#C37DF8",
-    "#C46DF7",
-    "#C55DF6",
+    "#F72585",
+    "#B5179E",
+    "#7209B7",
+    "#560BAD",
+    "#480CA8",
+    "#3A0CA3",
+    "#3F37C9",
+    "#4361EE",
+    "#4895EF",
+    "#4CC9F0",
   ];
   
   // Use hash to select from palette
@@ -241,7 +241,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       //new colors
       // "#DEC9E9","#DAC3E8","#D2B7E5","#C19EE0","#B185DB","#A06CD5","#9163CB","#815AC0","#7251B5","#6247AA",
-      "#BAEBFF","#BBDBFE","#BCCBFD","#BEBCFC","#BFACFB","#C09CFA","#C18CF9", "#C37DF8","#C46DF7","#C55DF6",
+      "#F72585","#B5179E","#7209B7","#560BAD","#480CA8","#3A0CA3","#3F37C9", "#4361EE","#4895EF","#4CC9F0",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
