@@ -1130,7 +1130,7 @@ function GenerateProductPicker() {
         background: `linear-gradient(135deg, var(--background-new-first) 0%, var(--background-new-second) 50%, var(--background-new-third) 100%)`
       }}
     >
-      <div className="w-full max-w-7xl flex flex-col gap-6 items-center">
+      <div className="w-full max-w-5xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1272,7 +1272,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-6xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-5 shadow-lg transition-all duration-200 hover:shadow-xl">
+        <div className="w-full max-w-4xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-lg transition-all duration-200 hover:shadow-xl">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
