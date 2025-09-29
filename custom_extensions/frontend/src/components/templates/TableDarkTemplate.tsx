@@ -50,7 +50,7 @@ function InlineEditor({
     }
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       onSave(value);
@@ -229,9 +229,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           justifyContent: 'center',
           width: '32px',
           height: '32px',
-          backgroundColor: currentTheme.colors.tableHeaderColor || checkmarkColor,
+          backgroundColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor,
           borderRadius: '4px',
-          color: '#ffffff',
+          color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
           fontSize: '16px',
           fontWeight: 'bold'
         }}>
@@ -248,9 +248,9 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           justifyContent: 'center',
           width: '32px',
           height: '32px',
-          backgroundColor: crossColor,
+          backgroundColor: currentTheme.colors.tableCrossColor || crossColor,
           borderRadius: '4px',
-          color: '#ffffff',
+          color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
           fontSize: '16px',
           fontWeight: 'bold'
         }}>
@@ -299,19 +299,19 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const tableStyles: React.CSSProperties = {
     width: '100%',
     borderCollapse: 'collapse',
-    backgroundColor: tableBackgroundColor,
+    backgroundColor: currentTheme.colors.tableBackgroundColor || tableBackgroundColor,
     tableLayout: 'fixed'
   };
 
   // Header styles - using theme colors, with vertical borders only
   const headerStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-    color: headerColor,
+    color: currentTheme.colors.tableHeaderTextColor || headerColor,
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0',
+    borderRight: `1px solid ${currentTheme.colors.tableBorderColor || '#E0E0E0'}`,
     verticalAlign: 'middle',
     height: '60px'
   };
@@ -319,24 +319,24 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   // First column (row headers) styles - using theme colors, with vertical borders only
   const firstColumnStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
-    color: '#000000',
+    color: currentTheme.colors.tableTextColor || '#000000',
     fontWeight: 'bold',
     fontSize: '0.95rem',
     textAlign: 'left',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0',
+    borderRight: `1px solid ${currentTheme.colors.tableBorderColor || '#E0E0E0'}`,
     verticalAlign: 'middle',
     height: '60px'
   };
 
   // Data cell styles - with vertical borders only
   const dataCellStyles: React.CSSProperties = {
-    backgroundColor: '#ffffff',
-    color: '#000000',
+    backgroundColor: currentTheme.colors.tableDataCellColor || '#ffffff',
+    color: currentTheme.colors.tableTextColor || '#000000',
     fontSize: '0.95rem',
     textAlign: 'center',
     padding: '16px 12px',
-    borderRight: '1px solid #E0E0E0',
+    borderRight: `1px solid ${currentTheme.colors.tableBorderColor || '#E0E0E0'}`,
     verticalAlign: 'middle',
     height: '60px'
   };
@@ -344,7 +344,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   // Add button styles - using theme colors, perfectly aligned
   const addButtonStyles: React.CSSProperties = {
     backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
-    color: '#ffffff',
+    color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
     border: 'none',
     borderRadius: '50%',
     width: '24px',
@@ -360,8 +360,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Delete button styles - perfectly aligned
   const deleteButtonStyles: React.CSSProperties = {
-    backgroundColor: '#FFB6C1',
-    color: '#FF0000',
+    backgroundColor: currentTheme.colors.tableDeleteButtonColor || '#FFB6C1',
+    color: currentTheme.colors.tableDeleteButtonTextColor || '#FF0000',
     border: 'none',
     borderRadius: '50%',
     width: '20px',
@@ -390,7 +390,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           ) : (
             <h1 
               style={titleStyles}
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLHeadingElement>) => {
                 const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                 if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                   e.preventDefault();
@@ -465,7 +465,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                         }}
                       >
                         <span 
-                          onClick={(e) => {
+                          onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                             const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                             if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                               e.preventDefault();
@@ -565,7 +565,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                           />
                         ) : (
                           <span 
-                            onClick={(e) => {
+                            onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
                               const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                               if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                                 e.preventDefault();

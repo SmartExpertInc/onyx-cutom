@@ -39,7 +39,16 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       rightSectionBackgroundColor: '#ffffff',  // Белый для правого блока в EventList
       eventListGradient: 'linear-gradient(#0F58F9 0%, #1023A1 100%)',  // Новый градиент для EventList
       tableHeaderColor: '#0F58F9',  // Новый синий цвет для заголовков таблицы
-      tableFirstColumnColor: '#F2F8FE'  // Светло-голубой для первой колонки
+      tableFirstColumnColor: '#F2F8FE',  // Светло-голубой для первой колонки
+      tableBackgroundColor: '#ffffff',  // Белый фон для таблицы
+      tableDataCellColor: '#ffffff',  // Белый фон для ячеек данных
+      tableBorderColor: '#E0E0E0',  // Светло-серая граница для таблицы
+      tableTextColor: '#000000',  // Черный текст в таблице
+      tableHeaderTextColor: '#ffffff',  // Белый текст в заголовках
+      tableCheckmarkColor: '#0F58F9',  // Синий цвет для галочек
+      tableCrossColor: '#94a3b8',  // Серый цвет для крестиков
+      tableDeleteButtonColor: '#FFB6C1',  // Розовый фон для кнопки удаления
+      tableDeleteButtonTextColor: '#FF0000'  // Красный текст для кнопки удаления
     },
     fonts: {
       titleFont: 'Lora, serif',
