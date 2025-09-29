@@ -45,8 +45,7 @@ import {
   FileText,
   ClipboardCheck,
   TableOfContents,
-  Search,
-  UserCog
+  Search
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -87,6 +86,7 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import useFeaturePermission from "../hooks/useFeaturePermission";
 import { timeEvent } from "../lib/mixpanelClient"
+import RegistrationSurveyModal from "./ui/registration-survey-modal";
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -3648,80 +3648,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     timeEvent('Create Product');
   };
 
-  // Survey step state
-  const [surveyStep, setSurveyStep] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [surveyModalOpen, setSurveyModalOpen] = useState(false);
-  const [surveyData, setSurveyData] = useState({
-    category: '',
-    workRole: '',
-    companySize: '',
-    industry: '',
-    personalUse: '',
-    additionalInfo: ''
-  });
-
-  // Handle category selection
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const category = event.target.value;
-    setSelectedCategory(category);
-    setSurveyData(prev => ({ ...prev, category }));
-  };
-
-  // Handle work role selection
-  const handleWorkRoleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSurveyData(prev => ({ ...prev, workRole: event.target.value }));
-  };
-
-  // Handle company size selection
-  const handleCompanySizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSurveyData(prev => ({ ...prev, companySize: event.target.value }));
-  };
-
-  // Handle industry selection
-  const handleIndustryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSurveyData(prev => ({ ...prev, industry: event.target.value }));
-  };
-
-  // Handle personal use selection
-  const handlePersonalUseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSurveyData(prev => ({ ...prev, personalUse: event.target.value }));
-  };
-
-  // Navigation functions
-  const handleNext = () => {
-    setSurveyStep(prev => prev + 1);
-  };
-
-  const handleBack = () => {
-    setSurveyStep(prev => prev - 1);
-  };
-
-  // Handle additional info and complete survey
-  const handleAdditionalInfoChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setSurveyData(prev => ({ ...prev, additionalInfo: event.target.value }));
-  };
-
-  // Complete survey
-  const completeSurvey = () => {
+  // Handle survey completion
+  const handleSurveyComplete = (surveyData: any) => {
     console.log('Survey completed:', surveyData);
     handleCreateProduct();
-    setSurveyModalOpen(false);
-  };
-
-  // Reset survey when modal opens
-  const resetSurvey = () => {
-    setSurveyStep(1);
-    setSelectedCategory('');
-    setSurveyModalOpen(true);
-    setSurveyData({
-      category: '',
-      workRole: '',
-      companySize: '',
-      industry: '',
-      personalUse: '',
-      additionalInfo: ''
-    });
   };
 
   // Add these just before the render block
@@ -3781,215 +3711,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </div>
                 </Button>
               </Link>
-              <Dialog open={surveyModalOpen} onOpenChange={(open) => {
-                setSurveyModalOpen(open);
-                if (open) resetSurvey();
-              }}>
-                <DialogTrigger asChild>
-                  <Button 
-                    variant="download" 
-                    className="rounded-full font-semibold"
-                  >
-                    <div>
+              <RegistrationSurveyModal onComplete={handleSurveyComplete}>
+                <Button 
+                  variant="download" 
+                  className="rounded-full font-semibold"
+                >
+                  <div>
                     Registration Survey
-                    </div>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px]">
-                  <DialogHeader>
-                    <div className="flex items-center gap-3">
-                      <UserCog size={40} className="text-blue-600" />
-                      <div>
-                        <DialogTitle>
-                          {surveyStep === 1 && "What do you plan to use the ContentBuilder for?"}
-                          {surveyStep === 2 && selectedCategory === 'work' && "What best describes your role?"}
-                          {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
-                          {surveyStep === 4 && selectedCategory === 'work' && "What industry are you in?"}
-                          {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
-                        </DialogTitle>
-                        <DialogDescription>
-                          Help us understand your needs and provide you with the best ContentBuilder experience.
-                        </DialogDescription>
-                      </div>
-                    </div>
-                  </DialogHeader>
-                  <div className="grid gap-6 py-4">
-                    {/* Step 1: Main Category Selection */}
-                    {surveyStep === 1 && (
-                      <div className="space-y-4">
-                        <RadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="work" id="work" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                            <Label htmlFor="work" className="text-sm font-medium">Work</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="personal" id="personal" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                            <Label htmlFor="personal" className="text-sm font-medium">Personal</Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    )}
-
-                    {/* Step 2: Work Role */}
-                    {surveyStep === 2 && selectedCategory === 'work' && (
-                      <div className="space-y-4">
-                        <RadioGroup value={surveyData.workRole} onValueChange={(value) => setSurveyData(prev => ({ ...prev, workRole: value }))}>
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="marketer" id="marketer" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="marketer" className="text-sm">Marketer</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="hr-ld" id="hr-ld" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="hr-ld" className="text-sm">HR / L&D</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="business-owner" id="business-owner" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="business-owner" className="text-sm">Business Owner</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="content-creator" id="content-creator" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="content-creator" className="text-sm">Content Creator</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="developer" id="developer" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="developer" className="text-sm">Developer</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="other" id="work-other" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="work-other" className="text-sm">Other</Label>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    )}
-
-                    {/* Step 3: Company Size */}
-                    {surveyStep === 3 && selectedCategory === 'work' && (
-                      <div className="space-y-4">
-                        <RadioGroup value={surveyData.companySize} onValueChange={(value) => setSurveyData(prev => ({ ...prev, companySize: value }))}>
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="1-10" id="size-1-10" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="size-1-10" className="text-sm">1–10</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="11-50" id="size-11-50" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="size-11-50" className="text-sm">11–50</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="51-500" id="size-51-500" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="size-51-500" className="text-sm">51–500</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="500+" id="size-500-plus" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="size-500-plus" className="text-sm">500+</Label>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    )}
-
-                    {/* Step 4: Industry */}
-                    {surveyStep === 4 && selectedCategory === 'work' && (
-                      <div className="space-y-4">
-                        <RadioGroup value={surveyData.industry} onValueChange={(value) => setSurveyData(prev => ({ ...prev, industry: value }))}>
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="video-production" id="video-production" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="video-production" className="text-sm">Video Production</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="digital-marketing" id="digital-marketing" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="digital-marketing" className="text-sm">Digital Marketing</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="learning-development" id="learning-development" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="learning-development" className="text-sm">Learning & Development</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="internal-communications" id="internal-communications" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="internal-communications" className="text-sm">Internal Communications</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="creative-branding" id="creative-branding" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="creative-branding" className="text-sm">Creative / Branding</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="other" id="work-industry-other" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="work-industry-other" className="text-sm">Other</Label>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    )}
-
-                    {/* Step 2: Personal Use */}
-                    {surveyStep === 2 && selectedCategory === 'personal' && (
-                      <div className="space-y-4">
-                        <RadioGroup value={surveyData.personalUse} onValueChange={(value) => setSurveyData(prev => ({ ...prev, personalUse: value }))}>
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="personal-projects" id="personal-projects" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="personal-projects" className="text-sm">Personal projects</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="learning-skills" id="learning-skills" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="learning-skills" className="text-sm">Learning new skills</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="portfolio-creation" id="portfolio-creation" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="portfolio-creation" className="text-sm">Portfolio creation</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="social-media" id="social-media" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
-                              <Label htmlFor="social-media" className="text-sm">Social media content</Label>
-                            </div>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                    )}
-
                   </div>
-                  
-                  <DialogFooter className="flex justify-between">
-                    {surveyStep > 1 && (
-                      <Button variant="outline" onClick={handleBack}>
-                        Back
-                      </Button>
-                    )}
-                    <div className="flex-1" />
-                    {surveyStep === 4 && selectedCategory === 'work' ? (
-                      <Button 
-                        onClick={completeSurvey}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        Complete Registration
-                      </Button>
-                    ) : surveyStep === 2 && selectedCategory === 'personal' ? (
-                      <Button 
-                        onClick={completeSurvey}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        Complete Registration
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={handleNext}
-                        disabled={
-                          (surveyStep === 1 && !selectedCategory) ||
-                          (surveyStep === 2 && selectedCategory === 'work' && !surveyData.workRole) ||
-                          (surveyStep === 2 && selectedCategory === 'personal' && !surveyData.personalUse) ||
-                          (surveyStep === 3 && !surveyData.companySize) ||
-                          (surveyStep === 4 && !surveyData.industry)
-                        }
-                      >
-                        Next
-                      </Button>
-                    )}
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                </Button>
+              </RegistrationSurveyModal>
           </div>
         </div>
       )}
