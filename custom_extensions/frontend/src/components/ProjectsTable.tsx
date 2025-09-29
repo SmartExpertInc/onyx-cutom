@@ -3543,15 +3543,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           <div className="flex items-center gap-2">
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
                 <div className="relative rounded-full p-[2px] animate-spin-border">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC] animate-spin-slow"></div>
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#A952F4] to-[#6E18F0]"></div>
                   <Button
-                    className="relative rounded-full font-semibold bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC] z-10"
+                    className="relative rounded-full text-white font-semibold bg-gradient-to-r from-[#A952F4] to-[#6E18F0] z-10"
                     asChild
                   >
                     <div>
                     <Plus size={16} className="text-white" />
                     {t("interface.createNew", "Create new")}
-                    <span className="ml-1.5 rounded-full bg-[BAEBFF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                    <span className="ml-1.5 rounded-full bg-white/40 text-white border border-white/80 px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                       AI
                     </span>
                     </div>
