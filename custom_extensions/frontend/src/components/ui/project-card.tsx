@@ -141,11 +141,11 @@ const stringToColor = (str: string): string => {
     "#BE95C4", // Light violet/lilac
     "#E0B1CB", // Very light pinkish-violet
     // Blue shades
-    "6F2DBD",
-    "A663CC",
-    "B298DC",
-    "B8D0EB",
-    "B9FAF8",
+    "#6F2DBD",
+    "#A663CC",
+    "#B298DC",
+    "#B8D0EB",
+    "#B9FAF8",
   ];
   
   // Use hash to select from palette
@@ -214,7 +214,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       // Violet shades
       "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
       // Blue shades
-      "6F2DBD", "A663CC", "B298DC", "B8D0EB", "B9FAF8",
+      "#6F2DBD", "#A663CC", "#B298DC", "#B8D0EB", "#B9FAF8",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
