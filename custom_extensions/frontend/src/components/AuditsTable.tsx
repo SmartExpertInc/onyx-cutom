@@ -593,8 +593,8 @@ const AuditsTable: React.FC<AuditsTableProps> = ({ companyId }) => {
           <Button
             variant="download"
             onClick={() => {
-              // Navigate to create audit page
-              window.location.href = 'https://dev4.contentbuilder.ai/custom-projects-ui/create/ai-audit/questionnaire';
+              // Navigate to create audit page (same domain)
+              router.push('/create/ai-audit/questionnaire');
             }}
             className="flex items-center gap-2 px-4 py-2 whitespace-nowrap"
           >
