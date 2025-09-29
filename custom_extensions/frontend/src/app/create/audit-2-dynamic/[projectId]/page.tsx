@@ -1157,6 +1157,17 @@ export default function DynamicAuditLandingPage() {
           })
         }
         
+        // Initialize serviceTemplatesDescription with default value if not present
+        if (!data.serviceTemplatesDescription) {
+          data.serviceTemplatesDescription = getLocalizedText(data.language, {
+            en: 'Ready-made course templates for onboarding and training your employees:',
+            es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
+            ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
+            ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+          });
+          console.log('🔧 [INIT] Initialized serviceTemplatesDescription with default value');
+        }
+        
         setLandingPageData(data)
         console.log(`✅ [FRONTEND DATA FLOW] Landing page data set successfully`)
         
