@@ -127,7 +127,7 @@ const redirectToMainAuth = (path: string) => {
 // Generate color from string using combined violet and blue palette
 const stringToColor = (str: string): string => {
   let hash = 0;
-  if (!str) return "#00B4D8";
+  if (!str) return "#B8D0EB";
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
@@ -141,12 +141,6 @@ const stringToColor = (str: string): string => {
     "#BE95C4", // Light violet/lilac
     "#E0B1CB", // Very light pinkish-violet
     // Blue shades
-    // "#0a1d92", // Darkest navy blue
-    // "#0077B6", // Medium dark blue
-    // "#00B4D8", // Bright cyan/turquoise
-    // "#61cbde", // Light sky blue
-    // "#74d9ed"  // Very light sky blue/pale blue
-
     "6F2DBD",
     "A663CC",
     "B298DC",
@@ -220,12 +214,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       // Violet shades
       "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
       // Blue shades
-      // "#0a1d92", "#0077B6", "#00B4D8", "#61cbde", "#74d9ed"
-      "6F2DBD",
-      "A663CC",
-      "B298DC",
-      "B8D0EB",
-      "B9FAF8",
+      "6F2DBD", "A663CC", "B298DC", "B8D0EB", "B9FAF8",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
@@ -469,20 +458,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       }}>
       {/* Decorative sparkles and elements covering entire card */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Sparkle elements distributed across entire card */}
-        <div className="absolute top-4 left-6 w-3 h-3 bg-white/70 rounded-full shadow-lg"></div>
-        <div className="absolute top-8 right-8 w-5 h-5 bg-white/70 rounded-full shadow-md"></div>
-        <div className="absolute top-12 left-12 w-2 h-2 bg-white/75 rounded-full shadow-md"></div>
-        <div className="absolute top-6 right-4 w-7 h-7 bg-white/60 rounded-full shadow-md"></div>
-        <div className="absolute top-10 left-8 w-12 h-12 bg-white/80 rounded-full shadow-md"></div>
-        
-        {/* Bottom section sparkles */}
-        <div className="absolute bottom-16 left-4 w-2 h-2 bg-white/70 rounded-full shadow-md"></div>
-        <div className="absolute bottom-20 right-6 w-5 h-5 bg-white/60 rounded-full shadow-md"></div>
-        <div className="absolute bottom-12 left-8 w-3 h-3 bg-white/50 rounded-full shadow-lg"></div>
-        <div className="absolute bottom-8 right-12 w-10 h-10 bg-white/80 rounded-full shadow-md"></div>
-        <div className="absolute bottom-14 left-12 w-2 h-2 bg-white/65 rounded-full shadow-md"></div>
-        
         {/* Middle section sparkles */}
         {/* <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div> */}
         <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
@@ -563,7 +538,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           
           {/* Creator info and options */}
-          <div className="flex mt-2 items-center justify-between">
+          <div className="flex mt-4 items-center justify-between">
             <div className="flex items-center gap-2">
               {/* Avatar */}
               <div

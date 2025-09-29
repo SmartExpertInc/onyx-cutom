@@ -311,7 +311,7 @@ body:has([aria-modal="true"]) [draggable="true"] {
   --background-new-second: oklch(0.5515 0.2189 320.42);
   --background-third: oklch(0.9529 0.0286 329.29);
   --background-new-third: oklch(0.7734 0.1279 31.33);
-  --background-main: oklch(0.9169 0.0524 313.07);
+  --background-pages: oklch(0.9169 0.0524 313.07);
   --foreground: oklch(0 0 0);
   --foreground-new: oklch(1 0 0);
   --card: oklch(0.9940 0 0);
