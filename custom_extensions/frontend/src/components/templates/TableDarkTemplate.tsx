@@ -688,11 +688,11 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
                   <td 
                     key={colIndex} 
-                    style={
+                    style={{
                       ...dataCellStyles,
                       borderBottomLeftRadius: '15px',
                       borderBottomRightRadius: '15px'
-                    }
+                    }}
                   />
                 ))}
                 {/* Empty cell for delete column */}
