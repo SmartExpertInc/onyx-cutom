@@ -31,7 +31,7 @@ import {
   Coins
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import FolderModal from '../../projects/FolderModal';
+import FolderModal from '../FolderModal';
 import { UserDropdown } from '../../../components/UserDropdown';
 import LanguageDropdown from '../../../components/LanguageDropdown';
 import { useLanguage } from '../../../contexts/LanguageContext';

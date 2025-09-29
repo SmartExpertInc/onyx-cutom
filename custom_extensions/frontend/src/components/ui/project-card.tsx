@@ -148,14 +148,16 @@ const stringToColor = (str: string): string => {
     // "#B9FAF8",
 
     // new colors 
-    "#10002B",
-    "#240046",
-    "#3C096C",
-    "#5A189A",
-    "#7B2CBF",
-    "#9D4EDD",
-    "#C77DFF",
-    "#E0AAFF",
+    "#757BC8",
+    "#8187DC",
+    "#8E94F2",
+    "#9FA0FF",
+    "#ADA7FF",
+    "#BBADFF",
+    "#CBB2FE",
+    "#DAB6FC",
+    "#DDBDFC",
+    "#E0C3FC",
   ];
   
   // Use hash to select from palette
@@ -227,7 +229,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       // "#6F2DBD", "#A663CC", "#B298DC", "#B8D0EB", "#B9FAF8",
 
       //new colors
-      "#10002B", "#240046", "#3C096C", "#5A189A", "#7B2CBF", "#9D4EDD", "#C77DFF", "#E0AAFF",
+      "#757BC8","#8187DC","#8E94F2","#9FA0FF","#ADA7FF","#BBADFF","#CBB2FE","#DAB6FC","#DDBDFC","#E0C3FC",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
@@ -491,7 +493,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="relative z-10">
             {/* Private badge positioned absolutely in top-right */}
             {project.isPrivate && (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5">
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-full px-1.5 py-0.5">
                 <Lock size={8} className="text-gray-600" />
                 <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
@@ -519,7 +521,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-gray-50 border border-grau-100 backdrop-blur-sm rounded-full px-1.5 py-0.5 w-fit shadow-sm"
+              className="inline-flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-full px-1.5 py-0.5 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
