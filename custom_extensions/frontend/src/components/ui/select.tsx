@@ -267,11 +267,11 @@ function CustomPillSelector({
   className
 }: CustomPillSelectorProps) {
   return (
-    <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+    <div>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           className={cn(
-            "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
+            "bg-white border border-gray-200 rounded-full px-4 py-2 h-auto cursor-pointer focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
             className
           )}
         >
@@ -281,8 +281,8 @@ function CustomPillSelector({
                 {icon}
               </div>
             )}
-            <span className="text-[#09090B] opacity-50">{label}:</span>
-            <span className="text-[#09090B]">{value}</span>
+            <span className="text-gray-600 text-sm">{label}:</span>
+            <span className="text-gray-900 font-medium">{value}</span>
           </div>
         </SelectTrigger>
         <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
@@ -334,11 +334,11 @@ function CustomMultiSelector({
     : `${selectedValues.length} types selected`
 
   return (
-    <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+    <div>
       <Select open={isOpen} onOpenChange={setIsOpen}>
         <SelectTrigger 
           className={cn(
-            "border-none bg-transparent p-0 h-auto cursor-pointer focus:ring-0 focus-visible:ring-0 shadow-none",
+            "bg-white border border-gray-200 rounded-full px-4 py-2 h-auto cursor-pointer focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
             className
           )}
         >
@@ -348,8 +348,8 @@ function CustomMultiSelector({
                 {icon}
               </div>
             )}
-            <span className="text-[#09090B] opacity-50">{label}:</span>
-            <span className="text-[#09090B]">{displayText}</span>
+            <span className="text-gray-600 text-sm">{label}:</span>
+            <span className="text-gray-900 font-medium">{displayText}</span>
           </div>
         </SelectTrigger>
         <SelectContent className="border-white max-h-[200px]" sideOffset={15}>

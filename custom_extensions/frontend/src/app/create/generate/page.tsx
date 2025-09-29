@@ -1307,7 +1307,7 @@ function GenerateProductPicker() {
 
         {/* Dropdown chips */}
         {activeProduct === "Course" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="flex flex-wrap justify-center gap-4">
             <CustomPillSelector
               value={modulesCount.toString()}
               onValueChange={(value) => setModulesCount(Number(value))}
@@ -1344,7 +1344,7 @@ function GenerateProductPicker() {
         )}
 
         {activeProduct === "Presentation" && useExistingOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="flex flex-wrap justify-center gap-4">
                 {/* Show outline flow if user chose existing outline */}
                 {useExistingOutline === true && (
                   <>
@@ -1457,12 +1457,12 @@ function GenerateProductPicker() {
                     />
                   </>
                 )}
-              </div>
+          </div>
         )}
 
         {/* Quiz Configuration */}
         {activeProduct === "Quiz" && useExistingQuizOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="flex flex-wrap justify-center gap-4">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1619,12 +1619,12 @@ function GenerateProductPicker() {
                     />
                   </>
                 )}
-              </div>
+          </div>
         )}
 
         {/* One-Pager Configuration */}
         {activeProduct === "One-Pager" && useExistingTextOutline !== null && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="flex flex-wrap justify-center gap-4">
                 {/* Back button at the start of the section */}
                 {/* <Button
                   onClick={() => {
@@ -1791,12 +1791,12 @@ function GenerateProductPicker() {
                     />
                   </>
                 )}
-              </div>
+          </div>
         )}
 
         {/* Video Lesson Configuration */}
         {activeProduct === "Video Lesson" && (
-          <div className="w-full max-w-3xl rounded-md p-4 bg-[var(--card)] flex flex-wrap justify-center gap-4 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-lg">
+          <div className="flex flex-wrap justify-center gap-4">
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
