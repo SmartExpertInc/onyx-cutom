@@ -3543,13 +3543,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           <div className="flex items-center gap-2">
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
                 <Button
-                  className="rounded-full font-semibold bg-gradient-to-r from-[#757BC8] to-[#9FA0FF]"
+                  className="rounded-full font-semibold bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC]"
                   asChild
                 >
                   <div>
                   <Plus size={16} className="text-white" />
                   {t("interface.createNew", "Create new")}
-                  <span className="ml-1.5 rounded-full bg-[var(--background-first)] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                  <span className="ml-1.5 rounded-full bg-[BAEBFF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
                   </div>
@@ -3578,11 +3578,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                <DropdownMenuTrigger asChild>
                  <Button 
                    variant="sort" 
-                   className="flex items-center gap-2 text-sm font-semibold"
+                   className="flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:bg-[var(--background-second)] rounded-full px-2 py-1 border border-white/70"
                  >
                    <ListFilter size={16} className="text-gray-800" />
                    {contentTypeFilter}
-                   <ChevronDown size={14} className="text-gray-600" />
+                   {/* <ChevronDown size={14} className="text-gray-600" /> */}
                  </Button>
                </DropdownMenuTrigger>
                <DropdownMenuContent className="w-48">
@@ -3619,11 +3619,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <DropdownMenuTrigger asChild>
                 <Button
                   variant="columns"
-                  className="flex items-center gap-2 text-sm font-semibold"
+                  className="flex items-center gap-2 px-2 py-1 text-sm font-semibold border border-white/70 transition-all duration-200 hover:bg-[var(--background-second)] rounded-full"
                 >
                     <ListFilter size={16} className="text-gray-800" />
                     {contentTypeFilter}
-                  <ChevronDown size={14} className="text-gray-600" />
+                  {/* <ChevronDown size={14} className="text-gray-600" /> */}
                 </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-48">
