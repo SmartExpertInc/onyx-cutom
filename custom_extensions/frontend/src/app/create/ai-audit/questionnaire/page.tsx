@@ -393,8 +393,9 @@ export default function AiAuditQuestionnaire() {
                   
                   {/* Submit Buttons */}
                   <div className="pt-6 space-y-4">
-                    <button
-                      type="submit"
+<button
+                      type="button"
+                      onClick={handleGenerateLandingPage}
                       className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
                       disabled={loading}
                     >
@@ -409,27 +410,6 @@ export default function AiAuditQuestionnaire() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
                           Generate AI Audit
-                        </div>
-                      )}
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={handleGenerateLandingPage}
-                      className="w-full px-8 py-4 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          Generating Landing Page...
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center gap-3">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                          </svg>
-                          Generate Dynamic Landing Page
                         </div>
                       )}
                     </button>
