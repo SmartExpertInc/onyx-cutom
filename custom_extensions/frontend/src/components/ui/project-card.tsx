@@ -141,11 +141,17 @@ const stringToColor = (str: string): string => {
     "#BE95C4", // Light violet/lilac
     "#E0B1CB", // Very light pinkish-violet
     // Blue shades
-    "#0a1d92", // Darkest navy blue
-    "#0077B6", // Medium dark blue
-    "#00B4D8", // Bright cyan/turquoise
-    "#61cbde", // Light sky blue
-    "#74d9ed"  // Very light sky blue/pale blue
+    // "#0a1d92", // Darkest navy blue
+    // "#0077B6", // Medium dark blue
+    // "#00B4D8", // Bright cyan/turquoise
+    // "#61cbde", // Light sky blue
+    // "#74d9ed"  // Very light sky blue/pale blue
+
+    "6F2DBD",
+    "A663CC",
+    "B298DC",
+    "B8D0EB",
+    "B9FAF8",
   ];
   
   // Use hash to select from palette
@@ -214,7 +220,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       // Violet shades
       "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
       // Blue shades
-      "#0a1d92", "#0077B6", "#00B4D8", "#61cbde", "#74d9ed"
+      // "#0a1d92", "#0077B6", "#00B4D8", "#61cbde", "#74d9ed"
+      "6F2DBD",
+      "A663CC",
+      "B298DC",
+      "B8D0EB",
+      "B9FAF8",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
