@@ -383,7 +383,6 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                         gap: '8px',
                         position: 'relative'
                       }}
-                      className="group"
                     >
                       <span 
                         onClick={() => isEditable && setEditingHeader(index)}
@@ -506,21 +505,27 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
               </tr>
             ))}
             
-            {/* Add row button - always visible */}
+            {/* Add row button - appears on hover */}
             {isEditable && (
-              <tr>
+              <tr className="group">
                 <td style={{ 
                   ...firstColumnStyles, 
                   textAlign: 'center',
-                  borderRight: '1px solid #E0E0E0'
+                  borderRight: '1px solid #E0E0E0',
+                  position: 'relative'
                 }}>
                   <button
                     onClick={addRow}
                     style={{
                       ...addButtonStyles,
-                      opacity: 1,
-                      transition: 'opacity 0.2s ease'
+                      opacity: 0,
+                      transition: 'opacity 0.2s ease',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)'
                     }}
+                    className="group-hover:opacity-100"
                     title="Add Row"
                   >
                     +
