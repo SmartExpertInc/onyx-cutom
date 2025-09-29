@@ -220,46 +220,33 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     scheduleAutoSave(newData);
   };
 
-  const renderCheckbox = (value: string) => {
-    if (value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true') {
-      return (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '32px',
-          height: '32px',
-          backgroundColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor,
-          borderRadius: '4px',
-          color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
-          fontSize: '16px',
-          fontWeight: 'bold'
-        }}>
-          ✓
-        </div>
-      );
-    }
+  const renderCheckbox = (value: string, rowIndex: number, colIndex: number) => {
+    const isChecked = value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
     
-    if (value === '✗' || value.toLowerCase() === 'no' || value.toLowerCase() === 'false') {
-      return (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '32px',
-          height: '32px',
-          backgroundColor: currentTheme.colors.tableCrossColor || crossColor,
-          borderRadius: '4px',
-          color: currentTheme.colors.tableHeaderTextColor || '#ffffff',
-          fontSize: '16px',
-          fontWeight: 'bold'
-        }}>
-          ✗
-        </div>
-      );
-    }
-    
-    return value;
+    return (
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={(e) => {
+          const newValue = e.target.checked ? '✓' : '✗';
+          const newData = {
+            ...tableData,
+            rows: tableData.rows.map((row, rIndex) => 
+              rIndex === rowIndex 
+                ? row.map((cell, cIndex) => cIndex === colIndex ? newValue : cell)
+                : row
+            )
+          };
+          scheduleAutoSave(newData);
+        }}
+        style={{
+          width: '20px',
+          height: '20px',
+          cursor: 'pointer',
+          accentColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor
+        }}
+      />
+    );
   };
 
   // Slide styles - exactly as in photo
@@ -576,7 +563,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                             }}
                             className={isEditable ? 'cursor-pointer' : ''}
                           >
-                            {isFirstColumn ? cell : renderCheckbox(cell)}
+                            {isFirstColumn ? cell : renderCheckbox(cell, rowIndex, colIndex)}
                           </span>
                         )}
                       </div>
