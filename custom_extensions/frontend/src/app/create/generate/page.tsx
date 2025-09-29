@@ -1313,7 +1313,7 @@ function GenerateProductPicker() {
               onValueChange={(value) => setModulesCount(Number(value))}
               options={Array.from({ length: 10 }, (_, i) => ({
                 value: (i + 1).toString(),
-                label: `${i + 1} ${t('interface.generate.modules', 'Modules')}`
+                label: `${i + 1} ${i === 0 ? t('interface.generate.module', 'module') : t('interface.generate.modules', 'modules')}`
               }))}
               icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
               label={t('interface.generate.modules', 'Modules')}
