@@ -1139,7 +1139,7 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--foreground-new)] mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--foreground-new)]">{t('interface.generate.title', 'Generate')}</h1>
         <p className="text-center text-[var(--foreground-new)] text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 

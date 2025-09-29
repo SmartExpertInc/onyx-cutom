@@ -1153,7 +1153,7 @@ function GenerateProductPicker() {
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
 
-        <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--primary)] mt-8">{t('interface.generate.title', 'Generate')}</h1>
+        <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--primary)]">{t('interface.generate.title', 'Generate')}</h1>
         <p className="text-center text-[var(--secondary-foreground)] text-lg -mt-1">
           {isFromFiles ? t('interface.generate.subtitleFromFiles', 'Create content from your selected files') : 
            isFromText ? t('interface.generate.subtitleFromText', 'Create content from your text') : 
@@ -1913,6 +1913,7 @@ function GenerateProductPicker() {
                       className="group relative flex flex-col justify-center items-center w-full px-4 py-3 rounded-full bg-white border border-gray-200 hover:scale-105 transition-all duration-200 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
                       style={{ 
                         minHeight: 64,
+                        backgroundColor: 'rgba(37, 99, 235, 0.3)',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
                       onMouseEnter={(e) => {
@@ -1922,8 +1923,8 @@ function GenerateProductPicker() {
                         e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
                       }}
                     >
-                      <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-3 right-3 text-gray-500 text-lg font-bold group-hover:text-gray-700 transition-colors">+</span>
+                      <span className="text-center leading-tight pr-6 font-normal">{examples[index]}</span>
+                      <span className="absolute top-3 right-3 text-lg font-bold" style={{ color: 'rgb(37, 99, 235)' }}>+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full" style={{ minHeight: 64 }} />
@@ -1933,21 +1934,18 @@ function GenerateProductPicker() {
               <div className="flex justify-center mt-3">
                 <Button
                   onClick={shuffleExamples}
-                  className="group flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-all duration-200 cursor-pointer text-white"
+                  className="flex items-center gap-2 text-sm text-gray-700 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
                   style={{
-                    backgroundColor: 'rgba(37, 99, 235, 0.6)',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-                  }}
+                    '--hover-color': 'rgb(37, 99, 235)'
+                  } as React.CSSProperties}
                   onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-                    e.currentTarget.style.color = '#2563eb';
+                    e.currentTarget.style.color = 'rgb(37, 99, 235)';
                     const icon = e.currentTarget.querySelector('svg');
                     if (icon) {
-                      icon.style.color = '#2563eb';
+                      icon.style.color = 'rgb(37, 99, 235)';
                     }
                   }}
                   onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
                     e.currentTarget.style.color = '';
                     const icon = e.currentTarget.querySelector('svg');
                     if (icon) {
