@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, User, Briefcase, Heart, CheckCircle, Building, Users, Target, Lightbulb } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Briefcase, Heart, CheckCircle, Building, Users, Target, Lightbulb, BookCopy, BriefcaseBusiness, TabletSmartphone, Clapperboard, ChartNoAxesCombined, GraduationCap, MessageSquareText, Palette, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -232,12 +232,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 </label>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    { value: 'video-production', label: 'Video Production', icon: '🎬' },
-                    { value: 'digital-marketing', label: 'Digital Marketing', icon: '📈' },
-                    { value: 'learning-development', label: 'Learning & Development', icon: '🎓' },
-                    { value: 'internal-communications', label: 'Internal Communications', icon: '💬' },
-                    { value: 'creative-branding', label: 'Creative / Branding', icon: '🎨' },
-                    { value: 'other', label: 'Other', icon: '⚡' }
+                    { value: 'video-production', label: 'Video Production', icon: <Clapperboard width={20} /> },
+                    { value: 'digital-marketing', label: 'Digital Marketing', icon: <ChartNoAxesCombined width={20} /> },
+                    { value: 'learning-development', label: 'Learning & Development', icon: <GraduationCap width={20} /> },
+                    { value: 'internal-communications', label: 'Internal Communications', icon: <MessageSquareText width={20} /> },
+                    { value: 'creative-branding', label: 'Creative / Branding', icon: <Palette width={20} /> },
+                    { value: 'other', label: 'Other', icon: <Zap width={20} /> }
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -274,10 +274,10 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 </label>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    { value: 'personal-projects', label: 'Personal projects', icon: '🚀' },
-                    { value: 'learning-skills', label: 'Learning new skills', icon: '📚' },
-                    { value: 'portfolio-creation', label: 'Portfolio creation', icon: '💼' },
-                    { value: 'social-media', label: 'Social media content', icon: '📱' }
+                    { value: 'personal-projects', label: 'Personal projects', icon: <User width={20} /> },
+                    { value: 'learning-skills', label: 'Learning new skills', icon: <BookCopy width={20} /> },
+                    { value: 'portfolio-creation', label: 'Portfolio creation', icon: <BriefcaseBusiness width={20} /> },
+                    { value: 'social-media', label: 'Social media content', icon: <TabletSmartphone width={20} /> }
                   ].map((option) => (
                     <button
                       key={option.value}
