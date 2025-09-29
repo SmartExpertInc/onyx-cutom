@@ -107,6 +107,30 @@ async def export_course_outline_to_lms_format(
     sections = structure.get('sections') or []
     logger.info(f"[LMS] Outline parsed | sections={len(sections)} title='{main_title}'")
 
+    # NEW: Log a breakdown of available projects for matching
+    try:
+        _types_count: Dict[str, int] = {}
+        for p in all_projects:
+            t1 = (p.get('microproduct_type') or '').strip().lower()
+            t2 = (p.get('component_name') or '').strip().lower()
+            key = t1 or t2 or 'unknown'
+            _types_count[key] = _types_count.get(key, 0) + 1
+        logger.info(f"[LMS-MATCH] Projects available for user={user_id} | total={len(all_projects)} | by_type={_types_count}")
+        if all_projects:
+            sample = [
+                {
+                    'id': ap.get('id'),
+                    'project_name': ap.get('project_name'),
+                    'microproduct_name': ap.get('microproduct_name'),
+                    'microproduct_type': ap.get('microproduct_type'),
+                    'component_name': ap.get('component_name')
+                }
+                for ap in list(map(dict, all_projects))[:10]
+            ]
+            logger.info(f"[LMS-MATCH] Sample projects (up to 10): {sample}")
+    except Exception as _e:
+        logger.info(f"[LMS-MATCH] Failed to log project breakdown: {_e}")
+
     def parse_primary_list(raw_primary) -> List[Dict[str, Any]]:
         """Normalize primary into list of dicts with 'type'. Supports JSON strings."""
         if raw_primary is None:
@@ -231,7 +255,13 @@ async def export_course_outline_to_lms_format(
         for t in target_mtypes or []:
             aliases.extend(_type_aliases_for_group(t))
         aliases_set = set(aliases)
-        return any(pt in aliases_set for pt in proj_types if pt)
+        result = any(pt in aliases_set for pt in proj_types if pt)
+        if result:
+            try:
+                logger.info(f"[LMS-MATCH] project_type_matches=True | proj_id={proj.get('id')} proj_types={proj_types} aliases={sorted(list(aliases_set))}")
+            except Exception:
+                pass
+        return result
 
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
         target_mtypes = map_item_type_to_microproduct(desired_type)
@@ -246,6 +276,25 @@ async def export_course_outline_to_lms_format(
             return (proj.get('project_name') or '').strip()
         def mname(proj: Dict[str, Any]) -> str:
             return (proj.get('microproduct_name') or '').strip()
+
+        # NEW: Log candidate pool for this desired_type
+        try:
+            candidates = [
+                {
+                    'id': p.get('id'),
+                    'project_name': pname(p),
+                    'microproduct_name': mname(p),
+                    'types': [
+                        (p.get('microproduct_type') or '').strip().lower(),
+                        (p.get('component_name') or '').strip().lower()
+                    ],
+                    'used': not is_unused(p.get('id'))
+                }
+                for p in projects if project_type_matches(p, target_mtypes)
+            ]
+            logger.info(f"[LMS-MATCH] Candidate pool for desired_type='{desired_type}' lesson='{lesson_title}': {candidates}")
+        except Exception as _e:
+            logger.info(f"[LMS-MATCH] Failed to log candidate pool: {_e}")
 
         # Pattern A (strongest): "Quiz - {outline}: {lesson}" for quizzes only
         if 'Quiz' in (target_mtypes or []):
@@ -302,7 +351,7 @@ async def export_course_outline_to_lms_format(
                     logger.info(f"[LMS-MATCH] D project_name match -> id={proj.get('id')}")
                     return dict(proj)
 
-        logger.info(f"[LMS-MATCH] No deterministic match for lesson='{lesson_title}' type='{desired_type}'")
+        logger.info(f"[LMS-MATCH] No deterministic match for lesson='{lesson_title}' type='{desired_type}' | used_ids={list(used_product_ids)}")
         return None
 
     def normalize_public_link(url: Optional[str]) -> Optional[str]:
@@ -346,6 +395,7 @@ async def export_course_outline_to_lms_format(
                 if not primary:
                     rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
                     rp_list = parse_recommended_products_field(rp)
+                    logger.info(f"[LMS] Lesson '{lesson_title}' fallback recommendedProducts={rp_list}")
                     if rp_list:
                         logger.info(f"[LMS] Using lesson.recommendedProducts for '{lesson_title}': {rp_list}")
                         primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
@@ -360,12 +410,14 @@ async def export_course_outline_to_lms_format(
                     item_type_raw = (item.get('type') or '').strip()
                     logger.info(f"[LMS] Processing recommended item type='{item_type_raw}' for lesson='{lesson_title}'")
                     mapped_mtype = map_item_type_to_microproduct(item_type_raw)
+                    logger.info(f"[LMS] Map type -> {item_type_raw} => {mapped_mtype}")
                     if not mapped_mtype:
                         logger.info(f"[LMS] Unknown recommended type '{item_type_raw}', keeping as-is")
                         item['uid'] = item.get('uid') or str(uuid.uuid4())
                         new_primary.append(item)
                         continue
                     matched = match_connected_product([dict(p) for p in all_projects], outline_name, lesson_title, item_type_raw)
+                    logger.info(f"[LMS] Match result for lesson='{lesson_title}' type='{item_type_raw}' => matched_id={getattr(matched,'get',lambda x:None)('id') if matched else None}")
                     if not matched:
                         logger.info(f"[LMS] No product found for lesson='{lesson_title}' type='{item_type_raw}', removing from recommendations")
                         continue

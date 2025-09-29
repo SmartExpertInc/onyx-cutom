@@ -372,6 +372,28 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
     # Fetch all user projects for matching
     all_projects = await _load_all_user_projects(user_id)
+    try:
+        types_count: Dict[str, int] = {}
+        for p in all_projects:
+            t1 = (p.get('microproduct_type') or '').strip().lower()
+            t2 = (p.get('component_name') or '').strip().lower()
+            key = t1 or t2 or 'unknown'
+            types_count[key] = types_count.get(key, 0) + 1
+        logger.info(f"[SCORM-MATCH] Projects for user={user_id} | total={len(all_projects)} | by_type={types_count}")
+        if all_projects:
+            sample = [
+                {
+                    'id': ap.get('id'),
+                    'project_name': ap.get('project_name'),
+                    'microproduct_name': ap.get('microproduct_name'),
+                    'microproduct_type': ap.get('microproduct_type'),
+                    'component_name': ap.get('component_name')
+                }
+                for ap in list(map(dict, all_projects))[:10]
+            ]
+            logger.info(f"[SCORM-MATCH] Sample projects (up to 10): {sample}")
+    except Exception as _e:
+        logger.info(f"[SCORM-MATCH] Failed to log project breakdown: {_e}")
 
     # Build in-memory ZIP
     zip_buffer = io.BytesIO()
@@ -393,11 +415,14 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
             lesson_title = (lesson.get('title') or '').strip()
             recs = lesson.get('recommended_content_types') or {}
             raw_primary = recs.get('primary')
+            logger.info(f"[SCORM] Lesson '{lesson_title}' primary(raw)={raw_primary}")
             primary = _parse_primary_list(raw_primary)
+            logger.info(f"[SCORM] Lesson '{lesson_title}' primary(normalized)={primary}")
             # Fallback to recommendedProducts/recommended_products if needed
             if not primary:
                 rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
                 rp_list = _parse_recommended_products_field(rp)
+                logger.info(f"[SCORM] Lesson '{lesson_title}' fallback recommendedProducts={rp_list}")
                 if rp_list:
                     primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
 
@@ -412,6 +437,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     normalized.append({'type': it})
 
             if not normalized:
+                logger.info(f"[SCORM] Lesson '{lesson_title}': no normalized primary items; adding lesson placeholder")
                 # No primary items – create a lesson-level placeholder SCO
                 placeholder_html = _render_placeholder_html(lesson_title or 'Lesson', "No recommended content configured for this lesson.")
                 sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
@@ -423,9 +449,31 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
             for item in normalized:
                 item_type_raw = (item.get('type') or '').strip().lower()
+                logger.info(f"[SCORM] Processing item type='{item_type_raw}' for lesson='{lesson_title}'")
                 if not item_type_raw:
                     continue
+                # Build candidate pool log
+                try:
+                    target_mtypes = _map_item_type_to_microproduct(item_type_raw)
+                    cand = [
+                        {
+                            'id': p.get('id'),
+                            'project_name': (p.get('project_name') or '').strip(),
+                            'microproduct_name': (p.get('microproduct_name') or '').strip(),
+                            'types': [
+                                (p.get('microproduct_type') or '').strip().lower(),
+                                (p.get('component_name') or '').strip().lower(),
+                            ],
+                            'used': p.get('id') in used_ids
+                        }
+                        for p in all_projects if _project_type_matches(p, target_mtypes or [])
+                    ] if target_mtypes else []
+                    logger.info(f"[SCORM-MATCH] Candidate pool for desired_type='{item_type_raw}' lesson='{lesson_title}': {cand}")
+                except Exception as _e:
+                    logger.info(f"[SCORM-MATCH] Failed to log SCORM candidate pool: {_e}")
+
                 matched = _match_connected_product(all_projects, outline_name, lesson_title, item_type_raw, used_ids)
+                logger.info(f"[SCORM] Match result for lesson='{lesson_title}' type='{item_type_raw}' => matched_id={(matched or {}).get('id') if isinstance(matched, dict) else None}")
                 if not matched:
                     logger.info(f"[SCORM] No product for lesson='{lesson_title}' type='{item_type_raw}', adding placeholder SCO")
                     # Create a placeholder SCO for this recommended item
