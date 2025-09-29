@@ -220,6 +220,7 @@ interface LandingPageData {
   workforceCrisis: WorkforceCrisisData
   courseOutlineModules: CourseModule[]
   courseTemplates: CourseTemplate[]
+  serviceTemplatesDescription: string
   language?: string
 }
 
@@ -408,7 +409,7 @@ export default function DynamicAuditLandingPage() {
         currentValue = landingPageData.courseTemplates?.[0]?.title || 'HVAC Installer';
         break
       case 'serviceTemplatesDescription':
-        currentValue = 'Ready-made course templates for onboarding and training your employees:';
+        currentValue = landingPageData.serviceTemplatesDescription || 'Ready-made course templates for onboarding and training your employees:';
         break
       default:
         if (field.startsWith('jobPosition_')) {
@@ -592,8 +593,8 @@ export default function DynamicAuditLandingPage() {
         }
         break
       case 'serviceTemplatesDescription':
-        // This is a static descriptive text, we'll just log it for now
-        console.log('✅ [TEXT SAVE] Service templates description updated (static field)');
+        updatedData.serviceTemplatesDescription = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated serviceTemplatesDescription');
         break
       default:
         // Handle nested fields like job positions, course templates, and course modules
@@ -782,7 +783,7 @@ export default function DynamicAuditLandingPage() {
               }
               break;
             case 'serviceTemplatesDescription':
-              // Static text, no data to update
+              recoveredData.serviceTemplatesDescription = newValue;
               break;
             default:
               if (field.startsWith('jobPosition_')) {
@@ -1821,11 +1822,11 @@ export default function DynamicAuditLandingPage() {
                   >
                     {landingPageData?.workforceCrisis?.fullTitle || 
                       getLocalizedText(landingPageData?.language, {
-                        en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
-                        es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
-                        ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
-                        ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
-                      })}
+                  en: <>Workforce Crisis <br className="xl:hidden"/> in {landingPageData?.workforceCrisis?.industry || 'HVAC'} Industry</>,
+                  es: <>Crisis de Personal <br className="xl:hidden"/> en la Industria {landingPageData?.workforceCrisis?.industry || 'HVAC'}</>,
+                  ua: <>Кадрова криза <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-галузі</>,
+                  ru: <>Кадровый кризис <br className="xl:hidden"/> в {landingPageData?.workforceCrisis?.industry || 'HVAC'}-отрасли</>
+                })}
                   </span>
                 )}
               </h2>
@@ -2006,11 +2007,11 @@ export default function DynamicAuditLandingPage() {
                       >
                         {landingPageData?.workforceCrisis?.losses?.fullTitle || 
                           getLocalizedText(landingPageData?.language, {
-                            en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                            es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                            ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
-                            ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
-                          })}
+                      en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
+                      ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
+                    })}
                       </span>
                     )}
                   </span>
@@ -2070,11 +2071,11 @@ export default function DynamicAuditLandingPage() {
                       >
                         {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
                           getLocalizedText(landingPageData?.language, {
-                            en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
-                            es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
-                            ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
-                            ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
-                          })}
+                      en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
+                      es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
+                      ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
+                      ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
+                    })}
                       </span>
                     )}
                   </span>
@@ -2280,11 +2281,11 @@ export default function DynamicAuditLandingPage() {
                       >
                         {landingPageData?.workforceCrisis?.losses?.fullTitle || 
                           getLocalizedText(landingPageData?.language, {
-                            en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                            es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
-                            ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
-                            ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
-                          })}
+                      en: `Losses ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      es: `Pérdidas ${landingPageData?.workforceCrisis?.losses?.amount || '$10K–$18K'}`,
+                      ua: `Збитки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`,
+                      ru: `Убытки ${landingPageData?.workforceCrisis?.losses?.amount || '$10К–$18К'}`
+                    })}
                       </span>
                     )}
                   </span>
@@ -2344,11 +2345,11 @@ export default function DynamicAuditLandingPage() {
                       >
                         {landingPageData?.workforceCrisis?.searchTime?.fullTitle || 
                           getLocalizedText(landingPageData?.language, {
-                            en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
-                            es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
-                            ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
-                            ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
-                          })}
+                      en: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} days`,
+                      es: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} días`,
+                      ua: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} днів`,
+                      ru: `${landingPageData?.workforceCrisis?.searchTime?.days || '30–60'} дней`
+                    })}
                       </span>
                     )}
                   </span>
@@ -2372,11 +2373,11 @@ export default function DynamicAuditLandingPage() {
                         >
                           {landingPageData?.workforceCrisis?.searchTime?.fullDescription || 
                             getLocalizedText(landingPageData?.language, {
-                              en: 'Candidate search',
-                              es: 'Búsqueda de candidatos',
-                              ua: 'Пошук кандидата',
-                              ru: 'Поиск кандидата'
-                            })}
+                    en: 'Candidate search',
+                    es: 'Búsqueda de candidatos',
+                    ua: 'Пошук кандидата',
+                    ru: 'Поиск кандидата'
+                  })}
                         </span>
                       )}
                     </p>
@@ -2417,12 +2418,13 @@ export default function DynamicAuditLandingPage() {
                 <h3 className="font-medium text-[22px] leading-[130%] mb-[10px] xl:hidden">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
-                      initialValue={getLocalizedText(landingPageData?.language, {
-                        en: 'Buy ready-made course templates for onboarding and training:',
-                        es: 'Compre plantillas de cursos listas para incorporación y entrenamiento:',
-                        ua: 'Купуйте готові шаблони курсів для онбордингу і навчання:',
-                        ru: 'Купите готовые шаблоны курсов для онбординга и обучения:'
-                      })}
+                      initialValue={landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: 'Buy ready-made course templates for onboarding and training:',
+                          es: 'Compre plantillas de cursos listas para incorporación y entrenamiento:',
+                          ua: 'Купуйте готові шаблони курсів для онбордингу і навчання:',
+                          ru: 'Купите готовые шаблоны курсов для онбординга и обучения:'
+                        })}
                       onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
                       onCancel={handleTextCancel}
                       multiline={true}
@@ -2435,27 +2437,28 @@ export default function DynamicAuditLandingPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                       title="Click to edit service templates description"
                     >
-                  {getLocalizedText(landingPageData?.language, {
-                    en: 'Buy ready-made course templates',
-                    es: 'Compre plantillas de cursos listas',
-                    ua: 'Купуйте готові шаблони курсів',
-                    ru: 'Купите готовые шаблоны'
-                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'for onboarding',
-                    es: 'para incorporación',
-                    ua: 'для онбордингу',
-                    ru: 'курсов для онбординга'
-                  })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'and',
-                    es: 'y',
-                    ua: 'і',
-                    ru: 'и'
-                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                    en: 'training:',
-                    es: 'entrenamiento:',
-                    ua: 'навчання:',
-                    ru: 'обучения:'
-                  })}
+                      {landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: 'Buy ready-made course templates',
+                          es: 'Compre plantillas de cursos listas',
+                          ua: 'Купуйте готові шаблони курсів',
+                          ru: 'Купите готовые шаблоны'
+                        })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                          en: 'for onboarding',
+                          es: 'para incorporación',
+                          ua: 'для онбордингу',
+                          ru: 'курсов для онбординга'
+                        })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                          en: 'and',
+                          es: 'y',
+                          ua: 'і',
+                          ru: 'и'
+                        })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                          en: 'training:',
+                          es: 'entrenamiento:',
+                          ua: 'навчання:',
+                          ru: 'обучения:'
+                        })}
                     </span>
                   )}
                 </h3>
@@ -2463,12 +2466,13 @@ export default function DynamicAuditLandingPage() {
                 <h3 className="hidden xl:block font-medium xl:text-[40px] leading-[130%] xl:leading-[120%] xl:mb-[20px]">
                   {editingField === 'serviceTemplatesDescription' ? (
                     <InlineEditor
-                      initialValue={getLocalizedText(landingPageData?.language, {
-                        en: 'Ready-made course templates for onboarding and training your employees:',
-                        es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
-                        ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
-                        ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
-                      })}
+                      initialValue={landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: 'Ready-made course templates for onboarding and training your employees:',
+                          es: 'Plantillas de cursos listas para incorporación y entrenamiento de sus empleados:',
+                          ua: 'Готові шаблони курсів для онбордингу та навчання ваших співробітників:',
+                          ru: 'Готовые шаблоны курсов для онбординга и обучения Ваших сотрудников:'
+                        })}
                       onSave={(value) => handleTextSave('serviceTemplatesDescription', value)}
                       onCancel={handleTextCancel}
                       multiline={true}
@@ -2481,12 +2485,13 @@ export default function DynamicAuditLandingPage() {
                       className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                       title="Click to edit service templates description"
                     >
-                  {getLocalizedText(landingPageData?.language, {
-                    en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
-                    es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
-                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
-                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
-                  })}
+                      {landingPageData?.serviceTemplatesDescription || 
+                        getLocalizedText(landingPageData?.language, {
+                          en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
+                          es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
+                          ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
+                          ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
+                        })}
                     </span>
                   )}
                 </h3>
@@ -2766,7 +2771,7 @@ export default function DynamicAuditLandingPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit module title"
                                 >
-                                  {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                              {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
                                 </span>
                               )}
                             </h5>
@@ -2805,7 +2810,7 @@ export default function DynamicAuditLandingPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit module title"
                             >
-                              {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
+                          {landingPageData?.courseOutlineModules?.[0]?.title || "Корпоративная культура и стандарты работы"}
                             </span>
                           )}
                         </h5>
@@ -3056,7 +3061,7 @@ export default function DynamicAuditLandingPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit module title"
                                 >
-                                  {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                              {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
                                 </span>
                               )}
                             </h5>
@@ -3095,7 +3100,7 @@ export default function DynamicAuditLandingPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit module title"
                             >
-                              {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
+                          {landingPageData?.courseOutlineModules?.[1]?.title || "Подбор и управление персоналом"}
                             </span>
                           )}
                         </h5>
@@ -3302,7 +3307,7 @@ export default function DynamicAuditLandingPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit module title"
                                 >
-                                  {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                              {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
                                 </span>
                               )}
                             </h5>
@@ -3341,7 +3346,7 @@ export default function DynamicAuditLandingPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit module title"
                             >
-                              {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
+                          {landingPageData?.courseOutlineModules?.[2]?.title || "Маркетинг и привлечение клиентов"}
                             </span>
                           )}
                         </h5>
@@ -3548,7 +3553,7 @@ export default function DynamicAuditLandingPage() {
                                   className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                                   title="Click to edit module title"
                                 >
-                                  {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                              {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
                                 </span>
                               )}
                             </h5>
@@ -3587,7 +3592,7 @@ export default function DynamicAuditLandingPage() {
                               className="cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50 px-1 rounded"
                               title="Click to edit module title"
                             >
-                              {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
+                          {landingPageData?.courseOutlineModules?.[3]?.title || "Финансовый контроль и развитие бизнеса"}
                             </span>
                           )}
                         </h5>
