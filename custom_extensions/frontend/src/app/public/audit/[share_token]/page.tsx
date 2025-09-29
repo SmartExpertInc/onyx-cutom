@@ -352,6 +352,24 @@ export default function PublicAuditPage() {
                   </span>
                 </div>
                 
+                {/* Return to Audits Button */}
+                <div className="mb-6">
+                  <button
+                    onClick={() => window.location.href = '/projects?tab=audits'}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#0F58F9] bg-white border border-[#0F58F9] rounded-md hover:bg-[#0F58F9] hover:text-white transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    {getLocalizedText(language, {
+                      en: 'Return to Audits',
+                      es: 'Volver a Auditorías',
+                      ua: 'Повернутися до Аудитів',
+                      ru: 'Вернуться к Аудитам'
+                    })}
+                  </button>
+                </div>
+                
                 {/* Title with colored text and span */}
                 <h1 className="font-semibold text-[34px] xl:text-[64px] text-[#0F58F9] leading-[120%] tracking-[0%]">
                   {getLocalizedText(language, {
