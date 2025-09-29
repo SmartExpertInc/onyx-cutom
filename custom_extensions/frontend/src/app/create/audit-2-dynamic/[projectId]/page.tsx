@@ -1300,8 +1300,38 @@ export default function DynamicAuditLandingPage() {
             {/* First Section */}
             <section className="flex flex-col xl:block gap-[30px] px-[20px] xl:px-[120px] xl:pt-[22px] xl:h-[660px] xl:relative xl:overflow-hidden">
               
-              {/* Share Button - positioned in top-right */}
-              <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20">
+              {/* Navigation Buttons - positioned in top-right */}
+              <div className="absolute top-4 right-4 xl:top-[22px] xl:right-[120px] z-20 flex gap-3">
+                {/* Return to Audits Button */}
+                <button
+                  onClick={() => window.location.href = '/projects?tab=audits'}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
+                  title={getLocalizedText(landingPageData?.language, {
+                    en: 'Return to Audits',
+                    es: 'Volver a Auditorías',
+                    ua: 'Повернутися до Аудитів',
+                    ru: 'Вернуться к Аудитам'
+                  })}
+                >
+                  <svg 
+                    className="w-4 h-4 text-[#71717A] group-hover:text-[#0F58F9] transition-colors" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span className="text-sm font-medium text-[#71717A] group-hover:text-[#0F58F9] transition-colors">
+                    {getLocalizedText(landingPageData?.language, {
+                      en: 'Back to Audits',
+                      es: 'Volver a Auditorías',
+                      ua: 'Повернутися до Аудитів',
+                      ru: 'Вернуться к Аудитам'
+                    })}
+                  </span>
+                </button>
+
+                {/* Share Button */}
                 <button
                   onClick={() => setShowShareModal(true)}
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E4E4E7] rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:border-[#0F58F9] group"
@@ -2439,26 +2469,26 @@ export default function DynamicAuditLandingPage() {
                     >
                       {landingPageData?.serviceTemplatesDescription || 
                         getLocalizedText(landingPageData?.language, {
-                          en: 'Buy ready-made course templates',
-                          es: 'Compre plantillas de cursos listas',
-                          ua: 'Купуйте готові шаблони курсів',
-                          ru: 'Купите готовые шаблоны'
-                        })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                          en: 'for onboarding',
-                          es: 'para incorporación',
-                          ua: 'для онбордингу',
-                          ru: 'курсов для онбординга'
-                        })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
-                          en: 'and',
-                          es: 'y',
-                          ua: 'і',
-                          ru: 'и'
-                        })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
-                          en: 'training:',
-                          es: 'entrenamiento:',
-                          ua: 'навчання:',
-                          ru: 'обучения:'
-                        })}
+                    en: 'Buy ready-made course templates',
+                    es: 'Compre plantillas de cursos listas',
+                    ua: 'Купуйте готові шаблони курсів',
+                    ru: 'Купите готовые шаблоны'
+                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'for onboarding',
+                    es: 'para incorporación',
+                    ua: 'для онбордингу',
+                    ru: 'курсов для онбординга'
+                  })}<br className="hidden xl:block"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'and',
+                    es: 'y',
+                    ua: 'і',
+                    ru: 'и'
+                  })} <br className="xl:hidden"/> {getLocalizedText(landingPageData?.language, {
+                    en: 'training:',
+                    es: 'entrenamiento:',
+                    ua: 'навчання:',
+                    ru: 'обучения:'
+                  })}
                     </span>
                   )}
                 </h3>
@@ -2487,11 +2517,11 @@ export default function DynamicAuditLandingPage() {
                     >
                       {landingPageData?.serviceTemplatesDescription || 
                         getLocalizedText(landingPageData?.language, {
-                          en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
-                          es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
-                          ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
-                          ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
-                        })}
+                    en: <>Ready-made course templates for onboarding<br className="hidden xl:block"/> and training your employees:</>,
+                    es: <>Plantillas de cursos listas para incorporación<br className="hidden xl:block"/> y entrenamiento de sus empleados:</>,
+                    ua: <>Готові шаблони курсів для онбордингу<br className="hidden xl:block"/> та навчання ваших співробітників:</>,
+                    ru: <>Готовые шаблоны курсов для онбординга<br className="hidden xl:block"/> и обучения Ваших сотрудников:</>
+                  })}
                     </span>
                   )}
                 </h3>
