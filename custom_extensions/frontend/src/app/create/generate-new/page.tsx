@@ -1851,7 +1851,7 @@ function GenerateProductPicker() {
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
                   <div className="flex-1 border-t border-blue-100"></div>
                 </div>
-                <span className="relative z-10 bg-transparent px-4 text-lg font-semibold text-blue-900 text-center" style={{ letterSpacing: 0 }}>
+                <span className="relative z-10 bg-transparent px-4 text-lg font-semibold text-[var(--foreground-new)] text-center" style={{ letterSpacing: 0 }}>
                   {t('interface.generate.examplePrompts', 'Example prompts')}
                 </span>
               </div>
@@ -1861,7 +1861,7 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/30 transition-all duration-200 text-sm font-semibold text-gray-800 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/30 transition-all duration-200 text-sm font-medium text-[var(--foreground-new)] shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
@@ -1876,7 +1876,7 @@ function GenerateProductPicker() {
                 <Button
                   onClick={shuffleExamples}
                   variant="blueGradient"
-                  className="flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium"
+                  className="flex items-center bg-gradient-to-r from-[#FC9583] to-[#FF53E0] gap-2 px-6 py-2 rounded-full text-base font-medium"
                 >
                   <Shuffle size={18} /> {t('interface.generate.shuffleExamples', 'Shuffle')}
                 </Button>
