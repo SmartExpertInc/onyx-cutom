@@ -25,6 +25,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -32,6 +33,8 @@ import inspect
 # NEW: OpenAI imports for direct usage
 import openai
 from openai import AsyncOpenAI
+# NEW: Google Gemini imports for image generation
+import google.generativeai as genai
 from uuid import uuid4
 from cryptography.fernet import Fernet
 
@@ -91,6 +94,9 @@ COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay"  # New component for lesson pla
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
 LLM_API_KEY = os.getenv("OPENAI_API_KEY")
 LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
+
+# NEW: Google Gemini API configuration
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 SERPAPI_KEY = "ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7"
 
@@ -871,6 +877,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -2713,6 +2720,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -3350,6 +3358,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -3630,9 +3639,12 @@ app.add_middleware(
 )
 
 class AiAuditQuestionnaireRequest(BaseModel):
+    companyWebsite: str
+    language: str = "ru"  # Default to Russian
+
+class AiAuditScrapedData(BaseModel):
     companyName: str
     companyDesc: str
-    companyWebsite: str
     employees: str
     franchise: str
     onboardingProblems: str
@@ -3885,6 +3897,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -4522,6 +4535,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -5033,6 +5047,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -5670,6 +5685,7 @@ import gzip
 import base64
 import time
 import uuid
+import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 import tiktoken
@@ -6644,6 +6660,50 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error creating user feature entries (may already exist): {e}")
 
+            # Add audit sharing fields to projects table
+            try:
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS share_token UUID DEFAULT NULL;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS shared_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                await connection.execute("ALTER TABLE projects ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                await connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_share_token ON projects(share_token) WHERE share_token IS NOT NULL;")
+                await connection.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_public ON projects(is_public);")
+                logger.info("Added audit sharing columns to projects table.")
+                
+                # Add same fields to trashed_projects table to match schema
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS share_token UUID DEFAULT NULL;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS shared_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                await connection.execute("ALTER TABLE trashed_projects ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;")
+                logger.info("Added audit sharing columns to trashed_projects table.")
+                
+            except Exception as e:
+                logger.warning(f"Error adding audit sharing columns (may already exist): {e}")
+
+            # Migrate existing audits to use dedicated microproduct_type
+            try:
+                async with DB_POOL.acquire() as conn:
+                    # Update existing audits that have AI audit names but wrong microproduct_type
+                    result = await conn.execute("""
+                        UPDATE projects 
+                        SET product_type = 'AI Audit', microproduct_type = 'AI Audit'
+                        WHERE (project_name LIKE '%AI-Аудит%' OR project_name LIKE '%AI-Audit%')
+                        AND microproduct_type != 'AI Audit'
+                    """)
+                    logger.info(f"Updated {result.split()[-1]} existing audits to use 'AI Audit' microproduct_type")
+                    
+                    # Also update trashed_projects for consistency
+                    await conn.execute("""
+                        UPDATE trashed_projects 
+                        SET product_type = 'AI Audit', microproduct_type = 'AI Audit'
+                        WHERE (project_name LIKE '%AI-Аудит%' OR project_name LIKE '%AI-Audit%')
+                        AND microproduct_type != 'AI Audit'
+                    """)
+                    logger.info("Updated trashed audits to use 'AI Audit' microproduct_type")
+                    
+            except Exception as e:
+                logger.warning(f"Error migrating existing audits (may already be updated): {e}")
+
             logger.info("Database schema migration completed successfully.")
     except Exception as e:
         logger.critical(f"Failed to initialize custom DB pool or ensure tables: {e}", exc_info=not IS_PRODUCTION)
@@ -6958,7 +7018,21 @@ AnyQuizQuestion = Union[
 ]
 
 
-MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, None]
+# +++ NEW MODEL FOR AI AUDIT LANDING +++
+class AIAuditLandingDetails(BaseModel):
+    projectId: int
+    projectName: str
+    companyName: str
+    companyDescription: str
+    jobPositions: List[dict] = Field(default_factory=list)
+    workforceCrisis: dict = Field(default_factory=dict)
+    courseOutlineModules: List[dict] = Field(default_factory=list)
+    courseTemplates: List[dict] = Field(default_factory=list)
+    language: Optional[str] = None
+    model_config = {"from_attributes": True}
+# +++ END NEW MODEL +++
+
+MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, AIAuditLandingDetails, None]
 
 class DesignTemplateBase(BaseModel):
     template_name: str
@@ -7208,12 +7282,24 @@ async def serpapi_company_research(company_name: str, company_desc: str, company
     url = "https://serpapi.com/search.json"
     async with httpx.AsyncClient(timeout=20.0) as client:
         # 1. General company info
+        search_query = company_name
+        if company_desc and company_desc.strip():
+            search_query = f"{company_name} {company_desc}"
+        
         params_general = {
-            "q": f"{company_name} {company_desc}",
+            "q": search_query,
             "engine": "google",
             "api_key": SERPAPI_KEY,
             "hl": "ru"
         }
+        try:
+            resp = await client.get(url, params=params_general)
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as e:
+            logger.error(f"❌ [SERPAPI] Error in general search: {e}")
+            # If general search fails, try with just the company name
+            params_general["q"] = company_name
         resp = await client.get(url, params=params_general)
         resp.raise_for_status()
         data = resp.json()
@@ -8687,7 +8773,8 @@ async def add_pipeline(pipeline_data: MicroproductPipelineCreateRequest, pool: a
 async def get_pipelines(pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, pipeline_name, pipeline_description, is_prompts_data_collection, is_prompts_data_formating, prompts_data_collection, prompts_data_formating, created_at FROM microproduct_pipelines ORDER BY created_at DESC;"
     try:
-        async with pool.acquire() as conn: rows = await conn.fetch(query)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query)
         pipelines_list = [MicroproductPipelineGetResponse.from_db_model(MicroproductPipelineDBRaw(**dict(row))) for row in rows]
         return pipelines_list
     except Exception as e:
@@ -8699,7 +8786,8 @@ async def get_pipelines(pool: asyncpg.Pool = Depends(get_db_pool)):
 async def get_pipeline(pipeline_id: int, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, pipeline_name, pipeline_description, is_prompts_data_collection, is_prompts_data_formating, prompts_data_collection, prompts_data_formating, created_at FROM microproduct_pipelines WHERE id = $1;"
     try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, pipeline_id)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, pipeline_id)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline not found.")
         return MicroproductPipelineGetResponse.from_db_model(MicroproductPipelineDBRaw(**dict(row)))
@@ -8739,7 +8827,8 @@ async def update_pipeline(pipeline_id: int, pipeline_data: MicroproductPipelineU
 async def delete_pipeline(pipeline_id: int, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "DELETE FROM microproduct_pipelines WHERE id = $1 RETURNING id;"
     try:
-        async with pool.acquire() as conn: deleted_id = await conn.fetchval(query, pipeline_id)
+        async with pool.acquire() as conn:
+            deleted_id = await conn.fetchval(query, pipeline_id)
         if deleted_id is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline not found.")
         return {"detail": f"Successfully deleted pipeline with ID {pipeline_id}."}
@@ -8831,7 +8920,7 @@ class AIImageGenerationRequest(BaseModel):
     height: int = Field(..., description="Image height in pixels", ge=256, le=1792)
     quality: str = Field(default="standard", description="Image quality: standard or hd")
     style: str = Field(default="vivid", description="Image style: vivid or natural")
-    model: str = Field(default="dall-e-3", description="DALL-E model to use")
+    model: str = Field(default="gemini-2.5-flash-image-preview", description="Image generation model to use")
 
 @app.post("/api/custom/presentation/generate_image", responses={
     200: {"description": "Image generated successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/ai_generated_image.png"}}}},
@@ -8839,12 +8928,12 @@ class AIImageGenerationRequest(BaseModel):
     500: {"description": "AI generation failed", "model": ErrorDetail}
 })
 async def generate_ai_image(request: AIImageGenerationRequest):
-    """Generate an image using DALL-E AI"""
+    """Generate an image using Google Gemini AI"""
     try:
         logger.info(f"[AI_IMAGE_GENERATION] Starting generation with prompt: '{request.prompt[:50]}...'")
         logger.info(f"[AI_IMAGE_GENERATION] Dimensions: {request.width}x{request.height}, Quality: {request.quality}, Style: {request.style}")
         
-        # Validate dimensions (DALL-E 3 requirements)
+        # Validate dimensions (Gemini supports flexible dimensions, but we'll keep the same validation for consistency)
         valid_sizes = [(1024, 1024), (1792, 1024), (1024, 1792)]
         current_size = (request.width, request.height)
         
@@ -8861,47 +8950,202 @@ async def generate_ai_image(request: AIImageGenerationRequest):
                 
             logger.info(f"[AI_IMAGE_GENERATION] Adjusted dimensions from {current_size} to {request.width}x{request.height}")
         
-        # Get OpenAI client
-        client = get_openai_client()
+        # Get Gemini client using the new API
+        if not GEMINI_API_KEY:
+            raise ValueError("No Gemini API key configured. Set GEMINI_API_KEY environment variable.")
         
-        # Generate image using DALL-E
-        response = await client.images.generate(
-            model=request.model,
-            prompt=request.prompt,
-            size=f"{request.width}x{request.height}",
-            quality=request.quality,
-            style=request.style,
-            n=1
-        )
+        # Configure the existing genai module with API key
+        genai.configure(api_key=GEMINI_API_KEY)
         
-        if not response.data or len(response.data) == 0:
-            raise Exception("No image data received from DALL-E")
+        # Generate image using Gemini
+        model = genai.GenerativeModel('gemini-2.5-flash-image-preview')
         
-        # Get the generated image URL
-        image_url = response.data[0].url
-        if not image_url:
-            raise Exception("No image URL received from DALL-E")
+        # 🔍 ENHANCED LOGGING: Log the request being sent to Gemini
+        logger.info(f"🔍 [GEMINI API REQUEST] Sending request to Gemini API")
+        logger.info(f"🔍 [GEMINI API REQUEST] Model: gemini-2.5-flash-image-preview")
+        logger.info(f"🔍 [GEMINI API REQUEST] Prompt length: {len(request.prompt)} characters")
+        logger.info(f"🔍 [GEMINI API REQUEST] Full prompt: '{request.prompt}'")
         
-        logger.info(f"[AI_IMAGE_GENERATION] Image generated successfully, downloading from: {image_url[:50]}...")
+        response = model.generate_content(request.prompt)
         
-        # Download the image
-        async with httpx.AsyncClient() as http_client:
-            image_response = await http_client.get(image_url)
-            image_response.raise_for_status()
-            image_data = image_response.content
+        # 🔍 ENHANCED LOGGING: Log raw response from Gemini
+        logger.info(f"🔍 [GEMINI API RESPONSE] Raw response received from Gemini")
+        logger.info(f"🔍 [GEMINI API RESPONSE] Response type: {type(response)}")
+        logger.info(f"🔍 [GEMINI API RESPONSE] Response has candidates: {hasattr(response, 'candidates')}")
+        
+        if hasattr(response, 'candidates'):
+            logger.info(f"🔍 [GEMINI API RESPONSE] Number of candidates: {len(response.candidates) if response.candidates else 0}")
+            if response.candidates:
+                logger.info(f"🔍 [GEMINI API RESPONSE] First candidate type: {type(response.candidates[0])}")
+                if hasattr(response.candidates[0], 'content'):
+                    logger.info(f"🔍 [GEMINI API RESPONSE] Content type: {type(response.candidates[0].content)}")
+                    if hasattr(response.candidates[0].content, 'parts'):
+                        logger.info(f"🔍 [GEMINI API RESPONSE] Number of parts: {len(response.candidates[0].content.parts)}")
+        
+        if not response.candidates or len(response.candidates) == 0:
+            logger.error(f"❌ [GEMINI API ERROR] No candidates in response")
+            raise Exception("No image data received from Gemini")
+        
+        # Get the generated image data using the new API structure
+        image_data_raw = None
+        logger.info(f"🔍 [BASE64 EXTRACTION] Searching for image data in response parts...")
+        
+        for i, part in enumerate(response.candidates[0].content.parts):
+            logger.info(f"🔍 [BASE64 EXTRACTION] Part {i}: type={type(part)}")
+            logger.info(f"🔍 [BASE64 EXTRACTION] Part {i} has inline_data: {hasattr(part, 'inline_data')}")
+            
+            if hasattr(part, 'inline_data') and part.inline_data:
+                logger.info(f"🔍 [BASE64 EXTRACTION] Found inline_data in part {i}")
+                logger.info(f"🔍 [BASE64 EXTRACTION] inline_data type: {type(part.inline_data)}")
+                logger.info(f"🔍 [BASE64 EXTRACTION] inline_data has data: {hasattr(part.inline_data, 'data')}")
+                
+                # 🔧 ROBUST DATA EXTRACTION: Try multiple ways to get the data
+                extracted_data = None
+                
+                if hasattr(part.inline_data, 'data') and part.inline_data.data:
+                    extracted_data = part.inline_data.data
+                    logger.info(f"🔧 [EXTRACTION METHOD 1] Got data via .data attribute")
+                elif hasattr(part.inline_data, 'data') and part.inline_data.data is not None:
+                    extracted_data = part.inline_data.data
+                    logger.info(f"🔧 [EXTRACTION METHOD 2] Got data via .data attribute (None check)")
+                else:
+                    # Try to access data through other possible attributes
+                    logger.info(f"🔧 [EXTRACTION DEBUG] inline_data attributes: {dir(part.inline_data)}")
+                    
+                    # Check if there are other attributes that might contain the data
+                    for attr_name in dir(part.inline_data):
+                        if not attr_name.startswith('_'):
+                            attr_value = getattr(part.inline_data, attr_name)
+                            logger.info(f"🔧 [EXTRACTION DEBUG] {attr_name}: {type(attr_value)} - {len(attr_value) if hasattr(attr_value, '__len__') else 'No length'}")
+                            
+                            # If we find binary data that looks like an image
+                            if isinstance(attr_value, bytes) and len(attr_value) > 1000 and (attr_value.startswith(b'\x89PNG') or attr_value.startswith(b'\xff\xd8\xff')):
+                                extracted_data = attr_value
+                                logger.info(f"🔧 [EXTRACTION METHOD 3] Found image data in {attr_name}")
+                                break
+                
+                if extracted_data:
+                    image_data_raw = extracted_data
+                    logger.info(f"🔍 [DATA EXTRACTION] Extracted image data from Gemini")
+                    logger.info(f"🔍 [DATA EXTRACTION] Data type: {type(image_data_raw)}")
+                    logger.info(f"🔍 [DATA EXTRACTION] Data length: {len(image_data_raw) if image_data_raw else 0}")
+                    if image_data_raw:
+                        logger.info(f"🔍 [DATA EXTRACTION] First 100 chars: {image_data_raw[:100]}")
+                        logger.info(f"🔍 [DATA EXTRACTION] Last 100 chars: {image_data_raw[-100:]}")
+                    break
+                else:
+                    logger.warning(f"⚠️ [DATA EXTRACTION WARNING] Part {i} has inline_data but no extractable data")
+        
+        if not image_data_raw:
+            logger.error(f"❌ [DATA EXTRACTION ERROR] No image data found in response parts")
+            logger.error(f"❌ [DATA EXTRACTION ERROR] Response had {len(response.candidates[0].content.parts)} parts")
+            for i, part in enumerate(response.candidates[0].content.parts):
+                logger.error(f"❌ [DATA EXTRACTION ERROR] Part {i} details:")
+                logger.error(f"❌ [DATA EXTRACTION ERROR] - Has inline_data: {hasattr(part, 'inline_data')}")
+                if hasattr(part, 'inline_data') and part.inline_data:
+                    logger.error(f"❌ [DATA EXTRACTION ERROR] - inline_data type: {type(part.inline_data)}")
+                    logger.error(f"❌ [DATA EXTRACTION ERROR] - Has data attr: {hasattr(part.inline_data, 'data')}")
+                    if hasattr(part.inline_data, 'data'):
+                        logger.error(f"❌ [DATA EXTRACTION ERROR] - Data is None: {part.inline_data.data is None}")
+                        logger.error(f"❌ [DATA EXTRACTION ERROR] - Data length: {len(part.inline_data.data) if part.inline_data.data else 'N/A'}")
+            raise Exception("No image data received from Gemini")
+        
+        logger.info(f"✅ [DATA EXTRACTION] Successfully extracted image data")
+        
+        # 🔧 CRITICAL FIX: Detect if data is already binary or base64 string
+        if isinstance(image_data_raw, bytes):
+            # Data is already binary (PNG/JPEG), use directly
+            logger.info(f"🔧 [DATA TYPE FIX] Data is already binary format - using directly")
+            image_data = image_data_raw
+        elif isinstance(image_data_raw, str):
+            # Data is base64 string, decode it
+            logger.info(f"🔧 [DATA TYPE FIX] Data is base64 string - decoding")
+            try:
+                import base64
+                image_data = base64.b64decode(image_data_raw, validate=True)
+                logger.info(f"✅ [BASE64 DECODING] Successfully decoded base64 string")
+            except Exception as e:
+                logger.error(f"❌ [BASE64 DECODING ERROR] Failed to decode base64 string: {e}")
+                raise Exception(f"Invalid base64 data received from Gemini: {e}")
+        else:
+            logger.error(f"❌ [DATA TYPE ERROR] Unexpected data type: {type(image_data_raw)}")
+            raise Exception(f"Unexpected data type from Gemini: {type(image_data_raw)}")
+        
+        logger.info(f"🔍 [FINAL DATA] Final image data size: {len(image_data)} bytes")
+        logger.info(f"🔍 [FINAL DATA] Data type: {type(image_data)}")
+        
+        # Validate that it's actually image data
+        if len(image_data) < 100:
+            logger.error(f"❌ [IMAGE VALIDATION ERROR] Decoded data too small: {len(image_data)} bytes")
+            raise Exception("Decoded image data is too small to be a valid image")
+        
+        # Check for PNG/JPEG headers
+        if image_data.startswith(b'\x89PNG'):
+            logger.info(f"✅ [IMAGE VALIDATION] Detected PNG format")
+        elif image_data.startswith(b'\xff\xd8\xff'):
+            logger.info(f"✅ [IMAGE VALIDATION] Detected JPEG format")
+        else:
+            logger.warning(f"⚠️ [IMAGE VALIDATION WARNING] Unknown image format, first 20 bytes: {image_data[:20]}")
+        
+        logger.info(f"🔍 [IMAGE VALIDATION] Image data first 20 bytes: {image_data[:20]}")
+        logger.info(f"🔍 [IMAGE VALIDATION] Image data last 20 bytes: {image_data[-20:]}")
         
         # Save the image to disk
         safe_filename_base = str(uuid.uuid4())
         unique_filename = f"ai_generated_{safe_filename_base}.png"
         file_path_on_disk = os.path.join(STATIC_DESIGN_IMAGES_DIR, unique_filename)
         
+        logger.info(f"🔍 [FILE WRITING] Starting file write operation")
+        logger.info(f"🔍 [FILE WRITING] Static images directory: {STATIC_DESIGN_IMAGES_DIR}")
+        logger.info(f"🔍 [FILE WRITING] Unique filename: {unique_filename}")
+        logger.info(f"🔍 [FILE WRITING] Full file path: {file_path_on_disk}")
+        logger.info(f"🔍 [FILE WRITING] Data size to write: {len(image_data)} bytes")
+        
+        # Check if directory exists
+        if not os.path.exists(STATIC_DESIGN_IMAGES_DIR):
+            logger.error(f"❌ [FILE WRITING ERROR] Directory does not exist: {STATIC_DESIGN_IMAGES_DIR}")
+            raise Exception(f"Static images directory does not exist: {STATIC_DESIGN_IMAGES_DIR}")
+        
+        logger.info(f"✅ [FILE WRITING] Directory exists: {STATIC_DESIGN_IMAGES_DIR}")
+        
         try:
+            logger.info(f"🔍 [FILE WRITING] Opening file for writing: {file_path_on_disk}")
             with open(file_path_on_disk, "wb") as buffer:
-                buffer.write(image_data)
+                logger.info(f"🔍 [FILE WRITING] File opened successfully, writing data...")
+                bytes_written = buffer.write(image_data)
+                logger.info(f"✅ [FILE WRITING] Successfully wrote {bytes_written} bytes to file")
+            
+            # Verify file was written correctly
+            if os.path.exists(file_path_on_disk):
+                file_size = os.path.getsize(file_path_on_disk)
+                logger.info(f"✅ [FILE VERIFICATION] File exists on disk")
+                logger.info(f"🔍 [FILE VERIFICATION] File size on disk: {file_size} bytes")
+                logger.info(f"🔍 [FILE VERIFICATION] Expected size: {len(image_data)} bytes")
+                
+                if file_size == len(image_data):
+                    logger.info(f"✅ [FILE VERIFICATION] File size matches expected size")
+                else:
+                    logger.error(f"❌ [FILE VERIFICATION ERROR] File size mismatch! Expected: {len(image_data)}, Actual: {file_size}")
+                
+                # Try to read the file back to verify integrity
+                try:
+                    with open(file_path_on_disk, "rb") as verify_buffer:
+                        verify_data = verify_buffer.read()
+                        if verify_data == image_data:
+                            logger.info(f"✅ [FILE VERIFICATION] File content matches original data")
+                        else:
+                            logger.error(f"❌ [FILE VERIFICATION ERROR] File content does not match original data")
+                            logger.error(f"❌ [FILE VERIFICATION ERROR] Original first 20 bytes: {image_data[:20]}")
+                            logger.error(f"❌ [FILE VERIFICATION ERROR] File first 20 bytes: {verify_data[:20]}")
+                except Exception as verify_error:
+                    logger.error(f"❌ [FILE VERIFICATION ERROR] Could not read file for verification: {verify_error}")
+            else:
+                logger.error(f"❌ [FILE VERIFICATION ERROR] File does not exist after writing: {file_path_on_disk}")
             
             web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
-            
-            logger.info(f"[AI_IMAGE_GENERATION] Image saved successfully: {web_accessible_path}")
+            logger.info(f"✅ [FILE WRITING] Image saved successfully: {web_accessible_path}")
+            logger.info(f"🔍 [FILE WRITING] Web accessible path: {web_accessible_path}")
+            logger.info(f"🔍 [FILE WRITING] Full URL would be: https://dev4.contentbuilder.ai{web_accessible_path}")
             
             return {
                 "file_path": web_accessible_path,
@@ -8912,7 +9156,9 @@ async def generate_ai_image(request: AIImageGenerationRequest):
             }
             
         except Exception as e:
-            logger.error(f"[AI_IMAGE_GENERATION] Error saving image to disk: {e}", exc_info=not IS_PRODUCTION)
+            logger.error(f"❌ [FILE WRITING ERROR] Error saving image to disk: {e}", exc_info=not IS_PRODUCTION)
+            logger.error(f"❌ [FILE WRITING ERROR] File path attempted: {file_path_on_disk}")
+            logger.error(f"❌ [FILE WRITING ERROR] Data size: {len(image_data)} bytes")
             detail_msg = "Could not save generated image." if IS_PRODUCTION else f"Could not save generated image: {str(e)}"
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
             
@@ -8945,7 +9191,8 @@ async def add_design_template(template_data: DesignTemplateCreate, pool: asyncpg
 async def get_design_templates_list(pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created FROM design_templates ORDER BY date_created DESC;"
     try:
-        async with pool.acquire() as conn: rows = await conn.fetch(query)
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(query)
         return [DesignTemplateResponse(**dict(row)) for row in rows]
     except Exception as e:
         logger.error(f"Error fetching design templates: {e}", exc_info=not IS_PRODUCTION)
@@ -8956,7 +9203,8 @@ async def get_design_templates_list(pool: asyncpg.Pool = Depends(get_db_pool)):
 async def get_design_template(template_id: int, pool: asyncpg.Pool = Depends(get_db_pool)):
     query = "SELECT id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created FROM design_templates WHERE id = $1;"
     try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, template_id)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, template_id)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Design template not found")
         return DesignTemplateResponse(**dict(row))
@@ -8984,7 +9232,8 @@ async def update_design_template(template_id: int, template_data: DesignTemplate
         update_values.append(template_id)
         query = f"UPDATE design_templates SET {', '.join(set_clauses)} WHERE id = ${i} RETURNING id, template_name, template_structuring_prompt, design_image_path, microproduct_type, component_name, date_created;"
 
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, *update_values)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, *update_values)
         if not row:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update design template.")
         return DesignTemplateResponse(**dict(row))
@@ -11873,7 +12122,8 @@ async def get_project_details_for_edit(project_id: int, onyx_user_id: str = Depe
         WHERE p.id = $1 AND p.onyx_user_id = $2;
     """
     try:
-        async with pool.acquire() as conn: row = await conn.fetchrow(query, project_id, onyx_user_id)
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
@@ -15164,8 +15414,8 @@ async def insert_ai_audit_onepager_to_db(
             insert_query,
             onyx_user_id,
             project_name,
-            "Text Presentation",  # product_type
-            "Text Presentation",  # microproduct_type
+            "AI Audit",  # product_type
+            "AI Audit",  # microproduct_type
             project_name,  # microproduct_name
             microproduct_content,  # parsed content from AI parser
             template_id,  # design_template_id (from _ensure_text_presentation_template)
@@ -15207,7 +15457,253 @@ async def get_audit_progress(jobId: str):
     return {"messages": AI_AUDIT_PROGRESS.get(jobId, [])}
 
 
-async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
+async def scrape_company_data_from_website(company_website: str, language: str = "ru") -> AiAuditScrapedData:
+    """
+    Scrape company website to extract all necessary data for AI audit.
+    Returns structured data that can be used in prompts.
+    """
+    try:
+        logger.info(f"🌐 [WEBSITE SCRAPING] Starting to scrape: {company_website}")
+        
+        # Use the existing SERPAPI research function to get website content
+        # For website-only scraping, we need to extract domain name for the search
+        from urllib.parse import urlparse
+        parsed_url = urlparse(company_website)
+        domain_name = parsed_url.netloc.replace('www.', '')
+        logger.info(f"🌐 [WEBSITE SCRAPING] Using domain name for search: {domain_name}")
+        website_content = await serpapi_company_research(domain_name, "", company_website)
+        logger.info(f"🌐 [WEBSITE SCRAPING] Received content length: {len(website_content)} characters")
+        
+        # Extract company name from website content
+        company_name = await extract_company_name_from_website_content(website_content, company_website)
+        
+        # Extract company description from website content
+        company_description = await extract_company_description_from_website_content(website_content, company_website, language)
+        
+        # Extract other company data using AI analysis
+        company_data = await extract_company_metadata_from_website(website_content, company_website)
+        
+        scraped_data = AiAuditScrapedData(
+            companyName=company_name,
+            companyDesc=company_description,
+            employees=company_data.get("employees", "Unknown"),
+            franchise=company_data.get("franchise", "Unknown"),
+            onboardingProblems=company_data.get("onboardingProblems", "To be analyzed from website content"),
+            documents=company_data.get("documents", ["Other"]),
+            documentsOther=company_data.get("documentsOther", "To be determined from website analysis"),
+            priorities=company_data.get("priorities", ["Other"]),
+            priorityOther=company_data.get("priorityOther", "To be determined from website analysis")
+        )
+        
+        logger.info(f"🌐 [WEBSITE SCRAPING] Successfully scraped data for: {company_name}")
+        return scraped_data
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error scraping website {company_website}: {e}")
+        # Return fallback data if scraping fails
+        return AiAuditScrapedData(
+            companyName="Company Name",
+            companyDesc="Company Description",
+            employees="Unknown",
+            franchise="Unknown",
+            onboardingProblems="To be analyzed from website content",
+            documents=["Other"],
+            documentsOther="To be determined from website analysis",
+            priorities=["Other"],
+            priorityOther="To be determined from website analysis"
+        )
+
+async def extract_company_name_from_website_content(website_content: str, company_website: str) -> str:
+    """Extract company name from website content using AI."""
+    try:
+        prompt = f"""
+        Извлеки точное название компании из предоставленного контента веб-сайта.
+        
+        ВЕБ-САЙТ: {company_website}
+        КОНТЕНТ ВЕБ-САЙТА:
+        {website_content}
+        
+        ИНСТРУКЦИИ:
+        - Найди официальное название компании
+        - Верни только название компании, без дополнительной информации
+        - Если не можешь определить название, верни "Company Name"
+        
+        ОТВЕТ (только название компании):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        company_name = response_text.strip()
+        if not company_name or company_name.lower() in ["unknown", "неизвестно", "not found"]:
+            company_name = "Company Name"
+            
+        logger.info(f"🏢 [WEBSITE SCRAPING] Extracted company name: {company_name}")
+        return company_name
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company name: {e}")
+        return "Company Name"
+
+async def extract_company_description_from_website_content(website_content: str, company_website: str, language: str = "ru") -> str:
+    """Extract company description from website content using AI."""
+    try:
+        if language == "en":
+            prompt = f"""
+            Create a brief company description based on the website content.
+
+            WEBSITE: {company_website}
+            WEBSITE CONTENT:
+            {website_content}
+
+            INSTRUCTIONS:
+            - Create description in style: "Company providing services in [main services]"
+            - Use only information from the website
+            - Description should be maximally brief (ONLY 1 sentence)
+            - DO NOT add additional details or examples
+            - Generate ALL content EXCLUSIVELY in English
+            - If you cannot determine description, return "Company Description"
+
+            RESPONSE (company description only):
+            """
+        elif language == "es":
+            prompt = f"""
+            Crea una breve descripción de la empresa basada en el contenido del sitio web.
+
+            SITIO WEB: {company_website}
+            CONTENIDO DEL SITIO WEB:
+            {website_content}
+
+            INSTRUCCIONES:
+            - Crea descripción en estilo: "Empresa que proporciona servicios en [servicios principales]"
+            - Usa solo información del sitio web
+            - La descripción debe ser máxima breve (SOLO 1 oración)
+            - NO agregues detalles adicionales o ejemplos
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            - Si no puedes determinar la descripción, devuelve "Descripción de la Empresa"
+
+            RESPUESTA (solo descripción de la empresa):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Створіть короткий опис компанії на основі вмісту веб-сайту.
+
+            ВЕБ-САЙТ: {company_website}
+            ВМІСТ ВЕБ-САЙТУ:
+            {website_content}
+
+            ІНСТРУКЦІЇ:
+            - Створіть опис у стилі: "Компанія, що надає послуги в галузі [основні послуги]"
+            - Використовуйте лише інформацію з веб-сайту
+            - Опис має бути максимально коротким (ЛИШЕ 1 речення)
+            - НЕ додавайте додаткові деталі або приклади
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            - Якщо не можете визначити опис, поверніть "Опис компанії"
+
+            ВІДПОВІДЬ (лише опис компанії):
+            """
+        else:
+            prompt = f"""
+            Создай краткое описание компании на основе контента веб-сайта.
+
+            ВЕБ-САЙТ: {company_website}
+            КОНТЕНТ ВЕБ-САЙТА:
+            {website_content}
+
+            ИНСТРУКЦИИ:
+            - Создай описание в стиле: "Компания, предоставляющая услуги по [основные услуги]"
+            - Используй только информацию с веб-сайта
+            - Описание должно быть максимально кратким (ТОЛЬКО 1 предложение)
+            - НЕ добавляй дополнительные детали или примеры
+            - Если не можешь определить описание, верни "Company Description"
+
+            ОТВЕТ (только описание компании):
+            """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        company_description = response_text.strip()
+        if not company_description or company_description.lower() in ["unknown", "неизвестно", "not found"]:
+            company_description = "Company Description"
+            
+        logger.info(f"📝 [WEBSITE SCRAPING] Extracted company description: {company_description}")
+        return company_description
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company description: {e}")
+        return "Company Description"
+
+async def extract_company_metadata_from_website(website_content: str, company_website: str) -> dict:
+    """Extract additional company metadata from website content using AI."""
+    try:
+        prompt = f"""
+        Проанализируй контент веб-сайта и извлеки следующую информацию о компании:
+        
+        ВЕБ-САЙТ: {company_website}
+        КОНТЕНТ ВЕБ-САЙТА:
+        {website_content}
+        
+        ИНСТРУКЦИИ:
+        - Определи примерное количество сотрудников (если указано)
+        - Определи, является ли компания франшизой или планирует открывать филиалы
+        - Определи основные проблемы с онбордингом (если упоминаются)
+        - Определи типы документов, которые использует компания
+        - Определи приоритеты компании в области HR
+        
+        ФОРМАТ ОТВЕТА (только JSON):
+        {{
+            "employees": "количество сотрудников или Unknown",
+            "franchise": "Yes/No/Unknown",
+            "onboardingProblems": "основные проблемы или To be analyzed from website content",
+            "documents": ["список типов документов или [\"Other\"]"],
+            "documentsOther": "дополнительные документы или To be determined from website analysis",
+            "priorities": ["список приоритетов или [\"Other\"]"],
+            "priorityOther": "дополнительные приоритеты или To be determined from website analysis"
+        }}
+        
+        ОТВЕТ (только JSON):
+        """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Parse JSON response
+        try:
+            company_data = json.loads(response_text.strip())
+            logger.info(f"📊 [WEBSITE SCRAPING] Extracted company metadata: {company_data}")
+            return company_data
+        except json.JSONDecodeError:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse JSON, using defaults")
+            return {
+                "employees": "Unknown",
+                "franchise": "Unknown",
+                "onboardingProblems": "To be analyzed from website content",
+                "documents": ["Other"],
+                "documentsOther": "To be determined from website analysis",
+                "priorities": ["Other"],
+                "priorityOther": "To be determined from website analysis"
+            }
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting company metadata: {e}")
+        return {
+            "employees": "Unknown",
+            "franchise": "Unknown",
+            "onboardingProblems": "To be analyzed from website content",
+            "documents": ["Other"],
+            "documentsOther": "To be determined from website analysis",
+            "priorities": ["Other"],
+            "priorityOther": "To be determined from website analysis"
+        }
+
+async def create_audit_onepager(duckduckgo_summary, example_text_path, payload, language="ru"):
     try:
         with open(example_text_path, encoding="utf-8") as f:
             example_text = f.read()
@@ -15218,8 +15714,24 @@ async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
         duck_info = "(DuckDuckGo не дал информации. Используй только анкету.)"
     else:
         duck_info = duckduckgo_summary
+    # Language-specific instructions
+    if language == "en":
+        language_instruction = """
+    CRITICAL LANGUAGE REQUIREMENT:
+    - Generate ALL content EXCLUSIVELY in English
+    - Use English terminology and professional business language
+    - Maintain the same structure and formatting as the example
+    - Translate all section headers, labels, and text to English
+    - Use English business terminology for all concepts
+    """
+        system_message = "You are a professional AI assistant for generating training one-pager documents in English. Strictly follow ContentBuilder.ai rules and generate content exclusively in English."
+    else:
+        language_instruction = ""
+        system_message = "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."
+
     prompt = f"""
     Сгенерируй AI-аудит (one-pager) для компании, используя ВСЮ информацию из анкеты пользователя и результаты интернет-исследования (DuckDuckGo).
+    {language_instruction}
 
     ТВОЯ ЗАДАЧА:
     - СКОПИРУЙ ПРИМЕР НИЖЕ МАКСИМАЛЬНО ТОЧНО, ДОСЛОВНО.
@@ -15264,7 +15776,7 @@ async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
         response = await client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Ты профессиональный AI-ассистент для генерации обучающих one-pager документов. Строго следуй правилам ContentBuilder.ai."},
+                {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=4096,
@@ -15400,7 +15912,7 @@ async def create_audit_onepager(duckduckgo_summary, example_text_path, payload):
     )
     return parsed_json
 
-    
+
 @app.post("/api/custom/ai-audit/generate")
 async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
     job_id = str(uuid.uuid4())
@@ -15409,14 +15921,326 @@ async def generate_ai_audit_onepager(payload: AiAuditQuestionnaireRequest, reque
     return {"jobId": job_id}
 
 
+@app.post("/api/custom/ai-audit/landing-page/generate")
+async def generate_ai_audit_landing_page(payload: AiAuditQuestionnaireRequest, request: Request, background_tasks: BackgroundTasks, pool: asyncpg.Pool = Depends(get_db_pool)):
+    job_id = str(uuid.uuid4())
+    set_progress(job_id, "Starting AI-Audit landing page generation...")
+    background_tasks.add_task(_run_landing_page_generation, payload, request, pool, job_id)
+    return {"jobId": job_id}
+
+
+@app.get("/api/custom/ai-audit/landing-page/{project_id}")
+async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Get the dynamic landing page data for a specific AI audit project.
+    """
+    try:
+        # 📊 LOG: Data retrieval request received
+        logger.info(f"📥 [AUDIT DATA FLOW] Landing page data request for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the project data
+        query = """
+        SELECT microproduct_content, microproduct_name 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
+            
+        if not row:
+            logger.error(f"❌ [AUDIT DATA FLOW] Project {project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        content = row["microproduct_content"]
+        project_name = row["microproduct_name"]
+        
+        # 📊 DETAILED LOGGING: Language preference in retrieved data
+        language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: '{language_from_db}'")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - content type: {type(content)}")
+        
+        # 📊 LOG: Raw data retrieved from database
+        logger.info(f"💾 [AUDIT DATA FLOW] Retrieved project data from database:")
+        logger.info(f"💾 [AUDIT DATA FLOW] - Project name: '{project_name}'")
+        logger.info(f"💾 [AUDIT DATA FLOW] - Content keys: {list(content.keys()) if content else 'None'}")
+        
+        # Extract the dynamic data
+        company_name = content.get("companyName", "Unknown Company")
+        company_description = content.get("companyDescription", "Company description not available")
+        
+        # 📊 LOG: Extracted dynamic data
+        logger.info(f"🔍 [AUDIT DATA FLOW] Extracted dynamic data:")
+        logger.info(f"🔍 [AUDIT DATA FLOW] - Company name: '{company_name}'")
+        logger.info(f"🔍 [AUDIT DATA FLOW] - Company description: '{company_description}'")
+        
+        # Extract job positions from the landing page data
+        job_positions = content.get("jobPositions", [])
+        
+        # 📊 LOG: Job positions extraction process
+        logger.info(f"💼 [AUDIT DATA FLOW] Starting job positions extraction:")
+        logger.info(f"💼 [AUDIT DATA FLOW] - Job positions in content: {len(job_positions)} positions")
+        
+        if job_positions:
+            # 📊 LOG: Job positions found in landing page data
+            logger.info(f"💼 [AUDIT DATA FLOW] Job positions found in landing page data:")
+            for i, position in enumerate(job_positions):
+                logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
+        else:
+            logger.info(f"💼 [AUDIT DATA FLOW] No job positions in landing page data, using default positions")
+            # Fallback to default positions if none found
+            job_positions = [
+                {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
+                {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
+                {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+            ]
+        
+        # Extract workforce crisis data from the landing page data
+        workforce_crisis = content.get("workforceCrisis", {})
+        
+        # 📊 LOG: Workforce crisis data extraction
+        logger.info(f"📊 [AUDIT DATA FLOW] Workforce crisis data extraction:")
+        logger.info(f"📊 [AUDIT DATA FLOW] - Workforce crisis data: {workforce_crisis}")
+        
+        # Extract course outline modules from the landing page data
+        course_outline_modules = content.get("courseOutlineModules", [])
+        
+        # 📊 LOG: Course outline modules extraction
+        logger.info(f"📚 [AUDIT DATA FLOW] Course outline modules extraction:")
+        logger.info(f"📚 [AUDIT DATA FLOW] - Course outline modules count: {len(course_outline_modules)}")
+        for i, module_title in enumerate(course_outline_modules):
+            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title}")
+        
+        # Extract course templates from the landing page data
+        course_templates = content.get("courseTemplates", [])
+        
+        # 📊 LOG: Course templates extraction
+        logger.info(f"🎓 [AUDIT DATA FLOW] Course templates extraction:")
+        logger.info(f"🎓 [AUDIT DATA FLOW] - Course templates count: {len(course_templates)}")
+        for i, template in enumerate(course_templates):
+            logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template.get('title', 'Unknown')}")
+        
+        # 📊 LOG: Final response data structure
+        response_data = {
+            "projectId": project_id,
+            "projectName": project_name,
+            "companyName": company_name,
+            "companyDescription": company_description,
+            "jobPositions": job_positions,
+            "workforceCrisis": workforce_crisis,
+            "courseOutlineModules": course_outline_modules,
+            "courseTemplates": course_templates,
+            "language": content.get("language", "ru")  # 🔧 FIX: Include language parameter in response
+        }
+        
+        logger.info(f"📤 [AUDIT DATA FLOW] Final response data:")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Project ID: {response_data['projectId']}")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Project Name: '{response_data['projectName']}'")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Company Name: '{response_data['companyName']}'")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Company Description: '{response_data['companyDescription']}'")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Job Positions Count: {len(response_data['jobPositions'])}")
+        logger.info(f"📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {response_data['workforceCrisis']}")
+        
+        # 📊 DETAILED LOGGING: Language parameter in response
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Response data - language: '{response_data['language']}'")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Response data keys: {list(response_data.keys())}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting landing page data: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+
+# Audit sharing models
+class ShareAuditRequest(BaseModel):
+    expires_in_days: Optional[int] = 30  # Default 30 days expiration
+
+class ShareAuditResponse(BaseModel):
+    share_token: str
+    public_url: str
+    expires_at: datetime
+
+@app.post("/api/custom/audits/{audit_id}/share")
+async def share_audit(
+    audit_id: int, 
+    request_data: ShareAuditRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+) -> ShareAuditResponse:
+    """
+    Generate a share token for an audit project, making it publicly accessible.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Verify the audit belongs to the user and is an audit project
+        query = """
+        SELECT id, project_name, microproduct_content 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2 
+        AND (project_name LIKE 'AI-Аудит%' OR project_name LIKE '%Landing Page%')
+        """
+        
+        async with pool.acquire() as conn:
+            audit = await conn.fetchrow(query, audit_id, onyx_user_id)
+            
+        if not audit:
+            raise HTTPException(status_code=404, detail="Audit not found or access denied")
+        
+        # Generate secure share token
+        share_token = str(uuid.uuid4())
+        
+        # Calculate expiration date
+        expires_at = datetime.now(timezone.utc)
+        if request_data.expires_in_days:
+            from datetime import timedelta
+            expires_at += timedelta(days=request_data.expires_in_days)
+        else:
+            from datetime import timedelta
+            expires_at += timedelta(days=30)  # Default 30 days
+        
+        # Update the project with sharing information
+        update_query = """
+        UPDATE projects 
+        SET share_token = $1, is_public = TRUE, shared_at = NOW(), expires_at = $2
+        WHERE id = $3
+        """
+        
+        async with pool.acquire() as conn:
+            await conn.execute(update_query, share_token, expires_at, audit_id)
+        
+        # Generate public URL - use the correct public domain for sharing
+        # Check if we have a public domain override, otherwise detect from request
+        public_domain = os.environ.get("PUBLIC_FRONTEND_URL")
+        
+        if not public_domain:
+            # Try to detect the public domain from the request headers
+            host = request.headers.get("host", "")
+            if "dev4.contentbuilder.ai" in host:
+                public_domain = "https://dev4.contentbuilder.ai/custom-projects-ui"
+            elif host and not host.startswith("custom_frontend"):
+                # Use the host from the request with https
+                protocol = "https" if request.headers.get("x-forwarded-proto") == "https" else "http"
+                public_domain = f"{protocol}://{host}"
+                if "/custom-projects-ui" not in public_domain:
+                    public_domain += "/custom-projects-ui"
+            else:
+                # Fallback to environment variable or localhost
+                frontend_domain = os.environ.get("CUSTOM_FRONTEND_URL", "http://localhost:3001")
+                public_domain = frontend_domain
+        
+        public_url = f"{public_domain}/public/audit/{share_token}"
+        
+        logger.info(f"🔗 [AUDIT SHARING] Created share token for audit {audit_id}: {share_token}")
+        
+        return ShareAuditResponse(
+            share_token=share_token,
+            public_url=public_url,
+            expires_at=expires_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing audit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to share audit")
+
+@app.get("/api/custom/public/audits/{share_token}")
+async def get_public_audit(
+    share_token: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Get audit data by share token for public access (no authentication required).
+    """
+    try:
+        # Query for public audit by share token
+        query = """
+        SELECT id, project_name, microproduct_content, shared_at, expires_at, is_public
+        FROM projects 
+        WHERE share_token = $1 AND is_public = TRUE
+        """
+        
+        async with pool.acquire() as conn:
+            audit = await conn.fetchrow(query, share_token)
+            
+        if not audit:
+            raise HTTPException(status_code=404, detail="Shared audit not found")
+        
+        # Check if the share has expired
+        if audit["expires_at"] and audit["expires_at"] < datetime.now(timezone.utc):
+            raise HTTPException(status_code=410, detail="Shared audit link has expired")
+        
+        content = audit["microproduct_content"]
+        project_name = audit["project_name"]
+        
+        # Extract the dynamic data similar to the private endpoint
+        company_name = content.get("companyName", "Unknown Company")
+        company_description = content.get("companyDescription", "Company description not available")
+        job_positions = content.get("jobPositions", [])
+        workforce_crisis = content.get("workforceCrisis", {})
+        course_outline_modules = content.get("courseOutlineModules", [])
+        course_templates = content.get("courseTemplates", [])
+        
+        # Return the same structure as the private endpoint but without sensitive info
+        response_data = {
+            "projectId": audit["id"],
+            "projectName": project_name,
+            "companyName": company_name,
+            "companyDescription": company_description,
+            "jobPositions": job_positions,
+            "workforceCrisis": workforce_crisis,
+            "courseOutlineModules": course_outline_modules,
+            "courseTemplates": course_templates,
+            "language": content.get("language", "ru"),
+            "isPublicView": True,  # Flag to indicate this is a public view
+            "sharedAt": audit["shared_at"].isoformat() if audit["shared_at"] else None
+        }
+        
+        logger.info(f"🌐 [PUBLIC AUDIT ACCESS] Served public audit with token: {share_token}")
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting public audit: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve shared audit")
+
+
 async def _run_audit_generation(payload, request, pool, job_id):
     try:
-        set_progress(job_id, "Researching company info...")
-        duckduckgo_summary = await serpapi_company_research(payload.companyName, payload.companyDesc, payload.companyWebsite)
+        set_progress(job_id, "Scraping company website...")
+        # Scrape company data from website
+        scraped_data = await scrape_company_data_from_website(payload.companyWebsite, payload.language)
+        logger.info(f"[AI-Audit] Scraped company data: {scraped_data.companyName}")
+        
+        set_progress(job_id, "Researching additional company info...")
+        # Get additional research data using scraped company name and description
+        duckduckgo_summary = await serpapi_company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite)
         logger.info(f"[AI-Audit] SERPAPI summary: {duckduckgo_summary[:300]}")
 
         set_progress(job_id, "Generating first one-pager...")
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", payload)
+        # Create a combined payload with scraped data for the prompt
+        combined_payload = type('CombinedPayload', (), {
+            'companyName': scraped_data.companyName,
+            'companyDesc': scraped_data.companyDesc,
+            'companyWebsite': payload.companyWebsite,
+            'employees': scraped_data.employees,
+            'franchise': scraped_data.franchise,
+            'onboardingProblems': scraped_data.onboardingProblems,
+            'documents': scraped_data.documents,
+            'documentsOther': scraped_data.documentsOther,
+            'priorities': scraped_data.priorities,
+            'priorityOther': scraped_data.priorityOther
+        })()
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/First-one-pager.txt", combined_payload, payload.language)
 
         onyx_user_id = await get_current_onyx_user_id(request)
 
@@ -15424,7 +16248,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         project_id = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит: {payload.companyName}",
+            project_name=f"AI-Аудит: {scraped_data.companyName}",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
             chat_session_id=None
         )
@@ -15438,20 +16262,20 @@ async def _run_audit_generation(payload, request, pool, job_id):
         for position in positions:
             set_progress(job_id, f"Generating onboarding for '{position.get('Позиция', 'New Position')}'")
             project = await generate_and_finalize_course_outline_for_position(
-                payload.companyName, position, onyx_user_id, pool, request
+                scraped_data.companyName, position, onyx_user_id, pool, request
             )
             results.append(project)
 
         logger.info(f"[AI-Audit] Created {len(results)} course outlines for positions")
 
         set_progress(job_id, "Generating closing one-pager...")
-        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", payload)
+        parsed_json = await create_audit_onepager(duckduckgo_summary, "custom_assistants/AI-Audit/Second-one-pager.txt", combined_payload)
 
         # After you get the parsed content from the AI parser:
         project_id_2 = await insert_ai_audit_onepager_to_db(
             pool=pool,
             onyx_user_id=onyx_user_id,
-            project_name=f"AI-Аудит: {payload.companyName} (2)",
+            project_name=f"AI-Аудит: {scraped_data.companyName} (2)",
             microproduct_content=parsed_json.model_dump(mode='json', exclude_none=True),
             chat_session_id=None
         )
@@ -15462,7 +16286,7 @@ async def _run_audit_generation(payload, request, pool, job_id):
         all_project_ids = [project_id] + [p.id for p in results] + [project_id_2]
 
         # 1. Create a new folder
-        folder_id = await create_audit_folder(pool, onyx_user_id, payload.companyName)
+        folder_id = await create_audit_folder(pool, onyx_user_id, scraped_data.companyName)
 
         # 2. Assign all projects to this folder
         await assign_projects_to_folder(pool, folder_id, all_project_ids)
@@ -15472,13 +16296,2479 @@ async def _run_audit_generation(payload, request, pool, job_id):
         return {
             "id": project_id,
             "id_2": project_id_2,
-            "name": f"AI-Аудит: {payload.companyName}",
+            "name": f"AI-Аудит: {scraped_data.companyName}",
             "folderId": folder_id
         }
     
     except Exception as e:
         set_progress(job_id, f"Error: {str(e)}")
+
+
+async def extract_company_name_from_data(duckduckgo_summary: str, payload) -> str:
+    """
+    Extract the company name from scraped data using AI.
+    Returns only the company name as a string.
+    """
+    prompt = f"""
+    Извлеки ТОЛЬКО название компании из предоставленных данных.
     
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ТВОЯ ЗАДАЧА:
+    - Верни ТОЛЬКО название компании
+    - Используй наиболее точное и официальное название
+    - Если есть несколько вариантов, выбери самый короткий и официальный
+    - НЕ добавляй никаких дополнительных слов или объяснений
+    - НЕ используй кавычки или другие символы
+    
+    ОТВЕТ (только название компании):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean up the response
+        company_name = response_text.strip()
+        if not company_name:
+            company_name = getattr(payload, 'companyName', 'Company Name')  # Fallback to original name
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted company name: {company_name}")
+        return company_name
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting company name: {e}")
+        return getattr(payload, 'companyName', 'Company Name')  # Fallback to original name
+
+
+async def generate_company_description_from_data(duckduckgo_summary: str, payload) -> str:
+    """
+    Generate a company description from scraped data using AI.
+    Returns a concise description similar to the original subtitle format.
+    """
+    prompt = f"""
+    Создай краткое описание компании в стиле: "Компания предоставляющий услуги по [основные услуги]. [дополнительная информация о компании]"
+    
+    ДАННЫЕ АНКЕТЫ:
+    - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+    - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+    - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+    
+    ДАННЫЕ ИЗ ИНТЕРНЕТА:
+    {duckduckgo_summary}
+    
+    ТВОЯ ЗАДАЧА:
+    - Создай описание в том же стиле, что и пример: "Компания предоставляющий услуги по установке и обслуживанию систем HVAC, электрики, солнечных панелей, а также бытовой и коммерческой техники. Обеспечивая полный цикл инженерных решений"
+    - Используй информацию из интернета для определения основных услуг компании
+    - Сделай описание кратким (1-2 предложения)
+    - Начни с "Компания предоставляющий услуги по"
+    - НЕ добавляй кавычки или другие символы
+    - Пиши на русском языке
+    
+    ОТВЕТ (только описание компании):
+    """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean up the response
+        company_description = response_text.strip()
+        if not company_description:
+            company_description = getattr(payload, 'companyDesc', 'Company Description')  # Fallback to original description
+        
+        logger.info(f"[AI-Audit Landing Page] Generated company description: {company_description}")
+        return company_description
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating company description: {e}")
+        return getattr(payload, 'companyDesc', 'Company Description')  # Fallback to original description
+
+
+async def generate_ai_image_for_job_position(job_title: str, company_name: str) -> str:
+    """
+    Generate an AI image for a specific job position using Google Gemini.
+    """
+    try:
+        # Create a professional prompt for the job position with enhanced framing
+        prompt = f"""A professional photograph of a {job_title} actively working at {company_name}. 
+    
+        SCENE: The person is engaged in their typical work activities in an authentic workplace environment appropriate for a {job_title}. Show them using professional tools, equipment, or technology relevant to their role. The composition should capture both the person (from waist up or full body) and their work environment.
+
+        ACTIVITY: Include specific work processes - for example:
+        - If barista: preparing coffee, operating espresso machine, arranging cups
+        - If programmer: coding at multiple monitors, reviewing code, collaborating with team
+        - If mechanic: working on equipment, using tools, diagnostic work
+        - If teacher: conducting lesson, using whiteboard, interacting with materials
+        - If sales representative: presenting products, meeting with clients, demonstrating features
+        - If nurse: caring for patients, using medical equipment, documenting care
+
+        ENVIRONMENT: Authentic workplace setting that matches the {job_title} role - not just a generic office. Include relevant background elements, tools, equipment, and work materials that tell the story of what this person does.
+
+        STYLE: High-quality professional photography with good lighting that shows both the person and their work context. The person should be wearing appropriate work attire/uniform for their specific role.
+
+        COMPOSITION: Environmental portrait style that captures the essence of the job, not just a headshot."""
+
+        # Use wider dimensions for course template images to better fit the container
+        width, height = 1792, 1024
+        
+        # Create the request
+        request = AIImageGenerationRequest(
+            prompt=prompt,
+            width=width,
+            height=height,
+            quality="standard",
+            style="vivid",
+            model="gemini-2.5-flash-image-preview"
+        )
+        
+        # Generate the image
+        result = await generate_ai_image(request)
+        
+        logger.info(f"🎨 [COURSE IMAGE] Generated image for {job_title}: {result['file_path']}")
+        return result['file_path']
+        
+    except Exception as e:
+        logger.error(f"❌ [COURSE IMAGE] Error generating image for {job_title}: {e}")
+        # Return a fallback image path
+        return f"/custom-projects-ui/images/audit-section-5-job-1-mobile.png"
+
+async def generate_course_description_for_position(job_title: str, company_name: str, duckduckgo_summary: str, language: str = "ru") -> str:
+    """
+    Generate a concise course description for a specific job position.
+    """
+    try:
+        if language == "en":
+            prompt = f"""Create a brief course description for the position "{job_title}" at {company_name}.
+
+COMPANY DATA:
+{duckduckgo_summary}
+
+CRITICAL REQUIREMENTS:
+- Description must be VERY short - maximum 80 characters (not 100!)
+- Use ONLY simple format: "Training in [skills] for [short position name]"
+- Avoid long words and unnecessary details
+- DO NOT use complex constructions
+
+GOOD EXAMPLES (short):
+- "Training in data analysis and visualization for analyst."
+- "Training in system design for engineer."
+- "Training in sales techniques for manager."
+
+BAD EXAMPLES (too long):
+- "Training in effective sales strategies and customer relationship management for sales manager"
+- "Training in effective communication and problem solving for customer service specialists"
+
+SHORTENING RULES:
+- "sales manager" → "manager"
+- "customer service specialist" → "consultant"
+- "marketing specialist" → "marketer"
+- "data analyst" → "analyst"
+
+RESPONSE (course description only, maximum 80 characters):"""
+        elif language == "es":
+            prompt = f"""Crea una breve descripción del curso para la posición "{job_title}" en {company_name}.
+
+DATOS DE LA EMPRESA:
+{duckduckgo_summary}
+
+REQUISITOS CRÍTICOS:
+- La descripción debe ser MUY corta - máximo 80 caracteres (¡no 100!)
+- Usa SOLO formato simple: "Capacitación en [habilidades] para [nombre corto de posición]"
+- Evita palabras largas y detalles innecesarios
+- NO uses construcciones complejas
+
+BUENOS EJEMPLOS (cortos):
+- "Capacitación en análisis de datos y visualización para analista."
+- "Capacitación en diseño de sistemas para ingeniero."
+- "Capacitación en técnicas de ventas para gerente."
+
+MALOS EJEMPLOS (muy largos):
+- "Capacitación en estrategias efectivas de ventas y gestión de relaciones con clientes para gerente de ventas"
+- "Capacitación en comunicación efectiva y resolución de problemas para especialistas en atención al cliente"
+
+REGLAS DE ABREVIACIÓN:
+- "gerente de ventas" → "gerente"
+- "especialista en atención al cliente" → "consultor"
+- "especialista en marketing" → "marketero"
+- "analista de datos" → "analista"
+
+RESPUESTA (solo descripción del curso, máximo 80 caracteres):"""
+        elif language == "ua":
+            prompt = f"""Створіть короткий опис курсу для посади "{job_title}" в компанії {company_name}.
+
+ДАНІ ПРО КОМПАНІЮ:
+{duckduckgo_summary}
+
+КРИТИЧНІ ВИМОГИ:
+- Опис має бути ДУЖЕ коротким - максимум 80 символів (не 100!)
+- Використовуйте ЛИШЕ простий формат: "Навчання [навичкам] для [скорочена назва посади]"
+- Уникайте довгих слів та зайвих деталей
+- НЕ використовуйте складні конструкції
+
+ХОРОШІ ПРИКЛАДИ (короткі):
+- "Навчання аналізу даних та візуалізації для аналітика."
+- "Навчання проектуванню систем для інженера."
+- "Навчання продажам для менеджера."
+
+ПОГАНІ ПРИКЛАДИ (занадто довгі):
+- "Навчання ефективним стратегіям продажів та управлінню клієнтськими відносинами для менеджера"
+- "Навчання ефективному спілкуванню та вирішенню проблем для фахівців з обслуговування"
+
+ПРАВИЛА СКОРОЧЕННЯ:
+- "менеджер з продажів" → "менеджера"
+- "фахівець з обслуговування клієнтів" → "консультанта"
+- "спеціаліст з маркетингу" → "маркетолога"
+- "аналізатор даних" → "аналітика"
+
+ВІДПОВІДЬ (тільки опис курсу, максимум 80 символів):"""
+        else:  # Russian
+            prompt = f"""Создай краткое описание курса обучения для позиции "{job_title}" в компании {company_name}.
+
+ДАННЫЕ О КОМПАНИИ:
+{duckduckgo_summary}
+
+КРИТИЧЕСКИЕ ТРЕБОВАНИЯ:
+- Описание должно быть ОЧЕНЬ коротким - максимум 80 символов (не 100!)
+- Используй ТОЛЬКО простой формат: "Обучение [навыкам] для [сокращенное название позиции]"
+- Избегай длинных слов и лишних деталей
+- НЕ используй сложные конструкции
+
+ХОРОШИЕ ПРИМЕРЫ (короткие):
+- "Обучение анализу данных и визуализации для аналитика."
+- "Обучение проектированию систем для инженера."
+- "Обучение продажам для менеджера."
+
+ПЛОХИЕ ПРИМЕРЫ (слишком длинные):
+- "Обучение эффективным стратегиям продаж и управлению клиентскими отношениями для менеджера"
+- "Обучение эффективному общению и решению проблем для специалистов по обслуживанию"
+
+ПРАВИЛА СОКРАЩЕНИЯ:
+- "менеджер по продажам" → "менеджера"
+- "специалист по обслуживанию клиентов" → "консультанта"
+- "специалист по маркетингу" → "маркетолога"
+- "аналитик данных" → "аналитика"
+
+ОТВЕТ (только описание курса, максимум 80 символов):"""
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean up the response
+        description = response_text.strip()
+        if len(description) > 80:
+            description = description[:77] + "..."
+            
+        return description
+        
+    except Exception as e:
+        logger.error(f"❌ [COURSE DESCRIPTION] Error generating course description for {job_title}: {e}")
+        if language == "en":
+            return f"Training in key skills for {job_title} position."
+        elif language == "es":
+            return f"Capacitación en habilidades clave para la posición {job_title}."
+        elif language == "ua":
+            return f"Навчання ключовим навичкам для посади {job_title}."
+        else:  # Russian
+            return f"Обучение ключевым навыкам для позиции {job_title}."
+
+async def generate_course_outline_for_landing_page(duckduckgo_summary: str, job_positions: list, payload, language: str = "ru") -> list:
+    """
+    Generate course outline data for the landing page modules section.
+    Returns a list of modules with titles and lessons extracted from the first job position's course outline.
+    """
+    try:
+        if not job_positions:
+            logger.warning("[COURSE OUTLINE] No job positions available for course outline generation")
+            return []
+        
+        # Use the first job position for course outline generation
+        first_position = job_positions[0]
+        position_title = first_position.get('title', 'Сотрудник')
+        
+        logger.info(f"[COURSE OUTLINE] Generating course outline for position: {position_title}")
+        
+        # Build the prompt for course outline generation
+        if language == "en":
+            prompt = f"""Create a detailed course outline 'Onboarding for {position_title}' for new employees in this position at '{getattr(payload, 'companyName', 'Company Name')}'.
+
+COMPANY CONTEXT:
+- Company Name: {getattr(payload, 'companyName', 'Company Name')}
+- Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+- Position: {position_title}
+- Additional company information: {duckduckgo_summary}
+
+COURSE REQUIREMENTS:
+- The course should be specific to company {getattr(payload, 'companyName', 'Company Name')} and position {position_title}
+- Content should reflect real tasks and responsibilities of this position in this company
+- Consider industry specifics and corporate culture
+- Create EXACTLY 4 modules with UNIQUE names
+- Each module should have FROM 5 TO 7 lessons
+- Module and lesson names should be CREATIVE and DIVERSE
+- Avoid repetitive formulations
+- Each lesson should be specific and practical for this position
+- DO NOT add module numbers in titles (e.g., 'Module 1:', 'Module 2:', etc.)
+- Use only descriptive module names without prefixes
+- Generate ALL content EXCLUSIVELY in English
+
+RESPONSE FORMAT (JSON only):
+[
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}},
+    {{"title": "Module Title", "lessons": ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4", "Lesson 5"]}}
+]
+
+RESPONSE (JSON only):"""
+        elif language == "es":
+            prompt = f"""Crea un esquema detallado del curso 'Incorporación para {position_title}' para nuevos empleados en esta posición en '{getattr(payload, 'companyName', 'Company Name')}'.
+
+CONTEXTO DE LA EMPRESA:
+- Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+- Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+- Posición: {position_title}
+- Información adicional de la empresa: {duckduckgo_summary}
+
+REQUISITOS DEL CURSO:
+- El curso debe ser específico para la empresa {getattr(payload, 'companyName', 'Company Name')} y la posición {position_title}
+- El contenido debe reflejar las tareas y responsabilidades reales de esta posición en esta empresa
+- Considera las especificidades de la industria y la cultura corporativa
+- Crea EXACTAMENTE 4 módulos con nombres ÚNICOS
+- Cada módulo debe tener DE 5 A 7 lecciones
+- Los nombres de módulos y lecciones deben ser CREATIVOS y DIVERSOS
+- Evita formulaciones repetitivas
+- Cada lección debe ser específica y práctica para esta posición
+- NO agregues números de módulos en los títulos (ej., 'Módulo 1:', 'Módulo 2:', etc.)
+- Usa solo nombres descriptivos de módulos sin prefijos
+- Genera TODO el contenido EXCLUSIVAMENTE en español
+
+FORMATO DE RESPUESTA (solo JSON):
+[
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}},
+    {{"title": "Título del Módulo", "lessons": ["Lección 1", "Lección 2", "Lección 3", "Lección 4", "Lección 5"]}}
+]
+
+RESPUESTA (solo JSON):"""
+        elif language == "ua":
+            prompt = f"""Створіть детальний план курсу 'Онбординг для посади {position_title}' для нових співробітників на цій посаді в компанії '{getattr(payload, 'companyName', 'Company Name')}'.
+
+КОНТЕКСТ КОМПАНІЇ:
+- Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+- Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+- Посада: {position_title}
+- Додаткова інформація про компанію: {duckduckgo_summary}
+
+ВИМОГИ ДО КУРСУ:
+- Курс повинен бути специфічним для компанії {getattr(payload, 'companyName', 'Company Name')} та посади {position_title}
+- Зміст повинен відображати реальні завдання та обов'язки цієї посади в цій компанії
+- Враховуйте специфіку галузі та корпоративну культуру
+- Створіть РІВНО 4 модулі з УНІКАЛЬНИМИ назвами
+- У кожному модулі має бути ВІД 5 ДО 7 уроків
+- Назви модулів та уроків мають бути КРЕАТИВНИМИ та РІЗНОМАНІТНИМИ
+- Уникайте повторюваних формулювань
+- Кожен урок має бути конкретним та практичним для цієї посади
+- НЕ додавайте номери модулів у назви (наприклад, 'Модуль 1:', 'Модуль 2:' тощо)
+- Використовуйте лише описові назви модулів без префіксів
+- Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+
+ФОРМАТ ВІДПОВІДІ (тільки JSON):
+[
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}},
+    {{"title": "Назва модуля", "lessons": ["Урок 1", "Урок 2", "Урок 3", "Урок 4", "Урок 5"]}}
+]
+
+ВІДПОВІДЬ (тільки JSON):"""
+        else:
+            wizard_request = {
+                "product": "Course Outline",
+                "prompt": (
+                    f"Создай детальный курс аутлайн 'Онбординг для должности {position_title}' для новых сотрудников этой должности в компании '{getattr(payload, 'companyName', 'Company Name')}'. \n"
+                    f"КОНТЕКСТ КОМПАНИИ:\n"
+                    f"- Название компании: {getattr(payload, 'companyName', 'Company Name')}\n"
+                    f"- Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}\n"
+                    f"- Должность: {position_title}\n"
+                    f"- Дополнительная информация о компании: {duckduckgo_summary}\n\n"
+                    f"ТРЕБОВАНИЯ К КУРСУ:\n"
+                    f"- Курс должен быть специфичным для компании {getattr(payload, 'companyName', 'Company Name')} и должности {position_title}\n"
+                    f"- Содержание должно отражать реальные задачи и обязанности этой должности в данной компании\n"
+                    f"- Учитывай специфику отрасли и корпоративную культуру компании\n"
+                    f"- Создай РОВНО 4 модуля с УНИКАЛЬНЫМИ названиями\n"
+                    f"- В каждом модуле должно быть ОТ 5 ДО 7 уроков\n"
+                    f"- Названия модулей и уроков должны быть КРЕАТИВНЫМИ и РАЗНООБРАЗНЫМИ\n"
+                    f"- Избегай повторяющихся формулировок\n"
+                    f"- Каждый урок должен быть конкретным и практичным для данной должности\n"
+                    f"- НЕ добавляй номера модулей в названия (например, 'Модуль 1:', 'Модуль 2:' и т.д.)\n"
+                    f"- Используй только описательные названия модулей без префиксов\n"
+                ),
+                "modules": 4,
+                "lessonsPerModule": "5-7",
+                "language": language
+            }
+        
+        # Generate the course outline
+        outline_text = await stream_openai_response_direct(prompt, model=LLM_DEFAULT_MODEL)
+        
+        # Parse the outline text to extract modules with lessons
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = outline_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            parsed_outline = json.loads(cleaned_response)
+            
+            if not isinstance(parsed_outline, list):
+                raise ValueError("Response is not a list")
+                
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"[COURSE OUTLINE] Failed to parse JSON response: {e}")
+            logger.warning(f"[COURSE OUTLINE] Raw response was: '{outline_text}'")
+            # Fall back to default modules
+            parsed_outline = []
+        
+        # Extract modules with lessons
+        course_modules = []
+        for i, module in enumerate(parsed_outline):
+            if i < 4:  # Limit to 4 modules as per UI design
+                module_data = {
+                    "title": module.get('title', f'Модуль {i+1}'),
+                    "lessons": module.get('lessons', [])
+                }
+                course_modules.append(module_data)
+                logger.info(f"[COURSE OUTLINE] Module {i+1}: {module_data['title']} with {len(module_data['lessons'])} lessons")
+                for j, lesson in enumerate(module_data['lessons']):
+                    logger.info(f"[COURSE OUTLINE] - Lesson {j+1}: {lesson}")
+        
+        # Ensure we have exactly 4 modules (pad with default modules if needed)
+        while len(course_modules) < 4:
+            if language == "en":
+                course_modules.append({
+                    "title": f'Module {len(course_modules) + 1}',
+                    "lessons": []
+                })
+            elif language == "es":
+                course_modules.append({
+                    "title": f'Módulo {len(course_modules) + 1}',
+                    "lessons": []
+                })
+            elif language == "ua":
+                course_modules.append({
+                    "title": f'Модуль {len(course_modules) + 1}',
+                    "lessons": []
+                })
+            else:  # Russian
+                course_modules.append({
+                    "title": f'Модуль {len(course_modules) + 1}',
+                    "lessons": []
+                })
+        
+        logger.info(f"[COURSE OUTLINE] Generated {len(course_modules)} modules with lessons for landing page")
+        return course_modules
+        
+    except Exception as e:
+        logger.error(f"[COURSE OUTLINE] Error generating course outline for landing page: {e}")
+        # Return default modules as fallback
+        if language == "en":
+            return [
+                {
+                    "title": "Company Introduction and Corporate Culture",
+                    "lessons": ["Company Overview", "Corporate Values and Standards", "Organizational Structure", "Policies and Procedures", "Communication Systems"]
+                },
+                {
+                    "title": "Work Fundamentals and Professional Skills",
+                    "lessons": ["Technical Job Requirements", "Work Processes and Procedures", "Tools and Systems", "Work Quality and Standards", "Safety and Compliance"]
+                },
+                {
+                    "title": "Team and Customer Interaction",
+                    "lessons": ["Teamwork", "Customer Service", "Conflict Management", "Effective Communication", "Feedback and Development"]
+                },
+                {
+                    "title": "Development and Career Growth",
+                    "lessons": ["Goal Setting", "Development Planning", "Performance Evaluation", "Growth Opportunities", "Continuous Learning"]
+                }
+            ]
+        elif language == "es":
+            return [
+                {
+                    "title": "Introducción a la Empresa y Cultura Corporativa",
+                    "lessons": ["Visión General de la Empresa", "Valores y Estándares Corporativos", "Estructura Organizacional", "Políticas y Procedimientos", "Sistemas de Comunicación"]
+                },
+                {
+                    "title": "Fundamentos del Trabajo y Habilidades Profesionales",
+                    "lessons": ["Requisitos Técnicos del Puesto", "Procesos y Procedimientos de Trabajo", "Herramientas y Sistemas", "Calidad del Trabajo y Estándares", "Seguridad y Cumplimiento"]
+                },
+                {
+                    "title": "Interacción con el Equipo y Clientes",
+                    "lessons": ["Trabajo en Equipo", "Servicio al Cliente", "Gestión de Conflictos", "Comunicación Efectiva", "Retroalimentación y Desarrollo"]
+                },
+                {
+                    "title": "Desarrollo y Crecimiento Profesional",
+                    "lessons": ["Establecimiento de Objetivos", "Planificación del Desarrollo", "Evaluación del Rendimiento", "Oportunidades de Crecimiento", "Aprendizaje Continuo"]
+                }
+            ]
+        elif language == "ua":
+            return [
+                {
+                    "title": "Введення в компанію та корпоративну культуру",
+                    "lessons": ["Огляд компанії", "Корпоративні цінності та стандарти", "Організаційна структура", "Політики та процедури", "Системи комунікації"]
+                },
+                {
+                    "title": "Основи роботи та професійні навички",
+                    "lessons": ["Технічні вимоги до посади", "Робочі процеси та процедури", "Інструменти та системи", "Якість роботи та стандарти", "Безпека та відповідність"]
+                },
+                {
+                    "title": "Взаємодія з командою та клієнтами",
+                    "lessons": ["Робота в команді", "Обслуговування клієнтів", "Управління конфліктами", "Ефективна комунікація", "Зворотний зв'язок та розвиток"]
+                },
+                {
+                    "title": "Розвиток та кар'єрне зростання",
+                    "lessons": ["Постановка цілей", "Планування розвитку", "Оцінка продуктивності", "Можливості зростання", "Безперервне навчання"]
+                }
+            ]
+        else:
+            return [
+                {
+                    "title": "Введение в компанию и корпоративную культуру",
+                    "lessons": ["Знакомство с компанией", "Корпоративные ценности и стандарты", "Организационная структура", "Политики и процедуры", "Системы коммуникации"]
+                },
+                {
+                    "title": "Основы работы и профессиональные навыки",
+                    "lessons": ["Технические требования к должности", "Рабочие процессы и процедуры", "Инструменты и системы", "Качество работы и стандарты", "Безопасность и соответствие"]
+                },
+                {
+                    "title": "Взаимодействие с командой и клиентами",
+                    "lessons": ["Работа в команде", "Обслуживание клиентов", "Управление конфликтами", "Эффективная коммуникация", "Обратная связь и развитие"]
+                },
+                {
+                    "title": "Развитие и карьерный рост",
+                    "lessons": ["Постановка целей", "Планирование развития", "Оценка производительности", "Возможности роста", "Непрерывное обучение"]
+                }
+            ]
+
+
+async def generate_course_templates(duckduckgo_summary: str, job_positions: list, payload, course_outline_modules: list = None, language: str = "ru") -> list:
+    """
+    Generate course templates by combining real job positions with AI-generated positions.
+    Returns exactly 6 course templates with dynamic content.
+    """
+    try:
+        logger.info(f"🎓 [COURSE TEMPLATES] Starting course templates generation")
+        logger.info(f"🎓 [COURSE TEMPLATES] Real job positions: {len(job_positions)}")
+        
+        # Calculate total modules and lessons from course outline
+        total_modules = 0
+        total_lessons = 0
+        if course_outline_modules:
+            total_modules = len(course_outline_modules)
+            total_lessons = sum(len(module.get('lessons', [])) for module in course_outline_modules)
+            logger.info(f"🎓 [COURSE TEMPLATES] Course outline data: {total_modules} modules, {total_lessons} lessons")
+        
+        # Start with real job positions
+        course_templates = []
+        
+        # Add real job positions first
+        for i, position in enumerate(job_positions[:6]):  # Take up to 6 real positions
+            job_title = position.get("title", f"Position {i+1}")
+            
+            # Generate proper course description for scraped positions
+            course_description = await generate_course_description_for_position(
+                job_title, 
+                getattr(payload, 'companyName', 'Company Name'), 
+                duckduckgo_summary,
+                language
+            )
+            
+            # Generate AI image for the job position
+            logger.info(f"🎨 [COURSE TEMPLATES] Generating AI image for position: {job_title}")
+            ai_image_path = await generate_ai_image_for_job_position(
+                job_title,
+                getattr(payload, 'companyName', 'Company Name')
+            )
+            logger.info(f"🎨 [COURSE TEMPLATES] Generated AI image path: {ai_image_path}")
+            
+            course_template = {
+                "title": job_title,
+                "description": course_description,
+                "modules": total_modules if total_modules > 0 else random.randint(4, 6),
+                "lessons": total_lessons if total_lessons > 0 else random.randint(15, 30),
+                "rating": "5.0",
+                "image": ai_image_path
+            }
+            course_templates.append(course_template)
+        
+        # If we need more positions to reach 6, generate them with AI
+        if len(course_templates) < 6:
+            needed_positions = 6 - len(course_templates)
+            logger.info(f"🎓 [COURSE TEMPLATES] Generating {needed_positions} additional positions with AI")
+            
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload, getattr(payload, 'language', 'ru'))
+            
+            for i, position in enumerate(additional_positions):
+                job_title = position.get("title", f"Generated Position {i+1}")
+                
+                # Generate AI image for the AI-generated position
+                logger.info(f"🎨 [COURSE TEMPLATES] Generating AI image for AI-generated position: {job_title}")
+                ai_image_path = await generate_ai_image_for_job_position(
+                    job_title,
+                    getattr(payload, 'companyName', 'Company Name')
+                )
+                logger.info(f"🎨 [COURSE TEMPLATES] Generated AI image path for AI-generated position: {ai_image_path}")
+                
+                course_template = {
+                    "title": job_title,
+                    "description": position.get("description", "Описание курса для данной позиции."),
+                    "modules": total_modules if total_modules > 0 else random.randint(4, 6),
+                    "lessons": total_lessons if total_lessons > 0 else random.randint(15, 30),
+                    "rating": "5.0",
+                    "image": ai_image_path
+                }
+                course_templates.append(course_template)
+        
+        logger.info(f"🎓 [COURSE TEMPLATES] Generated {len(course_templates)} course templates")
+        for i, template in enumerate(course_templates):
+            logger.info(f"🎓 [COURSE TEMPLATES] - Template {i+1}: {template['title']}")
+        
+        return course_templates
+        
+    except Exception as e:
+        logger.error(f"❌ [COURSE TEMPLATES] Error generating course templates: {e}")
+        # Fallback to default templates
+        return [
+            {
+                "title": "HVAC Installer",
+                "description": "Обучение установке, обслуживанию и ремонту систем HVAC оборудования.",
+                "modules": 5,
+                "lessons": 25,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-1-mobile.png"
+            },
+            {
+                "title": "Electrician", 
+                "description": "Обучение монтажу, подключению и обслуживанию электрических систем.",
+                "modules": 5,
+                "lessons": 22,
+                "rating": "4.6",
+                "image": "/custom-projects-ui/images/audit-section-5-job-2-mobile.png"
+            },
+            {
+                "title": "Service Technician",
+                "description": "Обучение диагностике, техническому обслуживанию и проверке оборудования.",
+                "modules": 5,
+                "lessons": 18,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-3-mobile.png"
+            },
+            {
+                "title": "Project Manager",
+                "description": "Обучение планированию, организации и контролю проектов.",
+                "modules": 5,
+                "lessons": 14,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-4-mobile.png"
+            },
+            {
+                "title": "Field Operations Manager",
+                "description": "Обучение управлению процессами и координации полевых команд.",
+                "modules": 5,
+                "lessons": 22,
+                "rating": "4.6",
+                "image": "/custom-projects-ui/images/audit-section-5-job-5-desktop.png"
+            },
+            {
+                "title": "Slide Deck Specialist",
+                "description": "Обучение созданию презентаций и визуальных обучающих материалов.",
+                "modules": 5,
+                "lessons": 18,
+                "rating": "5.0",
+                "image": "/custom-projects-ui/images/audit-section-5-job-6-desktop.png"
+            }
+        ]
+
+
+async def generate_additional_positions(duckduckgo_summary: str, count: int, payload, language: str = "ru") -> list:
+    """
+    Generate additional job positions using AI based on company industry and context.
+    """
+    try:
+        # 📊 DETAILED LOGGING: Language parameter in additional positions generation
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language: '{language}'")
+        # Determine language for logging
+        language_name = "English" if language == "en" else "Spanish" if language == "es" else "Ukrainian" if language == "ua" else "Russian"
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - will use {language_name} prompts")
+        
+        if language == "en":
+            prompt = f"""
+            Analyze the company data and generate {count} additional logical positions for training courses.
+            
+            QUESTIONNAIRE DATA:
+            - Company name: {getattr(payload, 'companyName', 'Company Name')}
+            - Company description: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            INTERNET DATA:
+            {duckduckgo_summary}
+            
+            INSTRUCTIONS:
+            - Generate {count} logical positions that fit this company and industry
+            - Each position should be realistic and suitable for training courses
+            - Positions should complement existing vacancies
+            - Course description should be BRIEF (maximum 100 characters)
+            - Use format: "Training [key skills/processes] for [position]"
+            - Return data in JSON format: [{{"title": "Position Title", "description": "Brief training course description"}}]
+            - Generate ALL content EXCLUSIVELY in English
+            
+            EXAMPLES OF POSITIONS AND DESCRIPTIONS:
+            - {{"title": "Customer Support", "description": "Training in customer service and problem solving."}}
+            - {{"title": "Marketing Specialist", "description": "Training in marketing fundamentals and product promotion."}}
+            - {{"title": "Logistics Coordinator", "description": "Training in supply chain management and logistics."}}
+            
+            RESPONSE (JSON only):
+            """
+        elif language == "es":
+            prompt = f"""
+            Analiza los datos de la empresa y genera {count} posiciones lógicas adicionales para cursos de capacitación.
+            
+            DATOS DEL CUESTIONARIO:
+            - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+            - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            DATOS DE INTERNET:
+            {duckduckgo_summary}
+            
+            INSTRUCCIONES:
+            - Genera {count} posiciones lógicas que se ajusten a esta empresa e industria
+            - Cada posición debe ser realista y adecuada para cursos de capacitación
+            - Las posiciones deben complementar las vacantes existentes
+            - La descripción del curso debe ser BREVE (máximo 100 caracteres)
+            - Usa el formato: "Capacitación en [habilidades/procesos clave] para [posición]"
+            - Devuelve los datos en formato JSON: [{{"title": "Título de la Posición", "description": "Breve descripción del curso de capacitación"}}]
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            
+            EJEMPLOS DE POSICIONES Y DESCRIPCIONES:
+            - {{"title": "Atención al Cliente", "description": "Capacitación en servicio al cliente y resolución de problemas."}}
+            - {{"title": "Especialista en Marketing", "description": "Capacitación en fundamentos de marketing y promoción de productos."}}
+            - {{"title": "Coordinador de Logística", "description": "Capacitación en gestión de cadena de suministro y logística."}}
+            
+            RESPUESTA (solo JSON):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Проаналізуйте дані компанії та згенеруйте {count} додаткових логічних позицій для курсів навчання.
+            
+            ДАНІ АНКЕТИ:
+            - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+            - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            ДАНІ З ІНТЕРНЕТУ:
+            {duckduckgo_summary}
+            
+            ІНСТРУКЦІЇ:
+            - Згенеруйте {count} логічних позицій, які підходять для цієї компанії та галузі
+            - Кожна позиція повинна бути реалістичною та підходящою для курсу навчання
+            - Позиції повинні доповнювати існуючі вакансії
+            - Опис курсу повинен бути КОРОТКИМ (максимум 100 символів)
+            - Використовуйте формат: "Навчання [ключовим навичкам/процесам] для [позиції]"
+            - Поверніть дані у форматі JSON: [{{"title": "Назва позиції", "description": "Короткий опис курсу навчання"}}]
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            
+            ПРИКЛАДИ ПОЗИЦІЙ ТА ОПИСІВ:
+            - {{"title": "Спеціаліст з обслуговування клієнтів", "description": "Навчання роботі з клієнтами та вирішенню проблем."}}
+            - {{"title": "Спеціаліст з маркетингу", "description": "Навчання основам маркетингу та просування товарів."}}
+            - {{"title": "Координатор логістики", "description": "Навчання управлінню постачанням та логістикою."}}
+            
+            ВІДПОВІДЬ (тільки JSON):
+            """
+        else:
+            prompt = f"""
+            Проанализируй данные компании и сгенерируй {count} дополнительных логических позиций для курсов обучения.
+            
+            ДАННЫЕ АНКЕТЫ:
+            - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+            - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+            - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+            
+            ДАННЫЕ ИЗ ИНТЕРНЕТА:
+            {duckduckgo_summary}
+            
+            ИНСТРУКЦИИ:
+            - Сгенерируй {count} логических позиций, которые подходят для данной компании и отрасли
+            - Каждая позиция должна быть реалистичной и подходящей для курса обучения
+            - Позиции должны дополнять уже существующие вакансии
+            - Описание курса должно быть КРАТКИМ (максимум 100 символов)
+            - Используй формат: "Обучение [ключевым навыкам/процессам] для [позиции]"
+            - Верни данные в формате JSON: [{{"title": "Название позиции", "description": "Краткое описание курса обучения"}}]
+            
+            ПРИМЕРЫ ПОЗИЦИЙ И ОПИСАНИЙ:
+            - {{"title": "Customer Support", "description": "Обучение работе с клиентами и решению проблем."}}
+            - {{"title": "Marketing Specialist", "description": "Обучение основам маркетинга и продвижения товаров."}}
+            - {{"title": "Logistics Coordinator", "description": "Обучение управлению поставками и логистикой."}}
+            
+            ОТВЕТ (только JSON):
+            """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Log the raw response for debugging
+        logger.info(f"[COURSE TEMPLATES] Raw additional positions response: '{response_text}'")
+        
+        # 📊 DETAILED LOGGING: Language parameter in response
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - raw response length: {len(response_text)}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] generate_additional_positions - language used: {language_name}")
+        
+        # Try to parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            additional_positions = json.loads(cleaned_response)
+            
+            if not isinstance(additional_positions, list):
+                raise ValueError("Response is not a list")
+            
+            logger.info(f"[COURSE TEMPLATES] Successfully parsed {len(additional_positions)} additional positions")
+            return additional_positions
+            
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error(f"[COURSE TEMPLATES] JSON parsing error: {e}")
+            logger.error(f"[COURSE TEMPLATES] Raw response was: '{response_text}'")
+            # Fallback to default positions based on language
+            if language == "en":
+                fallback_positions = [
+                    {"title": "Customer Support", "description": "Training in customer service and problem solving."},
+                    {"title": "Marketing Specialist", "description": "Training in marketing strategies and promotion."},
+                    {"title": "Logistics Coordinator", "description": "Training in logistics and supply chain management."},
+                    {"title": "Quality Assurance", "description": "Training in quality control and testing."}
+                ]
+            elif language == "es":
+                fallback_positions = [
+                    {"title": "Atención al Cliente", "description": "Capacitación en servicio al cliente y resolución de problemas."},
+                    {"title": "Especialista en Marketing", "description": "Capacitación en estrategias de marketing y promoción."},
+                    {"title": "Coordinador de Logística", "description": "Capacitación en logística y gestión de cadena de suministro."},
+                    {"title": "Control de Calidad", "description": "Capacitación en control de calidad y pruebas."}
+                ]
+            elif language == "ua":
+                fallback_positions = [
+                    {"title": "Спеціаліст з обслуговування клієнтів", "description": "Навчання роботі з клієнтами та вирішенню проблем."},
+                    {"title": "Спеціаліст з маркетингу", "description": "Навчання маркетинговим стратегіям та просуванню."},
+                    {"title": "Координатор логістики", "description": "Навчання логістиці та управлінню постачанням."},
+                    {"title": "Контроль якості", "description": "Навчання контролю якості та тестуванню."}
+                ]
+            else:  # Russian
+                fallback_positions = [
+                    {"title": "Customer Support", "description": "Обучение работе с клиентами и решению их проблем."},
+                    {"title": "Marketing Specialist", "description": "Обучение маркетинговым стратегиям и продвижению."},
+                    {"title": "Logistics Coordinator", "description": "Обучение управлению логистическими процессами."},
+                    {"title": "Quality Assurance", "description": "Обучение контролю качества и тестированию."}
+                ]
+            return fallback_positions[:count]
+            
+    except Exception as e:
+        logger.error(f"❌ [COURSE TEMPLATES] Error generating additional positions: {e}")
+        return []
+
+
+async def generate_workforce_crisis_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Generate workforce crisis data including industry, burnout, turnover, losses, search time, and chart data.
+    Returns a dictionary with all the dynamic values for the "Кадровый кризис" section.
+    """
+    try:
+        # Generate all workforce crisis data in parallel for efficiency
+        industry_task = extract_company_industry(duckduckgo_summary, payload, language)
+        burnout_task = extract_burnout_data(duckduckgo_summary, payload, language)
+        turnover_task = extract_turnover_data(duckduckgo_summary, payload, language)
+        losses_task = extract_losses_data(duckduckgo_summary, payload, language)
+        search_time_task = extract_search_time_data(duckduckgo_summary, payload, language)
+        chart_data_task = extract_personnel_shortage_chart_data(duckduckgo_summary, payload, language)
+        yearly_shortage_task = extract_yearly_shortage_data(duckduckgo_summary, payload, language)
+        
+        # Wait for all tasks to complete
+        industry, burnout, turnover, losses, search_time, chart_data, yearly_shortage = await asyncio.gather(
+            industry_task, burnout_task, turnover_task, losses_task, search_time_task, chart_data_task, yearly_shortage_task
+        )
+        
+        # Get grammatically correct industry text variants
+        industry_forms = get_industry_text_variants(industry)
+        
+        workforce_crisis_data = {
+            "industry": industry,
+            "industryForms": industry_forms,  # Add grammatically correct forms
+            "burnout": burnout,
+            "turnover": turnover,
+            "losses": losses,
+            "searchTime": search_time,
+            "chartData": chart_data,
+            "yearlyShortage": yearly_shortage
+        }
+        
+        logger.info(f"[AI-Audit Landing Page] Generated workforce crisis data: {workforce_crisis_data}")
+        return workforce_crisis_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating workforce crisis data: {e}")
+        # Return default values as fallback with grammatically correct forms
+        industry_forms = get_industry_text_variants("hvac")
+        return {
+            "industry": "hvac",
+            "industryForms": industry_forms,
+            "burnout": {"months": "14", "industryName": "HVAC-компаниях"},
+            "turnover": {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}},
+            "losses": {"amount": "$10К–$18К"},
+            "searchTime": {"days": "30–60"},
+            "chartData": {
+                "industry": "hvac",
+                "chartData": [
+                    {"month": "Январь", "shortage": 150},
+                    {"month": "Февраль", "shortage": 165},
+                    {"month": "Март", "shortage": 180},
+                    {"month": "Апрель", "shortage": 195},
+                    {"month": "Май", "shortage": 210},
+                    {"month": "Июнь", "shortage": 225},
+                    {"month": "Июль", "shortage": 240},
+                    {"month": "Август", "shortage": 255},
+                    {"month": "Сентябрь", "shortage": 270},
+                    {"month": "Октябрь", "shortage": 285},
+                    {"month": "Ноябрь", "shortage": 300},
+                    {"month": "Декабрь", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "рост",
+                "description": f"Постоянный рост дефицита квалифицированных кадров {industry_forms['crisis_in']}"
+            },
+            "yearlyShortage": {
+                "yearlyShortage": 80000,
+                "industry": "hvac",
+                "description": f"Типичный дефицит квалифицированных кадров {industry_forms['of_industry']}"
+            }
+        }
+
+
+def get_industry_text_variants(industry_name: str) -> dict:
+    """Generate grammatically correct industry references for Russian text"""
+    
+    # Normalize industry name to lowercase
+    industry = industry_name.lower().strip()
+    
+    # Define proper grammatical forms for common industries
+    industry_forms = {
+        "автомобильная промышленность": {
+            "in_sector": "в автомобильном секторе",
+            "in_industry": "в автомобильной отрасли",
+            "crisis_in": "в автомобильной отрасли",
+            "shortage_in": "в автомобильном секторе",
+            "of_industry": "автомобильной отрасли"
+        },
+        "информационные технологии": {
+            "in_sector": "в IT-секторе", 
+            "in_industry": "в IT-отрасли",
+            "crisis_in": "в сфере информационных технологий",
+            "shortage_in": "в IT-секторе",
+            "of_industry": "IT-отрасли"
+        },
+        "it": {
+            "in_sector": "в IT-секторе", 
+            "in_industry": "в IT-отрасли",
+            "crisis_in": "в сфере информационных технологий",
+            "shortage_in": "в IT-секторе",
+            "of_industry": "IT-отрасли"
+        },
+        "строительство": {
+            "in_sector": "в строительном секторе",
+            "in_industry": "в строительной отрасли", 
+            "crisis_in": "в строительной отрасли",
+            "shortage_in": "в строительном секторе",
+            "of_industry": "строительной отрасли"
+        },
+        "медицина": {
+            "in_sector": "в медицинском секторе",
+            "in_industry": "в медицинской отрасли",
+            "crisis_in": "в сфере здравоохранения", 
+            "shortage_in": "в медицинском секторе",
+            "of_industry": "медицинской отрасли"
+        },
+        "здравоохранение": {
+            "in_sector": "в медицинском секторе",
+            "in_industry": "в сфере здравоохранения",
+            "crisis_in": "в сфере здравоохранения", 
+            "shortage_in": "в медицинском секторе",
+            "of_industry": "сферы здравоохранения"
+        },
+        "образование": {
+            "in_sector": "в образовательном секторе",
+            "in_industry": "в сфере образования",
+            "crisis_in": "в сфере образования", 
+            "shortage_in": "в образовательном секторе",
+            "of_industry": "сферы образования"
+        },
+        "hvac": {
+            "in_sector": "в HVAC-секторе",
+            "in_industry": "в HVAC-отрасли",
+            "crisis_in": "в HVAC-отрасли", 
+            "shortage_in": "в HVAC-секторе",
+            "of_industry": "HVAC-отрасли"
+        },
+        "производство": {
+            "in_sector": "в производственном секторе",
+            "in_industry": "в производственной отрасли",
+            "crisis_in": "в производственной отрасли", 
+            "shortage_in": "в производственном секторе",
+            "of_industry": "производственной отрасли"
+        },
+        "торговля": {
+            "in_sector": "в торговом секторе",
+            "in_industry": "в торговой отрасли",
+            "crisis_in": "в торговой отрасли", 
+            "shortage_in": "в торговом секторе",
+            "of_industry": "торговой отрасли"
+        },
+        "финансы": {
+            "in_sector": "в финансовом секторе",
+            "in_industry": "в финансовой отрасли",
+            "crisis_in": "в финансовой отрасли", 
+            "shortage_in": "в финансовом секторе",
+            "of_industry": "финансовой отрасли"
+        }
+    }
+    
+    # Default fallback for unknown industries
+    default_forms = {
+        "in_sector": f"в {industry} секторе",
+        "in_industry": f"в {industry} отрасли", 
+        "crisis_in": f"в {industry} отрасли",
+        "shortage_in": f"в {industry} секторе",
+        "of_industry": f"{industry} отрасли"
+    }
+    
+    return industry_forms.get(industry, default_forms)
+
+
+async def extract_company_industry(duckduckgo_summary: str, payload, language: str = "ru") -> str:
+    """
+    Extract the company's primary industry from scraped data.
+    """
+    if language == "en":
+        prompt = f"""
+        Determine the company's primary industry based on the provided data.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Determine the company's primary industry
+        - Return the industry name in lowercase
+        - Use standard industry names from the list:
+          * automotive industry
+          * information technology (or IT)
+          * construction
+          * healthcare
+          * education
+          * manufacturing
+          * retail
+          * finance
+          * HVAC
+        - If you cannot determine, return "general services"
+        - Generate ALL content EXCLUSIVELY in English
+        
+        RESPONSE (only industry name in lowercase):
+        """
+    elif language == "es":
+        prompt = f"""
+        Determina la industria principal de la empresa basándote en los datos proporcionados.
+        
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+        
+        INSTRUCCIONES:
+        - Determina la industria principal de la empresa
+        - Devuelve el nombre de la industria en minúsculas
+        - Usa nombres estándar de industrias de la lista:
+          * industria automotriz
+          * tecnología de la información (o TI)
+          * construcción
+          * salud
+          * educación
+          * manufactura
+          * retail
+          * finanzas
+          * HVAC
+        - Si no puedes determinar, devuelve "servicios generales"
+        - Genera TODO el contenido EXCLUSIVAMENTE en español
+        
+        RESPUESTA (solo nombre de la industria en minúsculas):
+        """
+    elif language == "ua":
+        prompt = f"""
+        Визначте основну галузь компанії на основі наданих даних.
+        
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+        
+        ІНСТРУКЦІЇ:
+        - Визначте основну галузь діяльності компанії
+        - Поверніть назву галузі в називному відмінку, малими літерами
+        - Використовуйте стандартні назви галузей зі списку:
+          * автомобільна промисловість
+          * інформаційні технології (або IT)
+          * будівництво
+          * охорона здоров'я
+          * освіта
+          * виробництво
+          * торгівля
+          * фінанси
+          * HVAC
+        - Якщо не можете визначити, поверніть "загальні послуги"
+        - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+        
+        ВІДПОВІДЬ (лише назва галузі в називному відмінку, малими літерами):
+        """
+    else:
+        prompt = f"""
+        Определи основную отрасль/индустрию компании на основе предоставленных данных.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Определи основную отрасль деятельности компании
+        - Верни название отрасли в именительном падеже, строчными буквами
+        - Используй стандартные названия отраслей из списка:
+          * автомобильная промышленность
+          * информационные технологии (или IT)
+          * строительство
+          * медицина (или здравоохранение)
+          * образование
+          * производство
+          * торговля
+          * финансы
+          * HVAC
+        - Если не можешь определить, верни "общие услуги"
+        
+        ОТВЕТ (только название отрасли в именительном падеже, строчными буквами):
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        industry = response_text.strip().lower()
+        if not industry:
+            industry = "общие услуги"
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted industry: {industry}")
+        return industry
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting industry: {e}")
+        return "HVAC"
+
+
+async def extract_burnout_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Extract burnout statistics from scraped data.
+    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine employee burnout statistics in the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Determine the company's industry based on the data
+        - Find information about average employee tenure in this industry
+        - If no data is available, use typical values for the industry
+        - Return ONLY valid JSON without additional text
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - For IT companies: {{"months": "18", "industryName": "IT companies"}}
+        - For e-commerce: {{"months": "16", "industryName": "e-commerce companies"}}
+        - For construction: {{"months": "12", "industryName": "construction companies"}}
+        - For HVAC: {{"months": "14", "industryName": "HVAC companies"}}
+        
+        IMPORTANT: Respond ONLY with a valid JSON object, without additional text or explanations.
+        """
+    elif language == "es":
+        prompt = f"""
+        Analiza los datos y determina las estadísticas de agotamiento de empleados en la industria de la empresa.
+        
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+        
+        INSTRUCCIONES:
+        - Determina la industria de la empresa basándote en los datos
+        - Encuentra información sobre la duración promedio de empleados en esta industria
+        - Si no hay datos disponibles, usa valores típicos para la industria
+        - Devuelve SOLO JSON válido sin texto adicional
+        - Genera TODO el contenido EXCLUSIVAMENTE en español
+        
+        EJEMPLOS:
+        - Para empresas IT: {{"months": "18", "industryName": "empresas de TI"}}
+        - Para e-commerce: {{"months": "16", "industryName": "empresas de comercio electrónico"}}
+        - Para construcción: {{"months": "12", "industryName": "empresas de construcción"}}
+        - Para HVAC: {{"months": "14", "industryName": "empresas HVAC"}}
+        
+        IMPORTANTE: Responde SOLO con un objeto JSON válido, sin texto adicional o explicaciones.
+        """
+    elif language == "ua":
+        prompt = f"""
+        Проаналізуйте дані та визначте статистику вигорання співробітників у галузі компанії.
+        
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+        
+        ІНСТРУКЦІЇ:
+        - Визначте галузь компанії на основі даних
+        - Знайдіть інформацію про середню тривалість роботи співробітників у цій галузі
+        - Якщо даних немає, використовуйте типові значення для галузі
+        - Поверніть ЛИШЕ валідний JSON без додаткового тексту
+        - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+        
+        ПРИКЛАДИ:
+        - Для IT-компаній: {{"months": "18", "industryName": "IT-компаніях"}}
+        - Для e-commerce: {{"months": "16", "industryName": "e-commerce-компаніях"}}
+        - Для будівництва: {{"months": "12", "industryName": "будівельних компаніях"}}
+        - Для HVAC: {{"months": "14", "industryName": "HVAC-компаніях"}}
+        
+        ВАЖЛИВО: Відповідайте ЛИШЕ валідним JSON об'єктом, без додаткового тексту або пояснень.
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи статистику выгорания сотрудников в отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Определи отрасль компании на основе данных
+        - Найди информацию о средней продолжительности работы сотрудников в этой отрасли
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни ТОЛЬКО валидный JSON без дополнительного текста
+        
+        ПРИМЕРЫ:
+        - Для IT-компании: {{"months": "18", "industryName": "IT-компаниях"}}
+        - Для маркетплейса: {{"months": "16", "industryName": "e-commerce-компаниях"}}
+        - Для строительства: {{"months": "12", "industryName": "строительных компаниях"}}
+        - Для HVAC: {{"months": "14", "industryName": "HVAC-компаниях"}}
+        
+        ВАЖНО: Отвечай ТОЛЬКО валидным JSON объектом, без дополнительного текста или объяснений.
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Log the raw response for debugging
+        logger.info(f"[AI-Audit Landing Page] Raw burnout response: '{response_text}'")
+        
+        # Try to parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            burnout_data = json.loads(cleaned_response)
+            if "months" not in burnout_data or "industryName" not in burnout_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+            # Fallback to default values
+            burnout_data = {"months": "14", "industryName": "HVAC-компаниях"}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted burnout data: {burnout_data}")
+        return burnout_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting burnout data: {e}")
+        return {"months": "14", "industryName": "HVAC-компаниях"}
+
+
+async def extract_turnover_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Extract turnover statistics from scraped data.
+    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine employee turnover statistics in the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Find information about employee turnover in the industry (% of employees leaving per year)
+        - Find information about early departures (% of employees leaving in the first months)
+        - If no data is available, use typical values for the industry
+        - Return data in JSON format: {{"percentage": "percentage per year", "earlyExit": {{"percentage": "percentage", "months": "months"}}}}
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Construction: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        RESPONSE (JSON only):
+        """
+    elif language == "es":
+        prompt = f"""
+        Analiza los datos y determina las estadísticas de rotación de empleados en la industria de la empresa.
+        
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+        
+        INSTRUCCIONES:
+        - Encuentra información sobre la rotación de empleados en la industria (% de empleados que se van por año)
+        - Encuentra información sobre salidas tempranas (% de empleados que se van en los primeros meses)
+        - Si no hay datos disponibles, usa valores típicos para la industria
+        - Devuelve datos en formato JSON: {{"percentage": "porcentaje por año", "earlyExit": {{"percentage": "porcentaje", "months": "meses"}}}}
+        - Genera TODO el contenido EXCLUSIVAMENTE en español
+        
+        EJEMPLOS:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Construcción: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        RESPUESTA (solo JSON):
+        """
+    elif language == "ua":
+        prompt = f"""
+        Проаналізуйте дані та визначте статистику плинності кадрів у галузі компанії.
+        
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+        
+        ІНСТРУКЦІЇ:
+        - Знайдіть інформацію про плинність кадрів у галузі (% звільнень на рік)
+        - Знайдіть інформацію про ранні звільнення (% звільнень у перші місяці)
+        - Якщо даних немає, використовуйте типові значення для галузі
+        - Поверніть дані у форматі JSON: {{"percentage": "відсоток на рік", "earlyExit": {{"percentage": "відсоток", "months": "місяці"}}}}
+        - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+        
+        ПРИКЛАДИ:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Будівництво: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        ВІДПОВІДЬ (лише JSON):
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи статистику текучести кадров в отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Найди информацию о текучести кадров в отрасли (% увольнений в год)
+        - Найди информацию о ранних увольнениях (% увольнений в первые месяцы)
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни данные в формате JSON: {{"percentage": "процент в год", "earlyExit": {{"percentage": "процент", "months": "месяцы"}}}}
+        
+        ПРИМЕРЫ:
+        - HVAC: {{"percentage": "85", "earlyExit": {{"percentage": "45", "months": "3"}}}}
+        - IT: {{"percentage": "60", "earlyExit": {{"percentage": "30", "months": "6"}}}}
+        - Строительство: {{"percentage": "90", "earlyExit": {{"percentage": "50", "months": "2"}}}}
+        
+        ОТВЕТ (только JSON):
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            turnover_data = json.loads(cleaned_response)
+            if "percentage" not in turnover_data or "earlyExit" not in turnover_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] Turnover JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+            # Fallback to default values
+            turnover_data = {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted turnover data: {turnover_data}")
+        return turnover_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting turnover data: {e}")
+        return {"percentage": "85", "earlyExit": {"percentage": "45", "months": "3"}}
+
+
+async def extract_losses_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Extract financial losses data from scraped data.
+    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine the company's financial losses for unfilled positions.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Find information about financial losses per year for unfilled positions
+        - Consider lost profits, overtime, and downtime
+        - If no data is available, use typical values for the industry
+        - Return data in JSON format: {{"amount": "amount in dollars"}}
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - HVAC: {{"amount": "$10K–$18K"}}
+        - IT: {{"amount": "$15K–$25K"}}
+        - Construction: {{"amount": "$8K–$15K"}}
+        - Healthcare: {{"amount": "$20K–$35K"}}
+        
+        RESPONSE (JSON only):
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи финансовые потери компании при незакрытой позиции.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Найди информацию о финансовых потерях при незакрытой позиции в год
+        - Учитывай упущенную прибыль, переработки и простои
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни данные в формате JSON: {{"amount": "сумма в долларах"}}
+        
+        ПРИМЕРЫ:
+        - HVAC: {{"amount": "$10К–$18К"}}
+        - IT: {{"amount": "$15К–$25К"}}
+        - Строительство: {{"amount": "$8К–$15К"}}
+        - Медицина: {{"amount": "$20К–$35К"}}
+        
+        ОТВЕТ (только JSON):
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            losses_data = json.loads(cleaned_response)
+            if "amount" not in losses_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] Losses JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+            # Fallback to default values
+            losses_data = {"amount": "$10К–$18К"}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted losses data: {losses_data}")
+        return losses_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting losses data: {e}")
+        return {"amount": "$10К–$18К"}
+
+
+async def extract_search_time_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Extract candidate search time data from scraped data.
+    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine the average candidate search time in the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        - Find information about average candidate search time in the industry
+        - If no data is available, use typical values for the industry
+        - Return data in JSON format: {{"days": "day range"}}
+        - Generate ALL content EXCLUSIVELY in English
+        
+        EXAMPLES:
+        - HVAC: {{"days": "30–60"}}
+        - IT: {{"days": "45–90"}}
+        - Construction: {{"days": "20–45"}}
+        - Healthcare: {{"days": "60–120"}}
+        
+        RESPONSE (JSON only):
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи среднее время поиска кандидата в отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        - Найди информацию о среднем времени поиска кандидата в отрасли
+        - Если данных нет, используй типичные значения для отрасли
+        - Верни данные в формате JSON: {{"days": "диапазон дней"}}
+        
+        ПРИМЕРЫ:
+        - HVAC: {{"days": "30–60"}}
+        - IT: {{"days": "45–90"}}
+        - Строительство: {{"days": "20–45"}}
+        - Медицина: {{"days": "60–120"}}
+        
+        ОТВЕТ (только JSON):
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Try to parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            search_time_data = json.loads(cleaned_response)
+            if "days" not in search_time_data:
+                raise ValueError("Missing required fields")
+        except (json.JSONDecodeError, ValueError) as e:
+            # Log the parsing error for debugging
+            logger.error(f"[AI-Audit Landing Page] Search time JSON parsing error: {e}")
+            logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+            logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+            # Fallback to default values
+            search_time_data = {"days": "30–60"}
+        
+        logger.info(f"[AI-Audit Landing Page] Extracted search time data: {search_time_data}")
+        return search_time_data
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error extracting search time data: {e}")
+        return {"days": "30–60"}
+
+
+async def extract_personnel_shortage_chart_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Generate structured dataset for the "Shortage of qualified personnel" chart.
+    Returns a dictionary with 12 months of personnel shortage data.
+    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and generate a structured dataset for the "Shortage of qualified personnel" chart for the last 12 months.
+
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        INTERNET DATA:
+        {duckduckgo_summary}
+
+        INSTRUCTIONS:
+        1. Determine the INDUSTRY as a whole (not the specific company) based on the provided data
+        2. Analyze personnel shortage for the ENTIRE INDUSTRY, not just the specified company
+        3. Generate realistic data with natural fluctuations (NOT linear growth)
+        4. Consider industry specifics: seasonality, economic cycles, market events
+        5. The shortage scale should match the industry size (large industries = large numbers)
+        6. Generate ALL content EXCLUSIVELY in English
+
+        REALISM REQUIREMENTS:
+        - FORBIDDEN: perfectly linear increase every month
+        - MANDATORY: include monthly fluctuations (some months may show decrease)
+        - Seasonal factors: consider industry specifics (e.g., construction - peak in summer, automotive - decrease in August due to vacations)
+        - Scale should reflect industry size (manufacturing, IT, finance = thousands of specialists)
+        - Include 2-3 months with slight decrease in indicators
+
+        RESPONSE FORMAT:
+        Return ONLY a valid JSON object in the following format:
+        {{
+            "industry": "industry name (not company)",
+            "chartData": [
+                {{"month": "January", "shortage": 2800}},
+                {{"month": "February", "shortage": 2650}},
+                {{"month": "March", "shortage": 3100}},
+                {{"month": "April", "shortage": 3450}},
+                {{"month": "May", "shortage": 3200}},
+                {{"month": "June", "shortage": 3800}},
+                {{"month": "July", "shortage": 4100}},
+                {{"month": "August", "shortage": 3600}},
+                {{"month": "September", "shortage": 3900}},
+                {{"month": "October", "shortage": 4200}},
+                {{"month": "November", "shortage": 3950}},
+                {{"month": "December", "shortage": 4300}}
+            ],
+            "totalShortage": [sum of all shortage values],
+            "trend": "growth/stability/decline",
+            "description": "Brief description of personnel shortage trend in the industry with mention of key factors"
+        }}
+
+        NEGATIVE EXAMPLE (DON'T do this):
+        - Data: 100, 110, 120, 130, 140... (too linear and small scale)
+        - Focus only on one company instead of industry
+
+        MANDATORY CHECKS:
+        - Use only English month names
+        - Shortage values - whole numbers corresponding to industry size
+        - Minimum 2 months should show decrease compared to previous
+        - industry should be industry name, not company name
+        - Consider real industry scale when generating numbers
+        """
+    elif language == "es":
+        prompt = f"""
+        Analiza los datos y genera un conjunto de datos estructurado para el gráfico "Escasez de personal calificado" de los últimos 12 meses.
+
+        DATOS DE LA EMPRESA:
+        - Nombre de la empresa: {getattr(payload, 'companyName', 'Company Name')}
+        - Descripción de la empresa: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Sitio web: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        DATOS DE INTERNET:
+        {duckduckgo_summary}
+
+        INSTRUCCIONES:
+        1. Determina la INDUSTRIA en general (no la empresa específica) basándote en los datos proporcionados
+        2. Analiza la escasez de personal para TODA LA INDUSTRIA, no solo para la empresa especificada
+        3. Genera datos realistas con fluctuaciones naturales (NO crecimiento lineal)
+        4. Considera especificidades de la industria: estacionalidad, ciclos económicos, eventos del mercado
+        5. La escala de escasez debe coincidir con el tamaño de la industria (industrias grandes = números grandes)
+        6. Genera TODO el contenido EXCLUSIVAMENTE en español
+
+        REQUISITOS DE REALISMO:
+        - PROHIBIDO: aumento perfectamente lineal cada mes
+        - OBLIGATORIO: incluir fluctuaciones mensuales (algunos meses pueden mostrar disminución)
+        - Factores estacionales: considera especificidades de la industria (ej., construcción - pico en verano, automotriz - disminución en agosto por vacaciones)
+        - La escala debe reflejar el tamaño de la industria (manufactura, IT, finanzas = miles de especialistas)
+        - Incluir 2-3 meses con ligera disminución en los indicadores
+
+        FORMATO DE RESPUESTA:
+        Devuelve SOLO un objeto JSON válido en el siguiente formato:
+        {{
+            "industry": "nombre de la industria (no empresa)",
+            "chartData": [
+                {{"month": "Enero", "shortage": 2800}},
+                {{"month": "Febrero", "shortage": 2650}},
+                {{"month": "Marzo", "shortage": 3100}},
+                {{"month": "Abril", "shortage": 3450}},
+                {{"month": "Mayo", "shortage": 3200}},
+                {{"month": "Junio", "shortage": 3800}},
+                {{"month": "Julio", "shortage": 4100}},
+                {{"month": "Agosto", "shortage": 3600}},
+                {{"month": "Septiembre", "shortage": 3900}},
+                {{"month": "Octubre", "shortage": 4200}},
+                {{"month": "Noviembre", "shortage": 3950}},
+                {{"month": "Diciembre", "shortage": 4300}}
+            ],
+            "totalShortage": [suma de todos los valores de shortage],
+            "trend": "crecimiento/estabilidad/declive",
+            "description": "Breve descripción de la tendencia de escasez de personal en la industria con mención de factores clave"
+        }}
+
+        EJEMPLO NEGATIVO (NO hagas esto):
+        - Datos: 100, 110, 120, 130, 140... (demasiado lineal y escala pequeña)
+        - Enfocarse solo en una empresa en lugar de la industria
+
+        VERIFICACIONES OBLIGATORIAS:
+        - Usa solo nombres de meses en español
+        - Valores de shortage - números enteros correspondientes al tamaño de la industria
+        - Mínimo 2 meses deben mostrar disminución comparado con el anterior
+        - industry debe ser nombre de la industria, no de la empresa
+        - Considera la escala real de la industria al generar números
+        """
+    elif language == "ua":
+        prompt = f"""
+        Проаналізуйте дані та згенеруйте структурований набір даних для графіка "Дефіцит кваліфікованих кадрів" за останні 12 місяців.
+
+        ДАНІ КОМПАНІЇ:
+        - Назва компанії: {getattr(payload, 'companyName', 'Company Name')}
+        - Опис компанії: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        ДАНІ З ІНТЕРНЕТУ:
+        {duckduckgo_summary}
+
+        ІНСТРУКЦІЇ:
+        1. Визначте ГАЛУЗЬ в цілому (не конкретну компанію) на основі наданих даних
+        2. Проаналізуйте дефіцит кадрів для ВСІЄЇ ГАЛУЗІ, а не тільки для вказаної компанії
+        3. Згенеруйте реалістичні дані з природними коливаннями (НЕ лінійне зростання)
+        4. Врахуйте галузеву специфіку: сезонність, економічні цикли, ринкові події
+        5. Масштаб дефіциту повинен відповідати розміру галузі (великі галузі = великі числа)
+        6. Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+
+        ВИМОГИ ДО РЕАЛІЗМУ:
+        - ЗАБОРОНЕНО: ідеально лінійне збільшення щомісяця
+        - ОБОВ'ЯЗКОВО: включіть місячні коливання (деякі місяці можуть показувати зниження)
+        - Сезонні фактори: врахуйте специфіку галузі (наприклад, будівництво - пік влітку, автопром - зниження в серпні через відпустки)
+        - Масштаб повинен відображати розмір галузі (машинобудування, IT, фінанси = тисячі спеціалістів)
+        - Включіть 2-3 місяці з незначним зниженням показників
+
+        ФОРМАТ ВІДПОВІДІ:
+        Поверніть ЛИШЕ валідний JSON об'єкт у наступному форматі:
+        {{
+            "industry": "назва галузі (не компанії)",
+            "chartData": [
+                {{"month": "Січень", "shortage": 2800}},
+                {{"month": "Лютий", "shortage": 2650}},
+                {{"month": "Березень", "shortage": 3100}},
+                {{"month": "Квітень", "shortage": 3450}},
+                {{"month": "Травень", "shortage": 3200}},
+                {{"month": "Червень", "shortage": 3800}},
+                {{"month": "Липень", "shortage": 4100}},
+                {{"month": "Серпень", "shortage": 3600}},
+                {{"month": "Вересень", "shortage": 3900}},
+                {{"month": "Жовтень", "shortage": 4200}},
+                {{"month": "Листопад", "shortage": 3950}},
+                {{"month": "Грудень", "shortage": 4300}}
+            ],
+            "totalShortage": [сума всіх значень shortage],
+            "trend": "зростання/стабільність/зниження",
+            "description": "Короткий опис тренду дефіциту кадрів у галузі з згадкою ключових факторів"
+        }}
+
+        НЕГАТИВНИЙ ПРИКЛАД (НЕ робіть так):
+        - Дані: 100, 110, 120, 130, 140... (занадто лінійно і малий масштаб)
+        - Фокус тільки на одній компанії замість галузі
+
+        ОБОВ'ЯЗКОВІ ПЕРЕВІРКИ:
+        - Використовуйте лише українські назви місяців
+        - Значення shortage - цілі числа, що відповідають розміру галузі
+        - Мінімум 2 місяці повинні показувати зниження порівняно з попереднім
+        - industry повинно бути назвою галузі, а не компанії
+        - Враховуйте реальний масштаб галузі при генерації чисел
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и сгенерируй структурированный набор данных для графика "Дефицит квалифицированных кадров" за последние 12 месяцев.
+
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+
+        ИНСТРУКЦИИ:
+        1. Определи ОТРАСЛЬ в целом (не конкретную компанию) на основе предоставленных данных
+        2. Анализируй дефицит кадров для ВСЕЙ ОТРАСЛИ, а не только для указанной компании
+        3. Сгенерируй реалистичные данные с естественными колебаниями (НЕ линейный рост)
+        4. Учти отраслевую специфику: сезонность, экономические циклы, рыночные события
+        5. Масштаб дефицита должен соответствовать размеру отрасли (крупные отрасли = большие числа)
+
+        ТРЕБОВАНИЯ К РЕАЛИСТИЧНОСТИ:
+        - ЗАПРЕЩЕНО: идеально линейное увеличение каждый месяц
+        - ОБЯЗАТЕЛЬНО: включи месячные колебания (некоторые месяцы могут показывать снижение)
+        - Сезонные факторы: учти специфику отрасли (например, строительство - пик летом, автопром - снижение в августе из-за отпусков)
+        - Масштаб должен отражать размер отрасли (машиностроение, IT, финансы = тысячи специалистов)
+        - Включи 2-3 месяца с незначительным снижением показателей
+
+        ФОРМАТ ОТВЕТА:
+        Верни ТОЛЬКО валидный JSON объект в следующем формате:
+        {{
+            "industry": "название отрасли (не компании)",
+            "chartData": [
+                {{"month": "Январь", "shortage": 2800}},
+                {{"month": "Февраль", "shortage": 2650}},
+                {{"month": "Март", "shortage": 3100}},
+                {{"month": "Апрель", "shortage": 3450}},
+                {{"month": "Май", "shortage": 3200}},
+                {{"month": "Июнь", "shortage": 3800}},
+                {{"month": "Июль", "shortage": 4100}},
+                {{"month": "Август", "shortage": 3600}},
+                {{"month": "Сентябрь", "shortage": 3900}},
+                {{"month": "Октябрь", "shortage": 4200}},
+                {{"month": "Ноябрь", "shortage": 3950}},
+                {{"month": "Декабрь", "shortage": 4300}}
+            ],
+            "totalShortage": [сумма всех shortage],
+            "trend": "рост/стабильность/снижение",
+            "description": "Краткое описание тренда дефицита кадров в отрасли с упоминанием ключевых факторов. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
+        }}
+
+        ОТРИЦАТЕЛЬНЫЙ ПРИМЕР (НЕ делай так):
+        - Данные: 100, 110, 120, 130, 140... (слишком линейно и маленький масштаб)
+        - Фокус только на одной компании вместо отрасли
+
+        ОБЯЗАТЕЛЬНЫЕ ПРОВЕРКИ:
+        - Используй только русские названия месяцев
+        - Значения shortage - целые числа, соответствующие размеру отрасли
+        - Минимум 2 месяца должны показывать снижение по сравнению с предыдущим
+        - industry должно быть названием отрасли, а не компании
+        - Учитывай реальный масштаб отрасли при генерации чисел
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean and parse the response
+        cleaned_response = response_text.strip()
+        if cleaned_response.startswith('```json'):
+            cleaned_response = cleaned_response[7:]
+        if cleaned_response.endswith('```'):
+            cleaned_response = cleaned_response[:-3]
+        cleaned_response = cleaned_response.strip()
+        
+        # Parse JSON response
+        chart_data = json.loads(cleaned_response)
+        
+        # Validate the structure
+        if not isinstance(chart_data, dict) or 'chartData' not in chart_data:
+            raise ValueError("Invalid chart data structure")
+        
+        if not isinstance(chart_data['chartData'], list) or len(chart_data['chartData']) != 12:
+            raise ValueError("Chart data must contain exactly 12 months")
+        
+        # Log the generated data for verification
+        logger.info(f"[AI-Audit Landing Page] Generated personnel shortage chart data:")
+        logger.info(f"[AI-Audit Landing Page] - Industry: {chart_data.get('industry', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Total shortage: {chart_data.get('totalShortage', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Trend: {chart_data.get('trend', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Chart data points: {len(chart_data.get('chartData', []))}")
+        
+        # Log each month's data for detailed verification
+        for i, month_data in enumerate(chart_data.get('chartData', [])):
+            logger.info(f"[AI-Audit Landing Page] - Month {i+1}: {month_data.get('month', 'Unknown')} - {month_data.get('shortage', 'Unknown')} specialists")
+        
+        return chart_data
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"[AI-Audit Landing Page] Chart data JSON parsing error: {e}")
+        logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+        logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+        # Fallback to default values based on language
+        if language == "en":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "January", "shortage": 150},
+                    {"month": "February", "shortage": 165},
+                    {"month": "March", "shortage": 180},
+                    {"month": "April", "shortage": 195},
+                    {"month": "May", "shortage": 210},
+                    {"month": "June", "shortage": 225},
+                    {"month": "July", "shortage": 240},
+                    {"month": "August", "shortage": 255},
+                    {"month": "September", "shortage": 270},
+                    {"month": "October", "shortage": 285},
+                    {"month": "November", "shortage": 300},
+                    {"month": "December", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "growth",
+                "description": "Continuous growth in qualified personnel shortage in HVAC industry"
+            }
+        elif language == "es":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Enero", "shortage": 150},
+                    {"month": "Febrero", "shortage": 165},
+                    {"month": "Marzo", "shortage": 180},
+                    {"month": "Abril", "shortage": 195},
+                    {"month": "Mayo", "shortage": 210},
+                    {"month": "Junio", "shortage": 225},
+                    {"month": "Julio", "shortage": 240},
+                    {"month": "Agosto", "shortage": 255},
+                    {"month": "Septiembre", "shortage": 270},
+                    {"month": "Octubre", "shortage": 285},
+                    {"month": "Noviembre", "shortage": 300},
+                    {"month": "Diciembre", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "crecimiento",
+                "description": "Crecimiento continuo en la escasez de personal calificado en la industria HVAC"
+            }
+        elif language == "ua":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Січень", "shortage": 150},
+                    {"month": "Лютий", "shortage": 165},
+                    {"month": "Березень", "shortage": 180},
+                    {"month": "Квітень", "shortage": 195},
+                    {"month": "Травень", "shortage": 210},
+                    {"month": "Червень", "shortage": 225},
+                    {"month": "Липень", "shortage": 240},
+                    {"month": "Серпень", "shortage": 255},
+                    {"month": "Вересень", "shortage": 270},
+                    {"month": "Жовтень", "shortage": 285},
+                    {"month": "Листопад", "shortage": 300},
+                    {"month": "Грудень", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "зростання",
+                "description": "Постійне зростання дефіциту кваліфікованих кадрів у галузі HVAC"
+            }
+        else:  # Russian
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Январь", "shortage": 150},
+                    {"month": "Февраль", "shortage": 165},
+                    {"month": "Март", "shortage": 180},
+                    {"month": "Апрель", "shortage": 195},
+                    {"month": "Май", "shortage": 210},
+                    {"month": "Июнь", "shortage": 225},
+                    {"month": "Июль", "shortage": 240},
+                    {"month": "Август", "shortage": 255},
+                    {"month": "Сентябрь", "shortage": 270},
+                    {"month": "Октябрь", "shortage": 285},
+                    {"month": "Ноябрь", "shortage": 300},
+                    {"month": "Декабрь", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "рост",
+                "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+            }
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating chart data: {e}")
+        # Fallback to default values based on language
+        if language == "en":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "January", "shortage": 150},
+                    {"month": "February", "shortage": 165},
+                    {"month": "March", "shortage": 180},
+                    {"month": "April", "shortage": 195},
+                    {"month": "May", "shortage": 210},
+                    {"month": "June", "shortage": 225},
+                    {"month": "July", "shortage": 240},
+                    {"month": "August", "shortage": 255},
+                    {"month": "September", "shortage": 270},
+                    {"month": "October", "shortage": 285},
+                    {"month": "November", "shortage": 300},
+                    {"month": "December", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "growth",
+                "description": "Continuous growth in qualified personnel shortage in HVAC industry"
+            }
+        elif language == "es":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Enero", "shortage": 150},
+                    {"month": "Febrero", "shortage": 165},
+                    {"month": "Marzo", "shortage": 180},
+                    {"month": "Abril", "shortage": 195},
+                    {"month": "Mayo", "shortage": 210},
+                    {"month": "Junio", "shortage": 225},
+                    {"month": "Julio", "shortage": 240},
+                    {"month": "Agosto", "shortage": 255},
+                    {"month": "Septiembre", "shortage": 270},
+                    {"month": "Octubre", "shortage": 285},
+                    {"month": "Noviembre", "shortage": 300},
+                    {"month": "Diciembre", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "crecimiento",
+                "description": "Crecimiento continuo en la escasez de personal calificado en la industria HVAC"
+            }
+        elif language == "ua":
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Січень", "shortage": 150},
+                    {"month": "Лютий", "shortage": 165},
+                    {"month": "Березень", "shortage": 180},
+                    {"month": "Квітень", "shortage": 195},
+                    {"month": "Травень", "shortage": 210},
+                    {"month": "Червень", "shortage": 225},
+                    {"month": "Липень", "shortage": 240},
+                    {"month": "Серпень", "shortage": 255},
+                    {"month": "Вересень", "shortage": 270},
+                    {"month": "Жовтень", "shortage": 285},
+                    {"month": "Листопад", "shortage": 300},
+                    {"month": "Грудень", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "зростання",
+                "description": "Постійне зростання дефіциту кваліфікованих кадрів у галузі HVAC"
+            }
+        else:  # Russian
+            return {
+                "industry": "HVAC",
+                "chartData": [
+                    {"month": "Январь", "shortage": 150},
+                    {"month": "Февраль", "shortage": 165},
+                    {"month": "Март", "shortage": 180},
+                    {"month": "Апрель", "shortage": 195},
+                    {"month": "Май", "shortage": 210},
+                    {"month": "Июнь", "shortage": 225},
+                    {"month": "Июль", "shortage": 240},
+                    {"month": "Август", "shortage": 255},
+                    {"month": "Сентябрь", "shortage": 270},
+                    {"month": "Октябрь", "shortage": 285},
+                    {"month": "Ноябрь", "shortage": 300},
+                    {"month": "Декабрь", "shortage": 315}
+                ],
+                "totalShortage": 2775,
+                "trend": "рост",
+                "description": "Постоянный рост дефицита квалифицированных кадров в HVAC-отрасли"
+            }
+
+
+async def extract_yearly_shortage_data(duckduckgo_summary: str, payload, language: str = "ru") -> dict:
+    """
+    Generate a single yearly shortage number for the company's specific industry.
+    Returns a dictionary with the annual shortage count.
+    """
+    if language == "en":
+        prompt = f"""
+        Analyze the data and determine the exact number of missing qualified specialists per year for the company's industry.
+        
+        COMPANY DATA:
+        - Company Name: {getattr(payload, 'companyName', 'Company Name')}
+        - Company Description: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Website: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        INTERNET DATA:
+        {duckduckgo_summary}
+        
+        INSTRUCTIONS:
+        1. Determine the company's industry based on the provided data
+        2. Calculate a realistic number of missing specialists per year for this industry
+        3. Consider industry size, growth rates, and current personnel shortage
+        4. The number should be realistic and justified for this industry
+        5. Consider regional characteristics and industry scale
+        6. Generate ALL content EXCLUSIVELY in English
+        
+        REQUIREMENTS:
+        - Return ONLY one number (number of missing specialists per year)
+        - The number should be whole
+        - The number should be realistic for the industry
+        - Consider industry scale (local, regional, national)
+        
+        RESPONSE FORMAT:
+        Return ONLY a valid JSON object in the following format:
+        {{
+            "yearlyShortage": 80000,
+            "industry": "industry name",
+            "description": "Brief justification of the number"
+        }}
+        
+        EXAMPLES FOR DIFFERENT INDUSTRIES:
+        - HVAC: 45000-80000 specialists per year
+        - IT: 120000-200000 specialists per year  
+        - Construction: 60000-100000 specialists per year
+        - Healthcare: 80000-150000 specialists per year
+        - Manufacturing: 70000-120000 specialists per year
+        
+        IMPORTANT: 
+        - The number should be realistic for the industry
+        - Consider industry size and scale
+        - Include justification in description
+        """
+    else:
+        prompt = f"""
+        Проанализируй данные и определи точное количество недостающих квалифицированных специалистов в год для отрасли компании.
+        
+        ДАННЫЕ АНКЕТЫ:
+        - Название компании: {getattr(payload, 'companyName', 'Company Name')}
+        - Описание компании: {getattr(payload, 'companyDesc', 'Company Description')}
+        - Веб-сайт: {getattr(payload, 'companyWebsite', 'Company Website')}
+        
+        ДАННЫЕ ИЗ ИНТЕРНЕТА:
+        {duckduckgo_summary}
+        
+        ИНСТРУКЦИИ:
+        1. Определи отрасль компании на основе предоставленных данных
+        2. Рассчитай реалистичное количество недостающих специалистов в год для данной отрасли
+        3. Учти размер отрасли, темпы роста и текущий дефицит кадров
+        4. Число должно быть реалистичным и обоснованным для данной отрасли
+        5. Учти региональные особенности и масштаб отрасли
+        
+        ТРЕБОВАНИЯ:
+        - Верни ТОЛЬКО одно число (количество недостающих специалистов в год)
+        - Число должно быть целым
+        - Число должно быть реалистичным для отрасли
+        - Учти масштаб отрасли (локальная, региональная, национальная)
+        
+        ФОРМАТ ОТВЕТА:
+        Верни ТОЛЬКО валидный JSON объект в следующем формате:
+        {{
+            "yearlyShortage": 80000,
+            "industry": "название отрасли",
+            "description": "Краткое обоснование числа. Используй правильные падежи: 'в [отрасль] отрасли' или 'в [отрасль] секторе'"
+        }}
+        
+        ПРИМЕРЫ ДЛЯ РАЗНЫХ ОТРАСЛЕЙ:
+        - HVAC: 45000-80000 специалистов в год
+        - IT: 120000-200000 специалистов в год  
+        - Строительство: 60000-100000 специалистов в год
+        - Медицина: 80000-150000 специалистов в год
+        - Производство: 70000-120000 специалистов в год
+        
+        ВАЖНО: 
+        - Число должно быть реалистичным для отрасли
+        - Учти размер и масштаб отрасли
+        - Включи обоснование в description
+        """
+    
+    try:
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Clean and parse the response
+        cleaned_response = response_text.strip()
+        if cleaned_response.startswith('```json'):
+            cleaned_response = cleaned_response[7:]
+        if cleaned_response.endswith('```'):
+            cleaned_response = cleaned_response[:-3]
+        cleaned_response = cleaned_response.strip()
+        
+        # Parse JSON response
+        yearly_data = json.loads(cleaned_response)
+        
+        # Validate the structure
+        if not isinstance(yearly_data, dict) or 'yearlyShortage' not in yearly_data:
+            raise ValueError("Invalid yearly shortage data structure")
+        
+        if not isinstance(yearly_data['yearlyShortage'], int) or yearly_data['yearlyShortage'] <= 0:
+            raise ValueError("Yearly shortage must be a positive integer")
+        
+        # Log the generated data for verification
+        logger.info(f"[AI-Audit Landing Page] Generated yearly shortage data:")
+        logger.info(f"[AI-Audit Landing Page] - Industry: {yearly_data.get('industry', 'Unknown')}")
+        logger.info(f"[AI-Audit Landing Page] - Yearly Shortage: {yearly_data.get('yearlyShortage', 'Unknown')} specialists")
+        logger.info(f"[AI-Audit Landing Page] - Description: {yearly_data.get('description', 'No description')}")
+        
+        return yearly_data
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"[AI-Audit Landing Page] Yearly shortage JSON parsing error: {e}")
+        logger.error(f"[AI-Audit Landing Page] Raw response was: '{response_text}'")
+        logger.error(f"[AI-Audit Landing Page] Cleaned response was: '{cleaned_response}'")
+        # Fallback to default values
+        return {
+            "yearlyShortage": 80000,
+            "industry": "HVAC",
+            "description": "Типичный дефицит квалифицированных кадров в HVAC-отрасли"
+        }
+        
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error generating yearly shortage data: {e}")
+        return {
+            "yearlyShortage": 80000,
+            "industry": "HVAC", 
+            "description": "Типичный дефицит квалифицированных кадров в HVAC-отрасли"
+        }
+
+
+async def _run_landing_page_generation(payload, request, pool, job_id):
+    try:
+        # 📊 DETAILED LOGGING: Language preference received in backend
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received payload: {payload.model_dump()}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received language: {payload.language}")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Backend received companyWebsite: {payload.companyWebsite}")
+        
+        # 📊 LOG: Initial payload received
+        logger.info(f"🔍 [AUDIT DATA FLOW] Starting landing page generation for job {job_id}")
+        logger.info(f"📥 [AUDIT DATA FLOW] Initial payload: {payload.model_dump()}")
+        
+        set_progress(job_id, "Scraping company website...")
+        # Scrape company data from website
+        scraped_data = await scrape_company_data_from_website(payload.companyWebsite, payload.language)
+        logger.info(f"[AI-Audit Landing Page] Scraped company data: {scraped_data.companyName}")
+        
+        set_progress(job_id, "Researching additional company info...")
+        # Get additional research data using scraped company name and description
+        duckduckgo_summary = await serpapi_company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite)
+        logger.info(f"[AI-Audit Landing Page] SERPAPI summary: {duckduckgo_summary[:300]}")
+        
+        # 📊 LOG: Scraped data received
+        logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
+        logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data preview: {duckduckgo_summary[:500]}...")
+
+        set_progress(job_id, "Using scraped company name...")
+        company_name = scraped_data.companyName
+        
+        # 📊 LOG: Company name generated
+        logger.info(f"🏢 [AUDIT DATA FLOW] Generated company name: '{company_name}'")
+
+        set_progress(job_id, "Using scraped company description...")
+        company_description = scraped_data.companyDesc
+
+        # 📊 LOG: Company description generated
+        logger.info(f"📝 [AUDIT DATA FLOW] Generated company description: '{company_description}'")
+
+        set_progress(job_id, "Generating job positions from scraped data...")
+        # Create a combined payload with scraped data for job positions generation
+        combined_payload = type('CombinedPayload', (), {
+            'companyName': scraped_data.companyName,
+            'companyDesc': scraped_data.companyDesc,
+            'companyWebsite': payload.companyWebsite,
+            'employees': scraped_data.employees,
+            'franchise': scraped_data.franchise,
+            'onboardingProblems': scraped_data.onboardingProblems,
+            'documents': scraped_data.documents,
+            'documentsOther': scraped_data.documentsOther,
+            'priorities': scraped_data.priorities,
+            'priorityOther': scraped_data.priorityOther
+        })()
+        # Generate job positions using the same logic as the old audit
+        job_positions = await generate_job_positions_from_scraped_data(duckduckgo_summary, combined_payload, company_name, payload.language)
+        
+        # 📊 LOG: Job positions generated
+        logger.info(f"💼 [AUDIT DATA FLOW] Generated {len(job_positions)} job positions")
+        for i, position in enumerate(job_positions):
+            logger.info(f"💼 [AUDIT DATA FLOW] - Position {i+1}: {position}")
+
+        set_progress(job_id, "Generating workforce crisis data...")
+        # Generate workforce crisis data for the "Кадровый кризис" section
+        workforce_crisis_data = await generate_workforce_crisis_data(duckduckgo_summary, combined_payload, payload.language)
+        
+        # 📊 LOG: Workforce crisis data generated
+        logger.info(f"📊 [AUDIT DATA FLOW] Generated workforce crisis data: {workforce_crisis_data}")
+
+        set_progress(job_id, "Generating course outline...")
+        # Generate course outline for the "План обучения" section
+        course_outline_modules = await generate_course_outline_for_landing_page(duckduckgo_summary, job_positions, combined_payload, payload.language)
+        
+        # 📊 LOG: Course outline generated
+        logger.info(f"📚 [AUDIT DATA FLOW] Generated course outline with {len(course_outline_modules)} modules")
+        for i, module_title in enumerate(course_outline_modules):
+            logger.info(f"📚 [AUDIT DATA FLOW] - Module {i+1}: {module_title}")
+
+        set_progress(job_id, "Generating course templates...")
+        # Generate course templates for the "Готовые шаблоны курсов" section
+        course_templates = await generate_course_templates(duckduckgo_summary, job_positions, combined_payload, course_outline_modules, payload.language)
+        
+        # 📊 LOG: Course templates generated
+        logger.info(f"🎓 [AUDIT DATA FLOW] Generated {len(course_templates)} course templates")
+        for i, template in enumerate(course_templates):
+            logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template['title']}")
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Create the landing page content with dynamic data
+        landing_page_data = {
+            "companyName": company_name,
+            "companyDescription": company_description,
+            "jobPositions": job_positions,
+            "workforceCrisis": workforce_crisis_data,
+            "courseOutlineModules": course_outline_modules,
+            "courseTemplates": course_templates,
+            "language": payload.language,
+            "originalPayload": payload.model_dump()
+        }
+        
+        # 📊 DETAILED LOGGING: Language preference in landing page data
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page data - language: '{landing_page_data['language']}'")
+        logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Landing page data - payload.language: '{payload.language}'")
+        
+        # 📊 LOG: Landing page data structure created
+        logger.info(f"📦 [AUDIT DATA FLOW] Landing page data structure created:")
+        logger.info(f"📦 [AUDIT DATA FLOW] - companyName: '{landing_page_data['companyName']}'")
+        logger.info(f"📦 [AUDIT DATA FLOW] - companyDescription: '{landing_page_data['companyDescription']}'")
+        logger.info(f"📦 [AUDIT DATA FLOW] - originalPayload keys: {list(landing_page_data['originalPayload'].keys())}")
+
+        # Save as a product
+        project_id = await insert_ai_audit_onepager_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=f"AI-Аудит Landing Page: {company_name}",
+            microproduct_content=landing_page_data,
+            chat_session_id=None
+        )
+
+        logger.info(f"[AI-Audit Landing Page] Successfully created project with ID: {project_id}")
+        
+        # 📊 LOG: Project saved to database
+        logger.info(f"💾 [AUDIT DATA FLOW] Project saved to database with ID: {project_id}")
+        logger.info(f"💾 [AUDIT DATA FLOW] Project name: 'AI-Аудит Landing Page: {company_name}'")
+        
+        # 🔧 FIX: Assign landing page to existing audit folder or create new one
+        # First, try to find an existing audit folder for this company
+        async with pool.acquire() as conn:
+            existing_folder_query = """
+            SELECT pf.id 
+            FROM project_folders pf
+            JOIN projects p ON pf.id = p.folder_id
+            WHERE pf.onyx_user_id = $1 
+            AND p.microproduct_name LIKE 'AI-Аудит: %'
+            AND p.microproduct_name LIKE $2
+            LIMIT 1
+            """
+            existing_folder = await conn.fetchrow(existing_folder_query, onyx_user_id, f"%{company_name}%")
+            
+            if existing_folder:
+                # Assign to existing folder
+                folder_id = existing_folder["id"]
+                await conn.execute("UPDATE projects SET folder_id = $1 WHERE id = $2", folder_id, project_id)
+                logger.info(f"🔧 [AUDIT DATA FLOW] Assigned landing page to existing folder: {folder_id}")
+            else:
+                # Create new folder and assign
+                folder_id = await create_audit_folder(pool, onyx_user_id, company_name)
+                await conn.execute("UPDATE projects SET folder_id = $1 WHERE id = $2", folder_id, project_id)
+                logger.info(f"🔧 [AUDIT DATA FLOW] Created new folder and assigned landing page: {folder_id}")
+
+        set_progress(job_id, "Landing page complete!")
+        logger.info(f"[AI-Audit Landing Page] Finished the Landing Page Generation")
+        
+        # 📊 LOG: Final response data
+        final_response = {
+            "id": project_id,
+            "name": f"AI-Аудит Landing Page: {company_name}",
+            "companyName": company_name,
+            "companyDescription": company_description
+        }
+        logger.info(f"📤 [AUDIT DATA FLOW] Final response data: {final_response}")
+    
+        return final_response
+    except Exception as e:
+        logger.error(f"[AI-Audit Landing Page] Error: {e}")
+        set_progress(job_id, f"Error: {str(e)}")
+
 
 def extract_open_positions_from_table(parsed_json):
     """
@@ -15505,6 +18795,432 @@ def extract_open_positions_from_table(parsed_json):
 
                 return positions
     return []
+
+
+async def generate_company_specific_fallback_positions(company_name: str, language: str = "ru") -> list:
+    """Generate company-specific fallback positions when no real positions are found."""
+    try:
+        if language == "en":
+            prompt = f"""
+            Create a list of 3-5 logical positions for the company {company_name}.
+            
+            INSTRUCTIONS:
+            - Create positions that logically fit this company
+            - Use realistic job titles
+            - Add a brief description for each position
+            - Generate ALL content EXCLUSIVELY in English
+            
+            RESPONSE FORMAT (JSON only):
+            [
+                {{"Position": "position title 1", "Description": "brief description"}},
+                {{"Position": "position title 2", "Description": "brief description"}},
+                ...
+            ]
+            
+            RESPONSE (JSON only):
+            """
+        elif language == "es":
+            prompt = f"""
+            Crea una lista de 3-5 posiciones lógicas para la empresa {company_name}.
+            
+            INSTRUCCIONES:
+            - Crea posiciones que se ajusten lógicamente a esta empresa
+            - Usa títulos de trabajo realistas
+            - Agrega una descripción breve para cada posición
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            
+            FORMATO DE RESPUESTA (solo JSON):
+            [
+                {{"Position": "título de posición 1", "Description": "descripción breve"}},
+                {{"Position": "título de posición 2", "Description": "descripción breve"}},
+                ...
+            ]
+            
+            RESPUESTA (solo JSON):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Створіть список з 3-5 логічних позицій для компанії {company_name}.
+            
+            ІНСТРУКЦІЇ:
+            - Створіть позиції, які логічно підходять для цієї компанії
+            - Використовуйте реалістичні назви посад
+            - Додайте короткий опис для кожної позиції
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            
+            ФОРМАТ ВІДПОВІДІ (тільки JSON):
+            [
+                {{"Position": "назва позиції 1", "Description": "короткий опис"}},
+                {{"Position": "назва позиції 2", "Description": "короткий опис"}},
+                ...
+            ]
+            
+            ВІДПОВІДЬ (тільки JSON):
+            """
+        else:  # Russian
+            prompt = f"""
+            Создай список из 3-5 логичных должностей для компании {company_name}.
+            
+            ИНСТРУКЦИИ:
+            - Создай позиции, которые логично подходят для данной компании
+            - Используй реалистичные названия должностей
+            - Добавь краткое описание для каждой позиции
+            
+            ФОРМАТ ОТВЕТА (только JSON):
+            [
+                {{"Position": "название позиции 1", "Description": "краткое описание"}},
+                {{"Position": "название позиции 2", "Description": "краткое описание"}},
+                ...
+            ]
+            
+            ОТВЕТ (только JSON):
+            """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            positions = json.loads(cleaned_response)
+            formatted_positions = []
+            for position in positions:
+                # Handle different field names based on language
+                title = position.get("Position", position.get("Позиция", "Position"))
+                description = position.get("Description", position.get("Описание", f"Open position at {company_name}"))
+                formatted_positions.append({
+                    "title": title,
+                    "description": description,
+                    "icon": "👷"
+                })
+            logger.info(f"💼 [WEBSITE SCRAPING] Generated {len(formatted_positions)} company-specific fallback positions")
+            return formatted_positions
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse fallback positions JSON: {e}")
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            # Language-specific generic fallback
+            if language == "en":
+                return [
+                    {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+                    {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+                    {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"}
+                ]
+            elif language == "es":
+                return [
+                    {"title": "Representante de Ventas", "description": f"Ventas y desarrollo comercial en {company_name}", "icon": "💼"},
+                    {"title": "Atención al Cliente", "description": f"Servicio al cliente y soporte en {company_name}", "icon": "🎧"},
+                    {"title": "Gerente de Operaciones", "description": f"Gestión de operaciones y procesos en {company_name}", "icon": "⚙️"}
+                ]
+            elif language == "ua":
+                return [
+                    {"title": "Представник з продажів", "description": f"Продажі та розвиток бізнесу в {company_name}", "icon": "💼"},
+                    {"title": "Служба підтримки клієнтів", "description": f"Обслуговування клієнтів та підтримка в {company_name}", "icon": "🎧"},
+                    {"title": "Менеджер операцій", "description": f"Управління операціями та процесами в {company_name}", "icon": "⚙️"}
+                ]
+            else:  # Russian
+                return [
+                    {"title": "Менеджер по продажам", "description": f"Продажи и развитие бизнеса в {company_name}", "icon": "💼"},
+                    {"title": "Служба поддержки", "description": f"Обслуживание клиентов и поддержка в {company_name}", "icon": "🎧"},
+                    {"title": "Менеджер операций", "description": f"Управление операциями и процессами в {company_name}", "icon": "⚙️"}
+                ]
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error generating fallback positions: {e}")
+        return [
+            {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+            {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+            {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"}
+        ]
+
+async def extract_job_positions_from_website_content(website_content: str, company_name: str, language: str = "ru") -> list:
+    """Extract job positions directly from website content using AI."""
+    try:
+        if language == "en":
+            prompt = f"""
+            Analyze the website content and extract a list of open job positions for the company.
+            
+            COMPANY: {company_name}
+            WEBSITE CONTENT:
+            {website_content}
+            
+            INSTRUCTIONS:
+            - Find all mentions of job openings, positions, career opportunities
+            - Extract specific position titles (e.g., "Sales Manager", "Mechanical Engineer", "Marketing Specialist")
+            - If no specific vacancies are found, create logical positions for this company
+            - Return maximum 8 real positions
+            - Generate ALL content EXCLUSIVELY in English
+            
+            RESPONSE FORMAT (JSON only):
+            [
+                {{"Position": "position title 1", "Description": "brief description"}},
+                {{"Position": "position title 2", "Description": "brief description"}},
+                ...
+            ]
+            
+            RESPONSE (JSON only):
+            """
+        elif language == "es":
+            prompt = f"""
+            Analiza el contenido del sitio web y extrae una lista de puestos de trabajo abiertos para la empresa.
+            
+            EMPRESA: {company_name}
+            CONTENIDO DEL SITIO WEB:
+            {website_content}
+            
+            INSTRUCCIONES:
+            - Encuentra todas las menciones de ofertas de trabajo, posiciones, oportunidades de carrera
+            - Extrae títulos de posiciones específicas (ej: "Gerente de Ventas", "Ingeniero Mecánico", "Especialista en Marketing")
+            - Si no se encuentran vacantes específicas, crea posiciones lógicas para esta empresa
+            - Devuelve máximo 8 posiciones reales
+            - Genera TODO el contenido EXCLUSIVAMENTE en español
+            
+            FORMATO DE RESPUESTA (solo JSON):
+            [
+                {{"Position": "título de posición 1", "Description": "descripción breve"}},
+                {{"Position": "título de posición 2", "Description": "descripción breve"}},
+                ...
+            ]
+            
+            RESPUESTA (solo JSON):
+            """
+        elif language == "ua":
+            prompt = f"""
+            Проаналізуйте вміст веб-сайту та витягніть список відкритих вакансій для компанії.
+            
+            КОМПАНІЯ: {company_name}
+            ВМІСТ ВЕБ-САЙТУ:
+            {website_content}
+            
+            ІНСТРУКЦІЇ:
+            - Знайдіть усі згадки про вакансії, посади, кар'єрні можливості
+            - Витягніть назви конкретних посад (наприклад: "Менеджер з продажів", "Інженер-механік", "Спеціаліст з маркетингу")
+            - Якщо конкретних вакансій не знайдено, створіть логічні позиції для цієї компанії
+            - Поверніть максимум 8 реальних позицій
+            - Генеруйте ВЕСЬ контент ВИКЛЮЧНО українською мовою
+            
+            ФОРМАТ ВІДПОВІДІ (тільки JSON):
+            [
+                {{"Position": "назва позиції 1", "Description": "короткий опис"}},
+                {{"Position": "назва позиції 2", "Description": "короткий опис"}},
+                ...
+            ]
+            
+            ВІДПОВІДЬ (тільки JSON):
+            """
+        else:
+            prompt = f"""
+            Проанализируй контент веб-сайта и извлеки список открытых вакансий компании.
+            
+            КОМПАНИЯ: {company_name}
+            КОНТЕНТ ВЕБ-САЙТА:
+            {website_content}
+            
+            ИНСТРУКЦИИ:
+            - Найди все упоминания вакансий, должностей, карьерных возможностей
+            - Извлеки названия конкретных позиций (например: "Менеджер по продажам", "Инженер-механик", "Специалист по маркетингу")
+            - Если конкретных вакансий нет, создай логичные позиции для данной компании
+            - Верни максимум 8 реальных позиций
+            
+            ФОРМАТ ОТВЕТА (только JSON):
+            [
+                {{"Позиция": "название позиции 1", "Описание": "краткое описание"}},
+                {{"Позиция": "название позиции 2", "Описание": "краткое описание"}},
+                ...
+            ]
+            
+            ОТВЕТ (только JSON):
+            """
+        
+        response_text = await stream_openai_response_direct(
+            prompt=prompt,
+            model=LLM_DEFAULT_MODEL
+        )
+        
+        # Parse JSON response - handle markdown-wrapped JSON
+        try:
+            # Clean the response text - remove markdown code blocks if present
+            cleaned_response = response_text.strip()
+            if cleaned_response.startswith('```json'):
+                cleaned_response = cleaned_response[7:]  # Remove ```json
+            if cleaned_response.endswith('```'):
+                cleaned_response = cleaned_response[:-3]  # Remove ```
+            cleaned_response = cleaned_response.strip()
+            
+            job_positions = json.loads(cleaned_response)
+            
+            if not isinstance(job_positions, list):
+                raise ValueError("Response is not a list")
+            
+            logger.info(f"💼 [WEBSITE SCRAPING] Extracted {len(job_positions)} job positions from website")
+            return job_positions
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Failed to parse job positions JSON: {e}")
+            logger.warning(f"⚠️ [WEBSITE SCRAPING] Raw response was: '{response_text}'")
+            return []
+        
+    except Exception as e:
+        logger.error(f"❌ [WEBSITE SCRAPING] Error extracting job positions: {e}")
+        return []
+
+async def generate_job_positions_from_scraped_data(duckduckgo_summary: str, payload, company_name: str, language: str = "ru") -> list:
+    """
+    Generates job positions directly from scraped website content using AI.
+    More efficient than generating a full audit one-pager.
+    Ensures exactly 11 vacancies are returned by generating additional ones if needed.
+    """
+    try:
+        # 📊 LOG: Starting job positions generation
+        logger.info(f"🔍 [AUDIT DATA FLOW] generate_job_positions_from_scraped_data called")
+        logger.info(f"🔍 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
+        
+        # Extract job positions directly from scraped content using AI
+        job_positions = await extract_job_positions_from_website_content(duckduckgo_summary, company_name, language)
+        
+        # Convert to the format expected by the frontend
+        formatted_positions = []
+        for position in job_positions:
+            # Get the position title and description - handle different field names based on language
+            position_title = position.get("Position", position.get("Позиция", "Position"))
+            position_description = position.get("Description", position.get("Описание", f"Open position at {company_name}"))
+            formatted_positions.append({
+                "title": position_title,
+                "description": position_description,
+                "icon": "👷"  # Default icon
+            })
+        
+        # 📊 LOG: Job positions extracted and formatted
+        logger.info(f"🔍 [AUDIT DATA FLOW] Extracted {len(job_positions)} raw positions")
+        logger.info(f"🔍 [AUDIT DATA FLOW] Formatted {len(formatted_positions)} positions for frontend")
+        
+        # If no positions found, use company-specific fallback
+        if not formatted_positions:
+            logger.info(f"🔍 [AUDIT DATA FLOW] No positions found, using company-specific fallback")
+            # Generate company-specific fallback positions
+            fallback_positions = await generate_company_specific_fallback_positions(company_name, language)
+            formatted_positions = fallback_positions
+        
+        # Ensure exactly 11 vacancies by generating additional ones if needed
+        target_count = 11
+        if len(formatted_positions) < target_count:
+            needed_positions = target_count - len(formatted_positions)
+            logger.info(f"🔍 [AUDIT DATA FLOW] Need {needed_positions} additional positions to reach {target_count} total")
+            
+            # Generate additional positions using the same logic as course templates
+            additional_positions = await generate_additional_positions(duckduckgo_summary, needed_positions, payload, language)
+            
+            # Convert additional positions to the expected format
+            for position in additional_positions:
+                formatted_positions.append({
+                    "title": position.get("title", "Generated Position"),
+                    "description": position.get("description", f"Open position at {company_name}"),
+                    "icon": "👷"  # Default icon
+                })
+            
+            logger.info(f"🔍 [AUDIT DATA FLOW] Added {len(additional_positions)} additional positions")
+        
+        # Ensure we don't exceed 11 positions
+        if len(formatted_positions) > target_count:
+            formatted_positions = formatted_positions[:target_count]
+            logger.info(f"🔍 [AUDIT DATA FLOW] Trimmed positions to exactly {target_count}")
+        
+        logger.info(f"🔍 [AUDIT DATA FLOW] Final result: {len(formatted_positions)} positions")
+        return formatted_positions
+        
+    except Exception as e:
+        logger.error(f"❌ [AUDIT DATA FLOW] Error generating job positions: {e}")
+        # Return company-specific fallback positions
+        try:
+            fallback_positions = await generate_company_specific_fallback_positions(company_name, language)
+            # Ensure we have exactly 11 positions
+            while len(fallback_positions) < 11:
+                fallback_positions.append({
+                    "title": f"Position {len(fallback_positions) + 1}",
+                    "description": f"Open position at {company_name}",
+                    "icon": "👷"
+                })
+            return fallback_positions[:11]
+        except Exception as fallback_error:
+            logger.error(f"❌ [AUDIT DATA FLOW] Error generating fallback positions: {fallback_error}")
+            # Ultimate fallback - generic positions
+            return [
+                {"title": "Sales Representative", "description": f"Sales and business development at {company_name}", "icon": "💼"},
+                {"title": "Customer Support", "description": f"Customer service and support at {company_name}", "icon": "🎧"},
+                {"title": "Operations Manager", "description": f"Operations and process management at {company_name}", "icon": "⚙️"},
+                {"title": "Marketing Specialist", "description": f"Marketing strategies at {company_name}", "icon": "📢"},
+                {"title": "Quality Assurance", "description": f"Quality control at {company_name}", "icon": "✅"},
+                {"title": "Technical Support", "description": f"Technical assistance at {company_name}", "icon": "🔧"},
+                {"title": "Project Manager", "description": f"Project coordination at {company_name}", "icon": "📋"},
+                {"title": "Logistics Coordinator", "description": f"Supply chain management at {company_name}", "icon": "📦"},
+                {"title": "HR Specialist", "description": f"Human resources at {company_name}", "icon": "👥"},
+                {"title": "Finance Analyst", "description": f"Financial analysis at {company_name}", "icon": "💰"},
+                {"title": "IT Administrator", "description": f"IT systems management at {company_name}", "icon": "💻"}
+            ]
+
+
+def extract_job_positions_from_content(content):
+    """
+    Extracts job positions from the AI audit content.
+    Returns a list of job position objects with title and description.
+    """
+    # 📊 LOG: Job positions extraction function called
+    logger.info(f"🔍 [AUDIT DATA FLOW] extract_job_positions_from_content called")
+    logger.info(f"🔍 [AUDIT DATA FLOW] Content type: {type(content)}")
+    logger.info(f"🔍 [AUDIT DATA FLOW] Content keys: {list(content.keys()) if isinstance(content, dict) else 'Not a dict'}")
+    
+    job_positions = []
+    
+    if not content or not isinstance(content, dict):
+        logger.info(f"🔍 [AUDIT DATA FLOW] No valid content provided, returning empty list")
+        return job_positions
+    
+    # Look for contentBlocks in the content
+    content_blocks = content.get("contentBlocks", [])
+    logger.info(f"🔍 [AUDIT DATA FLOW] Found {len(content_blocks)} content blocks")
+    
+    for i, block in enumerate(content_blocks):
+        if block.get("type") == "table":
+            headers = block.get("headers", [])
+            rows = block.get("rows", [])
+            
+            logger.info(f"🔍 [AUDIT DATA FLOW] Table {i+1}: {len(headers)} headers, {len(rows)} rows")
+            logger.info(f"🔍 [AUDIT DATA FLOW] Headers: {headers}")
+            
+            # Check if this is a job positions table
+            if any("позиция" in str(header).lower() for header in headers):
+                logger.info(f"🔍 [AUDIT DATA FLOW] Found job positions table!")
+                for j, row in enumerate(rows):
+                    if len(row) > 0:
+                        position_title = str(row[0]).strip() if row[0] else "Position"
+                        # Create a simple job position object
+                        position = {
+                            "title": position_title,
+                            "description": f"Open position at the company",
+                            "icon": "👷"  # Default icon
+                        }
+                        job_positions.append(position)
+                        logger.info(f"🔍 [AUDIT DATA FLOW] Added position {j+1}: {position}")
+    
+    # If no positions found in tables, return some default positions
+    if not job_positions:
+        logger.info(f"🔍 [AUDIT DATA FLOW] No positions found in content, using default positions")
+        job_positions = [
+            {"title": "HVAC Technician", "description": "Installation and maintenance of heating, ventilation, and air conditioning systems", "icon": "👷"},
+            {"title": "Electrician", "description": "Installation and maintenance of electrical systems", "icon": "⚡"},
+            {"title": "Project Manager", "description": "Overseeing projects and coordinating teams", "icon": "📋"}
+        ]
+        logger.info(f"🔍 [AUDIT DATA FLOW] Using {len(job_positions)} default positions")
+    
+    logger.info(f"🔍 [AUDIT DATA FLOW] Returning {len(job_positions)} job positions")
+    return job_positions
 
 
 async def generate_and_finalize_course_outline_for_position(
@@ -19846,7 +23562,19 @@ class ProjectFolderUpdateRequest(BaseModel):
     model_config = {"from_attributes": True}
 
 @app.put("/api/custom/projects/update/{project_id}", response_model=ProjectDB)
-async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+async def update_project_in_db(project_id: int, project_update_data: ProjectUpdateRequest, request: Request, onyx_user_id: str = Depends(get_current_onyx_user_id), pool: asyncpg.Pool = Depends(get_db_pool)):
+    logger.info(f"🔄 [PROJECT UPDATE START] ===========================================")
+    logger.info(f"🔄 [PROJECT UPDATE START] Project ID: {project_id}")
+    logger.info(f"🔄 [PROJECT UPDATE START] User ID: {onyx_user_id}")
+    logger.info(f"🔄 [PROJECT UPDATE START] Timestamp: {datetime.now().isoformat()}")
+    logger.info(f"🔄 [PROJECT UPDATE START] Request data type: {type(project_update_data)}")
+    logger.info(f"🔄 [PROJECT UPDATE START] MicroProductName: {project_update_data.microProductName}")
+    logger.info(f"🔄 [PROJECT UPDATE START] MicroProductContent type: {type(project_update_data.microProductContent)}")
+    if project_update_data.microProductContent:
+        logger.info(f"🔄 [PROJECT UPDATE START] MicroProductContent data: {project_update_data.microProductContent}")
+        if hasattr(project_update_data.microProductContent, '__dict__'):
+            logger.info(f"🔄 [PROJECT UPDATE START] MicroProductContent keys: {list(project_update_data.microProductContent.__dict__.keys())}")
+    
     try:
         # Get user identifiers for workspace access
         user_uuid, user_email = await get_user_identifiers_for_workspace(request)
@@ -19890,10 +23618,52 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 old_microproduct_content = project_row["microproduct_content"] if isinstance(project_row["microproduct_content"], dict) else None
 
         if (not db_microproduct_name_to_store or not db_microproduct_name_to_store.strip()) and project_update_data.design_template_id:
-            async with pool.acquire() as conn: design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
-            if design_row: db_microproduct_name_to_store = design_row["template_name"]
+            async with pool.acquire() as conn:
+                design_row = await conn.fetchrow("SELECT template_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+                if design_row:
+                    db_microproduct_name_to_store = design_row["template_name"]
 
         content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
+        
+        # 🚨 CRITICAL: Validate that the data structure matches the component type
+        if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
+            # Check if this is an AI audit landing page project
+            is_ai_audit_project = (old_project_name and "AI-Аудит Landing Page" in old_project_name)
+            
+            if is_ai_audit_project:
+                # For AI audit projects, ensure we're not receiving slide deck/text presentation data
+                if isinstance(content_to_store_for_db, dict):
+                    has_wrong_structure = ('sections' in content_to_store_for_db and 'theme' in content_to_store_for_db) and \
+                                        not ('companyName' in content_to_store_for_db or 'jobPositions' in content_to_store_for_db)
+                    
+                    if has_wrong_structure:
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit project!")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Rejecting save to prevent data corruption")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received data: {json.dumps(content_to_store_for_db, indent=2)}")
+                        raise HTTPException(
+                            status_code=400, 
+                            detail=f"Invalid data structure for AI audit project. Expected AI audit data but received slide deck/text presentation data."
+                        )
+        
+        # 🚨 CRITICAL: Validate that the data structure matches the component type
+        if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
+            # Check if this is an AI audit landing page project
+            is_ai_audit_project = (old_project_name and "AI-Аудит Landing Page" in old_project_name)
+            
+            if is_ai_audit_project:
+                # For AI audit projects, ensure we're not receiving slide deck/text presentation data
+                if isinstance(content_to_store_for_db, dict):
+                    has_wrong_structure = ('sections' in content_to_store_for_db and 'theme' in content_to_store_for_db) and \
+                                        not ('companyName' in content_to_store_for_db or 'jobPositions' in content_to_store_for_db)
+                    
+                    if has_wrong_structure:
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received slide deck/text presentation data for AI audit project!")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Rejecting save to prevent data corruption")
+                        logger.error(f"❌ [CRITICAL ERROR] Project {project_id} - Received data: {json.dumps(content_to_store_for_db, indent=2)}")
+                        raise HTTPException(
+                            status_code=400, 
+                            detail=f"Invalid data structure for AI audit project. Expected AI audit data but received slide deck/text presentation data."
+                        )
         
         # 🔍 BACKEND SAVE LOGGING: What we're about to store in database
         if content_to_store_for_db:
@@ -19906,11 +23676,12 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
 
         derived_product_type = None; derived_microproduct_type = None
         if project_update_data.design_template_id is not None:
-            async with pool.acquire() as conn: design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
-            if design_template:
-                derived_product_type = design_template["microproduct_type"]
-                derived_microproduct_type = design_template["template_name"]
-                current_component_name = design_template["component_name"]
+            async with pool.acquire() as conn:
+                design_template = await conn.fetchrow("SELECT microproduct_type, template_name, component_name FROM design_templates WHERE id = $1", project_update_data.design_template_id)
+                if design_template:
+                    derived_product_type = design_template["microproduct_type"]
+                    derived_microproduct_type = design_template["template_name"]
+                    current_component_name = design_template["component_name"]
 
         update_clauses = []; update_values = []; arg_idx = 1
         
@@ -20006,7 +23777,24 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
         update_values.extend([project_id])
         update_query = f"UPDATE projects SET {', '.join(update_clauses)} WHERE id = ${arg_idx} RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name, microproduct_content, design_template_id, created_at, custom_rate, quality_tier, is_advanced, advanced_rates;"
 
-        async with pool.acquire() as conn: row = await conn.fetchrow(update_query, *update_values)
+        logger.info(f"💾 [DATABASE TRANSACTION START] ===========================================")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Project ID: {project_id}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] User ID: {onyx_user_id}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Query type: UPDATE")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Table: projects")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Update clauses: {update_clauses}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Update values: {update_values}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Full query: {update_query}")
+        logger.info(f"💾 [DATABASE TRANSACTION START] Timestamp: {datetime.now().isoformat()}")
+
+        async with pool.acquire() as conn: 
+            row = await conn.fetchrow(update_query, *update_values)
+            
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] ===========================================")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Query executed successfully")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Rows affected: {row is not None}")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Returned data: {dict(row) if row else 'None'}")
+            logger.info(f"💾 [DATABASE TRANSACTION RESULT] Timestamp: {datetime.now().isoformat()}")
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
 
@@ -20139,9 +23927,16 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
                 if current_component_name == COMPONENT_NAME_PDF_LESSON:
                     final_content_for_model = PdfLessonDetails(**db_content)
                 elif current_component_name == COMPONENT_NAME_TEXT_PRESENTATION:
-                    logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
-                    final_content_for_model = TextPresentationDetails(**db_content)
-                    logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
+                    # Check if this is an AI audit landing page project
+                    if (old_project_name and "AI-Аудит Landing Page" in old_project_name) or \
+                       (db_content and 'companyName' in db_content and 'jobPositions' in db_content):
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as AIAuditLandingDetails")
+                        final_content_for_model = AIAuditLandingDetails(**db_content)
+                        logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - AIAuditLandingDetails validation successful")
+                    else:
+                        logger.info(f"🔧 [BACKEND VALIDATION] Project {project_id} - Validating as TextPresentationDetails")
+                        final_content_for_model = TextPresentationDetails(**db_content)
+                        logger.info(f"✅ [BACKEND VALIDATION] Project {project_id} - TextPresentationDetails validation successful")
                 elif current_component_name == COMPONENT_NAME_TRAINING_PLAN:
                     db_content = sanitize_training_plan_for_parse(db_content)
                     final_content_for_model = TrainingPlanDetails(**db_content)
@@ -20169,17 +23964,33 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             except Exception as e_parse:
                 logger.error(f"❌ [BACKEND VALIDATION ERROR] Project {project_id} - Error parsing updated content from DB: {e_parse}", exc_info=not IS_PRODUCTION)
 
-        return ProjectDB(
+        response_data = ProjectDB(
             id=row["id"], onyx_user_id=row["onyx_user_id"], project_name=row["project_name"],
             product_type=row["product_type"], microproduct_type=row["microproduct_type"],
             microproduct_name=row["microproduct_name"], microproduct_content=final_content_for_model,
             design_template_id=row["design_template_id"], created_at=row["created_at"],
             custom_rate=row["custom_rate"], quality_tier=row["quality_tier"]
         )
-    except HTTPException:
+        
+        logger.info(f"📤 [API RESPONSE] ===========================================")
+        logger.info(f"📤 [API RESPONSE] Project ID: {project_id}")
+        logger.info(f"📤 [API RESPONSE] Response status: 200 OK")
+        logger.info(f"📤 [API RESPONSE] Response data: {response_data}")
+        logger.info(f"📤 [API RESPONSE] Timestamp: {datetime.now().isoformat()}")
+        
+        return response_data
+    except HTTPException as http_e:
+        logger.error(f"❌ [API ERROR] HTTP Exception for project {project_id}: {http_e.detail}")
+        logger.error(f"❌ [API ERROR] Status code: {http_e.status_code}")
+        logger.error(f"❌ [API ERROR] Timestamp: {datetime.now().isoformat()}")
         raise
     except Exception as e:
-        logger.error(f"Error updating project {project_id}: {e}", exc_info=not IS_PRODUCTION)
+        logger.error(f"❌ [API ERROR] ===========================================")
+        logger.error(f"❌ [API ERROR] Project ID: {project_id}")
+        logger.error(f"❌ [API ERROR] Error type: {type(e).__name__}")
+        logger.error(f"❌ [API ERROR] Error message: {str(e)}")
+        logger.error(f"❌ [API ERROR] Error details: {e}", exc_info=not IS_PRODUCTION)
+        logger.error(f"❌ [API ERROR] Timestamp: {datetime.now().isoformat()}")
         detail_msg = "An error occurred while updating project." if IS_PRODUCTION else f"DB error on project update: {str(e)}"
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
 
@@ -29730,7 +33541,7 @@ async def get_workspace_roles(workspace_id: int, request: Request):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve roles: {str(e)}")
 
 @app.get("/api/custom/workspaces/{workspace_id}/roles/{role_id}", response_model=WorkspaceRole)
-async def get_workspace_role(workspace_id: int, role_id: int):
+async def get_workspace_role(workspace_id: int, role_id: int, request: Request):
     """Get a specific role from a workspace."""
     try:
         # Get user identifiers
@@ -30284,3 +34095,61 @@ async def startup_event_lms_exports():
             logger.info("'lms_exports' table ensured.")
     except Exception as e:
         logger.error(f"Failed to ensure lms_exports table: {e}")
+
+# 🔍 STATIC FILE LOGGING MIDDLEWARE
+@app.middleware("http")
+async def log_static_file_requests(request: Request, call_next):
+    """Middleware to log all requests to static files, especially AI-generated images"""
+    
+    # Check if this is a request to static design images
+    if request.url.path.startswith(f"/{STATIC_DESIGN_IMAGES_DIR}/"):
+        logger.info(f"🔍 [STATIC FILE REQUEST] Incoming request for static file")
+        logger.info(f"🔍 [STATIC FILE REQUEST] Path: {request.url.path}")
+        logger.info(f"🔍 [STATIC FILE REQUEST] Method: {request.method}")
+        logger.info(f"🔍 [STATIC FILE REQUEST] Headers: {dict(request.headers)}")
+        
+        # Check if file exists on disk
+        file_path = os.path.join(STATIC_DESIGN_IMAGES_DIR, os.path.basename(request.url.path))
+        logger.info(f"🔍 [STATIC FILE REQUEST] Expected file path: {file_path}")
+        logger.info(f"🔍 [STATIC FILE REQUEST] File exists: {os.path.exists(file_path)}")
+        
+        if os.path.exists(file_path):
+            file_size = os.path.getsize(file_path)
+            logger.info(f"🔍 [STATIC FILE REQUEST] File size on disk: {file_size} bytes")
+            
+            # Check file content
+            try:
+                with open(file_path, "rb") as f:
+                    first_bytes = f.read(20)
+                    logger.info(f"🔍 [STATIC FILE REQUEST] File first 20 bytes: {first_bytes}")
+            except Exception as e:
+                logger.error(f"❌ [STATIC FILE REQUEST ERROR] Could not read file: {e}")
+    
+    # Process the request
+    response = await call_next(request)
+    
+    # Log response details for static files
+    if request.url.path.startswith(f"/{STATIC_DESIGN_IMAGES_DIR}/"):
+        logger.info(f"🔍 [STATIC FILE RESPONSE] Response status: {response.status_code}")
+        logger.info(f"🔍 [STATIC FILE RESPONSE] Response headers: {dict(response.headers)}")
+        
+        # Log content length if available
+        content_length = response.headers.get("content-length")
+        if content_length:
+            logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Length: {content_length} bytes")
+        else:
+            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Length header")
+        
+        # Log content type
+        content_type = response.headers.get("content-type")
+        if content_type:
+            logger.info(f"🔍 [STATIC FILE RESPONSE] Content-Type: {content_type}")
+        else:
+            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] No Content-Type header")
+        
+        # Check if response is suspiciously small
+        if content_length and int(content_length) < 1000:
+            logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
+    
+    return response
+    
