@@ -1171,31 +1171,31 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'table-dark': {
     id: 'table-dark',
     name: 'Table Dark',
-    description: 'Dynamic table with dark theme and checkmarks',
+    description: 'Comparison table template with features and versions',
     category: 'content',
     icon: '⬛',
     component: TableDarkTemplate,
     defaultProps: {
-      title: 'This is a table',
+      title: 'Comparison table template',
       tableData: {
-        headers: ['Mars', 'Venus', 'Jupiter'],
+        headers: ['feature 1', 'feature 2', 'feature 3', 'feature 4'],
         rows: [
-          ['Task 1', '✓', '✗', '✓'],
-          ['Task 2', '✗', '✓', '✗'],
-          ['Task 3', '✓', '✗', '✓'],
-          ['Task 4', '✗', '✓', '✗']
+          ['version 1', '✓', '✓', '✗', '✗'],
+          ['version 2', '✗', '✓', '✓', '✗'],
+          ['version 3', '✗', '✗', '✓', '✓'],
+          ['version 4', '✗', '✓', '✗', '✓'],
+          ['version 5', '✓', '✓', '✓', '✓']
         ]
       },
-      showCheckmarks: true,
-      backgroundColor: '#1a1a1a',
-      titleColor: '#ffffff',
+      backgroundColor: '#f8fafc',
+      titleColor: '#1f2937',
       headerColor: '#ffffff',
-      textColor: '#ffffff',
-      tableBackgroundColor: '#2a2a2a',
-      headerBackgroundColor: '#3a3a3a',
-      borderColor: '#4a4a4a',
-      checkmarkColor: '#10b981',
-      crossColor: '#ef4444'
+      textColor: '#374151',
+      tableBackgroundColor: '#ffffff',
+      headerBackgroundColor: '#0ea5e9',
+      borderColor: '#e5e7eb',
+      checkmarkColor: '#0ea5e9',
+      crossColor: '#94a3b8'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1204,16 +1204,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         label: 'Table Data',
         required: true
       },
-      showCheckmarks: { type: 'boolean', label: 'Show Checkmarks', default: true },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a1a' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#f8fafc' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
       headerColor: { type: 'color', label: 'Header Color', default: '#ffffff' },
-      textColor: { type: 'color', label: 'Text Color', default: '#ffffff' },
-      tableBackgroundColor: { type: 'color', label: 'Table Background', default: '#2a2a2a' },
-      headerBackgroundColor: { type: 'color', label: 'Header Background', default: '#3a3a3a' },
-      borderColor: { type: 'color', label: 'Border Color', default: '#4a4a4a' },
-      checkmarkColor: { type: 'color', label: 'Checkmark Color', default: '#10b981' },
-      crossColor: { type: 'color', label: 'Cross Color', default: '#ef4444' }
+      textColor: { type: 'color', label: 'Text Color', default: '#374151' },
+      tableBackgroundColor: { type: 'color', label: 'Table Background', default: '#ffffff' },
+      headerBackgroundColor: { type: 'color', label: 'Header Background', default: '#0ea5e9' },
+      borderColor: { type: 'color', label: 'Border Color', default: '#e5e7eb' },
+      checkmarkColor: { type: 'color', label: 'Checkmark Color', default: '#0ea5e9' },
+      crossColor: { type: 'color', label: 'Cross Color', default: '#94a3b8' }
     }
   },
 
