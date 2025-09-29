@@ -622,7 +622,21 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                             }}
                             className={isEditable ? 'cursor-pointer' : ''}
                           >
-                            {isFirstColumn ? cell : renderCheckbox(cell, rowIndex, colIndex)}
+                            {isFirstColumn ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <img 
+                                  src="/arrowRight.png" 
+                                  alt="Arrow" 
+                                  style={{ 
+                                    width: '15px', 
+                                    height: '15px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                  }} 
+                                />
+                                <span>{cell}</span>
+                              </div>
+                            ) : renderCheckbox(cell, rowIndex, colIndex)}
                           </span>
                         )}
                       </div>
