@@ -422,15 +422,13 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                           <button
                             onClick={() => removeColumn(index)}
                             style={{
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              color: '#ffffff',
-                              cursor: 'pointer',
-                              fontSize: '12px',
+                              ...deleteButtonStyles,
                               opacity: hoveredColumn === index ? 1 : 0,
                               transition: 'opacity 0.2s ease',
                               position: 'absolute',
-                              right: '8px'
+                              top: '50%',
+                              right: '8px',
+                              transform: 'translateY(-50%)'
                             }}
                             title="Remove Column"
                           >
@@ -447,7 +445,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
               {isEditable && (
                 <th style={{ 
                   ...headerStyles, 
-                  backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9'
+                  backgroundColor: currentTheme.colors.tableHeaderColor || '#0F58F9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
                   <button
                     onClick={addColumn}
@@ -528,7 +529,10 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   <td style={{ 
                     ...dataCellStyles, 
                     textAlign: 'center', 
-                    position: 'relative'
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}>
                     <button
                       onClick={() => removeRow(rowIndex)}
@@ -556,18 +560,17 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                   ...firstColumnStyles, 
                   textAlign: 'center',
                   borderRight: '1px solid #E0E0E0',
-                  position: 'relative'
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
                   <button
                     onClick={addRow}
                     style={{
                       ...addButtonStyles,
                       opacity: hoveredRow === -1 ? 1 : 0,
-                      transition: 'opacity 0.2s ease',
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)'
+                      transition: 'opacity 0.2s ease'
                     }}
                     title="Add Row"
                   >

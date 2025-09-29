@@ -13,7 +13,6 @@ export interface TableDarkTemplateProps extends BaseTemplateProps {
     headers: string[];
     rows: string[][];
   };
-  showCheckmarks?: boolean;
   backgroundColor?: string;
   titleColor?: string;
   headerColor?: string;
@@ -89,37 +88,40 @@ function InlineEditor({
 }
 
 export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
-  title = 'This is a table',
+  title = 'Comparison table template',
   tableData = {
-    headers: ['Mars', 'Venus', 'Jupiter'],
+    headers: ['feature 1', 'feature 2', 'feature 3', 'feature 4'],
     rows: [
-      ['Task 1', '✓', '✗', '✓'],
-      ['Task 2', '✗', '✓', '✗'],
-      ['Task 3', '✓', '✗', '✓'],
-      ['Task 4', '✗', '✓', '✗']
+      ['version 1', '✓', '✓', '✗', '✗'],
+      ['version 2', '✗', '✓', '✓', '✗'],
+      ['version 3', '✗', '✗', '✓', '✓'],
+      ['version 4', '✗', '✓', '✗', '✓'],
+      ['version 5', '✓', '✓', '✓', '✓']
     ]
   },
-  showCheckmarks = true,
-  backgroundColor = '#1a1a1a',
-  titleColor = '#ffffff',
+  backgroundColor = '#f8fafc',
+  titleColor = '#1f2937',
   headerColor = '#ffffff',
-  textColor = '#ffffff',
-  tableBackgroundColor = '#2a2a2a',
-  headerBackgroundColor = '#3a3a3a',
-  borderColor = '#4a4a4a',
-  checkmarkColor = '#10b981',
-  crossColor = '#ef4444',
+  textColor = '#374151',
+  tableBackgroundColor = '#ffffff',
+  headerBackgroundColor = '#0ea5e9',
+  borderColor = '#e5e7eb',
+  checkmarkColor = '#0ea5e9',
+  crossColor = '#94a3b8',
   theme,
   isEditable = false,
   onUpdate
 }) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
   const [editingHeader, setEditingHeader] = useState<number | null>(null);
+  
+  // State for hover effects
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -177,7 +179,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const addRow = () => {
     const newRows = [...tableData.rows];
     const newRow = new Array(tableData.headers.length + 1).fill('');
-    newRow[0] = `Task ${newRows.length + 1}`;
+    newRow[0] = `version ${newRows.length + 1}`;
     for (let i = 1; i < newRow.length; i++) {
       newRow[i] = i % 2 === 1 ? '✓' : '✗';
     }
@@ -190,7 +192,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const addColumn = () => {
-    const newHeaders = [...tableData.headers, `Column ${tableData.headers.length + 1}`];
+    const newHeaders = [...tableData.headers, `feature ${tableData.headers.length + 1}`];
     const newRows = tableData.rows.map(row => [...row, '✓']);
     const newData = { 
       title, 
@@ -219,30 +221,40 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   };
 
   const renderCheckmark = (value: string) => {
-    if (!showCheckmarks) return value;
-    
     if (value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true') {
       return (
-        <div className="flex items-center justify-center">
-          <div 
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-lg"
-            style={{ backgroundColor: checkmarkColor }}
-          >
-            ✓
-          </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '32px',
+          height: '32px',
+          backgroundColor: checkmarkColor,
+          borderRadius: '4px',
+          color: '#ffffff',
+          fontSize: '16px',
+          fontWeight: 'bold'
+        }}>
+          ✓
         </div>
       );
     }
     
     if (value === '✗' || value.toLowerCase() === 'no' || value.toLowerCase() === 'false') {
       return (
-        <div className="flex items-center justify-center">
-          <div 
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-lg"
-            style={{ backgroundColor: crossColor }}
-          >
-            ✗
-          </div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '32px',
+          height: '32px',
+          backgroundColor: crossColor,
+          borderRadius: '4px',
+          color: '#ffffff',
+          fontSize: '16px',
+          fontWeight: 'bold'
+        }}>
+          ✗
         </div>
       );
     }
@@ -250,223 +262,389 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     return value;
   };
 
-  return (
-    <div 
-      className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
-      style={{ 
-        background: themeBg,
-        minHeight: '600px'
-      }}
-    >
-      {/* Decorative curved element */}
-      <div 
-        className="absolute top-0 right-0 w-64 h-64 rounded-bl-full opacity-20"
-        style={{ backgroundColor: themeContent }}
-      ></div>
+  // Slide styles - exactly as in photo
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '600px',
+    background: 'transparent',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    padding: '50px',
+    fontFamily: 'Georgia, serif'
+  };
 
-      {/* Main Content Container */}
-      <div className="w-full max-w-4xl mx-auto z-10">
-        
-        {/* Title */}
-        <div className="text-left mb-8">
+  // Title styles - exactly as in photo
+  const titleStyles: React.CSSProperties = {
+    fontSize: '2.5rem',
+    fontWeight: 'bold',
+    color: titleColor,
+    marginBottom: '30px',
+    fontFamily: 'Georgia, serif',
+    lineHeight: '1.1'
+  };
+
+  // Table container styles - clean, no background, no borders
+  const tableContainerStyles: React.CSSProperties = {
+    width: '100%',
+    borderRadius: '8px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    display: 'flex',
+    justifyContent: 'center'
+  };
+
+  // Table styles - perfectly aligned
+  const tableStyles: React.CSSProperties = {
+    width: '100%',
+    borderCollapse: 'collapse',
+    backgroundColor: tableBackgroundColor,
+    tableLayout: 'fixed'
+  };
+
+  // Header styles - using theme colors, with vertical borders only
+  const headerStyles: React.CSSProperties = {
+    backgroundColor: headerBackgroundColor,
+    color: headerColor,
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    textAlign: 'center',
+    padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
+    verticalAlign: 'middle',
+    height: '60px'
+  };
+
+  // First column (row headers) styles - using theme colors, with vertical borders only
+  const firstColumnStyles: React.CSSProperties = {
+    backgroundColor: '#F2F8FE',
+    color: '#000000',
+    fontWeight: 'bold',
+    fontSize: '0.95rem',
+    textAlign: 'left',
+    padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
+    verticalAlign: 'middle',
+    height: '60px'
+  };
+
+  // Data cell styles - with vertical borders only
+  const dataCellStyles: React.CSSProperties = {
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    fontSize: '0.95rem',
+    textAlign: 'center',
+    padding: '16px 12px',
+    borderRight: '1px solid #E0E0E0',
+    verticalAlign: 'middle',
+    height: '60px'
+  };
+
+  // Add button styles - using theme colors, perfectly aligned
+  const addButtonStyles: React.CSSProperties = {
+    backgroundColor: headerBackgroundColor,
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '50%',
+    width: '24px',
+    height: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    margin: '0 auto'
+  };
+
+  // Delete button styles - perfectly aligned
+  const deleteButtonStyles: React.CSSProperties = {
+    backgroundColor: '#FFB6C1',
+    color: '#FF0000',
+    border: 'none',
+    borderRadius: '50%',
+    width: '20px',
+    height: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    margin: '0 auto'
+  };
+
+  return (
+    <div style={slideStyles}>
+      {/* Title */}
+      <div style={{ marginBottom: '30px' }}>
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
           {editingTitle && isEditable ? (
             <InlineEditor
               initialValue={title}
               onSave={handleTitleUpdate}
               onCancel={() => setEditingTitle(false)}
-              style={{
-                color: themeTitle,
-                fontSize: '3rem',
-                fontWeight: 'bold',
-                lineHeight: '1.2'
-              }}
+              style={titleStyles}
             />
           ) : (
             <h1 
-              className="text-5xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ color: themeTitle }}
-              onClick={() => isEditable && setEditingTitle(true)}
+              style={titleStyles}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) setEditingTitle(true);
+              }}
+              className={isEditable ? 'cursor-pointer' : ''}
             >
               {title}
             </h1>
           )}
         </div>
+      </div>
 
-        {/* Table Container */}
-        <div className="overflow-hidden rounded-lg shadow-2xl">
-          <table 
-            className="w-full border-collapse"
-            style={{
-              backgroundColor: tableBackgroundColor,
-              WebkitPrintColorAdjust: 'exact',
-              printColorAdjust: 'exact'
-            }}
-          >
-            
-            {/* Headers */}
-            <thead>
-              <tr style={{ 
-                backgroundColor: headerBackgroundColor,
-                WebkitPrintColorAdjust: 'exact',
-                printColorAdjust: 'exact'
-              }}>
+      {/* Table Container */}
+      <div style={tableContainerStyles}>
+        <table style={tableStyles}>
+          {/* Headers */}
+          <thead>
+            <tr>
+              {/* Empty corner cell */}
+              <th style={{ ...headerStyles, backgroundColor: headerBackgroundColor }}></th>
+              
+              {/* Feature headers */}
+              {tableData.headers.map((header, index) => (
                 <th 
-                  className="p-4 text-left font-bold border-r-2"
-                  style={{ 
-                    color: themeTitle,
-                    borderColor: themeContent,
-                    fontSize: '1.1rem'
+                  key={index} 
+                  style={{
+                    ...headerStyles,
+                    borderRight: index === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
                   }}
+                  onMouseEnter={() => setHoveredColumn(index)}
+                  onMouseLeave={() => setHoveredColumn(null)}
                 >
-                  {/* Empty corner cell */}
-                </th>
-                {tableData.headers.map((header, index) => (
-                  <th 
-                    key={index}
-                    className="p-4 text-center font-bold border-r-2 last:border-r-0 relative group"
-                    style={{ 
-                      color: themeTitle,
-                      borderColor: themeContent,
-                      fontSize: '1.1rem'
-                    }}
-                  >
+                  <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                     {editingHeader === index && isEditable ? (
                       <InlineEditor
                         initialValue={header}
                         onSave={(value) => handleHeaderUpdate(index, value)}
                         onCancel={() => setEditingHeader(null)}
                         style={{
-                          color: themeTitle,
+                          color: headerColor,
                           textAlign: 'center',
                           fontWeight: 'bold',
-                          fontSize: '1.1rem'
+                          fontSize: '1rem',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          outline: 'none'
                         }}
                       />
                     ) : (
-                      <div className="flex items-center justify-center gap-2">
+                      <div 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '8px',
+                          position: 'relative'
+                        }}
+                      >
                         <span 
-                          className="cursor-pointer hover:opacity-80"
-                          onClick={() => isEditable && setEditingHeader(index)}
+                          onClick={(e) => {
+                            const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                            if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              return;
+                            }
+                            if (isEditable) setEditingHeader(index);
+                          }}
+                          className={isEditable ? 'cursor-pointer' : ''}
                         >
                           {header}
                         </span>
                         {isEditable && (
                           <button
                             onClick={() => removeColumn(index)}
-                            className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity text-xs"
+                            style={{
+                              ...deleteButtonStyles,
+                              opacity: hoveredColumn === index ? 1 : 0,
+                              transition: 'opacity 0.2s ease',
+                              position: 'absolute',
+                              top: '50%',
+                              right: '8px',
+                              transform: 'translateY(-50%)'
+                            }}
+                            title="Remove Column"
                           >
                             ✗
                           </button>
                         )}
                       </div>
                     )}
-                  </th>
-                ))}
-                {isEditable && (
-                  <th className="p-4 text-center">
-                    <button
-                      onClick={addColumn}
-                      className="text-green-400 hover:text-green-300 transition-colors font-bold text-lg"
-                      title="Add Column"
-                    >
-                      +
-                    </button>
-                  </th>
-                )}
-              </tr>
-            </thead>
+                  </div>
+                </th>
+              ))}
+              
+              {/* Add column button - always visible */}
+              {isEditable && (
+                <th style={{ 
+                  ...headerStyles, 
+                  backgroundColor: headerBackgroundColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <button
+                    onClick={addColumn}
+                    style={{
+                      ...addButtonStyles,
+                      opacity: 1,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                    title="Add Column"
+                  >
+                    +
+                  </button>
+                </th>
+              )}
+            </tr>
+          </thead>
 
-            {/* Body */}
-            <tbody>
-              {tableData.rows.map((row, rowIndex) => (
-                <tr 
-                  key={rowIndex}
-                  className="border-b-2 hover:bg-opacity-10 hover:bg-white transition-colors group"
-                  style={{ 
-                    borderColor: themeContent,
-                    backgroundColor: tableBackgroundColor,
-                    WebkitPrintColorAdjust: 'exact',
-                    printColorAdjust: 'exact'
-                  }}
-                >
-                  {row.map((cell, colIndex) => {
-                    const isFirstColumn = colIndex === 0;
-                    const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
-                    
-                    return (
-                      <td 
-                        key={colIndex}
-                        className={`p-4 border-r-2 last:border-r-0 relative ${
-                          isFirstColumn ? 'text-left font-semibold' : 'text-center'
-                        }`}
-                        style={{ 
-                          color: "#ffffff",
-                          borderColor: themeContent,
-                          fontSize: '1rem',
-                          WebkitPrintColorAdjust: 'exact',
-                          printColorAdjust: 'exact'
-                        }}
-                      >
+          {/* Body */}
+          <tbody>
+            {tableData.rows.map((row, rowIndex) => (
+              <tr 
+                key={rowIndex}
+                onMouseEnter={() => setHoveredRow(rowIndex)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
+                {row.map((cell, colIndex) => {
+                  const isFirstColumn = colIndex === 0;
+                  const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
+                  
+                  return (
+                    <td 
+                      key={colIndex}
+                      style={{
+                        ...(isFirstColumn ? firstColumnStyles : dataCellStyles),
+                        borderRight: colIndex === row.length - 1 ? 'none' : '1px solid #E0E0E0'
+                      }}
+                    >
+                      <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
                           <InlineEditor
                             initialValue={cell}
                             onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
                             onCancel={() => setEditingCell(null)}
                             style={{
-                              color: themeContent,
+                              color: '#000000',
                               textAlign: isFirstColumn ? 'left' : 'center',
-                              fontSize: '1rem',
-                              fontWeight: isFirstColumn ? 'bold' : 'normal'
+                              fontSize: '0.95rem',
+                              fontWeight: isFirstColumn ? 'bold' : 'normal',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              outline: 'none',
+                              width: '100%'
                             }}
                           />
                         ) : (
                           <span 
-                            className="cursor-pointer hover:opacity-80 block"
-                            onClick={() => isEditable && setEditingCell({ row: rowIndex, col: colIndex })}
+                            onClick={(e) => {
+                              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                return;
+                              }
+                              if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
+                            }}
+                            className={isEditable ? 'cursor-pointer' : ''}
                           >
                             {isFirstColumn ? cell : renderCheckmark(cell)}
                           </span>
                         )}
-                      </td>
-                    );
-                  })}
-                  {isEditable && (
-                    <td className="p-4 text-center">
-                      <button
-                        onClick={() => removeRow(rowIndex)}
-                        className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity"
-                        title="Remove Row"
-                      >
-                        ✗
-                      </button>
+                      </div>
                     </td>
-                  )}
-                </tr>
-              ))}
-              
-              {/* Add Row Button */}
-              {isEditable && (
-                <tr>
-                  <td 
-                    colSpan={tableData.headers.length + 2}
-                    className="p-4 text-center"
-                    style={{ backgroundColor: tableBackgroundColor }}
-                  >
+                  );
+                })}
+                
+                {/* Delete row button - appears on hover */}
+                {isEditable && (
+                  <td style={{ 
+                    ...dataCellStyles, 
+                    textAlign: 'center', 
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
                     <button
-                      onClick={addRow}
-                      className="text-green-400 hover:text-green-300 transition-colors font-bold text-lg"
-                      title="Add Row"
+                      onClick={() => removeRow(rowIndex)}
+                      style={{
+                        ...deleteButtonStyles,
+                        opacity: hoveredRow === rowIndex ? 1 : 0,
+                        transition: 'opacity 0.2s ease'
+                      }}
+                      title="Remove Row"
                     >
-                      + Add Row
+                      ✗
                     </button>
                   </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Bottom thumbnails strip */}
+                )}
+              </tr>
+            ))}
+            
+            {/* Add row button - appears on hover */}
+            {isEditable && (
+              <tr 
+                onMouseEnter={() => setHoveredRow(-1)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
+                <td style={{ 
+                  ...firstColumnStyles, 
+                  textAlign: 'center',
+                  borderRight: '1px solid #E0E0E0',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <button
+                    onClick={addRow}
+                    style={{
+                      ...addButtonStyles,
+                      opacity: hoveredRow === -1 ? 1 : 0,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                    title="Add Row"
+                  >
+                    +
+                  </button>
+                </td>
+                {/* Empty cells for other columns */}
+                {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
+                  <td 
+                    key={colIndex} 
+                    style={{ 
+                      ...dataCellStyles, 
+                      borderRight: colIndex === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
+                    }}
+                  />
+                ))}
+                {/* Empty cell for delete column */}
+                <td style={{ 
+                  ...dataCellStyles, 
+                  textAlign: 'center'
+                }} />
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
