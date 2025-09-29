@@ -220,7 +220,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     scheduleAutoSave(newData);
   };
 
-  const renderCheckmark = (value: string) => {
+  const renderCheckbox = (value: string) => {
     if (value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true') {
       return (
         <div style={{
@@ -413,8 +413,19 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           {/* Headers */}
           <thead>
             <tr>
-              {/* Empty corner cell */}
-              <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor }}></th>
+              {/* Product version header */}
+              <th style={{ 
+                ...headerStyles, 
+                backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
+                color: '#000000',
+                textAlign: 'left'
+              }}>
+                <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
+                    Product version
+                  </span>
+                </div>
+              </th>
               
               {/* Feature headers */}
               {tableData.headers.map((header, index) => (
@@ -565,7 +576,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                             }}
                             className={isEditable ? 'cursor-pointer' : ''}
                           >
-                            {isFirstColumn ? cell : renderCheckmark(cell)}
+                            {isFirstColumn ? cell : renderCheckbox(cell)}
                           </span>
                         )}
                       </div>
