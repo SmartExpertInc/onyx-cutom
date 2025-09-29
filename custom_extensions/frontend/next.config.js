@@ -3,6 +3,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  
+  // Enable standalone output for Docker
+  output: 'standalone',
 
   // CRITICAL: Set the basePath for your custom frontend
   basePath: '/custom-projects-ui',
