@@ -624,20 +624,18 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                           >
                             {isFirstColumn ? (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <img 
-                                  src="/arrowRight.png" 
-                                  alt="Arrow" 
-                                  style={{ 
-                                    width: '15px', 
-                                    height: '15px',
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                  }}
-                                  onError={(e) => {
-                                    console.log('Image failed to load, trying alternative path...');
-                                    e.currentTarget.src = 'arrowRight.png';
-                                  }}
-                                />
+                                <div style={{
+                                  width: '15px',
+                                  height: '15px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '12px',
+                                  color: '#0F58F9',
+                                  fontWeight: 'bold'
+                                }}>
+                                  ►
+                                </div>
                                 <span>{cell}</span>
                               </div>
                             ) : renderCheckbox(cell, rowIndex, colIndex)}
