@@ -63,6 +63,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Dialog,
   DialogContent,
@@ -3816,128 +3817,136 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     {/* Step 1: Main Category Selection */}
                     {surveyStep === 1 && (
                       <div className="space-y-4">
-                        <div className="space-y-3">
+                        <RadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="work" name="main-category" value="work" className="w-4 h-4" onChange={handleCategoryChange} />
+                            <RadioGroupItem value="work" id="work" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
                             <Label htmlFor="work" className="text-sm font-medium">Work</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <input type="radio" id="personal" name="main-category" value="personal" className="w-4 h-4" onChange={handleCategoryChange} />
+                            <RadioGroupItem value="personal" id="personal" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
                             <Label htmlFor="personal" className="text-sm font-medium">Personal</Label>
                           </div>
-                        </div>
+                        </RadioGroup>
                       </div>
                     )}
 
                     {/* Step 2: Work Role */}
                     {surveyStep === 2 && selectedCategory === 'work' && (
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="marketer" name="work-role" value="marketer" className="w-4 h-4" onChange={handleWorkRoleChange} />
-                            <Label htmlFor="marketer" className="text-sm">Marketer</Label>
+                        <RadioGroup value={surveyData.workRole} onValueChange={(value) => setSurveyData(prev => ({ ...prev, workRole: value }))}>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="marketer" id="marketer" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="marketer" className="text-sm">Marketer</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="hr-ld" id="hr-ld" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="hr-ld" className="text-sm">HR / L&D</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="business-owner" id="business-owner" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="business-owner" className="text-sm">Business Owner</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="content-creator" id="content-creator" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="content-creator" className="text-sm">Content Creator</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="developer" id="developer" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="developer" className="text-sm">Developer</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="other" id="work-other" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="work-other" className="text-sm">Other</Label>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="hr-ld" name="work-role" value="hr-ld" className="w-4 h-4" onChange={handleWorkRoleChange} />
-                            <Label htmlFor="hr-ld" className="text-sm">HR / L&D</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="business-owner" name="work-role" value="business-owner" className="w-4 h-4" onChange={handleWorkRoleChange} />
-                            <Label htmlFor="business-owner" className="text-sm">Business Owner</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="content-creator" name="work-role" value="content-creator" className="w-4 h-4" onChange={handleWorkRoleChange} />
-                            <Label htmlFor="content-creator" className="text-sm">Content Creator</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="developer" name="work-role" value="developer" className="w-4 h-4" onChange={handleWorkRoleChange} />
-                            <Label htmlFor="developer" className="text-sm">Developer</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="work-other" name="work-role" value="other" className="w-4 h-4" onChange={handleWorkRoleChange} />
-                            <Label htmlFor="work-other" className="text-sm">Other</Label>
-                          </div>
-                        </div>
+                        </RadioGroup>
                       </div>
                     )}
 
                     {/* Step 3: Company Size */}
                     {surveyStep === 3 && selectedCategory === 'work' && (
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-1-10" name="company-size" value="1-10" className="w-4 h-4" onChange={handleCompanySizeChange} />
-                            <Label htmlFor="size-1-10" className="text-sm">1–10</Label>
+                        <RadioGroup value={surveyData.companySize} onValueChange={(value) => setSurveyData(prev => ({ ...prev, companySize: value }))}>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="1-10" id="size-1-10" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="size-1-10" className="text-sm">1–10</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="11-50" id="size-11-50" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="size-11-50" className="text-sm">11–50</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="51-500" id="size-51-500" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="size-51-500" className="text-sm">51–500</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="500+" id="size-500-plus" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="size-500-plus" className="text-sm">500+</Label>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-11-50" name="company-size" value="11-50" className="w-4 h-4" onChange={handleCompanySizeChange} />
-                            <Label htmlFor="size-11-50" className="text-sm">11–50</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-51-500" name="company-size" value="51-500" className="w-4 h-4" onChange={handleCompanySizeChange} />
-                            <Label htmlFor="size-51-500" className="text-sm">51–500</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="size-500-plus" name="company-size" value="500+" className="w-4 h-4" onChange={handleCompanySizeChange} />
-                            <Label htmlFor="size-500-plus" className="text-sm">500+</Label>
-                          </div>
-                        </div>
+                        </RadioGroup>
                       </div>
                     )}
 
                     {/* Step 4: Industry */}
                     {surveyStep === 4 && selectedCategory === 'work' && (
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="video-production" name="work-industry" value="video-production" className="w-4 h-4" onChange={handleIndustryChange} />
-                            <Label htmlFor="video-production" className="text-sm">Video Production</Label>
+                        <RadioGroup value={surveyData.industry} onValueChange={(value) => setSurveyData(prev => ({ ...prev, industry: value }))}>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="video-production" id="video-production" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="video-production" className="text-sm">Video Production</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="digital-marketing" id="digital-marketing" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="digital-marketing" className="text-sm">Digital Marketing</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="learning-development" id="learning-development" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="learning-development" className="text-sm">Learning & Development</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="internal-communications" id="internal-communications" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="internal-communications" className="text-sm">Internal Communications</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="creative-branding" id="creative-branding" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="creative-branding" className="text-sm">Creative / Branding</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="other" id="work-industry-other" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="work-industry-other" className="text-sm">Other</Label>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="digital-marketing" name="work-industry" value="digital-marketing" className="w-4 h-4" onChange={handleIndustryChange} />
-                            <Label htmlFor="digital-marketing" className="text-sm">Digital Marketing</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="learning-development" name="work-industry" value="learning-development" className="w-4 h-4" onChange={handleIndustryChange} />
-                            <Label htmlFor="learning-development" className="text-sm">Learning & Development</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="internal-communications" name="work-industry" value="internal-communications" className="w-4 h-4" onChange={handleIndustryChange} />
-                            <Label htmlFor="internal-communications" className="text-sm">Internal Communications</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="creative-branding" name="work-industry" value="creative-branding" className="w-4 h-4" onChange={handleIndustryChange} />
-                            <Label htmlFor="creative-branding" className="text-sm">Creative / Branding</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="work-industry-other" name="work-industry" value="other" className="w-4 h-4" onChange={handleIndustryChange} />
-                            <Label htmlFor="work-industry-other" className="text-sm">Other</Label>
-                          </div>
-                        </div>
+                        </RadioGroup>
                       </div>
                     )}
 
                     {/* Step 2: Personal Use */}
                     {surveyStep === 2 && selectedCategory === 'personal' && (
                       <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="personal-projects" name="personal-use" value="personal-projects" className="w-4 h-4" onChange={handlePersonalUseChange} />
-                            <Label htmlFor="personal-projects" className="text-sm">Personal projects</Label>
+                        <RadioGroup value={surveyData.personalUse} onValueChange={(value) => setSurveyData(prev => ({ ...prev, personalUse: value }))}>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="personal-projects" id="personal-projects" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="personal-projects" className="text-sm">Personal projects</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="learning-skills" id="learning-skills" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="learning-skills" className="text-sm">Learning new skills</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="portfolio-creation" id="portfolio-creation" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="portfolio-creation" className="text-sm">Portfolio creation</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="social-media" id="social-media" className="border-gray-700 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                              <Label htmlFor="social-media" className="text-sm">Social media content</Label>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="learning-skills" name="personal-use" value="learning-skills" className="w-4 h-4" onChange={handlePersonalUseChange} />
-                            <Label htmlFor="learning-skills" className="text-sm">Learning new skills</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="portfolio-creation" name="personal-use" value="portfolio-creation" className="w-4 h-4" onChange={handlePersonalUseChange} />
-                            <Label htmlFor="portfolio-creation" className="text-sm">Portfolio creation</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <input type="radio" id="social-media" name="personal-use" value="social-media" className="w-4 h-4" onChange={handlePersonalUseChange} />
-                            <Label htmlFor="social-media" className="text-sm">Social media content</Label>
-                          </div>
-                        </div>
+                        </RadioGroup>
                       </div>
                     )}
 
