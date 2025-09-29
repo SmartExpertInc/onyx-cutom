@@ -135,17 +135,27 @@ const stringToColor = (str: string): string => {
   // Combined violet and blue color palette
   const colorPalette = [
     // Violet shades
-    "#231942", // Darkest violet
-    "#5E548E", // Medium-dark violet
-    "#9F86C0", // Medium violet/lavender
-    "#BE95C4", // Light violet/lilac
-    "#E0B1CB", // Very light pinkish-violet
-    // Blue shades
-    "#6F2DBD",
-    "#A663CC",
-    "#B298DC",
-    "#B8D0EB",
-    "#B9FAF8",
+    // "#231942", // Darkest violet
+    // "#5E548E", // Medium-dark violet
+    // "#9F86C0", // Medium violet/lavender
+    // "#BE95C4", // Light violet/lilac
+    // "#E0B1CB", // Very light pinkish-violet
+    // // Blue shades
+    // "#6F2DBD",
+    // "#A663CC",
+    // "#B298DC",
+    // "#B8D0EB",
+    // "#B9FAF8",
+
+    // new colors 
+    "#10002B",
+    "#240046",
+    "#3C096C",
+    "#5A189A",
+    "#7B2CBF",
+    "#9D4EDD",
+    "#C77DFF",
+    "#E0AAFF",
   ];
   
   // Use hash to select from palette
@@ -211,10 +221,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   // Generate complementary gradient using combined palette
   const generateVioletGradient = (baseColor: string) => {
     const colorPalette = [
-      // Violet shades
-      "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
-      // Blue shades
-      "#6F2DBD", "#A663CC", "#B298DC", "#B8D0EB", "#B9FAF8",
+      // // Violet shades
+      // "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
+      // // Blue shades
+      // "#6F2DBD", "#A663CC", "#B298DC", "#B8D0EB", "#B9FAF8",
+
+      //new colors
+      "#10002B", "#240046", "#3C096C", "#5A189A", "#7B2CBF", "#9D4EDD", "#C77DFF", "#E0AAFF",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
@@ -455,21 +468,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }`}
       style={{
         background: generateVioletGradient(bgColor),
-      }}>
-      {/* Decorative sparkles and elements covering entire card */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Middle section sparkles */}
-        {/* <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div> */}
-        <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
-        <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white/60 rounded-full shadow-md"></div>
-        
-        {/* Decorative circles */}
-        <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/15 rounded-full"></div>
-        <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/10 rounded-full"></div>
-        <div className="absolute -bottom-6 -right-4 w-10 h-10 bg-white/12 rounded-full"></div>
-        <div className="absolute -bottom-2 -left-8 w-8 h-8 bg-white/8 rounded-full"></div>
-      </div>
-      
+      }}>      
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
@@ -512,24 +511,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with lighter overlay background */}
-        <div className="relative bg-white/30 p-4 min-h-30 pb-8 flex flex-col justify-between gap-2 rounded-xl z-20"
-          style={{
-            backdropFilter: 'blur(30px)',
-            marginTop: '-8px' // Overlap to eliminate line between sections
-          }}
-        >
+        <div className="relative bg-white p-4 min-h-25 flex flex-col justify-between gap-2 z-20">
           {/* Full title with better typography */}
-          <h3 className="font-bold text-white/90 text-base leading-tight line-clamp-1" 
-            style={{
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-              fontWeight: '700'
-            }}
+          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-1"
             title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5 w-fit shadow-sm"
+              className="inline-flex items-center gap-1 bg-gray-50 border border-grau-100 backdrop-blur-sm rounded-full px-1.5 py-0.5 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
@@ -538,7 +528,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           
           {/* Creator info and options */}
-          <div className="flex mt-4 items-center justify-between">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {/* Avatar */}
               <div
@@ -550,16 +540,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-white leading-tight" 
-                style={{
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                }}>
+                <span className="text-xs font-medium text-gray-900 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-100/80 leading-tight"
-                style={{
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                }}>
+                <span className="text-xs text-gray-600 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>
