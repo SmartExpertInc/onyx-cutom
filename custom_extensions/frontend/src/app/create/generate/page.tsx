@@ -1187,7 +1187,7 @@ function GenerateProductPicker() {
                 <FileText className="h-6 w-6" />
                 <span className="text-lg font-semibold">{t('interface.generate.creatingFromText', 'Creating from text')}</span>
               </div>
-              <p className="font-medium text-gray-600">
+              <p className="font-medium text-gray-500">
                 {textMode === 'context' ? t('interface.generate.modeUsingAsContext', 'Mode: Using as context') : t('interface.generate.modeUsingAsBaseStructure', 'Mode: Using as base structure')}
               </p>
               <p className="mt-1 text-gray-500">
@@ -1315,7 +1315,7 @@ function GenerateProductPicker() {
                 value: (i + 1).toString(),
                 label: `${i + 1} ${t('interface.generate.modules', 'Modules')}`
               }))}
-              icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+              icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
               label={t('interface.generate.modules', 'Modules')}
             />
             <CustomPillSelector
@@ -1325,7 +1325,7 @@ function GenerateProductPicker() {
                 value: `${rng} ${t('interface.generate.perModule', 'per module')}`,
                 label: `${rng} ${t('interface.generate.perModule', 'per module')}`
               }))}
-              icon={<FileText className="w-4 h-4 text-gray-600" />}
+              icon={<FileText className="w-4 h-4 text-gray-500" />}
               label={t('interface.generate.lessons', 'Lessons')}
             />
             <CustomPillSelector
@@ -1337,7 +1337,7 @@ function GenerateProductPicker() {
                 { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                 { value: "Russian", label: t('interface.russian', 'Russian') }
               ]}
-              icon={<Globe className="w-4 h-4 text-gray-600" />}
+              icon={<Globe className="w-4 h-4 text-gray-500" />}
               label={t('interface.language', 'Language')}
             />
           </div>
@@ -1363,7 +1363,7 @@ function GenerateProductPicker() {
                         value: o.name,
                         label: o.name
                       }))}
-                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-500" />}
                       label="Outline"
                     />
 
@@ -1381,7 +1381,7 @@ function GenerateProductPicker() {
                           value: m.name,
                           label: m.name
                         }))}
-                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
                         label="Module"
                       />
                     )}
@@ -1395,7 +1395,7 @@ function GenerateProductPicker() {
                           value: l,
                           label: l
                         }))}
-                        icon={<FileText className="w-4 h-4 text-gray-600" />}
+                        icon={<FileText className="w-4 h-4 text-gray-500" />}
                         label="Lesson"
                       />
                     )}
@@ -1412,7 +1412,7 @@ function GenerateProductPicker() {
                             { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                             { value: "Russian", label: t('interface.russian', 'Russian') }
                           ]}
-                          icon={<Globe className="w-4 h-4 text-gray-600" />}
+                          icon={<Globe className="w-4 h-4 text-gray-500" />}
                           label={t('interface.language', 'Language')}
                         />
                         <CustomPillSelector
@@ -1422,7 +1422,7 @@ function GenerateProductPicker() {
                             value: (i + 2).toString(),
                             label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
                           }))}
-                          icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+                          icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
                           label="Slides"
                         />
                       </>
@@ -1442,7 +1442,7 @@ function GenerateProductPicker() {
                         { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                         { value: "Russian", label: t('interface.russian', 'Russian') }
                       ]}
-                      icon={<Globe className="w-4 h-4 text-gray-600" />}
+                      icon={<Globe className="w-4 h-4 text-gray-500" />}
                       label={t('interface.language', 'Language')}
                     />
                     <CustomPillSelector
@@ -1452,7 +1452,7 @@ function GenerateProductPicker() {
                         value: (i + 2).toString(),
                         label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
                       }))}
-                      icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+                      icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
                       label="Slides"
                     />
                   </>
@@ -1474,7 +1474,7 @@ function GenerateProductPicker() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-500 hover:bg-gray-100"
                 >
                   ← Back
                 </Button> */}
@@ -1497,7 +1497,7 @@ function GenerateProductPicker() {
                         value: outline.name,
                         label: outline.name
                       }))}
-                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-500" />}
                       label="Outline"
                     />
 
@@ -1515,7 +1515,7 @@ function GenerateProductPicker() {
                           value: m.name,
                           label: m.name
                         }))}
-                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
                         label="Module"
                       />
                     )}
@@ -1529,7 +1529,7 @@ function GenerateProductPicker() {
                           value: l,
                           label: l
                         }))}
-                        icon={<FileText className="w-4 h-4 text-gray-600" />}
+                        icon={<FileText className="w-4 h-4 text-gray-500" />}
                         label="Lesson"
                       />
                     )}
@@ -1546,7 +1546,7 @@ function GenerateProductPicker() {
                             { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                             { value: "Russian", label: t('interface.russian', 'Russian') }
                           ]}
-                          icon={<Globe className="w-4 h-4 text-gray-600" />}
+                          icon={<Globe className="w-4 h-4 text-gray-500" />}
                           label={t('interface.language', 'Language')}
                         />
                         <CustomMultiSelector
@@ -1559,7 +1559,7 @@ function GenerateProductPicker() {
                             { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                             { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                           ]}
-                          icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
+                          icon={<FileQuestion className="w-4 h-4 text-gray-500" />}
                           label="Question Types"
                           placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                         />
@@ -1570,7 +1570,7 @@ function GenerateProductPicker() {
                             value: count.toString(),
                             label: `${count} ${t('interface.generate.questions', 'questions')}`
                           }))}
-                          icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
+                          icon={<MessageCircleQuestion className="w-4 h-4 text-gray-500" />}
                           label="Questions"
                         />
                       </>
@@ -1590,7 +1590,7 @@ function GenerateProductPicker() {
                         { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                         { value: "Russian", label: t('interface.russian', 'Russian') }
                       ]}
-                      icon={<Globe className="w-4 h-4 text-gray-600" />}
+                      icon={<Globe className="w-4 h-4 text-gray-500" />}
                       label={t('interface.language', 'Language')}
                     />
                     <CustomMultiSelector
@@ -1603,7 +1603,7 @@ function GenerateProductPicker() {
                         { value: "sorting", label: t('interface.generate.sorting', 'Sorting') },
                         { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                       ]}
-                      icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
+                      icon={<FileQuestion className="w-4 h-4 text-gray-500" />}
                       label="Question Types"
                       placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                     />
@@ -1614,7 +1614,7 @@ function GenerateProductPicker() {
                         value: count.toString(),
                         label: `${count} ${t('interface.generate.questions', 'questions')}`
                       }))}
-                      icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
+                      icon={<MessageCircleQuestion className="w-4 h-4 text-gray-500" />}
                       label="Questions"
                     />
                   </>
@@ -1636,7 +1636,7 @@ function GenerateProductPicker() {
                   }}
                   variant="outline"
                   size="sm"
-                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-600 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-full border border-gray-300 bg-white/90 text-sm text-gray-500 hover:bg-gray-100"
                 >
                   ← Back
                 </Button> */}
@@ -1659,7 +1659,7 @@ function GenerateProductPicker() {
                         value: o.name,
                         label: o.name
                       }))}
-                      icon={<ClipboardList className="w-4 h-4 text-gray-600" />}
+                      icon={<ClipboardList className="w-4 h-4 text-gray-500" />}
                       label="Outline"
                     />
 
@@ -1677,7 +1677,7 @@ function GenerateProductPicker() {
                           value: m.name,
                           label: m.name
                         }))}
-                        icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
+                        icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
                         label="Module"
                       />
                     )}
@@ -1691,7 +1691,7 @@ function GenerateProductPicker() {
                           value: l,
                           label: l
                         }))}
-                        icon={<FileText className="w-4 h-4 text-gray-600" />}
+                        icon={<FileText className="w-4 h-4 text-gray-500" />}
                         label="Lesson"
                       />
                     )}
@@ -1708,7 +1708,7 @@ function GenerateProductPicker() {
                             { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                             { value: "Russian", label: t('interface.russian', 'Russian') }
                           ]}
-                          icon={<Globe className="w-4 h-4 text-gray-600" />}
+                          icon={<Globe className="w-4 h-4 text-gray-500" />}
                           label={t('interface.language', 'Language')}
                         />
                         <CustomPillSelector
@@ -1719,7 +1719,7 @@ function GenerateProductPicker() {
                             { value: "medium", label: t('interface.generate.medium', 'Medium') },
                             { value: "long", label: t('interface.generate.long', 'Long') }
                           ]}
-                          icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
+                          icon={<RulerDimensionLine className="w-4 h-4 text-gray-500" />}
                           label="Length"
                         />
                         <CustomMultiSelector
@@ -1736,7 +1736,7 @@ function GenerateProductPicker() {
                             { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
                             { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                           ]}
-                          icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
+                          icon={<Paintbrush className="w-4 h-4 text-gray-500" />}
                           label="Styles"
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
                         />
@@ -1757,7 +1757,7 @@ function GenerateProductPicker() {
                         { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                         { value: "Russian", label: t('interface.russian', 'Russian') }
                       ]}
-                      icon={<Globe className="w-4 h-4 text-gray-600" />}
+                      icon={<Globe className="w-4 h-4 text-gray-500" />}
                       label={t('interface.language', 'Language')}
                     />
                     <CustomPillSelector
@@ -1768,7 +1768,7 @@ function GenerateProductPicker() {
                         { value: "medium", label: t('interface.generate.medium', 'Medium') },
                         { value: "long", label: t('interface.generate.long', 'Long') }
                       ]}
-                      icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
+                      icon={<RulerDimensionLine className="w-4 h-4 text-gray-500" />}
                       label="Length"
                     />
                     <CustomMultiSelector
@@ -1785,7 +1785,7 @@ function GenerateProductPicker() {
                         { value: "icons", label: t('interface.generate.icons', 'Icons'), tooltip: stylePurposes.icons },
                         { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                       ]}
-                      icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
+                      icon={<Paintbrush className="w-4 h-4 text-gray-500" />}
                       label="Styles"
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
@@ -1804,7 +1804,7 @@ function GenerateProductPicker() {
                 value: count.toString(),
                 label: `${count} ${t('interface.generate.slides', 'slides')}`
               }))}
-              icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
+              icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
               label="Slides"
             />
             <CustomPillSelector
@@ -1816,7 +1816,7 @@ function GenerateProductPicker() {
                 { value: "Spanish", label: t('interface.spanish', 'Spanish') },
                 { value: "Russian", label: t('interface.russian', 'Russian') }
               ]}
-              icon={<Globe className="w-4 h-4 text-gray-600" />}
+              icon={<Globe className="w-4 h-4 text-gray-500" />}
               label={t('interface.language', 'Language')}
             />
           </div>
@@ -1861,11 +1861,11 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/40 transition-all duration-200 text-sm font-medium text-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
+                      className="flex flex-col justify-center items-center w-full px-3 py-2 rounded-full backdrop-blur-md bg-white/20 border border-white/30 hover:bg-white/40 transition-all duration-200 text-sm font-medium text-gray-500 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-200 relative cursor-pointer"
                       style={{ minHeight: 56 }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-3 right-3 text-gray-600 text-lg font-semibold">+</span>
+                      <span className="absolute top-3 right-3 text-gray-500 text-lg font-semibold">+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full px-3 py-2 rounded-full bg-transparent" />

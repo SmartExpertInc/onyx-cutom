@@ -271,7 +271,7 @@ function CustomPillSelector({
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           className={cn(
-            "bg-white border border-gray-200 rounded-full px-4 py-2 h-auto cursor-pointer focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
+            "bg-white border border-gray-200 rounded-full px-4 py-[10px] h-auto cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
             className
           )}
         >
@@ -281,7 +281,7 @@ function CustomPillSelector({
                 {icon}
               </div>
             )}
-            <span className="text-gray-600 text-sm">{label}:</span>
+            <span className="text-gray-500 text-sm">{label}:</span>
             <span className="text-gray-900 font-medium">{value}</span>
           </div>
         </SelectTrigger>
@@ -338,7 +338,7 @@ function CustomMultiSelector({
       <Select open={isOpen} onOpenChange={setIsOpen}>
         <SelectTrigger 
           className={cn(
-            "bg-white border border-gray-200 rounded-full px-4 py-2 h-auto cursor-pointer focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
+            "bg-white border border-gray-200 rounded-full px-4 py-[10px] h-auto cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
             className
           )}
         >
@@ -348,7 +348,7 @@ function CustomMultiSelector({
                 {icon}
               </div>
             )}
-            <span className="text-gray-600 text-sm">{label}:</span>
+            <span className="text-gray-500 text-sm">{label}:</span>
             <span className="text-gray-900 font-medium">{displayText}</span>
           </div>
         </SelectTrigger>
