@@ -1144,7 +1144,7 @@ function GenerateProductPicker() {
         background: `linear-gradient(135deg, var(--background-first) 0%, var(--background-second) 50%, var(--background-third) 100%)`
       }}
     >
-      <div className="w-full max-w-5xl flex flex-col gap-6 items-center">
+      <div className="w-full max-w-4xl flex flex-col gap-6 items-center">
         {/* back button absolute top-left */}
         <Link
           href="/create"
@@ -1286,7 +1286,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-5xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-lg transition-all duration-200 hover:shadow-xl">
+        <div className="w-full max-w-4xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-lg transition-all duration-200 hover:shadow-xl">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
@@ -1897,16 +1897,12 @@ function GenerateProductPicker() {
             {/* Simple examples grid */}
             <div className={`w-full mt-5 transition-all duration-300 ${prompt.trim() ? 'opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'opacity-100 max-h-screen'}`}>
             <div className="w-full relative z-0">
-              <div className="flex items-center justify-center mb-2 relative">
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
-                  <div className="flex-1 border-t-2 border-blue-100 w-16"></div>
-                </div>
-                <span className="relative z-10 bg-transparent px-4 text-lg font-semibold text-blue-900 text-center" style={{ letterSpacing: 0 }}>
+              <div className="flex items-center justify-center mb-2">
+                <div className="border-t-2 border-blue-100 w-16"></div>
+                <span className="px-4 text-lg font-semibold text-blue-900 text-center" style={{ letterSpacing: 0 }}>
                   {t('interface.generate.examplePrompts', 'Example prompts')}
                 </span>
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
-                  <div className="flex-1 border-t-2 border-blue-100 w-16 ml-auto"></div>
-                </div>
+                <div className="border-t-2 border-blue-100 w-16"></div>
               </div>
               <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
                 {Array.from({ length: 6 }).map((_, index) =>
