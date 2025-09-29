@@ -337,7 +337,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const tableStyles: React.CSSProperties = {
     width: '100%',
     borderCollapse: 'separate',
-    borderSpacing: '8px',
+    borderSpacing: '8px 8px',
     backgroundColor: 'rgb(242, 248, 254)',
     tableLayout: 'fixed'
   };
