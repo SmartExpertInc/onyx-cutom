@@ -1286,7 +1286,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-full max-w-4xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-lg transition-all duration-200 hover:shadow-xl">
+        <div className="w-full max-w-5xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-lg transition-all duration-200 hover:shadow-xl">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
