@@ -416,7 +416,7 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 </th>
               ))}
               
-              {/* Add column button - appears on hover */}
+              {/* Add column button - always visible */}
               {isEditable && (
                 <th style={{ 
                   ...headerStyles, 
@@ -426,10 +426,9 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                     onClick={addColumn}
                     style={{
                       ...addButtonStyles,
-                      opacity: 0,
+                      opacity: 1,
                       transition: 'opacity 0.2s ease'
                     }}
-                    className="group-hover:opacity-100"
                     title="Add Column"
                   >
                     +
@@ -506,6 +505,44 @@ export const TableLightTemplate: React.FC<TableLightTemplateProps> = ({
                 )}
               </tr>
             ))}
+            
+            {/* Add row button - always visible */}
+            {isEditable && (
+              <tr>
+                <td style={{ 
+                  ...firstColumnStyles, 
+                  textAlign: 'center',
+                  borderRight: '1px solid #E0E0E0'
+                }}>
+                  <button
+                    onClick={addRow}
+                    style={{
+                      ...addButtonStyles,
+                      opacity: 1,
+                      transition: 'opacity 0.2s ease'
+                    }}
+                    title="Add Row"
+                  >
+                    +
+                  </button>
+                </td>
+                {/* Empty cells for other columns */}
+                {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
+                  <td 
+                    key={colIndex} 
+                    style={{ 
+                      ...dataCellStyles, 
+                      borderRight: colIndex === tableData.headers.length - 1 ? 'none' : '1px solid #E0E0E0'
+                    }}
+                  />
+                ))}
+                {/* Empty cell for delete column */}
+                <td style={{ 
+                  ...dataCellStyles, 
+                  textAlign: 'center'
+                }} />
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
