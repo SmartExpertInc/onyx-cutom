@@ -307,6 +307,7 @@ interface CustomMultiSelectorProps {
   icon?: React.ReactNode
   label: string
   placeholder?: string
+  typesSelectedText?: string
   className?: string
 }
 
@@ -317,6 +318,7 @@ function CustomMultiSelector({
   icon,
   label,
   placeholder,
+  typesSelectedText = "types selected",
   className
 }: CustomMultiSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
@@ -333,7 +335,7 @@ function CustomMultiSelector({
     ? placeholder || `Select ${label}`
     : selectedValues.length === 1
     ? options.find(opt => opt.value === selectedValues[0])?.label || selectedValues[0]
-    : `${selectedValues.length} types selected`
+    : `${selectedValues.length} ${typesSelectedText}`
 
   return (
     <div>

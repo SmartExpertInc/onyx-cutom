@@ -1598,13 +1598,14 @@ function GenerateProductPicker() {
                           icon={<FileQuestion className="w-4 h-4 text-gray-500" />}
                           label={t('interface.generate.questionTypes', 'Question Types')}
                           placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
+                          typesSelectedText={t('interface.generate.typesSelected', 'types selected')}
                         />
                         <CustomPillSelector
                           value={quizQuestionCount.toString()}
                           onValueChange={(value) => setQuizQuestionCount(Number(value))}
                           options={[5, 10, 15, 20, 25, 30].map((count) => ({
                             value: count.toString(),
-                            label: `${count} ${count === 1 ? t('interface.generate.question', 'question') : t('interface.generate.questionsLowercase', 'questions')}`
+                            label: `${count} ${t('interface.generate.questions5plus', 'questions')}`
                           }))}
                           icon={<MessageCircleQuestion className="w-4 h-4 text-gray-500" />}
                           label={t('interface.generate.questions', 'Questions')}
@@ -1642,13 +1643,14 @@ function GenerateProductPicker() {
                       icon={<FileQuestion className="w-4 h-4 text-gray-500" />}
                       label={t('interface.generate.questionTypes', 'Question Types')}
                       placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
+                      typesSelectedText={t('interface.generate.typesSelected', 'types selected')}
                     />
                     <CustomPillSelector
                       value={quizQuestionCount.toString()}
                       onValueChange={(value) => setQuizQuestionCount(Number(value))}
                       options={[5, 10, 15, 20, 25, 30].map((count) => ({
                         value: count.toString(),
-                        label: `${count} ${count === 1 ? t('interface.generate.question', 'question') : t('interface.generate.questionsLowercase', 'questions')}`
+                        label: `${count} ${t('interface.generate.questions5plus', 'questions')}`
                       }))}
                       icon={<MessageCircleQuestion className="w-4 h-4 text-gray-500" />}
                       label={t('interface.generate.questions', 'Questions')}
@@ -1775,6 +1777,7 @@ function GenerateProductPicker() {
                           icon={<Paintbrush className="w-4 h-4 text-gray-500" />}
                           label={t('interface.generate.styles', 'Styles')}
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
+                          typesSelectedText={t('interface.generate.stylesSelected', 'styles selected')}
                         />
                       </>
                     )}
@@ -1824,6 +1827,7 @@ function GenerateProductPicker() {
                       icon={<Paintbrush className="w-4 h-4 text-gray-500" />}
                       label={t('interface.generate.styles', 'Styles')}
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
+                      typesSelectedText={t('interface.generate.stylesSelected', 'styles selected')}
                     />
                   </>
                 )}
