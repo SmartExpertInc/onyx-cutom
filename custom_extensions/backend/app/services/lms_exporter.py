@@ -263,6 +263,33 @@ async def export_course_outline_to_lms_format(
                 pass
         return result
 
+    # NEW: Fallback inference when no recommendations exist for a lesson
+    def infer_products_for_lesson(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, used_ids: set) -> List[Dict[str, Any]]:
+        matched: List[Dict[str, Any]] = []
+        if not lesson_title:
+            return matched
+        # Build expected names
+        base_name = f"{outline_name}: {lesson_title}"
+        prefixed_names = [
+            f"Presentation - {outline_name}: {lesson_title}",
+            f"Text Presentation - {outline_name}: {lesson_title}",
+            f"One Pager - {outline_name}: {lesson_title}",
+            f"PDF Lesson - {outline_name}: {lesson_title}",
+            f"Quiz - {outline_name}: {lesson_title}",
+        ]
+        for proj in projects:
+            pid = proj.get('id')
+            if pid in used_ids:
+                continue
+            pname = (proj.get('project_name') or '').strip()
+            mtype = (proj.get('microproduct_type') or '').strip().lower()
+            if not pname or mtype in ('training plan',):
+                continue
+            if pname == base_name or pname in prefixed_names:
+                matched.append(dict(proj))
+        logger.info(f"[LMS-MATCH] Inferred products for lesson='{lesson_title}': {[m.get('id') for m in matched]}")
+        return matched
+
     def match_connected_product(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, desired_type: str) -> Optional[Dict[str, Any]]:
         target_mtypes = map_item_type_to_microproduct(desired_type)
         logger.info(f"[LMS-MATCH] desired_type='{desired_type}' -> target_mtypes='{target_mtypes}' lesson_title='{lesson_title}' outline='{outline_name}'")
@@ -401,6 +428,23 @@ async def export_course_outline_to_lms_format(
                         primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
                         if recs is None:
                             recs = {}
+
+                # NEW: If still no primary, infer products by name patterns
+                if not primary:
+                    inferred = infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_product_ids)
+                    if inferred:
+                        inferred_items: List[Dict[str, Any]] = []
+                        for inf in inferred:
+                            mt = (inf.get('microproduct_type') or '').strip().lower()
+                            # Map microproduct to recommended type
+                            if mt in ('slide deck',):
+                                inferred_items.append({'type': 'presentation'})
+                            elif mt in ('text presentation', 'pdf lesson', 'one pager'):
+                                inferred_items.append({'type': 'onepager'})
+                            elif mt in ('quiz',):
+                                inferred_items.append({'type': 'quiz'})
+                        primary = inferred_items
+                        logger.info(f"[LMS] Inferred primary for lesson '{lesson_title}': {primary}")
 
                 new_primary = []
                 for item in primary:

@@ -347,6 +347,32 @@ def _parse_recommended_products_field(value) -> List[str]:
     return []
 
 
+def _infer_products_for_lesson(projects: List[Dict[str, Any]], outline_name: str, lesson_title: str, used_ids: set) -> List[Dict[str, Any]]:
+    matches: List[Dict[str, Any]] = []
+    if not lesson_title:
+        return matches
+    base_name = f"{outline_name}: {lesson_title}"
+    prefixed_names = [
+        f"Presentation - {outline_name}: {lesson_title}",
+        f"Text Presentation - {outline_name}: {lesson_title}",
+        f"One Pager - {outline_name}: {lesson_title}",
+        f"PDF Lesson - {outline_name}: {lesson_title}",
+        f"Quiz - {outline_name}: {lesson_title}",
+    ]
+    for proj in projects:
+        pid = proj.get('id')
+        if pid in used_ids:
+            continue
+        pname = (proj.get('project_name') or '').strip()
+        mtype = (proj.get('microproduct_type') or '').strip().lower()
+        if not pname or mtype in ('training plan',):
+            continue
+        if pname == base_name or pname in prefixed_names:
+            matches.append(dict(proj))
+    logger.info(f"[SCORM-MATCH] Inferred products for lesson='{lesson_title}': {[m.get('id') for m in matches]}")
+    return matches
+
+
 async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple[str, bytes]:
     """
     Build a SCORM 2004 (4th Ed) package ZIP for the given course outline.
@@ -425,6 +451,22 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 logger.info(f"[SCORM] Lesson '{lesson_title}' fallback recommendedProducts={rp_list}")
                 if rp_list:
                     primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
+
+            # NEW: If still no primary, infer products by name patterns
+            if not primary:
+                inferred = _infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_ids)
+                if inferred:
+                    inferred_items: List[Dict[str, Any]] = []
+                    for inf in inferred:
+                        mt = (inf.get('microproduct_type') or '').strip().lower()
+                        if mt in ('slide deck',):
+                            inferred_items.append({'type': 'presentation'})
+                        elif mt in ('text presentation', 'pdf lesson', 'one pager'):
+                            inferred_items.append({'type': 'onepager'})
+                        elif mt in ('quiz',):
+                            inferred_items.append({'type': 'quiz'})
+                    primary = inferred_items
+                    logger.info(f"[SCORM] Inferred primary for lesson '{lesson_title}': {primary}")
 
             # Track if we added any SCOs for this lesson
             lesson_sco_count_before = len(sco_entries)
