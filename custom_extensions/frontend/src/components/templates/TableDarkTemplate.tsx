@@ -454,7 +454,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
                 color: '#000000',
                 textAlign: 'left',
-                borderTopLeftRadius: '15px'
+                borderTopLeftRadius: '15px',
+                borderTopRightRadius: '15px'
               }}>
                 <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '1rem' }}>
@@ -469,7 +470,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   key={index} 
                   style={{
                     ...headerStyles,
-                    borderTopRightRadius: index === tableData.headers.length - 1 ? '15px' : '0px'
+                    borderTopLeftRadius: '15px',
+                    borderTopRightRadius: '15px'
                   }}
                   onMouseEnter={() => setHoveredColumn(index)}
                   onMouseLeave={() => setHoveredColumn(null)}
@@ -667,7 +669,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderBottomLeftRadius: '15px'
+                  borderBottomLeftRadius: '15px',
+                  borderBottomRightRadius: '15px'
                 }}>
                   <button
                     onClick={addRow}
@@ -685,13 +688,18 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 {Array.from({ length: tableData.headers.length }).map((_, colIndex) => (
                   <td 
                     key={colIndex} 
-                    style={dataCellStyles}
+                    style={
+                      ...dataCellStyles,
+                      borderBottomLeftRadius: '15px',
+                      borderBottomRightRadius: '15px'
+                    }
                   />
                 ))}
                 {/* Empty cell for delete column */}
                 <td style={{ 
                   ...dataCellStyles, 
                   textAlign: 'center',
+                  borderBottomLeftRadius: '15px',
                   borderBottomRightRadius: '15px'
                 }} />
               </tr>
