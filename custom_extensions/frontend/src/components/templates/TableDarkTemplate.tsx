@@ -564,27 +564,20 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
           {/* Body */}
           <tbody>
-            {tableData.rows.map((row, rowIndex) => {
-              const isLastRow = rowIndex === tableData.rows.length - 1;
-              
-              return (
-                <tr 
-                  key={rowIndex}
-                  onMouseEnter={() => setHoveredRow(rowIndex)}
-                  onMouseLeave={() => setHoveredRow(null)}
-                >
-                  {row.map((cell, colIndex) => {
-                    const isFirstColumn = colIndex === 0;
-                    const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
-                    
-                    return (
-                      <td 
-                        key={colIndex}
-                        style={{
-                          ...(isFirstColumn ? firstColumnStyles : dataCellStyles),
-                          ...(isLastRow && isFirstColumn ? { borderBottomLeftRadius: '15px' } : {}),
-                          ...(isLastRow && colIndex === row.length - 1 ? { borderBottomRightRadius: '15px' } : {})
-                        }}
+            {tableData.rows.map((row, rowIndex) => (
+              <tr 
+                key={rowIndex}
+                onMouseEnter={() => setHoveredRow(rowIndex)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
+                {row.map((cell, colIndex) => {
+                  const isFirstColumn = colIndex === 0;
+                  const isEditingThisCell = editingCell?.row === rowIndex && editingCell?.col === colIndex;
+                  
+                  return (
+                    <td 
+                      key={colIndex}
+                      style={isFirstColumn ? firstColumnStyles : dataCellStyles}
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
@@ -659,8 +652,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   </td>
                 )}
               </tr>
-              );
-            })}
+            ))}
             
             {/* Add row button - appears on hover */}
             {isEditable && (
@@ -674,7 +666,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  borderBottomLeftRadius: '15px'
                 }}>
                   <button
                     onClick={addRow}
@@ -698,7 +691,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                 {/* Empty cell for delete column */}
                 <td style={{ 
                   ...dataCellStyles, 
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  borderBottomRightRadius: '15px'
                 }} />
               </tr>
             )}
