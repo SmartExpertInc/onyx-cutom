@@ -135,16 +135,16 @@ const stringToColor = (str: string): string => {
   // Combined violet and blue color palette
   const colorPalette = [
     // new colors 
-    // "#757BC8",
-    // "#8187DC",
-    // "#8E94F2",
-    // "#9FA0FF",
-    // "#ADA7FF",
-    // "#BBADFF",
-    // "#CBB2FE",
-    // "#DAB6FC",
-    // "#DDBDFC",
-    // "#E0C3FC",
+    "#757BC8",
+    "#8187DC",
+    "#8E94F2",
+    "#9FA0FF",
+    "#ADA7FF",
+    "#BBADFF",
+    "#CBB2FE",
+    "#DAB6FC",
+    "#DDBDFC",
+    "#E0C3FC",
 
     //2 colors
     // "#DEC9E9",
@@ -159,16 +159,16 @@ const stringToColor = (str: string): string => {
     // "#6247AA",
 
     //3 colors
-    "#F72585",
-    "#B5179E",
-    "#7209B7",
-    "#560BAD",
-    "#480CA8",
-    "#3A0CA3",
-    "#3F37C9",
-    "#4361EE",
-    "#4895EF",
-    "#4CC9F0",
+    // "#F72585",
+    // "#B5179E",
+    // "#7209B7",
+    // "#560BAD",
+    // "#480CA8",
+    // "#3A0CA3",
+    // "#3F37C9",
+    // "#4361EE",
+    // "#4895EF",
+    // "#4CC9F0",
   ];
   
   // Use hash to select from palette
@@ -240,8 +240,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       // "#6F2DBD", "#A663CC", "#B298DC", "#B8D0EB", "#B9FAF8",
 
       //new colors
-      // "#DEC9E9","#DAC3E8","#D2B7E5","#C19EE0","#B185DB","#A06CD5","#9163CB","#815AC0","#7251B5","#6247AA",
-      "#F72585","#B5179E","#7209B7","#560BAD","#480CA8","#3A0CA3","#3F37C9", "#4361EE","#4895EF","#4CC9F0",
+      //     "#757BC8",
+      "#757BC8", "#8187DC", "#8E94F2", "#9FA0FF", "#ADA7FF", "#BBADFF", "#CBB2FE", "#DAB6FC", "#DDBDFC", "#E0C3FC",
+      // "#F72585","#B5179E","#7209B7","#560BAD","#480CA8","#3A0CA3","#3F37C9", "#4361EE","#4895EF","#4CC9F0",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;

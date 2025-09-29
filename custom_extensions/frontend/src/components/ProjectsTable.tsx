@@ -3543,9 +3543,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           <div className="flex items-center gap-2">
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
                 <div className="relative rounded-full p-[2px] animate-spin-border">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#A952F4] to-[#6E18F0]"></div>
                   <Button
-                    className="relative rounded-full text-white font-semibold bg-gradient-to-r from-[#A952F4] to-[#6E18F0] z-10"
+                    className="relative rounded-full text-white font-semibold bg-gradient-to-r from-[#A952F4] to-[#6E18F0] z-10 transition-all duration-200 hover:bg-[#6E18F0]"
                     asChild
                   >
                     <div>
@@ -3581,7 +3580,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                <DropdownMenuTrigger asChild>
                  <Button 
                    variant="sort" 
-                   className="flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:bg-[var(--background-second)] rounded-full px-2 py-1 border border-white/70"
+                   className="flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:bg-[#A952F4] hover:text-white rounded-full px-2 py-1 border border-white/70"
                  >
                    <ListFilter size={16} className="text-gray-800" />
                    {contentTypeFilter}
@@ -3622,7 +3621,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <DropdownMenuTrigger asChild>
                 <Button
                   variant="columns"
-                  className="flex items-center gap-2 px-2 py-1 text-sm font-semibold border border-white/70 transition-all duration-200 hover:bg-[var(--background-second)] rounded-full"
+                  className="flex items-center gap-2 px-2 py-1 text-sm font-semibold border border-white/70 transition-all duration-200 hover:bg-[#A952F4] hover:text-white rounded-full"
                 >
                     <ListFilter size={16} className="text-gray-800" />
                     {contentTypeFilter}

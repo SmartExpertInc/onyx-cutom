@@ -427,25 +427,32 @@ body {
 }
 
 /* Animated spinning border for buttons */
-@keyframes spin-slow {
+@keyframes spin-gradient {
   0% {
-    transform: rotate(0deg);
+    --gradient-angle: 0deg;
   }
   100% {
-    transform: rotate(360deg);
+    --gradient-angle: 360deg;
   }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
 }
 
 .animate-spin-border {
+  position: relative;
+  border-radius: 9999px; /* rounded-full */
+  overflow: hidden;
+}
+
+.animate-spin-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: conic-gradient(
-    from 0deg,
+    from var(--gradient-angle, 0deg),
     #A952F4,
     #6E18F0,
     #C55DF6
   );
-  animation: spin-slow 3s linear infinite;
+  animation: spin-gradient 3s linear infinite;
+  z-index: -1;
 }
