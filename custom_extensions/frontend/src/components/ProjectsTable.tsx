@@ -3543,15 +3543,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
           <div className="flex items-center gap-2">
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
                 <Button
-                  className="rounded-full font-semibold bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC]"
+                  className="rounded-full font-semibold bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC] relative overflow-hidden"
                   asChild
                 >
-                  <div>
-                  <Plus size={16} className="text-white" />
-                  {t("interface.createNew", "Create new")}
-                  <span className="ml-1.5 rounded-full bg-[BAEBFF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                    AI
-                  </span>
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC] animate-spin" style={{
+                      background: 'conic-gradient(from 0deg, #C55DF6, #BEBCFC, #C55DF6)',
+                      animation: 'spin 2s linear infinite'
+                    }}></div>
+                    <div className="relative bg-gradient-to-r from-[#C55DF6] to-[#BEBCFC] rounded-full p-0.5">
+                      <div className="bg-white rounded-full px-4 py-2 flex items-center gap-2">
+                        <Plus size={16} className="text-[#C55DF6]" />
+                        <span className="text-[#C55DF6] font-semibold">{t("interface.createNew", "Create new")}</span>
+                        <span className="ml-1.5 rounded-full bg-[#BAEBFF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                          AI
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </Button>
               </Link>
