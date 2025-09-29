@@ -249,6 +249,60 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     );
   };
 
+  // Checkbox editor component for inline editing
+  const CheckboxEditor: React.FC<{
+    initialValue: string;
+    onSave: (value: string) => void;
+    onCancel: () => void;
+    style?: React.CSSProperties;
+  }> = ({ initialValue, onSave, onCancel, style }) => {
+    const [value, setValue] = React.useState(initialValue);
+    const isChecked = value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onSave(value);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+
+    return (
+      <div 
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          ...style
+        }}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+      >
+        <input
+          type="checkbox"
+          checked={isChecked}
+          onChange={(e) => {
+            const newValue = e.target.checked ? '✓' : '✗';
+            setValue(newValue);
+          }}
+          style={{
+            width: '20px',
+            height: '20px',
+            cursor: 'pointer',
+            accentColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor
+          }}
+          autoFocus
+        />
+        <span style={{ fontSize: '12px', color: '#666' }}>
+          {isChecked ? 'Checked' : 'Unchecked'}
+        </span>
+      </div>
+    );
+  };
+
   // Slide styles - exactly as in photo
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -535,21 +589,32 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                     >
                       <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
                         {isEditingThisCell && isEditable ? (
-                          <InlineEditor
-                            initialValue={cell}
-                            onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
-                            onCancel={() => setEditingCell(null)}
-                            style={{
-                              color: '#000000',
-                              textAlign: isFirstColumn ? 'left' : 'center',
-                              fontSize: '0.95rem',
-                              fontWeight: isFirstColumn ? 'bold' : 'normal',
-                              backgroundColor: 'transparent',
-                              border: 'none',
-                              outline: 'none',
-                              width: '100%'
-                            }}
-                          />
+                          isFirstColumn ? (
+                            <InlineEditor
+                              initialValue={cell}
+                              onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
+                              onCancel={() => setEditingCell(null)}
+                              style={{
+                                color: '#000000',
+                                textAlign: 'left',
+                                fontSize: '0.95rem',
+                                fontWeight: 'bold',
+                                backgroundColor: 'transparent',
+                                border: 'none',
+                                outline: 'none',
+                                width: '100%'
+                              }}
+                            />
+                          ) : (
+                            <CheckboxEditor
+                              initialValue={cell}
+                              onSave={(value) => handleCellUpdate(rowIndex, colIndex, value)}
+                              onCancel={() => setEditingCell(null)}
+                              style={{
+                                width: '100%'
+                              }}
+                            />
+                          )
                         ) : (
                           <span 
                             onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
