@@ -303,6 +303,50 @@ def _build_manifest(course_title: str, sco_entries: List[Tuple[str, str]]) -> st
     return header + body + footer
 
 
+def _parse_primary_list(raw_primary) -> List[Dict[str, Any]]:
+    if raw_primary is None:
+        return []
+    if isinstance(raw_primary, list):
+        out: List[Dict[str, Any]] = []
+        for it in raw_primary:
+            if isinstance(it, dict):
+                out.append(it)
+            elif isinstance(it, str):
+                t = it.strip().strip('"').strip("'")
+                out.append({"type": t})
+        return out
+    if isinstance(raw_primary, str):
+        s = raw_primary.strip()
+        try:
+            if (s.startswith('[') and s.endswith(']')) or (s.startswith('{') and s.endswith('}')):
+                parsed = json.loads(s)
+                return _parse_primary_list(parsed)
+        except Exception:
+            pass
+        s = s.strip('[]')
+        parts = [p.strip().strip('"').strip("'") for p in s.split(',') if p.strip()]
+        return [{"type": p} for p in parts if p]
+    return []
+
+
+def _parse_recommended_products_field(value) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(v).strip().lower() for v in value if isinstance(v, (str,))]
+    if isinstance(value, str):
+        sv = value.strip()
+        try:
+            if sv.startswith('[') and sv.endswith(']'):
+                arr = json.loads(sv)
+                return [str(v).strip().lower() for v in arr if isinstance(v, (str,))]
+        except Exception:
+            pass
+        sv = sv.strip('[]')
+        return [p.strip().strip('"').strip("'").lower() for p in sv.split(',') if p.strip()]
+    return []
+
+
 async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple[str, bytes]:
     """
     Build a SCORM 2004 (4th Ed) package ZIP for the given course outline.
@@ -348,22 +392,52 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 continue
             lesson_title = (lesson.get('title') or '').strip()
             recs = lesson.get('recommended_content_types') or {}
-            primary = recs.get('primary') or []
-            # Normalize primary to list of dicts with 'type'
+            raw_primary = recs.get('primary')
+            primary = _parse_primary_list(raw_primary)
+            # Fallback to recommendedProducts/recommended_products if needed
+            if not primary:
+                rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
+                rp_list = _parse_recommended_products_field(rp)
+                if rp_list:
+                    primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
+
+            # Track if we added any SCOs for this lesson
+            lesson_sco_count_before = len(sco_entries)
+
             normalized: List[Dict[str, Any]] = []
-            for it in primary:
+            for it in primary or []:
                 if isinstance(it, dict):
                     normalized.append(it)
                 elif isinstance(it, str):
                     normalized.append({'type': it})
+
+            if not normalized:
+                # No primary items – create a lesson-level placeholder SCO
+                placeholder_html = _render_placeholder_html(lesson_title or 'Lesson', "No recommended content configured for this lesson.")
+                sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
+                href = f"{sco_dir}/index.html"
+                res_id = f"res-{uuid.uuid4().hex[:8]}"
+                z.writestr(href, placeholder_html)
+                sco_entries.append((res_id, href))
+                continue
+
             for item in normalized:
                 item_type_raw = (item.get('type') or '').strip().lower()
                 if not item_type_raw:
                     continue
                 matched = _match_connected_product(all_projects, outline_name, lesson_title, item_type_raw, used_ids)
                 if not matched:
-                    logger.info(f"[SCORM] No product for lesson='{lesson_title}' type='{item_type_raw}', skipping")
+                    logger.info(f"[SCORM] No product for lesson='{lesson_title}' type='{item_type_raw}', adding placeholder SCO")
+                    # Create a placeholder SCO for this recommended item
+                    placeholder_title = f"{lesson_title} – {item_type_raw}" if lesson_title else item_type_raw
+                    placeholder_html = _render_placeholder_html(placeholder_title, "Content not found or not yet created.")
+                    sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
+                    href = f"{sco_dir}/index.html"
+                    res_id = f"res-{uuid.uuid4().hex[:8]}"
+                    z.writestr(href, placeholder_html)
+                    sco_entries.append((res_id, href))
                     continue
+
                 product_id = matched['id']
                 used_ids.add(product_id)
 
@@ -384,10 +458,8 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 elif any(t in (mtype, comp) for t in ['one pager', 'one-pager', 'onepager']):
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    # Placeholder for slide deck until full HTML render is supported
                     body_html = _render_placeholder_html(title_for_sco, "This presentation has been exported as a SCORM SCO placeholder.")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
-                    # Placeholder SCO for quiz
                     body_html = _render_placeholder_html(title_for_sco, "Quiz content is not yet supported for SCORM export in this version.")
                 else:
                     body_html = _render_placeholder_html(title_for_sco, "Unsupported content type for SCORM export.")
@@ -397,6 +469,15 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{product_id}"
                 z.writestr(href, body_html)
+                sco_entries.append((res_id, href))
+
+            # If nothing was added for this lesson (extreme edge), add one placeholder
+            if len(sco_entries) == lesson_sco_count_before:
+                placeholder_html = _render_placeholder_html(lesson_title or 'Lesson', "No content could be included for this lesson.")
+                sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
+                href = f"{sco_dir}/index.html"
+                res_id = f"res-{uuid.uuid4().hex[:8]}"
+                z.writestr(href, placeholder_html)
                 sco_entries.append((res_id, href))
 
     # Build manifest
