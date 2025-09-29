@@ -3544,13 +3544,13 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
                 <Button 
                   variant="gradient" 
-                  className="rounded-full font-semibold"
+                  className="rounded-full font-semibold bg-gradient-to-r from-[#5b61d7] to-[#ccaefc]"
                   asChild
                 >
                   <div>
                   <Plus size={16} className="text-white" />
                   {t("interface.createNew", "Create new")}
-                  <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
+                  <span className="ml-1.5 rounded-full bg-[#9E99FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
                   </div>

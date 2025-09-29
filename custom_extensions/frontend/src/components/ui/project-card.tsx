@@ -134,30 +134,27 @@ const stringToColor = (str: string): string => {
   
   // Combined violet and blue color palette
   const colorPalette = [
-    // Violet shades
-    // "#231942", // Darkest violet
-    // "#5E548E", // Medium-dark violet
-    // "#9F86C0", // Medium violet/lavender
-    // "#BE95C4", // Light violet/lilac
-    // "#E0B1CB", // Very light pinkish-violet
-    // // Blue shades
-    // "#6F2DBD",
-    // "#A663CC",
-    // "#B298DC",
-    // "#B8D0EB",
-    // "#B9FAF8",
-
     // new colors 
-    "#757BC8",
-    "#8187DC",
-    "#8E94F2",
-    "#9FA0FF",
-    "#ADA7FF",
-    "#BBADFF",
-    "#CBB2FE",
-    "#DAB6FC",
-    "#DDBDFC",
-    "#E0C3FC",
+    // "#757BC8",
+    // "#8187DC",
+    // "#8E94F2",
+    // "#9FA0FF",
+    // "#ADA7FF",
+    // "#BBADFF",
+    // "#CBB2FE",
+    // "#DAB6FC",
+    // "#DDBDFC",
+    // "#E0C3FC",
+    "#5b61d7",
+    "#6269e4",
+    "#676ef4",
+    "#8587ff",
+    "#9e99ff",
+    "#9385ff",
+    "#a286fe",
+    "#c19bfd",
+    "#c3a4fc",
+    "#ccaefc",
   ];
   
   // Use hash to select from palette
