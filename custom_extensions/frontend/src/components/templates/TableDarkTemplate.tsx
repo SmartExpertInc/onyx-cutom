@@ -229,7 +229,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           justifyContent: 'center',
           width: '32px',
           height: '32px',
-          backgroundColor: checkmarkColor,
+          backgroundColor: currentTheme.colors.tableHeaderColor || checkmarkColor,
           borderRadius: '4px',
           color: '#ffffff',
           fontSize: '16px',
@@ -279,7 +279,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const titleStyles: React.CSSProperties = {
     fontSize: '2.5rem',
     fontWeight: 'bold',
-    color: titleColor,
+    color: currentTheme.colors.titleColor || titleColor,
     marginBottom: '30px',
     fontFamily: 'Georgia, serif',
     lineHeight: '1.1'
@@ -305,7 +305,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Header styles - using theme colors, with vertical borders only
   const headerStyles: React.CSSProperties = {
-    backgroundColor: headerBackgroundColor,
+    backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
     color: headerColor,
     fontWeight: 'bold',
     fontSize: '1rem',
@@ -318,7 +318,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // First column (row headers) styles - using theme colors, with vertical borders only
   const firstColumnStyles: React.CSSProperties = {
-    backgroundColor: '#F2F8FE',
+    backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
     color: '#000000',
     fontWeight: 'bold',
     fontSize: '0.95rem',
@@ -343,7 +343,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Add button styles - using theme colors, perfectly aligned
   const addButtonStyles: React.CSSProperties = {
-    backgroundColor: headerBackgroundColor,
+    backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
     color: '#ffffff',
     border: 'none',
     borderRadius: '50%',
@@ -414,7 +414,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           <thead>
             <tr>
               {/* Empty corner cell */}
-              <th style={{ ...headerStyles, backgroundColor: headerBackgroundColor }}></th>
+              <th style={{ ...headerStyles, backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor }}></th>
               
               {/* Feature headers */}
               {tableData.headers.map((header, index) => (
@@ -494,7 +494,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
               {isEditable && (
                 <th style={{ 
                   ...headerStyles, 
-                  backgroundColor: headerBackgroundColor,
+                  backgroundColor: currentTheme.colors.tableHeaderColor || headerBackgroundColor,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
