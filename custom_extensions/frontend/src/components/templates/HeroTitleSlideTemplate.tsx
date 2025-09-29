@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/HeroTitleSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { HeroTitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 
@@ -14,6 +14,103 @@ interface InlineEditorProps {
   style?: React.CSSProperties;
 }
 
+interface FormattingToolbarProps {
+  onBold: () => void;
+  onItalic: () => void;
+  isBoldActive: boolean;
+  isItalicActive: boolean;
+  position: { top: number; left: number };
+  visible: boolean;
+}
+
+// Formatting Toolbar Component
+function FormattingToolbar({ 
+  onBold, 
+  onItalic, 
+  isBoldActive, 
+  isItalicActive, 
+  position, 
+  visible 
+}: FormattingToolbarProps) {
+  if (!visible) return null;
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: position.top - 50,
+        left: position.left,
+        backgroundColor: '#333',
+        borderRadius: '6px',
+        padding: '6px',
+        display: 'flex',
+        gap: '4px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        zIndex: 1000,
+        border: '1px solid #555'
+      }}
+    >
+      <button
+        type="button"
+        onClick={onBold}
+        style={{
+          backgroundColor: isBoldActive ? '#4a90e2' : 'transparent',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '6px 10px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          minWidth: '30px',
+          transition: 'background-color 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          if (!isBoldActive) {
+            e.currentTarget.style.backgroundColor = '#555';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isBoldActive) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}
+      >
+        B
+      </button>
+      <button
+        type="button"
+        onClick={onItalic}
+        style={{
+          backgroundColor: isItalicActive ? '#4a90e2' : 'transparent',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '6px 10px',
+          fontSize: '14px',
+          fontStyle: 'italic',
+          cursor: 'pointer',
+          minWidth: '30px',
+          transition: 'background-color 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          if (!isItalicActive) {
+            e.currentTarget.style.backgroundColor = '#555';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isItalicActive) {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
+        }}
+      >
+        I
+      </button>
+    </div>
+  );
+}
+
+// Rich Text Editor with Formatting Support
 function InlineEditor({ 
   initialValue, 
   onSave, 
@@ -23,62 +120,156 @@ function InlineEditor({
   className = "",
   style = {}
 }: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const [htmlContent, setHtmlContent] = useState(() => {
+    // Convert plain text to HTML if needed
+    if (initialValue && !initialValue.includes('<')) {
+      return initialValue.replace(/\n/g, '<br>');
+    }
+    return initialValue || '';
+  });
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState({ top: 0, left: 0 });
+  const [isBoldActive, setIsBoldActive] = useState(false);
+  const [isItalicActive, setIsItalicActive] = useState(false);
+  
+  const editableRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+    if (editableRef.current) {
+      editableRef.current.focus();
+      // Select all text
+      const range = document.createRange();
+      range.selectNodeContents(editableRef.current);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
     }
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // Update formatting button states based on current selection
+  const updateFormattingStates = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      setIsBoldActive(document.queryCommandState('bold'));
+      setIsItalicActive(document.queryCommandState('italic'));
+    }
+  }, []);
+
+  // Handle selection change to show/hide toolbar
+  const handleSelectionChange = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const containerRect = containerRef.current?.getBoundingClientRect();
+      
+      if (containerRect) {
+        setToolbarPosition({
+          top: rect.top - containerRect.top,
+          left: rect.left - containerRect.left + (rect.width / 2) - 35
+        });
+        setShowToolbar(true);
+        updateFormattingStates();
+      }
+    } else {
+      setShowToolbar(false);
+    }
+  }, [updateFormattingStates]);
+
+  // Handle text selection
+  const handleMouseUp = useCallback(() => {
+    setTimeout(handleSelectionChange, 10);
+  }, [handleSelectionChange]);
+
+  const handleKeyUp = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !multiline) {
       e.preventDefault();
-      onSave(value);
+      handleSave();
+      return;
     } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
       e.preventDefault();
-      onSave(value);
+      handleSave();
+      return;
     } else if (e.key === 'Escape') {
       e.preventDefault();
       onCancel();
+      return;
     }
-  };
+    
+    setTimeout(handleSelectionChange, 10);
+    updateFormattingStates();
+  }, [handleSelectionChange, updateFormattingStates, multiline, onCancel]);
 
-  const handleBlur = () => {
-    onSave(value);
-  };
+  const handleInput = useCallback((e: React.FormEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    setHtmlContent(target.innerHTML);
+  }, []);
 
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+  const handleBold = useCallback(() => {
+    document.execCommand('bold', false, undefined);
+    setIsBoldActive(document.queryCommandState('bold'));
+    editableRef.current?.focus();
+    if (editableRef.current) {
+      setHtmlContent(editableRef.current.innerHTML);
     }
-  }, [value, multiline]);
+  }, []);
 
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+  const handleItalic = useCallback(() => {
+    document.execCommand('italic', false, undefined);
+    setIsItalicActive(document.queryCommandState('italic'));
+    editableRef.current?.focus();
+    if (editableRef.current) {
+      setHtmlContent(editableRef.current.innerHTML);
     }
-  }, [multiline]);
+  }, []);
 
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
+  const handleSave = useCallback(() => {
+    if (editableRef.current) {
+      // Get the HTML content and clean it up
+      let content = editableRef.current.innerHTML;
+      
+      // Convert <div><br></div> to proper line breaks
+      content = content.replace(/<div><br><\/div>/g, '\n');
+      content = content.replace(/<div>/g, '\n').replace(/<\/div>/g, '');
+      content = content.replace(/^<br>/, ''); // Remove leading <br>
+      
+      onSave(content);
+    }
+  }, [onSave]);
+
+  const handleBlur = useCallback((e: React.FocusEvent) => {
+    // Don't save if clicking on toolbar
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (relatedTarget && relatedTarget.closest('.formatting-toolbar')) {
+      return;
+    }
+    setTimeout(() => {
+      setShowToolbar(false);
+      handleSave();
+    }, 100);
+  }, [handleSave]);
+
+  // Handle paste to clean up formatting
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text/plain');
+    document.execCommand('insertText', false, text);
+  }, []);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      <div
+        ref={editableRef}
+        className={`inline-editor-rich-text ${className}`}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={handleInput}
+        onKeyUp={handleKeyUp}
+        onMouseUp={handleMouseUp}
         onBlur={handleBlur}
-        placeholder={placeholder}
+        onPaste={handlePaste}
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
         style={{
           ...style,
           // Only override browser defaults, preserve all passed styles
@@ -91,41 +282,23 @@ function InlineEditor({
           width: '100%',
           wordWrap: 'break-word',
           whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
+          minHeight: multiline ? '1.6em' : 'auto',
           boxSizing: 'border-box',
           display: 'block',
-          
+          lineHeight: multiline ? '1.6' : '1.2'
         }}
-        rows={1}
+        data-placeholder={placeholder}
       />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
-      }}
-    />
+      
+      <FormattingToolbar
+        onBold={handleBold}
+        onItalic={handleItalic}
+        isBoldActive={isBoldActive}
+        isItalicActive={isItalicActive}
+        position={toolbarPosition}
+        visible={showToolbar}
+      />
+    </div>
   );
 }
 
@@ -362,9 +535,10 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-            >
-              {title || 'Click to add hero title'}
-            </h1>
+              dangerouslySetInnerHTML={{ 
+                __html: title || 'Click to add hero title' 
+              }}
+            />
           )}
         </div>
 
@@ -413,9 +587,10 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-            >
-              {subtitle || 'Click to add subtitle'}
-            </div>
+              dangerouslySetInnerHTML={{ 
+                __html: subtitle || 'Click to add subtitle' 
+              }}
+            />
           )}
         </div>
       </div>
