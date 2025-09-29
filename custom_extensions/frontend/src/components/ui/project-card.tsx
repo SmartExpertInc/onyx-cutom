@@ -521,7 +521,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           {/* Full title with better typography */}
           <h3 className="font-bold text-white/90 text-base leading-tight line-clamp-1" 
             style={{
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
               fontWeight: '700'
             }}
             title={displayTitle}>
@@ -542,7 +542,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="flex items-center gap-2">
               {/* Avatar */}
               <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md"
                 style={{ backgroundColor: avatarColor }}
               >
                 {project.createdBy.slice(0, 1).toUpperCase()}
@@ -552,13 +552,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-white leading-tight" 
                 style={{
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                 }}>
                   {t("interface.createdByYou", "Created by you")}
                 </span>
                 <span className="text-xs text-gray-100/80 leading-tight"
                 style={{
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                 }}>
                   {formatDate(project.createdAt)}
                 </span>
