@@ -1244,6 +1244,7 @@ export const uk = {
       modulesLowercase: "модулі",
       module: "модуль",
       perModule: "на модуль",
+      lessons: "Уроки",
       lessonsPerModule: "Уроків на модуль",
       language: "Мова",
       length: "Довжина",

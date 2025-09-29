@@ -1263,6 +1263,7 @@ export const es = {
       modulesLowercase: "módulos",
       module: "módulo",
       perModule: "por módulo",
+      lessons: "Lecciones",
       lessonsPerModule: "Lecciones por módulo",
       language: "Idioma",
       length: "Longitud",

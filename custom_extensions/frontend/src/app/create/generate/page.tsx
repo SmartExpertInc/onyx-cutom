@@ -181,8 +181,8 @@ function GenerateProductPicker() {
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
-  const [lessonsPerModule, setLessonsPerModule] = useState("3-4 per module");
-  const [language, setLanguage] = useState("English");
+  const [lessonsPerModule, setLessonsPerModule] = useState(`3-4 ${t('interface.generate.perModule', 'per module')}`);
+  const [language, setLanguage] = useState(t('interface.english', 'English'));
 
   // All filters are always true (removed dropdown functionality)
   const filters = {
@@ -451,7 +451,7 @@ function GenerateProductPicker() {
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
-  const [quizLanguage, setQuizLanguage] = useState("English");
+  const [quizLanguage, setQuizLanguage] = useState(t('interface.english', 'English'));
   const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
@@ -677,6 +677,20 @@ function GenerateProductPicker() {
     }
   };
 
+  // Helper to get translated length option
+  const getTranslatedLengthOption = (opt: "Short" | "Medium" | "Long") => {
+    switch (opt) {
+      case "Short":
+        return t('interface.generate.short', 'Short');
+      case "Medium":
+        return t('interface.generate.medium', 'Medium');
+      case "Long":
+        return t('interface.generate.long', 'Long');
+      default:
+        return t('interface.generate.short', 'Short');
+    }
+  };
+
   const handleSlideDeckStart = () => {
     // If using existing outline, check if outline and lesson selected
     if (useExistingOutline === true) {
@@ -848,8 +862,8 @@ function GenerateProductPicker() {
   const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
-  const [textLanguage, setTextLanguage] = useState<string>("English");
-  const [textLength, setTextLength] = useState<string>("Medium");
+  const [textLanguage, setTextLanguage] = useState<string>(t('interface.english', 'English'));
+  const [textLength, setTextLength] = useState<string>(t('interface.generate.medium', 'Medium'));
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 

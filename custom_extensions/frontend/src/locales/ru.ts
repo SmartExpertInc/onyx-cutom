@@ -1253,6 +1253,7 @@ export const ru = {
       modulesLowercase: "модули",
       module: "модуль",
       perModule: "на модуль",
+      lessons: "Уроки",
       lessonsPerModule: "Уроков на модуль",
       language: "Язык",
       length: "Длина",
