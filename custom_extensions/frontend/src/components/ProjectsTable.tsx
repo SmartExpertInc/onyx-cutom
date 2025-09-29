@@ -3797,7 +3797,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
                     <div className="flex items-center gap-3">
-                      <UserCog size={26} className="text-blue-600" />
+                      <UserCog size={40} className="text-blue-600" />
                       <div>
                         <DialogTitle>
                           {surveyStep === 1 && "What do you plan to use the ContentBuilder for?"}
@@ -3951,11 +3951,17 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                     )}
                     <div className="flex-1" />
                     {surveyStep === 4 && selectedCategory === 'work' ? (
-                      <Button type="submit" onClick={completeSurvey}>
+                      <Button 
+                        onClick={completeSurvey}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
                         Complete Registration
                       </Button>
                     ) : surveyStep === 2 && selectedCategory === 'personal' ? (
-                      <Button type="submit" onClick={completeSurvey}>
+                      <Button 
+                        onClick={completeSurvey}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
                         Complete Registration
                       </Button>
                     ) : (
