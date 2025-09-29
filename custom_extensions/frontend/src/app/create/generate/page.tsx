@@ -1313,7 +1313,7 @@ function GenerateProductPicker() {
               onValueChange={(value) => setModulesCount(Number(value))}
               options={Array.from({ length: 10 }, (_, i) => ({
                 value: (i + 1).toString(),
-                label: `${i + 1} ${i === 0 ? t('interface.generate.module', 'module') : t('interface.generate.modules', 'modules')}`
+                label: `${i + 1} ${i === 0 ? t('interface.generate.module', 'module') : t('interface.generate.modulesLowercase', 'modules')}`
               }))}
               icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
               label={t('interface.generate.modules', 'Modules')}
@@ -1364,7 +1364,7 @@ function GenerateProductPicker() {
                         label: o.name
                       }))}
                       icon={<ClipboardList className="w-4 h-4 text-gray-500" />}
-                      label="Outline"
+                      label={t('interface.generate.courseOutline', 'Outline')}
                     />
 
                     {/* Module dropdown – appears once outline is selected */}
@@ -1382,7 +1382,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
-                        label="Module"
+                        label={t('interface.generate.module', 'Module')}
                       />
                     )}
 
@@ -1396,7 +1396,7 @@ function GenerateProductPicker() {
                           label: l
                         }))}
                         icon={<FileText className="w-4 h-4 text-gray-500" />}
-                        label="Lesson"
+                        label={t('interface.generate.lesson', 'Lesson')}
                       />
                     )}
 
@@ -1420,10 +1420,10 @@ function GenerateProductPicker() {
                           onValueChange={(value) => setSlidesCount(Number(value))}
                           options={Array.from({ length: 14 }, (_, i) => ({
                             value: (i + 2).toString(),
-                            label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                            label: `${i + 2} ${i === 0 ? t('interface.generate.slide', 'slide') : t('interface.generate.slidesLowercase', 'slides')}`
                           }))}
                           icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
-                          label="Slides"
+                          label={t('interface.generate.slides', 'Slides')}
                         />
                       </>
                     )}
@@ -1450,10 +1450,10 @@ function GenerateProductPicker() {
                       onValueChange={(value) => setSlidesCount(Number(value))}
                       options={Array.from({ length: 14 }, (_, i) => ({
                         value: (i + 2).toString(),
-                        label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
+                        label: `${i + 2} ${i === 0 ? t('interface.generate.slide', 'slide') : t('interface.generate.slidesLowercase', 'slides')}`
                       }))}
                       icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
-                      label="Slides"
+                      label={t('interface.generate.slides', 'Slides')}
                     />
                   </>
                 )}
@@ -1498,7 +1498,7 @@ function GenerateProductPicker() {
                         label: outline.name
                       }))}
                       icon={<ClipboardList className="w-4 h-4 text-gray-500" />}
-                      label="Outline"
+                      label={t('interface.generate.courseOutline', 'Outline')}
                     />
 
                     {/* Module dropdown – appears once outline is selected */}
@@ -1516,7 +1516,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
-                        label="Module"
+                        label={t('interface.generate.module', 'Module')}
                       />
                     )}
 
@@ -1530,7 +1530,7 @@ function GenerateProductPicker() {
                           label: l
                         }))}
                         icon={<FileText className="w-4 h-4 text-gray-500" />}
-                        label="Lesson"
+                        label={t('interface.generate.lesson', 'Lesson')}
                       />
                     )}
 
@@ -1560,7 +1560,7 @@ function GenerateProductPicker() {
                             { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                           ]}
                           icon={<FileQuestion className="w-4 h-4 text-gray-500" />}
-                          label="Question Types"
+                          label={t('interface.generate.questionTypes', 'Question Types')}
                           placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                         />
                         <CustomPillSelector
@@ -1568,10 +1568,10 @@ function GenerateProductPicker() {
                           onValueChange={(value) => setQuizQuestionCount(Number(value))}
                           options={[5, 10, 15, 20, 25, 30].map((count) => ({
                             value: count.toString(),
-                            label: `${count} ${t('interface.generate.questions', 'questions')}`
+                            label: `${count} ${count === 1 ? t('interface.generate.question', 'question') : t('interface.generate.questionsLowercase', 'questions')}`
                           }))}
                           icon={<MessageCircleQuestion className="w-4 h-4 text-gray-500" />}
-                          label="Questions"
+                          label={t('interface.generate.questions', 'Questions')}
                         />
                       </>
                     )}
@@ -1604,7 +1604,7 @@ function GenerateProductPicker() {
                         { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                       ]}
                       icon={<FileQuestion className="w-4 h-4 text-gray-500" />}
-                      label="Question Types"
+                      label={t('interface.generate.questionTypes', 'Question Types')}
                       placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                     />
                     <CustomPillSelector
@@ -1612,10 +1612,10 @@ function GenerateProductPicker() {
                       onValueChange={(value) => setQuizQuestionCount(Number(value))}
                       options={[5, 10, 15, 20, 25, 30].map((count) => ({
                         value: count.toString(),
-                        label: `${count} ${t('interface.generate.questions', 'questions')}`
+                        label: `${count} ${count === 1 ? t('interface.generate.question', 'question') : t('interface.generate.questionsLowercase', 'questions')}`
                       }))}
                       icon={<MessageCircleQuestion className="w-4 h-4 text-gray-500" />}
-                      label="Questions"
+                      label={t('interface.generate.questions', 'Questions')}
                     />
                   </>
                 )}
@@ -1660,7 +1660,7 @@ function GenerateProductPicker() {
                         label: o.name
                       }))}
                       icon={<ClipboardList className="w-4 h-4 text-gray-500" />}
-                      label="Outline"
+                      label={t('interface.generate.courseOutline', 'Outline')}
                     />
 
                     {/* Module dropdown – appears once outline is selected */}
@@ -1678,7 +1678,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
-                        label="Module"
+                        label={t('interface.generate.module', 'Module')}
                       />
                     )}
 
@@ -1692,7 +1692,7 @@ function GenerateProductPicker() {
                           label: l
                         }))}
                         icon={<FileText className="w-4 h-4 text-gray-500" />}
-                        label="Lesson"
+                        label={t('interface.generate.lesson', 'Lesson')}
                       />
                     )}
 
@@ -1720,7 +1720,7 @@ function GenerateProductPicker() {
                             { value: "Long", label: t('interface.generate.long', 'Long') }
                           ]}
                           icon={<RulerDimensionLine className="w-4 h-4 text-gray-500" />}
-                          label="Length"
+                          label={t('interface.generate.length', 'Length')}
                         />
                         <CustomMultiSelector
                           selectedValues={textStyles}
@@ -1737,7 +1737,7 @@ function GenerateProductPicker() {
                             { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                           ]}
                           icon={<Paintbrush className="w-4 h-4 text-gray-500" />}
-                          label="Styles"
+                          label={t('interface.generate.styles', 'Styles')}
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
                         />
                       </>
@@ -1769,7 +1769,7 @@ function GenerateProductPicker() {
                         { value: "Long", label: t('interface.generate.long', 'Long') }
                       ]}
                       icon={<RulerDimensionLine className="w-4 h-4 text-gray-500" />}
-                      label="Length"
+                      label={t('interface.generate.length', 'Length')}
                     />
                     <CustomMultiSelector
                       selectedValues={textStyles}
@@ -1786,7 +1786,7 @@ function GenerateProductPicker() {
                         { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                       ]}
                       icon={<Paintbrush className="w-4 h-4 text-gray-500" />}
-                      label="Styles"
+                      label={t('interface.generate.styles', 'Styles')}
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
                   </>
@@ -1802,10 +1802,10 @@ function GenerateProductPicker() {
               onValueChange={(value) => setSlidesCount(Number(value))}
               options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => ({
                 value: count.toString(),
-                label: `${count} ${t('interface.generate.slides', 'slides')}`
+                label: `${count} ${count === 1 ? t('interface.generate.slide', 'slide') : t('interface.generate.slidesLowercase', 'slides')}`
               }))}
               icon={<PanelsLeftBottom className="w-4 h-4 text-gray-500" />}
-              label="Slides"
+              label={t('interface.generate.slides', 'Slides')}
             />
             <CustomPillSelector
               value={language}
