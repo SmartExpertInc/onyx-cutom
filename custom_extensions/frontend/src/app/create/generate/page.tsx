@@ -1899,11 +1899,14 @@ function GenerateProductPicker() {
             <div className="w-full relative z-0">
               <div className="flex items-center justify-center mb-2 relative">
                 <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
-                  <div className="flex-1 border-t border-blue-100"></div>
+                  <div className="flex-1 border-t-2 border-blue-100 w-16"></div>
                 </div>
                 <span className="relative z-10 bg-transparent px-4 text-lg font-semibold text-blue-900 text-center" style={{ letterSpacing: 0 }}>
                   {t('interface.generate.examplePrompts', 'Example prompts')}
                 </span>
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 flex items-center" aria-hidden="true">
+                  <div className="flex-1 border-t-2 border-blue-100 w-16 ml-auto"></div>
+                </div>
               </div>
               <div className="grid grid-rows-2 sm:grid-cols-3 grid-flow-col gap-2">
                 {Array.from({ length: 6 }).map((_, index) =>
