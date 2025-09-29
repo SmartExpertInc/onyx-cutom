@@ -849,7 +849,7 @@ function GenerateProductPicker() {
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
   const [textLanguage, setTextLanguage] = useState<string>("English");
-  const [textLength, setTextLength] = useState<string>("medium");
+  const [textLength, setTextLength] = useState<string>("Medium");
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 
@@ -1715,9 +1715,9 @@ function GenerateProductPicker() {
                           value={textLength}
                           onValueChange={setTextLength}
                           options={[
-                            { value: "short", label: t('interface.generate.short', 'Short') },
-                            { value: "medium", label: t('interface.generate.medium', 'Medium') },
-                            { value: "long", label: t('interface.generate.long', 'Long') }
+                            { value: "Short", label: t('interface.generate.short', 'Short') },
+                            { value: "Medium", label: t('interface.generate.medium', 'Medium') },
+                            { value: "Long", label: t('interface.generate.long', 'Long') }
                           ]}
                           icon={<RulerDimensionLine className="w-4 h-4 text-gray-500" />}
                           label="Length"
@@ -1764,9 +1764,9 @@ function GenerateProductPicker() {
                       value={textLength}
                       onValueChange={setTextLength}
                       options={[
-                        { value: "short", label: t('interface.generate.short', 'Short') },
-                        { value: "medium", label: t('interface.generate.medium', 'Medium') },
-                        { value: "long", label: t('interface.generate.long', 'Long') }
+                        { value: "Short", label: t('interface.generate.short', 'Short') },
+                        { value: "Medium", label: t('interface.generate.medium', 'Medium') },
+                        { value: "Long", label: t('interface.generate.long', 'Long') }
                       ]}
                       icon={<RulerDimensionLine className="w-4 h-4 text-gray-500" />}
                       label="Length"

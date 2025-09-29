@@ -135,7 +135,7 @@ function SelectContent({
         data-slot="select-content"
         sideOffset={sideOffset}
         className={cn(
-          "bg-white text-gray-900 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg border shadow-lg",
+          "bg-white text-gray-900 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-lg",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
@@ -184,7 +184,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "hover:bg-gray-100 hover:text-gray-900 text-gray-900 [&_svg:not([class*='text-'])]:text-gray-500 relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "hover:bg-gray-100 hover:text-gray-900 text-gray-900 [&_svg:not([class*='text-'])]:text-gray-500 relative flex w-full cursor-default items-center gap-2 rounded-md py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className
       )}
       {...props}
@@ -271,7 +271,7 @@ function CustomPillSelector({
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger 
           className={cn(
-            "bg-white border border-gray-200 rounded-full px-4 py-[10px] h-auto cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
+            "bg-white border border-gray-200 rounded-full px-4 py-[10px] h-auto cursor-pointer focus:outline-none shadow-sm hover:shadow-lg transition-all duration-200",
             className
           )}
         >
@@ -282,7 +282,7 @@ function CustomPillSelector({
               </div>
             )}
             <span className="text-gray-500 text-sm">{label}:</span>
-            <span className="text-gray-900 font-medium">{value}</span>
+            <span className="text-gray-900 font-semibold">{value}</span>
           </div>
         </SelectTrigger>
         <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
@@ -338,7 +338,7 @@ function CustomMultiSelector({
       <Select open={isOpen} onOpenChange={setIsOpen}>
         <SelectTrigger 
           className={cn(
-            "bg-white border border-gray-200 rounded-full px-4 py-[10px] h-auto cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm hover:shadow-md transition-all duration-200",
+            "bg-white border border-gray-200 rounded-full px-4 py-[10px] h-auto cursor-pointer focus:outline-none shadow-sm hover:shadow-lg transition-all duration-200",
             className
           )}
         >
@@ -349,14 +349,14 @@ function CustomMultiSelector({
               </div>
             )}
             <span className="text-gray-500 text-sm">{label}:</span>
-            <span className="text-gray-900 font-medium">{displayText}</span>
+            <span className="text-gray-900 font-semibold">{displayText}</span>
           </div>
         </SelectTrigger>
         <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
           {options.map((option) => (
             <div
               key={option.value}
-              className="flex items-center justify-between px-3 py-2 text-gray-900 hover:bg-gray-50 cursor-pointer text-sm"
+              className="flex items-center justify-between px-3 py-2 text-gray-900 hover:bg-gray-100 cursor-pointer text-sm"
               onClick={(e) => {
                 e.preventDefault()
                 handleToggle(option.value)
