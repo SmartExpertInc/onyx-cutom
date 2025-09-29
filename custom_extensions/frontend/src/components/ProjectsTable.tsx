@@ -3542,9 +3542,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-                <Button 
-                  variant="gradient" 
-                  className="rounded-full font-semibold bg-gradient-to-r from-[#5b61d7] to-[#ccaefc]"
+                <Button
+                  className="rounded-full font-semibold bg-gradient-to-r from-[var(--background-first)] to-[var(--background-third)]"
                   asChild
                 >
                   <div>
