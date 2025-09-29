@@ -1838,7 +1838,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 relative z-10"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-y-auto min-h-[90px] max-h-[140px] border border-gray-100 focus:border-blue-300 focus:outline-none transition-colors placeholder-gray-400 relative z-10"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={6}
             />
@@ -1861,7 +1861,7 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="group relative flex flex-col justify-center items-center w-full px-4 py-3 rounded-full bg-white border border-gray-200 hover:scale-105 transition-all duration-200 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
+                      className="group relative flex flex-col justify-center items-center w-full px-4 py-3 rounded-full bg-white border border-gray-200 hover:scale-105 transition-all duration-200 text-sm font-normal text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
                       style={{ 
                         minHeight: 64,
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
@@ -1874,7 +1874,7 @@ function GenerateProductPicker() {
                       }}
                     >
                       <span className="text-center leading-tight pr-6">{examples[index]}</span>
-                      <span className="absolute top-3 right-3 text-gray-500 text-lg font-bold group-hover:text-gray-700 transition-colors">+</span>
+                      <span className="absolute top-1/2 right-3 transform -translate-y-1/2 text-lg font-bold transition-colors" style={{ color: '#2563eb' }}>+</span>
                     </button>
                   ) : (
                     <div key={index} className="w-full" style={{ minHeight: 64 }} />
@@ -1884,17 +1884,17 @@ function GenerateProductPicker() {
               <div className="flex justify-center mt-3">
                 <Button
                   onClick={shuffleExamples}
-                  variant="blueGradient"
-                  className="group flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-all duration-200"
+                  className="group flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-all duration-200 cursor-pointer text-white"
                   style={{
+                    backgroundColor: 'rgba(37, 99, 235, 0.6)',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                   }}
                   onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-                    e.currentTarget.style.color = 'var(--foreground-new)';
+                    e.currentTarget.style.color = '#2563eb';
                     const icon = e.currentTarget.querySelector('svg');
                     if (icon) {
-                      icon.style.color = 'var(--foreground-new)';
+                      icon.style.color = '#2563eb';
                     }
                   }}
                   onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {

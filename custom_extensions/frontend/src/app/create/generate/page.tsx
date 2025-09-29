@@ -1888,7 +1888,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-hidden min-h-[140px] max-h-[320px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 transition-all duration-200 hover:shadow-xl"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-y-auto min-h-[90px] max-h-[140px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 transition-all duration-200 hover:shadow-xl"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={6}
             />
@@ -1933,17 +1933,17 @@ function GenerateProductPicker() {
               <div className="flex justify-center mt-3">
                 <Button
                   onClick={shuffleExamples}
-                  variant="blueGradient"
-                  className="group flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-all duration-200"
+                  className="group flex items-center gap-2 px-6 py-2 rounded-full text-base font-medium transition-all duration-200 cursor-pointer text-white"
                   style={{
+                    backgroundColor: 'rgba(37, 99, 235, 0.6)',
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                   }}
                   onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                     e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-                    e.currentTarget.style.color = 'var(--foreground-new)';
+                    e.currentTarget.style.color = '#2563eb';
                     const icon = e.currentTarget.querySelector('svg');
                     if (icon) {
-                      icon.style.color = 'var(--foreground-new)';
+                      icon.style.color = '#2563eb';
                     }
                   }}
                   onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {

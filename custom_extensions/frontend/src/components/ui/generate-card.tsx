@@ -17,10 +17,10 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         tabIndex={0}
         className={cn(
-          "group relative rounded-md border-[var(--border)] bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
+          "group relative rounded-md bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-20 xs:w-20 xs:h-18 sm:w-28 sm:h-23 md:w-32 md:h-25 lg:w-36 lg:h-27 xl:w-40 xl:h-30",
           "hover:scale-105 focus:outline-none focus:border-[var(--ring)]",
-          active && "border-[var(--generate-card-border-active)]",
+          active ? "border border-blue-300 ring-2 ring-blue-200" : "border-2 border-transparent",
           className
         )}
         style={{
