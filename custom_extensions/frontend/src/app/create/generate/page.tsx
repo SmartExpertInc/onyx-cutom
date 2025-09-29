@@ -1910,10 +1910,10 @@ function GenerateProductPicker() {
                     <button
                       key={index}
                       onClick={() => setPrompt(examples[index])}
-                      className="group relative flex flex-col justify-center items-center w-full px-4 py-3 rounded-full bg-white border border-gray-200 hover:scale-105 transition-all duration-200 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
+                      className="group relative flex flex-col justify-center items-center w-full px-4 py-3 rounded-full bg-white border border-blue-300 hover:scale-105 transition-all duration-200 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer"
                       style={{ 
                         minHeight: 64,
-                        backgroundColor: 'rgba(37, 99, 235, 0.3)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
                       onMouseEnter={(e) => {
@@ -1934,24 +1934,7 @@ function GenerateProductPicker() {
               <div className="flex justify-center mt-3">
                 <Button
                   onClick={shuffleExamples}
-                  className="flex items-center gap-2 text-sm text-gray-700 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-                  style={{
-                    '--hover-color': 'rgb(37, 99, 235)'
-                  } as React.CSSProperties}
-                  onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.currentTarget.style.color = 'rgb(37, 99, 235)';
-                    const icon = e.currentTarget.querySelector('svg');
-                    if (icon) {
-                      icon.style.color = 'rgb(37, 99, 235)';
-                    }
-                  }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                    e.currentTarget.style.color = '';
-                    const icon = e.currentTarget.querySelector('svg');
-                    if (icon) {
-                      icon.style.color = '';
-                    }
-                  }}
+                  className="flex items-center gap-2 text-sm text-gray-700 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
                 >
                   <Shuffle size={18} /> {t('interface.generate.shuffleExamples', 'Shuffle')}
                 </Button>
