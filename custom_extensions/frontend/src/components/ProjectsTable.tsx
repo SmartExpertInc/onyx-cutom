@@ -45,7 +45,8 @@ import {
   FileText,
   ClipboardCheck,
   TableOfContents,
-  Search
+  Search,
+  UserCog
 } from "lucide-react";
 import ProjectSettingsModal from "../app/projects/ProjectSettingsModal";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -3649,6 +3650,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   // Survey step state
   const [surveyStep, setSurveyStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [surveyModalOpen, setSurveyModalOpen] = useState(false);
   const [surveyData, setSurveyData] = useState({
     category: '',
     workRole: '',
@@ -3658,36 +3660,40 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     additionalInfo: ''
   });
 
-  // Handle category selection and move to next step
+  // Handle category selection
   const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const category = event.target.value;
     setSelectedCategory(category);
     setSurveyData(prev => ({ ...prev, category }));
-    setSurveyStep(2);
   };
 
   // Handle work role selection
   const handleWorkRoleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSurveyData(prev => ({ ...prev, workRole: event.target.value }));
-    setSurveyStep(3);
   };
 
   // Handle company size selection
   const handleCompanySizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSurveyData(prev => ({ ...prev, companySize: event.target.value }));
-    setSurveyStep(4);
   };
 
   // Handle industry selection
   const handleIndustryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSurveyData(prev => ({ ...prev, industry: event.target.value }));
-    setSurveyStep(5);
   };
 
   // Handle personal use selection
   const handlePersonalUseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSurveyData(prev => ({ ...prev, personalUse: event.target.value }));
-    setSurveyStep(2); // For personal, we can go directly to completion
+  };
+
+  // Navigation functions
+  const handleNext = () => {
+    setSurveyStep(prev => prev + 1);
+  };
+
+  const handleBack = () => {
+    setSurveyStep(prev => prev - 1);
   };
 
   // Handle additional info and complete survey
@@ -3699,12 +3705,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
   const completeSurvey = () => {
     console.log('Survey completed:', surveyData);
     handleCreateProduct();
+    setSurveyModalOpen(false);
   };
 
   // Reset survey when modal opens
   const resetSurvey = () => {
     setSurveyStep(1);
     setSelectedCategory('');
+    setSurveyModalOpen(true);
     setSurveyData({
       category: '',
       workRole: '',
@@ -3772,7 +3780,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </div>
                 </Button>
               </Link>
-              <Dialog onOpenChange={(open) => open && resetSurvey()}>
+              <Dialog open={surveyModalOpen} onOpenChange={(open) => {
+                setSurveyModalOpen(open);
+                if (open) resetSurvey();
+              }}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="download" 
@@ -3780,24 +3791,26 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   >
                     <div>
                     Registration Survey
-                    <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
-                      AI
-                    </span>
                     </div>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[500px]">
                   <DialogHeader>
-                    <DialogTitle>
-                      {surveyStep === 1 && "What do you plan to use the ContentBuilder for?"}
-                      {surveyStep === 2 && selectedCategory === 'work' && "What best describes your role?"}
-                      {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
-                      {surveyStep === 4 && selectedCategory === 'work' && "What industry are you in?"}
-                      {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
-                    </DialogTitle>
-                    <DialogDescription>
-                      Help us understand your needs and provide you with the best ContentBuilder experience.
-                    </DialogDescription>
+                    <div className="flex items-center gap-3">
+                      <UserCog size={26} className="text-blue-600" />
+                      <div>
+                        <DialogTitle>
+                          {surveyStep === 1 && "What do you plan to use the ContentBuilder for?"}
+                          {surveyStep === 2 && selectedCategory === 'work' && "What best describes your role?"}
+                          {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
+                          {surveyStep === 4 && selectedCategory === 'work' && "What industry are you in?"}
+                          {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
+                        </DialogTitle>
+                        <DialogDescription>
+                          Help us understand your needs and provide you with the best ContentBuilder experience.
+                        </DialogDescription>
+                      </div>
+                    </div>
                   </DialogHeader>
                   <div className="grid gap-6 py-4">
                     {/* Step 1: Main Category Selection */}
@@ -3928,33 +3941,36 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                       </div>
                     )}
 
-                    {/* Final Step: Additional Info */}
-                    {surveyStep === 5 && (
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="additional-info" className="text-base font-semibold">
-                            Additional Information (Optional)
-                          </Label>
-                          <textarea
-                            id="additional-info"
-                            placeholder="Tell us more about your specific needs or goals..."
-                            className="w-full p-3 border border-gray-300 rounded-md h-20 resize-none"
-                            onChange={handleAdditionalInfoChange}
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
                   
-                  <DialogFooter>
-                    {surveyStep === 5 ? (
-                      <Button type="submit" onClick={completeSurvey} className="w-full">
+                  <DialogFooter className="flex justify-between">
+                    {surveyStep > 1 && (
+                      <Button variant="outline" onClick={handleBack}>
+                        Back
+                      </Button>
+                    )}
+                    <div className="flex-1" />
+                    {surveyStep === 4 && selectedCategory === 'work' ? (
+                      <Button type="submit" onClick={completeSurvey}>
+                        Complete Registration
+                      </Button>
+                    ) : surveyStep === 2 && selectedCategory === 'personal' ? (
+                      <Button type="submit" onClick={completeSurvey}>
                         Complete Registration
                       </Button>
                     ) : (
-                      <div className="w-full text-center text-sm text-gray-500">
-                        Step {surveyStep} of {selectedCategory === 'work' ? '5' : '2'}
-                      </div>
+                      <Button 
+                        onClick={handleNext}
+                        disabled={
+                          (surveyStep === 1 && !selectedCategory) ||
+                          (surveyStep === 2 && selectedCategory === 'work' && !surveyData.workRole) ||
+                          (surveyStep === 2 && selectedCategory === 'personal' && !surveyData.personalUse) ||
+                          (surveyStep === 3 && !surveyData.companySize) ||
+                          (surveyStep === 4 && !surveyData.industry)
+                        }
+                      >
+                        Next
+                      </Button>
                     )}
                   </DialogFooter>
                 </DialogContent>
