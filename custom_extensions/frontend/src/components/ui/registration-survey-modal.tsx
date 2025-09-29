@@ -84,75 +84,75 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] p-0 max-h-[90vh] overflow-hidden">
+      <DialogContent className="sm:max-w-[700px] p-0 max-h-[85vh] overflow-y-auto">
         <div className="bg-white rounded-3xl">
-          <DialogHeader className="text-center space-y-6 p-8 pb-6">
-            <div className="flex justify-center">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
-                {surveyStep === 1 && <Target className="w-10 h-10 text-white" />}
-                {surveyStep === 2 && selectedCategory === 'work' && <Building className="w-10 h-10 text-white" />}
-                {surveyStep === 3 && selectedCategory === 'work' && <Users className="w-10 h-10 text-white" />}
-                {surveyStep === 4 && selectedCategory === 'work' && <Target className="w-10 h-10 text-white" />}
-                {surveyStep === 2 && selectedCategory === 'personal' && <Lightbulb className="w-10 h-10 text-white" />}
+          <DialogHeader className="space-y-4 p-6 pb-4">
+            <div className="flex items-center space-x-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg flex-shrink-0">
+                {surveyStep === 1 && <Target className="w-8 h-8 text-white" />}
+                {surveyStep === 2 && selectedCategory === 'work' && <Building className="w-8 h-8 text-white" />}
+                {surveyStep === 3 && selectedCategory === 'work' && <Users className="w-8 h-8 text-white" />}
+                {surveyStep === 4 && selectedCategory === 'work' && <Target className="w-8 h-8 text-white" />}
+                {surveyStep === 2 && selectedCategory === 'personal' && <Lightbulb className="w-8 h-8 text-white" />}
               </div>
-            </div>
-            <div className="space-y-2">
-              <DialogTitle className="text-3xl font-bold text-gray-900">
-                {surveyStep === 1 && "What do you plan to use ContentBuilder for?"}
-                {surveyStep === 2 && selectedCategory === 'work' && "Tell us about your work"}
-                {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
-                {surveyStep === 4 && selectedCategory === 'work' && "What's your primary use case?"}
-                {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
-              </DialogTitle>
-              <DialogDescription className="text-lg text-gray-600">
-                {surveyStep === 1 && "This helps us customize your experience"}
-                {surveyStep === 2 && selectedCategory === 'work' && "Help us understand your professional context"}
-                {surveyStep === 3 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
-                {surveyStep === 4 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
-                {surveyStep === 2 && selectedCategory === 'personal' && "Let us know your primary focus"}
-              </DialogDescription>
+              <div className="space-y-2">
+                <DialogTitle className="text-2xl font-bold text-gray-900">
+                  {surveyStep === 1 && "What do you plan to use ContentBuilder for?"}
+                  {surveyStep === 2 && selectedCategory === 'work' && "Tell us about your work"}
+                  {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
+                  {surveyStep === 4 && selectedCategory === 'work' && "What's your primary use case?"}
+                  {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
+                </DialogTitle>
+                <DialogDescription className="text-base text-gray-600">
+                  {surveyStep === 1 && "This helps us customize your experience"}
+                  {surveyStep === 2 && selectedCategory === 'work' && "Help us understand your professional context"}
+                  {surveyStep === 3 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
+                  {surveyStep === 4 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
+                  {surveyStep === 2 && selectedCategory === 'personal' && "Let us know your primary focus"}
+                </DialogDescription>
+              </div>
             </div>
           </DialogHeader>
         
-        <div className="px-8 pb-8">
+        <div className="px-6 pb-6">
           {/* Step 1: Main Category Selection */}
           {surveyStep === 1 && (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-4">
               <button
                 onClick={() => setSelectedCategory('work')}
-                className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
                   selectedCategory === 'work'
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className={`w-16 h-16 rounded-xl mb-4 flex items-center justify-center ${
+                  <div className={`w-12 h-12 rounded-lg mb-3 flex items-center justify-center ${
                     selectedCategory === 'work' ? 'bg-blue-500' : 'bg-gray-100'
                   }`}>
-                    <Briefcase className={`w-8 h-8 ${selectedCategory === 'work' ? 'text-white' : 'text-gray-600'}`} />
+                    <Briefcase className={`w-6 h-6 ${selectedCategory === 'work' ? 'text-white' : 'text-gray-600'}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Work</h3>
-                  <p className="text-gray-600">Professional use for business, marketing, or team collaboration</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Work</h3>
+                  <p className="text-sm text-gray-600">Professional use for business, marketing, or team collaboration</p>
                 </div>
               </button>
               
               <button
                 onClick={() => setSelectedCategory('personal')}
-                className={`p-8 rounded-2xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
                   selectedCategory === 'personal'
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
                 }`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className={`w-16 h-16 rounded-xl mb-4 flex items-center justify-center ${
+                  <div className={`w-12 h-12 rounded-lg mb-3 flex items-center justify-center ${
                     selectedCategory === 'personal' ? 'bg-blue-500' : 'bg-gray-100'
                   }`}>
-                    <Heart className={`w-8 h-8 ${selectedCategory === 'personal' ? 'text-white' : 'text-gray-600'}`} />
+                    <Heart className={`w-6 h-6 ${selectedCategory === 'personal' ? 'text-white' : 'text-gray-600'}`} />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Personal</h3>
-                  <p className="text-gray-600">Personal projects, learning, or creative endeavors</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Personal</h3>
+                  <p className="text-sm text-gray-600">Personal projects, learning, or creative endeavors</p>
                 </div>
               </button>
             </div>
@@ -160,12 +160,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
           {/* Step 2: Work Role */}
           {surveyStep === 2 && selectedCategory === 'work' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
+                <label className="block text-base font-semibold text-gray-700 mb-3">
                   What best describes your role? *
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
                     { value: 'marketer', label: 'Marketer' },
                     { value: 'hr-ld', label: 'HR / L&D' },
@@ -177,7 +177,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     <button
                       key={option.value}
                       onClick={() => setSurveyData(prev => ({ ...prev, workRole: option.value }))}
-                      className={`p-4 text-center rounded-xl border-2 transition-all duration-200 ${
+                      className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
                         surveyData.workRole === option.value
                           ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
                           : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
@@ -193,12 +193,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
           {/* Step 3: Company Size */}
           {surveyStep === 3 && selectedCategory === 'work' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
+                <label className="block text-base font-semibold text-gray-700 mb-3">
                   What is the size of your company? *
                 </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
                     { value: '1-10', label: '1–10', icon: 1 },
                     { value: '11-50', label: '11–50', icon: 2 },
@@ -208,13 +208,13 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     <button
                       key={option.value}
                       onClick={() => setSurveyData(prev => ({ ...prev, companySize: option.value }))}
-                      className={`p-4 text-center rounded-xl border-2 transition-all duration-200 ${
+                      className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
                         surveyData.companySize === option.value
                           ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
                           : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                       }`}
                     >
-                      <Users className="w-6 h-6 mx-auto mb-2" />
+                      <Users className="w-5 h-5 mx-auto mb-1" />
                       <span className="font-medium">{option.label}</span>
                     </button>
                   ))}
@@ -225,12 +225,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
           {/* Step 4: Industry */}
           {surveyStep === 4 && selectedCategory === 'work' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
+                <label className="block text-base font-semibold text-gray-700 mb-3">
                   What's your primary use case?
                 </label>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-4">
                   {[
                     { value: 'video-production', label: 'Video Production', icon: '🎬' },
                     { value: 'digital-marketing', label: 'Digital Marketing', icon: '📈' },
@@ -242,21 +242,21 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     <button
                       key={option.value}
                       onClick={() => setSurveyData(prev => ({ ...prev, industry: option.value }))}
-                      className={`p-6 text-left rounded-xl border-2 transition-all duration-200 transform hover:scale-105 ${
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${
                         surveyData.industry === option.value
                           ? 'border-blue-500 bg-blue-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
                       }`}
                     >
                       <div className="flex items-center">
-                        <div className={`w-12 h-12 rounded-lg mr-4 flex items-center justify-center ${
+                        <div className={`w-10 h-10 rounded-lg mr-3 flex items-center justify-center ${
                           surveyData.industry === option.value ? 'bg-blue-500' : 'bg-gray-100'
                         }`}>
-                          <span className={`text-2xl ${surveyData.industry === option.value ? 'text-white' : 'text-gray-600'}`}>
+                          <span className={`text-lg ${surveyData.industry === option.value ? 'text-white' : 'text-gray-600'}`}>
                             {option.icon}
                           </span>
                         </div>
-                        <span className="font-semibold text-gray-900">{option.label}</span>
+                        <span className="font-medium text-gray-900">{option.label}</span>
                       </div>
                     </button>
                   ))}
@@ -267,12 +267,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
           {/* Step 2: Personal Use */}
           {surveyStep === 2 && selectedCategory === 'personal' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <label className="block text-lg font-semibold text-gray-700 mb-4">
+                <label className="block text-base font-semibold text-gray-700 mb-3">
                   What will you mainly use the platform for?
                 </label>
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-4">
                   {[
                     { value: 'personal-projects', label: 'Personal projects', icon: '🚀' },
                     { value: 'learning-skills', label: 'Learning new skills', icon: '📚' },
@@ -282,21 +282,21 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     <button
                       key={option.value}
                       onClick={() => setSurveyData(prev => ({ ...prev, personalUse: option.value }))}
-                      className={`p-6 text-left rounded-xl border-2 transition-all duration-200 transform hover:scale-105 ${
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${
                         surveyData.personalUse === option.value
                           ? 'border-blue-500 bg-blue-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
                       }`}
                     >
                       <div className="flex items-center">
-                        <div className={`w-12 h-12 rounded-lg mr-4 flex items-center justify-center ${
+                        <div className={`w-10 h-10 rounded-lg mr-3 flex items-center justify-center ${
                           surveyData.personalUse === option.value ? 'bg-blue-500' : 'bg-gray-100'
                         }`}>
-                          <span className={`text-2xl ${surveyData.personalUse === option.value ? 'text-white' : 'text-gray-600'}`}>
+                          <span className={`text-lg ${surveyData.personalUse === option.value ? 'text-white' : 'text-gray-600'}`}>
                             {option.icon}
                           </span>
                         </div>
-                        <span className="font-semibold text-gray-900">{option.label}</span>
+                        <span className="font-medium text-gray-900">{option.label}</span>
                       </div>
                     </button>
                   ))}
@@ -307,11 +307,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         </div>
         
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center px-8 py-6 border-t border-gray-100">
+        <div className="flex justify-between items-center px-6 py-4 border-t border-gray-100">
           <button
             onClick={handleBack}
             disabled={surveyStep === 1}
-            className={`flex items-center px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               surveyStep === 1
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 transform hover:scale-105'
@@ -321,7 +321,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             Previous
           </button>
 
-          <div className="text-sm text-gray-500 font-medium">
+          <div className="text-xs text-gray-500 font-medium">
             Step {surveyStep} of {selectedCategory === 'work' ? '4' : '2'}
           </div>
 
@@ -329,7 +329,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             <button
               onClick={completeSurvey}
               disabled={!surveyData.industry}
-              className={`flex items-center px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                 surveyData.industry 
                   ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -342,7 +342,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             <button
               onClick={completeSurvey}
               disabled={!surveyData.personalUse}
-              className={`flex items-center px-8 py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                 surveyData.personalUse 
                   ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -361,7 +361,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 (surveyStep === 3 && !surveyData.companySize) ||
                 (surveyStep === 4 && !surveyData.industry)
               }
-              className="flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
               Continue
               <ChevronRight className="w-5 h-5 ml-2" />
