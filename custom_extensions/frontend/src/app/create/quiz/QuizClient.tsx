@@ -775,7 +775,7 @@ export default function QuizClient() {
             fileIds: memoizedFileIds.join(','),
             fromText: fromText,
             textMode: textMode,
-            userText: fromText ? sessionStorage.getItem('userText') : undefined,
+            userText: fromText ? userText : undefined,
             fromKnowledgeBase: fromKnowledgeBase,
             questionCount: selectedQuestionCount,
             // Add connector context if creating from connectors
