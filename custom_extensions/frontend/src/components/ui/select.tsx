@@ -282,7 +282,9 @@ function CustomPillSelector({
               </div>
             )}
             <span className="text-gray-500 text-sm">{label}:</span>
-            <span className="text-gray-900 font-semibold">{value}</span>
+            <span className="text-gray-900 font-semibold">
+              {options.find(option => option.value === value)?.label || value}
+            </span>
           </div>
         </SelectTrigger>
         <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
