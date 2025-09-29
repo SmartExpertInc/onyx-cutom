@@ -3542,7 +3542,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
               <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
-                <div className="relative rounded-full p-[2px] animate-spin-border">
+                <div className="relative rounded-full p-[2px]">
                   <Button
                     className="relative rounded-full text-white font-semibold bg-gradient-to-r from-[#A952F4] to-[#6E18F0] z-10 transition-all duration-200 hover:bg-[#6E18F0]"
                     asChild
