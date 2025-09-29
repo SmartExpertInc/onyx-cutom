@@ -918,52 +918,6 @@ LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/comple
 # Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
-class SCORMExportRequest(BaseModel):
-    courseOutlineId: int
-
-@app.post("/api/custom/lms/export/scorm")
-async def export_scorm_package(
-    request: SCORMExportRequest,
-    http_request: Request,
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """Build and return a SCORM 2004 (4th Ed) package zip for a course outline."""
-    try:
-        # Resolve user identity
-        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
-        onyx_user_id = user_uuid
-
-        # Validate access: ensure the course is a Training Plan owned by the user
-        async with pool.acquire() as connection:
-            row = await connection.fetchrow(
-                """
-                SELECT p.id
-                FROM projects p
-                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
-                WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
-                """,
-                request.courseOutlineId, onyx_user_id
-            )
-            if not row:
-                raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
-
-        # Build SCORM package
-        from app.services.scorm_packager import build_scorm_package_zip
-        filename, zip_bytes = await build_scorm_package_zip(request.courseOutlineId, onyx_user_id)
-
-        return StreamingResponse(
-            content=io.BytesIO(zip_bytes),
-            media_type="application/zip",
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}"
-            }
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"[API:SCORM] Export failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to export SCORM package")
-
 DB_POOL = None
 # Track in-flight project creations to avoid duplicate processing (keyed by user+project)
 ACTIVE_PROJECT_CREATE_KEYS: Set[str] = set()
@@ -34199,3 +34153,48 @@ async def log_static_file_requests(request: Request, call_next):
     
     return response
     
+class SCORMExportRequest(BaseModel):
+    courseOutlineId: int
+
+@app.post("/api/custom/lms/export/scorm")
+async def export_scorm_package(
+    request: SCORMExportRequest,
+    http_request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Build and return a SCORM 2004 (4th Ed) package zip for a course outline."""
+    try:
+        # Resolve user identity
+        user_uuid, _ = await get_user_identifiers_for_workspace(http_request)
+        onyx_user_id = user_uuid
+
+        # Validate access: ensure the course is a Training Plan owned by the user
+        async with pool.acquire() as connection:
+            row = await connection.fetchrow(
+                """
+                SELECT p.id
+                FROM projects p
+                LEFT JOIN design_templates dt ON p.design_template_id = dt.id
+                WHERE p.id = $1 AND p.onyx_user_id = $2 AND dt.microproduct_type = 'Training Plan'
+                """,
+                request.courseOutlineId, onyx_user_id
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Course outline not found or not accessible")
+
+        # Build SCORM package
+        from app.services.scorm_packager import build_scorm_package_zip
+        filename, zip_bytes = await build_scorm_package_zip(request.courseOutlineId, onyx_user_id)
+
+        return StreamingResponse(
+            content=io.BytesIO(zip_bytes),
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[API:SCORM] Export failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to export SCORM package")
