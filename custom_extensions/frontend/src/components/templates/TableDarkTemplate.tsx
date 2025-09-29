@@ -338,14 +338,14 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     width: '100%',
     borderCollapse: 'separate',
     borderSpacing: '8px 8px',
-    backgroundColor: 'rgb(242, 248, 254)',
+    backgroundColor: '#ffffff',
     tableLayout: 'fixed'
   };
 
   // Header styles - no borders, with spacing
   const headerStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableHeaderColor,
-    color: currentTheme.colors.tableHeaderTextColor,
+    backgroundColor: currentTheme.colors.tableFirstColumnColor,
+    color: '#000000',
     fontWeight: 'bold',
     fontSize: '1rem',
     textAlign: 'center',
@@ -357,8 +357,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // First column (row headers) styles - no borders, with spacing
   const firstColumnStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableFirstColumnColor || '#F2F8FE',
-    color: currentTheme.colors.tableTextColor || '#000000',
+    backgroundColor: currentTheme.colors.tableFirstColumnColor,
+    color: '#000000',
     fontWeight: 'bold',
     fontSize: '0.95rem',
     textAlign: 'left',
@@ -370,8 +370,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
 
   // Data cell styles - no borders, with spacing
   const dataCellStyles: React.CSSProperties = {
-    backgroundColor: currentTheme.colors.tableDataCellColor || '#ffffff',
-    color: currentTheme.colors.tableTextColor || '#000000',
+    backgroundColor: currentTheme.colors.tableFirstColumnColor,
+    color: '#000000',
     fontSize: '0.95rem',
     textAlign: 'center',
     padding: '16px 12px',
