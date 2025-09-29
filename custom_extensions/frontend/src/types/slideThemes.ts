@@ -15,6 +15,15 @@ export interface SlideTheme {
     eventListGradient?: string;
     tableHeaderColor?: string;
     tableFirstColumnColor?: string;
+    tableBackgroundColor?: string;
+    tableDataCellColor?: string;
+    tableBorderColor?: string;
+    tableTextColor?: string;
+    tableHeaderTextColor?: string;
+    tableCheckmarkColor?: string;
+    tableCrossColor?: string;
+    tableDeleteButtonColor?: string;
+    tableDeleteButtonTextColor?: string;
   };
   fonts: {
     titleFont: string;
