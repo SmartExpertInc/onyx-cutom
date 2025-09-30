@@ -202,18 +202,19 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const stepWrapperStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     top: `${index * 80 + 20}px`, // Space steps evenly
-    left: index % 2 === 0 ? '75%' : '5%', // Step 1,3 on right (75%), Step 2,4 on left (5%)
-    width: '35%',
+    left: '0',
+    width: '100%',
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    justifyContent: 'center'
   });
   
   const milestoneContentStyles: React.CSSProperties = {
+    position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    gap: '15px',
-    width: '100%'
+    width: '100%',
+    justifyContent: 'center'
   };
 
   const circleStyles: React.CSSProperties = {
@@ -226,15 +227,22 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '0px', // No number inside circle
-    flexShrink: 0
+    flexShrink: 0,
+    position: 'absolute',
+    left: '65%', // Position circle on the blue line
+    transform: 'translateX(-50%)',
+    zIndex: 10
   };
 
-  const textBlockStyles: React.CSSProperties = {
+  const textBlockStyles = (index: number): React.CSSProperties => ({
     display: 'flex',
     flexDirection: 'column',
     gap: '5px',
-    flex: 1
-  };
+    position: 'absolute',
+    left: index % 2 === 0 ? '75%' : '5%', // Step 1,3 on right, Step 2,4 on left
+    width: '35%',
+    transform: 'translateY(-50%)'
+  });
 
   const headingStyles: React.CSSProperties = {
     fontSize: '1.1rem',
@@ -364,11 +372,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
               style={stepWrapperStyles(index)}
             >
               <div style={milestoneContentStyles}>
-                {/* Circle marker */}
+                {/* Circle marker - positioned on the blue line */}
                 <div style={circleStyles}></div>
                 
-                {/* Text content */}
-                <div style={textBlockStyles}>
+                {/* Text content - positioned on sides */}
+                <div style={textBlockStyles(index)}>
                   {/* Step Heading */}
                   {isEditable && editingStepHeadings.includes(index) ? (
                     <InlineEditor
