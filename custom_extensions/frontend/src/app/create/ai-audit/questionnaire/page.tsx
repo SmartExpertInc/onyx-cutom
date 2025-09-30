@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 
 const leftInfo = [
@@ -77,7 +79,7 @@ export default function AiAuditQuestionnaire() {
           console.log(`📡 [FRONTEND DATA FLOW] Polling progress from: ${progressUrl}`)
           
           const res = await fetch(progressUrl);
-        const data = await res.json();
+          const data = await res.json();
           
           // 📊 LOG: Progress data received
           console.log(`📊 [FRONTEND DATA FLOW] Progress data received:`, data)
@@ -87,9 +89,22 @@ export default function AiAuditQuestionnaire() {
             setProgressMessages(data.messages);
           }
           
-        if (data.result && (data.result.folderId || data.result.id)) {
+          // Detect landing page completion message explicitly and redirect if id is available in result
+          const latest = data.messages && data.messages.length ? data.messages[data.messages.length - 1] : null;
+          if (latest && /landing page is done/i.test(latest)) {
+            if (data.result && data.result.id) {
+              const redirectUrl = `/create/audit-2-dynamic/${data.result.id}`;
+              console.log(`🎯 [FRONTEND DATA FLOW] Landing page done message detected, redirecting to: ${redirectUrl}`)
+              setFinalRedirectUrl(redirectUrl);
+              setGenerationDone(true);
+              setLoading(false);
+              return; // Avoid further processing in this tick
+            }
+          }
+          
+          if (data.result && (data.result.folderId || data.result.id)) {
             console.log(`✅ [FRONTEND DATA FLOW] Generation result received:`, data.result)
-          setGenerationDone(true);
+            setGenerationDone(true);
             
             // Check if this is a landing page generation result
             if (data.result.name && data.result.name.includes("Landing Page")) {
@@ -101,7 +116,7 @@ export default function AiAuditQuestionnaire() {
               console.log(`🎯 [FRONTEND DATA FLOW] Regular audit detected, redirecting to: ${redirectUrl}`)
               setFinalRedirectUrl(redirectUrl);
             }
-          setLoading(false);
+            setLoading(false);
           }
         } catch (error) {
           console.error(`❌ [FRONTEND DATA FLOW] Error polling progress:`, error)
@@ -274,6 +289,13 @@ export default function AiAuditQuestionnaire() {
       </div>
       
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
+        {/* Back button */}
+        <Link
+          href="/create"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          <ArrowLeft size={16} /> Back
+        </Link>
         <div className="w-full max-w-6xl flex flex-col lg:flex-row bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Left info column */}
           <div className="lg:w-2/5 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-8 py-12 lg:py-16 flex flex-col relative overflow-hidden">
