@@ -478,6 +478,80 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
   .badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
 </style>
 """
+    controller = """
+<script>
+(function(){
+  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function byName(n){ return Array.prototype.slice.call(document.getElementsByName(n)); }
+  function getScore(){
+    var keys = JSON.parse(document.getElementById('scorm-quiz-keys').textContent || '[]');
+    var correct = 0, total = keys.length;
+    qsa('.question').forEach(function(qEl, idx){
+      var k = keys[idx] || {}; var t = k.type;
+      if (t === 'mc'){
+        var radios = byName('q'+idx);
+        var sel = radios.find(function(r){ return r.checked; });
+        if (sel && String(sel.value)===String(k.correct)) correct++;
+      } else if (t === 'ms'){
+        var checks = byName('q'+idx).filter(function(c){ return c.checked; }).map(function(c){ return String(c.value); });
+        var target = (k.correct||[]).map(String).sort().join('|');
+        var got = checks.slice().sort().join('|');
+        if (target && target===got) correct++;
+      } else if (t === 'mt'){
+        var allMatch = true;
+        var corr = k.correct || {};
+        Object.keys(corr).forEach(function(pid){
+          var sel = document.querySelector('select[name="q'+idx+'-'+pid+'"]');
+          if (!sel || String(sel.value)!==String(corr[pid])) allMatch=false;
+        });
+        if (allMatch) correct++;
+      } else if (t === 'so'){
+        var li = qEl.querySelectorAll('.sortable li');
+        var order = Array.prototype.map.call(li, function(el){ return String(el.getAttribute('data-id')); });
+        var target = (k.correct||[]).map(String);
+        var ok = target.length===order.length && target.every(function(v,i){ return v===order[i]; });
+        if (ok) correct++;
+      } else if (t === 'oa'){
+        var inp = qEl.querySelector('.oa-input');
+        var val = (inp && inp.value || '').trim().toLowerCase();
+        var acc = (k.correct||[]);
+        if (val && acc.indexOf(val)>=0) correct++;
+      }
+    });
+    return {correct: correct, total: total};
+  }
+  function commitToSCORM(score){
+    try {
+      if (window.API_1484_11){
+        var scaled = score.total? (score.correct/score.total) : 0;
+        API_1484_11.SetValue('cmi.score.scaled', String(scaled));
+        API_1484_11.SetValue('cmi.score.raw', String(score.correct));
+        API_1484_11.SetValue('cmi.score.max', String(score.total));
+        API_1484_11.SetValue('cmi.success_status', scaled >= 0.7 ? 'passed' : 'failed');
+        API_1484_11.SetValue('cmi.completion_status', 'completed');
+        API_1484_11.Commit('');
+      }
+    } catch(e){}
+  }
+  window.submitQuiz = function(){
+    var s = getScore();
+    commitToSCORM(s);
+    var rs = document.getElementById('quiz-result');
+    if (rs) rs.textContent = 'Score: '+s.correct+' / '+s.total;
+  };
+  document.addEventListener('click', function(e){
+    if (e.target && e.target.classList.contains('up')){
+      var li = e.target.closest('li'); var prev = li && li.previousElementSibling;
+      if (li && prev) li.parentNode.insertBefore(li, prev);
+    }
+    if (e.target && e.target.classList.contains('down')){
+      var li = e.target.closest('li');
+      if (li && li.nextElementSibling) li.parentNode.insertBefore(li.nextElementSibling, li);
+    }
+  });
+})();
+</script>
+"""
     header = f"<div class=\"quiz-header\"><span class=\"badge\"><span class=\"dot\"></span> Interactive Quiz</span><div class=\"quiz-title\">{esc(title)}</div></div>"
     body = f"<div class=\"quiz-wrap\">{header}{''.join(blocks)}<button class=\"submit\" onclick=\"submitQuiz()\">Submit Answers</button><div id=\"quiz-result\" class=\"result\"></div></div>"
     hidden_keys = f"<script id=\"scorm-quiz-keys\" type=\"application/json\">{keys_json}</script>"
