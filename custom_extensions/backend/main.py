@@ -27523,7 +27523,7 @@ async def list_all_user_questionnaires(
         logger.error(f"Error listing user questionnaires: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user questionnaires")
 
-@app.post("/api/questionnaires/add")
+@app.post("/api/custom/questionnaires/add")
 async def add_user_questionnaire(
     questionnaire_request: UserQuestionnaireInsertRequest,
     request: Request,
@@ -27545,7 +27545,7 @@ async def add_user_questionnaire(
         logger.error(f"Error inserting user questionnaire: {e}")
         raise HTTPException(status_code=500, detail="Failed to insert user questionnaire")
 
-@app.get("/api/questionnaires/{user_id}/completion")
+@app.get("/api/custom/questionnaires/{user_id}/completion")
 async def check_user_questionnaire_completion(
     user_id: str,
     pool: asyncpg.Pool = Depends(get_db_pool)

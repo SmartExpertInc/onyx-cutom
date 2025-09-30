@@ -81,7 +81,8 @@ const checkAuthentication = async (): Promise<User | null> => {
 // Check if user completed the questionnaire
 const checkQuestionnaireCompletion = async (userId: string): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/questionnaires/${userId}/completion`, { credentials: 'same-origin' });
+    const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+    const response = await fetch(`${CUSTOM_BACKEND_URL}/questionnaires/${userId}/completion`, { credentials: 'same-origin' });
     const data = await response.json();
     return !!data.completed;
   } catch (error) {
@@ -1060,11 +1061,12 @@ const ProjectsPageInner: React.FC = () => {
   // Handle survey completion
   const handleSurveyComplete = async (surveyData: any) => {
     try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
       const answers = Object.entries(surveyData)
         .filter(([_, v]) => v)
         .map(([k, v]) => ({ question: k, answer: v }));
       const payload = { onyx_user_id: currentUser?.id || 'dummy-onyx-user-id', answers };
-      const res = await fetch('/api/questionnaires/add', {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/questionnaires/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
