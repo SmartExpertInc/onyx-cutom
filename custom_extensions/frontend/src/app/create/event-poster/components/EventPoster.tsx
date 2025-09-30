@@ -96,7 +96,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
         position: 'relative',
         transition: 'all 0.2s ease',
       }}
-      className="hover:bg-white hover:bg-opacity-10 hover:shadow-lg rounded-lg p-2 -m-2 group"
+      className="hover:bg-white hover:bg-opacity-40 hover:shadow-lg rounded-lg p-2 -m-2 group"
       title="Click to edit"
     >
       {value || placeholder}
@@ -134,6 +134,15 @@ export default function EventPoster({
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Parse date to separate day/month and year
+  const dateParts = date.split('.');
+  const dayMonth = dateParts.slice(0, 2).join('.');
+  const year = dateParts.slice(2).join('.');
+
+  // Determine speaker image source
+  const imageSrc = speakerImageSrc || "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png";
+
   // Download functionality
   const handleDownloadPoster = async () => {
     const startTime = new Date();
@@ -154,7 +163,7 @@ export default function EventPoster({
         ticketPrice,
         ticketType,
         freeAccessConditions,
-        speakerImageSrc: speakerImageSrc || '',
+        speakerImageSrc: imageSrc,
         format: 'poster',
         dimensions: { width: 1000, height: 1000 },
         sessionId,
@@ -201,8 +210,9 @@ export default function EventPoster({
 
       // Generate filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      const cleanProjectName = (eventName || 'poster').replace(/[^a-zA-Z0-9]/g, '-');
-      const filename = `poster-${cleanProjectName}-${timestamp}.png`;
+      let cleanProjectName = (eventName || 'poster').replace(/[^a-zA-Z0-9]+/g, '-');
+      cleanProjectName = cleanProjectName.replace(/^-+|-+$/g, ''); // Remove leading/trailing dashes
+      const filename = `poster-${cleanProjectName ? cleanProjectName + '-' : ''}${timestamp}.png`;
       link.download = filename;
 
       // Trigger download
@@ -222,15 +232,6 @@ export default function EventPoster({
       setIsGenerating(false);
     }
   };
-
-  // Parse date to separate day/month and year
-  const dateParts = date.split('.');
-  const dayMonth = dateParts.slice(0, 2).join('.');
-  const year = dateParts.slice(2).join('.');
-
-  // Determine speaker image source
-  const defaultSpeakerImage = "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png";
-  const imageSrc = speakerImageSrc || defaultSpeakerImage;
 
   return (
     <div className="space-y-6">
@@ -381,20 +382,46 @@ export default function EventPoster({
               style={{ 
                 border: '3px solid #5416af',
                 padding: '15px 20px',
-                display: 'inline-block'
+                display: 'inline-block',
+                textAlign: 'center',
               }}
             >
               <EditableText
-                value={date}
-                onChange={setDate}
-                placeholder="DD.MM.YYYY"
+                value={dayMonth}
+                onChange={val => {
+                  // Update only the dayMonth part, keep year unchanged
+                  const newDate = val + (year ? '.' + year : '');
+                  setDate(newDate);
+                }}
+                placeholder="DD.MM"
                 style={{
                   color: 'rgba(255,255,255,1)',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
-                  fontSize: '40px',
+                  fontSize: '58px',
                   textAlign: 'center',
-                  lineHeight: '1.2'
+                  lineHeight: '1',
+                  background: 'transparent',
+                  marginBottom: '0',
+                }}
+              />
+              <EditableText
+                value={year}
+                onChange={val => {
+                  // Update only the year part, keep dayMonth unchanged
+                  const newDate = dayMonth + (val ? '.' + val : '');
+                  setDate(newDate);
+                }}
+                placeholder="YYYY"
+                style={{
+                  color: 'rgba(255,255,255,1)',
+                  fontFamily: 'Montserrat',
+                  fontWeight: '300',
+                  fontSize: '52px',
+                  textAlign: 'center',
+                  lineHeight: '1',
+                  background: 'transparent',
+                  marginTop: '5px',
                 }}
               />
             </div>
@@ -496,26 +523,37 @@ export default function EventPoster({
           </div>
 
           {/* Free access conditions */}
-          <EditableText
-            value={freeAccessConditions}
-            onChange={setFreeAccessConditions}
-            placeholder="Free Access Conditions"
-            multiline
+          <div
+            className="group"
             style={{
-              color: 'rgba(235,235,235,1)',
-              fontWeight: '600',
-              fontSize: '34px',
-              textAlign: 'center',
-              lineHeight: '1.2',
-              backgroundColor: '#5416af',
               borderRadius: '30px',
-              padding: '10px 16px',
+              marginLeft: '30px',
+              maxWidth: '700px',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
-              maxWidth: '700px',
-              marginLeft: '30px'
+              transition: 'background 0.2s',
+              backgroundColor: '#5416af',
             }}
-          />
+          >
+            <EditableText
+              value={freeAccessConditions}
+              onChange={setFreeAccessConditions}
+              placeholder="Free Access Conditions"
+              multiline
+              style={{
+                color: 'rgba(235,235,235,1)',
+                fontWeight: '600',
+                fontSize: '34px',
+                textAlign: 'center',
+                lineHeight: '1.2',
+                background: 'transparent',
+                borderRadius: '30px',
+                padding: '10px 16px',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
         </div>
       </div>
       </div>
