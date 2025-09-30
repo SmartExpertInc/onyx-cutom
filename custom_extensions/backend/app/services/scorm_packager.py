@@ -8,6 +8,8 @@ import zipfile
 import logging
 import base64
 import mimetypes
+import html
+import asyncio
 from typing import Any, Dict, List, Optional, Tuple
 import pathlib
 
@@ -267,145 +269,505 @@ def _render_placeholder_html(title: str, text: str) -> str:
     return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>{text}</p>")
 
 
+def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
+    """Render slide deck HTML using a responsive, SCORM-optimized approach"""
+    try:
+        slides = content.get('slides', []) if isinstance(content, dict) else []
+        if not slides:
+            return _wrap_html_as_sco('Presentation', '<div class="no-slides"><h1>No slides available</h1></div>')
+        
+        # Get theme from content
+        theme = content.get('theme', 'light')
+        title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
+        
+        # Create a responsive slide container with proper viewport
+        html_parts = []
+        
+        # Add responsive CSS optimized for SCORM
+        styles = f"""
+<style>
+    /* SCORM-optimized responsive presentation */
+    html, body {{
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+        font-family: 'Inter', Arial, sans-serif;
+        overflow-x: hidden;
+    }}
+    
+    .scorm-presentation {{
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #ffffff;
+        min-height: 100vh;
+    }}
+    
+    .slide {{
+        width: 100%;
+        min-height: 600px;
+        padding: 40px;
+        margin-bottom: 2px;
+        background: var(--bg-color, #ffffff);
+        border-bottom: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        page-break-after: always;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }}
+    
+    .slide:last-child {{
+        border-bottom: none;
+        margin-bottom: 0;
+    }}
+    
+    /* Theme variables */
+    .theme-light {{
+        --bg-color: #ffffff;
+        --title-color: #1a1a1a;
+        --subtitle-color: #6b7280;
+        --content-color: #374151;
+        --accent-color: #3b82f6;
+    }}
+    
+    .theme-dark-purple {{
+        --bg-color: #110c35;
+        --title-color: #ffffff;
+        --subtitle-color: #d9e1ff;
+        --content-color: #d9e1ff;
+        --accent-color: #f35657;
+    }}
+    
+    .theme-corporate-blue {{
+        --bg-color: #1e3a8a;
+        --title-color: #ffffff;
+        --subtitle-color: #bfdbfe;
+        --content-color: #e0e7ff;
+        --accent-color: #60a5fa;
+    }}
+    
+    /* Typography */
+    .slide-title {{
+        font-size: clamp(24px, 4vw, 45px);
+        color: var(--title-color);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 24px;
+        word-wrap: break-word;
+    }}
+    
+    .slide-subtitle {{
+        font-size: clamp(18px, 3vw, 26px);
+        color: var(--subtitle-color);
+        line-height: 1.4;
+        margin-bottom: 20px;
+        word-wrap: break-word;
+    }}
+    
+    .content-text {{
+        font-size: clamp(14px, 2.5vw, 18px);
+        color: var(--content-color);
+        line-height: 1.6;
+        word-wrap: break-word;
+    }}
+    
+    /* Image handling */
+    .slide-image {{
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px 0;
+        display: block;
+    }}
+    
+    .image-container {{
+        text-align: center;
+        margin: 20px 0;
+    }}
+    
+    /* Bullet points */
+    .bullet-list {{
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }}
+    
+    .bullet-item {{
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+    }}
+    
+    .bullet-icon {{
+        color: var(--accent-color);
+        font-weight: 600;
+        min-width: 20px;
+        font-size: 1.2rem;
+    }}
+    
+    .bullet-text {{
+        font-size: clamp(14px, 2.5vw, 18px);
+        color: var(--content-color);
+        line-height: 1.6;
+    }}
+    
+    /* Layout helpers */
+    .flex-row {{
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+    }}
+    
+    .flex-column {{
+        flex: 1;
+    }}
+    
+    /* Process steps */
+    .process-steps {{
+        display: flex;
+        justify-content: space-around;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+    }}
+    
+    .process-step {{
+        text-align: center;
+        max-width: 200px;
+        background: rgba(0,0,0,0.08);
+        border-radius: 12px;
+        padding: 20px;
+        flex: 1;
+        min-width: 150px;
+    }}
+    
+    .step-number {{
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        margin-bottom: 10px;
+    }}
+    
+    /* Responsive design */
+    @media (max-width: 768px) {{
+        .slide {{
+            padding: 20px;
+            min-height: 500px;
+        }}
+        
+        .flex-row {{
+            flex-direction: column;
+            gap: 20px;
+        }}
+        
+        .process-steps {{
+            flex-direction: column;
+        }}
+    }}
+</style>
+"""
+        
+        html_parts.append(styles)
+        html_parts.append(f'<div class="scorm-presentation theme-{theme}">')
+        
+        # Render each slide with simplified, reliable structure
+        for i, slide in enumerate(slides):
+            slide_html = _render_single_slide_simple(slide, theme, i + 1)
+            html_parts.append(slide_html)
+        
+        html_parts.append('</div>')
+        
+        body_html = ''.join(html_parts)
+        return _wrap_html_as_sco(title, body_html)
+        
+    except Exception as e:
+        logger.error(f"[SCORM] Error rendering slide deck: {e}")
+        title = product_row.get('project_name') or 'Presentation'
+        return _wrap_html_as_sco(title, f"<div class='error'><h1>{title}</h1><p>Error rendering presentation content.</p></div>")
+
+def _render_single_slide_simple(slide: Dict[str, Any], theme: str, slide_number: int) -> str:
+    """Render a single slide with simplified, reliable structure"""
+    try:
+        template_id = slide.get('templateId', 'title-slide')
+        props = slide.get('props', {})
+        
+        slide_html = f'<div class="slide" id="slide-{slide_number}">'
+        
+        # Title (most templates have this)
+        title = props.get('title', '').strip()
+        if title and title != 'Click to add title':
+            slide_html += f'<h1 class="slide-title">{html.escape(title)}</h1>'
+        
+        # Handle different template types
+        if template_id == 'title-slide':
+            subtitle = props.get('subtitle', '').strip()
+            if subtitle and subtitle != 'Click to add content':
+                slide_html += f'<h2 class="slide-subtitle">{html.escape(subtitle)}</h2>'
+            
+            # Metadata
+            author = props.get('author', '').strip()
+            date = props.get('date', '').strip()
+            if author or date:
+                slide_html += '<div class="metadata">'
+                if author:
+                    slide_html += f'<div>{html.escape(author)}</div>'
+                if date:
+                    slide_html += f'<div>{html.escape(date)}</div>'
+                slide_html += '</div>'
+        
+        elif template_id in ['big-image-left', 'big-image-top']:
+            # Handle image
+            image_path = props.get('imagePath', '').strip()
+            if image_path:
+                slide_html += f'<div class="image-container"><img src="{html.escape(image_path)}" alt="Slide image" class="slide-image" /></div>'
+            
+            # Handle content
+            subtitle = props.get('subtitle', '').strip()
+            if subtitle and subtitle != 'Click to add content':
+                slide_html += f'<div class="content-text">{html.escape(subtitle)}</div>'
+        
+        elif template_id in ['bullet-points', 'bullet-points-right']:
+            # Handle bullets
+            bullets = props.get('bullets', [])
+            if bullets:
+                slide_html += '<ul class="bullet-list">'
+                for bullet in bullets:
+                    if bullet and bullet.strip() and bullet.strip() != 'Click to add bullet point':
+                        slide_html += f'''
+                        <li class="bullet-item">
+                            <span class="bullet-icon">•</span>
+                            <span class="bullet-text">{html.escape(bullet.strip())}</span>
+                        </li>'''
+                slide_html += '</ul>'
+            
+            # Handle image for bullet points
+            image_path = props.get('imagePath', '').strip()
+            if image_path:
+                slide_html += f'<div class="image-container"><img src="{html.escape(image_path)}" alt="Slide image" class="slide-image" /></div>'
+        
+        elif template_id == 'process-steps':
+            steps = props.get('steps', [])
+            if steps:
+                slide_html += '<div class="process-steps">'
+                for i, step in enumerate(steps):
+                    step_text = step.get('description', '') if isinstance(step, dict) else str(step)
+                    if step_text and step_text.strip() and step_text.strip() != 'Click to add step description':
+                        slide_html += f'''
+                        <div class="process-step">
+                            <div class="step-number">{i + 1}</div>
+                            <div class="step-description">{html.escape(step_text.strip())}</div>
+                        </div>'''
+                slide_html += '</div>'
+        
+        elif template_id == 'two-column':
+            slide_html += '<div class="flex-row">'
+            
+            # Left column
+            slide_html += '<div class="flex-column">'
+            left_title = props.get('leftTitle', '').strip()
+            if left_title and left_title != 'Click to add left title':
+                slide_html += f'<h3 class="slide-subtitle">{html.escape(left_title)}</h3>'
+            
+            left_content = props.get('leftContent', '').strip()
+            if left_content and left_content != 'Click to add left content':
+                slide_html += f'<div class="content-text">{html.escape(left_content)}</div>'
+            
+            left_image = props.get('leftImagePath', '').strip()
+            if left_image:
+                slide_html += f'<img src="{html.escape(left_image)}" alt="Left image" class="slide-image" />'
+            slide_html += '</div>'
+            
+            # Right column
+            slide_html += '<div class="flex-column">'
+            right_title = props.get('rightTitle', '').strip()
+            if right_title and right_title != 'Click to add right title':
+                slide_html += f'<h3 class="slide-subtitle">{html.escape(right_title)}</h3>'
+            
+            right_content = props.get('rightContent', '').strip()
+            if right_content and right_content != 'Click to add right content':
+                slide_html += f'<div class="content-text">{html.escape(right_content)}</div>'
+            
+            right_image = props.get('rightImagePath', '').strip()
+            if right_image:
+                slide_html += f'<img src="{html.escape(right_image)}" alt="Right image" class="slide-image" />'
+            slide_html += '</div>'
+            
+            slide_html += '</div>'
+        
+        else:
+            # Generic content handling for other templates
+            subtitle = props.get('subtitle', '').strip()
+            if subtitle and subtitle != 'Click to add content':
+                slide_html += f'<div class="content-text">{html.escape(subtitle)}</div>'
+        
+        slide_html += '</div>'
+        return slide_html
+        
+    except Exception as e:
+        logger.error(f"[SCORM] Error rendering slide {slide_number}: {e}")
+        return f'<div class="slide"><h1>Slide {slide_number}</h1><p>Error rendering slide content.</p></div>'
+
 async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_dir: str) -> str:
-    """Rewrite image references to local assets and add them into the ZIP under sco_dir/assets/.
-    - Handles <img src> and CSS url()
-    - Supports http/https, protocol-less //, /static_design_images, static_design_images and repo-absolute paths
-    - Leaves data: URIs as-is
-    Returns updated HTML.
-    """
+    """Robust image localization with comprehensive URL handling and detailed logging"""
     try:
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
         static_images_abs_path = os.path.join(repo_root, 'static_design_images')
         assets_prefix_in_zip = f"{sco_dir}/assets"
-        assets_href_prefix = "assets"  # relative from index.html
+        assets_href_prefix = "assets"
 
-        img_src_pattern = re.compile(r'(<img[^>]+src=["\'])([^"\']+)(["\'])', re.IGNORECASE)
-        css_url_pattern = re.compile(r"url\(\s*['\"]?([^'\")]+)['\"]?\s*\)", re.IGNORECASE)
+        # Find all image references
+        img_src_pattern = re.compile(r'(<img[^>]+src=["\'])([^"\']+)(["\'][^>]*>)', re.IGNORECASE)
+        css_url_pattern = re.compile(r"(url\(\s*['\"]?)([^'\")]+)(['\"]?\s*\))", re.IGNORECASE)
 
-        urls: List[str] = []
-        for m in img_src_pattern.finditer(html):
-            urls.append(m.group(2))
-        for m in css_url_pattern.finditer(html):
-            urls.append(m.group(1))
+        urls = []
+        # Extract image URLs
+        for match in img_src_pattern.finditer(html):
+            urls.append(match.group(2))
+        for match in css_url_pattern.finditer(html):
+            urls.append(match.group(2))
 
         if not urls:
-            logger.info(f"[SCORM-ASSETS] No image URLs found for {sco_dir}")
+            logger.info(f"[SCORM-ASSETS] No image URLs found in HTML for {sco_dir}")
             return html
 
+        # Remove duplicates while preserving order
+        unique_urls = []
         seen = set()
-        unique_urls: List[str] = []
-        for u in urls:
-            if u not in seen:
-                seen.add(u)
-                unique_urls.append(u)
+        for url in urls:
+            if url not in seen:
+                seen.add(url)
+                unique_urls.append(url)
 
-        logger.info(f"[SCORM-ASSETS] Found {len(unique_urls)} unique URLs to localize for {sco_dir}")
+        logger.info(f"[SCORM-ASSETS] Found {len(unique_urls)} unique image URLs for {sco_dir}")
 
-        url_to_local: Dict[str, str] = {}
+        url_to_local = {}
         asset_index = 1
-
         embedded_count = 0
 
         async def fetch_http(url: str) -> Optional[bytes]:
             try:
-                async with httpx.AsyncClient(timeout=20.0) as client:
+                async with httpx.AsyncClient(timeout=30.0) as client:
                     resp = await client.get(url)
                     if resp.status_code == 200 and resp.content:
                         return resp.content
             except Exception as e:
-                logger.info(f"[SCORM] HTTP image download failed for {url}: {e}")
+                logger.warning(f"[SCORM] Failed to download {url}: {e}")
             return None
 
-        def guess_ext_from_url_or_type(u: str, content: Optional[bytes]) -> str:
-            ext = ''
-            parsed = pathlib.PurePosixPath(u)
+        def get_file_extension(url: str, content: Optional[bytes] = None) -> str:
+            # Try to get extension from URL
+            parsed = pathlib.PurePosixPath(url)
             if parsed.suffix:
-                ext = parsed.suffix
-            if not ext:
-                mt = mimetypes.guess_type(u)[0]
-                if mt:
-                    gx = mimetypes.guess_extension(mt)
-                    if gx:
-                        ext = gx
-            if not ext and content is not None:
-                ext = '.bin'
-            if not ext:
-                ext = '.bin'
-            return ext
+                return parsed.suffix.lower()
+            
+            # Try to guess from content type
+            if content:
+                if content.startswith(b'\xff\xd8\xff'):
+                    return '.jpg'
+                elif content.startswith(b'\x89PNG'):
+                    return '.png'
+                elif content.startswith(b'GIF'):
+                    return '.gif'
+                elif content.startswith(b'<svg'):
+                    return '.svg'
+            
+            return '.jpg'  # Default fallback
 
-        async def convert_one(u: str):
+        async def process_url(url: str):
             nonlocal asset_index, embedded_count
-            if not u or u.startswith('data:'):
+            
+            if not url or url.startswith('data:'):
+                logger.debug(f"[SCORM] Skipping data URI or empty URL")
                 return
-            data: Optional[bytes] = None
-            if u.startswith('//'):
-                u_fetch = 'https:' + u
-                data = await fetch_http(u_fetch)
-            elif u.startswith('http://') or u.startswith('https://'):
-                data = await fetch_http(u)
-            elif u.startswith('/static_design_images/'):
-                filename = u.replace('/static_design_images/', '')
-                full_path = os.path.join(static_images_abs_path, filename)
-                if os.path.exists(full_path):
-                    try:
-                        with open(full_path, 'rb') as f:
-                            data = f.read()
-                    except Exception as e:
-                        logger.info(f"[SCORM] Read static image failed for {full_path}: {e}")
-            elif u.startswith('static_design_images/'):
-                filename = u.replace('static_design_images/', '')
-                full_path = os.path.join(static_images_abs_path, filename)
-                if os.path.exists(full_path):
-                    try:
-                        with open(full_path, 'rb') as f:
-                            data = f.read()
-                    except Exception as e:
-                        logger.info(f"[SCORM] Read static image failed for {full_path}: {e}")
-            elif u.startswith('/'):
-                full_path = os.path.join(repo_root, u.lstrip('/'))
-                if os.path.exists(full_path):
-                    try:
-                        with open(full_path, 'rb') as f:
-                            data = f.read()
-                    except Exception as e:
-                        logger.info(f"[SCORM] Read repo image failed for {full_path}: {e}")
-
-            if data is None:
-                return
-
-            ext = guess_ext_from_url_or_type(u, data)
-            local_name = f"img_{asset_index}{ext}"
-            asset_index += 1
-            asset_zip_path = f"{assets_prefix_in_zip}/{local_name}"
-            asset_href = f"{assets_href_prefix}/{local_name}"
-
+            
+            data = None
+            
             try:
-                zip_file.writestr(asset_zip_path, data)
-                url_to_local[u] = asset_href
-                embedded_count += 1
+                # Handle different URL types
+                if url.startswith('//'):
+                    # Protocol-relative URL
+                    full_url = 'https:' + url
+                    data = await fetch_http(full_url)
+                    logger.debug(f"[SCORM] Downloaded protocol-relative URL: {url}")
+                
+                elif url.startswith(('http://', 'https://')):
+                    # Absolute URL
+                    data = await fetch_http(url)
+                    logger.debug(f"[SCORM] Downloaded absolute URL: {url}")
+                
+                elif url.startswith('/static_design_images/'):
+                    # Repository static images
+                    filename = url.replace('/static_design_images/', '')
+                    full_path = os.path.join(static_images_abs_path, filename)
+                    if os.path.exists(full_path):
+                        with open(full_path, 'rb') as f:
+                            data = f.read()
+                        logger.debug(f"[SCORM] Read static image: {full_path}")
+                
+                elif url.startswith('static_design_images/'):
+                    # Repository static images (no leading slash)
+                    filename = url.replace('static_design_images/', '')
+                    full_path = os.path.join(static_images_abs_path, filename)
+                    if os.path.exists(full_path):
+                        with open(full_path, 'rb') as f:
+                            data = f.read()
+                        logger.debug(f"[SCORM] Read static image: {full_path}")
+                
+                elif url.startswith('/'):
+                    # Repository-absolute path
+                    full_path = os.path.join(repo_root, url.lstrip('/'))
+                    if os.path.exists(full_path):
+                        with open(full_path, 'rb') as f:
+                            data = f.read()
+                        logger.debug(f"[SCORM] Read repo image: {full_path}")
+                
+                else:
+                    logger.debug(f"[SCORM] Skipping unrecognized URL format: {url}")
+                    return
+
+                if data:
+                    ext = get_file_extension(url, data)
+                    local_name = f"img_{asset_index:03d}{ext}"
+                    asset_index += 1
+                    
+                    asset_zip_path = f"{assets_prefix_in_zip}/{local_name}"
+                    asset_href = f"{assets_href_prefix}/{local_name}"
+                    
+                    zip_file.writestr(asset_zip_path, data)
+                    url_to_local[url] = asset_href
+                    embedded_count += 1
+                    
+                    logger.debug(f"[SCORM] Embedded {url} as {local_name} ({len(data)} bytes)")
+                else:
+                    logger.warning(f"[SCORM] Could not load image: {url}")
+                    
             except Exception as e:
-                logger.info(f"[SCORM] Write asset failed for {u}: {e}")
+                logger.error(f"[SCORM] Error processing image {url}: {e}")
 
-        await asyncio.gather(*(convert_one(u) for u in unique_urls))
+        # Process all URLs concurrently
+        await asyncio.gather(*(process_url(url) for url in unique_urls))
 
-        logger.info(f"[SCORM-ASSETS] Embedded {embedded_count} assets for {sco_dir}")
+        logger.info(f"[SCORM-ASSETS] Successfully embedded {embedded_count}/{len(unique_urls)} images for {sco_dir}")
 
+        # Replace all image references
         def replace_img_src(match: re.Match) -> str:
             prefix, src, suffix = match.group(1), match.group(2), match.group(3)
             new_src = url_to_local.get(src, src)
             return f"{prefix}{new_src}{suffix}"
 
         def replace_css_url(match: re.Match) -> str:
-            url = match.group(1)
+            prefix, url, suffix = match.group(1), match.group(2), match.group(3)
             new_src = url_to_local.get(url, url)
-            return f"url('{new_src}')"
+            return f"{prefix}{new_src}{suffix}"
 
         html = img_src_pattern.sub(replace_img_src, html)
         html = css_url_pattern.sub(replace_css_url, html)
+        
         return html
+        
     except Exception as e:
-        logger.error(f"[SCORM] Error localizing images to assets: {e}")
+        logger.error(f"[SCORM] Error localizing images: {e}")
         return html
 
 
@@ -533,47 +895,6 @@ async def _process_image_paths_in_html(html: str) -> str:
     except Exception as e:
         logger.error(f"[SCORM] Error inlining images: {e}")
         return html
-
-
-def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
-    """Render slide deck HTML using the exact same approach as PDF generation"""
-    try:
-        template = jinja_env.get_template('single_slide_pdf_template.html')
-        slides = content.get('slides', []) if isinstance(content, dict) else []
-        
-        if not slides:
-            return _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')
-        
-        # Get theme from content or default to 'light'
-        theme = content.get('theme', 'light')
-        
-        rendered_slides = []
-        for slide in slides:
-            context_data = {
-                'slide': slide,
-                'theme': theme,
-                'slide_height': 800,
-                'embedded_fonts_css': get_embedded_fonts_css()
-            }
-            slide_html = template.render(**context_data)
-            rendered_slides.append(slide_html)
-        
-        # Minimal CSS to avoid conflicting with template's own styles
-        styles = """
-<style>
-  html, body { margin: 0; padding: 0; background: #ffffff; }
-  .scorm-slide-wrapper { max-width: 1200px; margin: 0 auto; padding: 0; }
-</style>
-"""
-        title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
-        body = "<div class=\"scorm-slide-wrapper\">" + "".join(rendered_slides) + "</div>"
-        
-        return _wrap_html_as_sco(title, styles + body)
-        
-    except Exception as e:
-        logger.error(f"[SCORM] Error rendering slide deck: {e}")
-        title = product_row.get('project_name') or 'Presentation'
-        return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>Error rendering presentation content.</p>")
 
 
 def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
