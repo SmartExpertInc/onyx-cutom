@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 interface Plan {
   id: string;
@@ -103,7 +104,7 @@ const plans: Plan[] = [
 ];
 
 const TariffPlanPage = () => {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -334,6 +335,15 @@ const TariffPlanPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-7xl mx-auto">
+          {/* Back Button */}
+          <Link 
+            href="/projects" 
+            className="inline-flex rounded-full items-center text-blue-600 hover:text-blue-700 mb-8 transition-colors duration-200"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back
+          </Link>
+
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl font-bold text-gray-900 mb-6">Choose your plan</h1>
@@ -379,6 +389,15 @@ const TariffPlanPage = () => {
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
                       <Star className="w-4 h-4 mr-2" />
                       Popular
+                    </div>
+                  </div>
+                )}
+
+                {plan.id === 'starter' && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
+                      <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+                      Current Plan
                     </div>
                   </div>
                 )}
