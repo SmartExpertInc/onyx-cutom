@@ -542,7 +542,22 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
 
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
         # Inject styles at the top of body for SCORM wrapper
-        body_html = (injected_styles or '') + "".join(stacked_bodies)
+        scorm_overrides = """
+<style>
+  /* SCORM overrides to match PDF dynamic heights and spacing */
+  .slide-page { 
+    height: auto !important; 
+    min-height: 0 !important; 
+    max-height: none !important; 
+    margin: 0 auto 32px auto !important; 
+    display: block; 
+    background: transparent; 
+  }
+  .slide-page:last-child { margin-bottom: 0 !important; }
+  .slide-content { height: auto !important; min-height: 0 !important; }
+</style>
+"""
+        body_html = scorm_overrides + (injected_styles or '') + "".join(stacked_bodies)
         return _wrap_html_as_sco(title, body_html)
 
     except Exception as e:
