@@ -132,14 +132,6 @@ const TariffPlanPage = () => {
     return `$${plan.price}`;
   };
 
-  const getSavings = (plan: Plan) => {
-    if (billingCycle === 'yearly' && plan.yearlyPrice && plan.price > 0) {
-      const savings = Math.round(((plan.price - plan.yearlyPrice) / plan.price) * 100);
-      return `Save ${savings}%`;
-    }
-    return null;
-  };
-
   if (showPayment && selectedPlan) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -181,11 +173,6 @@ const TariffPlanPage = () => {
                       </span>
                     )}
                   </div>
-                  {getSavings(selectedPlan) && (
-                    <div className="text-sm text-green-600 font-semibold">
-                      {getSavings(selectedPlan)}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -349,10 +336,10 @@ const TariffPlanPage = () => {
             <h1 className="text-5xl font-bold text-gray-900 mb-6">Choose your plan</h1>
             
             {/* Billing Toggle */}
-            <div className="inline-flex items-center bg-white rounded-full p-2 shadow-lg border border-gray-200 mt-8">
+            <div className="inline-flex items-center bg-white rounded-full p-1 shadow-lg border border-gray-200 mt-8">
               <button
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                   billingCycle === 'monthly'
                     ? 'bg-blue-500 text-white shadow-lg'
                     : 'text-gray-600 hover:text-blue-600'
@@ -362,7 +349,7 @@ const TariffPlanPage = () => {
               </button>
               <button
                 onClick={() => setBillingCycle('yearly')}
-                className={`px-8 py-3 rounded-full font-semibold transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                   billingCycle === 'yearly'
                     ? 'bg-blue-500 text-white shadow-lg'
                     : 'text-gray-600 hover:text-blue-600'
@@ -386,30 +373,12 @@ const TariffPlanPage = () => {
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
-                      <Star className="w-4 h-4 mr-2" />
-                      Popular
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                      Most Popular
                     </div>
                   </div>
                 )}
-
-                {plan.id === 'starter' && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-5 py-2 rounded-full text-xs font-bold shadow-lg flex items-center">
-                      <Check className="w-3 h-3 mr-2" />
-                      Current Plan
-                    </div>
-                  </div>
-                )}
-
-                {getSavings(plan) && (
-                  <div className="absolute -top-3 -right-3">
-                    <div className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                      {getSavings(plan)}
-                    </div>
-                  </div>
-                )}
-
+                
                 {/* Card Header */}
                 <div className={`p-8 rounded-t-3xl ${
                   plan.name.includes('Free') 
