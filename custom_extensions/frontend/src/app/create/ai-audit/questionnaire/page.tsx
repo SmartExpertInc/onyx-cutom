@@ -91,7 +91,7 @@ export default function AiAuditQuestionnaire() {
           
           // Detect landing page completion message explicitly and redirect if id is available in result
           const latest = data.messages && data.messages.length ? data.messages[data.messages.length - 1] : null;
-          if (latest && /landing page is done/i.test(latest)) {
+          if (latest && /landing page (is done|complete)!?/i.test(latest)) {
             if (data.result && data.result.id) {
               const redirectUrl = `/create/audit-2-dynamic/${data.result.id}`;
               console.log(`🎯 [FRONTEND DATA FLOW] Landing page done message detected, redirecting to: ${redirectUrl}`)
@@ -292,7 +292,7 @@ export default function AiAuditQuestionnaire() {
         {/* Back button */}
         <Link
           href="/create"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+          className="absolute z-20 top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
         >
           <ArrowLeft size={16} /> Back
         </Link>
