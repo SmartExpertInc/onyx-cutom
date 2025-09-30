@@ -121,7 +121,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
                 </DialogTitle>
                 <DialogDescription className="text-base text-gray-600">
-                  {surveyStep === 1 && "This helps us customize your experience"}
+                  {surveyStep === 1 && "This helps us recommend the best features for you"}
                   {surveyStep === 2 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
                   {surveyStep === 3 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
                   {surveyStep === 4 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
