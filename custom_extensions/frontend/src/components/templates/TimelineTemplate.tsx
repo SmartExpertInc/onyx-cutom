@@ -163,9 +163,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     display: 'flex',
     flexDirection: 'column',
     padding: '50px',
+    paddingBottom: '0',
     fontFamily: currentTheme.fonts.contentFont,
     alignItems: 'stretch',
     textAlign: 'left', // Left aligned as in photo
+    overflow: 'hidden'
   };
 
   const titleStyles: React.CSSProperties = {
@@ -181,7 +183,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const timelineContainerStyles: React.CSSProperties = {
     position: 'relative',
     width: '100%',
-    height: '400px',
+    height: '438px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -190,7 +192,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const timelineLineStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '0',
+    top: '11px',
     left: 'calc(50% + 60px)', // Line moved 60px to the right
     transform: 'translateX(-50%)',
     width: '4px',
@@ -220,9 +222,10 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const circleStyles: React.CSSProperties = {
     width: '20px',
     height: '20px',
+    backgroundColor: '#ffffff',
     borderRadius: '50%',
     background: 'transparent',
-    border: '3px solid #0F58F9', // Blue circle as in photo
+    border: '4px solid #0F58F9', // Blue circle as in photo
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -239,7 +242,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     flexDirection: 'column',
     gap: '5px',
     position: 'absolute',
-    left: index % 2 === 0 ? 'calc(50% + 60px + 50px)' : 'calc(50% + 60px - 150px)', // Left texts moved 80px from line (was 50px)
+    left: index % 2 === 0 ? 'calc(50% + 60px + 50px)' : 'calc(50% + 60px - 180px)', // Left texts moved 80px from line (was 50px)
     width: '35%',
     transform: 'translateY(-50%)'
   });
