@@ -191,7 +191,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const timelineLineStyles: React.CSSProperties = {
     position: 'absolute',
     top: '0',
-    left: '50%', // Line in center
+    left: 'calc(50% + 60px)', // Line moved 60px to the right
     transform: 'translateX(-50%)',
     width: '4px',
     height: '100%',
@@ -229,7 +229,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     fontSize: '0px', // No number inside circle
     flexShrink: 0,
     position: 'absolute',
-    left: '50%', // Position circle on the center line
+    left: 'calc(50% + 60px)', // Position circle on the moved line
     transform: 'translateX(-50%)',
     zIndex: 10
   };
@@ -239,7 +239,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     flexDirection: 'column',
     gap: '5px',
     position: 'absolute',
-    left: index % 2 === 0 ? 'calc(50% + 50px)' : 'calc(50% - 50px)', // Same 50px distance from center line
+    left: index % 2 === 0 ? 'calc(50% + 60px + 50px)' : 'calc(50% + 60px - 50px)', // 50px from moved line
     width: '35%',
     transform: 'translateY(-50%)'
   });
