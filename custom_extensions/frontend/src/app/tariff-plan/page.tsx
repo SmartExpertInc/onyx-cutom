@@ -395,8 +395,8 @@ const TariffPlanPage = () => {
 
                 {plan.id === 'starter' && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg flex items-center">
-                      <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+                    <div className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-5 py-2 rounded-full text-xs font-bold shadow-lg flex items-center">
+                      <Check className="w-3 h-3 mr-2" />
                       Current Plan
                     </div>
                   </div>
