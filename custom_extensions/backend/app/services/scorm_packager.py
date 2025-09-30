@@ -255,6 +255,301 @@ def _render_placeholder_html(title: str, text: str) -> str:
     return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>{text}</p>")
 
 
+def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
+    title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
+    slides = []
+    try:
+        if isinstance(content, dict):
+            # common keys: slides or details.slides
+            slides = content.get('slides') or (content.get('details') or {}).get('slides') or []
+    except Exception:
+        slides = []
+    if not isinstance(slides, list):
+        slides = []
+    # Simplified slide rendering
+    slide_items = []
+    for idx, s in enumerate(slides):
+        if isinstance(s, dict):
+            stitle = s.get('slideTitle') or s.get('title') or f"Slide {idx+1}"
+            sprops = s.get('props') or {}
+            left = sprops.get('leftContent') or sprops.get('content') or ''
+            right = sprops.get('rightContent') or ''
+            img = sprops.get('imagePath') or sprops.get('imageUrl') or ''
+            inner = f"<h2>{_xml_escape(stitle)}</h2>"
+            if img:
+                inner += f"<div class=\"img\"><img src=\"{_xml_escape(img)}\" alt=\"\"/></div>"
+            inner += f"<div class=\"cols\"><div class=\"col\">{left or ''}</div><div class=\"col\">{right or ''}</div></div>"
+            slide_items.append(f"<section class=\"slide\" data-index=\"{idx}\" style=\"display:{'block' if idx==0 else 'none'}\">{inner}</section>")
+    body = "".join(slide_items) or "<p>No slides.</p>"
+    # Inline SCORM navigation controller
+    controller = """
+<script>
+(function(){
+  var current = 0;
+  function qs(sel){ return document.querySelector(sel); }
+  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function show(i){
+    var slides = qsa('.slide');
+    if (i < 0 || i >= slides.length) return;
+    slides.forEach(function(s, idx){ s.style.display = (idx===i)?'block':'none'; });
+    current = i;
+    try {
+      if (window.API_1484_11) {
+        var p = slides.length ? ( (i+1)/slides.length ) : 0;
+        API_1484_11.SetValue('cmi.location', String(i));
+        API_1484_11.SetValue('cmi.progress_measure', String(p));
+        if (p >= 1) { API_1484_11.SetValue('cmi.completion_status', 'completed'); }
+        API_1484_11.Commit('');
+      }
+    } catch(e){}
+  }
+  window.nextSlide = function(){ show(current+1); };
+  window.prevSlide = function(){ show(current-1); };
+  window.addEventListener('load', function(){
+    try {
+      if (window.API_1484_11) {
+        var last = API_1484_11.GetValue('cmi.location');
+        if (last && !isNaN(parseInt(last))) show(parseInt(last));
+      }
+    } catch(e){}
+  });
+})();
+</script>
+"""
+    nav = "<div class=\"nav\"><button onclick=\"prevSlide()\">Prev</button><button onclick=\"nextSlide()\">Next</button></div>"
+    styles = """
+<style>
+  .slide{padding:16px;}
+  .img img{max-width:100%;height:auto;display:block;margin:12px 0;}
+  .cols{display:flex;gap:16px;}
+  .col{flex:1;}
+  .nav{display:flex;gap:8px;margin:12px 0;}
+  button{padding:6px 12px;border:1px solid #ccc;background:#f7f7f7;cursor:pointer}
+</style>
+"""
+    html = f"{styles}{nav}{body}{nav}{controller}"
+    return _wrap_html_as_sco(title, html)
+
+
+def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
+    title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Quiz'
+    # Extract questions from stored content
+    raw_questions = []
+    try:
+        if isinstance(content, dict):
+            if isinstance(content.get('questions'), list):
+                raw_questions = content.get('questions')
+            elif 'details' in content and isinstance(content['details'], dict) and isinstance(content['details'].get('questions'), list):
+                raw_questions = content['details']['questions']
+    except Exception:
+        raw_questions = []
+
+    # Normalize to supported types: multiple-choice, multi-select, matching, sorting, open-answer
+    questions = []
+    if isinstance(raw_questions, list):
+        for q in raw_questions:
+            if not isinstance(q, dict):
+                continue
+            qt = (q.get('question_type') or q.get('type') or '').strip().lower()
+            if qt in ('multiple-choice', 'multiple_choice', 'single-choice', 'single_choice'):
+                questions.append({
+                    'type': 'multiple-choice',
+                    'text': q.get('question_text') or q.get('text') or '',
+                    'options': q.get('options') or [],
+                    'correct_option_id': q.get('correct_option_id')
+                })
+            elif qt in ('multi-select', 'multi_select', 'multiple-select'):
+                questions.append({
+                    'type': 'multi-select',
+                    'text': q.get('question_text') or q.get('text') or '',
+                    'options': q.get('options') or [],
+                    'correct_option_ids': q.get('correct_option_ids') or []
+                })
+            elif qt in ('matching',):
+                questions.append({
+                    'type': 'matching',
+                    'text': q.get('question_text') or q.get('text') or '',
+                    'prompts': q.get('prompts') or q.get('left') or [],
+                    'options': q.get('options') or q.get('right') or [],
+                    'correct_matches': q.get('correct_matches') or {}
+                })
+            elif qt in ('sorting', 'order', 'ranking'):
+                questions.append({
+                    'type': 'sorting',
+                    'text': q.get('question_text') or q.get('text') or '',
+                    'items_to_sort': q.get('items_to_sort') or q.get('items') or [],
+                    'correct_order': q.get('correct_order') or []
+                })
+            elif qt in ('open-answer', 'open_answer', 'free-text', 'free_text', 'short-answer'):
+                questions.append({
+                    'type': 'open-answer',
+                    'text': q.get('question_text') or q.get('text') or '',
+                    'acceptable_answers': q.get('acceptable_answers') or []
+                })
+    # Fallback if nothing recognized
+    if not questions:
+        questions = [{
+            'type': 'multiple-choice',
+            'text': 'Sample question: 2 + 2 = ?',
+            'options': [ {'id':'A','text':'3'}, {'id':'B','text':'4'} ],
+            'correct_option_id': 'B'
+        }]
+
+    # Render HTML for all supported types
+    def esc(s):
+        try: return _xml_escape(s)
+        except: return ''
+
+    blocks: List[str] = []
+    answer_keys: List[Dict[str, Any]] = []
+
+    for qi, q in enumerate(questions):
+        qtype = q.get('type')
+        qtext = q.get('text') or f"Question {qi+1}"
+        if qtype == 'multiple-choice':
+            opts = q.get('options') or []
+            ohtml = []
+            for o in opts:
+                oid = str(o.get('id') or '')
+                olabel = o.get('text') or oid
+                ohtml.append(f"<label><input type=\"radio\" name=\"q{qi}\" value=\"{esc(oid)}\"/> {esc(olabel)}</label>")
+            blocks.append(f"<div class=\"question\" data-type=\"mc\"><div class=\"qtext\">{esc(qtext)}</div>{''.join(ohtml)}</div>")
+            answer_keys.append({'type':'mc','correct': str(q.get('correct_option_id') or '')})
+        elif qtype == 'multi-select':
+            opts = q.get('options') or []
+            ohtml = []
+            for o in opts:
+                oid = str(o.get('id') or '')
+                olabel = o.get('text') or oid
+                ohtml.append(f"<label><input type=\"checkbox\" name=\"q{qi}\" value=\"{esc(oid)}\"/> {esc(olabel)}</label>")
+            blocks.append(f"<div class=\"question\" data-type=\"ms\"><div class=\"qtext\">{esc(qtext)}</div>{''.join(ohtml)}</div>")
+            answer_keys.append({'type':'ms','correct': [str(x) for x in (q.get('correct_option_ids') or [])]})
+        elif qtype == 'matching':
+            prompts = q.get('prompts') or []
+            options = q.get('options') or []
+            # Renders as select per prompt
+            prom_html = []
+            for p in prompts:
+                pid = str(p.get('id') or '')
+                ptxt = p.get('text') or pid
+                sel_opts = [f"<option value=\"\">--</option>"]
+                for o in options:
+                    oid = str(o.get('id') or '')
+                    otxt = o.get('text') or oid
+                    sel_opts.append(f"<option value=\"{esc(oid)}\">{esc(otxt)}</option>")
+                prom_html.append(f"<div class=\"match-row\"><span class=\"prompt\">{esc(ptxt)}</span> <select name=\"q{qi}-{esc(pid)}\">{''.join(sel_opts)}</select></div>")
+            blocks.append(f"<div class=\"question\" data-type=\"mt\"><div class=\"qtext\">{esc(qtext)}</div>{''.join(prom_html)}</div>")
+            answer_keys.append({'type':'mt','correct': q.get('correct_matches') or {}})
+        elif qtype == 'sorting':
+            items = q.get('items_to_sort') or []
+            li_html = []
+            for i in items:
+                iid = str(i.get('id') or '')
+                itxt = i.get('text') or iid
+                li_html.append(f"<li data-id=\"{esc(iid)}\">{esc(itxt)} <button type=\"button\" class=\"up\">↑</button> <button type=\"button\" class=\"down\">↓</button></li>")
+            blocks.append(f"<div class=\"question\" data-type=\"so\"><div class=\"qtext\">{esc(qtext)}</div><ul class=\"sortable\">{''.join(li_html)}</ul></div>")
+            answer_keys.append({'type':'so','correct': [str(x) for x in (q.get('correct_order') or [])]})
+        elif qtype == 'open-answer':
+            blocks.append(f"<div class=\"question\" data-type=\"oa\"><div class=\"qtext\">{esc(qtext)}</div><input type=\"text\" name=\"q{qi}\" class=\"oa-input\"/></div>")
+            answer_keys.append({'type':'oa','correct': [str(x).strip().lower() for x in (q.get('acceptable_answers') or [])]})
+        else:
+            # Unknown type → treat as open-answer no scoring
+            blocks.append(f"<div class=\"question\"><div class=\"qtext\">{esc(qtext)}</div></div>")
+            answer_keys.append({'type':'na'})
+
+    styles = """
+<style>
+  .question{margin:14px 0;padding:12px;border:1px solid #e5e7eb;border-radius:8px}
+  .qtext{font-weight:600;margin-bottom:8px}
+  .match-row{display:flex;gap:8px;align-items:center;margin:4px 0}
+  .sortable{list-style:none;padding-left:0}
+  .sortable li{margin:6px 0;padding:6px;border:1px dashed #cbd5e1;border-radius:6px}
+  .submit{margin-top:16px}
+  .result{margin-top:8px;font-weight:600}
+</style>
+"""
+    keys_json = json.dumps(answer_keys)
+    controller = """
+<script>
+(function(){
+  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function byName(n){ return Array.prototype.slice.call(document.getElementsByName(n)); }
+  function getScore(){
+    var keys = JSON.parse(document.getElementById('scorm-quiz-keys').textContent || '[]');
+    var correct = 0, total = keys.length;
+    qsa('.question').forEach(function(qEl, idx){
+      var k = keys[idx] || {}; var t = k.type;
+      if (t === 'mc'){
+        var radios = byName('q'+idx);
+        var sel = radios.find(function(r){ return r.checked; });
+        if (sel && String(sel.value)===String(k.correct)) correct++;
+      } else if (t === 'ms'){
+        var checks = byName('q'+idx).filter(function(c){ return c.checked; }).map(function(c){ return String(c.value); });
+        var target = (k.correct||[]).map(String).sort().join('|');
+        var got = checks.slice().sort().join('|');
+        if (target && target===got) correct++;
+      } else if (t === 'mt'){
+        var allMatch = true;
+        var corr = k.correct || {};
+        Object.keys(corr).forEach(function(pid){
+          var sel = document.querySelector('select[name="q'+idx+'-'+pid+'"]');
+          if (!sel || String(sel.value)!==String(corr[pid])) allMatch=false;
+        });
+        if (allMatch) correct++;
+      } else if (t === 'so'){
+        var li = qEl.querySelectorAll('.sortable li');
+        var order = Array.prototype.map.call(li, function(el){ return String(el.getAttribute('data-id')); });
+        var target = (k.correct||[]).map(String);
+        var ok = target.length===order.length && target.every(function(v,i){ return v===order[i]; });
+        if (ok) correct++;
+      } else if (t === 'oa'){
+        var inp = qEl.querySelector('.oa-input');
+        var val = (inp && inp.value || '').trim().toLowerCase();
+        var acc = (k.correct||[]);
+        if (val && acc.indexOf(val)>=0) correct++;
+      }
+    });
+    return {correct: correct, total: total};
+  }
+  function commitToSCORM(score){
+    try {
+      if (window.API_1484_11){
+        var scaled = score.total? (score.correct/score.total) : 0;
+        API_1484_11.SetValue('cmi.score.scaled', String(scaled));
+        API_1484_11.SetValue('cmi.score.raw', String(score.correct));
+        API_1484_11.SetValue('cmi.score.max', String(score.total));
+        API_1484_11.SetValue('cmi.success_status', scaled >= 0.7 ? 'passed' : 'failed');
+        API_1484_11.SetValue('cmi.completion_status', 'completed');
+        API_1484_11.Commit('');
+      }
+    } catch(e){}
+  }
+  window.submitQuiz = function(){
+    var s = getScore();
+    commitToSCORM(s);
+    var rs = document.getElementById('quiz-result');
+    if (rs) rs.textContent = 'Score: '+s.correct+' / '+s.total;
+    alert('Score: '+s.correct+' / '+s.total);
+  };
+  // sorting controls
+  document.addEventListener('click', function(e){
+    if (e.target && e.target.classList.contains('up')){
+      var li = e.target.closest('li'); var prev = li && li.previousElementSibling;
+      if (li && prev) li.parentNode.insertBefore(li, prev);
+    }
+    if (e.target && e.target.classList.contains('down')){
+      var li = e.target.closest('li'); var next = li && li.nextElementSibling && li.nextElementSibling.nextElementSibling;
+      if (li && li.nextElementSibling) li.parentNode.insertBefore(li.nextElementSibling, li);
+    }
+  });
+})();
+</script>
+"""
+    body = f"{''.join(blocks)}<button class=\"submit\" onclick=\"submitQuiz()\">Submit</button><div id=\"quiz-result\" class=\"result\"></div>"
+    hidden_keys = f"<script id=\"scorm-quiz-keys\" type=\"application/json\">{keys_json}</script>"
+    return _wrap_html_as_sco(title, styles + body + hidden_keys + controller)
+
+
 def _manifest_header(course_identifier: str, course_title: str) -> str:
     return (
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"\
@@ -283,24 +578,30 @@ def _manifest_footer(resources_xml: str) -> str:
     return f"</organization></organizations><resources>{resources_xml}</resources></manifest>"
 
 
-def _build_manifest(course_title: str, sco_entries: List[Tuple[str, str]]) -> str:
-    # sco_entries: List of (item_id, href)
+def _manifest_items_xml(items: List[Dict[str, Any]]) -> str:
+    # items: list of nodes with {'identifier','title', 'children': [...], optional 'res_id'}
+    xml_parts: List[str] = []
+    for it in items:
+        identifier = it['identifier']
+        title = _xml_escape(it.get('title') or '')
+        res_id = it.get('res_id')
+        if res_id:
+            xml_parts.append(f"<item identifier=\"{identifier}\" identifierref=\"{res_id}\"><title>{title}</title>")
+        else:
+            xml_parts.append(f"<item identifier=\"{identifier}\"><title>{title}</title>")
+        children = it.get('children') or []
+        if children:
+            xml_parts.append(_manifest_items_xml(children))
+        xml_parts.append("</item>")
+    return "".join(xml_parts)
+
+
+def _build_manifest_hierarchy(course_title: str, org_items: List[Dict[str, Any]], resources_xml: str) -> str:
     course_identifier = f"course-{uuid.uuid4()}"
     header = _manifest_header(course_identifier, course_title)
-
-    # Items
-    items_xml = []
-    resources_xml = []
-    for idx, (res_id, href) in enumerate(sco_entries, start=1):
-        item_id = f"item-{res_id}"
-        items_xml.append(f"<item identifier=\"{item_id}\" identifierref=\"{res_id}\"><title>SCO {idx}</title></item>")
-        resources_xml.append(
-            f"<resource identifier=\"{res_id}\" type=\"webcontent\" adlcp:scormType=\"sco\" href=\"{_xml_escape(href)}\"><file href=\"{_xml_escape(href)}\"/></resource>"
-        )
-
-    body = "".join(items_xml)
-    footer = _manifest_footer("".join(resources_xml))
-    return header + body + footer
+    items_xml = _manifest_items_xml(org_items)
+    footer = _manifest_footer(resources_xml)
+    return header + items_xml + footer
 
 
 def _parse_primary_list(raw_primary) -> List[Dict[str, Any]]:
@@ -425,34 +726,38 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
     zip_buffer = io.BytesIO()
     z = zipfile.ZipFile(zip_buffer, mode='w', compression=zipfile.ZIP_DEFLATED)
 
-    # Collect SCO entries (resource id, href)
+    # Collect SCO entries and hierarchical items
     sco_entries: List[Tuple[str, str]] = []
     used_ids: set = set()
+    org_items: List[Dict[str, Any]] = []
 
     sections = structure.get('sections') or []
 
-    for section in sections:
+    for s_idx, section in enumerate(sections, start=1):
         if not isinstance(section, dict):
             continue
         lessons = section.get('lessons') or []
-        for lesson in lessons:
+        section_title = (section.get('title') or f"Module {s_idx}").strip()
+        sec_item = {
+            'identifier': f"sec-{s_idx}-{uuid.uuid4().hex[:6]}",
+            'title': section_title,
+            'children': []
+        }
+        for l_idx, lesson in enumerate(lessons, start=1):
             if not isinstance(lesson, dict):
                 continue
-            lesson_title = (lesson.get('title') or '').strip()
+            lesson_title = (lesson.get('title') or f"Lesson {l_idx}").strip()
             recs = lesson.get('recommended_content_types') or {}
             raw_primary = recs.get('primary')
             logger.info(f"[SCORM] Lesson '{lesson_title}' primary(raw)={raw_primary}")
             primary = _parse_primary_list(raw_primary)
             logger.info(f"[SCORM] Lesson '{lesson_title}' primary(normalized)={primary}")
-            # Fallback to recommendedProducts/recommended_products if needed
             if not primary:
                 rp = lesson.get('recommendedProducts') or lesson.get('recommended_products')
                 rp_list = _parse_recommended_products_field(rp)
                 logger.info(f"[SCORM] Lesson '{lesson_title}' fallback recommendedProducts={rp_list}")
                 if rp_list:
                     primary = [{"type": t} for t in rp_list if t in ("presentation","one-pager","onepager","quiz","video-lesson")]
-
-            # NEW: If still no primary, infer products by name patterns
             if not primary:
                 inferred = _infer_products_for_lesson([dict(p) for p in all_projects], outline_name, lesson_title, used_ids)
                 if inferred:
@@ -468,8 +773,11 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     primary = inferred_items
                     logger.info(f"[SCORM] Inferred primary for lesson '{lesson_title}': {primary}")
 
-            # Track if we added any SCOs for this lesson
-            lesson_sco_count_before = len(sco_entries)
+            lesson_item = {
+                'identifier': f"les-{s_idx}-{l_idx}-{uuid.uuid4().hex[:6]}",
+                'title': lesson_title,
+                'children': []
+            }
 
             normalized: List[Dict[str, Any]] = []
             for it in primary or []:
@@ -478,61 +786,19 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 elif isinstance(it, str):
                     normalized.append({'type': it})
 
-            if not normalized:
-                logger.info(f"[SCORM] Lesson '{lesson_title}': no normalized primary items; adding lesson placeholder")
-                # No primary items – create a lesson-level placeholder SCO
-                placeholder_html = _render_placeholder_html(lesson_title or 'Lesson', "No recommended content configured for this lesson.")
-                sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
-                href = f"{sco_dir}/index.html"
-                res_id = f"res-{uuid.uuid4().hex[:8]}"
-                z.writestr(href, placeholder_html)
-                sco_entries.append((res_id, href))
-                continue
-
             for item in normalized:
                 item_type_raw = (item.get('type') or '').strip().lower()
                 logger.info(f"[SCORM] Processing item type='{item_type_raw}' for lesson='{lesson_title}'")
                 if not item_type_raw:
                     continue
-                # Build candidate pool log
-                try:
-                    target_mtypes = _map_item_type_to_microproduct(item_type_raw)
-                    cand = [
-                        {
-                            'id': p.get('id'),
-                            'project_name': (p.get('project_name') or '').strip(),
-                            'microproduct_name': (p.get('microproduct_name') or '').strip(),
-                            'types': [
-                                (p.get('microproduct_type') or '').strip().lower(),
-                                (p.get('component_name') or '').strip().lower(),
-                            ],
-                            'used': p.get('id') in used_ids
-                        }
-                        for p in all_projects if _project_type_matches(p, target_mtypes or [])
-                    ] if target_mtypes else []
-                    logger.info(f"[SCORM-MATCH] Candidate pool for desired_type='{item_type_raw}' lesson='{lesson_title}': {cand}")
-                except Exception as _e:
-                    logger.info(f"[SCORM-MATCH] Failed to log SCORM candidate pool: {_e}")
-
                 matched = _match_connected_product(all_projects, outline_name, lesson_title, item_type_raw, used_ids)
                 logger.info(f"[SCORM] Match result for lesson='{lesson_title}' type='{item_type_raw}' => matched_id={(matched or {}).get('id') if isinstance(matched, dict) else None}")
                 if not matched:
-                    logger.info(f"[SCORM] No product for lesson='{lesson_title}' type='{item_type_raw}', adding placeholder SCO")
-                    # Create a placeholder SCO for this recommended item
-                    placeholder_title = f"{lesson_title} – {item_type_raw}" if lesson_title else item_type_raw
-                    placeholder_html = _render_placeholder_html(placeholder_title, "Content not found or not yet created.")
-                    sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
-                    href = f"{sco_dir}/index.html"
-                    res_id = f"res-{uuid.uuid4().hex[:8]}"
-                    z.writestr(href, placeholder_html)
-                    sco_entries.append((res_id, href))
                     continue
-
                 product_id = matched['id']
                 used_ids.add(product_id)
 
                 # Render product to HTML
-                body_html = None
                 mtype = (matched.get('microproduct_type') or '').strip().lower()
                 comp = (matched.get('component_name') or '').strip().lower()
                 try:
@@ -543,16 +809,14 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
                 title_for_sco = matched.get('project_name') or matched.get('microproduct_name') or lesson_title or 'Lesson'
 
-                if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation']):
-                    body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
-                elif any(t in (mtype, comp) for t in ['one pager', 'one-pager', 'onepager']):
+                if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    body_html = _render_placeholder_html(title_for_sco, "This presentation has been exported as a SCORM SCO placeholder.")
+                    body_html = _render_slide_deck_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
-                    body_html = _render_placeholder_html(title_for_sco, "Quiz content is not yet supported for SCORM export in this version.")
+                    body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                 else:
-                    body_html = _render_placeholder_html(title_for_sco, "Unsupported content type for SCORM export.")
+                    continue
 
                 # Write SCO HTML into package
                 sco_dir = f"sco_{product_id}"
@@ -561,17 +825,31 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 z.writestr(href, body_html)
                 sco_entries.append((res_id, href))
 
-            # If nothing was added for this lesson (extreme edge), add one placeholder
-            if len(sco_entries) == lesson_sco_count_before:
-                placeholder_html = _render_placeholder_html(lesson_title or 'Lesson', "No content could be included for this lesson.")
-                sco_dir = f"sco_placeholder_{uuid.uuid4().hex[:8]}"
-                href = f"{sco_dir}/index.html"
-                res_id = f"res-{uuid.uuid4().hex[:8]}"
-                z.writestr(href, placeholder_html)
-                sco_entries.append((res_id, href))
+                # Add leaf item under lesson
+                lesson_item['children'].append({
+                    'identifier': f"itm-{product_id}",
+                    'title': title_for_sco,
+                    'res_id': res_id,
+                })
 
-    # Build manifest
-    manifest_xml = _build_manifest(main_title, sco_entries)
+            # Only add lesson if it has children
+            if lesson_item['children']:
+                sec_item['children'].append(lesson_item)
+
+        # Only add section if it has lessons
+        if sec_item['children']:
+            org_items.append(sec_item)
+
+    # Build resources XML
+    resources_xml_parts: List[str] = []
+    for res_id, href in sco_entries:
+        resources_xml_parts.append(
+            f"<resource identifier=\"{res_id}\" type=\"webcontent\" adlcp:scormType=\"sco\" href=\"{_xml_escape(href)}\"><file href=\"{_xml_escape(href)}\"/></resource>"
+        )
+    resources_xml = "".join(resources_xml_parts)
+
+    # Build manifest with hierarchy
+    manifest_xml = _build_manifest_hierarchy(main_title, org_items, resources_xml)
     z.writestr("imsmanifest.xml", manifest_xml)
 
     z.close()
