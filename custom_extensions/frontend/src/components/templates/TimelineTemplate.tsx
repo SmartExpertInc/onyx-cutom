@@ -201,7 +201,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const stepWrapperStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
-    top: `${index * 80 + 20}px`, // Space steps evenly
+    top: `${index * 120 + 20}px`, // Increased vertical spacing between steps
     left: '0',
     width: '100%',
     display: 'flex',
@@ -239,7 +239,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     flexDirection: 'column',
     gap: '5px',
     position: 'absolute',
-    left: index % 2 === 0 ? 'calc(50% + 50px)' : 'calc(50% - 50px - 35%)', // 50px from center line
+    left: index % 2 === 0 ? 'calc(50% + 50px)' : 'calc(50% - 50px - 35%)', // Same 50px distance from center line
     width: '35%',
     transform: 'translateY(-50%)'
   });
