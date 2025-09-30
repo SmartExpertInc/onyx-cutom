@@ -277,11 +277,7 @@
         <div class="main-background"></div>
         
         <!-- Dynamic speaker image -->
-        {% if speakerImageSrc and speakerImageSrc.startswith('data:image') %}
         <div class="speaker-photo" style="background-image: url('{{ speakerImageSrc }}');"></div>
-        {% else %}
-        <div class="speaker-photo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid var(--accent-color); border-radius: 10px;"></div>
-        {% endif %}
         
         <div class="bottom-gradient"></div>
         
