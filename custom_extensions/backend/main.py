@@ -5962,10 +5962,11 @@ async def startup_event():
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS initial_questionnaire (
                     id SERIAL PRIMARY KEY,
-                    onyx_user_id TEXT NOT NULL,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
                     data JSONB NOT NULL
                 );
             """)
+            await connection.execute("ALTER TABLE initial_questionnaire ADD CONSTRAINT uq_initial_questionnaire_onyx_user_id UNIQUE (onyx_user_id);")
 
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS slide_creation_errors (
