@@ -436,6 +436,9 @@ async def track_request_analytics(request: Request, call_next):
     except:
         pass
     
+    # Prepare email placeholder
+    user_email = None
+    
     # Get request size
     request_size = None
     try:
@@ -458,18 +461,29 @@ async def track_request_analytics(request: Request, call_next):
         except:
             pass
         
+        # Determine timeout
+        is_timeout = response.status_code in (408, 504)
+        
+        # For errors/timeouts, try to resolve user email
+        if is_timeout or response.status_code >= 400:
+            try:
+                _, user_email_candidate = await get_user_identifiers_for_workspace(request)
+                user_email = user_email_candidate
+            except Exception:
+                user_email = None
+        
         # Store analytics in database
         try:
             async with DB_POOL.acquire() as conn:
                 await conn.execute("""
                     INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
+                        id, endpoint, method, user_id, user_email, status_code, 
                         response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                        error_message, is_timeout, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                 """, request_id, request.url.path, request.method, user_id,
-                     response.status_code, response_time_ms, request_size,
-                     response_size, None, datetime.now(timezone.utc))
+                     user_email, response.status_code, response_time_ms, request_size,
+                     response_size, None, is_timeout, datetime.now(timezone.utc))
         except Exception as e:
             logger.error(f"Failed to store request analytics: {e}")
         
@@ -479,18 +493,40 @@ async def track_request_analytics(request: Request, call_next):
         end_time = time.time()
         response_time_ms = int((end_time - start_time) * 1000)
         
+        # Determine timeout status and status_code
+        try:
+            import httpx, asyncio
+        except Exception:
+            pass
+        
+        is_timeout = False
+        status_code = 500
+        try:
+            if ('httpx' in globals() and isinstance(e, httpx.TimeoutException)) or ('asyncio' in globals() and isinstance(e, asyncio.TimeoutError)):
+                is_timeout = True
+                status_code = 504
+        except Exception:
+            pass
+        
+        # Try to resolve user email for error cases
+        try:
+            _, user_email_candidate = await get_user_identifiers_for_workspace(request)
+            user_email = user_email_candidate
+        except Exception:
+            user_email = None
+        
         # Store error analytics
         try:
             async with DB_POOL.acquire() as conn:
                 await conn.execute("""
                     INSERT INTO request_analytics (
-                        id, endpoint, method, user_id, status_code, 
+                        id, endpoint, method, user_id, user_email, status_code, 
                         response_time_ms, request_size_bytes, response_size_bytes,
-                        error_message, created_at
-                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                        error_message, is_timeout, created_at
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                 """, request_id, request.url.path, request.method, user_id,
-                     500, response_time_ms, request_size, None,
-                     str(e), datetime.now(timezone.utc))
+                     user_email, status_code, response_time_ms, request_size, None,
+                     str(e), is_timeout, datetime.now(timezone.utc))
         except Exception as db_error:
             logger.error(f"Failed to store error analytics: {db_error}")
         
@@ -13947,6 +13983,8 @@ async def get_analytics_dashboard(
                     response_time_ms,
                     error_message,
                     user_id,
+                    CASE WHEN position('@' in user_id) > 0 THEN user_id ELSE NULL END AS user_email,
+                    (status_code IN (408, 504) OR (error_message ILIKE '%timeout%' OR error_message ILIKE '%timed out%' OR error_message ILIKE '%Timeout%')) AS is_timeout,
                     created_at
                 FROM request_analytics
                 {where_clause}
@@ -14024,6 +14062,8 @@ async def get_analytics_dashboard(
                 "response_time_ms": row["response_time_ms"],
                 "error_message": row["error_message"],
                 "user_id": row["user_id"],
+                "user_email": row["user_email"],
+                "is_timeout": row["is_timeout"],
                 "created_at": row["created_at"].isoformat()
             } for row in errors_rows],
             "performance_percentiles": {
