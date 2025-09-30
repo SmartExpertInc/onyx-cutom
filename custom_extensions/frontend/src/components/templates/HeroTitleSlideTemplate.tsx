@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HeroTitleSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
-import { RichTextEditor } from '@/components/editors/RichTextEditor';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { 
   theme?: SlideTheme;
@@ -216,22 +216,17 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
           position: 'relative'
         }}>
           {isEditable && editingTitle ? (
-            <RichTextEditor
+            <WysiwygEditor
               initialValue={title || ''}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
               placeholder="Enter hero title..."
               className="inline-editor-title"
               style={{
                 ...titleStyles,
-                // Ensure title behaves exactly like h1 element
                 padding: '8px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
@@ -254,9 +249,8 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-            >
-              {title ? renderHtmlContent(title) : 'Click to add hero title'}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: title || 'Click to add hero title' }}
+            />
           )}
         </div>
 
@@ -268,23 +262,18 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
           position: 'relative'
         }}>
           {isEditable && editingSubtitle ? (
-            <RichTextEditor
+            <WysiwygEditor
               initialValue={subtitle || ''}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
-              multiline={true}
               placeholder="Enter subtitle..."
               className="inline-editor-subtitle"
               style={{
                 ...subtitleStyles,
-                // Ensure subtitle behaves exactly like div element
                 margin: '0',
                 padding: '8px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
@@ -307,9 +296,8 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
                 }
               }}
               className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-            >
-              {subtitle ? renderHtmlContent(subtitle) : 'Click to add subtitle'}
-            </div>
+              dangerouslySetInnerHTML={{ __html: subtitle || 'Click to add subtitle' }}
+            />
           )}
         </div>
       </div>

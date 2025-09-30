@@ -302,3 +302,45 @@ body:has([aria-modal="true"]) [draggable="true"] {
     color-adjust: exact !important;
   }
 }
+
+/* TipTap WYSIWYG Editor Styles */
+.wysiwyg-editor {
+  outline: none;
+}
+
+.wysiwyg-editor:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Editor content styles */
+.wysiwyg-editor p {
+  margin: 0;
+}
+
+.wysiwyg-editor strong,
+.wysiwyg-editor b {
+  font-weight: bold;
+}
+
+.wysiwyg-editor em,
+.wysiwyg-editor i {
+  font-style: italic;
+}
+
+/* ProseMirror editor styles (TipTap uses ProseMirror internally) */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0;
+}
+
+.ProseMirror strong {
+  font-weight: bold;
+}
+
+.ProseMirror em {
+  font-style: italic;
+}
