@@ -884,17 +884,17 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
     html_parts.append('</div>')  # Close quiz-container
     
     # Add JavaScript for interactivity
-    js_code = f"""
+    js_code = """
 <script>
-    let userAnswers = {{}};
-    let questions = {json.dumps(questions)};
+    let userAnswers = {};
+    let questions = __QUESTIONS_PLACEHOLDER__;
     let isSubmitted = false;
     
     function selectOption(questionNum, optionId, questionType) {{
         if (isSubmitted) return;
         
         const questionIndex = questionNum - 1;
-        const listItems = document.querySelectorAll(`.question-block:nth-child(${{questionNum + 1}}) .options-list li`);
+        const listItems = document.querySelectorAll('.question-block:nth-child(' + (questionNum + 1) + ') .options-list li');
         
         if (questionType === 'multiple-choice') {{
             // Clear previous selections
@@ -927,7 +927,7 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
         if (isSubmitted) return;
         
         const questionIndex = questionNum - 1;
-        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = {{}};
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = {};
         userAnswers[questionIndex][promptId] = optionId;
         
         // Update SCORM data
@@ -1079,7 +1079,8 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
     setTimeout(initializeSorting, 100);
 </script>
 """
-    
+    js_code = js_code.replace("__QUESTIONS_PLACEHOLDER__", json.dumps(questions))
+
     final_html = ''.join(html_parts) + js_code
     title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Quiz'
     return _wrap_html_as_sco(title, final_html)
