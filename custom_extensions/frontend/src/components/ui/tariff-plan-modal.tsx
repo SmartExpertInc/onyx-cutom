@@ -140,8 +140,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   if (showPayment && selectedPlan) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl w-[85vw] h-[85vh] overflow-y-auto p-0">
-          <div className="min-h-full bg-gradient-to-br from-blue-50 via-white to-blue-100">
+        <DialogContent className="max-w-4xl w-[85vw] h-[85vh] overflow-y-auto p-0 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+          <div className="min-h-full">
             <div className="container mx-auto px-4 py-12">
               <div className="max-w-2xl mx-auto">
                 {/* Back Button */}
@@ -329,8 +329,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl w-[85vw] h-[85vh] overflow-y-auto p-0">
-        <div className="min-h-full bg-gradient-to-br from-blue-50 via-white to-blue-100">
+      <DialogContent className="max-w-7xl w-[90vw] h-[90vh] overflow-y-auto p-0 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+        <div className="min-h-full">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
@@ -369,16 +369,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     key={plan.id}
                     className={`relative bg-white rounded-3xl shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
                       plan.popular 
-                        ? 'border-blue-500 ring-4 ring-blue-200' 
+                        ? 'border-blue-600 ring-4 ring-blue-200' 
                         : 'border-gray-200 hover:border-blue-300'
                     }`}
                   >
                     {plan.popular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                          Most Popular
-                        </div>
-                      </div>
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-t-3xl text-xs font-bold text-center shadow-sm">
+                        Most Popular
+                    </div>
                     )}
                     
                     {/* Card Header */}
