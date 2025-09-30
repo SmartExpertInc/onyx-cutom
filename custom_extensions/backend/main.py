@@ -27523,7 +27523,7 @@ async def list_all_user_questionnaires(
         logger.error(f"Error listing user questionnaires: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve user questionnaires")
 
-@app.post("/api/custom/admin/questionnaire/add")
+@app.post("/api/questionnaires/add")
 async def add_user_questionnaire(
     questionnaire_request: UserQuestionnaireInsertRequest,
     request: Request,
@@ -27533,7 +27533,6 @@ async def add_user_questionnaire(
     Admin endpoint to insert a user's initial questionnaire answers.
     If user already has answers, this will overwrite them.
     """
-    await verify_admin_user(request)
     try:
         async with pool.acquire() as conn:
             await conn.execute("""

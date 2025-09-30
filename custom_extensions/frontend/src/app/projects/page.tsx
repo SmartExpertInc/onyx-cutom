@@ -1064,8 +1064,7 @@ const ProjectsPageInner: React.FC = () => {
         .filter(([_, v]) => v)
         .map(([k, v]) => ({ question: k, answer: v }));
       const payload = { onyx_user_id: currentUser?.id || 'dummy-onyx-user-id', answers };
-      const endpoint = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/admin/questionnaire/add`;
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/questionnaires/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
