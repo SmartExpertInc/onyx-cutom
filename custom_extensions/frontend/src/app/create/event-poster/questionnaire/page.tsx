@@ -84,7 +84,7 @@ export default function EventPosterQuestionnaire() {
       <button
         type="button"
         onClick={() => router.push('/projects')}
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+        className="absolute top-6 left-6 z-50 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
       >
         <HomeIcon className="w-4 h-4" />
         {t('interface.home', 'Home')}
