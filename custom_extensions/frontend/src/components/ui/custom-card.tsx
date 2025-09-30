@@ -109,7 +109,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           
           {/* Icon section */}
           {Icon && (
-            <div className="flex items-center justify-center h-16 relative mb-4">
+            <div className="flex items-center justify-center h-16 relative">
               <div className="relative">
                 <div className="absolute inset-0 rounded-lg blur-sm" style={{background: `linear-gradient(to bottom right, ${glowColor}20, ${glowColor}10)`}}></div>
                 <Icon 
