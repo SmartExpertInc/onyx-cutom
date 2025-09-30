@@ -115,7 +115,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               }`}>
                 <DialogTitle className="text-2xl font-bold text-gray-900">
                   {surveyStep === 1 && "What do you plan to use ContentBuilder for?"}
-                  {surveyStep === 2 && selectedCategory === 'work' && "Tell us about your work"}
+                  {surveyStep === 2 && selectedCategory === 'work' && "What best describes your role"}
                   {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
                   {surveyStep === 4 && selectedCategory === 'work' && "What's your primary use case?"}
                   {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
@@ -182,9 +182,6 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {surveyStep === 2 && selectedCategory === 'work' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  What best describes your role? *
-                </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
                     { value: 'marketer', label: 'Marketer' },
@@ -215,9 +212,6 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {surveyStep === 3 && selectedCategory === 'work' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  What is the size of your company? *
-                </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {[
                     { value: '1-10', label: '1–10', icon: 1 },
@@ -247,9 +241,6 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {surveyStep === 4 && selectedCategory === 'work' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  What's your primary use case?
-                </label>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
                     { value: 'video-production', label: 'Video Production', icon: <Clapperboard width={20} /> },
@@ -289,9 +280,6 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {surveyStep === 2 && selectedCategory === 'personal' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-base font-semibold text-gray-700 mb-3">
-                  What will you mainly use the platform for?
-                </label>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
                     { value: 'personal-projects', label: 'Personal projects', icon: <User width={20} /> },
