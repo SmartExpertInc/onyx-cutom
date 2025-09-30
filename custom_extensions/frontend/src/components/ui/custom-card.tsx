@@ -129,7 +129,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {title && (
                 <h3 className={cn(
                   "text-[28px] font-semibold text-center leading-tight tracking-tight",
-                  useCSSVariables ? "text-[var(--card-foreground)]" : "text-[var(--card-foreground)]"
+                  "text-gray-900"
                 )}>
                   {title}
                 </h3>
@@ -137,7 +137,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {description && (
                 <p className={cn(
                   "text-base text-center leading-snug max-w-[85%]",
-                  useCSSVariables ? "text-[var(--muted-foreground)]" : "text-[var(--muted-foreground)]"
+                  "text-gray-500"
                 )}>
                   {description}
                 </p>

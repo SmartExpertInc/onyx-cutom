@@ -8,11 +8,10 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   gradientTo?: string;
   active?: boolean;
   onClick?: () => void;
-  glowColor?: string; // base color to derive the glow from
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo: _gradientTo, onClick, glowColor, ...props }, ref) => {
+  ({ className, Icon, label, active = false, gradientTo: _gradientTo, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
@@ -54,29 +53,19 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               <div 
                 className="flex items-center justify-center"
               >
-                <div className="relative">
-                  <div
-                    className="absolute inset-0 rounded-lg blur-sm"
-                    style={{
-                      background: active
-                        ? `linear-gradient(to bottom right, ${glowColor ? `color-mix(in srgb, ${glowColor} 18%, transparent)` : `color-mix(in srgb, var(--primary) 18%, transparent)`}, ${glowColor ? `color-mix(in srgb, ${glowColor} 10%, transparent)` : `color-mix(in srgb, var(--primary) 10%, transparent)`})`
-                        : `linear-gradient(to bottom right, ${glowColor ? `color-mix(in srgb, ${glowColor} 12%, transparent)` : 'color-mix(in srgb, #6b7280 12%, transparent)'}, ${glowColor ? `color-mix(in srgb, ${glowColor} 6%, transparent)` : 'color-mix(in srgb, #6b7280 6%, transparent)'})`
-                    }}
-                  />
-                  <Icon 
-                    size={35}
-                    className={cn(
-                      "relative z-10 w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
-                      active ? "text-white" : "text-gray-500"
-                    )}
-                    style={{
-                      color: active ? 'white' : '#6b7280',
-                      fill: active ? 'white' : '#6b7280',
-                      stroke: active ? 'white' : '#6b7280',
-                      '--tw-text-opacity': '1',
-                    }}
-                  />
-                </div>
+                <Icon 
+                  size={35}
+                  className={cn(
+                    "w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
+                    active ? "text-white" : "text-gray-500"
+                  )}
+                  style={{
+                    color: active ? 'white' : '#6b7280',
+                    fill: active ? 'white' : '#6b7280',
+                    stroke: active ? 'white' : '#6b7280',
+                    '--tw-text-opacity': '1',
+                  }}
+                />
               </div>
             )}
             <span 
