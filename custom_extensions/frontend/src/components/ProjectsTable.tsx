@@ -3580,8 +3580,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                <DropdownMenuTrigger asChild>
                  <Button 
                    variant="sort" 
-                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 rounded-full px-4 py-2 border border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
-                   style={{ backgroundColor: 'rgba(37, 99, 235, 0.2)' }}
+                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 rounded-full px-4 py-2 border border-transparent transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
                  >
                    <ListFilter size={16} className="text-gray-700" />
                    {contentTypeFilter}
@@ -3622,8 +3621,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <DropdownMenuTrigger asChild>
                 <Button
                   variant="columns"
-                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 rounded-full px-4 py-2 border border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
-                  style={{ backgroundColor: 'rgba(37, 99, 235, 0.2)' }}
+                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 rounded-full px-4 py-2 border border-transparent transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
                 >
                     <ListFilter size={16} className="text-gray-700" />
                     {contentTypeFilter}
@@ -3674,28 +3672,26 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </Button>
             )} */}
 
-            <div className="flex items-center rounded-lg p-0.5 border border-blue-300" style={{ backgroundColor: 'rgba(37, 99, 235, 0.2)' }}>
+            <div className="flex items-center rounded-lg p-0.5 border border-transparent">
               <Button
                 onClick={() => setViewMode("grid")}
                 variant={viewMode === "grid" ? "view-active" : "view"}
-                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
+                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
                   viewMode === "grid" 
-                    ? "bg-blue-700 text-white shadow-md" 
-                    : "text-gray-700 hover:text-gray-900"
+                    ? "bg-blue-700 text-white shadow-md border-blue-700" 
+                    : "text-gray-700 hover:text-gray-900 border-transparent"
                 }`}
-                style={viewMode === "grid" ? {} : { backgroundColor: 'rgba(37, 99, 235, 0.2)' }}
               >
                 <LayoutGrid size={16} className={viewMode === "grid" ? "text-white" : "text-gray-700"} />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
                 variant={viewMode === "list" ? "view-active" : "view"}
-                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
+                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
                   viewMode === "list" 
-                    ? "bg-blue-700 text-white shadow-md" 
-                    : "text-gray-700 hover:text-gray-900"
+                    ? "bg-blue-700 text-white shadow-md border-blue-700" 
+                    : "text-gray-700 hover:text-gray-900 border-transparent"
                 }`}
-                style={viewMode === "list" ? {} : { backgroundColor: 'rgba(37, 99, 235, 0.2)' }}
               >
                 <List size={16} className={viewMode === "list" ? "text-white" : "text-gray-700"} />
               </Button>
