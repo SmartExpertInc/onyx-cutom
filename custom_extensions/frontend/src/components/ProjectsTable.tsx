@@ -3672,14 +3672,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </Button>
             )} */}
 
-            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
+            <div className="flex items-center bg-white/60 backdrop-blur-sm rounded-lg p-0.5 border border-gray-200">
               <Button
                 onClick={() => setViewMode("grid")}
                 variant={viewMode === "grid" ? "view-active" : "view"}
-                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
+                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
                   viewMode === "grid" 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-md" 
-                    : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
+                    ? "bg-blue-700 text-white shadow-md" 
+                    : "text-gray-700 hover:text-gray-900"
                 }`}
               >
                 <LayoutGrid size={16} className={viewMode === "grid" ? "text-white" : "text-gray-700"} />
@@ -3687,10 +3687,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               <Button
                 onClick={() => setViewMode("list")}
                 variant={viewMode === "list" ? "view-active" : "view"}
-                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
+                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
                   viewMode === "list" 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-md" 
-                    : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
+                    ? "bg-blue-700 text-white shadow-md" 
+                    : "text-gray-700 hover:text-gray-900"
                 }`}
               >
                 <List size={16} className={viewMode === "list" ? "text-white" : "text-gray-700"} />
