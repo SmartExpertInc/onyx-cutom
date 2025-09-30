@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X } from 'lucide-react';
+import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Plan {
@@ -416,7 +416,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         </div>
 
                         <div className="flex items-start">
-                          <Users className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                          <Server className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
                             <div className="font-semibold text-gray-900">Storage</div>
                             <div className="text-sm text-gray-600">{plan.storage}</div>
@@ -424,7 +424,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         </div>
 
                         <div className="flex items-start">
-                          <Shield className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                          <MessagesSquare className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
                             <div className="font-semibold text-gray-900">Support</div>
                             <div className="text-sm text-gray-600">{plan.support}</div>
@@ -432,7 +432,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         </div>
 
                         <div className="flex items-start">
-                          <Zap className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                          <Workflow className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
                             <div className="font-semibold text-gray-900">Connectors</div>
                             <div className="text-sm text-gray-600">{plan.connectors}</div>
