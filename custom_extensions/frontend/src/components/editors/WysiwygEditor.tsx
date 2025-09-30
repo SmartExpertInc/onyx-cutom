@@ -1,8 +1,7 @@
 // components/editors/WysiwygEditor.tsx
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
-import { BubbleMenu } from '@tiptap/extension-bubble-menu';
 import StarterKit from '@tiptap/starter-kit';
 
 export interface WysiwygEditorProps {
@@ -22,10 +21,16 @@ export function WysiwygEditor({
   className = '',
   style = {}
 }: WysiwygEditorProps) {
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+
+  const cleanedStyle = { ...style };
+  delete cleanedStyle.fontWeight;
+  delete cleanedStyle.fontStyle;
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // Disable everything except Bold and Italic
         heading: false,
         bulletList: false,
         orderedList: false,
@@ -34,39 +39,49 @@ export function WysiwygEditor({
         codeBlock: false,
         horizontalRule: false,
         strike: false,
-        // Keep only:
-        bold: true,
-        italic: true,
-        paragraph: true,
-        text: true,
-        history: true, // For Ctrl+Z
-      }),
-      BubbleMenu.configure({
-        element: document.createElement('div'),
       }),
     ],
     content: initialValue || '',
     editorProps: {
       attributes: {
         class: `wysiwyg-editor ${className}`,
+        style: Object.entries(cleanedStyle)
+          .map(([key, value]) => {
+            const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+            return `${cssKey}: ${value}`;
+          })
+          .join('; '),
       },
     },
-    onUpdate: ({ editor }) => {
-      // Can call onSave here for real-time save
-      // But better to leave it on onBlur
+    onSelectionUpdate: ({ editor }) => {
+      const { from, to, empty } = editor.state.selection;
+      
+      if (empty) {
+        setShowToolbar(false);
+        return;
+      }
+
+      // Отримати координати виділення
+      const { view } = editor;
+      const start = view.coordsAtPos(from);
+      const end = view.coordsAtPos(to);
+      
+      // Позиціонувати toolbar над центром виділення
+      setToolbarPosition({
+        x: (start.left + end.left) / 2,
+        y: start.top
+      });
+      setShowToolbar(true);
     },
   });
 
-  // Focus on mount
   useEffect(() => {
     if (editor) {
       editor.commands.focus('end');
-      // Select all text on mount for consistency with previous behavior
       editor.commands.selectAll();
     }
   }, [editor]);
 
-  // Handle Escape
   useEffect(() => {
     if (!editor) return;
 
@@ -86,37 +101,29 @@ export function WysiwygEditor({
     };
   }, [editor, onCancel]);
 
-  // Handle Blur
   const handleBlur = () => {
     if (editor) {
       const html = editor.getHTML();
-      // Remove extra <p> tags if content is simple
-      const cleanHtml = html.replace(/^<p>(.*)<\/p>$/, '$1');
+      const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');
       onSave(cleanHtml);
     }
+    setShowToolbar(false);
   };
 
   if (!editor) {
     return null;
   }
 
-  // Clean styles to avoid conflicts with fontWeight/fontStyle
-  const cleanedStyle = { ...style };
-  delete cleanedStyle.fontWeight;
-  delete cleanedStyle.fontStyle;
-
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      {/* BubbleMenu - appears on selection */}
-      <BubbleMenu
-        editor={editor}
-        tippyOptions={{
-          duration: 100,
-          placement: 'top',
-        }}
-      >
+      {/* Custom BubbleMenu */}
+      {showToolbar && (
         <div
           style={{
+            position: 'fixed',
+            left: `${toolbarPosition.x}px`,
+            top: `${toolbarPosition.y - 50}px`,
+            transform: 'translateX(-50%)',
             display: 'flex',
             gap: '4px',
             backgroundColor: 'white',
@@ -125,11 +132,15 @@ export function WysiwygEditor({
             padding: '4px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
             zIndex: 1000,
+            pointerEvents: 'auto',
           }}
         >
           <button
             type="button"
-            onClick={() => editor.chain().focus().toggleBold().run()}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              editor.chain().focus().toggleBold().run();
+            }}
             style={{
               width: '32px',
               height: '32px',
@@ -161,7 +172,10 @@ export function WysiwygEditor({
           </button>
           <button
             type="button"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              editor.chain().focus().toggleItalic().run();
+            }}
             style={{
               width: '32px',
               height: '32px',
@@ -192,22 +206,11 @@ export function WysiwygEditor({
             I
           </button>
         </div>
-      </BubbleMenu>
+      )}
 
-      {/* Editor */}
-      <EditorContent
-        editor={editor}
-        onBlur={handleBlur}
-        style={{
-          ...cleanedStyle,
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          padding: '8px',
-          minHeight: '1.6em',
-          outline: 'none',
-          boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.1)',
-        }}
-      />
+      <div onBlur={handleBlur}>
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }
