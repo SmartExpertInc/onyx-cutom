@@ -285,7 +285,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging !== null) {
       const deltaY = dragStartY - e.clientY; // Inverted because Y increases downward
-      const deltaPercentage = (deltaY / 350) * 100; // 350px is max height
+      const deltaPercentage = (deltaY / 400) * 100; // 400px is max height
       const newHeight = Math.min(100, Math.max(0, dragStartHeight + deltaPercentage));
       
       if (onUpdate) {
@@ -368,7 +368,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    background: currentTheme.colors.backgroundColor, // Use theme gradient
+    background: currentTheme.colors.marketShareGradient || currentTheme.colors.backgroundColor, // Use MarketShare gradient or fallback
     padding: '35px',
     zIndex: 2
   };
@@ -395,7 +395,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     color: '#ffffff',
     fontWeight: 'bold',
     textAlign: 'left',
-    marginBottom: '30px',
+    marginBottom: '20px',
     wordWrap: 'break-word',
     lineHeight: '1.1'
   };
@@ -459,7 +459,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const barStyles = (height: number, gradientStart: string, gradientEnd: string): React.CSSProperties => ({
     width: '90px',
-    height: `${(height / 100) * 350}px`, // Calculate exact height based on 350px max height
+    height: `${(height / 100) * 400}px`, // Calculate exact height based on 400px max height (increased for 100%)
     background: `linear-gradient(to bottom, ${gradientStart}, ${gradientEnd})`,
     borderRadius: '8px 8px 0 0',
     display: 'flex',
