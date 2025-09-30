@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
 
 export interface WysiwygEditorProps {
   initialValue: string;
@@ -38,8 +39,8 @@ export function WysiwygEditor({
         code: false,
         codeBlock: false,
         horizontalRule: false,
-        strike: false,
       }),
+      Underline, // ← Додати underline extension
     ],
     content: initialValue || '',
     editorProps: {
@@ -104,7 +105,7 @@ export function WysiwygEditor({
       style={{ 
         position: 'relative', 
         width: '100%',
-        paddingTop: '50px' // Простір для toolbar
+        paddingTop: '50px'
       }}
     >
       {showToolbar && (
@@ -126,6 +127,7 @@ export function WysiwygEditor({
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
+          {/* Bold */}
           <button
             type="button"
             onMouseDown={(e) => {
@@ -151,6 +153,8 @@ export function WysiwygEditor({
           >
             B
           </button>
+
+          {/* Italic */}
           <button
             type="button"
             onMouseDown={(e) => {
@@ -175,6 +179,60 @@ export function WysiwygEditor({
             title="Italic (Ctrl+I)"
           >
             I
+          </button>
+
+          {/* Underline */}
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              editor.chain().focus().toggleUnderline().run();
+            }}
+            style={{
+              width: '32px',
+              height: '32px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              backgroundColor: editor.isActive('underline') ? '#3b82f6' : 'white',
+              color: editor.isActive('underline') ? 'white' : '#374151',
+              textDecoration: 'underline',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+            }}
+            title="Underline (Ctrl+U)"
+          >
+            U
+          </button>
+
+          {/* Strikethrough */}
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              editor.chain().focus().toggleStrike().run();
+            }}
+            style={{
+              width: '32px',
+              height: '32px',
+              border: '1px solid #d1d5db',
+              borderRadius: '4px',
+              backgroundColor: editor.isActive('strike') ? '#3b82f6' : 'white',
+              color: editor.isActive('strike') ? 'white' : '#374151',
+              textDecoration: 'line-through',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+            }}
+            title="Strikethrough"
+          >
+            S
           </button>
         </div>
       )}
