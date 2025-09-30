@@ -175,19 +175,26 @@ export function WysiwygEditor({
     <div style={{ position: 'relative', width: '100%' }}>
       {showToolbar && (() => {
         // Calculate final toolbar position
+        // The toolbar should appear ABOVE the text with proper spacing
+        const toolbarHeight = 40; // Approximate height of toolbar (32px button + 8px padding)
+        const marginAboveText = 10; // Margin between toolbar and text
+        const totalOffset = toolbarHeight + marginAboveText;
+        
         const finalLeft = toolbarPosition.x;
-        const finalTop = toolbarPosition.y - 60; // 60px above text
-        const offsetY = 60;
+        const finalTop = toolbarPosition.y - totalOffset;
         
         console.log('🎨 [WysiwygEditor] Toolbar Rendering Calculations:', {
           basePosition: toolbarPosition,
-          offsetY: offsetY,
+          toolbarHeight: toolbarHeight,
+          marginAboveText: marginAboveText,
+          totalOffset: totalOffset,
           finalLeft: finalLeft,
           finalTop: finalTop,
           finalCSSLeft: `${finalLeft}px`,
           finalCSSTop: `${finalTop}px`,
           transform: 'translateX(-50%)',
-          explanation: `Toolbar positioned at (${finalLeft}, ${finalTop}) with -50% horizontal transform`
+          calculation: `finalTop = ${toolbarPosition.y} - (${toolbarHeight} + ${marginAboveText}) = ${finalTop}`,
+          explanation: `Toolbar positioned ${totalOffset}px above text selection at (${finalLeft}, ${finalTop}) with -50% horizontal transform`
         });
         
         return (
@@ -195,7 +202,7 @@ export function WysiwygEditor({
             style={{
               position: 'fixed',
               left: `${finalLeft}px`,
-              top: `${finalTop}px`, // 60px над текстом
+              top: `${finalTop}px`,
               transform: 'translateX(-50%)',
               display: 'flex',
               gap: '4px',
