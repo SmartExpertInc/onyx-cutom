@@ -165,14 +165,14 @@ const LanguageDropdown: React.FC = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-          <div className="py-1">
+          <div className="p-1">
             {languageOptions.map((option) => {
               const FlagComponent = option.flag;
               return (
                 <button
                   key={option.code}
                   onClick={() => handleLanguageSelect(option.code)}
-                  className={`w-full flex items-center gap-3 px-3 py-1.5 text-sm text-left transition-colors cursor-pointer rounded-md ${
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm text-left transition-colors cursor-pointer rounded-md ${
                     language === option.code
                       ? "bg-blue-50 text-blue-700"
                       : "text-gray-700 hover:bg-gray-100"

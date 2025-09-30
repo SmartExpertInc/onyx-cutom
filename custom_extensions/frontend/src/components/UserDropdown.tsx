@@ -125,14 +125,14 @@ export function UserDropdown({
         onClick={() => setUserInfoVisible(!userInfoVisible)}
         className="flex relative cursor-pointer"
       >
-        <div className="bg-primary hover:bg-primary/90 transition-colors duration-150 rounded-md inline-flex w-9 h-9 items-center justify-center text-white">
+        <div className="bg-blue-600 hover:bg-blue-700 transition-colors duration-150 rounded-md inline-flex w-9 h-9 items-center justify-center text-white">
             <User size={18} className="block" />
         </div>
 
       </div>
 
       {userInfoVisible && (
-        <div className="absolute right-0 top-full mt-2 w-32 text-sm border border-gray-200 bg-white rounded-md shadow-lg z-50">
+        <div className="absolute right-0 top-full mt-2 w-40 text-sm border border-gray-200 bg-white rounded-md shadow-lg z-50">
           <div className="p-1">
             {hideUserDropdown ? (
               <DropdownOption
