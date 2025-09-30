@@ -363,7 +363,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               </div>
 
               {/* Pricing Cards */}
-              <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-8">
+              <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-7">
                 {plans.map((plan) => (
                     <div key={plan.id} className="relative">
                       <div
@@ -382,7 +382,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         )}
                     
                     {/* Card Header */}
-                    <div className={`p-8 ${plan.popular ? 'rounded-none' : 'rounded-t-3xl'} ${
+                    <div className={`p-8 rounded-t-3xl ${
                     plan.name.includes('Free') 
                         ? 'bg-gradient-to-r from-gray-600 to-gray-700'
                         : plan.popular
