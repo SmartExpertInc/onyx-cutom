@@ -1249,6 +1249,8 @@ export const ru = {
       modules: "Модули",
       modulesLowercase: "модули",
       module: "модуль",
+      moduleCapitalised: "Модуль",
+      lesson: "Урок",
       perModule: "на модуль",
       lessons: "Уроки",
       lessonsPerModule: "Уроков на модуль",

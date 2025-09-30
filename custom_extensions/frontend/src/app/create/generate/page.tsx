@@ -1396,7 +1396,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
-                        label={t('interface.generate.module', 'Module')}                      
+                        label={t('interface.generate.moduleCapitalised', 'Module')}                      
                       />
                     )}
 
@@ -1553,7 +1553,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
-                        label={t('interface.generate.module', 'Module')}
+                        label={t('interface.generate.moduleCapitalised', 'Module')}
                         
                       />
                     )}
@@ -1719,7 +1719,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-500" />}
-                        label={t('interface.generate.module', 'Module')}
+                        label={t('interface.generate.moduleCapitalised', 'Module')}
                         
                       />
                     )}

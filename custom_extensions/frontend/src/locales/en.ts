@@ -1037,6 +1037,7 @@ export const en = {
       modules: "Modules",
       modulesLowercase: "modules",
       module: "module",
+      moduleCapitalised: "Module",
       lessons: "Lessons",
       lessonsPerModule: "Lessons per module",
       length: "Length",

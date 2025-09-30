@@ -1547,7 +1547,7 @@ export default function LessonPresentationClient() {
                                     <path d="M7 7H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                     <path d="M7 10H12" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
-                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.module', 'Module')}:</span>
+                                  <span className="text-[#09090B] opacity-50">{t('interface.generate.moduleCapitalised', 'Module')}:</span>
                                   <span className="text-[#09090B] truncate max-w-[100px]">{selectedModuleIndex !== null ? modulesForOutline[selectedModuleIndex]?.name || '' : ''}</span>
                                 </div>
                               </SelectTrigger>

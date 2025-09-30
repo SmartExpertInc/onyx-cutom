@@ -1240,6 +1240,8 @@ export const uk = {
       modules: "Модулі",
       modulesLowercase: "модулі",
       module: "модуль",
+      moduleCapitalised: "Модуль",
+      lesson: "Урок",
       perModule: "на модуль",
       lessons: "Уроки",
       lessonsPerModule: "Уроків на модуль",

@@ -1259,6 +1259,8 @@ export const es = {
       modules: "Módulos",
       modulesLowercase: "módulos",
       module: "módulo",
+      moduleCapitalised: "Módulo",
+      lesson: "Lección",
       perModule: "por módulo",
       lessons: "Lecciones",
       lessonsPerModule: "Lecciones por módulo",
