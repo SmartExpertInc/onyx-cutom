@@ -26,16 +26,14 @@ interface SurveyData {
 
 interface RegistrationSurveyModalProps {
   onComplete: (surveyData: SurveyData) => void;
-  children: React.ReactNode;
 }
 
 const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   onComplete,
-  children,
 }) => {
   const [surveyStep, setSurveyStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [surveyModalOpen, setSurveyModalOpen] = useState(false);
+  const [surveyModalOpen, setSurveyModalOpen] = useState(true);
   const [surveyData, setSurveyData] = useState<SurveyData>({
     category: '',
     workRole: '',
@@ -77,13 +75,10 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   };
 
   return (
-    <Dialog open={surveyModalOpen} onOpenChange={(open) => {
+    <Dialog open={surveyModalOpen} onOpenChange={(open: boolean) => {
       setSurveyModalOpen(open);
       if (open) resetSurvey();
     }}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] p-0 max-h-[85vh] overflow-y-auto">
         <div className="bg-white rounded-3xl">
           <DialogHeader className="space-y-4 p-6 pb-4">

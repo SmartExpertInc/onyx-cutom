@@ -1163,16 +1163,7 @@ const ProjectsPageInner: React.FC = () => {
         <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
           {!isQuestionnaireCompleted ? (
-            <RegistrationSurveyModal onComplete={handleSurveyComplete}>
-              <Button 
-                variant="download" 
-                className="rounded-full font-semibold"
-              >
-                <div>
-                  Registration Survey
-                </div>
-              </Button>
-            </RegistrationSurveyModal>
+            <RegistrationSurveyModal onComplete={handleSurveyComplete} />
           ) : (
             isSmartDrive ? (
               <SmartDriveConnectors />
