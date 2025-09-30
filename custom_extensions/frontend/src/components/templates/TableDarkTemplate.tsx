@@ -94,9 +94,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     rows: [
       ['version 1', '✓', '✓', '✗', '✗'],
       ['version 2', '✗', '✓', '✓', '✗'],
-      ['version 3', '✗', '✗', '✓', '✓'],
-      ['version 4', '✗', '✓', '✗', '✓'],
-      ['version 5', '✓', '✓', '✓', '✓']
+      ['version 3', '✗', '✗', '✓', '✓']
     ]
   },
   backgroundColor = '#f8fafc',
@@ -241,6 +239,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
         }}
         style={{
           appearance: 'none',
+          borderRadius: '2px',
           backgroundColor: '#BED5FC',
           width: '20px',
           height: '20px',
@@ -330,6 +329,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     borderRadius: '15px',
     overflow: 'hidden',
     backgroundColor: '#ffffff',
+    border: '1px solid #E0E0E0',
     display: 'flex',
     justifyContent: 'center',
     padding: '30px'

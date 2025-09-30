@@ -1182,9 +1182,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         rows: [
           ['version 1', '✓', '✓', '✗', '✗'],
           ['version 2', '✗', '✓', '✓', '✗'],
-          ['version 3', '✗', '✗', '✓', '✓'],
-          ['version 4', '✗', '✓', '✗', '✓'],
-          ['version 5', '✓', '✓', '✓', '✓']
+          ['version 3', '✗', '✗', '✓', '✓']
         ]
       },
       backgroundColor: '#f8fafc',

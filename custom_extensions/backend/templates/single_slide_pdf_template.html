@@ -3221,110 +3221,93 @@
                 </div>
 
             {% elif slide.templateId == 'table-dark' %}
-                <div class="slide" style="background-color: var(--bg-color);">
-                    <!-- Decorative curved element -->
-                    <div style="position: absolute; top: 0; right: 0; width: 16rem; height: 16rem; border-bottom-left-radius: 100%; background-color: var(--content-color); opacity: 0.2;"></div>
+                <div class="slide" style="background-color: #F8F8FF; padding: 50px; font-family: Georgia, serif;">
+                    <!-- Title -->
+                    <div style="margin-bottom: 30px;">
+                        <h1 style="color: #09090B; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'Comparison table template' }}</h1>
+                    </div>
                     
-                    <!-- Main Content Container -->
-                    <div style="width: 100%; max-width: 64rem; margin: 0 auto; position: relative; z-index: 10;">
-                        <!-- Title -->
-                        <div style="text-align: left; margin-bottom: 2rem;">
-                            <h1 style="color: var(--title-color); font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'This is a table' }}</h1>
-                        </div>
-                        
-                        <!-- Table Container -->
-                        <div style="overflow: hidden; border-radius: 0.5rem; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-                            <table style="width: 100%; border-collapse: collapse; background-color: #2a2a2a;">
-                                <!-- Headers -->
-                                <thead>
-                                    <tr style="background-color: #3a3a3a;">
-                                        <th style="padding: 1rem; text-align: left; color: var(--title-color); font-weight: bold; border-right: 2px solid var(--content-color); font-size: 1.1rem;">
-                                            <!-- Empty corner cell -->
+                    <!-- Table Container -->
+                    <div style="width: 100%; border-radius: 15px; overflow: hidden; background-color: #ffffff; border: 1px solid #E0E0E0; padding: 30px;">
+                        <table style="width: 100%; border-collapse: separate; border-spacing: 8px 0px; background-color: #ffffff;">
+                            <!-- Headers -->
+                            <thead>
+                                <tr>
+                                    <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: left; padding: 16px 12px; height: 60px; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                        Product version
+                                    </th>
+                                    {% for header in slide.props.tableData.headers %}
+                                        <th style="background-color: #F2F8FE; color: #000000; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px; {% if loop.last %}border-top-right-radius: 15px;{% else %}border-top-left-radius: 15px; border-top-right-radius: 15px;{% endif %}">
+                                            {{ header }}
                                         </th>
-                                        {% for header in slide.props.tableData.headers %}
-                                            <th style="padding: 1rem; text-align: center; color: var(--title-color); font-weight: bold; border-right: 2px solid var(--content-color); font-size: 1.1rem;">
-                                                {{ header }}
-                                            </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            
+                            <!-- Body -->
+                            <tbody>
+                                {% for row in slide.props.tableData.rows %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            {% set isFirstColumn = loop.index == 1 %}
+                                            <td style="background-color: #F2F8FE; color: #000000; font-size: 0.95rem; {% if isFirstColumn %}text-align: left; font-weight: bold;{% else %}text-align: center;{% endif %} padding: 16px 12px; height: 60px;">
+                                                {% if isFirstColumn %}
+                                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                                        <div style="width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0F58F9; font-weight: bold;">►</div>
+                                                        <span>{{ cell }}</span>
+                                                    </div>
+                                                {% else %}
+                                                    <div style="display: flex; justify-content: center; align-items: center;">
+                                                        <input type="checkbox" {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}checked{% endif %} style="appearance: none; border-radius: 2px; background-color: {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}#0F58F9{% else %}#BED5FC{% endif %}; width: 20px; height: 20px; cursor: pointer; accent-color: #0F58F9; border: none;" />
+                                                    </div>
+                                                {% endif %}
+                                            </td>
                                         {% endfor %}
                                     </tr>
-                                </thead>
-                                
-                                <!-- Body -->
-                                <tbody>
-                                    {% for row in slide.props.tableData.rows %}
-                                        <tr style="border-bottom: 2px solid var(--content-color); background-color: #2a2a2a;">
-                                            {% for cell in row %}
-                                                {% set isFirstColumn = loop.index == 1 %}
-                                                <td style="padding: 1rem; {% if isFirstColumn %}text-align: left; font-weight: bold;{% else %}text-align: center;{% endif %} color: #ffffff; border-right: 2px solid var(--content-color); font-size: 1rem;">
-                                                    {% if isFirstColumn %}
-                                                        {{ cell }}
-                                                    {% else %}
-                                                        {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}
-                                                            <div style="display: flex; justify-content: center;">
-                                                                <div style="width: 2rem; height: 2rem; background-color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.125rem;">✓</div>
-                                                            </div>
-                                                        {% elif cell == '✗' or cell.lower() == 'no' or cell.lower() == 'false' %}
-                                                            <div style="display: flex; justify-content: center;">
-                                                                <div style="width: 2rem; height: 2rem; background-color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.125rem;">✗</div>
-                                                            </div>
-                                                        {% else %}
-                                                            {{ cell }}
-                                                        {% endif %}
-                                                    {% endif %}
-                                                </td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
             {% elif slide.templateId == 'table-light' %}
-                <div class="slide" style="background-color: var(--bg-color);">
-                    <!-- Decorative gradient element -->
-                    <div style="position: absolute; top: 0; right: 0; width: 20rem; height: 20rem; border-bottom-left-radius: 100%; opacity: 0.1; background: linear-gradient(135deg, var(--accent-color), transparent);"></div>
+                <div class="slide" style="background: transparent; padding: 50px; font-family: Georgia, serif;">
+                    <!-- Title -->
+                    <div style="margin-bottom: 30px;">
+                        <h1 style="color: #000000; font-size: 2.5rem; font-weight: bold; line-height: 1.1; font-family: Georgia, serif;">{{ slide.props.title or 'This is table' }}</h1>
+                    </div>
                     
-                    <!-- Main Content Container -->
-                    <div style="width: 100%; max-width: 72rem; margin: 0 auto; position: relative; z-index: 10;">
-                        <!-- Title -->
-                        <div style="text-align: left; margin-bottom: 2rem;">
-                            <h1 style="color: var(--title-color); font-size: 3rem; font-weight: bold; line-height: 1.2;">{{ slide.props.title or 'This is a table' }}</h1>
-                        </div>
-                        
-                        <!-- Table Container -->
-                        <div style="overflow: hidden; border-radius: 0.5rem; box-shadow: 0 12px 24px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
-                            <table style="width: 100%; border-collapse: collapse; background-color: white;">
-                                <!-- Headers -->
-                                <thead>
-                                    <tr style="background-color: #0ea5e9;">
-                                        <th style="padding: 1rem; text-align: left; color: white; font-weight: bold; border-right: 1px solid #e5e7eb; font-size: 1rem; background-color: transparent;">
-                                            <!-- Empty corner cell -->
+                    <!-- Table Container -->
+                    <div style="width: 100%; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <table style="width: 100%; border-collapse: collapse; background-color: #ffffff;">
+                            <!-- Headers -->
+                            <thead>
+                                <tr>
+                                    <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
+                                        <!-- Empty corner cell -->
+                                    </th>
+                                    {% for header in slide.props.tableData.headers %}
+                                        <th style="background-color: #0F58F9; color: #ffffff; font-weight: bold; font-size: 1rem; text-align: center; padding: 16px 12px; height: 60px;">
+                                            {{ header }}
                                         </th>
-                                        {% for header in slide.props.tableData.headers %}
-                                            <th style="padding: 1rem; text-align: center; color: white; font-weight: bold; border-right: 1px solid #e5e7eb; font-size: 1rem;">
-                                                {{ header }}
-                                            </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            
+                            <!-- Body -->
+                            <tbody>
+                                {% for row in slide.props.tableData.rows %}
+                                    <tr>
+                                        {% for cell in row %}
+                                            {% set isFirstColumn = loop.index == 1 %}
+                                            <td style="{% if isFirstColumn %}background-color: #F2F8FE; color: #000000; font-weight: bold; text-align: left;{% else %}background-color: #ffffff; color: #000000; text-align: center;{% endif %} font-size: 0.95rem; padding: 16px 12px; height: 60px;">
+                                                {{ cell }}
+                                            </td>
                                         {% endfor %}
                                     </tr>
-                                </thead>
-                                
-                                <!-- Body -->
-                                <tbody>
-                                    {% for row in slide.props.tableData.rows %}
-                                        <tr style="border-bottom: 1px solid #e5e7eb;">
-                                            {% for cell in row %}
-                                                {% set isFirstColumn = loop.index == 1 %}
-                                                <td style="padding: 1rem; {% if isFirstColumn %}text-align: left; font-weight: bold; background-color: rgba(0,0,0,0.02); color: #000000;{% else %}text-align: center; color: #000000;{% endif %} border-right: 1px solid #e5e7eb; font-size: 0.95rem;">
-                                                    {{ cell }}
-                                                </td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
