@@ -445,7 +445,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const chartContainerStyles: React.CSSProperties = {
     width: '100%',
     maxWidth: '700px',
-    height: '450px',
+    height: '90%',
     position: 'relative',
     display: 'flex',
     alignItems: 'flex-end',
@@ -733,7 +733,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                   {/* Y-axis label */}
                   <div style={{
                     position: 'absolute',
-                    left: '-70px',
+                    left: '-50px',
                     fontSize: '14px',
                     color: currentTheme.colors.contentColor || '#09090B',
                     fontFamily: 'Arial, sans-serif',
