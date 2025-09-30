@@ -88,8 +88,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
   return (
     <Dialog open={surveyModalOpen} onOpenChange={(open) => {
-      setSurveyModalOpen(open);
-      if (open) resetSurvey();
+      if (open) {
+        resetSurvey();
+      } else {
+        setSurveyModalOpen(false);
+      }
     }}>
       <DialogTrigger asChild>
         {children}
@@ -135,10 +138,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             {/* Step 1: Main Category Selection */}
             {surveyStep === 1 && (
             <div className="grid md:grid-cols-2 gap-4">
-              <Button
-                variant="outline"
+              <div
                 onClick={() => setSelectedCategory('work')}
-                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 h-auto ${
+                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 cursor-pointer ${
                   selectedCategory === 'work'
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -153,12 +155,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Work</h3>
                   <p className="text-sm text-gray-600">Professional use for business, marketing, or team collaboration</p>
                 </div>
-              </Button>
+              </div>
               
-              <Button
-                variant="outline"
+              <div
                 onClick={() => setSelectedCategory('personal')}
-                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 h-auto ${
+                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 cursor-pointer ${
                   selectedCategory === 'personal'
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -173,7 +174,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Personal</h3>
                   <p className="text-sm text-gray-600">Personal projects, learning, or creative endeavors</p>
                 </div>
-              </Button>
+              </div>
             </div>
           )}
 
@@ -193,18 +194,17 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: 'developer', label: 'Developer' },
                     { value: 'other', label: 'Other' }
                   ].map((option) => (
-                    <Button
+                    <div
                       key={option.value}
-                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, workRole: option.value }))}
-                      className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
+                      className={`p-3 text-center rounded-lg border-2 transition-all duration-200 cursor-pointer ${
                         surveyData.workRole === option.value
                           ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
                           : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
                       }`}
                     >
                       <span className="font-medium">{option.label}</span>
-                    </Button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -225,11 +225,10 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: '51-500', label: '51–500', icon: 3 },
                     { value: '500+', label: '500+', icon: 4 }
                   ].map((option) => (
-                    <Button
+                    <div
                       key={option.value}
-                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, companySize: option.value }))}
-                      className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
+                      className={`p-3 text-center rounded-lg border-2 transition-all duration-200 cursor-pointer ${
                         surveyData.companySize === option.value
                           ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
                           : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50'
@@ -237,7 +236,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     >
                       <Users className="w-5 h-5 mx-auto mb-1" />
                       <span className="font-medium">{option.label}</span>
-                    </Button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -260,11 +259,10 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: 'creative-branding', label: 'Creative / Branding', icon: <Palette width={20} /> },
                     { value: 'other', label: 'Other', icon: <Zap width={20} /> }
                   ].map((option) => (
-                    <Button
+                    <div
                       key={option.value}
-                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, industry: option.value }))}
-                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 h-auto ${
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 cursor-pointer ${
                         surveyData.industry === option.value
                           ? 'border-blue-500 bg-blue-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -280,7 +278,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                         </div>
                         <span className="font-medium text-gray-900">{option.label}</span>
                       </div>
-                    </Button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -301,11 +299,10 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: 'portfolio-creation', label: 'Portfolio creation', icon: <BriefcaseBusiness width={20} /> },
                     { value: 'social-media', label: 'Social media content', icon: <TabletSmartphone width={20} /> }
                   ].map((option) => (
-                    <Button
+                    <div
                       key={option.value}
-                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, personalUse: option.value }))}
-                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 h-auto ${
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 cursor-pointer ${
                         surveyData.personalUse === option.value
                           ? 'border-blue-500 bg-blue-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -321,7 +318,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                         </div>
                         <span className="font-medium text-gray-900">{option.label}</span>
                       </div>
-                    </Button>
+                    </div>
                   ))}
                 </div>
               </div>
