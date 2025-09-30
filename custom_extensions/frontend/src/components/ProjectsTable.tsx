@@ -3580,9 +3580,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                <DropdownMenuTrigger asChild>
                  <Button 
                    variant="sort" 
-                   className="flex items-center gap-2 text-sm font-semibold transition-all duration-200 hover:bg-[#A952F4] hover:text-white rounded-full px-2 py-1 border border-white/70"
+                   className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
                  >
-                   <ListFilter size={16} className="text-gray-800" />
+                   <ListFilter size={16} className="text-gray-700" />
                    {contentTypeFilter}
                    {/* <ChevronDown size={14} className="text-gray-600" /> */}
                  </Button>
@@ -3621,9 +3621,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 <DropdownMenuTrigger asChild>
                 <Button
                   variant="columns"
-                  className="flex items-center gap-2 px-2 py-1 text-sm font-semibold border border-white/70 transition-all duration-200 hover:bg-[#A952F4] hover:text-white rounded-full"
+                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
                 >
-                    <ListFilter size={16} className="text-gray-800" />
+                    <ListFilter size={16} className="text-gray-700" />
                     {contentTypeFilter}
                   {/* <ChevronDown size={14} className="text-gray-600" /> */}
                 </Button>
@@ -3672,20 +3672,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
               </Button>
             )} */}
 
-            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200">
+            <div className="flex items-center gap-2">
               <Button
                 onClick={() => setViewMode("grid")}
                 variant={viewMode === "grid" ? "view-active" : "view"}
-                className={viewMode === "grid" ? "bg-[#A952F4] text-white hover:bg-[#6E18F0]" : ""}
+                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
+                  viewMode === "grid" 
+                    ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-md" 
+                    : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
+                }`}
               >
-                <LayoutGrid size={16} className={viewMode === "grid" ? "text-white" : "text-gray-800"} />
+                <LayoutGrid size={16} className={viewMode === "grid" ? "text-white" : "text-gray-700"} />
               </Button>
               <Button
                 onClick={() => setViewMode("list")}
                 variant={viewMode === "list" ? "view-active" : "view"}
-                className={viewMode === "list" ? "bg-[#A952F4] text-white hover:bg-[#6E18F0]" : ""}
+                className={`flex items-center gap-2 text-sm rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ${
+                  viewMode === "list" 
+                    ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-md" 
+                    : "text-gray-700 hover:text-gray-900 hover:bg-white/80"
+                }`}
               >
-                <List size={16} className={viewMode === "list" ? "text-white" : "text-gray-800"} />
+                <List size={16} className={viewMode === "list" ? "text-white" : "text-gray-700"} />
               </Button>
             </div>
           </div>

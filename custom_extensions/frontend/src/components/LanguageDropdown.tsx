@@ -165,7 +165,7 @@ const LanguageDropdown: React.FC = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-          <div className="p-1">
+          <div className="p-1 space-y-1">
             {languageOptions.map((option) => {
               const FlagComponent = option.flag;
               return (

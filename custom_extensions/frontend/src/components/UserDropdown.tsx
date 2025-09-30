@@ -133,7 +133,7 @@ export function UserDropdown({
 
       {userInfoVisible && (
         <div className="absolute right-0 top-full mt-2 w-40 text-sm border border-gray-200 bg-white rounded-md shadow-lg z-50">
-          <div className="p-1">
+          <div className="p-1 space-y-1">
             {hideUserDropdown ? (
               <DropdownOption
                 onClick={() => router.push("/auth/login")}
