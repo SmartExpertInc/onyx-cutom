@@ -1389,16 +1389,20 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
                 title_for_sco = matched.get('project_name') or matched.get('microproduct_name') or lesson_title or 'Lesson'
 
+                type_label = None
                 if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
+                    type_label = 'Onepager'
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                     logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     # Render as HTML using the same template as PDFs and inline images
                     content_dict = content if isinstance(content, dict) else {}
                     body_html = _render_slide_deck_html(matched, content_dict)
+                    type_label = 'Presentation'
                     logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
+                    type_label = 'Quiz'
                     logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
                 else:
                     continue
@@ -1416,7 +1420,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
                 # Write SCO HTML into package
                 href = f"{sco_dir}/index.html"
-                res_id = f"res-{product_id}"
+                res_id = f"res-{(type_label or 'sco').lower()}-{product_id}"
                 # Write as HTML for all types now
                 z.writestr(href, body_html)
                 logger.info(f"[SCORM] Written SCO HTML to {href}")
@@ -1425,7 +1429,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 # Add leaf item under lesson
                 lesson_item['children'].append({
                     'identifier': f"itm-{product_id}",
-                    'title': title_for_sco,
+                    'title': (type_label or title_for_sco),
                     'res_id': res_id,
                 })
 
