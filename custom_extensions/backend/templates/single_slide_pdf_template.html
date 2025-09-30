@@ -3258,7 +3258,11 @@
                                                     </div>
                                                 {% else %}
                                                     <div style="display: flex; justify-content: center; align-items: center;">
-                                                        <input type="checkbox" {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}checked{% endif %} style="appearance: none; border-radius: 2px; background-color: {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}#0F58F9{% else %}#BED5FC{% endif %}; width: 20px; height: 20px; cursor: pointer; accent-color: #0F58F9; border: none;" />
+                                                        <div style="width: 20px; height: 20px; border-radius: 2px; background-color: {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}#0F58F9{% else %}#BED5FC{% endif %}; display: flex; align-items: center; justify-content: center; position: relative;">
+                                                            {% if cell == '✓' or cell.lower() == 'yes' or cell.lower() == 'true' %}
+                                                                <div style="color: white; font-size: 12px; font-weight: bold; line-height: 1;">✓</div>
+                                                            {% endif %}
+                                                        </div>
                                                     </div>
                                                 {% endif %}
                                             </td>

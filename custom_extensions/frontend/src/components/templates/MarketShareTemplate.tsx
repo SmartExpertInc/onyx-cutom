@@ -160,6 +160,9 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const [editingYear, setEditingYear] = useState<number | null>(null);
   const [editingHeight, setEditingHeight] = useState<number | null>(null);
   const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState<number | null>(null);
+  const [dragStartY, setDragStartY] = useState<number>(0);
+  const [dragStartHeight, setDragStartHeight] = useState<number>(0);
 
   // Refs for MoveableManager integration
   const titleRef = useRef<HTMLDivElement>(null);
@@ -270,6 +273,46 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
       onUpdate({ chartData: newChartData });
     }
   };
+
+  // Drag resize functions
+  const handleMouseDown = (e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    setIsDragging(index);
+    setDragStartY(e.clientY);
+    setDragStartHeight(chartData[index].percentage);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging !== null) {
+      const deltaY = dragStartY - e.clientY; // Inverted because Y increases downward
+      const deltaPercentage = (deltaY / 350) * 100; // 350px is max height
+      const newHeight = Math.min(100, Math.max(0, dragStartHeight + deltaPercentage));
+      
+      if (onUpdate) {
+        const newChartData = [...chartData];
+        newChartData[isDragging] = { ...newChartData[isDragging], percentage: newHeight };
+        onUpdate({ chartData: newChartData });
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(null);
+    setDragStartY(0);
+    setDragStartHeight(0);
+  };
+
+  // Add event listeners for drag
+  useEffect(() => {
+    if (isDragging !== null) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStartY, dragStartHeight]);
 
   // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
@@ -674,7 +717,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             pointerEvents: 'none'
           }}>
             {/* Y-axis labels and grid lines */}
-            {[100, 80, 60, 40, 20, 0].map((value) => {
+            {[100, 80, 60, 40, 20].map((value) => {
               const topPosition = ((100 - value) / 100) * 100;
               return (
                 <div key={value} style={{
@@ -736,16 +779,16 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 onMouseEnter={() => setHoveredColumn(index)}
                 onMouseLeave={() => setHoveredColumn(null)}
               >
-                {/* Delete button - appears on hover */}
+                {/* Delete button - appears on hover in the top-right corner of the bar */}
                 {isEditable && hoveredColumn === index && chartData.length > 1 && (
                   <button
                     onClick={() => removeColumn(index)}
                     style={{
                       position: 'absolute',
-                      top: '-30px',
-                      right: '-5px',
-                      width: '24px',
-                      height: '24px',
+                      top: '8px',
+                      right: '8px',
+                      width: '20px',
+                      height: '20px',
                       borderRadius: '50%',
                       backgroundColor: '#ff4444',
                       color: 'white',
@@ -754,10 +797,10 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '14px',
+                      fontSize: '12px',
                       fontWeight: 'bold',
                       zIndex: 10,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
                     }}
                     title="Remove column"
                   >
@@ -765,16 +808,25 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                   </button>
                 )}
 
-                {/* Bar with height editing */}
+                {/* Bar with height editing and drag resize */}
                 <div 
-                  style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}
+                  style={{
+                    ...barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color),
+                    cursor: isEditable ? (isDragging === index ? 'grabbing' : 'grab') : 'default',
+                    userSelect: 'none'
+                  }}
+                  onMouseDown={(e) => {
+                    if (isEditable) {
+                      handleMouseDown(e, index);
+                    }
+                  }}
                   onClick={(e) => {
                     if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
                       e.preventDefault();
                       e.stopPropagation();
                       return;
                     }
-                    if (isEditable) {
+                    if (isEditable && !isDragging) {
                       setEditingHeight(index);
                     }
                   }}
@@ -807,6 +859,23 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                     <span style={barTextStyles}>
                       {String(index + 1).padStart(2, '0')}
                     </span>
+                  )}
+                  
+                  {/* Drag handle indicator */}
+                  {isEditable && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '20px',
+                      height: '6px',
+                      backgroundColor: 'rgba(0,0,0,0.3)',
+                      borderRadius: '3px',
+                      cursor: 'grab',
+                      opacity: hoveredColumn === index ? 1 : 0.5,
+                      transition: 'opacity 0.2s ease'
+                    }} />
                   )}
                 </div>
                 
