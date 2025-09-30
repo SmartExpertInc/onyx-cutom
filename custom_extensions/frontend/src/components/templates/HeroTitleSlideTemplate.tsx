@@ -145,6 +145,7 @@ function RichTextEditor({
   const [isBoldActive, setIsBoldActive] = useState(false);
   const [isItalicActive, setIsItalicActive] = useState(false);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -168,10 +169,18 @@ function RichTextEditor({
 
   const handleBold = () => {
     setIsBoldActive(!isBoldActive);
+    // Return focus to input after clicking toolbar button
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const handleItalic = () => {
     setIsItalicActive(!isItalicActive);
+    // Return focus to input after clicking toolbar button
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -195,9 +204,21 @@ function RichTextEditor({
     }
   };
 
-  const handleBlur = () => {
-    const finalValue = applyFormatting();
-    onSave(finalValue);
+  const handleBlur = (e: React.FocusEvent) => {
+    // Check if the new focused element is inside our container (e.g., toolbar button)
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    
+    if (relatedTarget && containerRef.current?.contains(relatedTarget)) {
+      // Click is on toolbar button - DO NOT close editor
+      return;
+    }
+    
+    // Click is outside the container - close editor and save
+    // Small delay to allow any pending state updates
+    setTimeout(() => {
+      const finalValue = applyFormatting();
+      onSave(finalValue);
+    }, 100);
   };
 
   // Auto-resize textarea to fit content
@@ -216,7 +237,10 @@ function RichTextEditor({
 
   if (multiline) {
     return (
-      <div style={{ position: 'relative', width: '100%' }}>
+      <div 
+        ref={containerRef}
+        style={{ position: 'relative', width: '100%' }}
+      >
         <FormattingToolbar
           onBold={handleBold}
           onItalic={handleItalic}
@@ -259,7 +283,10 @@ function RichTextEditor({
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div 
+      ref={containerRef}
+      style={{ position: 'relative', width: '100%' }}
+    >
       <FormattingToolbar
         onBold={handleBold}
         onItalic={handleItalic}
