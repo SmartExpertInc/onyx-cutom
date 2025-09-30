@@ -222,11 +222,22 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
     const isChecked = value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
     
     return (
-      <input
-        type="checkbox"
-        checked={isChecked}
-        onChange={(e) => {
-          const newValue = e.target.checked ? '✓' : '✗';
+      <div
+        style={{
+          width: '20px',
+          height: '20px',
+          borderRadius: '2px',
+          backgroundColor: isChecked ? '#0F58F9' : '#BED5FC',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          border: 'none',
+          outline: 'none'
+        }}
+        onClick={() => {
+          const newValue = isChecked ? '✗' : '✓';
           const newRows = [...tableData.rows];
           if (!newRows[rowIndex]) {
             newRows[rowIndex] = [];
@@ -241,29 +252,18 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
             onUpdate(newData);
           }
         }}
-        onBlur={() => {
-          // Ensure the change is saved when focus is lost
-          const currentValue = tableData.rows[rowIndex]?.[colIndex];
-          if (currentValue !== undefined) {
-            const newData = { 
-              title, 
-              tableData: { ...tableData } 
-            };
-            scheduleAutoSave(newData);
-          }
-        }}
-        style={{
-          appearance: 'none',
-          borderRadius: '2px',
-          backgroundColor: isChecked ? '#0F58F9' : '#BED5FC',
-          width: '20px',
-          height: '20px',
-          cursor: 'pointer',
-          accentColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor,
-          border: 'none',
-          outline: 'none'
-        }}
-      />
+      >
+        {isChecked && (
+          <div style={{
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            lineHeight: '1'
+          }}>
+            ✓
+          </div>
+        )}
+      </div>
     );
   };
 

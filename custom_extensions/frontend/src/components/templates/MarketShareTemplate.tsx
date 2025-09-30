@@ -409,7 +409,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     gap: '20px',
     paddingLeft: '80px',
     paddingRight: '40px',
-    paddingBottom: '60px',
+    paddingBottom: '30px',
     paddingTop: '50px'
   };
 
@@ -670,7 +670,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             top: '0',
             left: '80px',
             right: '0',
-            bottom: '60px',
+            bottom: '30px',
             pointerEvents: 'none'
           }}>
             {/* Y-axis labels and grid lines */}
@@ -720,7 +720,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             width: '100%',
             position: 'relative',
             zIndex: 1,
-            paddingBottom: '60px'
+            paddingBottom: '0px'
           }}>
             {chartData.map((item, index) => (
               <div 
@@ -813,7 +813,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 {/* Year label */}
                 <div style={{ 
                   position: 'absolute', 
-                  bottom: '0px',
+                  bottom: '-30px',
                   width: '90px',
                   textAlign: 'center'
                 }}>
