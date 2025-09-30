@@ -357,7 +357,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     overflow: 'hidden'
   };
 
-  // Left section with title, subtitle and numbered list (blue background) - 40% width
+  // Left section with title, subtitle and numbered list (theme gradient background) - 40% width
   const leftSectionStyles: React.CSSProperties = {
     width: '40%',
     height: '100%',
@@ -368,8 +368,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     flexDirection: 'column',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    background: '#2A42D8', // Exact blue from photo
-    padding: '60px 50px',
+    background: currentTheme.colors.backgroundColor, // Use theme gradient
+    padding: '35px',
     zIndex: 2
   };
 
@@ -390,7 +390,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: '3.5rem', // Large title as in photo
+    fontSize: '2.4rem', // Large title as in photo
     fontFamily: 'Georgia, serif', // Serif font as in photo
     color: '#ffffff',
     fontWeight: 'bold',
@@ -401,16 +401,17 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: '1.2rem', // Subtitle size as in photo
+    fontSize: '1rem', // Subtitle size as in photo
     color: '#ffffff',
     marginBottom: '50px',
     fontFamily: 'Arial, sans-serif', // Sans-serif as in photo
     wordWrap: 'break-word',
-    lineHeight: '1.4'
+    lineHeight: '1.4',
+    opacity: 0.8
   };
 
   const listItemStyles: React.CSSProperties = {
-    fontSize: '1.3rem', // List item size as in photo
+    fontSize: '1rem', // List item size as in photo
     color: '#ffffff',
     marginBottom: '25px',
     fontFamily: 'Arial, sans-serif',
@@ -670,7 +671,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              backgroundColor: '#4A70E8',
+              backgroundColor: currentTheme.colors.accentColor || '#4A70E8',
               color: 'white',
               border: 'none',
               cursor: 'pointer',
@@ -684,11 +685,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#3A5BC7';
+              e.currentTarget.style.backgroundColor = currentTheme.colors.accentColor || '#3A5BC7';
               e.currentTarget.style.transform = 'scale(1.1)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#4A70E8';
+              e.currentTarget.style.backgroundColor = currentTheme.colors.accentColor || '#4A70E8';
               e.currentTarget.style.transform = 'scale(1)';
             }}
             title="Add new column"
@@ -779,34 +780,6 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 onMouseEnter={() => setHoveredColumn(index)}
                 onMouseLeave={() => setHoveredColumn(null)}
               >
-                {/* Delete button - appears on hover in the top-right corner of the bar */}
-                {isEditable && hoveredColumn === index && chartData.length > 1 && (
-                  <button
-                    onClick={() => removeColumn(index)}
-                    style={{
-                      position: 'absolute',
-                      top: '8px',
-                      right: '8px',
-                      width: '20px',
-                      height: '20px',
-                      borderRadius: '50%',
-                      backgroundColor: '#ff4444',
-                      color: 'white',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      zIndex: 10,
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                    }}
-                    title="Remove column"
-                  >
-                    ×
-                  </button>
-                )}
 
                 {/* Bar with height editing and drag resize */}
                 <div 
@@ -826,56 +799,41 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                       e.stopPropagation();
                       return;
                     }
-                    if (isEditable && !isDragging) {
-                      setEditingHeight(index);
-                    }
                   }}
                   className={isEditable ? 'cursor-pointer' : ''}
                 >
-                  {isEditable && editingHeight === index ? (
-                    <InlineEditor
-                      initialValue={item.percentage.toString()}
-                      onSave={(value) => handleHeightSave(index, value)}
-                      onCancel={handleHeightCancel}
-                      multiline={false}
-                      placeholder="Height..."
-                      className="inline-editor-height"
-                      style={{
-                        ...barTextStyles,
-                        padding: '0',
-                        border: 'none',
-                        outline: 'none',
-                        resize: 'none',
-                        overflow: 'hidden',
-                        wordWrap: 'break-word',
-                        whiteSpace: 'pre-wrap',
-                        boxSizing: 'border-box',
-                        display: 'block',
-                        textAlign: 'center',
-                        width: '100%'
-                      }}
-                    />
-                  ) : (
-                    <span style={barTextStyles}>
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                  )}
+                  <span style={barTextStyles}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                   
-                  {/* Drag handle indicator */}
-                  {isEditable && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '-8px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '20px',
-                      height: '6px',
-                      backgroundColor: 'rgba(0,0,0,0.3)',
-                      borderRadius: '3px',
-                      cursor: 'grab',
-                      opacity: hoveredColumn === index ? 1 : 0.5,
-                      transition: 'opacity 0.2s ease'
-                    }} />
+                  {/* Delete button - appears on hover at the top of the bar */}
+                  {isEditable && hoveredColumn === index && chartData.length > 1 && (
+                    <button
+                      onClick={() => removeColumn(index)}
+                      style={{
+                        position: 'absolute',
+                        top: '-8px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        backgroundColor: currentTheme.colors.accentColor || '#ff4444',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        zIndex: 10,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                      }}
+                      title="Remove column"
+                    >
+                      ×
+                    </button>
                   )}
                 </div>
                 
