@@ -28,7 +28,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           boxShadow: active 
             ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          ...(active ? { borderColor: 'color-mix(in srgb, var(--primary) 60%, transparent)' } : {})
+          ...(active ? { borderColor: 'color-mix(in srgb, var(--primary) 50%, transparent)' } : {})
         }}
         onMouseEnter={(e) => {
           if (!active) {
@@ -55,14 +55,14 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
                 className="flex items-center justify-center"
               >
                 <div className="relative">
-                  {active && (
-                    <div
-                      className="absolute inset-0 rounded-lg blur-sm"
-                      style={{
-                        background: `linear-gradient(to bottom right, ${glowColor ? `color-mix(in srgb, ${glowColor} 24%, transparent)` : `color-mix(in srgb, var(--primary) 24%, transparent)`}, ${glowColor ? `color-mix(in srgb, ${glowColor} 12%, transparent)` : `color-mix(in srgb, var(--primary) 12%, transparent)`})`
-                      }}
-                    />
-                  )}
+                  <div
+                    className="absolute inset-0 rounded-lg blur-sm"
+                    style={{
+                      background: active
+                        ? `linear-gradient(to bottom right, ${glowColor ? `color-mix(in srgb, ${glowColor} 18%, transparent)` : `color-mix(in srgb, var(--primary) 18%, transparent)`}, ${glowColor ? `color-mix(in srgb, ${glowColor} 10%, transparent)` : `color-mix(in srgb, var(--primary) 10%, transparent)`})`
+                        : `linear-gradient(to bottom right, ${glowColor ? `color-mix(in srgb, ${glowColor} 12%, transparent)` : 'color-mix(in srgb, #6b7280 12%, transparent)'}, ${glowColor ? `color-mix(in srgb, ${glowColor} 6%, transparent)` : 'color-mix(in srgb, #6b7280 6%, transparent)'})`
+                    }}
+                  />
                   <Icon 
                     size={35}
                     className={cn(

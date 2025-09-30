@@ -1148,7 +1148,7 @@ function GenerateProductPicker() {
         {/* back button absolute top-left */}
         <Link
           href="/create"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-md hover:shadow-xl"
         >
           <ArrowLeft size={16} /> {t('interface.generate.back', 'Back')}
         </Link>
@@ -1286,7 +1286,7 @@ function GenerateProductPicker() {
         )}
 
         {/* Tab selector */}
-        <div className="w-fit max-w-5xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-lg transition-all duration-200 hover:shadow-xl">
+        <div className="w-fit max-w-5xl grid grid-cols-[repeat(5,auto)] gap-2 sm:gap-2 md:gap-3 lg:gap-3 mb-1 justify-center backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-3 shadow-md transition-all duration-200 hover:shadow-xl">
           <GenerateCard
             label={t('interface.generate.courseOutline', 'Course')}
             Icon={CourseOutlineIcon}
@@ -1888,7 +1888,7 @@ function GenerateProductPicker() {
               placeholder={isFromKnowledgeBase 
                 ? t('interface.generate.knowledgeBasePromptPlaceholder', 'Enter a topic or question to search your Knowledge Base')
                 : t('interface.generate.promptPlaceholder', 'Describe what you\'d like to make')}
-              className="w-full px-7 py-5 rounded-md bg-white shadow-lg text-lg text-black resize-none overflow-y-auto min-h-[90px] max-h-[140px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 transition-all duration-200 hover:shadow-xl"
+              className="w-full px-7 py-5 rounded-md bg-white shadow-md text-lg text-black resize-none overflow-y-auto min-h-[90px] max-h-[140px] border border-[var(--border)] focus:border-[var(--ring)] focus:outline-none transition-colors placeholder-[var(--muted-foreground)] relative z-10 transition-all duration-200 hover:shadow-xl"
               style={{ background: "rgba(255,255,255,0.95)" }}
               rows={6}
             />
@@ -1917,7 +1917,7 @@ function GenerateProductPicker() {
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                        e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
@@ -1934,7 +1934,7 @@ function GenerateProductPicker() {
               <div className="flex justify-center mt-4">
                 <Button
                   onClick={shuffleExamples}
-                  className="flex items-center gap-2 text-sm text-gray-700 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+                  className="flex items-center gap-2 text-sm text-gray-700 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-md hover:shadow-xl cursor-pointer"
                 >
                   <Shuffle size={18} /> {t('interface.generate.shuffleExamples', 'Shuffle')}
                 </Button>

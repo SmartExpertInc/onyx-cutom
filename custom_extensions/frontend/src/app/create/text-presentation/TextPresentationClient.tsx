@@ -1324,7 +1324,7 @@ export default function TextPresentationClient() {
         {/* Back button */}
         <Link
           href="/create/generate"
-            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer"
+            className="absolute top-[30px] left-[30px] flex items-center gap-2 bg-white rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 shadow-md hover:shadow-xl cursor-pointer"
           style={{
             color: '#0F58F9',
             fontSize: '14px',
@@ -1374,7 +1374,7 @@ export default function TextPresentationClient() {
                   <>
                     {/* Course Structure dropdowns - Outline, Module, Lesson */}
                     {(selectedOutlineId || selectedModuleIndex !== null || selectedLesson) && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200 mb-4">
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-md hover:shadow-xl transition-shadow duration-200 mb-4">
                         <div className="flex items-center">
                           {/* Outline dropdown */}
                           <div className="flex-1 flex items-center justify-center">
@@ -1497,7 +1497,7 @@ export default function TextPresentationClient() {
 
                     {/* Show final dropdowns when lesson is selected */}
                     {selectedLesson && (
-                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                      <div className="w-full bg-white rounded-lg py-3 px-8 shadow-md hover:shadow-xl transition-shadow duration-200">
                         <div className="flex items-center">
                           {/* Language dropdown */}
                           <div className="flex-1 flex items-center justify-center">
@@ -1616,7 +1616,7 @@ export default function TextPresentationClient() {
 
                 {/* Show standalone one-pager dropdowns if user chose standalone */}
                 {useExistingOutline === false && (
-                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-sm hover:shadow-lg transition-shadow duration-200">
+                  <div className="w-full bg-white rounded-lg py-3 px-8 shadow-md hover:shadow-xl transition-shadow duration-200">
                     <div className="flex items-center">
                       {/* Language dropdown */}
                       <div className="flex-1 flex items-center justify-center">
@@ -1761,7 +1761,7 @@ export default function TextPresentationClient() {
                 }}
                 placeholder={t('interface.generate.presentationPromptPlaceholder', "Describe what presentation you'd like to create")}
                 rows={1}
-                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                className="w-full px-7 py-5 rounded-lg bg-white text-lg text-black resize-none overflow-hidden min-h-[56px] border-none focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 shadow-md hover:shadow-xl cursor-pointer"
                 style={{ background: "rgba(255,255,255,0.95)" }}
               />
               <Edit 
@@ -1799,7 +1799,7 @@ export default function TextPresentationClient() {
                 {lessonList.length > 0 && (
                   <div className="bg-white rounded-[8px] p-5 flex flex-col gap-[15px] relative">
                     {lessonList.map((lesson, idx: number) => (
-                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 p-5 gap-5">
+                      <div key={idx} className="flex bg-[#F3F7FF] rounded-[4px] overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-200 p-5 gap-5">
                         {/* Left blue square with number */}
                         <div className="flex items-center justify-center w-6 h-6 bg-[#0F58F9] rounded-[2.4px] text-white font-semibold text-sm select-none flex-shrink-0 mt-[8px]">
                           {idx + 1}
@@ -1876,7 +1876,7 @@ export default function TextPresentationClient() {
                     value={editPrompt}
                     onChange={(e) => setEditPrompt(e.target.value)}
                     placeholder={t('interface.generate.describeImprovements', 'Describe what you\'d like to improve...')}
-                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 hover:shadow-lg cursor-pointer"
+                    className="w-full px-7 py-5 rounded-2xl bg-white text-lg text-black resize-none overflow-hidden min-h-[80px] border-gray-100 focus:border-blue-300 focus:outline-none focus:ring-0 transition-all duration-200 placeholder-gray-400 shadow-md hover:shadow-xl cursor-pointer"
                     style={{ background: "rgba(255,255,255,0.95)" }}
                   />
 
