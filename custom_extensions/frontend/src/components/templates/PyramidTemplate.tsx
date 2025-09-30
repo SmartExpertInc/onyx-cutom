@@ -156,7 +156,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   const [editingItemHeadings, setEditingItemHeadings] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
   const [editingItemNumbers, setEditingItemNumbers] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveTimeoutRef = useRef<number | null>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -321,11 +321,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingItemHeadings(editingItemHeadings.filter(i => i !== index));
+    setEditingItemHeadings(editingItemHeadings.filter((i: number) => i !== index));
   };
 
   const handleItemHeadingCancel = (index: number) => {
-    setEditingItemHeadings(editingItemHeadings.filter(i => i !== index));
+    setEditingItemHeadings(editingItemHeadings.filter((i: number) => i !== index));
   };
 
   // Handle item description editing
@@ -335,11 +335,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
   };
 
   const handleItemDescriptionCancel = (index: number) => {
-    setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
+    setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
   };
 
   // Handle item number editing
@@ -349,11 +349,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       updatedSteps[index] = { ...updatedSteps[index], number: newNumber };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingItemNumbers(editingItemNumbers.filter(i => i !== index));
+    setEditingItemNumbers(editingItemNumbers.filter((i: number) => i !== index));
   };
 
   const handleItemNumberCancel = (index: number) => {
-    setEditingItemNumbers(editingItemNumbers.filter(i => i !== index));
+    setEditingItemNumbers(editingItemNumbers.filter((i: number) => i !== index));
   };
 
   const startEditingItemHeading = (index: number) => {
@@ -408,7 +408,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         ) : (
           <h1 
             style={titleStyles}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLHeadingElement>) => {
               const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
               if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                 e.preventDefault();
@@ -457,7 +457,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             ) : (
               <div 
                 style={numberCircleStyles}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                     e.preventDefault();
@@ -505,7 +505,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             ) : (
               <div 
                 style={textHeadingStyles}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                     e.preventDefault();
@@ -548,7 +548,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             ) : (
               <div 
                 style={textDescriptionStyles}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                   const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
                   if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                     e.preventDefault();

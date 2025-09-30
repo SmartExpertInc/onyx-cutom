@@ -387,26 +387,28 @@
             word-wrap: break-word;
         }
         
-        /* Pyramid Template - EXACT FRONTEND MATCH */
+        /* Pyramid Template - EXACT FRONTEND MATCH - NEW DESIGN */
         .pyramid-template {
-            background-color: var(--bg-color);
-            padding: 64px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 50px;
             display: flex;
             flex-direction: column;
-            font-family: var(--content-font);
+            font-family: Georgia, serif;
             min-height: 600px;
             width: 100%;
             height: 100%;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            position: relative;
+            overflow: hidden;
         }
         
         .pyramid-template .slide-title {
-            color: var(--title-color);
-            font-size: 45px;
-            font-family: var(--title-font);
-            margin-bottom: 16px;
+            color: #000000;
+            font-size: 2.5rem;
+            font-family: Georgia, serif;
+            margin-bottom: 40px;
             text-align: left;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
         .pyramid-template .slide-subtitle {
@@ -423,9 +425,117 @@
         .pyramid-template .main-content {
             display: flex;
             align-items: center;
+            justify-content: center;
             flex-grow: 1;
-            gap: 48px;
+            position: relative;
+            height: 500px;
         }
+
+        .pyramid-level {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%);
+        }
+
+        .pyramid-level:nth-child(1) { 
+            width: 120px; 
+            height: 60px; 
+            top: 0px; 
+            background: #87CEEB; 
+            z-index: 5; 
+        }
+        .pyramid-level:nth-child(2) { 
+            width: 200px; 
+            height: 60px; 
+            top: 60px; 
+            background: #5F9EA0; 
+            z-index: 4; 
+        }
+        .pyramid-level:nth-child(3) { 
+            width: 280px; 
+            height: 60px; 
+            top: 120px; 
+            background: #4682B4; 
+            z-index: 3; 
+        }
+        .pyramid-level:nth-child(4) { 
+            width: 360px; 
+            height: 60px; 
+            top: 180px; 
+            background: #4169E1; 
+            z-index: 2; 
+        }
+        .pyramid-level:nth-child(5) { 
+            width: 440px; 
+            height: 60px; 
+            top: 240px; 
+            background: #191970; 
+            z-index: 1; 
+        }
+
+        .pyramid-number-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .pyramid-text-block {
+            position: absolute;
+            width: 25%;
+            max-width: 300px;
+            z-index: 10;
+        }
+
+        .pyramid-text-block.level-0 { top: 20px; left: 20%; }
+        .pyramid-text-block.level-1 { top: 80px; right: 20%; }
+        .pyramid-text-block.level-2 { top: 140px; left: 20%; }
+        .pyramid-text-block.level-3 { top: 200px; right: 20%; }
+        .pyramid-text-block.level-4 { top: 260px; left: 20%; }
+
+        .pyramid-text-heading {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #000000;
+            font-family: Georgia, serif;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .pyramid-text-description {
+            font-size: 0.9rem;
+            color: #000000;
+            font-family: Georgia, serif;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .pyramid-triangle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #0F58F9;
+            z-index: 10;
+        }
+
+        .pyramid-triangle.level-0 { top: 50px; right: 25%; }
+        .pyramid-triangle.level-1 { top: 110px; left: 25%; }
+        .pyramid-triangle.level-2 { top: 170px; right: 25%; }
+        .pyramid-triangle.level-3 { top: 230px; left: 25%; }
+        .pyramid-triangle.level-4 { top: 290px; right: 25%; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -1907,95 +2017,110 @@
             text-align: center;
         }
         
-        /* Timeline Template - EXACT FRONTEND MATCH - FIXED */
+        /* Timeline Template - EXACT FRONTEND MATCH - NEW DESIGN */
 .timeline {
-     width: 100%;
-     height: 100%; /* Fill the entire slide content area */
-    background-color: var(--bg-color);
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
-     justify-content: flex-start;
-     align-items: stretch;
-    padding: 64px;                    /* FIXED: Changed from 40px to 64px to match React */
-     position: relative;
-    font-family: var(--content-font);
-     overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+    padding: 50px;
+    font-family: Georgia, serif;
+    align-items: stretch;
+    text-align: left;
+    overflow: hidden;
 }
 
 .timeline .slide-title {
-    font-size: 45px;
-    font-family: var(--title-font);
-    color: var(--title-color);
-    margin-bottom: 80px;
+    font-size: 2.5rem;
+    font-family: Arial, sans-serif;
+    color: #000000;
+    margin-bottom: 50px;
     text-align: left;
     word-wrap: break-word;
+    font-weight: bold;
 }
 
 .timeline-container {
     position: relative;
     width: 100%;
-    flex: 1;                          /* FIXED: Changed from fixed height: 350px to flex: 1 to fill remaining space */
+    height: 464px;
     display: flex;
-    min-height: 350px;                /* Keep minimum height for content */
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+    flex: 1;
 }
 
 .timeline-line {
     position: absolute;
-    top: 50%;
-    left: 5%;
-    width: 90%;
-    height: 2px;
-    background: rgba(255,255,255,0.25);
+    top: 13.5px;
+    left: calc(50% + 60px);
+    transform: translateX(-50%);
+    width: 2px;
+    height: 99%;
+    background: #0F58F9;
 }
 
 .step-wrapper {
-    position: relative;
-    width: 25%;
-    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     display: flex;
-    align-items: center;              /* ADDED: This wasn't in original but helps with alignment */
+    align-items: center;
+    justify-content: center;
 }
 
 .milestone-content {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
+    position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 10px;                        /* FIXED: Changed from 15px to 10px to match React */
-    /* REMOVED: padding: 10px 0; */
+    width: 100%;
+    justify-content: center;
+}
+
+.timeline-circle {
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 4px solid #0F58F9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0px;
+    flex-shrink: 0;
+    position: absolute;
+    left: calc(50% + 60px);
+    transform: translateX(-50%);
+    z-index: 10;
 }
 
 .text-block {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 8px;                         /* FIXED: Changed from 12px to 8px to match React */
-    /* REMOVED: max-width: 200px; - React doesn't have this constraint */
+    gap: 5px;
+    position: absolute;
+    width: 35%;
+    transform: translateY(20%);
 }
 
 .step-heading {
-    font-size: 1.2rem;                /* FIXED: Changed from 1.4rem to 1.2rem to match React */
-    color: var(--title-color);
-    font-family: var(--title-font);
+    font-size: 1.1rem;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
     word-wrap: break-word;
 }
 
 .step-description {
-    font-size: 20px;                  /* This should match React's contentSize */
-    color: var(--content-color);
-    font-family: var(--content-font);
-    line-height: 1.5;
+    font-size: 0.95rem;
+    color: #000000;
+    font-family: Arial, sans-serif;
+    line-height: 1.4;
     word-wrap: break-word;
-}
-
-.vertical-line {
-    width: 2px;
-    height: 20px;
-    background: rgba(255,255,255,0.25);
 }
 
 .number-square {
@@ -2682,15 +2807,17 @@
                         {% for step in slide.props.steps %}
                             {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
                                 <div class="step-wrapper positioned-element"
+                                    style="top: {{ loop.index0 * 120 + 20 }}px;"
                                     {% if slide.metadata and slide.metadata.elementPositions %}
                                         {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
                                         {% if slide.metadata.elementPositions[stepId] %}
-                                            style="transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
+                                            style="top: {{ loop.index0 * 120 + 20 }}px; transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
                                         {% endif %}
                                     {% endif %}
                                 >
-                                    <div class="milestone-content" style="{% if loop.index0 % 2 != 0 %}bottom: calc(50% - 20px);{% else %}top: calc(50% - 20px);{% endif %}">
-                                        <div class="text-block" style="order: {% if loop.index0 % 2 != 0 %}1{% else %}3{% endif %};">
+                                    <div class="milestone-content">
+                                        <div class="timeline-circle"></div>
+                                        <div class="text-block" style="left: {% if loop.index0 % 2 == 0 %}calc(50% + 60px + 50px){% else %}calc(50% + 60px - 180px){% endif %};">
                                             {% if step.heading and step.heading != 'Click to add heading' %}
                                                 <div class="step-heading">{{ step.heading }}</div>
                                             {% endif %}
@@ -2698,53 +2825,45 @@
                                                 <div class="step-description">{{ step.description }}</div>
                                             {% endif %}
                                         </div>
-                                        <div class="vertical-line" style="order: 2;"></div>
-                                        <div class="number-square" style="order: {% if loop.index0 % 2 != 0 %}3{% else %}1{% endif %};">
-                                            {{ loop.index }}
-                                        </div>
                                     </div>
                                 </div>
                             {% endif %}
                         {% endfor %}
                         {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="top: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 3;">
+                            <div class="step-wrapper" style="top: 20px;">
+                                <div class="milestone-content">
+                                    <div class="timeline-circle"></div>
+                                    <div class="text-block" style="left: calc(50% + 60px + 50px);">
                                         <div class="step-heading">Phase 1</div>
                                         <div class="step-description">Initial planning and setup</div>
                                     </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 1;">1</div>
                                 </div>
                             </div>
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 1;">
+                            <div class="step-wrapper" style="top: 140px;">
+                                <div class="milestone-content">
+                                    <div class="timeline-circle"></div>
+                                    <div class="text-block" style="left: calc(50% + 60px - 180px);">
                                         <div class="step-heading">Phase 2</div>
                                         <div class="step-description">Development and implementation</div>
                                     </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 3;">2</div>
                                 </div>
                             </div>
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="top: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 3;">
+                            <div class="step-wrapper" style="top: 260px;">
+                                <div class="milestone-content">
+                                    <div class="timeline-circle"></div>
+                                    <div class="text-block" style="left: calc(50% + 60px + 50px);">
                                         <div class="step-heading">Phase 3</div>
                                         <div class="step-description">Testing and refinement</div>
                                     </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 1;">3</div>
                                 </div>
                             </div>
-                            <div class="step-wrapper">
-                                <div class="milestone-content" style="bottom: calc(50% - 20px);">
-                                    <div class="text-block" style="order: 1;">
+                            <div class="step-wrapper" style="top: 380px;">
+                                <div class="milestone-content">
+                                    <div class="timeline-circle"></div>
+                                    <div class="text-block" style="left: calc(50% + 60px - 180px);">
                                         <div class="step-heading">Phase 4</div>
                                         <div class="step-description">Launch and deployment</div>
                                     </div>
-                                    <div class="vertical-line" style="order: 2;"></div>
-                                    <div class="number-square" style="order: 3;">4</div>
                                 </div>
                             </div>
                         {% endif %}
@@ -2858,86 +2977,65 @@
                             {% endif %}
                         >{{ slide.props.title }}</h1>
                     {% endif %}
-                    {% if slide.props.subtitle and slide.props.subtitle != 'Click to add subtitle' %}
-                        <div class="slide-subtitle positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set subtitleId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[subtitleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[subtitleId].x }}px, {{ slide.metadata.elementPositions[subtitleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.subtitle }}</div>
-                    {% endif %}
                     <div class="main-content">
-                        <div class="pyramid-container positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set pyramidId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[pyramidId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[pyramidId].x }}px, {{ slide.metadata.elementPositions[pyramidId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <!-- Pyramid SVG 1 (Top Triangle) -->
-                            <svg class="pyramid-svg pyramid-svg-1" width="560" height="120" viewBox="66 0 68 60">
-                                <path d="M 100,0 L 66.67,60 L 133.33,60 Z" class="pyramid-path pyramid-path-1"/>
-                                <text x="100" y="35" class="pyramid-text">1</text>
-                            </svg>
-                            <!-- Pyramid SVG 2 (Middle Trapezoid) -->
-                            <svg class="pyramid-svg pyramid-svg-2" width="560" height="120" viewBox="33 60 134 60">
-                                <path d="M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z" class="pyramid-path pyramid-path-2"/>
-                                <text x="100" y="95" class="pyramid-text">2</text>
-                            </svg>
-                            <!-- Pyramid SVG 3 (Bottom Trapezoid) -->
-                            <svg class="pyramid-svg pyramid-svg-3" width="560" height="120" viewBox="0 120 200 60">
-                                <path d="M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z" class="pyramid-path pyramid-path-3"/>
-                                <text x="100" y="155" class="pyramid-text">3</text>
-                            </svg>
-                        </div>
-                        <div class="items-container">
-                            {% if slide.props.steps and slide.props.steps is iterable and slide.props.steps is not string and slide.props.steps is not callable %}
-                                {% for item in slide.props.steps %}
-                                    {% if loop.index0 < 3 and ((item.heading and item.heading != 'Click to add heading') or (item.description and item.description != 'Click to add description')) %}
-                                        <div class="item-wrapper level-{{ loop.index0 }}">
-                                            {% if item.heading and item.heading != 'Click to add heading' %}
-                                                <div class="item-heading positioned-element"
-                                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                                        {% set headingId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 3)|string %}
-                                                        {% if slide.metadata.elementPositions[headingId] %}
-                                                            style="transform: translate({{ slide.metadata.elementPositions[headingId].x }}px, {{ slide.metadata.elementPositions[headingId].y }}px);"
-                                                        {% endif %}
-                                                    {% endif %}
-                                                >{{ item.heading }}</div>
-                                            {% endif %}
-                                            {% if item.description and item.description != 'Click to add description' %}
-                                                <div class="item-description positioned-element"
-                                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                                        {% set descriptionId = 'draggable-' + slide.slideId + '-' + (loop.index0 * 2 + 4)|string %}
-                                                        {% if slide.metadata.elementPositions[descriptionId] %}
-                                                            style="transform: translate({{ slide.metadata.elementPositions[descriptionId].x }}px, {{ slide.metadata.elementPositions[descriptionId].y }}px);"
-                                                        {% endif %}
-                                                    {% endif %}
-                                                >{{ item.description }}</div>
-                                            {% endif %}
-                                        </div>
+                        <!-- Pyramid Levels -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-level positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set levelId = 'draggable-' + slide.slideId + '-' + (i + 1)|string %}
+                                    {% if slide.metadata.elementPositions[levelId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[levelId].x }}px, {{ slide.metadata.elementPositions[levelId].y }}px);"
                                     {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <div class="item-wrapper level-0">
-                                    <div class="item-heading">User Satisfaction</div>
-                                    <div class="item-description">Achieving user delight</div>
+                                {% endif %}
+                            >
+                                <div class="pyramid-number-circle">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
+                                        {{ slide.props.steps[i].number }}
+                                    {% else %}
+                                        {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
+                                    {% endif %}
                                 </div>
-                                <div class="item-wrapper level-1">
-                                    <div class="item-heading">Operational Efficiency</div>
-                                    <div class="item-description">Optimizing resources</div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Text Blocks -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-text-block level-{{ i }} positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set textId = 'draggable-' + slide.slideId + '-' + (i + 6)|string %}
+                                    {% if slide.metadata.elementPositions[textId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[textId].x }}px, {{ slide.metadata.elementPositions[textId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
+                                <div class="pyramid-text-heading">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].heading and slide.props.steps[i].heading != 'Click to add heading' %}
+                                        {{ slide.props.steps[i].heading }}
+                                    {% else %}
+                                        Headline
+                                    {% endif %}
                                 </div>
-                                <div class="item-wrapper level-2">
-                                    <div class="item-heading">System Reliability</div>
-                                    <div class="item-description">Ensuring stability</div>
+                                <div class="pyramid-text-description">
+                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].description and slide.props.steps[i].description != 'Click to add description' %}
+                                        {{ slide.props.steps[i].description }}
+                                    {% else %}
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    {% endif %}
                                 </div>
-                            {% endif %}
-                            <div class="separator-line level-0"></div>
-                            <div class="separator-line level-1"></div>
-                        </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Triangle Arrows -->
+                        {% for i in range(5) %}
+                            <div class="pyramid-triangle level-{{ i }} positioned-element"
+                                {% if slide.metadata and slide.metadata.elementPositions %}
+                                    {% set triangleId = 'draggable-' + slide.slideId + '-' + (i + 11)|string %}
+                                    {% if slide.metadata.elementPositions[triangleId] %}
+                                        style="transform: translate({{ slide.metadata.elementPositions[triangleId].x }}px, {{ slide.metadata.elementPositions[triangleId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            ></div>
+                        {% endfor %}
                     </div>
                 </div>
                 

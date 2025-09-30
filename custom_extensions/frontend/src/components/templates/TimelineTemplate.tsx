@@ -141,7 +141,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingStepHeadings, setEditingStepHeadings] = useState<number[]>([]);
   const [editingStepDescriptions, setEditingStepDescriptions] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveTimeoutRef = useRef<number | null>(null);
   
   // Refs for draggable elements (following Big Image Left pattern)
   const titleRef = useRef<HTMLDivElement>(null);
@@ -163,11 +163,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     display: 'flex',
     flexDirection: 'column',
     padding: '50px',
-    paddingBottom: '0',
     fontFamily: currentTheme.fonts.contentFont,
     alignItems: 'stretch',
     textAlign: 'left', // Left aligned as in photo
-    overflow: 'hidden'
+    overflow: 'hidden',
+    position: 'relative' // Add relative positioning for absolute children
   };
 
   const titleStyles: React.CSSProperties = {
@@ -181,14 +181,14 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   };
 
   const timelineContainerStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: '127px',
+    position: 'relative', // Changed from absolute to relative
     width: '100%',
     height: '464px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingTop: '20px'
+    paddingTop: '20px',
+    flex: 1 // Take remaining space
   };
 
   const timelineLineStyles: React.CSSProperties = {
@@ -282,11 +282,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
       updatedSteps[index] = { ...updatedSteps[index], heading: newHeading };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingStepHeadings(editingStepHeadings.filter(i => i !== index));
+    setEditingStepHeadings(editingStepHeadings.filter((i: number) => i !== index));
   };
 
   const handleStepHeadingCancel = (index: number) => {
-    setEditingStepHeadings(editingStepHeadings.filter(i => i !== index));
+    setEditingStepHeadings(editingStepHeadings.filter((i: number) => i !== index));
   };
 
   // Handle step description editing
@@ -296,11 +296,11 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
       updatedSteps[index] = { ...updatedSteps[index], description: newDescription };
       onUpdate({ steps: updatedSteps });
     }
-    setEditingStepDescriptions(editingStepDescriptions.filter(i => i !== index));
+    setEditingStepDescriptions(editingStepDescriptions.filter((i: number) => i !== index));
   };
 
   const handleStepDescriptionCancel = (index: number) => {
-    setEditingStepDescriptions(editingStepDescriptions.filter(i => i !== index));
+    setEditingStepDescriptions(editingStepDescriptions.filter((i: number) => i !== index));
   };
 
   const startEditingStepHeading = (index: number) => {
@@ -346,7 +346,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
         ) : (
           <h1 
             style={titleStyles}
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLHeadingElement>) => {
               const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
               if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
                 e.preventDefault();
