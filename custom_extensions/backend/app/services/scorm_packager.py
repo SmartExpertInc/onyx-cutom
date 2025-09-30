@@ -304,6 +304,211 @@ def _extract_style_blocks(head_inner: str) -> str:
         return ''
 
 
+def _find_repo_root_with_static_images() -> str:
+    """Walk up from this file to find a directory that contains `static_design_images`.
+    Fallback to three-levels-up if not found."""
+    try:
+        current = pathlib.Path(__file__).resolve()
+        for p in [current.parent] + list(current.parents):
+            candidate = p / 'static_design_images'
+            if candidate.exists() and candidate.is_dir():
+                logger.info(f"[SCORM-ASSETS] Using repo root '{p}' (found static_design_images)")
+                return str(p)
+        fallback = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        logger.warning(f"[SCORM-ASSETS] static_design_images not found by walking parents; falling back to '{fallback}'")
+        return fallback
+    except Exception as e:
+        fallback = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        logger.error(f"[SCORM-ASSETS] Error resolving repo root: {e}; fallback '{fallback}'")
+        return fallback
+
+
+async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_dir: str) -> str:
+    """Rewrite image references to local assets and add them into the ZIP under sco_dir/assets/.
+    - Handles <img src>, CSS url(), and inline style background-image
+    - Supports http/https, protocol-less //, /static_design_images, static_design_images, and repo-absolute paths
+    - Skips non-image resources (e.g., Google Fonts CSS)
+    Returns updated HTML.
+    """
+    try:
+        repo_root = _find_repo_root_with_static_images()
+        static_images_abs_path = os.path.join(repo_root, 'static_design_images')
+        assets_prefix_in_zip = f"{sco_dir}/assets"
+        assets_href_prefix = "assets"
+
+        logger.info(f"[SCORM-ASSETS] Starting image localization for {sco_dir}")
+        logger.info(f"[SCORM-ASSETS] Repo root: {repo_root}")
+        logger.info(f"[SCORM-ASSETS] Static images path: {static_images_abs_path}")
+        logger.info(f"[SCORM-ASSETS] HTML length: {len(html)} characters")
+
+        img_src_pattern = re.compile(r'(<img[^>]+src=["\'])([^"\']+)(["\'][^>]*>)', re.IGNORECASE)
+        css_url_pattern = re.compile(r"(url\(\s*['\"]?)([^'\")]+)(['\"]?\s*\))", re.IGNORECASE)
+        style_bg_pattern = re.compile(r'(background-image\s*:\s*url\(\s*[\'\"]?)([^\'\")]+)([\'\"]?\s*\))', re.IGNORECASE)
+
+        urls: List[str] = []
+        img_matches = list(img_src_pattern.finditer(html))
+        css_matches = list(css_url_pattern.finditer(html))
+        style_matches = list(style_bg_pattern.finditer(html))
+        logger.info(f"[SCORM-ASSETS] Found {len(img_matches)} <img> tags, {len(css_matches)} CSS url() references, {len(style_matches)} style background-image references")
+
+        for m in img_matches:
+            urls.append(m.group(2))
+        for m in css_matches:
+            urls.append(m.group(2))
+        for m in style_matches:
+            urls.append(m.group(2))
+
+        if not urls:
+            logger.info(f"[SCORM-ASSETS] No image URLs found in HTML for {sco_dir}")
+            return html
+
+        seen = set()
+        unique_urls: List[str] = []
+        for u in urls:
+            if u not in seen:
+                seen.add(u)
+                unique_urls.append(u)
+
+        logger.info(f"[SCORM-ASSETS] Found {len(unique_urls)} unique image URLs for {sco_dir}: {unique_urls}")
+
+        url_to_local: Dict[str, str] = {}
+        asset_index = 1
+        embedded_count = 0
+        failed_count = 0
+
+        async def fetch_http(url: str) -> Optional[bytes]:
+            try:
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    resp = await client.get(url)
+                    if resp.status_code == 200 and resp.content:
+                        return resp.content
+            except Exception as e:
+                logger.warning(f"[SCORM-ASSETS] HTTP fetch failed for {url}: {e}")
+            return None
+
+        def is_non_image_resource(u: str) -> bool:
+            lu = u.lower()
+            if 'fonts.googleapis.com' in lu or lu.endswith('.css'):
+                return True
+            return False
+
+        def has_valid_header(data: bytes) -> bool:
+            return (
+                data.startswith(b'\xff\xd8\xff') or
+                data.startswith(b'\x89PNG') or
+                data.startswith(b'GIF87a') or
+                data.startswith(b'GIF89a') or
+                data.startswith(b'<svg') or
+                data.startswith(b'RIFF')
+            )
+
+        def guess_ext(u: str, data: Optional[bytes]) -> str:
+            parsed = pathlib.PurePosixPath(u)
+            if parsed.suffix:
+                return parsed.suffix.lower()
+            if data:
+                if data.startswith(b'\xff\xd8\xff'):
+                    return '.jpg'
+                if data.startswith(b'\x89PNG'):
+                    return '.png'
+                if data.startswith(b'GIF'):
+                    return '.gif'
+                if data.startswith(b'<svg'):
+                    return '.svg'
+                if data.startswith(b'RIFF'):
+                    return '.webp'
+            return '.jpg'
+
+        async def process_one(u: str):
+            nonlocal asset_index, embedded_count, failed_count
+            if not u or u.startswith('data:'):
+                return
+            if is_non_image_resource(u):
+                logger.info(f"[SCORM-ASSETS] Skipping non-image resource: {u}")
+                return
+
+            data: Optional[bytes] = None
+            source = 'unknown'
+            try:
+                if u.startswith('//'):
+                    data = await fetch_http('https:' + u)
+                    source = 'protocol-relative'
+                elif u.startswith('http://') or u.startswith('https://'):
+                    data = await fetch_http(u)
+                    source = 'absolute-http'
+                elif u.startswith('/static_design_images/'):
+                    path = os.path.join(static_images_abs_path, u.replace('/static_design_images/', ''))
+                    if os.path.exists(path):
+                        with open(path, 'rb') as f:
+                            data = f.read()
+                        source = 'static-design-images'
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] Static image not found: {path}")
+                elif u.startswith('static_design_images/'):
+                    path = os.path.join(static_images_abs_path, u.replace('static_design_images/', ''))
+                    if os.path.exists(path):
+                        with open(path, 'rb') as f:
+                            data = f.read()
+                        source = 'static-design-images-relative'
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] Static image not found (relative): {path}")
+                elif u.startswith('/'):
+                    path = os.path.join(repo_root, u.lstrip('/'))
+                    if os.path.exists(path):
+                        with open(path, 'rb') as f:
+                            data = f.read()
+                        source = 'repo-absolute'
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] Repo image not found: {path}")
+                else:
+                    logger.warning(f"[SCORM-ASSETS] Unrecognized URL format: {u}")
+            except Exception as e:
+                logger.error(f"[SCORM-ASSETS] Error reading image {u}: {e}")
+
+            if not data:
+                failed_count += 1
+                return
+            if len(data) < 1024 or not has_valid_header(data):
+                logger.warning(f"[SCORM-ASSETS] Invalid image data for {u}: size={len(data)}")
+                failed_count += 1
+                return
+
+            ext = guess_ext(u, data)
+            local_name = f"img_{asset_index:03d}{ext}"
+            asset_index += 1
+            asset_zip_path = f"{assets_prefix_in_zip}/{local_name}"
+            asset_href = f"{assets_href_prefix}/{local_name}"
+
+            try:
+                zip_file.writestr(asset_zip_path, data)
+                url_to_local[u] = asset_href
+                embedded_count += 1
+                logger.info(f"[SCORM-ASSETS] ✅ Embedded {u} ({source}) as {local_name} -> {asset_zip_path}")
+            except Exception as e:
+                logger.error(f"[SCORM-ASSETS] Failed to write asset for {u}: {e}")
+                failed_count += 1
+
+        await asyncio.gather(*(process_one(u) for u in unique_urls))
+        logger.info(f"[SCORM-ASSETS] Image processing complete for {sco_dir}: {embedded_count} embedded, {failed_count} failed out of {len(unique_urls)} total")
+
+        def repl_img(m: re.Match) -> str:
+            prefix, src, suffix = m.group(1), m.group(2), m.group(3)
+            return f"{prefix}{url_to_local.get(src, src)}{suffix}"
+
+        def repl_css(m: re.Match) -> str:
+            prefix, src, suffix = m.group(1), m.group(2), m.group(3)
+            return f"{prefix}{url_to_local.get(src, src)}{suffix}"
+
+        html = img_src_pattern.sub(repl_img, html)
+        html = css_url_pattern.sub(repl_css, html)
+        html = style_bg_pattern.sub(repl_css, html)
+        return html
+
+    except Exception as e:
+        logger.error(f"[SCORM-ASSETS] Error localizing images: {e}")
+        return html
+
+
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
     """Render slide deck HTML using the exact PDF slide template, stacked, and ready for SCORM asset localization."""
     try:
