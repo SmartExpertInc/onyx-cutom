@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, User, Briefcase, Heart, CheckCircle, Building, Users, Target, Lightbulb, BookCopy, BriefcaseBusiness, TabletSmartphone, Clapperboard, ChartNoAxesCombined, GraduationCap, MessageSquareText, Palette, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -36,6 +34,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   const [surveyStep, setSurveyStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [surveyModalOpen, setSurveyModalOpen] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [surveyData, setSurveyData] = useState<SurveyData>({
     category: '',
     workRole: '',
@@ -47,17 +46,28 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
   // Navigation functions
   const handleNext = () => {
-    setSurveyStep(prev => prev + 1);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setSurveyStep(prev => prev + 1);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const handleBack = () => {
-    setSurveyStep(prev => prev - 1);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setSurveyStep(prev => prev - 1);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   // Complete survey
   const completeSurvey = () => {
-    console.log('Survey completed:', surveyData);
-    onComplete(surveyData);
+    const finalSurveyData = {
+      ...surveyData,
+      category: selectedCategory
+    };
+    onComplete(finalSurveyData);
     setSurveyModalOpen(false);
   };
 
@@ -84,18 +94,22 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] p-0 max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] p-0 max-h-[85vh] overflow-y-auto" hideCloseIcon preventCloseOnOverlayClick>
         <div className="bg-white rounded-3xl">
           <DialogHeader className="space-y-4 p-6 pb-4">
             <div className="flex items-center space-x-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg flex-shrink-0">
+              <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg flex-shrink-0 transition-all duration-300 ease-in-out ${
+                isTransitioning ? 'opacity-0 transform scale-90' : 'opacity-100 transform scale-100'
+              }`}>
                 {surveyStep === 1 && <Target className="w-8 h-8 text-white" />}
                 {surveyStep === 2 && selectedCategory === 'work' && <Building className="w-8 h-8 text-white" />}
                 {surveyStep === 3 && selectedCategory === 'work' && <Users className="w-8 h-8 text-white" />}
                 {surveyStep === 4 && selectedCategory === 'work' && <Target className="w-8 h-8 text-white" />}
                 {surveyStep === 2 && selectedCategory === 'personal' && <Lightbulb className="w-8 h-8 text-white" />}
               </div>
-              <div className="space-y-2">
+              <div className={`space-y-2 transition-all duration-300 ease-in-out ${
+                isTransitioning ? 'opacity-0 transform translate-y-2' : 'opacity-100 transform translate-y-0'
+              }`}>
                 <DialogTitle className="text-2xl font-bold text-gray-900">
                   {surveyStep === 1 && "What do you plan to use ContentBuilder for?"}
                   {surveyStep === 2 && selectedCategory === 'work' && "Tell us about your work"}
@@ -105,22 +119,26 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 </DialogTitle>
                 <DialogDescription className="text-base text-gray-600">
                   {surveyStep === 1 && "This helps us customize your experience"}
-                  {surveyStep === 2 && selectedCategory === 'work' && "Help us understand your professional context"}
+                  {surveyStep === 2 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
                   {surveyStep === 3 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
                   {surveyStep === 4 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
-                  {surveyStep === 2 && selectedCategory === 'personal' && "Let us know your primary focus"}
+                  {surveyStep === 2 && selectedCategory === 'personal' && "This helps us recommend the best features for you"}
                 </DialogDescription>
               </div>
             </div>
           </DialogHeader>
         
         <div className="px-6 pb-6">
-          {/* Step 1: Main Category Selection */}
-          {surveyStep === 1 && (
+          <div className={`transition-all duration-300 ease-in-out ${
+            isTransitioning ? 'opacity-0 transform translate-x-4' : 'opacity-100 transform translate-x-0'
+          }`}>
+            {/* Step 1: Main Category Selection */}
+            {surveyStep === 1 && (
             <div className="grid md:grid-cols-2 gap-4">
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setSelectedCategory('work')}
-                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 h-auto ${
                   selectedCategory === 'work'
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -135,11 +153,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Work</h3>
                   <p className="text-sm text-gray-600">Professional use for business, marketing, or team collaboration</p>
                 </div>
-              </button>
+              </Button>
               
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setSelectedCategory('personal')}
-                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 ${
+                className={`p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-105 h-auto ${
                   selectedCategory === 'personal'
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -154,7 +173,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   <h3 className="text-lg font-bold text-gray-900 mb-2">Personal</h3>
                   <p className="text-sm text-gray-600">Personal projects, learning, or creative endeavors</p>
                 </div>
-              </button>
+              </Button>
             </div>
           )}
 
@@ -174,8 +193,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: 'developer', label: 'Developer' },
                     { value: 'other', label: 'Other' }
                   ].map((option) => (
-                    <button
+                    <Button
                       key={option.value}
+                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, workRole: option.value }))}
                       className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
                         surveyData.workRole === option.value
@@ -184,7 +204,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       }`}
                     >
                       <span className="font-medium">{option.label}</span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -205,8 +225,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: '51-500', label: '51–500', icon: 3 },
                     { value: '500+', label: '500+', icon: 4 }
                   ].map((option) => (
-                    <button
+                    <Button
                       key={option.value}
+                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, companySize: option.value }))}
                       className={`p-3 text-center rounded-lg border-2 transition-all duration-200 ${
                         surveyData.companySize === option.value
@@ -216,7 +237,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     >
                       <Users className="w-5 h-5 mx-auto mb-1" />
                       <span className="font-medium">{option.label}</span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -239,10 +260,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: 'creative-branding', label: 'Creative / Branding', icon: <Palette width={20} /> },
                     { value: 'other', label: 'Other', icon: <Zap width={20} /> }
                   ].map((option) => (
-                    <button
+                    <Button
                       key={option.value}
+                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, industry: option.value }))}
-                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 h-auto ${
                         surveyData.industry === option.value
                           ? 'border-blue-500 bg-blue-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -258,7 +280,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                         </div>
                         <span className="font-medium text-gray-900">{option.label}</span>
                       </div>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -279,10 +301,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     { value: 'portfolio-creation', label: 'Portfolio creation', icon: <BriefcaseBusiness width={20} /> },
                     { value: 'social-media', label: 'Social media content', icon: <TabletSmartphone width={20} /> }
                   ].map((option) => (
-                    <button
+                    <Button
                       key={option.value}
+                      variant="outline"
                       onClick={() => setSurveyData(prev => ({ ...prev, personalUse: option.value }))}
-                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 ${
+                      className={`p-4 text-left rounded-lg border-2 transition-all duration-200 transform hover:scale-105 h-auto ${
                         surveyData.personalUse === option.value
                           ? 'border-blue-500 bg-blue-50 shadow-lg'
                           : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md'
@@ -298,20 +321,22 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                         </div>
                         <span className="font-medium text-gray-900">{option.label}</span>
                       </div>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
             </div>
           )}
+          </div>
         </div>
         
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center px-6 py-4 border-t border-gray-100">
-          <button
+          <Button
+            variant="ghost"
             onClick={handleBack}
             disabled={surveyStep === 1}
-            className={`flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+            className={`flex items-center px-4 py-2 rounded-full font-medium transition-all duration-200 ${
               surveyStep === 1
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50 transform hover:scale-105'
@@ -319,17 +344,17 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           >
             <ChevronLeft className="w-5 h-5 mr-2" />
             Previous
-          </button>
+          </Button>
 
           <div className="text-xs text-gray-500 font-medium">
             Step {surveyStep} of {selectedCategory === 'work' ? '4' : '2'}
           </div>
 
           {surveyStep === 4 && selectedCategory === 'work' ? (
-            <button
+            <Button
               onClick={completeSurvey}
               disabled={!surveyData.industry}
-              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+              className={`flex items-center px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                 surveyData.industry 
                   ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -337,12 +362,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             >
               Complete Setup
               <CheckCircle className="w-5 h-5 ml-2" />
-            </button>
+            </Button>
           ) : surveyStep === 2 && selectedCategory === 'personal' ? (
-            <button
+            <Button
               onClick={completeSurvey}
               disabled={!surveyData.personalUse}
-              className={`flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+              className={`flex items-center px-6 py-3 rounded-full font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                 surveyData.personalUse 
                   ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -350,9 +375,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             >
               Complete Setup
               <CheckCircle className="w-5 h-5 ml-2" />
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={handleNext}
               disabled={
                 (surveyStep === 1 && !selectedCategory) ||
@@ -361,11 +386,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 (surveyStep === 3 && !surveyData.companySize) ||
                 (surveyStep === 4 && !surveyData.industry)
               }
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
               Continue
               <ChevronRight className="w-5 h-5 ml-2" />
-            </button>
+            </Button>
           )}
         </div>
         </div>
