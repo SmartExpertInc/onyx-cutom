@@ -1,7 +1,8 @@
 // components/editors/WysiwygEditor.tsx
 
 import React, { useEffect } from 'react';
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/extension-bubble-menu';
 import StarterKit from '@tiptap/starter-kit';
 
 export interface WysiwygEditorProps {
@@ -39,6 +40,9 @@ export function WysiwygEditor({
         paragraph: true,
         text: true,
         history: true, // For Ctrl+Z
+      }),
+      BubbleMenu.configure({
+        element: document.createElement('div'),
       }),
     ],
     content: initialValue || '',
