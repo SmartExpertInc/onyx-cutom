@@ -181,9 +181,10 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   };
 
   const timelineContainerStyles: React.CSSProperties = {
-    position: 'relative',
+    position: 'absolute',
+    top: '127px',
     width: '100%',
-    height: '438px',
+    height: '464px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -192,13 +193,12 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const timelineLineStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '11px',
+    top: '13.5px',
     left: 'calc(50% + 60px)', // Line moved 60px to the right
     transform: 'translateX(-50%)',
-    width: '4px',
-    height: '100%',
+    width: '2px',
+    height: '99%',
     background: '#0F58F9', // Blue line as in photo
-    borderRadius: '2px'
   };
 
   const stepWrapperStyles = (index: number): React.CSSProperties => ({
@@ -224,7 +224,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     height: '20px',
     backgroundColor: '#ffffff',
     borderRadius: '50%',
-    background: 'transparent',
+    background: '#ffffff',
     border: '4px solid #0F58F9', // Blue circle as in photo
     display: 'flex',
     alignItems: 'center',
@@ -244,7 +244,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     position: 'absolute',
     left: index % 2 === 0 ? 'calc(50% + 60px + 50px)' : 'calc(50% + 60px - 180px)', // Left texts moved 80px from line (was 50px)
     width: '35%',
-    transform: 'translateY(-50%)'
+    transform: 'translateY(20%)'
   });
 
   const headingStyles: React.CSSProperties = {
