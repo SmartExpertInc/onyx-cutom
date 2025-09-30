@@ -290,9 +290,9 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
             urls.append(m.group(1))
 
         if not urls:
+            logger.info(f"[SCORM-ASSETS] No image URLs found for {sco_dir}")
             return html
 
-        # Unique preserve order
         seen = set()
         unique_urls: List[str] = []
         for u in urls:
@@ -300,8 +300,12 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                 seen.add(u)
                 unique_urls.append(u)
 
+        logger.info(f"[SCORM-ASSETS] Found {len(unique_urls)} unique URLs to localize for {sco_dir}")
+
         url_to_local: Dict[str, str] = {}
         asset_index = 1
+
+        embedded_count = 0
 
         async def fetch_http(url: str) -> Optional[bytes]:
             try:
@@ -315,30 +319,26 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
 
         def guess_ext_from_url_or_type(u: str, content: Optional[bytes]) -> str:
             ext = ''
-            # Try by URL
             parsed = pathlib.PurePosixPath(u)
             if parsed.suffix:
                 ext = parsed.suffix
             if not ext:
-                # Try by mimetype of URL
                 mt = mimetypes.guess_type(u)[0]
                 if mt:
                     gx = mimetypes.guess_extension(mt)
                     if gx:
                         ext = gx
             if not ext and content is not None:
-                # Fallback generic
                 ext = '.bin'
             if not ext:
                 ext = '.bin'
             return ext
 
         async def convert_one(u: str):
-            nonlocal asset_index
+            nonlocal asset_index, embedded_count
             if not u or u.startswith('data:'):
                 return
             data: Optional[bytes] = None
-            # Normalize protocol-less
             if u.startswith('//'):
                 u_fetch = 'https:' + u
                 data = await fetch_http(u_fetch)
@@ -370,7 +370,6 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                             data = f.read()
                     except Exception as e:
                         logger.info(f"[SCORM] Read repo image failed for {full_path}: {e}")
-            # else: skip unknown relative paths (likely already local or not resolvable)
 
             if data is None:
                 return
@@ -384,13 +383,14 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
             try:
                 zip_file.writestr(asset_zip_path, data)
                 url_to_local[u] = asset_href
+                embedded_count += 1
             except Exception as e:
                 logger.info(f"[SCORM] Write asset failed for {u}: {e}")
 
-        # Download/copy in parallel
         await asyncio.gather(*(convert_one(u) for u in unique_urls))
 
-        # Replace references
+        logger.info(f"[SCORM-ASSETS] Embedded {embedded_count} assets for {sco_dir}")
+
         def replace_img_src(match: re.Match) -> str:
             prefix, src, suffix = match.group(1), match.group(2), match.group(3)
             new_src = url_to_local.get(src, src)
@@ -399,7 +399,6 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
         def replace_css_url(match: re.Match) -> str:
             url = match.group(1)
             new_src = url_to_local.get(url, url)
-            # Preserve as unquoted url()
             return f"url('{new_src}')"
 
         html = img_src_pattern.sub(replace_img_src, html)
@@ -550,41 +549,24 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         
         rendered_slides = []
         for slide in slides:
-            # Use the exact same context structure as PDF generation
             context_data = {
                 'slide': slide,
                 'theme': theme,
-                'slide_height': 800,  # Default height for SCORM
+                'slide_height': 800,
                 'embedded_fonts_css': get_embedded_fonts_css()
             }
-            
-            # Render each slide with proper context
             slide_html = template.render(**context_data)
             rendered_slides.append(slide_html)
         
-        # CSS for scrollable slide deck
+        # Minimal CSS to avoid conflicting with template's own styles
         styles = """
 <style>
-  body { margin: 0; padding: 20px; background: #f5f5f5; font-family: 'Inter', Arial, sans-serif; }
-  .slide-wrapper { max-width: 900px; margin: 0 auto; }
-  .slide-page { 
-    background: white; 
-    margin-bottom: 30px; 
-    padding: 40px; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    page-break-after: always;
-    min-height: 600px;
-  }
-  .slide-page:last-child { margin-bottom: 0; }
-  
-  /* Ensure slide content displays properly */
-  .slide-content { width: 100%; height: 100%; }
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  .scorm-slide-wrapper { max-width: 1200px; margin: 0 auto; padding: 0; }
 </style>
 """
-        
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
-        body = "<div class=\"slide-wrapper\">" + "".join([f"<div class=\"slide-page\">{s}</div>" for s in rendered_slides]) + "</div>"
+        body = "<div class=\"scorm-slide-wrapper\">" + "".join(rendered_slides) + "</div>"
         
         return _wrap_html_as_sco(title, styles + body)
         
