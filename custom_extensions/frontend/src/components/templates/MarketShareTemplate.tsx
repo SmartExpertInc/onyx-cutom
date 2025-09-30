@@ -623,7 +623,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             height: '100%',
             width: '100%',
             position: 'relative',
-            zIndex: 1
+            zIndex: 1,
+            paddingBottom: '60px'
           }}>
             {chartData.map((item, index) => (
               <div key={index} style={{ 
@@ -631,8 +632,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 flexDirection: 'column', 
                 alignItems: 'center',
                 height: '100%',
-                justifyContent: 'flex-end',
-                paddingBottom: '60px'
+                justifyContent: 'flex-end'
               }}>
                 {/* Bar */}
                 <div style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}>
@@ -642,7 +642,12 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 </div>
                 
                 {/* Year label */}
-                <div style={{ position: 'absolute', bottom: '20px' }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  bottom: '0px',
+                  width: '90px',
+                  textAlign: 'center'
+                }}>
                   {isEditable && editingYear === index ? (
                     <InlineEditor
                       initialValue={item.label}
