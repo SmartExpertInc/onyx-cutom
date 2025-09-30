@@ -28,6 +28,7 @@ export interface ProjectListItem {
   designTemplateName: string | null;
   design_microproduct_type: string | null;
   microProductName: string | null; // User-defined name for this instance
+  courseId: number | null | undefined; // Field for associated course ID
   createdAt: string; // Assuming ISO string date
   viewLinkPath: string;
   pdfLinkPath: string;
