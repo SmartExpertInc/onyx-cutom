@@ -140,7 +140,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
       if (onUpdate) {
         onUpdate(newData);
       }
-    }, 300);
+    }, 100); // Reduced timeout for faster saving
   };
 
   const handleTitleUpdate = (newTitle: string) => {
@@ -236,16 +236,32 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
             title, 
             tableData: { ...tableData, rows: newRows } 
           };
-          scheduleAutoSave(newData);
+          // Save immediately for checkboxes
+          if (onUpdate) {
+            onUpdate(newData);
+          }
+        }}
+        onBlur={() => {
+          // Ensure the change is saved when focus is lost
+          const currentValue = tableData.rows[rowIndex]?.[colIndex];
+          if (currentValue !== undefined) {
+            const newData = { 
+              title, 
+              tableData: { ...tableData } 
+            };
+            scheduleAutoSave(newData);
+          }
         }}
         style={{
           appearance: 'none',
           borderRadius: '2px',
-          backgroundColor: '#BED5FC',
+          backgroundColor: isChecked ? '#0F58F9' : '#BED5FC',
           width: '20px',
           height: '20px',
           cursor: 'pointer',
-          accentColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor
+          accentColor: currentTheme.colors.tableCheckmarkColor || checkmarkColor,
+          border: 'none',
+          outline: 'none'
         }}
       />
     );
@@ -650,16 +666,6 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                             </span>
                           ) : (
                             <div 
-                              onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  return;
-                                }
-                                if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
-                              }}
-                              className={isEditable ? 'cursor-pointer' : ''}
                               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
                               {renderCheckbox(cell, rowIndex, colIndex)}
