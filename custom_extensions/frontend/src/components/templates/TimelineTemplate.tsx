@@ -239,7 +239,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     flexDirection: 'column',
     gap: '5px',
     position: 'absolute',
-    left: index % 2 === 0 ? 'calc(50% + 60px + 200px)' : 'calc(50% + 60px - 80px)', // Left texts moved 80px from line (was 50px)
+    left: index % 2 === 0 ? 'calc(50% + 60px)' : 'calc(50% + 60px - 80px)', // Left texts moved 80px from line (was 50px)
     width: '35%',
     transform: 'translateY(-50%)'
   });
