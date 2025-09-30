@@ -374,8 +374,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         }`}
                       >
                         {plan.popular && (
-                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-2 rounded-full text-sm font-bold shadow-lg">
+                          <div className="absolute -top-3 left-0 right-0 z-10">
+                            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-t-3xl text-sm font-bold shadow-lg text-center">
                               Most Popular
                             </div>
                           </div>
