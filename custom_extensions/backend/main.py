@@ -5966,8 +5966,7 @@ async def startup_event():
                     data JSONB NOT NULL
                 );
             """)
-            await connection.execute("ALTER TABLE initial_questionnaire ADD CONSTRAINT uq_initial_questionnaire_onyx_user_id UNIQUE (onyx_user_id);")
-
+            
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS slide_creation_errors (
                     id SERIAL PRIMARY KEY,
