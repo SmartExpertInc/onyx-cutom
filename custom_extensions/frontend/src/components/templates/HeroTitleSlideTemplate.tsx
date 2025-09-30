@@ -133,6 +133,13 @@ function RichTextEditor({
     return tempDiv.textContent || tempDiv.innerText || '';
   };
 
+  // Detect if initial value has formatting
+  const detectInitialFormatting = (html: string) => {
+    const hasBold = html.includes('<strong>') || html.includes('<b>');
+    const hasItalic = html.includes('<em>') || html.includes('<i>');
+    return { hasBold, hasItalic };
+  };
+
   // Helper function to remove fontWeight and fontStyle from base styles
   // This prevents conflicts with our dynamic formatting
   const getCleanStyles = (baseStyles: React.CSSProperties): React.CSSProperties => {
@@ -140,10 +147,13 @@ function RichTextEditor({
     return cleanStyles;
   };
 
+  // Initialize formatting states based on initial HTML
+  const { hasBold, hasItalic } = detectInitialFormatting(initialValue);
+  
   const [value, setValue] = useState(htmlToPlainText(initialValue));
   const [formattedValue, setFormattedValue] = useState(initialValue);
-  const [isBoldActive, setIsBoldActive] = useState(false);
-  const [isItalicActive, setIsItalicActive] = useState(false);
+  const [isBoldActive, setIsBoldActive] = useState(hasBold);
+  const [isItalicActive, setIsItalicActive] = useState(hasItalic);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
