@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector, CustomMultiSelector } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HeadTextCustom } from "@/components/ui/head-text-custom";
+import useFeaturePermission from "../../../hooks/useFeaturePermission";
 
 // Inline SVG icon components
 const CourseOutlineIcon: React.FC<{ size?: number }> = ({ size = 35 }) => (
@@ -59,6 +60,7 @@ function GenerateProductPicker() {
   const fileIds = searchParams?.get('fileIds')?.split(',').filter(Boolean) || [];
   const isFromText = searchParams?.get('fromText') === 'true';
   const textMode = searchParams?.get('textMode') as 'context' | 'base' | null;
+  const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   
   // NEW: Connector context from URL parameters and sessionStorage
   const isFromConnectors = searchParams?.get('fromConnectors') === 'true';
@@ -1261,12 +1263,14 @@ function GenerateProductPicker() {
             active={activeProduct === "Course"}
             onClick={() => setActiveProduct("Course")}
           />
+          {videoLessonEnabled && (
           <GenerateCard 
             label={t('interface.generate.videoLesson', 'Video Lesson')} 
             Icon={VideoScriptIcon}
             active={activeProduct === "Video Lesson"}
             onClick={() => setActiveProduct("Video Lesson")}
           />
+          )}
           <GenerateCard 
             label={t('interface.generate.quiz', 'Quiz')} 
             Icon={QuizIcon}

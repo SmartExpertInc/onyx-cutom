@@ -438,7 +438,6 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
           />
         </div>
 
-        {/* Recent prompts section removed as per request */}
       </div>
     </main>
   );

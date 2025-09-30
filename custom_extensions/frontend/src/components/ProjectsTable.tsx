@@ -62,6 +62,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
   Dialog,
   DialogContent,
@@ -85,6 +86,7 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import useFeaturePermission from "../hooks/useFeaturePermission";
 import { timeEvent } from "../lib/mixpanelClient"
+import RegistrationSurveyModal from "./ui/registration-survey-modal";
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -859,6 +861,8 @@ interface ProjectsTableProps {
   /** If true – table displays items from Trash and hides create/filter toolbars */
   trashMode?: boolean;
   folderId?: number | null;
+  /** If true – table displays only audit projects */
+  auditMode?: boolean;
 }
 
 interface ColumnVisibility {
@@ -2121,6 +2125,7 @@ const FolderRowMenu: React.FC<{
 const ProjectsTable: React.FC<ProjectsTableProps> = ({
   trashMode = false,
   folderId = null,
+  auditMode = false,
 }) => {
   const router = useRouter();
   const { t, language } = useLanguage();
@@ -2555,7 +2560,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [trashMode, folderId, router]);
+  }, [trashMode, folderId, router, auditMode]);
 
   // Fetch projects for a specific folder
   const fetchFolderProjects = useCallback(
@@ -3643,6 +3648,12 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     timeEvent('Create Product');
   };
 
+  // Handle survey completion
+  const handleSurveyComplete = (surveyData: any) => {
+    console.log('Survey completed:', surveyData);
+    handleCreateProduct();
+  };
+
   // Add these just before the render block
   const visibleProjects = ENABLE_OUTLINE_FILTERING
     ? viewMode === "list"
@@ -3684,7 +3695,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       {!trashMode && (
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
-              <Link href={folderId ? `/create?folderId=${folderId}` : "/create"}>
+              <Link href={auditMode ? "/create/ai-audit/questionnaire" : (folderId ? `/create?folderId=${folderId}` : "/create")}>
                 <Button 
                   variant="gradient" 
                   className="rounded-full font-semibold"
@@ -3693,13 +3704,23 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                 >
                   <div>
                   <Plus size={16} className="text-white" />
-                  {t("interface.createNew", "Create new")}
+                  {auditMode ? t("interface.createNewAudit", "Create new audit") : t("interface.createNew", "Create new")}
                   <span className="ml-1.5 rounded-full bg-[#D7E7FF] text-[#003EA8] px-1.5 py-0.5 text-[10px] leading-none font-bold tracking-wide">
                     AI
                   </span>
                   </div>
                 </Button>
               </Link>
+              <RegistrationSurveyModal onComplete={handleSurveyComplete}>
+                <Button 
+                  variant="download" 
+                  className="rounded-full font-semibold"
+                >
+                  <div>
+                    Registration Survey
+                  </div>
+                </Button>
+              </RegistrationSurveyModal>
           </div>
         </div>
       )}
