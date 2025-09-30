@@ -240,6 +240,8 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           scheduleAutoSave(newData);
         }}
         style={{
+          appearance: 'none',
+          backgroundColor: '#BED5FC',
           width: '20px',
           height: '20px',
           cursor: 'pointer',
