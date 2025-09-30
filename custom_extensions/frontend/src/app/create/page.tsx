@@ -328,11 +328,12 @@ export default function DataSourceLanding() {
       {/* Main content */}
       <div className="w-full max-w-6xl flex flex-col gap-10 items-center">
         {/* Headings */}
-        <HeadTextCustom
-          text={t('interface.createWithAI', 'Create with AI')}
-          description={t('interface.howToGetStarted', 'How would you like to get started?')}
-          className="max-w-2xl"
-        />
+        <div className="flex flex-col gap-4 text-center items-center max-w-2xl">
+          <h1 className="text-5xl font-semibold text-center tracking-wide text-[var(--primary)]">{t('interface.createWithAI', 'Create with AI')}</h1>
+          <p className="text-center text-[var(--secondary-foreground)] text-lg -mt-1">
+            {t('interface.howToGetStarted', 'How would you like to get started?')}
+          </p>
+        </div>
 
         {/* Option cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-7 w-full max-w-7xl backdrop-blur-md bg-white/20 border border-white/30 rounded-xl p-8 shadow-lg transition-all duration-200 hover:shadow-xl">
