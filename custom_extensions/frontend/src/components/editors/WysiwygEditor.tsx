@@ -22,6 +22,15 @@ export function WysiwygEditor({
 }: WysiwygEditorProps) {
   const [showToolbar, setShowToolbar] = useState(false);
   const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
+  
+  // Log toolbar state changes
+  useEffect(() => {
+    console.log('🔄 [WysiwygEditor] Toolbar visibility changed:', showToolbar);
+  }, [showToolbar]);
+  
+  useEffect(() => {
+    console.log('📍 [WysiwygEditor] Toolbar position changed:', toolbarPosition);
+  }, [toolbarPosition]);
 
   const cleanedStyle = { ...style };
   delete cleanedStyle.fontWeight;
@@ -55,7 +64,15 @@ export function WysiwygEditor({
     onSelectionUpdate: ({ editor }) => {
       const { from, to, empty } = editor.state.selection;
       
+      console.log('🔍 [WysiwygEditor] Selection Update Triggered:', {
+        from,
+        to,
+        empty,
+        selectionText: editor.state.doc.textBetween(from, to, ' ')
+      });
+      
       if (empty) {
+        console.log('📝 [WysiwygEditor] Selection is empty, hiding toolbar');
         setShowToolbar(false);
         return;
       }
@@ -64,20 +81,53 @@ export function WysiwygEditor({
       const start = view.coordsAtPos(from);
       const end = view.coordsAtPos(to);
       
-      // coordsAtPos вже повертає координати відносно viewport
-      // Просто використовуємо їх напряму
-      setToolbarPosition({
-        x: (start.left + end.left) / 2,
-        y: Math.min(start.top, end.top) // Беремо верхню точку виділення
+      console.log('📍 [WysiwygEditor] Raw Coordinates from coordsAtPos:', {
+        start: {
+          left: start.left,
+          right: start.right,
+          top: start.top,
+          bottom: start.bottom
+        },
+        end: {
+          left: end.left,
+          right: end.right,
+          top: end.top,
+          bottom: end.bottom
+        }
       });
+      
+      // Calculate horizontal center
+      const centerX = (start.left + end.left) / 2;
+      
+      // Calculate vertical position (top of selection)
+      const topY = Math.min(start.top, end.top);
+      
+      console.log('🧮 [WysiwygEditor] Position Calculations:', {
+        centerXCalculation: `(${start.left} + ${end.left}) / 2 = ${centerX}`,
+        topYCalculation: `Math.min(${start.top}, ${end.top}) = ${topY}`,
+        finalPosition: { x: centerX, y: topY }
+      });
+      
+      const newPosition = {
+        x: centerX,
+        y: topY
+      };
+      
+      console.log('🎯 [WysiwygEditor] Setting toolbar position:', newPosition);
+      
+      setToolbarPosition(newPosition);
       setShowToolbar(true);
+      
+      console.log('✅ [WysiwygEditor] Toolbar should now be visible at position:', newPosition);
     },
   });
 
   useEffect(() => {
     if (editor) {
+      console.log('🎯 [WysiwygEditor] Editor initialized, setting focus and selecting all text');
       editor.commands.focus('end');
       editor.commands.selectAll();
+      console.log('📝 [WysiwygEditor] Focus and selection commands executed');
     }
   }, [editor]);
 
@@ -85,7 +135,9 @@ export function WysiwygEditor({
     if (!editor) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log('⌨️ [WysiwygEditor] Key pressed:', e.key);
       if (e.key === 'Escape') {
+        console.log('🚫 [WysiwygEditor] Escape key pressed, canceling edit');
         e.preventDefault();
         editor.commands.blur();
         onCancel();
@@ -101,11 +153,17 @@ export function WysiwygEditor({
   }, [editor, onCancel]);
 
   const handleBlur = () => {
+    console.log('👋 [WysiwygEditor] Editor blur event triggered');
     if (editor) {
       const html = editor.getHTML();
       const cleanHtml = html.replace(/^<p>([\s\S]*)<\/p>$/, '$1');
+      console.log('💾 [WysiwygEditor] Saving content on blur:', {
+        originalHTML: html,
+        cleanedHTML: cleanHtml
+      });
       onSave(cleanHtml);
     }
+    console.log('👁️ [WysiwygEditor] Hiding toolbar due to blur');
     setShowToolbar(false);
   };
 
@@ -115,28 +173,46 @@ export function WysiwygEditor({
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      {showToolbar && (
-        <div
-          style={{
-            position: 'fixed',
-            left: `${toolbarPosition.x}px`,
-            top: `${toolbarPosition.y - 60}px`, // 60px над текстом
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: '4px',
-            backgroundColor: 'white',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            padding: '4px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            zIndex: 10000,
-            pointerEvents: 'auto',
-          }}
-          onMouseDown={(e) => {
-            // Запобігти blur при кліку на toolbar
-            e.preventDefault();
-          }}
-        >
+      {showToolbar && (() => {
+        // Calculate final toolbar position
+        const finalLeft = toolbarPosition.x;
+        const finalTop = toolbarPosition.y - 60; // 60px above text
+        const offsetY = 60;
+        
+        console.log('🎨 [WysiwygEditor] Toolbar Rendering Calculations:', {
+          basePosition: toolbarPosition,
+          offsetY: offsetY,
+          finalLeft: finalLeft,
+          finalTop: finalTop,
+          finalCSSLeft: `${finalLeft}px`,
+          finalCSSTop: `${finalTop}px`,
+          transform: 'translateX(-50%)',
+          explanation: `Toolbar positioned at (${finalLeft}, ${finalTop}) with -50% horizontal transform`
+        });
+        
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              left: `${finalLeft}px`,
+              top: `${finalTop}px`, // 60px над текстом
+              transform: 'translateX(-50%)',
+              display: 'flex',
+              gap: '4px',
+              backgroundColor: 'white',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              padding: '4px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              zIndex: 10000,
+              pointerEvents: 'auto',
+            }}
+            onMouseDown={(e) => {
+              // Запобігти blur при кліку на toolbar
+              e.preventDefault();
+              console.log('🖱️ [WysiwygEditor] Toolbar clicked, preventing blur');
+            }}
+          >
           <button
             type="button"
             onMouseDown={(e) => {
@@ -208,7 +284,8 @@ export function WysiwygEditor({
             I
           </button>
         </div>
-      )}
+        );
+      })()}
 
       <div onBlur={handleBlur}>
         <EditorContent editor={editor} />
