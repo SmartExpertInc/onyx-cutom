@@ -683,12 +683,48 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                     resp = await client.get(url)
                     if resp.status_code == 200 and resp.content:
                         logger.debug(f"[SCORM-ASSETS] Successfully fetched {url}: {len(resp.content)} bytes")
+                        # Validate that this looks like image data
+                        if len(resp.content) < 100:
+                            logger.warning(f"[SCORM-ASSETS] Suspiciously small HTTP response for {url}: {len(resp.content)} bytes")
+                            logger.debug(f"[SCORM-ASSETS] Content preview: {resp.content[:50]}")
                         return resp.content
                     else:
                         logger.warning(f"[SCORM-ASSETS] HTTP {resp.status_code} for {url}")
             except Exception as e:
                 logger.warning(f"[SCORM-ASSETS] Failed to download {url}: {e}")
             return None
+
+        def validate_image_data(data: bytes, url: str) -> bool:
+            """Validate that the data appears to be a real image"""
+            if not data:
+                return False
+            
+            # Check minimum size (real images are usually larger than 1KB)
+            if len(data) < 1024:
+                logger.warning(f"[SCORM-ASSETS] Image data too small for {url}: {len(data)} bytes")
+                # Log first few bytes to see what we got
+                preview = data[:50] if len(data) >= 50 else data
+                logger.debug(f"[SCORM-ASSETS] Small image data preview: {preview}")
+                return False
+            
+            # Check for valid image headers
+            valid_headers = [
+                b'\xff\xd8\xff',  # JPEG
+                b'\x89PNG\r\n\x1a\n',  # PNG
+                b'GIF87a',  # GIF87a
+                b'GIF89a',  # GIF89a
+                b'<svg',  # SVG
+                b'RIFF',  # WebP (starts with RIFF)
+            ]
+            
+            has_valid_header = any(data.startswith(header) for header in valid_headers)
+            if not has_valid_header:
+                logger.warning(f"[SCORM-ASSETS] No valid image header found for {url}")
+                preview = data[:20] if len(data) >= 20 else data
+                logger.debug(f"[SCORM-ASSETS] Invalid header preview: {preview}")
+                return False
+            
+            return True
 
         def get_file_extension(url: str, content: Optional[bytes] = None) -> str:
             # Try to get extension from URL
@@ -706,6 +742,8 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                     return '.gif'
                 elif content.startswith(b'<svg'):
                     return '.svg'
+                elif content.startswith(b'RIFF'):
+                    return '.webp'
             
             return '.jpg'  # Default fallback
 
@@ -718,6 +756,8 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
             
             data = None
             source_type = "unknown"
+            
+            logger.info(f"[SCORM-ASSETS] Processing URL: {url}")
             
             try:
                 # Handle different URL types
@@ -775,7 +815,7 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                     failed_count += 1
                     return
 
-                if data:
+                if data and validate_image_data(data, url):
                     ext = get_file_extension(url, data)
                     local_name = f"img_{asset_index:03d}{ext}"
                     asset_index += 1
@@ -789,6 +829,9 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                     embedded_count += 1
                     
                     logger.info(f"[SCORM-ASSETS] ✅ Embedded {url} ({source_type}) as {local_name} ({len(data)} bytes) -> {asset_zip_path}")
+                elif data:
+                    logger.warning(f"[SCORM-ASSETS] ❌ Invalid image data for {url} ({source_type}): {len(data)} bytes")
+                    failed_count += 1
                 else:
                     logger.warning(f"[SCORM-ASSETS] ❌ Could not load image: {url} ({source_type})")
                     failed_count += 1
@@ -1828,6 +1871,11 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 # Localize images for ALL product types
                 sco_dir = f"sco_{product_id}"
                 logger.info(f"[SCORM] Starting image localization for product_id={product_id}, sco_dir={sco_dir}")
+                
+                # Show a sample of the HTML to see what images are included
+                html_sample = body_html[:1000] + "..." if len(body_html) > 1000 else body_html
+                logger.debug(f"[SCORM] HTML sample for product_id={product_id}: {html_sample}")
+                
                 body_html = await _localize_images_to_assets(body_html, z, sco_dir)
                 logger.info(f"[SCORM] Completed image localization for product_id={product_id}, final HTML length={len(body_html)}")
 
