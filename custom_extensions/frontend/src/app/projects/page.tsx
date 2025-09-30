@@ -450,7 +450,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
             </svg>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 flex items-center justify-center">
             <span className="font-black text-black text-2xl">ContentBuilder</span>
           </div>
         )}
