@@ -8,10 +8,11 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   gradientTo?: string;
   active?: boolean;
   onClick?: () => void;
+  glowColor?: string; // base color to derive the glow from
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo: _gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, label, active = false, gradientTo: _gradientTo, onClick, glowColor, ...props }, ref) => {
     return (
       <Card
         ref={ref}
@@ -20,13 +21,14 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           "group relative rounded-md bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-20 xs:w-20 xs:h-18 sm:w-28 sm:h-23 md:w-32 md:h-25 lg:w-36 lg:h-24 xl:w-40 xl:h-26",
           "hover:scale-105 focus:outline-none focus:border-[var(--ring)]",
-          active ? "border-2 border-[var(--primary)]" : "border-2 border-transparent",
+          active ? "border-4 border-[var(--primary)]" : "border-2 border-transparent",
           className
         )}
         style={{
           boxShadow: active 
             ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          ...(active ? { borderColor: 'color-mix(in srgb, var(--primary) 60%, transparent)' } : {})
         }}
         onMouseEnter={(e) => {
           if (!active) {
@@ -53,14 +55,14 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
                 className="flex items-center justify-center"
               >
                 <div className="relative">
-                  <div
-                    className="absolute inset-0 rounded-lg blur-sm"
-                    style={{
-                      background: active
-                        ? 'linear-gradient(to bottom right, rgba(255,255,255,0.28), rgba(255,255,255,0.14))'
-                        : 'linear-gradient(to bottom right, rgba(107,114,128,0.22), rgba(107,114,128,0.10))'
-                    }}
-                  />
+                  {active && (
+                    <div
+                      className="absolute inset-0 rounded-lg blur-sm"
+                      style={{
+                        background: `linear-gradient(to bottom right, ${glowColor ? `color-mix(in srgb, ${glowColor} 24%, transparent)` : `color-mix(in srgb, var(--primary) 24%, transparent)`}, ${glowColor ? `color-mix(in srgb, ${glowColor} 12%, transparent)` : `color-mix(in srgb, var(--primary) 12%, transparent)`})`
+                      }}
+                    />
+                  )}
                   <Icon 
                     size={35}
                     className={cn(

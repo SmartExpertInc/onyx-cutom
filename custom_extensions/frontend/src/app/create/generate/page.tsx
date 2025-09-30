@@ -1931,7 +1931,7 @@ function GenerateProductPicker() {
                   )
                 )}
               </div>
-              <div className="flex justify-center mt-3">
+              <div className="flex justify-center mt-4">
                 <Button
                   onClick={shuffleExamples}
                   className="flex items-center gap-2 text-sm text-gray-700 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
