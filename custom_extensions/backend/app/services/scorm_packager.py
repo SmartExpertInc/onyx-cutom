@@ -6,6 +6,8 @@ import uuid
 import json
 import zipfile
 import logging
+import base64
+import mimetypes
 from typing import Any, Dict, List, Optional, Tuple
 
 from fastapi import HTTPException
@@ -322,339 +324,657 @@ async def _localize_images_in_html(html: str, zip_file: zipfile.ZipFile, sco_dir
         return html
 
 
-async def _inline_remote_images(html: str) -> str:
+async def _process_image_paths_in_html(html: str) -> str:
+    """Process image paths in HTML to convert relative paths to absolute paths or data URIs"""
     try:
-        import re, mimetypes, base64
-        url_patterns = [
-            re.compile(r'<img[^>]+src=["\'](https?://[^"\']+)["\']', re.IGNORECASE),
-            re.compile(r'url\([\"\']?(https?://[^\)\"\']+)[\"\']?\)', re.IGNORECASE)
-        ]
-        urls: List[str] = []
-        for pat in url_patterns:
-            for m in pat.finditer(html):
-                urls.append(m.group(1))
-        if not urls:
-            return html
-        unique_urls = []
-        seen = set()
-        for u in urls:
-            if u not in seen:
-                seen.add(u)
-                unique_urls.append(u)
-        async with httpx.AsyncClient(timeout=20.0) as client:
-            for u in unique_urls:
+        # Find static_design_images path
+        static_images_abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static_design_images'))
+        
+        # Pattern to find image src attributes
+        img_pattern = re.compile(r'<img[^>]+src=["\']/static_design_images/([^"\']+)["\']', re.IGNORECASE)
+        
+        def replace_image_path(match):
+            filename = match.group(1)
+            full_path = os.path.join(static_images_abs_path, filename)
+            
+            logger.info(f"[SCORM] Processing image: {filename} -> {full_path}")
+            
+            if os.path.exists(full_path):
                 try:
-                    r = await client.get(u)
-                    if r.status_code == 200 and r.content:
-                        ctype = r.headers.get('Content-Type') or mimetypes.guess_type(u)[0] or 'application/octet-stream'
-                        b64 = base64.b64encode(r.content).decode('ascii')
-                        data_uri = f"data:{ctype};base64,{b64}"
-                        # Replace all occurrences of this URL in src and url()
-                        html = html.replace(u, data_uri)
-                except Exception:
-                    # Ignore failures, keep original URL
-                    pass
+                    # Convert to data URI
+                    with open(full_path, 'rb') as f:
+                        image_data = f.read()
+                    
+                    # Determine MIME type
+                    mime_type = mimetypes.guess_type(full_path)[0] or 'application/octet-stream'
+                    
+                    # Create data URI
+                    b64_data = base64.b64encode(image_data).decode('ascii')
+                    data_uri = f"data:{mime_type};base64,{b64_data}"
+                    
+                    # Replace the src attribute
+                    return match.group(0).replace(f'/static_design_images/{filename}', data_uri)
+                except Exception as e:
+                    logger.warning(f"[SCORM] Failed to process image {filename}: {e}")
+            else:
+                logger.warning(f"[SCORM] Image not found: {full_path}")
+            
+            return match.group(0)  # Return original if processing fails
+        
+        # Replace all image paths
+        processed_html = img_pattern.sub(replace_image_path, html)
+        
+        # Also handle CSS background-image URLs
+        css_pattern = re.compile(r'url\(["\']/static_design_images/([^"\']+)["\']\)', re.IGNORECASE)
+        processed_html = css_pattern.sub(lambda m: f'url({_convert_image_to_data_uri(os.path.join(static_images_abs_path, m.group(1)))})', processed_html)
+        
+        return processed_html
+        
+    except Exception as e:
+        logger.error(f"[SCORM] Error processing image paths: {e}")
         return html
-    except Exception:
+
+def _convert_image_to_data_uri(image_path: str) -> str:
+    """Convert image file to data URI"""
+    try:
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as f:
+                image_data = f.read()
+            mime_type = mimetypes.guess_type(image_path)[0] or 'application/octet-stream'
+            b64_data = base64.b64encode(image_data).decode('ascii')
+            return f"data:{mime_type};base64,{b64_data}"
+    except Exception as e:
+        logger.warning(f"[SCORM] Failed to convert image to data URI: {e}")
+    return image_path
+    """Process image paths in HTML to convert relative paths to absolute paths or data URIs"""
+    try:
+        # Find static_design_images path
+        static_images_abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static_design_images'))
+        
+        # Pattern to find image src attributes
+        img_pattern = re.compile(r'<img[^>]+src=["\']/static_design_images/([^"\']+)["\']', re.IGNORECASE)
+        
+        def replace_image_path(match):
+            filename = match.group(1)
+            full_path = os.path.join(static_images_abs_path, filename)
+            
+            logger.info(f"[SCORM] Processing image: {filename} -> {full_path}")
+            
+            if os.path.exists(full_path):
+                try:
+                    # Convert to data URI
+                    with open(full_path, 'rb') as f:
+                        image_data = f.read()
+                    
+                    # Determine MIME type
+                    mime_type = mimetypes.guess_type(full_path)[0] or 'application/octet-stream'
+                    
+                    # Create data URI
+                    b64_data = base64.b64encode(image_data).decode('ascii')
+                    data_uri = f"data:{mime_type};base64,{b64_data}"
+                    
+                    # Replace the src attribute
+                    return match.group(0).replace(f'/static_design_images/{filename}', data_uri)
+                except Exception as e:
+                    logger.warning(f"[SCORM] Failed to process image {filename}: {e}")
+            else:
+                logger.warning(f"[SCORM] Image not found: {full_path}")
+            
+            return match.group(0)  # Return original if processing fails
+        
+        # Replace all image paths
+        processed_html = img_pattern.sub(replace_image_path, html)
+        
+        # Also handle CSS background-image URLs
+        css_pattern = re.compile(r'url\(["\']/static_design_images/([^"\']+)["\']\)', re.IGNORECASE)
+        processed_html = css_pattern.sub(lambda m: f'url({_convert_image_to_data_uri(os.path.join(static_images_abs_path, m.group(1)))})', processed_html)
+        
+        return processed_html
+        
+    except Exception as e:
+        logger.error(f"[SCORM] Error processing image paths: {e}")
         return html
+
+def _convert_image_to_data_uri(image_path: str) -> str:
+    """Convert image file to data URI"""
+    try:
+        if os.path.exists(image_path):
+            with open(image_path, 'rb') as f:
+                image_data = f.read()
+            mime_type = mimetypes.guess_type(image_path)[0] or 'application/octet-stream'
+            b64_data = base64.b64encode(image_data).decode('ascii')
+            return f"data:{mime_type};base64,{b64_data}"
+    except Exception as e:
+        logger.warning(f"[SCORM] Failed to convert image to data URI: {e}")
+    return image_path
 
 
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
-    title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
-    slides = []
     try:
-        if isinstance(content, dict):
-            slides = content.get('slides') or (content.get('details') or {}).get('slides') or []
-    except Exception:
-        slides = []
-    if not isinstance(slides, list):
-        slides = []
-
-    # Render each slide using the existing single_slide_pdf_template.html to HTML blocks, then stack in a scrollable page
-    rendered_slides: List[str] = []
-    template = None
-    try:
-        template = jinja_env.get_template("single_slide_pdf_template.html")
-    except Exception:
-        template = None
-
-    def render_single_slide(slide: Dict[str, Any]) -> str:
-        try:
-            safe_slide = json.loads(json.dumps(slide)) if isinstance(slide, dict) else {}
-            props = safe_slide.get('props') or {}
-            # Ensure basic defaults similar to pdf generator
-            for k, v in {'title':'', 'subtitle':'', 'content':'', 'bullets':[], 'steps':[], 'challenges':[], 'solutions':[], 'items':[], 'boxes':[], 'levels':[], 'events':[]}.items():
-                props.setdefault(k, v)
-            ctx = {
-                'slide': safe_slide,
-                'theme': (content.get('theme') if isinstance(content, dict) else None) or 'dark-purple',
-                'slide_height': 600,
-                'embedded_fonts_css': get_embedded_fonts_css()
-            }
-            if template:
-                return template.render(**ctx)
-        except Exception:
-            pass
-        stitle = props.get('title') or safe_slide.get('slideTitle') or 'Slide'
-        return f"<div class=\"fallback-slide\"><h2>{_xml_escape(stitle)}</h2></div>"
-
-    for s in slides:
-        if isinstance(s, dict):
-            rendered_slides.append(render_single_slide(s))
-
-    styles = """
+        template = jinja_env.get_template('single_slide_pdf_template.html')
+        slides = content.get('slides', []) if isinstance(content, dict) else []
+        
+        if not slides:
+            return _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')
+        
+        rendered_slides = []
+        for slide in slides:
+            slide_html = template.render(slide=slide, theme='light')
+            rendered_slides.append(slide_html)
+        
+        # CSS for scrollable slide deck
+        styles = """
 <style>
-  .slide-wrapper{max-width:1174px;margin:0 auto;}
-  .slide-page{width:1174px;min-height:600px;background:#fff;margin:20px 0;padding:40px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
-  body{background:#f3f4f6}
+  body { margin: 0; padding: 20px; background: #f5f5f5; }
+  .slide-wrapper { max-width: 900px; margin: 0 auto; }
+  .slide-page { 
+    background: white; 
+    margin-bottom: 30px; 
+    padding: 40px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    page-break-after: always;
+  }
+  .slide-page:last-child { margin-bottom: 0; }
 </style>
 """
-    body = "<div class=\"slide-wrapper\">" + "".join([f"<div class=\"slide-page\">{s}</div>" for s in rendered_slides]) + "</div>"
-    # Inline remote images to ensure offline availability
-    # Note: This function is awaited by caller where needed
-    return _wrap_html_as_sco(title, styles + body)
+        title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
+        body = "<div class=\"slide-wrapper\">" + "".join([f"<div class=\"slide-page\">{s}</div>" for s in rendered_slides]) + "</div>"
+        
+        return _wrap_html_as_sco(title, styles + body)
+        
+    except Exception as e:
+        logger.error(f"[SCORM] Error rendering slide deck: {e}")
+        title = product_row.get('project_name') or 'Presentation'
+        return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>Error rendering presentation content.</p>")
 
 
 def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
-    title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Quiz'
-    # Extract questions from stored content
-    raw_questions = []
-    try:
-        if isinstance(content, dict):
-            if isinstance(content.get('questions'), list):
-                raw_questions = content.get('questions')
-            elif 'details' in content and isinstance(content['details'], dict) and isinstance(content['details'].get('questions'), list):
-                raw_questions = content['details']['questions']
-    except Exception:
-        raw_questions = []
-
-    # Normalize to supported types: multiple-choice, multi-select, matching, sorting, open-answer
-    questions = []
-    if isinstance(raw_questions, list):
-        for q in raw_questions:
-            if not isinstance(q, dict):
-                continue
-            qt = (q.get('question_type') or q.get('type') or '').strip().lower()
-            if qt in ('multiple-choice', 'multiple_choice', 'single-choice', 'single_choice'):
-                questions.append({
-                    'type': 'multiple-choice',
-                    'text': q.get('question_text') or q.get('text') or '',
-                    'options': q.get('options') or [],
-                    'correct_option_id': q.get('correct_option_id')
-                })
-            elif qt in ('multi-select', 'multi_select', 'multiple-select'):
-                questions.append({
-                    'type': 'multi-select',
-                    'text': q.get('question_text') or q.get('text') or '',
-                    'options': q.get('options') or [],
-                    'correct_option_ids': q.get('correct_option_ids') or []
-                })
-            elif qt in ('matching',):
-                questions.append({
-                    'type': 'matching',
-                    'text': q.get('question_text') or q.get('text') or '',
-                    'prompts': q.get('prompts') or q.get('left') or [],
-                    'options': q.get('options') or q.get('right') or [],
-                    'correct_matches': q.get('correct_matches') or {}
-                })
-            elif qt in ('sorting', 'order', 'ranking'):
-                questions.append({
-                    'type': 'sorting',
-                    'text': q.get('question_text') or q.get('text') or '',
-                    'items_to_sort': q.get('items_to_sort') or q.get('items') or [],
-                    'correct_order': q.get('correct_order') or []
-                })
-            elif qt in ('open-answer', 'open_answer', 'free-text', 'free_text', 'short-answer'):
-                questions.append({
-                    'type': 'open-answer',
-                    'text': q.get('question_text') or q.get('text') or '',
-                    'acceptable_answers': q.get('acceptable_answers') or []
-                })
-    # Fallback if nothing recognized
+    """Render interactive quiz HTML matching the exact PDF template design"""
+    quiz_data = content if isinstance(content, dict) else {}
+    questions = quiz_data.get('questions', [])
+    quiz_title = quiz_data.get('quizTitle', 'Quiz')
+    
     if not questions:
-        questions = [{
-            'type': 'multiple-choice',
-            'text': 'Sample question: 2 + 2 = ?',
-            'options': [ {'id':'A','text':'3'}, {'id':'B','text':'4'} ],
-            'correct_option_id': 'B'
-        }]
-
-    # Render HTML for all supported types
-    def esc(s):
-        try: return _xml_escape(s)
-        except: return ''
-
-    blocks: List[str] = []
-    answer_keys: List[Dict[str, Any]] = []
-
-    for qi, q in enumerate(questions):
-        qtype = q.get('type')
-        qtext = q.get('text') or f"Question {qi+1}"
-        if qtype == 'multiple-choice':
-            opts = q.get('options') or []
-            ohtml = []
-            for o in opts:
-                oid = str(o.get('id') or '')
-                olabel = o.get('text') or oid
-                ohtml.append(f"<label><input type=\"radio\" name=\"q{qi}\" value=\"{esc(oid)}\"/> {esc(olabel)}</label>")
-            blocks.append(f"<div class=\"question\" data-type=\"mc\"><div class=\"qtext\">{esc(qtext)}</div>{''.join(ohtml)}</div>")
-            answer_keys.append({'type':'mc','correct': str(q.get('correct_option_id') or '')})
-        elif qtype == 'multi-select':
-            opts = q.get('options') or []
-            ohtml = []
-            for o in opts:
-                oid = str(o.get('id') or '')
-                olabel = o.get('text') or oid
-                ohtml.append(f"<label><input type=\"checkbox\" name=\"q{qi}\" value=\"{esc(oid)}\"/> {esc(olabel)}</label>")
-            blocks.append(f"<div class=\"question\" data-type=\"ms\"><div class=\"qtext\">{esc(qtext)}</div>{''.join(ohtml)}</div>")
-            answer_keys.append({'type':'ms','correct': [str(x) for x in (q.get('correct_option_ids') or [])]})
-        elif qtype == 'matching':
-            prompts = q.get('prompts') or []
-            options = q.get('options') or []
-            # Renders as select per prompt
-            prom_html = []
-            for p in prompts:
-                pid = str(p.get('id') or '')
-                ptxt = p.get('text') or pid
-                sel_opts = [f"<option value=\"\">--</option>"]
-                for o in options:
-                    oid = str(o.get('id') or '')
-                    otxt = o.get('text') or oid
-                    sel_opts.append(f"<option value=\"{esc(oid)}\">{esc(otxt)}</option>")
-                prom_html.append(f"<div class=\"match-row\"><span class=\"prompt\">{esc(ptxt)}</span> <select name=\"q{qi}-{esc(pid)}\">{''.join(sel_opts)}</select></div>")
-            blocks.append(f"<div class=\"question\" data-type=\"mt\"><div class=\"qtext\">{esc(qtext)}</div>{''.join(prom_html)}</div>")
-            answer_keys.append({'type':'mt','correct': q.get('correct_matches') or {}})
-        elif qtype == 'sorting':
-            items = q.get('items_to_sort') or []
-            li_html = []
-            for i in items:
-                iid = str(i.get('id') or '')
-                itxt = i.get('text') or iid
-                li_html.append(f"<li data-id=\"{esc(iid)}\">{esc(itxt)} <button type=\"button\" class=\"up\">↑</button> <button type=\"button\" class=\"down\">↓</button></li>")
-            blocks.append(f"<div class=\"question\" data-type=\"so\"><div class=\"qtext\">{esc(qtext)}</div><ul class=\"sortable\">{''.join(li_html)}</ul></div>")
-            answer_keys.append({'type':'so','correct': [str(x) for x in (q.get('correct_order') or [])]})
-        elif qtype == 'open-answer':
-            blocks.append(f"<div class=\"question\" data-type=\"oa\"><div class=\"qtext\">{esc(qtext)}</div><input type=\"text\" name=\"q{qi}\" class=\"oa-input\"/></div>")
-            answer_keys.append({'type':'oa','correct': [str(x).strip().lower() for x in (q.get('acceptable_answers') or [])]})
-        else:
-            # Unknown type → treat as open-answer no scoring
-            blocks.append(f"<div class=\"question\"><div class=\"qtext\">{esc(qtext)}</div></div>")
-            answer_keys.append({'type':'na'})
-
-    keys_json = json.dumps(answer_keys)
-    styles = """
+        return _wrap_html_as_sco('Quiz', '<h1>No questions available</h1>')
+    
+    # Extract parent project info
+    parent_project_name = product_row.get('parent_project_name') or product_row.get('parentProjectName')
+    lesson_number = product_row.get('lesson_number') or product_row.get('lessonNumber')
+    
+    # Build the HTML structure exactly matching the PDF template
+    html_parts = []
+    
+    # Add the exact CSS from the PDF template
+    html_parts.append("""
 <style>
-  :root{
-    --bg:#ffffff;
-    --card:#ffffff;
-    --muted:#4B4B4B;
-    --text:#111111; /* black-ish */
-    --accent:#FF1414; /* brand red */
-    --border:#e5e7eb;
-    --pill:#2563eb; /* blue */
-  }
-  body{ background:var(--bg); color:var(--text); }
-  .quiz-wrap{ max-width:900px; margin:0 auto; padding:24px; }
-  .quiz-header{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-  .quiz-title{ font-size:24px; font-weight:800; }
-  .question{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin:16px 0; box-shadow:0 2px 10px rgba(0,0,0,0.06) }
-  .qtext{ font-weight:700; margin-bottom:10px; font-size:16px; }
-  .opts{ margin-top:6px; }
-  .opts label{ display:flex; align-items:center; gap:10px; padding:10px 12px; margin:6px 0; border:1px solid var(--border); border-radius:10px; background:#ffffff; transition: all .15s ease-in-out; }
-  .opts label:hover{ border-color: var(--accent); box-shadow:0 0 0 2px rgba(255,20,20,0.12); }
-  .opts input{ accent-color: var(--accent); width:16px; height:16px; }
-  .match-row{ display:flex; gap:12px; align-items:center; margin:6px 0; }
-  .match-row .prompt{ min-width:180px; color:var(--muted); font-weight:600; }
-  select{ background:#ffffff; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
-  .sortable{ list-style:none; padding-left:0; }
-  .sortable li{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; background:#ffffff; }
-  .sortable li button{ border:1px solid var(--border); background:#ffffff; color:var(--muted); border-radius:8px; padding:6px 10px; }
-  .oa-input{ width:100%; border:1px solid var(--border); background:#ffffff; color:var(--text); border-radius:10px; padding:10px 12px; }
-  .submit{ margin-top:18px; width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--accent); color:#fff; background:linear-gradient(135deg, var(--accent), #e11d48); font-weight:800; letter-spacing:0.3px; box-shadow:0 8px 18px rgba(225,29,72,0.12); }
-  .submit:hover{ filter:brightness(1.05); }
-  .result{ margin-top:10px; font-weight:800; color:var(--text); }
-  .badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; background:#f8fafc; border:1px solid var(--border); color:var(--muted); font-size:12px; }
-  .badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body { 
+        font-family: 'Inter', Arial, sans-serif; 
+        font-size: 10pt; 
+        line-height: 1.6;
+        color: #4B4B4B;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+    }
+    .quiz-container { 
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .quiz-title-section {
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+    .course-title {
+        text-transform: uppercase;
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: black;
+        margin: 0;
+    }
+    .course-label {
+        color: #2563eb;
+        font-weight: 700;
+    }
+    .quiz-title { 
+        font-size: 1.875rem; 
+        line-height: 2.25rem;
+        font-weight: 700; 
+        margin-top: 5px;
+        margin-bottom: 0;
+        text-transform: none;
+        color: #1a1a1a;
+    }
+    .lesson-label {
+        color: #2563eb;
+        font-weight: 700;
+    }
+    
+    .question-block { 
+        margin-bottom: 25px; 
+        page-break-inside: avoid;
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #ffffff;
+        transition: box-shadow 0.3s;
+    }
+    .question-block:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .question-header {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+    .question-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #2563eb;
+        color: #fff;
+        font-weight: 700;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        font-size: 12pt;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    .question-text { 
+        font-weight: 600; 
+        color: #2c3e50;
+        font-size: 12pt;
+        flex-grow: 1;
+    }
+
+    .options-list { 
+        padding-left: 45px; 
+        margin: 0;
+        list-style-type: none;
+    }
+    .options-list li {
+        margin-bottom: 10px;
+        padding-left: 25px;
+        position: relative;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: background-color 0.2s;
+    }
+    .options-list li:hover {
+        background-color: #f8f9fa;
+    }
+    .options-list li:before {
+        content: attr(data-id) ".";
+        position: absolute;
+        left: 0;
+        font-weight: 600;
+        color: #34495e;
+    }
+    .options-list li.selected {
+        background-color: #e3f2fd;
+        border: 1px solid #2563eb;
+    }
+
+    .matching-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    .matching-table td {
+        padding: 10px;
+        vertical-align: top;
+        border: 1px solid #eee;
+    }
+    .prompts-col {
+        width: 50%;
+        padding-right: 10px;
+    }
+    .options-col {
+        width: 50%;
+        padding-left: 10px;
+    }
+    .matching-table ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .matching-table li {
+        margin-bottom: 5px;
+    }
+
+    .sorting-list {
+        list-style-type: none;
+        padding-left: 45px;
+    }
+    .sorting-list li {
+        margin-bottom: 8px;
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: move;
+    }
+
+    .open-answer-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        font-size: 12pt;
+        margin-top: 10px;
+    }
+
+    .submit-button {
+        margin-top: 30px;
+        padding: 12px 24px;
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 12pt;
+    }
+    .submit-button:hover {
+        background-color: #1d4ed8;
+    }
+
+    .result-section {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        display: none;
+    }
+    .result-section.show {
+        display: block;
+    }
+    .result-section.pass {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .result-section.fail {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .match-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    .match-prompt {
+        flex: 1;
+        font-weight: 600;
+        margin-right: 15px;
+    }
+    .match-select {
+        padding: 6px 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background: white;
+    }
+
+    .explanation {
+        margin-top: 12px;
+        padding: 12px;
+        background-color: #fffbe6;
+        border-left: 4px solid #f1c40f;
+        border-radius: 4px;
+        font-style: italic;
+        display: none;
+    }
+    .explanation.show {
+        display: block;
+    }
+    .explanation strong {
+        color: #c29d0b;
+    }
 </style>
-"""
-    controller = """
+""")
+
+    # Quiz container start
+    html_parts.append('<div class="quiz-container">')
+    
+    # Title section - exact match from PDF template
+    html_parts.append('<div class="quiz-title-section">')
+    if parent_project_name:
+        html_parts.append(f'<h2 class="course-title"><span class="course-label">Course:</span> {parent_project_name}</h2>')
+        title_html = '<h1 class="quiz-title">'
+        if lesson_number:
+            title_html += f'<span class="lesson-label">Lesson №{lesson_number}:</span> '
+        title_html += f'{quiz_title}</h1>'
+        html_parts.append(title_html)
+    else:
+        html_parts.append(f'<h1 class="quiz-title">{quiz_title}</h1>')
+    html_parts.append('</div>')
+    
+    # Questions
+    for i, question in enumerate(questions):
+        question_num = i + 1
+        question_type = question.get('question_type', '')
+        question_text = question.get('question_text', '')
+        
+        html_parts.append('<div class="question-block">')
+        html_parts.append('<div class="question-header">')
+        html_parts.append(f'<span class="question-number">{question_num}</span>')
+        html_parts.append(f'<div class="question-text">{question_text}</div>')
+        html_parts.append('</div>')
+        
+        # Render question content based on type
+        if question_type in ['multiple-choice', 'multi-select']:
+            html_parts.append('<ul class="options-list">')
+            options = question.get('options', [])
+            for option in options:
+                option_id = option.get('id', '')
+                option_text = option.get('text', '')
+                input_type = 'radio' if question_type == 'multiple-choice' else 'checkbox'
+                html_parts.append(f'<li data-id="{option_id}" onclick="selectOption({question_num}, \'{option_id}\', \'{question_type}\')">{option_text}</li>')
+            html_parts.append('</ul>')
+            
+        elif question_type == 'matching':
+            prompts = question.get('prompts', [])
+            options = question.get('options', [])
+            
+            html_parts.append('<div class="matching-section">')
+            html_parts.append('<h4 style="font-weight: 600; margin-bottom: 10px;">Match the items:</h4>')
+            for prompt in prompts:
+                prompt_id = prompt.get('id', '')
+                prompt_text = prompt.get('text', '')
+                html_parts.append('<div class="match-row">')
+                html_parts.append(f'<div class="match-prompt">{prompt_id}. {prompt_text}</div>')
+                html_parts.append(f'<select class="match-select" id="match_{question_num}_{prompt_id}" onchange="updateMatch({question_num}, \'{prompt_id}\', this.value)">')
+                html_parts.append('<option value="">Select...</option>')
+                for option in options:
+                    option_id = option.get('id', '')
+                    option_text = option.get('text', '')
+                    html_parts.append(f'<option value="{option_id}">{option_id}. {option_text}</option>')
+                html_parts.append('</select>')
+                html_parts.append('</div>')
+            html_parts.append('</div>')
+            
+        elif question_type == 'sorting':
+            items = question.get('items_to_sort', [])
+            # Shuffle items for display
+            import random
+            shuffled_items = items.copy()
+            random.shuffle(shuffled_items)
+            
+            html_parts.append('<div class="sorting-section">')
+            html_parts.append('<h4 style="font-weight: 600; margin-bottom: 10px;">Drag to sort in correct order:</h4>')
+            html_parts.append(f'<ul class="sorting-list" id="sortable_{question_num}">')
+            for item in shuffled_items:
+                item_id = item.get('id', '')
+                item_text = item.get('text', '')
+                html_parts.append(f'<li data-id="{item_id}">{item_text}</li>')
+            html_parts.append('</ul>')
+            html_parts.append('</div>')
+            
+        elif question_type == 'open-answer':
+            html_parts.append(f'<textarea class="open-answer-input" id="open_{question_num}" placeholder="Enter your answer here..."></textarea>')
+        
+        # Add explanation div (hidden initially)
+        explanation = question.get('explanation', '')
+        if explanation:
+            html_parts.append(f'<div class="explanation" id="explanation_{question_num}"><strong>Explanation:</strong> {explanation}</div>')
+        
+        html_parts.append('</div>')  # Close question-block
+    
+    # Submit button and result section
+    html_parts.append('<button class="submit-button" onclick="submitQuiz()">Submit Quiz</button>')
+    html_parts.append('<div class="result-section" id="result-section"></div>')
+    html_parts.append('</div>')  # Close quiz-container
+    
+    # Add JavaScript for interactivity
+    js_code = f"""
 <script>
-(function(){
-  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-  function byName(n){ return Array.prototype.slice.call(document.getElementsByName(n)); }
-  function getScore(){
-    var keys = JSON.parse(document.getElementById('scorm-quiz-keys').textContent || '[]');
-    var correct = 0, total = keys.length;
-    qsa('.question').forEach(function(qEl, idx){
-      var k = keys[idx] || {}; var t = k.type;
-      if (t === 'mc'){
-        var radios = byName('q'+idx);
-        var sel = radios.find(function(r){ return r.checked; });
-        if (sel && String(sel.value)===String(k.correct)) correct++;
-      } else if (t === 'ms'){
-        var checks = byName('q'+idx).filter(function(c){ return c.checked; }).map(function(c){ return String(c.value); });
-        var target = (k.correct||[]).map(String).sort().join('|');
-        var got = checks.slice().sort().join('|');
-        if (target && target===got) correct++;
-      } else if (t === 'mt'){
-        var allMatch = true;
-        var corr = k.correct || {};
-        Object.keys(corr).forEach(function(pid){
-          var sel = document.querySelector('select[name="q'+idx+'-'+pid+'"]');
-          if (!sel || String(sel.value)!==String(corr[pid])) allMatch=false;
-        });
-        if (allMatch) correct++;
-      } else if (t === 'so'){
-        var li = qEl.querySelectorAll('.sortable li');
-        var order = Array.prototype.map.call(li, function(el){ return String(el.getAttribute('data-id')); });
-        var target = (k.correct||[]).map(String);
-        var ok = target.length===order.length && target.every(function(v,i){ return v===order[i]; });
-        if (ok) correct++;
-      } else if (t === 'oa'){
-        var inp = qEl.querySelector('.oa-input');
-        var val = (inp && inp.value || '').trim().toLowerCase();
-        var acc = (k.correct||[]);
-        if (val && acc.indexOf(val)>=0) correct++;
-      }
-    });
-    return {correct: correct, total: total};
-  }
-  function commitToSCORM(score){
-    try {
-      if (window.API_1484_11){
-        var scaled = score.total? (score.correct/score.total) : 0;
-        API_1484_11.SetValue('cmi.score.scaled', String(scaled));
-        API_1484_11.SetValue('cmi.score.raw', String(score.correct));
-        API_1484_11.SetValue('cmi.score.max', String(score.total));
-        API_1484_11.SetValue('cmi.success_status', scaled >= 0.7 ? 'passed' : 'failed');
-        API_1484_11.SetValue('cmi.completion_status', 'completed');
-        API_1484_11.Commit('');
-      }
-    } catch(e){}
-  }
-  window.submitQuiz = function(){
-    var s = getScore();
-    commitToSCORM(s);
-    var rs = document.getElementById('quiz-result');
-    if (rs) rs.textContent = 'Score: '+s.correct+' / '+s.total;
-  };
-  document.addEventListener('click', function(e){
-    if (e.target && e.target.classList.contains('up')){
-      var li = e.target.closest('li'); var prev = li && li.previousElementSibling;
-      if (li && prev) li.parentNode.insertBefore(li, prev);
-    }
-    if (e.target && e.target.classList.contains('down')){
-      var li = e.target.closest('li');
-      if (li && li.nextElementSibling) li.parentNode.insertBefore(li.nextElementSibling, li);
-    }
-  });
-})();
+    let userAnswers = {{}};
+    let questions = {json.dumps(questions)};
+    let isSubmitted = false;
+    
+    function selectOption(questionNum, optionId, questionType) {{
+        if (isSubmitted) return;
+        
+        const questionIndex = questionNum - 1;
+        const listItems = document.querySelectorAll(`.question-block:nth-child(${{questionNum + 1}}) .options-list li`);
+        
+        if (questionType === 'multiple-choice') {{
+            // Clear previous selections
+            listItems.forEach(li => li.classList.remove('selected'));
+            // Select current
+            event.target.classList.add('selected');
+            userAnswers[questionIndex] = optionId;
+        }} else if (questionType === 'multi-select') {{
+            if (!userAnswers[questionIndex]) userAnswers[questionIndex] = [];
+            const currentAnswers = userAnswers[questionIndex];
+            
+            if (currentAnswers.includes(optionId)) {{
+                // Deselect
+                currentAnswers.splice(currentAnswers.indexOf(optionId), 1);
+                event.target.classList.remove('selected');
+            }} else {{
+                // Select
+                currentAnswers.push(optionId);
+                event.target.classList.add('selected');
+            }}
+        }}
+        
+        // Update SCORM data
+        if (typeof LMSSetValue !== 'undefined') {{
+            LMSSetValue('cmi.interactions.' + questionIndex + '.student_response', JSON.stringify(userAnswers[questionIndex]));
+        }}
+    }}
+    
+    function updateMatch(questionNum, promptId, optionId) {{
+        if (isSubmitted) return;
+        
+        const questionIndex = questionNum - 1;
+        if (!userAnswers[questionIndex]) userAnswers[questionIndex] = {{}};
+        userAnswers[questionIndex][promptId] = optionId;
+        
+        // Update SCORM data
+        if (typeof LMSSetValue !== 'undefined') {{
+            LMSSetValue('cmi.interactions.' + questionIndex + '.student_response', JSON.stringify(userAnswers[questionIndex]));
+        }}
+    }}
+    
+    function submitQuiz() {{
+        if (isSubmitted) return;
+        isSubmitted = true;
+        
+        // Calculate score
+        let correct = 0;
+        let total = questions.length;
+        
+        questions.forEach((question, index) => {{
+            const userAnswer = userAnswers[index];
+            let isCorrect = false;
+            
+            if (question.question_type === 'multiple-choice') {{
+                isCorrect = userAnswer === question.correct_option_id;
+            }} else if (question.question_type === 'multi-select') {{
+                const correctIds = Array.isArray(question.correct_option_ids) 
+                    ? question.correct_option_ids 
+                    : question.correct_option_ids.split(',').filter(id => id.trim());
+                const userIds = userAnswer || [];
+                isCorrect = correctIds.every(id => userIds.includes(id)) && 
+                           userIds.every(id => correctIds.includes(id));
+            }} else if (question.question_type === 'matching') {{
+                const correctMatches = question.correct_matches;
+                isCorrect = Object.keys(correctMatches).every(promptId => 
+                    userAnswer && userAnswer[promptId] === correctMatches[promptId]
+                );
+            }} else if (question.question_type === 'sorting') {{
+                const correctOrder = question.correct_order;
+                const userOrder = userAnswer || [];
+                isCorrect = correctOrder.every((itemId, i) => userOrder[i] === itemId);
+            }} else if (question.question_type === 'open-answer') {{
+                const acceptableAnswers = question.acceptable_answers || [];
+                isCorrect = acceptableAnswers.some(answer => 
+                    answer.toLowerCase() === (userAnswer || '').toLowerCase()
+                );
+            }}
+            
+            if (isCorrect) correct++;
+            
+            // Show explanation if available
+            const explanationDiv = document.getElementById('explanation_' + (index + 1));
+            if (explanationDiv) {{
+                explanationDiv.classList.add('show');
+            }}
+        }});
+        
+        const score = Math.round((correct / total) * 100);
+        const passed = score >= 70;
+        
+        // Show results
+        const resultSection = document.getElementById('result-section');
+        resultSection.innerHTML = `
+            <h3>Quiz Results</h3>
+            <p>Score: ${{score}}% (${{correct}}/${{total}} correct)</p>
+            <p>Status: ${{passed ? 'PASSED' : 'FAILED'}}</p>
+        `;
+        resultSection.className = 'result-section show ' + (passed ? 'pass' : 'fail');
+        
+        // Update SCORM data
+        if (typeof LMSSetValue !== 'undefined') {{
+            LMSSetValue('cmi.score.scaled', (score / 100).toString());
+            LMSSetValue('cmi.score.raw', score.toString());
+            LMSSetValue('cmi.score.max', '100');
+            LMSSetValue('cmi.success_status', passed ? 'passed' : 'failed');
+            LMSSetValue('cmi.completion_status', 'completed');
+            LMSCommit();
+        }}
+    }}
+    
+    // Initialize SCORM
+    if (typeof LMSInitialize !== 'undefined') {{
+        LMSInitialize();
+    }}
 </script>
 """
-    header = f"<div class=\"quiz-header\"><span class=\"badge\"><span class=\"dot\"></span> Interactive Quiz</span><div class=\"quiz-title\">{esc(title)}</div></div>"
-    body = f"<div class=\"quiz-wrap\">{header}{''.join(blocks)}<button class=\"submit\" onclick=\"submitQuiz()\">Submit Answers</button><div id=\"quiz-result\" class=\"result\"></div></div>"
-    hidden_keys = f"<script id=\"scorm-quiz-keys\" type=\"application/json\">{keys_json}</script>"
-    return _wrap_html_as_sco(title, styles + body + hidden_keys + controller)
+    
+    final_html = ''.join(html_parts) + js_code
+    title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Quiz'
+    return _wrap_html_as_sco(title, final_html)
 
 
 def _manifest_header(course_identifier: str, course_title: str) -> str:
@@ -920,6 +1240,8 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     body_html = _render_slide_deck_html(matched, content if isinstance(content, dict) else {})
+                    # Process image paths before writing
+                    body_html = await _process_image_paths_in_html(body_html)
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                 else:
@@ -929,9 +1251,6 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 sco_dir = f"sco_{product_id}"
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{product_id}"
-                # For presentations, inline remote images before writing
-                if any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    body_html = await _inline_remote_images(body_html)
                 z.writestr(href, body_html)
                 sco_entries.append((res_id, href))
 
