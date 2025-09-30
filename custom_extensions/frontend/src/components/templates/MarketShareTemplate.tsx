@@ -339,28 +339,32 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     lineHeight: '1'
   };
 
-  // Chart styles - exact match to photo
+  // Chart styles - exact match to photo with perfect alignment
   const chartContainerStyles: React.CSSProperties = {
     width: '100%',
-    maxWidth: '600px',
-    height: '400px',
+    maxWidth: '700px',
+    height: '450px',
     position: 'relative',
     display: 'flex',
-    alignItems: 'end',
-    justifyContent: 'space-between',
-    padding: '50px 20px 30px 80px'
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: '20px',
+    paddingLeft: '80px',
+    paddingRight: '40px',
+    paddingBottom: '60px',
+    paddingTop: '50px'
   };
 
   const barStyles = (height: number, gradientStart: string, gradientEnd: string): React.CSSProperties => ({
-    width: '100px', // Wider bars as in photo
-    height: `${height * 3}px`, // Height multiplier to match photo proportions
-    background: `linear-gradient(to top, ${gradientStart}, ${gradientEnd})`,
-    borderRadius: '6px 6px 0 0',
+    width: '90px',
+    height: `${(height / 100) * 350}px`, // Calculate exact height based on 350px max height
+    background: `linear-gradient(to bottom, ${gradientStart}, ${gradientEnd})`,
+    borderRadius: '8px 8px 0 0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    boxShadow: '0 3px 6px rgba(0,0,0,0.15)'
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
   });
 
   const barTextStyles: React.CSSProperties = {
@@ -380,18 +384,22 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const gridLineStyles: React.CSSProperties = {
     position: 'absolute',
-    width: '100%',
+    left: '0',
+    right: '0',
     height: '1px',
-    backgroundColor: '#D3D3D3',
-    opacity: 0.7
+    backgroundColor: '#E0E0E0',
+    opacity: 0.8,
+    zIndex: 0
   };
 
   const yAxisLabelStyles: React.CSSProperties = {
     position: 'absolute',
-    left: '-60px',
-    fontSize: '16px',
-    color: '#666666',
-    fontFamily: 'Arial, sans-serif'
+    left: '10px',
+    fontSize: '14px',
+    color: '#999999',
+    fontFamily: 'Arial, sans-serif',
+    fontWeight: '500',
+    transform: 'translateY(-50%)'
   };
 
   return (
@@ -555,81 +563,131 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
           ref={chartRef}
           data-moveable-element={`${slideId}-chart`}
           data-draggable="true"
-          style={chartContainerStyles}
+          style={{
+            ...chartContainerStyles,
+            position: 'relative'
+          }}
         >
-          {/* Y-axis grid lines and labels */}
-          {[0, 20, 40, 60, 80, 100].map((value) => (
-            <div key={value} style={{
-              ...gridLineStyles,
-              top: `${100 - value}%`
-            }} />
-          ))}
-          
-          {[0, 20, 40, 60, 80, 100].map((value) => (
-            <div key={value} style={{
-              ...yAxisLabelStyles,
-              top: `${100 - value}%`
-            }}>
-              {value}
-            </div>
-          ))}
+          {/* Grid lines container */}
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            left: '80px',
+            right: '0',
+            bottom: '60px',
+            pointerEvents: 'none'
+          }}>
+            {/* Y-axis labels and grid lines */}
+            {[100, 80, 60, 40, 20, 0].map((value) => {
+              const topPosition = ((100 - value) / 100) * 100;
+              return (
+                <div key={value} style={{
+                  position: 'absolute',
+                  top: `${topPosition}%`,
+                  left: '0',
+                  right: '0',
+                  height: '1px',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  {/* Y-axis label */}
+                  <div style={{
+                    position: 'absolute',
+                    left: '-70px',
+                    fontSize: '14px',
+                    color: '#999999',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: '500',
+                    transform: 'translateY(-50%)'
+                  }}>
+                    {value}
+                  </div>
+                  {/* Grid line */}
+                  <div style={{
+                    width: '100%',
+                    height: '1px',
+                    backgroundColor: '#E0E0E0',
+                    opacity: 0.6
+                  }} />
+                </div>
+              );
+            })}
+          </div>
 
           {/* Chart bars */}
-          {chartData.map((item, index) => (
-            <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {/* Bar */}
-              <div style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}>
-                <span style={barTextStyles}>
-                  {String(index + 1).padStart(2, '0')}
-                </span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-evenly',
+            gap: '20px',
+            height: '100%',
+            width: '100%',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            {chartData.map((item, index) => (
+              <div key={index} style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                height: '100%',
+                justifyContent: 'flex-end',
+                paddingBottom: '60px'
+              }}>
+                {/* Bar */}
+                <div style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}>
+                  <span style={barTextStyles}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                </div>
+                
+                {/* Year label */}
+                <div style={{ position: 'absolute', bottom: '20px' }}>
+                  {isEditable && editingYear === index ? (
+                    <InlineEditor
+                      initialValue={item.label}
+                      onSave={(value) => handleYearSave(index, value)}
+                      onCancel={handleYearCancel}
+                      multiline={false}
+                      placeholder="Enter year..."
+                      className="inline-editor-year"
+                      style={{
+                        ...yearLabelStyles,
+                        padding: '0',
+                        border: 'none',
+                        outline: 'none',
+                        resize: 'none',
+                        overflow: 'hidden',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        boxSizing: 'border-box',
+                        display: 'block',
+                        width: '90px',
+                        textAlign: 'center'
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={yearLabelStyles}
+                      onClick={(e) => {
+                        if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          return;
+                        }
+                        if (isEditable) {
+                          setEditingYear(index);
+                        }
+                      }}
+                      className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                    >
+                      {item.label}
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              {/* Year label */}
-              <div>
-                {isEditable && editingYear === index ? (
-                  <InlineEditor
-                    initialValue={item.label}
-                    onSave={(value) => handleYearSave(index, value)}
-                    onCancel={handleYearCancel}
-                    multiline={false}
-                    placeholder="Enter year..."
-                    className="inline-editor-year"
-                    style={{
-                      ...yearLabelStyles,
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      width: '100px',
-                      textAlign: 'center'
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={yearLabelStyles}
-                    onClick={(e) => {
-                      if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        setEditingYear(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {item.label}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
