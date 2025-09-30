@@ -133,6 +133,13 @@ function RichTextEditor({
     return tempDiv.textContent || tempDiv.innerText || '';
   };
 
+  // Helper function to remove fontWeight and fontStyle from base styles
+  // This prevents conflicts with our dynamic formatting
+  const getCleanStyles = (baseStyles: React.CSSProperties): React.CSSProperties => {
+    const { fontWeight, fontStyle, ...cleanStyles } = baseStyles;
+    return cleanStyles;
+  };
+
   const [value, setValue] = useState(htmlToPlainText(initialValue));
   const [formattedValue, setFormattedValue] = useState(initialValue);
   const [isBoldActive, setIsBoldActive] = useState(false);
@@ -225,8 +232,8 @@ function RichTextEditor({
           onBlur={handleBlur}
           placeholder={placeholder}
           style={{
-            ...style,
-            // Only override browser defaults, preserve all passed styles
+            ...getCleanStyles(style),
+            // Only override browser defaults, preserve all passed styles (except fontWeight/fontStyle)
             background: 'transparent',
             border: '1px solid #e5e7eb',
             borderRadius: '4px',
@@ -241,6 +248,7 @@ function RichTextEditor({
             boxSizing: 'border-box',
             display: 'block',
             padding: '8px',
+            // Dynamic formatting controlled by state - this is the key fix!
             fontWeight: isBoldActive ? 'bold' : 'normal',
             fontStyle: isItalicActive ? 'italic' : 'normal'
           }}
@@ -268,8 +276,8 @@ function RichTextEditor({
         onBlur={handleBlur}
         placeholder={placeholder}
         style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
+          ...getCleanStyles(style),
+          // Only override browser defaults, preserve all passed styles (except fontWeight/fontStyle)
           background: 'transparent',
           border: '1px solid #e5e7eb',
           borderRadius: '4px',
@@ -282,6 +290,7 @@ function RichTextEditor({
           display: 'block',
           lineHeight: '1.2',
           padding: '8px',
+          // Dynamic formatting controlled by state - this is the key fix!
           fontWeight: isBoldActive ? 'bold' : 'normal',
           fontStyle: isItalicActive ? 'italic' : 'normal'
         }}
