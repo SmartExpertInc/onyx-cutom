@@ -99,9 +99,24 @@ export default function AiAuditQuestionnaire() {
               setGenerationDone(true);
               setLoading(false);
               return; // Avoid further processing in this tick
+            } else {
+              console.log('ℹ️ [FRONTEND DATA FLOW] Landing page done message detected without result id; redirecting to audits tab as fallback');
+              setFinalRedirectUrl('/projects?tab=audits');
+              setGenerationDone(true);
+              setLoading(false);
+              return;
             }
           }
           
+          // Hard fallback: if enough progress messages accumulated, redirect regardless of result
+          if (!data.result && data.messages && data.messages.length >= 10) {
+            console.log('⚠️ [FRONTEND DATA FLOW] Reached 10+ progress messages without result; redirecting to audits tab');
+            setFinalRedirectUrl('/projects?tab=audits');
+            setGenerationDone(true);
+            setLoading(false);
+            return;
+          }
+
           if (data.result && (data.result.folderId || data.result.id)) {
             console.log(`✅ [FRONTEND DATA FLOW] Generation result received:`, data.result)
             setGenerationDone(true);
@@ -290,10 +305,10 @@ export default function AiAuditQuestionnaire() {
       
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-4">
         {/* Back button */}
-        <Link
-          href="/create"
-          className="absolute z-20 top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
-        >
+                  <Link
+           href="/projects?tab=audits"
+           className="absolute z-20 top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+         >
           <ArrowLeft size={16} /> Back
         </Link>
         <div className="w-full max-w-6xl flex flex-col lg:flex-row bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
