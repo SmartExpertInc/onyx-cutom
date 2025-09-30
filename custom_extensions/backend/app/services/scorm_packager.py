@@ -325,128 +325,129 @@ async def _localize_images_in_html(html: str, zip_file: zipfile.ZipFile, sco_dir
 
 
 async def _process_image_paths_in_html(html: str) -> str:
-    """Process image paths in HTML to convert relative paths to absolute paths or data URIs"""
+    """Inline images into HTML as data URIs.
+    - Handles <img src> and CSS url() references
+    - Supports:
+      * data: URIs (left as is)
+      * http/https URLs (downloaded and inlined)
+      * protocol-less // URLs (assumed https)
+      * /static_design_images/... (resolved to repo static_design_images)
+      * static_design_images/... (relative path)
+      * fallback: try resolving repo-root absolute path
+    """
     try:
-        # Find static_design_images path
-        static_images_abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static_design_images'))
-        
-        # Pattern to find image src attributes
-        img_pattern = re.compile(r'<img[^>]+src=["\']/static_design_images/([^"\']+)["\']', re.IGNORECASE)
-        
-        def replace_image_path(match):
-            filename = match.group(1)
-            full_path = os.path.join(static_images_abs_path, filename)
-            
-            logger.info(f"[SCORM] Processing image: {filename} -> {full_path}")
-            
-            if os.path.exists(full_path):
-                try:
-                    # Convert to data URI
-                    with open(full_path, 'rb') as f:
-                        image_data = f.read()
-                    
-                    # Determine MIME type
-                    mime_type = mimetypes.guess_type(full_path)[0] or 'application/octet-stream'
-                    
-                    # Create data URI
-                    b64_data = base64.b64encode(image_data).decode('ascii')
-                    data_uri = f"data:{mime_type};base64,{b64_data}"
-                    
-                    # Replace the src attribute
-                    return match.group(0).replace(f'/static_design_images/{filename}', data_uri)
-                except Exception as e:
-                    logger.warning(f"[SCORM] Failed to process image {filename}: {e}")
-            else:
-                logger.warning(f"[SCORM] Image not found: {full_path}")
-            
-            return match.group(0)  # Return original if processing fails
-        
-        # Replace all image paths
-        processed_html = img_pattern.sub(replace_image_path, html)
-        
-        # Also handle CSS background-image URLs
-        css_pattern = re.compile(r'url\(["\']/static_design_images/([^"\']+)["\']\)', re.IGNORECASE)
-        processed_html = css_pattern.sub(lambda m: f'url({_convert_image_to_data_uri(os.path.join(static_images_abs_path, m.group(1)))})', processed_html)
-        
-        return processed_html
-        
-    except Exception as e:
-        logger.error(f"[SCORM] Error processing image paths: {e}")
-        return html
+        import asyncio
 
-def _convert_image_to_data_uri(image_path: str) -> str:
-    """Convert image file to data URI"""
-    try:
-        if os.path.exists(image_path):
-            with open(image_path, 'rb') as f:
-                image_data = f.read()
-            mime_type = mimetypes.guess_type(image_path)[0] or 'application/octet-stream'
-            b64_data = base64.b64encode(image_data).decode('ascii')
-            return f"data:{mime_type};base64,{b64_data}"
-    except Exception as e:
-        logger.warning(f"[SCORM] Failed to convert image to data URI: {e}")
-    return image_path
-    """Process image paths in HTML to convert relative paths to absolute paths or data URIs"""
-    try:
-        # Find static_design_images path
-        static_images_abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static_design_images'))
-        
-        # Pattern to find image src attributes
-        img_pattern = re.compile(r'<img[^>]+src=["\']/static_design_images/([^"\']+)["\']', re.IGNORECASE)
-        
-        def replace_image_path(match):
-            filename = match.group(1)
-            full_path = os.path.join(static_images_abs_path, filename)
-            
-            logger.info(f"[SCORM] Processing image: {filename} -> {full_path}")
-            
-            if os.path.exists(full_path):
-                try:
-                    # Convert to data URI
-                    with open(full_path, 'rb') as f:
-                        image_data = f.read()
-                    
-                    # Determine MIME type
-                    mime_type = mimetypes.guess_type(full_path)[0] or 'application/octet-stream'
-                    
-                    # Create data URI
-                    b64_data = base64.b64encode(image_data).decode('ascii')
-                    data_uri = f"data:{mime_type};base64,{b64_data}"
-                    
-                    # Replace the src attribute
-                    return match.group(0).replace(f'/static_design_images/{filename}', data_uri)
-                except Exception as e:
-                    logger.warning(f"[SCORM] Failed to process image {filename}: {e}")
-            else:
-                logger.warning(f"[SCORM] Image not found: {full_path}")
-            
-            return match.group(0)  # Return original if processing fails
-        
-        # Replace all image paths
-        processed_html = img_pattern.sub(replace_image_path, html)
-        
-        # Also handle CSS background-image URLs
-        css_pattern = re.compile(r'url\(["\']/static_design_images/([^"\']+)["\']\)', re.IGNORECASE)
-        processed_html = css_pattern.sub(lambda m: f'url({_convert_image_to_data_uri(os.path.join(static_images_abs_path, m.group(1)))})', processed_html)
-        
-        return processed_html
-        
-    except Exception as e:
-        logger.error(f"[SCORM] Error processing image paths: {e}")
-        return html
+        # Resolve static images directory
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        static_images_abs_path = os.path.join(repo_root, 'static_design_images')
 
-def _convert_image_to_data_uri(image_path: str) -> str:
-    """Convert image file to data URI"""
-    try:
-        if os.path.exists(image_path):
-            with open(image_path, 'rb') as f:
-                image_data = f.read()
-            mime_type = mimetypes.guess_type(image_path)[0] or 'application/octet-stream'
-            b64_data = base64.b64encode(image_data).decode('ascii')
-            return f"data:{mime_type};base64,{b64_data}"
+        # Collect URLs from <img src> and CSS url()
+        img_src_pattern = re.compile(r'(<img[^>]+src=["\'])([^"\']+)(["\'])', re.IGNORECASE)
+        css_url_pattern = re.compile(r"url\(\s*['\"]?([^'\")]+)['\"]?\s*\)", re.IGNORECASE)
+
+        urls: List[str] = []
+        for m in img_src_pattern.finditer(html):
+            urls.append(m.group(2))
+        for m in css_url_pattern.finditer(html):
+            urls.append(m.group(1))
+
+        if not urls:
+            return html
+
+        # Unique preserve order
+        seen = set()
+        unique_urls: List[str] = []
+        for u in urls:
+            if u not in seen:
+                seen.add(u)
+                unique_urls.append(u)
+
+        url_to_data: Dict[str, str] = {}
+
+        async def fetch_http(url: str) -> Optional[str]:
+            try:
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    resp = await client.get(url)
+                    if resp.status_code == 200 and resp.content:
+                        ctype = resp.headers.get('Content-Type') or mimetypes.guess_type(url)[0] or 'application/octet-stream'
+                        b64 = base64.b64encode(resp.content).decode('ascii')
+                        return f"data:{ctype};base64,{b64}"
+            except Exception as e:
+                logger.info(f"[SCORM] HTTP image inline failed for {url}: {e}")
+            return None
+
+        def read_file_to_data_uri(path: str) -> Optional[str]:
+            try:
+                if os.path.exists(path):
+                    with open(path, 'rb') as f:
+                        data = f.read()
+                    ctype = mimetypes.guess_type(path)[0] or 'application/octet-stream'
+                    b64 = base64.b64encode(data).decode('ascii')
+                    return f"data:{ctype};base64,{b64}"
+            except Exception as e:
+                logger.info(f"[SCORM] File image inline failed for {path}: {e}")
+            return None
+
+        async def convert_one(u: str):
+            if not u or u.startswith('data:'):
+                return
+            # Normalize protocol-less URLs
+            if u.startswith('//'):
+                normalized = 'https:' + u
+                data_uri = await fetch_http(normalized)
+                if data_uri:
+                    url_to_data[u] = data_uri
+                return
+            # http(s)
+            if u.startswith('http://') or u.startswith('https://'):
+                data_uri = await fetch_http(u)
+                if data_uri:
+                    url_to_data[u] = data_uri
+                return
+            # Static images (absolute or relative)
+            if u.startswith('/static_design_images/'):
+                filename = u.replace('/static_design_images/', '')
+                full_path = os.path.join(static_images_abs_path, filename)
+                data_uri = read_file_to_data_uri(full_path)
+                if data_uri:
+                    url_to_data[u] = data_uri
+                return
+            if u.startswith('static_design_images/'):
+                filename = u.replace('static_design_images/', '')
+                full_path = os.path.join(static_images_abs_path, filename)
+                data_uri = read_file_to_data_uri(full_path)
+                if data_uri:
+                    url_to_data[u] = data_uri
+                return
+            # Fallback: try repo-root absolute path
+            if u.startswith('/'):
+                full_path = os.path.join(repo_root, u.lstrip('/'))
+                data_uri = read_file_to_data_uri(full_path)
+                if data_uri:
+                    url_to_data[u] = data_uri
+                return
+            # Otherwise: skip
+
+        await asyncio.gather(*(convert_one(u) for u in unique_urls))
+
+        # Replace in HTML
+        def replace_img_src(match: re.Match) -> str:
+            prefix, src, suffix = match.group(1), match.group(2), match.group(3)
+            return f"{prefix}{url_to_data.get(src, src)}{suffix}"
+
+        def replace_css_url(match: re.Match) -> str:
+            url = match.group(1)
+            inlined = url_to_data.get(url, url)
+            # Preserve original quoting
+            return f"url('{inlined}')"
+
+        html = img_src_pattern.sub(replace_img_src, html)
+        html = css_url_pattern.sub(replace_css_url, html)
+        return html
     except Exception as e:
-        logger.warning(f"[SCORM] Failed to convert image to data URI: {e}")
-    return image_path
+        logger.error(f"[SCORM] Error inlining images: {e}")
+        return html
 
 
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
