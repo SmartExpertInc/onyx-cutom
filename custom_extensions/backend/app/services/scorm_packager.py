@@ -14,6 +14,12 @@ from app.core.database import get_connection
 
 # Reuse Jinja templates configured for PDF generation to produce HTML content
 from app.services.pdf_generator import jinja_env
+# Add helper from pdf_generator where needed
+try:
+    from app.services.pdf_generator import get_embedded_fonts_css
+except Exception:
+    def get_embedded_fonts_css() -> str:
+        return ""
 
 logger = logging.getLogger(__name__)
 
@@ -260,75 +266,53 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
     slides = []
     try:
         if isinstance(content, dict):
-            # common keys: slides or details.slides
             slides = content.get('slides') or (content.get('details') or {}).get('slides') or []
     except Exception:
         slides = []
     if not isinstance(slides, list):
         slides = []
-    # Simplified slide rendering
-    slide_items = []
-    for idx, s in enumerate(slides):
+
+    # Render each slide using the existing single_slide_pdf_template.html to HTML blocks, then stack in a scrollable page
+    rendered_slides: List[str] = []
+    template = None
+    try:
+        template = jinja_env.get_template("single_slide_pdf_template.html")
+    except Exception:
+        template = None
+
+    def render_single_slide(slide: Dict[str, Any]) -> str:
+        try:
+            safe_slide = json.loads(json.dumps(slide)) if isinstance(slide, dict) else {}
+            props = safe_slide.get('props') or {}
+            # Ensure basic defaults similar to pdf generator
+            for k, v in {'title':'', 'subtitle':'', 'content':'', 'bullets':[], 'steps':[], 'challenges':[], 'solutions':[], 'items':[], 'boxes':[], 'levels':[], 'events':[]}.items():
+                props.setdefault(k, v)
+            ctx = {
+                'slide': safe_slide,
+                'theme': (content.get('theme') if isinstance(content, dict) else None) or 'dark-purple',
+                'slide_height': 600,
+                'embedded_fonts_css': get_embedded_fonts_css()
+            }
+            if template:
+                return template.render(**ctx)
+        except Exception:
+            pass
+        stitle = props.get('title') or safe_slide.get('slideTitle') or 'Slide'
+        return f"<div class=\"fallback-slide\"><h2>{_xml_escape(stitle)}</h2></div>"
+
+    for s in slides:
         if isinstance(s, dict):
-            stitle = s.get('slideTitle') or s.get('title') or f"Slide {idx+1}"
-            sprops = s.get('props') or {}
-            left = sprops.get('leftContent') or sprops.get('content') or ''
-            right = sprops.get('rightContent') or ''
-            img = sprops.get('imagePath') or sprops.get('imageUrl') or ''
-            inner = f"<h2>{_xml_escape(stitle)}</h2>"
-            if img:
-                inner += f"<div class=\"img\"><img src=\"{_xml_escape(img)}\" alt=\"\"/></div>"
-            inner += f"<div class=\"cols\"><div class=\"col\">{left or ''}</div><div class=\"col\">{right or ''}</div></div>"
-            slide_items.append(f"<section class=\"slide\" data-index=\"{idx}\" style=\"display:{'block' if idx==0 else 'none'}\">{inner}</section>")
-    body = "".join(slide_items) or "<p>No slides.</p>"
-    # Inline SCORM navigation controller
-    controller = """
-<script>
-(function(){
-  var current = 0;
-  function qs(sel){ return document.querySelector(sel); }
-  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-  function show(i){
-    var slides = qsa('.slide');
-    if (i < 0 || i >= slides.length) return;
-    slides.forEach(function(s, idx){ s.style.display = (idx===i)?'block':'none'; });
-    current = i;
-    try {
-      if (window.API_1484_11) {
-        var p = slides.length ? ( (i+1)/slides.length ) : 0;
-        API_1484_11.SetValue('cmi.location', String(i));
-        API_1484_11.SetValue('cmi.progress_measure', String(p));
-        if (p >= 1) { API_1484_11.SetValue('cmi.completion_status', 'completed'); }
-        API_1484_11.Commit('');
-      }
-    } catch(e){}
-  }
-  window.nextSlide = function(){ show(current+1); };
-  window.prevSlide = function(){ show(current-1); };
-  window.addEventListener('load', function(){
-    try {
-      if (window.API_1484_11) {
-        var last = API_1484_11.GetValue('cmi.location');
-        if (last && !isNaN(parseInt(last))) show(parseInt(last));
-      }
-    } catch(e){}
-  });
-})();
-</script>
-"""
-    nav = "<div class=\"nav\"><button onclick=\"prevSlide()\">Prev</button><button onclick=\"nextSlide()\">Next</button></div>"
+            rendered_slides.append(render_single_slide(s))
+
     styles = """
 <style>
-  .slide{padding:16px;}
-  .img img{max-width:100%;height:auto;display:block;margin:12px 0;}
-  .cols{display:flex;gap:16px;}
-  .col{flex:1;}
-  .nav{display:flex;gap:8px;margin:12px 0;}
-  button{padding:6px 12px;border:1px solid #ccc;background:#f7f7f7;cursor:pointer}
+  .slide-wrapper{max-width:1174px;margin:0 auto;}
+  .slide-page{width:1174px;min-height:600px;background:#fff;margin:20px 0;padding:40px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+  body{background:#f3f4f6}
 </style>
 """
-    html = f"{styles}{nav}{body}{nav}{controller}"
-    return _wrap_html_as_sco(title, html)
+    body = "<div class=\"slide-wrapper\">" + "".join([f"<div class=\"slide-page\">{s}</div>" for s in rendered_slides]) + "</div>"
+    return _wrap_html_as_sco(title, styles + body)
 
 
 def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
@@ -459,93 +443,42 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
 
     styles = """
 <style>
-  .question{margin:14px 0;padding:12px;border:1px solid #e5e7eb;border-radius:8px}
-  .qtext{font-weight:600;margin-bottom:8px}
-  .match-row{display:flex;gap:8px;align-items:center;margin:4px 0}
-  .sortable{list-style:none;padding-left:0}
-  .sortable li{margin:6px 0;padding:6px;border:1px dashed #cbd5e1;border-radius:6px}
-  .submit{margin-top:16px}
-  .result{margin-top:8px;font-weight:600}
+  :root{
+    --bg:#0f172a; /* slate-900 */
+    --card:#111827; /* slate-800 */
+    --muted:#94a3b8; /* slate-400 */
+    --text:#e2e8f0; /* slate-200 */
+    --accent:#6366f1; /* indigo-500 */
+    --accent-600:#4f46e5;
+    --success:#10b981; /* emerald-500 */
+    --danger:#ef4444; /* red-500 */
+    --border:#1f2937; /* slate-700 */
+  }
+  body{ background:var(--bg); color:var(--text); }
+  .quiz-wrap{ max-width:900px; margin:0 auto; padding:24px; }
+  .quiz-header{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .quiz-title{ font-size:20px; font-weight:700; letter-spacing:0.2px; }
+  .question{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin:16px 0; box-shadow:0 4px 12px rgba(0,0,0,0.14) }
+  .qtext{ font-weight:700; margin-bottom:10px; font-size:16px; letter-spacing:0.2px; }
+  .opts label{ display:flex; align-items:center; gap:10px; padding:10px 12px; margin:6px 0; border:1px solid var(--border); border-radius:10px; background:#0b1222; transition: all .15s ease-in-out; }
+  .opts label:hover{ border-color: var(--accent); box-shadow:0 0 0 2px rgba(99,102,241,0.15); }
+  .opts input{ accent-color: var(--accent); width:16px; height:16px; }
+  .match-row{ display:flex; gap:12px; align-items:center; margin:6px 0; }
+  .match-row .prompt{ min-width:180px; color:var(--muted); font-weight:600; }
+  select{ background:#0b1222; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
+  .sortable{ list-style:none; padding-left:0; }
+  .sortable li{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; background:#0b1222; }
+  .sortable li button{ border:1px solid var(--border); background:#0b1222; color:var(--muted); border-radius:8px; padding:6px 10px; }
+  .oa-input{ width:100%; border:1px solid var(--border); background:#0b1222; color:var(--text); border-radius:10px; padding:10px 12px; }
+  .submit{ margin-top:22px; width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--accent); color:#fff; background:linear-gradient(135deg, var(--accent), var(--accent-600)); font-weight:700; letter-spacing:0.3px; box-shadow:0 8px 18px rgba(79,70,229,0.25); }
+  .submit:hover{ filter:brightness(1.08); }
+  .result{ margin-top:12px; font-weight:800; }
+  .badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; background:#0b1222; border:1px solid var(--border); color:var(--muted); font-size:12px; }
+  .badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
 </style>
 """
-    keys_json = json.dumps(answer_keys)
-    controller = """
-<script>
-(function(){
-  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-  function byName(n){ return Array.prototype.slice.call(document.getElementsByName(n)); }
-  function getScore(){
-    var keys = JSON.parse(document.getElementById('scorm-quiz-keys').textContent || '[]');
-    var correct = 0, total = keys.length;
-    qsa('.question').forEach(function(qEl, idx){
-      var k = keys[idx] || {}; var t = k.type;
-      if (t === 'mc'){
-        var radios = byName('q'+idx);
-        var sel = radios.find(function(r){ return r.checked; });
-        if (sel && String(sel.value)===String(k.correct)) correct++;
-      } else if (t === 'ms'){
-        var checks = byName('q'+idx).filter(function(c){ return c.checked; }).map(function(c){ return String(c.value); });
-        var target = (k.correct||[]).map(String).sort().join('|');
-        var got = checks.slice().sort().join('|');
-        if (target && target===got) correct++;
-      } else if (t === 'mt'){
-        var allMatch = true;
-        var corr = k.correct || {};
-        Object.keys(corr).forEach(function(pid){
-          var sel = document.querySelector('select[name="q'+idx+'-'+pid+'"]');
-          if (!sel || String(sel.value)!==String(corr[pid])) allMatch=false;
-        });
-        if (allMatch) correct++;
-      } else if (t === 'so'){
-        var li = qEl.querySelectorAll('.sortable li');
-        var order = Array.prototype.map.call(li, function(el){ return String(el.getAttribute('data-id')); });
-        var target = (k.correct||[]).map(String);
-        var ok = target.length===order.length && target.every(function(v,i){ return v===order[i]; });
-        if (ok) correct++;
-      } else if (t === 'oa'){
-        var inp = qEl.querySelector('.oa-input');
-        var val = (inp && inp.value || '').trim().toLowerCase();
-        var acc = (k.correct||[]);
-        if (val && acc.indexOf(val)>=0) correct++;
-      }
-    });
-    return {correct: correct, total: total};
-  }
-  function commitToSCORM(score){
-    try {
-      if (window.API_1484_11){
-        var scaled = score.total? (score.correct/score.total) : 0;
-        API_1484_11.SetValue('cmi.score.scaled', String(scaled));
-        API_1484_11.SetValue('cmi.score.raw', String(score.correct));
-        API_1484_11.SetValue('cmi.score.max', String(score.total));
-        API_1484_11.SetValue('cmi.success_status', scaled >= 0.7 ? 'passed' : 'failed');
-        API_1484_11.SetValue('cmi.completion_status', 'completed');
-        API_1484_11.Commit('');
-      }
-    } catch(e){}
-  }
-  window.submitQuiz = function(){
-    var s = getScore();
-    commitToSCORM(s);
-    var rs = document.getElementById('quiz-result');
-    if (rs) rs.textContent = 'Score: '+s.correct+' / '+s.total;
-    alert('Score: '+s.correct+' / '+s.total);
-  };
-  // sorting controls
-  document.addEventListener('click', function(e){
-    if (e.target && e.target.classList.contains('up')){
-      var li = e.target.closest('li'); var prev = li && li.previousElementSibling;
-      if (li && prev) li.parentNode.insertBefore(li, prev);
-    }
-    if (e.target && e.target.classList.contains('down')){
-      var li = e.target.closest('li'); var next = li && li.nextElementSibling && li.nextElementSibling.nextElementSibling;
-      if (li && li.nextElementSibling) li.parentNode.insertBefore(li.nextElementSibling, li);
-    }
-  });
-})();
-</script>
-"""
-    body = f"{''.join(blocks)}<button class=\"submit\" onclick=\"submitQuiz()\">Submit</button><div id=\"quiz-result\" class=\"result\"></div>"
+    header = f"<div class=\"quiz-header\"><span class=\"badge\"><span class=\"dot\"></span> Interactive Quiz</span><div class=\"quiz-title\">{esc(title)}</div></div>"
+    body = f"<div class=\"quiz-wrap\">{header}{''.join(blocks)}<button class=\"submit\" onclick=\"submitQuiz()\">Submit Answers</button><div id=\"quiz-result\" class=\"result\"></div></div>"
     hidden_keys = f"<script id=\"scorm-quiz-keys\" type=\"application/json\">{keys_json}</script>"
     return _wrap_html_as_sco(title, styles + body + hidden_keys + controller)
 
