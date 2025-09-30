@@ -4,9 +4,9 @@
 import React, { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ProjectsTable from '../../components/ProjectsTable';
-import OffersTable from '../../components/OffersTable';
-import CreateOfferModal from '../../components/CreateOfferModal';
+import ProjectsTable from '../../../components/ProjectsTable';
+import OffersTable from '../../../components/OffersTable';
+import CreateOfferModal from '../../../components/CreateOfferModal';
 import {
   Search,
   ChevronsUpDown,
@@ -31,19 +31,19 @@ import {
   Coins
 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import FolderModal from './FolderModal';
-import { UserDropdown } from '../../components/UserDropdown';
-import LanguageDropdown from '../../components/LanguageDropdown';
-import { useLanguage } from '../../contexts/LanguageContext';
-import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
-import WorkspaceMembers from '../../components/WorkspaceMembers';
-import useFeaturePermission from '../../hooks/useFeaturePermission';
-import workspaceService from '../../services/workspaceService';
-import LMSAccountCheckModal from '../../components/LMSAccountCheckModal';
-import LMSAccountSetupWaiting from '../../components/LMSAccountSetupWaiting';
-import LMSProductSelector from '../../components/LMSProductSelector';
-import { LMSAccountStatus } from '../../types/lmsTypes';
-import { ToastProvider } from '../../components/ui/toast';
+import FolderModal from '../FolderModal';
+import { UserDropdown } from '../../../components/UserDropdown';
+import LanguageDropdown from '../../../components/LanguageDropdown';
+import { useLanguage } from '../../../contexts/LanguageContext';
+import SmartDriveConnectors from '../../../components/SmartDrive/SmartDriveConnectors';
+import WorkspaceMembers from '../../../components/WorkspaceMembers';
+import useFeaturePermission from '../../../hooks/useFeaturePermission';
+import workspaceService from '../../../services/workspaceService';
+import LMSAccountCheckModal from '../../../components/LMSAccountCheckModal';
+import LMSAccountSetupWaiting from '../../../components/LMSAccountSetupWaiting';
+import LMSProductSelector from '../../../components/LMSProductSelector';
+import { LMSAccountStatus } from '../../../types/lmsTypes';
+import { ToastProvider } from '../../../components/ui/toast';
 
 // Authentication check function
 const checkAuthentication = async (): Promise<boolean> => {
@@ -1009,7 +1009,7 @@ const ProjectsPageInner: React.FC = () => {
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMS} workspaceData={workspaceData} />
-        <main className="flex-1 overflow-y-auto p-8 bg-[var(--background-second)]/40">
+        <main className="flex-1 overflow-y-auto p-8 bg-[var(--background-new-third)]/40">
           {isSmartDrive ? (
             <SmartDriveConnectors />
           ) : isOffersAllowed ? (

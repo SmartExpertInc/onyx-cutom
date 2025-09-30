@@ -127,25 +127,48 @@ const redirectToMainAuth = (path: string) => {
 // Generate color from string using combined violet and blue palette
 const stringToColor = (str: string): string => {
   let hash = 0;
-  if (!str) return "#00B4D8";
+  if (!str) return "#B8D0EB";
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   
   // Combined violet and blue color palette
   const colorPalette = [
-    // Violet shades
-    "#231942", // Darkest violet
-    "#5E548E", // Medium-dark violet
-    "#9F86C0", // Medium violet/lavender
-    "#BE95C4", // Light violet/lilac
-    "#E0B1CB", // Very light pinkish-violet
-    // Blue shades
-    "#03045E", // Darkest navy blue
-    "#0077B6", // Medium dark blue
-    "#00B4D8", // Bright cyan/turquoise
-    "#90E0EF", // Light sky blue
-    "#CAF0F8"  // Very light sky blue/pale blue
+    // new colors 
+    "#757BC8",
+    "#8187DC",
+    "#8E94F2",
+    "#9FA0FF",
+    "#ADA7FF",
+    "#BBADFF",
+    "#CBB2FE",
+    "#DAB6FC",
+    "#DDBDFC",
+    "#E0C3FC",
+
+    //2 colors
+    // "#DEC9E9",
+    // "#DAC3E8",
+    // "#D2B7E5",
+    // "#C19EE0",
+    // "#B185DB",
+    // "#A06CD5",
+    // "#9163CB",
+    // "#815AC0",
+    // "#7251B5",
+    // "#6247AA",
+
+    //3 colors
+    // "#F72585",
+    // "#B5179E",
+    // "#7209B7",
+    // "#560BAD",
+    // "#480CA8",
+    // "#3A0CA3",
+    // "#3F37C9",
+    // "#4361EE",
+    // "#4895EF",
+    // "#4CC9F0",
   ];
   
   // Use hash to select from palette
@@ -211,10 +234,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   // Generate complementary gradient using combined palette
   const generateVioletGradient = (baseColor: string) => {
     const colorPalette = [
-      // Violet shades
-      "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
-      // Blue shades
-      "#03045E", "#0077B6", "#00B4D8", "#90E0EF", "#CAF0F8"
+      // // Violet shades
+      // "#231942", "#5E548E", "#9F86C0", "#BE95C4", "#E0B1CB",
+      // // Blue shades
+      // "#6F2DBD", "#A663CC", "#B298DC", "#B8D0EB", "#B9FAF8",
+
+      //new colors
+      //     "#757BC8",
+      "#757BC8", "#8187DC", "#8E94F2", "#9FA0FF", "#ADA7FF", "#BBADFF", "#CBB2FE", "#DAB6FC", "#DDBDFC", "#E0C3FC",
+      // "#F72585","#B5179E","#7209B7","#560BAD","#480CA8","#3A0CA3","#3F37C9", "#4361EE","#4895EF","#4CC9F0",
     ];
     const currentIndex = colorPalette.indexOf(baseColor);
     const nextIndex = (currentIndex + 1) % colorPalette.length;
@@ -455,35 +483,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     }`}
       style={{
         background: generateVioletGradient(bgColor),
-      }}>
-      {/* Decorative sparkles and elements covering entire card */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Sparkle elements distributed across entire card */}
-        <div className="absolute top-4 left-6 w-3 h-3 bg-white/70 rounded-full shadow-lg"></div>
-        <div className="absolute top-8 right-8 w-5 h-5 bg-white/70 rounded-full shadow-md"></div>
-        <div className="absolute top-12 left-12 w-2 h-2 bg-white/75 rounded-full shadow-md"></div>
-        <div className="absolute top-6 right-4 w-7 h-7 bg-white/60 rounded-full shadow-md"></div>
-        <div className="absolute top-10 left-8 w-12 h-12 bg-white/80 rounded-full shadow-md"></div>
-        
-        {/* Bottom section sparkles */}
-        <div className="absolute bottom-16 left-4 w-2 h-2 bg-white/70 rounded-full shadow-md"></div>
-        <div className="absolute bottom-20 right-6 w-5 h-5 bg-white/60 rounded-full shadow-md"></div>
-        <div className="absolute bottom-12 left-8 w-3 h-3 bg-white/50 rounded-full shadow-lg"></div>
-        <div className="absolute bottom-8 right-12 w-10 h-10 bg-white/80 rounded-full shadow-md"></div>
-        <div className="absolute bottom-14 left-12 w-2 h-2 bg-white/65 rounded-full shadow-md"></div>
-        
-        {/* Middle section sparkles */}
-        {/* <div className="absolute top-1/2 left-4 w-12 h-12 bg-white/55 rounded-full shadow-md"></div> */}
-        <div className="absolute top-1/2 right-8 w-8 h-8 bg-white/45 rounded-full shadow-md"></div>
-        <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-white/60 rounded-full shadow-md"></div>
-        
-        {/* Decorative circles */}
-        <div className="absolute -top-8 -right-8 w-16 h-16 bg-white/15 rounded-full"></div>
-        <div className="absolute -top-4 -left-6 w-12 h-12 bg-white/10 rounded-full"></div>
-        <div className="absolute -bottom-6 -right-4 w-10 h-10 bg-white/12 rounded-full"></div>
-        <div className="absolute -bottom-2 -left-8 w-8 h-8 bg-white/8 rounded-full"></div>
-      </div>
-      
+      }}>      
       <Link
         href={isTrashMode ? "#" : (
           project.designMicroproductType === "Video Lesson Presentation" 
@@ -506,7 +506,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           <div className="relative z-10">
             {/* Private badge positioned absolutely in top-right */}
             {project.isPrivate && (
-              <div className="absolute top-0 right-0 flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5">
+              <div className="absolute top-0 right-0 flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-full px-1.5 py-0.5">
                 <Lock size={8} className="text-gray-600" />
                 <span className="text-xs font-semibold text-gray-700">
                   {t("interface.private", "Private")}
@@ -526,23 +526,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         
         {/* Lower section with lighter overlay background */}
-        <div className="relative bg-white/30 p-4 min-h-30 flex flex-col justify-between gap-2 rounded-xl z-20"
-          style={{
-            backdropFilter: 'blur(30px)'
-          }}
-        >
+        <div className="relative bg-white p-4 min-h-25 flex flex-col justify-between gap-2 z-20">
           {/* Full title with better typography */}
-          <h3 className="font-bold text-white/90 text-base leading-tight line-clamp-1" 
-            style={{
-              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-              fontWeight: '700'
-            }}
+          <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-1"
             title={displayTitle}>
             {displayTitle}
           </h3>
           {project.designMicroproductType && (
             <div 
-              className="inline-flex items-center gap-1 bg-white/70 border border-white backdrop-blur-sm rounded-full px-1.5 py-0.5 w-fit shadow-sm"
+              className="inline-flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-full px-1.5 py-0.5 w-fit shadow-sm"
             >
               <span className="text-xs font-semibold text-gray-700">
                 {getProductTypeDisplayName(project.designMicroproductType)}
@@ -555,7 +547,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <div className="flex items-center gap-2">
               {/* Avatar */}
               <div
-                className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md"
                 style={{ backgroundColor: avatarColor }}
               >
                 {project.createdBy.slice(0, 1).toUpperCase()}
@@ -563,16 +555,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               
               {/* Creator info */}
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-white leading-tight" 
-                style={{
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-                }}>
+                <span className="text-xs font-medium text-gray-900 leading-tight">
                   {t("interface.createdByYou", "Created by you")}
                 </span>
-                <span className="text-xs text-gray-100/80 leading-tight"
-                style={{
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-                }}>
+                <span className="text-xs text-gray-600 leading-tight">
                   {formatDate(project.createdAt)}
                 </span>
               </div>
