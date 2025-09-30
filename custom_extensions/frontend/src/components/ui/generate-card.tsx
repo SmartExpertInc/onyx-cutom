@@ -18,8 +18,8 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         tabIndex={0}
         className={cn(
           "group relative rounded-md bg-[var(--card)] overflow-hidden cursor-pointer",
-          // Smooth transform, shadow, and border-color (keep width constant for no jank)
-          "transition-[border-color,box-shadow,transform] duration-300 ease-out",
+          // Smooth transform and shadow only
+          "transition-[box-shadow,transform] duration-300 ease-out",
           "w-24 h-20 xs:w-20 xs:h-18 sm:w-28 sm:h-23 md:w-32 md:h-25 lg:w-36 lg:h-24 xl:w-40 xl:h-26",
           "hover:scale-105 focus:outline-none focus:border-[var(--ring)]",
           // Constant border width; only color changes
