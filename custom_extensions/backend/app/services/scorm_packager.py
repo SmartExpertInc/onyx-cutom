@@ -1351,10 +1351,10 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    # Always use PDF for presentations
+                    # Render as HTML using the same template as PDFs and inline images
                     content_dict = content if isinstance(content, dict) else {}
-                    body_html = None
-                    render_mode = 'pdf'
+                    body_html = _render_slide_deck_html(matched, content_dict)
+                    body_html = await _process_image_paths_in_html(body_html)
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                 else:
@@ -1364,39 +1364,9 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 sco_dir = f"sco_{product_id}"
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{product_id}"
-                if any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    # Generate PDF and embed viewer HTML
-                    slides = content_dict.get('slides', [])
-                    theme = content_dict.get('theme', 'light')
-                    pdf_filename = f"{sco_dir}/presentation.pdf"
-                    try:
-                        pdf_path = await generate_slide_deck_pdf_with_dynamic_height(slides, theme, f"scorm_{product_id}.pdf", use_cache=False)
-                        with open(pdf_path, 'rb') as f:
-                            pdf_bytes = f.read()
-                        z.writestr(pdf_filename, pdf_bytes)
-                        viewer_html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset=\"utf-8\" />
-  <title>{matched.get('project_name') or 'Presentation'}</title>
-  <style>html,body,iframe{{height:100%;margin:0}} body{{background:#111}} iframe{{border:0;width:100%}}</style>
-  </head>
-<body>
-  <iframe src=\"presentation.pdf\" title=\"Presentation PDF\"></iframe>
-  </body>
-  </html>
-"""
-                        z.writestr(href, viewer_html)
-                        sco_entries.append((res_id, href))
-                    except Exception as pdf_e:
-                        # Fallback to minimal body
-                        fallback_html = _render_placeholder_html('Presentation', 'Failed to render presentation')
-                        z.writestr(href, fallback_html)
-                        sco_entries.append((res_id, href))
-                else:
-                    z.writestr(href, body_html)
-                    sco_entries.append((res_id, href))
+                # Write as HTML for all types now
+                z.writestr(href, body_html)
+                sco_entries.append((res_id, href))
 
                 # Add leaf item under lesson
                 lesson_item['children'].append({
