@@ -653,10 +653,10 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
-        <span className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+        <Link href="/tariff-plan" className="flex items-center gap-2 text-sm font-semibold text-gray-800 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer">
           <Coins size={20} className="text-gray-900" />
           {userCredits !== null ? `${userCredits} ${t('interface.credits', 'credits')}` : t('interface.loading', 'Loading...')}
-        </span>
+        </Link>
         <Bell size={20} className="text-gray-600 cursor-pointer" />
         <LanguageDropdown />
         <UserDropdown />
