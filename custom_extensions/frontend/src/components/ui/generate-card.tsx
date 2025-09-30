@@ -17,17 +17,20 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         tabIndex={0}
         className={cn(
-          "group relative rounded-md bg-[var(--card)] overflow-hidden transition-[border-color,border-width,box-shadow,transform] duration-300 ease-out cursor-pointer",
+          "group relative rounded-md bg-[var(--card)] overflow-hidden cursor-pointer",
+          // Smooth transform, shadow, and border-color (keep width constant for no jank)
+          "transition-[border-color,box-shadow,transform] duration-300 ease-out",
           "w-24 h-20 xs:w-20 xs:h-18 sm:w-28 sm:h-23 md:w-32 md:h-25 lg:w-36 lg:h-24 xl:w-40 xl:h-26",
           "hover:scale-105 focus:outline-none focus:border-[var(--ring)]",
-          active ? "border-4 border-[var(--primary)]" : "border-2 border-transparent",
+          // Constant border width; only color changes
+          "border-4 border-transparent",
           className
         )}
         style={{
           boxShadow: active 
             ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          ...(active ? { borderColor: 'color-mix(in srgb, var(--primary) 50%, transparent)' } : {})
+          ...(active ? { borderColor: 'color-mix(in srgb, var(--primary) 50%, transparent)' } : { borderColor: 'transparent' })
         }}
         onMouseEnter={(e) => {
           if (!active) {
