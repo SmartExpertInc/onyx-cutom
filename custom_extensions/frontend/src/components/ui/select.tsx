@@ -287,7 +287,7 @@ function CustomPillSelector({
             </span>
           </div>
         </SelectTrigger>
-        <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+        <SelectContent className="border-gray-200 max-h-[200px]" sideOffset={15}>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
@@ -356,7 +356,7 @@ function CustomMultiSelector({
             <span className="text-gray-900 font-semibold">{displayText}</span>
           </div>
         </SelectTrigger>
-        <SelectContent className="border-white max-h-[200px]" sideOffset={15}>
+        <SelectContent className="border-gray-200 max-h-[200px]" sideOffset={15}>
           {options.map((option) => (
             <div
               key={option.value}
