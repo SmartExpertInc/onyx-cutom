@@ -1040,7 +1040,7 @@ export const en = {
       lessons: "Lessons",
       lessonsPerModule: "Lessons per module",
       length: "Length",
-      stylesSelected: "Styles selected",
+      stylesSelected: "styles selected",
       creatingFromFiles: "Creating from files",
       foldersSelected: "folder selected",
       foldersSelectedPlural: "folders selected",

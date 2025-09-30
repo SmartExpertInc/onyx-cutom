@@ -20,7 +20,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
           "group relative rounded-md bg-[var(--card)] overflow-hidden transition-all duration-200 cursor-pointer",
           "w-24 h-20 xs:w-20 xs:h-18 sm:w-28 sm:h-23 md:w-32 md:h-25 lg:w-36 lg:h-24 xl:w-40 xl:h-26",
           "hover:scale-105 focus:outline-none focus:border-[var(--ring)]",
-          active ? "border-2 border-blue-100" : "border-2 border-transparent",
+          active ? "border-2 border-[var(--primary)]" : "border-2 border-transparent",
           className
         )}
         style={{
@@ -51,25 +51,30 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
             {Icon && (
               <div 
                 className="flex items-center justify-center"
-                style={{
-                  filter: active 
-                    ? 'drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3))' 
-                    : 'drop-shadow(0 2px 4px rgba(107, 114, 128, 0.2))'
-                }}
               >
+                <div className="relative">
+                  <div
+                    className="absolute inset-0 rounded-lg blur-sm"
+                    style={{
+                      background: active
+                        ? 'linear-gradient(to bottom right, rgba(255,255,255,0.28), rgba(255,255,255,0.14))'
+                        : 'linear-gradient(to bottom right, rgba(107,114,128,0.22), rgba(107,114,128,0.10))'
+                    }}
+                  />
                   <Icon 
                     size={35}
                     className={cn(
-                      "w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
+                      "relative z-10 w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
                       active ? "text-white" : "text-gray-500"
                     )}
-                  style={{
-                    color: active ? 'white' : '#6b7280',
-                    fill: active ? 'white' : '#6b7280',
-                    stroke: active ? 'white' : '#6b7280',
-                    '--tw-text-opacity': '1',
-                  }}
-                />
+                    style={{
+                      color: active ? 'white' : '#6b7280',
+                      fill: active ? 'white' : '#6b7280',
+                      stroke: active ? 'white' : '#6b7280',
+                      '--tw-text-opacity': '1',
+                    }}
+                  />
+                </div>
               </div>
             )}
             <span 
