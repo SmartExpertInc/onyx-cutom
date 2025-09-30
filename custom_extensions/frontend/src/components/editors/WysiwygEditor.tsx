@@ -4,6 +4,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
 
 export interface WysiwygEditorProps {
   initialValue: string;
@@ -23,7 +25,10 @@ export function WysiwygEditor({
   style = {}
 }: WysiwygEditorProps) {
   const [showToolbar, setShowToolbar] = useState(false);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('#000000');
   const containerRef = useRef<HTMLDivElement>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
   const cleanedStyle = { ...style };
   delete cleanedStyle.fontWeight;
@@ -40,7 +45,9 @@ export function WysiwygEditor({
         codeBlock: false,
         horizontalRule: false,
       }),
-      Underline, // ← Додати underline extension
+      Underline,
+      TextStyle,
+      Color,
     ],
     content: initialValue || '',
     editorProps: {
@@ -57,6 +64,10 @@ export function WysiwygEditor({
     onSelectionUpdate: ({ editor }) => {
       const { empty } = editor.state.selection;
       setShowToolbar(!empty);
+      
+      // Отримати поточний колір виділеного тексту
+      const currentColor = editor.getAttributes('textStyle').color || '#000000';
+      setSelectedColor(currentColor);
     },
   });
 
@@ -73,8 +84,12 @@ export function WysiwygEditor({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        editor.commands.blur();
-        onCancel();
+        if (showColorPicker) {
+          setShowColorPicker(false);
+        } else {
+          editor.commands.blur();
+          onCancel();
+        }
       }
     };
 
@@ -84,7 +99,21 @@ export function WysiwygEditor({
     return () => {
       editorElement.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editor, onCancel]);
+  }, [editor, onCancel, showColorPicker]);
+
+  // Закрити color picker при кліку поза ним
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setShowColorPicker(false);
+      }
+    };
+
+    if (showColorPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showColorPicker]);
 
   const handleBlur = () => {
     if (editor) {
@@ -93,7 +122,21 @@ export function WysiwygEditor({
       onSave(cleanHtml);
     }
     setShowToolbar(false);
+    setShowColorPicker(false);
   };
+
+  const applyColor = (color: string) => {
+    if (editor) {
+      editor.chain().focus().setColor(color).run();
+      setSelectedColor(color);
+    }
+  };
+
+  const predefinedColors = [
+    '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff',
+    '#ffff00', '#ff00ff', '#00ffff', '#ff8800', '#8800ff',
+    '#888888', '#444444', '#ff6b6b', '#4ecdc4', '#45b7d1',
+  ];
 
   if (!editor) {
     return null;
@@ -234,6 +277,125 @@ export function WysiwygEditor({
           >
             S
           </button>
+
+          {/* Color Picker Button */}
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setShowColorPicker(!showColorPicker);
+              }}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                backgroundColor: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+                position: 'relative',
+              }}
+              title="Text Color"
+            >
+              <span style={{ 
+                fontSize: '16px',
+                color: selectedColor,
+                fontWeight: 'bold'
+              }}>
+                A
+              </span>
+              <span style={{
+                position: 'absolute',
+                bottom: '4px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '20px',
+                height: '3px',
+                backgroundColor: selectedColor,
+                borderRadius: '1px',
+              }}></span>
+            </button>
+
+            {/* Color Picker Dropdown */}
+            {showColorPicker && (
+              <div
+                ref={colorPickerRef}
+                style={{
+                  position: 'absolute',
+                  top: '38px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  zIndex: 10001,
+                  width: '180px',
+                }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                {/* Predefined Colors */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(5, 1fr)',
+                  gap: '6px',
+                  marginBottom: '8px',
+                }}>
+                  {predefinedColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        applyColor(color);
+                      }}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        backgroundColor: color,
+                        border: selectedColor === color ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+
+                {/* Custom Color Input */}
+                <div style={{ marginTop: '8px' }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    marginBottom: '4px',
+                  }}>
+                    Custom color:
+                  </label>
+                  <input
+                    type="color"
+                    value={selectedColor}
+                    onChange={(e) => {
+                      applyColor(e.target.value);
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '32px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
