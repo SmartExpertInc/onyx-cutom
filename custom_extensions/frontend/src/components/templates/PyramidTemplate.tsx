@@ -4,13 +4,13 @@ import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThe
 export interface PyramidItem {
   heading: string;
   description: string;
+  number: string;
 }
 
 export interface PyramidTemplateProps {
   slideId: string;
   title: string;
-  subtitle: string;
-  steps: PyramidItem[];  // Changed from 'items' to 'steps'
+  steps: PyramidItem[];
   theme?: SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
@@ -143,8 +143,7 @@ function InlineEditor({
 export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   slideId,
   title,
-  subtitle,
-  steps = [],  // Changed from 'items' to 'steps'
+  steps = [],
   theme,
   onUpdate,
   isEditable = false
@@ -154,9 +153,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingItemHeadings, setEditingItemHeadings] = useState<number[]>([]);
   const [editingItemDescriptions, setEditingItemDescriptions] = useState<number[]>([]);
+  const [editingItemNumbers, setEditingItemNumbers] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Cleanup timeouts on unmount
@@ -169,97 +168,138 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    backgroundColor,
-    padding: '64px',
+    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', // Subtle gradient background
+    padding: '50px',
     display: 'flex',
     flexDirection: 'column',
-    fontFamily: currentTheme.fonts.contentFont,
+    fontFamily: 'Georgia, serif', // Serif font as in photo
     minHeight: '600px',
     width: '100%',
+    position: 'relative',
+    overflow: 'hidden'
   };
 
   const titleStyles: React.CSSProperties = {
-    color: titleColor,
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    marginBottom: '16px',
+    color: '#000000', // Black title as in photo
+    fontSize: '2.5rem',
+    fontFamily: 'Georgia, serif',
+    marginBottom: '40px',
     textAlign: 'left',
-    wordWrap: 'break-word'
-  };
-
-  const subtitleStyles: React.CSSProperties = {
-    color: contentColor,
-    fontSize: currentTheme.fonts.contentSize,
-    fontFamily: currentTheme.fonts.contentFont,
-    marginBottom: '48px',
-    maxWidth: '80%',
-    lineHeight: 1.6,
-    textAlign: 'left',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const mainContentStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     flexGrow: 1,
-    gap: '48px',
+    position: 'relative',
+    height: '500px'
   };
 
-  const pyramidContainerStyles: React.CSSProperties = {
-    flex: '0 0 45%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '10px', // Remove gap between pyramid segments
-    justifyContent: 'center',
-  };
+  // Pyramid level colors (gradient from light blue to dark blue/purple)
+  const pyramidColors = [
+    '#87CEEB', // Light blue (top)
+    '#5F9EA0', // Cadet blue
+    '#4682B4', // Steel blue
+    '#4169E1', // Royal blue
+    '#191970'  // Midnight blue (bottom)
+  ];
 
-  const itemsContainerStyles: React.CSSProperties = {
-    flex: '1 1 55%',
-    position: 'relative', // Add this for absolute positioning
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    height: '400px',
-  };
-
-  const itemWrapperStyles = (level: number): React.CSSProperties => {
-    const topPositions = ['16.7%', '50%', '83.3%'];
-    const leftOffsets = ['-250px', '-190px', '-120px'];
+  const pyramidLevelStyles = (index: number): React.CSSProperties => {
+    const widths = [120, 200, 280, 360, 440]; // Increasing widths
+    const heights = [60, 60, 60, 60, 60]; // Same height for all levels
+    const topPositions = [0, 60, 120, 180, 240]; // Stacked positions
+    
     return {
       position: 'absolute',
-      width: '100%',
-      top: topPositions[level],
-      left: leftOffsets[level],
-      transform: 'translateY(-50%)',
+      width: `${widths[index]}px`,
+      height: `${heights[index]}px`,
+      top: `${topPositions[index]}px`,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: pyramidColors[index],
+      clipPath: 'polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%)', // Trapezoid shape
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 5 - index // Higher levels have higher z-index
     };
   };
-  
-  const separatorLineStyles = (level: number): React.CSSProperties => {
-      const topPositions = ['33.3%', '66.6%'];
-      const leftOffsets = ['-250px', '-190px'];
-      return {
-          position: 'absolute',
-          left: leftOffsets[level],
-          right: 0,
-          top: topPositions[level],
-          height: '1px',
-          backgroundColor: `${contentColor}40`, // Use theme color with 40% opacity
-      }
+
+  const numberCircleStyles: React.CSSProperties = {
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    background: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: '#000000',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   };
 
-  const itemHeadingStyles: React.CSSProperties = {
-    color: titleColor,
-    fontSize: '1.5rem',
-    fontFamily: currentTheme.fonts.titleFont,
+  // Text block positioning - alternating left and right
+  const textBlockStyles = (index: number): React.CSSProperties => {
+    const positions = [
+      { top: '20px', left: '20%' },   // Level 0 - left
+      { top: '80px', right: '20%' },  // Level 1 - right
+      { top: '140px', left: '20%' },  // Level 2 - left
+      { top: '200px', right: '20%' }, // Level 3 - right
+      { top: '260px', left: '20%' }   // Level 4 - left
+    ];
+    
+    const pos = positions[index];
+    return {
+      position: 'absolute',
+      ...pos,
+      width: '25%',
+      maxWidth: '300px',
+      zIndex: 10
+    };
+  };
+
+  const textHeadingStyles: React.CSSProperties = {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    color: '#000000',
+    fontFamily: 'Georgia, serif',
     marginBottom: '8px',
     wordWrap: 'break-word'
   };
 
-  const itemDescriptionStyles: React.CSSProperties = {
-    color: contentColor,
-    fontSize: currentTheme.fonts.contentSize,
+  const textDescriptionStyles: React.CSSProperties = {
+    fontSize: '0.9rem',
+    color: '#000000',
+    fontFamily: 'Georgia, serif',
+    lineHeight: 1.4,
     wordWrap: 'break-word'
+  };
+
+  // Triangle arrow styles
+  const triangleStyles = (index: number): React.CSSProperties => {
+    const positions = [
+      { top: '50px', right: '25%' },   // Level 0 - right
+      { top: '110px', left: '25%' },   // Level 1 - left
+      { top: '170px', right: '25%' },  // Level 2 - right
+      { top: '230px', left: '25%' },   // Level 3 - left
+      { top: '290px', right: '25%' }   // Level 4 - right
+    ];
+    
+    const pos = positions[index];
+    return {
+      position: 'absolute',
+      ...pos,
+      width: '0',
+      height: '0',
+      borderLeft: '8px solid transparent',
+      borderRight: '8px solid transparent',
+      borderTop: '12px solid #0F58F9', // Blue triangle
+      zIndex: 10
+    };
   };
 
   // Handle title editing
@@ -272,18 +312,6 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const handleTitleCancel = () => {
     setEditingTitle(false);
-  };
-
-  // Handle subtitle editing
-  const handleSubtitleSave = (newSubtitle: string) => {
-    if (onUpdate) {
-      onUpdate({ subtitle: newSubtitle });
-    }
-    setEditingSubtitle(false);
-  };
-
-  const handleSubtitleCancel = () => {
-    setEditingSubtitle(false);
   };
 
   // Handle item heading editing
@@ -314,6 +342,20 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemDescriptions(editingItemDescriptions.filter(i => i !== index));
   };
 
+  // Handle item number editing
+  const handleItemNumberSave = (index: number, newNumber: string) => {
+    if (onUpdate && steps) {
+      const updatedSteps = [...steps];
+      updatedSteps[index] = { ...updatedSteps[index], number: newNumber };
+      onUpdate({ steps: updatedSteps });
+    }
+    setEditingItemNumbers(editingItemNumbers.filter(i => i !== index));
+  };
+
+  const handleItemNumberCancel = (index: number) => {
+    setEditingItemNumbers(editingItemNumbers.filter(i => i !== index));
+  };
+
   const startEditingItemHeading = (index: number) => {
     setEditingItemHeadings([...editingItemHeadings, index]);
   };
@@ -322,78 +364,24 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemDescriptions([...editingItemDescriptions, index]);
   };
 
-  // Helper function to create semi-transparent version of a color
-  const getSemiTransparentColor = (color: string, opacity: number = 0.1): string => {
-    // Convert hex to rgba if needed
-    if (color.startsWith('#')) {
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-    }
-    // If it's already rgba, extract and modify
-    if (color.startsWith('rgba')) {
-      const match = color.match(/rgba?\(([^)]+)\)/);
-      if (match) {
-        const parts = match[1].split(',').map(p => p.trim());
-        const r = parts[0];
-        const g = parts[1];
-        const b = parts[2];
-        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-      }
-    }
-    // Handle rgb format (e.g., "rgb(0, 102, 79)")
-    if (color.startsWith('rgb(')) {
-      const match = color.match(/rgb\(([^)]+)\)/);
-      if (match) {
-        const parts = match[1].split(',').map(p => p.trim());
-        const r = parts[0];
-        const g = parts[1];
-        const b = parts[2];
-        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-      }
-    }
-    // Fallback to original color
-    return color;
+  const startEditingItemNumber = (index: number) => {
+    setEditingItemNumbers([...editingItemNumbers, index]);
   };
 
-  const PyramidSVG1 = () => {
-    const pyramidFill = getSemiTransparentColor(accentColor, 0.2);
-    const textFill = titleColor;
+  // Default steps if none provided
+  const defaultSteps: PyramidItem[] = [
+    { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '150' },
+    { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '350' },
+    { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '1,250' },
+    { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '3,550' },
+    { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '25,000' }
+  ];
 
-    return React.createElement('svg', { width: "560", height: "120", viewBox: "66 0 68 60" },
-      // Segment 1 (Top Triangle)
-      React.createElement('path', { d: "M 100,0 L 66.67,60 L 133.33,60 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
-      React.createElement('text', { x: "100", y: "35", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "1"),
-    );
-  };
-
-  const PyramidSVG2 = () => {
-    const pyramidFill = getSemiTransparentColor(accentColor, 0.15);
-    const textFill = titleColor;
-
-    return React.createElement('svg', { width: "560", height: "120", viewBox: "33 60 134 60" },
-      // Segment 2 (Middle Trapezoid)
-      React.createElement('path', { d: "M 66.67,60 L 33.33,120 L 166.67,120 L 133.33,60 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
-      React.createElement('text', { x: "100", y: "95", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "2"),
-    );
-  };
-
-  const PyramidSVG3 = () => {
-    const pyramidFill = getSemiTransparentColor(accentColor, 0.1);
-    const textFill = titleColor;
-
-    return React.createElement('svg', { width: "560", height: "120", viewBox: "0 120 200 60" },
-      // Segment 3 (Bottom Trapezoid)
-      React.createElement('path', { d: "M 33.33,120 L 0,180 L 200,180 L 166.67,120 Z", fill: pyramidFill, stroke: accentColor, strokeWidth: "0.5" }),
-      React.createElement('text', { x: "100", y: "155", textAnchor: "middle", fill: textFill, fontSize: "12", fontWeight: "bold" }, "3")
-    );
-  };
-      
+  const displaySteps = steps.length > 0 ? steps : defaultSteps;
 
   return (
     <div className="pyramid-template" style={slideStyles}>
-      {/* Title - wrapped */}
+      {/* Title */}
       <div data-draggable="true" style={{ display: 'inline-block' }}>
         {isEditable && editingTitle ? (
           <InlineEditor
@@ -405,7 +393,6 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             className="inline-editor-title"
             style={{
               ...titleStyles,
-              // Ensure title behaves exactly like h1 element
               margin: '0',
               padding: '0',
               border: 'none',
@@ -434,164 +421,156 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             }}
             className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
           >
-            {title || 'Click to add title'}
+            {title || 'Comparison table template'}
           </h1>
         )}
       </div>
 
-      {/* Subtitle - wrapped */}
-      {subtitle && (
-        <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
-          {isEditable && editingSubtitle ? (
-            <InlineEditor
-              initialValue={subtitle || ''}
-              onSave={handleSubtitleSave}
-              onCancel={handleSubtitleCancel}
-              multiline={true}
-              placeholder="Enter subtitle..."
-              className="inline-editor-subtitle"
-              style={{
-                ...subtitleStyles,
-                // Ensure subtitle behaves exactly like p element
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block'
-              }}
-            />
-          ) : (
-            <p 
-              style={subtitleStyles}
-              onClick={(e) => {
-                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  return;
-                }
-                if (isEditable) {
-                  setEditingSubtitle(true);
-                }
-              }}
-              className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-            >
-              {subtitle}
-            </p>
-          )}
-        </div>
-      )}
-
       <div style={mainContentStyles}>
-        <div style={pyramidContainerStyles} data-draggable="true">
-          <PyramidSVG1 />
-          <PyramidSVG2 />
-          <PyramidSVG3 />
-        </div>
-        <div style={itemsContainerStyles} >
-          {Array.isArray(steps) && steps.slice(0, 3).map((item, index: number) => (
-            <div key={index} style={itemWrapperStyles(index)}>
-              {/* Item Heading */}
-              <div data-draggable="true" style={{ width: '100%' }}>
-                {isEditable && editingItemHeadings.includes(index) ? (
-                  <InlineEditor
-                    initialValue={item.heading || ''}
-                    onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
-                    onCancel={() => handleItemHeadingCancel(index)}
-                    multiline={true}
-                    placeholder="Enter heading..."
-                    className="inline-editor-item-heading"
-                    style={{
-                      ...itemHeadingStyles,
-                      // Ensure heading behaves exactly like div element
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block'
-                    }}
-                  />
-                ) : (
-                  <div 
-                    style={itemHeadingStyles}
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingItemHeading(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-                  >
-                    {item.heading || 'Click to add heading'}
-                  </div>
-                )}
+        {/* Pyramid Levels */}
+        {displaySteps.slice(0, 5).map((step, index) => (
+          <div key={index} style={pyramidLevelStyles(index)} data-draggable="true">
+            {/* Number Circle */}
+            {isEditable && editingItemNumbers.includes(index) ? (
+              <InlineEditor
+                initialValue={step.number || ''}
+                onSave={(newNumber) => handleItemNumberSave(index, newNumber)}
+                onCancel={() => handleItemNumberCancel(index)}
+                placeholder="Enter number..."
+                className="inline-editor-number"
+                style={{
+                  ...numberCircleStyles,
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              />
+            ) : (
+              <div 
+                style={numberCircleStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    startEditingItemNumber(index);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+              >
+                {step.number || '0'}
               </div>
+            )}
+          </div>
+        ))}
 
-              {/* Item Description */}
-              <div data-draggable="true" style={{ width: '100%' }}>
-                {isEditable && editingItemDescriptions.includes(index) ? (
-                  <InlineEditor
-                    initialValue={item.description || ''}
-                    onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
-                    onCancel={() => handleItemDescriptionCancel(index)}
-                    multiline={true}
-                    placeholder="Enter description..."
-                    className="inline-editor-item-description"
-                    style={{
-                      ...itemDescriptionStyles,
-                      // Ensure description behaves exactly like div element
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block'
-                    }}
-                  />
-                ) : (
-                  <div 
-                    style={itemDescriptionStyles}
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingItemDescription(index);
-                      }
-                    }}
-                      className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-                  >
-                    {item.description || 'Click to add description'}
-                  </div>
-                )}
+        {/* Text Blocks */}
+        {displaySteps.slice(0, 5).map((step, index) => (
+          <div key={`text-${index}`} style={textBlockStyles(index)} data-draggable="true">
+            {/* Heading */}
+            {isEditable && editingItemHeadings.includes(index) ? (
+              <InlineEditor
+                initialValue={step.heading || ''}
+                onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
+                onCancel={() => handleItemHeadingCancel(index)}
+                multiline={true}
+                placeholder="Enter heading..."
+                className="inline-editor-heading"
+                style={{
+                  ...textHeadingStyles,
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <div 
+                style={textHeadingStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    startEditingItemHeading(index);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+              >
+                {step.heading || 'Headline'}
               </div>
-            </div>
-          ))}
-          <div data-draggable="true" style={separatorLineStyles(0)}></div>
-          <div data-draggable="true" style={separatorLineStyles(1)}></div>
-        </div>
+            )}
+
+            {/* Description */}
+            {isEditable && editingItemDescriptions.includes(index) ? (
+              <InlineEditor
+                initialValue={step.description || ''}
+                onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
+                onCancel={() => handleItemDescriptionCancel(index)}
+                multiline={true}
+                placeholder="Enter description..."
+                className="inline-editor-description"
+                style={{
+                  ...textDescriptionStyles,
+                  margin: '0',
+                  padding: '0',
+                  border: 'none',
+                  outline: 'none',
+                  resize: 'none',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
+                }}
+              />
+            ) : (
+              <div 
+                style={textDescriptionStyles}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    startEditingItemDescription(index);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+              >
+                {step.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Triangle Arrows */}
+        {displaySteps.slice(0, 5).map((_, index) => (
+          <div key={`triangle-${index}`} style={triangleStyles(index)} data-draggable="true"></div>
+        ))}
       </div>
     </div>
   );
