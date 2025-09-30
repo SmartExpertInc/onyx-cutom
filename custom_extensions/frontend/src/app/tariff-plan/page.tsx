@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft } from 'lucide-react';
+import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins } from 'lucide-react';
 import Link from 'next/link';
 
 interface Plan {
@@ -437,7 +437,7 @@ const TariffPlanPage = () => {
                 <div className="p-8">
                   <div className="space-y-4 mb-8">
                     <div className="flex items-start">
-                      <Database className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <Coins className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                       <div>
                         <div className="font-semibold text-gray-900">Credits</div>
                         <div className="text-sm text-gray-600">{plan.credits}</div>
