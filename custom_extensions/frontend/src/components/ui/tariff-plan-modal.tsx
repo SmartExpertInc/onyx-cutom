@@ -368,11 +368,11 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   <div
                     key={plan.id}
                     className={`relative bg-white rounded-3xl shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
-                      plan.popular 
-                        ? 'border-blue-600 ring-4 ring-blue-200' 
+                        plan.popular 
+                        ? 'border-blue-600' 
                         : 'border-gray-200 hover:border-blue-300'
                     }`}
-                  >
+                    >
                     {plan.popular && (
                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-t-3xl text-xs font-bold text-center shadow-sm">
                         Most Popular
