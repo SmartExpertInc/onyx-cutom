@@ -450,6 +450,7 @@ def _convert_image_to_data_uri(image_path: str) -> str:
 
 
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
+    """Render slide deck HTML using the exact same approach as PDF generation"""
     try:
         template = jinja_env.get_template('single_slide_pdf_template.html')
         slides = content.get('slides', []) if isinstance(content, dict) else []
@@ -457,15 +458,27 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
         if not slides:
             return _wrap_html_as_sco('Presentation', '<h1>No slides available</h1>')
         
+        # Get theme from content or default to 'light'
+        theme = content.get('theme', 'light')
+        
         rendered_slides = []
         for slide in slides:
-            slide_html = template.render(slide=slide, theme='light')
+            # Use the exact same context structure as PDF generation
+            context_data = {
+                'slide': slide,
+                'theme': theme,
+                'slide_height': 800,  # Default height for SCORM
+                'embedded_fonts_css': get_embedded_fonts_css()
+            }
+            
+            # Render each slide with proper context
+            slide_html = template.render(**context_data)
             rendered_slides.append(slide_html)
         
         # CSS for scrollable slide deck
         styles = """
 <style>
-  body { margin: 0; padding: 20px; background: #f5f5f5; }
+  body { margin: 0; padding: 20px; background: #f5f5f5; font-family: 'Inter', Arial, sans-serif; }
   .slide-wrapper { max-width: 900px; margin: 0 auto; }
   .slide-page { 
     background: white; 
@@ -474,10 +487,15 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
     border-radius: 8px; 
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     page-break-after: always;
+    min-height: 600px;
   }
   .slide-page:last-child { margin-bottom: 0; }
+  
+  /* Ensure slide content displays properly */
+  .slide-content { width: 100%; height: 100%; }
 </style>
 """
+        
         title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
         body = "<div class=\"slide-wrapper\">" + "".join([f"<div class=\"slide-page\">{s}</div>" for s in rendered_slides]) + "</div>"
         
@@ -666,6 +684,28 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
         border: 1px solid #dee2e6;
         border-radius: 4px;
         cursor: move;
+        position: relative;
+        user-select: none;
+    }
+    .sorting-list li:hover {
+        background: #e9ecef;
+        border-color: #2563eb;
+    }
+    .sorting-list li.dragging {
+        opacity: 0.5;
+        transform: rotate(2deg);
+    }
+    .drag-handle {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        font-weight: bold;
+        cursor: grab;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
     }
 
     .open-answer-input {
@@ -820,11 +860,11 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
             
             html_parts.append('<div class="sorting-section">')
             html_parts.append('<h4 style="font-weight: 600; margin-bottom: 10px;">Drag to sort in correct order:</h4>')
-            html_parts.append(f'<ul class="sorting-list" id="sortable_{question_num}">')
+            html_parts.append(f'<ul class="sorting-list sortable-container" id="sortable_{question_num}">')
             for item in shuffled_items:
                 item_id = item.get('id', '')
                 item_text = item.get('text', '')
-                html_parts.append(f'<li data-id="{item_id}">{item_text}</li>')
+                html_parts.append(f'<li class="sortable-item" data-id="{item_id}" draggable="true">{item_text}<span class="drag-handle">⋮⋮</span></li>')
             html_parts.append('</ul>')
             html_parts.append('</div>')
             
@@ -947,11 +987,7 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
         
         // Show results
         const resultSection = document.getElementById('result-section');
-        resultSection.innerHTML = `
-            <h3>Quiz Results</h3>
-            <p>Score: ${{score}}% (${{correct}}/${{total}} correct)</p>
-            <p>Status: ${{passed ? 'PASSED' : 'FAILED'}}</p>
-        `;
+        resultSection.innerHTML = '<h3>Quiz Results</h3><p>Score: ' + score + '% (' + correct + '/' + total + ' correct)</p><p>Status: ' + (passed ? 'PASSED' : 'FAILED') + '</p>';
         resultSection.className = 'result-section show ' + (passed ? 'pass' : 'fail');
         
         // Update SCORM data
@@ -969,6 +1005,78 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
     if (typeof LMSInitialize !== 'undefined') {{
         LMSInitialize();
     }}
+
+    // Drag and drop functionality for sorting questions
+    function initializeSorting() {
+        const sortableContainers = document.querySelectorAll('.sortable-container');
+        
+        sortableContainers.forEach(container => {
+            const items = container.querySelectorAll('.sortable-item');
+            
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+        });
+    }
+    
+    let draggedElement = null;
+    
+    function handleDragStart(e) {
+        draggedElement = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.outerHTML);
+    }
+    
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+    
+    function handleDrop(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        
+        if (draggedElement !== this) {
+            const container = this.parentNode;
+            const draggedIndex = Array.from(container.children).indexOf(draggedElement);
+            const targetIndex = Array.from(container.children).indexOf(this);
+            
+            if (draggedIndex < targetIndex) {
+                container.insertBefore(draggedElement, this.nextSibling);
+            } else {
+                container.insertBefore(draggedElement, this);
+            }
+            
+            // Update user answer for this sorting question
+            const questionNum = parseInt(container.id.replace('sortable_', ''));
+            const questionIndex = questionNum - 1;
+            const newOrder = Array.from(container.children).map(item => item.getAttribute('data-id'));
+            userAnswers[questionIndex] = newOrder;
+        }
+        
+        return false;
+    }
+    
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        draggedElement = null;
+    }
+    
+    // Initialize sorting when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSorting();
+    });
+    
+    // Also initialize when quiz loads (fallback)
+    setTimeout(initializeSorting, 100);
 </script>
 """
     
