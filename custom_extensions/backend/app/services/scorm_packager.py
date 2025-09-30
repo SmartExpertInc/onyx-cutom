@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from fastapi import HTTPException
 
 from app.core.database import get_connection
+import httpx
 
 # Reuse Jinja templates configured for PDF generation to produce HTML content
 from app.services.pdf_generator import jinja_env
@@ -261,6 +262,66 @@ def _render_placeholder_html(title: str, text: str) -> str:
     return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>{text}</p>")
 
 
+async def _localize_images_in_html(html: str, zip_file: zipfile.ZipFile, sco_dir: str) -> str:
+    try:
+        import re
+        pattern = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
+        idx = 0
+        def repl(match):
+            nonlocal idx
+            src = match.group(1)
+            if not src or src.startswith('data:') or src.startswith('./') or src.startswith('../') or src.startswith(sco_dir) or src.startswith('assets/'):
+                return match.group(0)
+            if src.startswith('http://') or src.startswith('https://'):
+                # Plan to download and store as assets/img_{idx}.ext
+                idx += 1
+                from urllib.parse import urlparse
+                parsed = urlparse(src)
+                import os as _os
+                ext = _os.path.splitext(parsed.path or '')[1] or '.img'
+                rel_path = f"{sco_dir}/assets/img_{idx}{ext}"
+                # Store placeholder; actual bytes will be fetched in outer pass
+                return match.group(0).replace(src, rel_path)
+            # Otherwise leave as-is
+            return match.group(0)
+
+        # First pass: rewrite src paths to local assets
+        rewritten = pattern.sub(repl, html)
+
+        # Collect the rewritten asset paths from HTML
+        asset_paths = []
+        for m in pattern.finditer(rewritten):
+            s = m.group(1)
+            if s.startswith(f"{sco_dir}/assets/"):
+                asset_paths.append((m.start(1), s))
+
+        # Second pass: download and add to zip for each asset
+        original_srcs = []
+        for m in pattern.finditer(html):
+            src = m.group(1)
+            if src.startswith('http://') or src.startswith('https://'):
+                original_srcs.append(src)
+        # Map original remote srcs in order of appearance to the rewritten local paths
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            ai = 0
+            for m in pattern.finditer(rewritten):
+                loc = m.group(1)
+                if loc.startswith(f"{sco_dir}/assets/") and ai < len(original_srcs):
+                    url = original_srcs[ai]
+                    ai += 1
+                    try:
+                        resp = await client.get(url)
+                        if resp.status_code == 200 and resp.content:
+                            zip_file.writestr(loc, resp.content)
+                    except Exception as _e:
+                        # Ignore download failures; keep src as-is (may load if LMS online)
+                        pass
+
+        return rewritten
+    except Exception:
+        return html
+
+
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
     title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
     slides = []
@@ -445,36 +506,34 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
     styles = """
 <style>
   :root{
-    --bg:#0f172a; /* slate-900 */
-    --card:#111827; /* slate-800 */
-    --muted:#94a3b8; /* slate-400 */
-    --text:#e2e8f0; /* slate-200 */
-    --accent:#6366f1; /* indigo-500 */
-    --accent-600:#4f46e5;
-    --success:#10b981; /* emerald-500 */
-    --danger:#ef4444; /* red-500 */
-    --border:#1f2937; /* slate-700 */
+    --bg:#ffffff;
+    --card:#ffffff;
+    --muted:#4B4B4B;
+    --text:#1f2937; /* near-black */
+    --accent:#FF1414; /* brand red */
+    --border:#e5e7eb;
+    --pill:#2563eb; /* blue for badges */
   }
   body{ background:var(--bg); color:var(--text); }
   .quiz-wrap{ max-width:900px; margin:0 auto; padding:24px; }
-  .quiz-header{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
-  .quiz-title{ font-size:20px; font-weight:700; letter-spacing:0.2px; }
-  .question{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; margin:16px 0; box-shadow:0 4px 12px rgba(0,0,0,0.14) }
+  .quiz-header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .quiz-title{ font-size:22px; font-weight:800; letter-spacing:0.2px; }
+  .question{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin:16px 0; box-shadow:0 2px 10px rgba(0,0,0,0.05) }
   .qtext{ font-weight:700; margin-bottom:10px; font-size:16px; letter-spacing:0.2px; }
-  .opts label{ display:flex; align-items:center; gap:10px; padding:10px 12px; margin:6px 0; border:1px solid var(--border); border-radius:10px; background:#0b1222; transition: all .15s ease-in-out; }
-  .opts label:hover{ border-color: var(--accent); box-shadow:0 0 0 2px rgba(99,102,241,0.15); }
+  .opts label{ display:flex; align-items:center; gap:10px; padding:10px 12px; margin:6px 0; border:1px solid var(--border); border-radius:10px; background:#ffffff; transition: all .15s ease-in-out; }
+  .opts label:hover{ border-color: var(--accent); box-shadow:0 0 0 2px rgba(255,20,20,0.12); }
   .opts input{ accent-color: var(--accent); width:16px; height:16px; }
   .match-row{ display:flex; gap:12px; align-items:center; margin:6px 0; }
   .match-row .prompt{ min-width:180px; color:var(--muted); font-weight:600; }
-  select{ background:#0b1222; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
+  select{ background:#ffffff; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
   .sortable{ list-style:none; padding-left:0; }
-  .sortable li{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; background:#0b1222; }
-  .sortable li button{ border:1px solid var(--border); background:#0b1222; color:var(--muted); border-radius:8px; padding:6px 10px; }
-  .oa-input{ width:100%; border:1px solid var(--border); background:#0b1222; color:var(--text); border-radius:10px; padding:10px 12px; }
-  .submit{ margin-top:22px; width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--accent); color:#fff; background:linear-gradient(135deg, var(--accent), var(--accent-600)); font-weight:700; letter-spacing:0.3px; box-shadow:0 8px 18px rgba(79,70,229,0.25); }
-  .submit:hover{ filter:brightness(1.08); }
-  .result{ margin-top:12px; font-weight:800; }
-  .badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; background:#0b1222; border:1px solid var(--border); color:var(--muted); font-size:12px; }
+  .sortable li{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; background:#ffffff; }
+  .sortable li button{ border:1px solid var(--border); background:#ffffff; color:var(--muted); border-radius:8px; padding:6px 10px; }
+  .oa-input{ width:100%; border:1px solid var(--border); background:#ffffff; color:var(--text); border-radius:10px; padding:10px 12px; }
+  .submit{ margin-top:22px; width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--accent); color:#fff; background:linear-gradient(135deg, var(--accent), #e11d48); font-weight:800; letter-spacing:0.3px; box-shadow:0 8px 18px rgba(225,29,72,0.16); }
+  .submit:hover{ filter:brightness(1.05); }
+  .result{ margin-top:12px; font-weight:800; color:var(--text); }
+  .badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; background:#f8fafc; border:1px solid var(--border); color:var(--muted); font-size:12px; }
   .badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
 </style>
 """
@@ -821,6 +880,8 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     body_html = _render_slide_deck_html(matched, content if isinstance(content, dict) else {})
+                    # Localize remote images into the SCO
+                    body_html = await _localize_images_in_html(body_html, z, sco_dir)
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                 else:
