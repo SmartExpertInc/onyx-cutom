@@ -616,19 +616,49 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
         assets_prefix_in_zip = f"{sco_dir}/assets"
         assets_href_prefix = "assets"
 
-        # Find all image references
+        logger.info(f"[SCORM-ASSETS] Starting image localization for {sco_dir}")
+        logger.info(f"[SCORM-ASSETS] Repo root: {repo_root}")
+        logger.info(f"[SCORM-ASSETS] Static images path: {static_images_abs_path}")
+        logger.info(f"[SCORM-ASSETS] HTML length: {len(html)} characters")
+
+        # Find all image references with more comprehensive patterns
         img_src_pattern = re.compile(r'(<img[^>]+src=["\'])([^"\']+)(["\'][^>]*>)', re.IGNORECASE)
         css_url_pattern = re.compile(r"(url\(\s*['\"]?)([^'\")]+)(['\"]?\s*\))", re.IGNORECASE)
+        
+        # Also look for background-image in style attributes
+        style_bg_pattern = re.compile(r'(background-image\s*:\s*url\(\s*[\'"]?)([^\'")]+)([\'"]?\s*\))', re.IGNORECASE)
 
         urls = []
-        # Extract image URLs
-        for match in img_src_pattern.finditer(html):
-            urls.append(match.group(2))
-        for match in css_url_pattern.finditer(html):
-            urls.append(match.group(2))
+        # Extract image URLs from different sources
+        img_matches = list(img_src_pattern.finditer(html))
+        css_matches = list(css_url_pattern.finditer(html))
+        style_matches = list(style_bg_pattern.finditer(html))
+        
+        logger.info(f"[SCORM-ASSETS] Found {len(img_matches)} <img> tags, {len(css_matches)} CSS url() references, {len(style_matches)} style background-image references")
+        
+        for match in img_matches:
+            url = match.group(2)
+            urls.append(url)
+            logger.debug(f"[SCORM-ASSETS] Found <img> URL: {url}")
+            
+        for match in css_matches:
+            url = match.group(2)
+            urls.append(url)
+            logger.debug(f"[SCORM-ASSETS] Found CSS url() URL: {url}")
+            
+        for match in style_matches:
+            url = match.group(2)
+            urls.append(url)
+            logger.debug(f"[SCORM-ASSETS] Found style background-image URL: {url}")
 
         if not urls:
             logger.info(f"[SCORM-ASSETS] No image URLs found in HTML for {sco_dir}")
+            # Let's also check if there are any image-like strings in the HTML
+            if 'img' in html.lower() or 'image' in html.lower():
+                logger.warning(f"[SCORM-ASSETS] HTML contains 'img' or 'image' text but no URLs detected")
+                # Log a sample of the HTML for debugging
+                sample = html[:500] + "..." if len(html) > 500 else html
+                logger.debug(f"[SCORM-ASSETS] HTML sample: {sample}")
             return html
 
         # Remove duplicates while preserving order
@@ -639,20 +669,25 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                 seen.add(url)
                 unique_urls.append(url)
 
-        logger.info(f"[SCORM-ASSETS] Found {len(unique_urls)} unique image URLs for {sco_dir}")
+        logger.info(f"[SCORM-ASSETS] Found {len(unique_urls)} unique image URLs for {sco_dir}: {unique_urls}")
 
         url_to_local = {}
         asset_index = 1
         embedded_count = 0
+        failed_count = 0
 
         async def fetch_http(url: str) -> Optional[bytes]:
             try:
+                logger.debug(f"[SCORM-ASSETS] Fetching HTTP URL: {url}")
                 async with httpx.AsyncClient(timeout=30.0) as client:
                     resp = await client.get(url)
                     if resp.status_code == 200 and resp.content:
+                        logger.debug(f"[SCORM-ASSETS] Successfully fetched {url}: {len(resp.content)} bytes")
                         return resp.content
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] HTTP {resp.status_code} for {url}")
             except Exception as e:
-                logger.warning(f"[SCORM] Failed to download {url}: {e}")
+                logger.warning(f"[SCORM-ASSETS] Failed to download {url}: {e}")
             return None
 
         def get_file_extension(url: str, content: Optional[bytes] = None) -> str:
@@ -675,13 +710,14 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
             return '.jpg'  # Default fallback
 
         async def process_url(url: str):
-            nonlocal asset_index, embedded_count
+            nonlocal asset_index, embedded_count, failed_count
             
             if not url or url.startswith('data:'):
-                logger.debug(f"[SCORM] Skipping data URI or empty URL")
+                logger.debug(f"[SCORM-ASSETS] Skipping data URI or empty URL: {url[:50]}...")
                 return
             
             data = None
+            source_type = "unknown"
             
             try:
                 # Handle different URL types
@@ -689,41 +725,54 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                     # Protocol-relative URL
                     full_url = 'https:' + url
                     data = await fetch_http(full_url)
-                    logger.debug(f"[SCORM] Downloaded protocol-relative URL: {url}")
+                    source_type = "protocol-relative"
                 
                 elif url.startswith(('http://', 'https://')):
                     # Absolute URL
                     data = await fetch_http(url)
-                    logger.debug(f"[SCORM] Downloaded absolute URL: {url}")
+                    source_type = "absolute-http"
                 
                 elif url.startswith('/static_design_images/'):
                     # Repository static images
                     filename = url.replace('/static_design_images/', '')
                     full_path = os.path.join(static_images_abs_path, filename)
+                    logger.debug(f"[SCORM-ASSETS] Checking static image path: {full_path}")
                     if os.path.exists(full_path):
                         with open(full_path, 'rb') as f:
                             data = f.read()
-                        logger.debug(f"[SCORM] Read static image: {full_path}")
+                        logger.debug(f"[SCORM-ASSETS] Read static image: {full_path} ({len(data)} bytes)")
+                        source_type = "static-design-images"
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] Static image not found: {full_path}")
                 
                 elif url.startswith('static_design_images/'):
                     # Repository static images (no leading slash)
                     filename = url.replace('static_design_images/', '')
                     full_path = os.path.join(static_images_abs_path, filename)
+                    logger.debug(f"[SCORM-ASSETS] Checking static image path (relative): {full_path}")
                     if os.path.exists(full_path):
                         with open(full_path, 'rb') as f:
                             data = f.read()
-                        logger.debug(f"[SCORM] Read static image: {full_path}")
+                        logger.debug(f"[SCORM-ASSETS] Read static image (relative): {full_path} ({len(data)} bytes)")
+                        source_type = "static-design-images-relative"
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] Static image not found (relative): {full_path}")
                 
                 elif url.startswith('/'):
                     # Repository-absolute path
                     full_path = os.path.join(repo_root, url.lstrip('/'))
+                    logger.debug(f"[SCORM-ASSETS] Checking repo absolute path: {full_path}")
                     if os.path.exists(full_path):
                         with open(full_path, 'rb') as f:
                             data = f.read()
-                        logger.debug(f"[SCORM] Read repo image: {full_path}")
+                        logger.debug(f"[SCORM-ASSETS] Read repo image: {full_path} ({len(data)} bytes)")
+                        source_type = "repo-absolute"
+                    else:
+                        logger.warning(f"[SCORM-ASSETS] Repo image not found: {full_path}")
                 
                 else:
-                    logger.debug(f"[SCORM] Skipping unrecognized URL format: {url}")
+                    logger.warning(f"[SCORM-ASSETS] Unrecognized URL format: {url}")
+                    failed_count += 1
                     return
 
                 if data:
@@ -734,40 +783,67 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
                     asset_zip_path = f"{assets_prefix_in_zip}/{local_name}"
                     asset_href = f"{assets_href_prefix}/{local_name}"
                     
+                    # Write to ZIP
                     zip_file.writestr(asset_zip_path, data)
                     url_to_local[url] = asset_href
                     embedded_count += 1
                     
-                    logger.debug(f"[SCORM] Embedded {url} as {local_name} ({len(data)} bytes)")
+                    logger.info(f"[SCORM-ASSETS] ✅ Embedded {url} ({source_type}) as {local_name} ({len(data)} bytes) -> {asset_zip_path}")
                 else:
-                    logger.warning(f"[SCORM] Could not load image: {url}")
+                    logger.warning(f"[SCORM-ASSETS] ❌ Could not load image: {url} ({source_type})")
+                    failed_count += 1
                     
             except Exception as e:
-                logger.error(f"[SCORM] Error processing image {url}: {e}")
+                logger.error(f"[SCORM-ASSETS] ❌ Error processing image {url}: {e}")
+                failed_count += 1
 
         # Process all URLs concurrently
         await asyncio.gather(*(process_url(url) for url in unique_urls))
 
-        logger.info(f"[SCORM-ASSETS] Successfully embedded {embedded_count}/{len(unique_urls)} images for {sco_dir}")
+        logger.info(f"[SCORM-ASSETS] Image processing complete for {sco_dir}: {embedded_count} embedded, {failed_count} failed out of {len(unique_urls)} total")
 
         # Replace all image references
+        replacements_made = 0
+        
         def replace_img_src(match: re.Match) -> str:
+            nonlocal replacements_made
             prefix, src, suffix = match.group(1), match.group(2), match.group(3)
             new_src = url_to_local.get(src, src)
+            if new_src != src:
+                replacements_made += 1
+                logger.debug(f"[SCORM-ASSETS] Replaced <img> src: {src} -> {new_src}")
             return f"{prefix}{new_src}{suffix}"
 
         def replace_css_url(match: re.Match) -> str:
+            nonlocal replacements_made
             prefix, url, suffix = match.group(1), match.group(2), match.group(3)
             new_src = url_to_local.get(url, url)
+            if new_src != url:
+                replacements_made += 1
+                logger.debug(f"[SCORM-ASSETS] Replaced CSS url(): {url} -> {new_src}")
+            return f"{prefix}{new_src}{suffix}"
+            
+        def replace_style_bg(match: re.Match) -> str:
+            nonlocal replacements_made
+            prefix, url, suffix = match.group(1), match.group(2), match.group(3)
+            new_src = url_to_local.get(url, url)
+            if new_src != url:
+                replacements_made += 1
+                logger.debug(f"[SCORM-ASSETS] Replaced style background-image: {url} -> {new_src}")
             return f"{prefix}{new_src}{suffix}"
 
         html = img_src_pattern.sub(replace_img_src, html)
         html = css_url_pattern.sub(replace_css_url, html)
+        html = style_bg_pattern.sub(replace_style_bg, html)
+        
+        logger.info(f"[SCORM-ASSETS] Made {replacements_made} URL replacements in HTML for {sco_dir}")
         
         return html
         
     except Exception as e:
-        logger.error(f"[SCORM] Error localizing images: {e}")
+        logger.error(f"[SCORM-ASSETS] ❌ Error localizing images: {e}")
+        import traceback
+        logger.error(f"[SCORM-ASSETS] Traceback: {traceback.format_exc()}")
         return html
 
 
@@ -1737,22 +1813,30 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
 
                 if any(t in (mtype, comp) for t in ['pdf lesson', 'pdflesson', 'text presentation', 'textpresentation', 'one pager', 'one-pager', 'onepager']):
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
+                    logger.info(f"[SCORM] Rendered one-pager HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     # Render as HTML using the same template as PDFs and inline images
                     content_dict = content if isinstance(content, dict) else {}
                     body_html = _render_slide_deck_html(matched, content_dict)
-                    body_html = await _localize_images_to_assets(body_html, z, f"sco_{product_id}")
+                    logger.info(f"[SCORM] Rendered slide deck HTML for product_id={product_id}, length={len(body_html)}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
+                    logger.info(f"[SCORM] Rendered quiz HTML for product_id={product_id}, length={len(body_html)}")
                 else:
                     continue
 
-                # Write SCO HTML into package
+                # Localize images for ALL product types
                 sco_dir = f"sco_{product_id}"
+                logger.info(f"[SCORM] Starting image localization for product_id={product_id}, sco_dir={sco_dir}")
+                body_html = await _localize_images_to_assets(body_html, z, sco_dir)
+                logger.info(f"[SCORM] Completed image localization for product_id={product_id}, final HTML length={len(body_html)}")
+
+                # Write SCO HTML into package
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{product_id}"
                 # Write as HTML for all types now
                 z.writestr(href, body_html)
+                logger.info(f"[SCORM] Written SCO HTML to {href}")
                 sco_entries.append((res_id, href))
 
                 # Add leaf item under lesson
@@ -1782,7 +1866,15 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
     manifest_xml = _build_manifest_hierarchy(main_title, org_items, resources_xml)
     z.writestr("imsmanifest.xml", manifest_xml)
 
+    # Log final ZIP contents for debugging
+    zip_contents = z.namelist()
+    logger.info(f"[SCORM] Final ZIP contents ({len(zip_contents)} files):")
+    for i, filename in enumerate(sorted(zip_contents)):
+        file_info = z.getinfo(filename)
+        logger.info(f"[SCORM]   {i+1:3d}. {filename} ({file_info.file_size} bytes)")
+
     z.close()
     zip_bytes = zip_buffer.getvalue()
     filename = f"{re.sub(r'[^A-Za-z0-9_-]+', '_', main_title) or 'course'}_scorm2004.zip"
+    logger.info(f"[SCORM] Package complete: {filename} ({len(zip_bytes)} bytes total)")
     return filename, zip_bytes 
