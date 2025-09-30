@@ -221,19 +221,20 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
   const renderCheckbox = (value: string, rowIndex: number, colIndex: number) => {
     const isChecked = value === '✓' || value.toLowerCase() === 'yes' || value.toLowerCase() === 'true';
     
-      return (
+    return (
       <input
         type="checkbox"
         checked={isChecked}
         onChange={(e) => {
           const newValue = e.target.checked ? '✓' : '✗';
-          const newData = {
-            ...tableData,
-            rows: tableData.rows.map((row, rIndex) => 
-              rIndex === rowIndex 
-                ? row.map((cell, cIndex) => cIndex === colIndex ? newValue : cell)
-                : row
-            )
+          const newRows = [...tableData.rows];
+          if (!newRows[rowIndex]) {
+            newRows[rowIndex] = [];
+          }
+          newRows[rowIndex][colIndex] = newValue;
+          const newData = { 
+            title, 
+            tableData: { ...tableData, rows: newRows } 
           };
           scheduleAutoSave(newData);
         }}
@@ -268,17 +269,22 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
         e.preventDefault();
         onCancel();
       }
-  };
+    };
 
-  return (
-    <div 
-      style={{ 
+    const handleBlur = () => {
+      onSave(value);
+    };
+
+    return (
+      <div 
+        style={{ 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           ...style
         }}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         tabIndex={0}
       >
         <input
@@ -287,6 +293,7 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
           onChange={(e) => {
             const newValue = e.target.checked ? '✓' : '✗';
             setValue(newValue);
+            onSave(newValue); // Auto-save on change
           }}
           style={{
             width: '20px',
@@ -612,19 +619,19 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                             />
                           )
                         ) : (
-                          <span 
-                            onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
-                              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                return;
-                              }
-                              if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
-                            }}
-                            className={isEditable ? 'cursor-pointer' : ''}
-                          >
-                            {isFirstColumn ? (
+                          isFirstColumn ? (
+                            <span 
+                              onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+                                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  return;
+                                }
+                                if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
+                              }}
+                              className={isEditable ? 'cursor-pointer' : ''}
+                            >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <div style={{
                                   width: '15px',
@@ -640,8 +647,24 @@ export const TableDarkTemplate: React.FC<TableDarkTemplateProps> = ({
                                 </div>
                                 <span>{cell}</span>
                               </div>
-                            ) : renderCheckbox(cell, rowIndex, colIndex)}
-                          </span>
+                            </span>
+                          ) : (
+                            <div 
+                              onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  return;
+                                }
+                                if (isEditable) setEditingCell({ row: rowIndex, col: colIndex });
+                              }}
+                              className={isEditable ? 'cursor-pointer' : ''}
+                              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              {renderCheckbox(cell, rowIndex, colIndex)}
+                            </div>
+                          )
                         )}
                       </div>
                       </td>

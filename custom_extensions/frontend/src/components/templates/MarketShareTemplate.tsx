@@ -158,6 +158,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingListItem, setEditingListItem] = useState<number | null>(null);
   const [editingYear, setEditingYear] = useState<number | null>(null);
+  const [editingHeight, setEditingHeight] = useState<number | null>(null);
+  const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
 
   // Refs for MoveableManager integration
   const titleRef = useRef<HTMLDivElement>(null);
@@ -211,6 +213,62 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const handleYearCancel = () => {
     setEditingYear(null);
+  };
+
+  const handleHeightSave = (index: number, newHeight: string) => {
+    const height = Math.min(100, Math.max(0, parseInt(newHeight) || 0));
+    if (onUpdate) {
+      const newChartData = [...chartData];
+      newChartData[index] = { ...newChartData[index], percentage: height };
+      onUpdate({ chartData: newChartData });
+    }
+    setEditingHeight(null);
+  };
+
+  const handleHeightCancel = () => {
+    setEditingHeight(null);
+  };
+
+  // Function to add new column
+  const addColumn = () => {
+    if (onUpdate) {
+      const colors = ['#4A70E8', '#FF8C00', '#32CD32', '#8A2BE2', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD'];
+      const gradients = [
+        { start: '#87CEEB', end: '#4682B4' },
+        { start: '#FFA07A', end: '#FF8C00' },
+        { start: '#90EE90', end: '#3CB371' },
+        { start: '#DDA0DD', end: '#9370DB' },
+        { start: '#FFB6C1', end: '#FF69B4' },
+        { start: '#AFEEEE', end: '#20B2AA' },
+        { start: '#87CEEB', end: '#4682B4' },
+        { start: '#98FB98', end: '#90EE90' },
+        { start: '#F0E68C', end: '#DAA520' },
+        { start: '#DDA0DD', end: '#BA55D3' }
+      ];
+      
+      const newIndex = chartData.length;
+      const colorIndex = newIndex % colors.length;
+      const gradientIndex = newIndex % gradients.length;
+      
+      const newColumn = {
+        label: `${2023 + newIndex}`,
+        percentage: 50,
+        color: colors[colorIndex],
+        gradientStart: gradients[gradientIndex].start,
+        gradientEnd: gradients[gradientIndex].end,
+        description: 'Lorem ipsum dolor sit amet'
+      };
+      
+      onUpdate({ chartData: [...chartData, newColumn] });
+    }
+  };
+
+  // Function to remove column
+  const removeColumn = (index: number) => {
+    if (onUpdate && chartData.length > 1) {
+      const newChartData = chartData.filter((_, i) => i !== index);
+      onUpdate({ chartData: newChartData });
+    }
   };
 
   // Handle image upload
@@ -558,6 +616,44 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
       {/* Right section with bar chart */}
       <div style={rightSectionStyles}>
+        {/* Add Column Button */}
+        {isEditable && (
+          <button
+            onClick={addColumn}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: '#4A70E8',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px',
+              fontWeight: 'bold',
+              zIndex: 10,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#3A5BC7';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#4A70E8';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            title="Add new column"
+          >
+            +
+          </button>
+        )}
+
         {/* Bar Chart */}
         <div 
           ref={chartRef}
@@ -627,18 +723,91 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             paddingBottom: '60px'
           }}>
             {chartData.map((item, index) => (
-              <div key={index} style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center',
-                height: '100%',
-                justifyContent: 'flex-end'
-              }}>
-                {/* Bar */}
-                <div style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}>
-                  <span style={barTextStyles}>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
+              <div 
+                key={index} 
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  height: '100%',
+                  justifyContent: 'flex-end',
+                  position: 'relative'
+                }}
+                onMouseEnter={() => setHoveredColumn(index)}
+                onMouseLeave={() => setHoveredColumn(null)}
+              >
+                {/* Delete button - appears on hover */}
+                {isEditable && hoveredColumn === index && chartData.length > 1 && (
+                  <button
+                    onClick={() => removeColumn(index)}
+                    style={{
+                      position: 'absolute',
+                      top: '-30px',
+                      right: '-5px',
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      backgroundColor: '#ff4444',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      zIndex: 10,
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }}
+                    title="Remove column"
+                  >
+                    ×
+                  </button>
+                )}
+
+                {/* Bar with height editing */}
+                <div 
+                  style={barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color)}
+                  onClick={(e) => {
+                    if (e.currentTarget.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      setEditingHeight(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                >
+                  {isEditable && editingHeight === index ? (
+                    <InlineEditor
+                      initialValue={item.percentage.toString()}
+                      onSave={(value) => handleHeightSave(index, value)}
+                      onCancel={handleHeightCancel}
+                      multiline={false}
+                      placeholder="Height..."
+                      className="inline-editor-height"
+                      style={{
+                        ...barTextStyles,
+                        padding: '0',
+                        border: 'none',
+                        outline: 'none',
+                        resize: 'none',
+                        overflow: 'hidden',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        boxSizing: 'border-box',
+                        display: 'block',
+                        textAlign: 'center',
+                        width: '100%'
+                      }}
+                    />
+                  ) : (
+                    <span style={barTextStyles}>
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Year label */}
