@@ -322,6 +322,43 @@ async def _localize_images_in_html(html: str, zip_file: zipfile.ZipFile, sco_dir
         return html
 
 
+async def _inline_remote_images(html: str) -> str:
+    try:
+        import re, mimetypes, base64
+        url_patterns = [
+            re.compile(r'<img[^>]+src=["\'](https?://[^"\']+)["\']', re.IGNORECASE),
+            re.compile(r'url\([\"\']?(https?://[^\)\"\']+)[\"\']?\)', re.IGNORECASE)
+        ]
+        urls: List[str] = []
+        for pat in url_patterns:
+            for m in pat.finditer(html):
+                urls.append(m.group(1))
+        if not urls:
+            return html
+        unique_urls = []
+        seen = set()
+        for u in urls:
+            if u not in seen:
+                seen.add(u)
+                unique_urls.append(u)
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            for u in unique_urls:
+                try:
+                    r = await client.get(u)
+                    if r.status_code == 200 and r.content:
+                        ctype = r.headers.get('Content-Type') or mimetypes.guess_type(u)[0] or 'application/octet-stream'
+                        b64 = base64.b64encode(r.content).decode('ascii')
+                        data_uri = f"data:{ctype};base64,{b64}"
+                        # Replace all occurrences of this URL in src and url()
+                        html = html.replace(u, data_uri)
+                except Exception:
+                    # Ignore failures, keep original URL
+                    pass
+        return html
+    except Exception:
+        return html
+
+
 def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
     title = product_row.get('project_name') or product_row.get('microproduct_name') or 'Presentation'
     slides = []
@@ -373,6 +410,8 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
 </style>
 """
     body = "<div class=\"slide-wrapper\">" + "".join([f"<div class=\"slide-page\">{s}</div>" for s in rendered_slides]) + "</div>"
+    # Inline remote images to ensure offline availability
+    # Note: This function is awaited by caller where needed
     return _wrap_html_as_sco(title, styles + body)
 
 
@@ -509,17 +548,18 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
     --bg:#ffffff;
     --card:#ffffff;
     --muted:#4B4B4B;
-    --text:#1f2937; /* near-black */
+    --text:#111111; /* black-ish */
     --accent:#FF1414; /* brand red */
     --border:#e5e7eb;
-    --pill:#2563eb; /* blue for badges */
+    --pill:#2563eb; /* blue */
   }
   body{ background:var(--bg); color:var(--text); }
   .quiz-wrap{ max-width:900px; margin:0 auto; padding:24px; }
-  .quiz-header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-  .quiz-title{ font-size:22px; font-weight:800; letter-spacing:0.2px; }
-  .question{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin:16px 0; box-shadow:0 2px 10px rgba(0,0,0,0.05) }
-  .qtext{ font-weight:700; margin-bottom:10px; font-size:16px; letter-spacing:0.2px; }
+  .quiz-header{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .quiz-title{ font-size:24px; font-weight:800; }
+  .question{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin:16px 0; box-shadow:0 2px 10px rgba(0,0,0,0.06) }
+  .qtext{ font-weight:700; margin-bottom:10px; font-size:16px; }
+  .opts{ margin-top:6px; }
   .opts label{ display:flex; align-items:center; gap:10px; padding:10px 12px; margin:6px 0; border:1px solid var(--border); border-radius:10px; background:#ffffff; transition: all .15s ease-in-out; }
   .opts label:hover{ border-color: var(--accent); box-shadow:0 0 0 2px rgba(255,20,20,0.12); }
   .opts input{ accent-color: var(--accent); width:16px; height:16px; }
@@ -530,9 +570,9 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
   .sortable li{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0; padding:10px 12px; border:1px dashed var(--border); border-radius:10px; background:#ffffff; }
   .sortable li button{ border:1px solid var(--border); background:#ffffff; color:var(--muted); border-radius:8px; padding:6px 10px; }
   .oa-input{ width:100%; border:1px solid var(--border); background:#ffffff; color:var(--text); border-radius:10px; padding:10px 12px; }
-  .submit{ margin-top:22px; width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--accent); color:#fff; background:linear-gradient(135deg, var(--accent), #e11d48); font-weight:800; letter-spacing:0.3px; box-shadow:0 8px 18px rgba(225,29,72,0.16); }
+  .submit{ margin-top:18px; width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--accent); color:#fff; background:linear-gradient(135deg, var(--accent), #e11d48); font-weight:800; letter-spacing:0.3px; box-shadow:0 8px 18px rgba(225,29,72,0.12); }
   .submit:hover{ filter:brightness(1.05); }
-  .result{ margin-top:12px; font-weight:800; color:var(--text); }
+  .result{ margin-top:10px; font-weight:800; color:var(--text); }
   .badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:9999px; background:#f8fafc; border:1px solid var(--border); color:var(--muted); font-size:12px; }
   .badge .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); }
 </style>
@@ -889,9 +929,9 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 sco_dir = f"sco_{product_id}"
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{product_id}"
-                # If presentation, now localize images using the target sco_dir
+                # For presentations, inline remote images before writing
                 if any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
-                    body_html = await _localize_images_in_html(body_html, z, sco_dir)
+                    body_html = await _inline_remote_images(body_html)
                 z.writestr(href, body_html)
                 sco_entries.append((res_id, href))
 
