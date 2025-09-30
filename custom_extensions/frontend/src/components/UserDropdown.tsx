@@ -24,7 +24,7 @@ const DropdownOption: React.FC<DropdownOptionProps> = ({
   openInNewTab,
 }) => {
   const content = (
-    <div className="flex py-1.5 text-sm px-2 gap-x-2 text-black cursor-pointer rounded hover:bg-gray-100">
+    <div className="flex py-1.5 text-sm px-3 gap-x-2 text-gray-700 cursor-pointer rounded-md hover:bg-gray-100 transition-colors">
       {icon}
       {label}
     </div>
@@ -125,14 +125,14 @@ export function UserDropdown({
         onClick={() => setUserInfoVisible(!userInfoVisible)}
         className="flex relative cursor-pointer"
       >
-        <div className="bg-[#f7f7f7] hover:bg-gray-200 transition-colors duration-150 rounded-full inline-flex w-8 h-8 items-center justify-center text-black">
+        <div className="bg-primary hover:bg-primary/90 transition-colors duration-150 rounded-md inline-flex w-9 h-9 items-center justify-center text-white">
             <User size={18} className="block" />
         </div>
 
       </div>
 
       {userInfoVisible && (
-        <div className="absolute right-0 top-full mt-2 w-48 text-sm border border-gray-200 bg-white rounded-lg shadow-lg z-50">
+        <div className="absolute right-0 top-full mt-2 w-32 text-sm border border-gray-200 bg-white rounded-md shadow-lg z-50">
           <div className="p-1">
             {hideUserDropdown ? (
               <DropdownOption
@@ -145,7 +145,7 @@ export function UserDropdown({
                 {/* User Email Section */}
                 {user?.email && (
                   <>
-                    <div className="px-3 py-2 text-gray-900 text-xs font-semibold border-b border-gray-100">
+                    <div className="px-3 py-2 text-gray-900 text-xs font-semibold border-b border-gray-100 rounded-t-md">
                       {user.email}
                     </div>
                   </>
