@@ -880,8 +880,6 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     body_html = _render_onepager_html(matched, content if isinstance(content, dict) else {})
                 elif any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
                     body_html = _render_slide_deck_html(matched, content if isinstance(content, dict) else {})
-                    # Localize remote images into the SCO
-                    body_html = await _localize_images_in_html(body_html, z, sco_dir)
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                 else:
@@ -891,6 +889,9 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                 sco_dir = f"sco_{product_id}"
                 href = f"{sco_dir}/index.html"
                 res_id = f"res-{product_id}"
+                # If presentation, now localize images using the target sco_dir
+                if any(t in (mtype, comp) for t in ['slide deck', 'presentation', 'slidedeck', 'presentationdisplay']):
+                    body_html = await _localize_images_in_html(body_html, z, sco_dir)
                 z.writestr(href, body_html)
                 sco_entries.append((res_id, href))
 
