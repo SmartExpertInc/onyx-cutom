@@ -48,6 +48,8 @@ import { LMSAccountStatus } from '../../types/lmsTypes';
 import { ToastProvider } from '../../components/ui/toast';
 import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
 import Userback, { UserbackWidget } from '@userback/widget';
+import RegistrationSurveyModal from "../../components/ui/registration-survey-modal";
+import { Button } from "@/components/ui/button"
 
 
 interface User {
@@ -73,6 +75,18 @@ const checkAuthentication = async (): Promise<User | null> => {
   } catch (error) {
     console.error('Authentication check failed:', error);
     return null;
+  }
+};
+
+// Check if user completed the questionnaire
+const checkQuestionnaireCompletion = async (userId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/questionnaires/${userId}/completion`, { credentials: 'same-origin' });
+    const data = await response.json();
+    return !!data.completed;
+  } catch (error) {
+    console.error('Questionnaire check failed:', error);
+    return true; // Default to true to avoid blocking access on error
   }
 };
 
@@ -705,6 +719,8 @@ const ProjectsPageInner: React.FC = () => {
   const isWorkspaceAllowed = isWorkspace && workspaceTabEnabled;
   const isExportLMSAllowed = isExportLMS && exportToLMSEnabled;
 
+  const [isQuestionnaireCompleted, setQuestionnaireCompleted] = useState<boolean | null>(sessionStorage.getItem('questionnaireCompleted') === 'true');
+
   // Debug logging for state changes
   useEffect(() => {
     console.log('[LMS] State change - isExportLMS:', isExportLMS, 'lmsAccountStatus:', lmsAccountStatus, 'showAccountModal:', showAccountModal);
@@ -740,6 +756,13 @@ const ProjectsPageInner: React.FC = () => {
           redirectToMainAuth(`/auth/login?next=${encodeURIComponent(currentUrl)}`);
           return;
         }
+
+        if (!isQuestionnaireCompleted) {
+          const completed = await checkQuestionnaireCompletion(user.id);
+          sessionStorage.setItem('questionnaireCompleted', completed.toString());
+          setQuestionnaireCompleted(completed);
+        }
+
         // Identify user for Mixpanel
         identifyUser(user.id);
         updateUserProfile(user.email);
@@ -1034,6 +1057,31 @@ const ProjectsPageInner: React.FC = () => {
     setSelectedProducts(new Set());
   };
 
+  // Handle survey completion
+  const handleSurveyComplete = async (surveyData: any) => {
+    try {
+      const answers = Object.entries(surveyData)
+        .filter(([_, v]) => v)
+        .map(([k, v]) => ({ question: k, answer: v }));
+      const payload = { onyx_user_id: currentUser?.id || 'dummy-onyx-user-id', answers };
+      const endpoint = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/admin/questionnaire/add`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        sessionStorage.setItem('questionnaireCompleted', 'true');
+        setQuestionnaireCompleted(true);
+        console.log('Survey answers saved successfully');
+      } else {
+        console.error('Failed to save survey answers:', await res.text());
+      }
+    } catch (err) {
+      console.error('Error sending survey answers:', err);
+    }
+  };
+
   // Show account modal when first visiting LMS tab
   useEffect(() => {
     const loadChoice = async () => {
@@ -1114,32 +1162,45 @@ const ProjectsPageInner: React.FC = () => {
       <div className="ml-64 flex flex-col h-screen">
         <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
-          {isSmartDrive ? (
-            <SmartDriveConnectors />
-          ) : isOffersAllowed ? (
-            <OffersTable companyId={selectedFolderId} />
-          ) : isAudits ? (
-            <AuditsTable companyId={selectedFolderId} />
-          ) : isWorkspaceAllowed ? (
-            <WorkspaceMembers />
-          ) : isExportLMSAllowed ? (
-            <>
-              {lmsAccountStatus === 'no-account' && (
-                <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
-              )}
-              {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
-                <ToastProvider>
-                  <LMSProductSelector
-                    selectedProducts={selectedProducts}
-                    onProductToggle={handleProductToggle}
-                    onSelectAll={handleSelectAllProducts}
-                    onDeselectAll={handleDeselectAllProducts}
-                  />
-                </ToastProvider>
-              )}
-            </>
+          {!isQuestionnaireCompleted ? (
+            <RegistrationSurveyModal onComplete={handleSurveyComplete}>
+              <Button 
+                variant="download" 
+                className="rounded-full font-semibold"
+              >
+                <div>
+                  Registration Survey
+                </div>
+              </Button>
+            </RegistrationSurveyModal>
           ) : (
-            <ProjectsTable userId={currentUser?.id} trashMode={isTrash} folderId={selectedFolderId} />
+            isSmartDrive ? (
+              <SmartDriveConnectors />
+            ) : isOffersAllowed ? (
+              <OffersTable companyId={selectedFolderId} />
+            ) : isAudits ? (
+              <AuditsTable companyId={selectedFolderId} />
+            ) : isWorkspaceAllowed ? (
+              <WorkspaceMembers />
+            ) : isExportLMSAllowed ? (
+              <>
+                {lmsAccountStatus === 'no-account' && (
+                  <LMSAccountSetupWaiting onSetupComplete={handleLMSAccountStatus} />
+                )}
+                {(lmsAccountStatus === 'has-account' || lmsAccountStatus === 'setup-complete') && (
+                  <ToastProvider>
+                    <LMSProductSelector
+                      selectedProducts={selectedProducts}
+                      onProductToggle={handleProductToggle}
+                      onSelectAll={handleSelectAllProducts}
+                      onDeselectAll={handleDeselectAllProducts}
+                    />
+                  </ToastProvider>
+                )}
+              </>
+            ) : (
+              <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
+            )
           )}
         </main>
       </div>

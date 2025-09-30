@@ -86,7 +86,6 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import useFeaturePermission from "../hooks/useFeaturePermission";
 import { timeEvent } from "../lib/mixpanelClient"
-import RegistrationSurveyModal from "./ui/registration-survey-modal";
 
 // Helper function to render Lucide React icons based on designMicroproductType
 const getDesignMicroproductIcon = (type: string): React.ReactElement => {
@@ -858,7 +857,6 @@ interface Folder {
 }
 
 interface ProjectsTableProps {
-  userId?: string | null;
   /** If true – table displays items from Trash and hides create/filter toolbars */
   trashMode?: boolean;
   folderId?: number | null;
@@ -2124,7 +2122,6 @@ const FolderRowMenu: React.FC<{
 };
 
 const ProjectsTable: React.FC<ProjectsTableProps> = ({
-  userId = null,
   trashMode = false,
   folderId = null,
   auditMode = false,
@@ -3650,25 +3647,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     timeEvent('Create Product');
   };
 
-  // Handle survey completion
-  const handleSurveyComplete = async (surveyData: any) => {
-    try {
-      const answers = Object.entries(surveyData)
-        .filter(([_, v]) => v)
-        .map(([k, v]) => ({ question: k, answer: v }));
-      const payload = { onyx_user_id: userId || 'dummy-onyx-user-id', answers };
-      const endpoint = `${process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend'}/admin/questionnaire/add`;
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) console.error('Failed to save survey answers:', await res.text());
-    } catch (err) {
-      console.error('Error sending survey answers:', err);
-    }
-  };
-
   // Add these just before the render block
   const visibleProjects = ENABLE_OUTLINE_FILTERING
     ? viewMode === "list"
@@ -3726,16 +3704,6 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
                   </div>
                 </Button>
               </Link>
-              <RegistrationSurveyModal onComplete={handleSurveyComplete}>
-                <Button 
-                  variant="download" 
-                  className="rounded-full font-semibold"
-                >
-                  <div>
-                    Registration Survey
-                  </div>
-                </Button>
-              </RegistrationSurveyModal>
           </div>
         </div>
       )}

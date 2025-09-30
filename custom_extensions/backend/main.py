@@ -27546,6 +27546,25 @@ async def add_user_questionnaire(
         logger.error(f"Error inserting user questionnaire: {e}")
         raise HTTPException(status_code=500, detail="Failed to insert user questionnaire")
 
+@app.get("/api/questionnaires/{user_id}/completion")
+async def check_user_questionnaire_completion(
+    user_id: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Returns True if the user with the given id has completed the questionnaire, otherwise False.
+    """
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT 1 FROM initial_questionnaire WHERE onyx_user_id = $1",
+                user_id
+            )
+            return {"completed": bool(row)}
+    except Exception as e:
+        logger.error(f"Error checking questionnaire completion for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to check questionnaire completion")
+
 # Slide analytics across all users
 @app.get("/api/custom/admin/analytics/slides", response_model=SlidesAnalyticsResponse)
 async def get_slides_analytics(
