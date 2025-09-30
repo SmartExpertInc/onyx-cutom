@@ -380,8 +380,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     )}
                     
                     {/* Card Header */}
-                    <div className={`p-8 rounded-t-3xl ${
-                      plan.name.includes('Free') 
+                    <div className={`p-8 ${plan.popular ? 'rounded-none' : 'rounded-t-3xl'} ${
+                    plan.name.includes('Free') 
                         ? 'bg-gradient-to-r from-gray-600 to-gray-700'
                         : plan.popular
                         ? 'bg-gradient-to-r from-blue-500 to-blue-600'
