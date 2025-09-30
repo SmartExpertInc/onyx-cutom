@@ -365,10 +365,10 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               {/* Pricing Cards */}
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-8">
                 {plans.map((plan) => (
-                    <div key={plan.id} className="relative">
+                    <div key={plan.id} className="flex flex-col items-center">
                       {plan.popular && (
-                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-2 rounded-full text-sm font-bold shadow-lg">
+                        <div className="mb-4">
+                          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-2 rounded-t-3xl text-sm font-bold shadow-lg">
                             Most Popular
                           </div>
                         </div>
