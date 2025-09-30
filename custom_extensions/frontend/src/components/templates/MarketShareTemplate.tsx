@@ -478,7 +478,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const yearLabelStyles: React.CSSProperties = {
     fontSize: '16px',
-    color: '#666666',
+    color: currentTheme.colors.contentColor || '#09090B',
     fontFamily: 'Arial, sans-serif',
     textAlign: 'center',
     marginTop: '15px'
@@ -718,8 +718,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
             pointerEvents: 'none'
           }}>
             {/* Y-axis labels and grid lines */}
-            {[100, 80, 60, 40, 20].map((value) => {
-              const topPosition = ((100 - value) / 100) * 100;
+            {[100, 80, 60, 40, 20, 0].map((value) => {
+              const topPosition = value === 0 ? 100 : ((100 - value) / 100) * 100;
               return (
                 <div key={value} style={{
                   position: 'absolute',
@@ -735,20 +735,22 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                     position: 'absolute',
                     left: '-70px',
                     fontSize: '14px',
-                    color: '#999999',
+                    color: currentTheme.colors.contentColor || '#09090B',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: '500',
-                    transform: 'translateY(-50%)'
+                    transform: value === 0 ? 'translateY(50%)' : 'translateY(-50%)'
                   }}>
                     {value}
                   </div>
-                  {/* Grid line */}
-                  <div style={{
-                    width: '100%',
-                    height: '1px',
-                    backgroundColor: '#E0E0E0',
-                    opacity: 0.6
-                  }} />
+                  {/* Grid line - hide for 0 */}
+                  {value !== 0 && (
+                    <div style={{
+                      width: '100%',
+                      height: '1px',
+                      backgroundColor: '#E0E0E0',
+                      opacity: 0.6
+                    }} />
+                  )}
                 </div>
               );
             })}

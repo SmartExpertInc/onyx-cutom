@@ -159,99 +159,96 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
-    background: backgroundColor,
+    background: '#ffffff', // White background as in photo
     display: 'flex',
     flexDirection: 'column',
-    padding: '64px',
+    padding: '50px',
     fontFamily: currentTheme.fonts.contentFont,
     alignItems: 'stretch',
-    textAlign: 'center',
+    textAlign: 'left', // Left aligned as in photo
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
-    marginBottom: '80px',
+    fontSize: '2.5rem', // Large title as in photo
+    fontFamily: 'Arial, sans-serif', // Sans-serif as in photo
+    color: '#000000', // Black title as in photo
+    marginBottom: '50px',
     textAlign: 'left',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
   const timelineContainerStyles: React.CSSProperties = {
     position: 'relative',
     width: '100%',
-    height: '350px',
+    height: '400px',
     display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingTop: '20px'
   };
 
   const timelineLineStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '50%',
-    left: '5%',
-    width: '90%',
-    height: '2px',
-    background: 'rgba(255,255,255,0.25)',
-  };
-
-  const stepWrapperStyles: React.CSSProperties = {
-    position: 'relative',
-    width: '25%',
-    height: '100%',
-  };
-  
-  const milestoneContentStyles = (isTop: boolean): React.CSSProperties => ({
-    position: 'absolute',
+    top: '0',
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '10px',
-    ...(isTop 
-        ? {bottom: 'calc(50% - 20px)'} 
-        : { top: 'calc(50% - 20px)' }
-    ),
-  });
+    width: '4px',
+    height: '100%',
+    background: '#0F58F9', // Blue line as in photo
+    borderRadius: '2px'
+  };
 
-  const numberSquareStyles: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
-    borderRadius: '3px',
-    background: accentColor,
-    color: '#fff',
+  const stepWrapperStyles = (index: number): React.CSSProperties => ({
+    position: 'absolute',
+    top: `${index * 80 + 20}px`, // Space steps evenly
+    left: index % 2 === 0 ? '20%' : '60%', // Alternate left/right
+    width: '30%',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+  });
+  
+  const milestoneContentStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px',
+    width: '100%'
+  };
+
+  const circleStyles: React.CSSProperties = {
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    background: 'transparent',
+    border: '3px solid #0F58F9', // Blue circle as in photo
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem',
-  };
-
-  const verticalLineStyles: React.CSSProperties = {
-      width: '2px',
-      height: '20px',
-      background: 'rgba(255,255,255,0.25)',
+    fontSize: '0px', // No number inside circle
+    flexShrink: 0
   };
 
   const textBlockStyles: React.CSSProperties = {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      gap: '8px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px',
+    flex: 1
   };
 
   const headingStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
-    color: titleColor,
-    fontFamily: currentTheme.fonts.titleFont,
+    fontSize: '1.1rem',
+    color: '#000000', // Black text as in photo
+    fontFamily: 'Arial, sans-serif',
+    fontWeight: 'bold',
     wordWrap: 'break-word'
   };
 
   const descriptionStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
-    color: contentColor,
-    fontFamily: currentTheme.fonts.contentFont,
-    lineHeight: 1.5,
+    fontSize: '0.95rem',
+    color: '#000000', // Black text as in photo
+    fontFamily: 'Arial, sans-serif',
+    lineHeight: 1.4,
     wordWrap: 'break-word'
   };
 
@@ -359,17 +356,19 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
       <div style={timelineContainerStyles}>
         <div style={timelineLineStyles}></div>
         {steps.slice(0, 4).map((step: TimelineStep, index: number) => {
-          const isTop = index % 2 !== 0; // 1, 3 on top
-          
           return (
             <div 
               key={index} 
               data-moveable-element={`${slideId}-step-${index}`}
               data-draggable="true"
-              style={stepWrapperStyles}
+              style={stepWrapperStyles(index)}
             >
-              <div style={milestoneContentStyles(isTop)}>
-                <div style={{...textBlockStyles, order: isTop ? 1 : 3}}>
+              <div style={milestoneContentStyles}>
+                {/* Circle marker */}
+                <div style={circleStyles}></div>
+                
+                {/* Text content */}
+                <div style={textBlockStyles}>
                   {/* Step Heading */}
                   {isEditable && editingStepHeadings.includes(index) ? (
                     <InlineEditor
@@ -381,7 +380,6 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                       className="inline-editor-step-heading"
                       style={{
                         ...headingStyles,
-                        // Ensure heading behaves exactly like div element
                         margin: '0',
                         padding: '0',
                         border: 'none',
@@ -404,7 +402,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                       }}
                       className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                     >
-                      {step.heading || 'Click to add heading'}
+                      {step.heading || `Step ${index + 1}`}
                     </div>
                   )}
 
@@ -419,7 +417,6 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                       className="inline-editor-step-description"
                       style={{
                         ...descriptionStyles,
-                        // Ensure description behaves exactly like div element
                         margin: '0',
                         padding: '0',
                         border: 'none',
@@ -442,13 +439,9 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                       }}
                       className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
                     >
-                      {step.description || 'Click to add description'}
+                      {step.description || 'Add step description'}
                     </div>
                   )}
-                </div>
-                <div style={{...verticalLineStyles, order: 2}} />
-                <div style={{...numberSquareStyles, order: isTop ? 3 : 1}}>
-                  {index + 1}
                 </div>
               </div>
             </div>
