@@ -441,6 +441,7 @@ def _render_quiz_html(product_row: Dict[str, Any], content: Any) -> str:
             blocks.append(f"<div class=\"question\"><div class=\"qtext\">{esc(qtext)}</div></div>")
             answer_keys.append({'type':'na'})
 
+    keys_json = json.dumps(answer_keys)
     styles = """
 <style>
   :root{
