@@ -9,6 +9,7 @@ import logging
 import base64
 import mimetypes
 from typing import Any, Dict, List, Optional, Tuple
+import pathlib
 
 from fastapi import HTTPException
 
@@ -266,63 +267,146 @@ def _render_placeholder_html(title: str, text: str) -> str:
     return _wrap_html_as_sco(title, f"<h1>{title}</h1><p>{text}</p>")
 
 
-async def _localize_images_in_html(html: str, zip_file: zipfile.ZipFile, sco_dir: str) -> str:
+async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_dir: str) -> str:
+    """Rewrite image references to local assets and add them into the ZIP under sco_dir/assets/.
+    - Handles <img src> and CSS url()
+    - Supports http/https, protocol-less //, /static_design_images, static_design_images and repo-absolute paths
+    - Leaves data: URIs as-is
+    Returns updated HTML.
+    """
     try:
-        import re
-        pattern = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.IGNORECASE)
-        idx = 0
-        def repl(match):
-            nonlocal idx
-            src = match.group(1)
-            if not src or src.startswith('data:') or src.startswith('./') or src.startswith('../') or src.startswith(sco_dir) or src.startswith('assets/'):
-                return match.group(0)
-            if src.startswith('http://') or src.startswith('https://'):
-                # Plan to download and store as assets/img_{idx}.ext
-                idx += 1
-                from urllib.parse import urlparse
-                parsed = urlparse(src)
-                import os as _os
-                ext = _os.path.splitext(parsed.path or '')[1] or '.img'
-                rel_path = f"{sco_dir}/assets/img_{idx}{ext}"
-                # Store placeholder; actual bytes will be fetched in outer pass
-                return match.group(0).replace(src, rel_path)
-            # Otherwise leave as-is
-            return match.group(0)
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        static_images_abs_path = os.path.join(repo_root, 'static_design_images')
+        assets_prefix_in_zip = f"{sco_dir}/assets"
+        assets_href_prefix = "assets"  # relative from index.html
 
-        # First pass: rewrite src paths to local assets
-        rewritten = pattern.sub(repl, html)
+        img_src_pattern = re.compile(r'(<img[^>]+src=["\'])([^"\']+)(["\'])', re.IGNORECASE)
+        css_url_pattern = re.compile(r"url\(\s*['\"]?([^'\")]+)['\"]?\s*\)", re.IGNORECASE)
 
-        # Collect the rewritten asset paths from HTML
-        asset_paths = []
-        for m in pattern.finditer(rewritten):
-            s = m.group(1)
-            if s.startswith(f"{sco_dir}/assets/"):
-                asset_paths.append((m.start(1), s))
+        urls: List[str] = []
+        for m in img_src_pattern.finditer(html):
+            urls.append(m.group(2))
+        for m in css_url_pattern.finditer(html):
+            urls.append(m.group(1))
 
-        # Second pass: download and add to zip for each asset
-        original_srcs = []
-        for m in pattern.finditer(html):
-            src = m.group(1)
-            if src.startswith('http://') or src.startswith('https://'):
-                original_srcs.append(src)
-        # Map original remote srcs in order of appearance to the rewritten local paths
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            ai = 0
-            for m in pattern.finditer(rewritten):
-                loc = m.group(1)
-                if loc.startswith(f"{sco_dir}/assets/") and ai < len(original_srcs):
-                    url = original_srcs[ai]
-                    ai += 1
+        if not urls:
+            return html
+
+        # Unique preserve order
+        seen = set()
+        unique_urls: List[str] = []
+        for u in urls:
+            if u not in seen:
+                seen.add(u)
+                unique_urls.append(u)
+
+        url_to_local: Dict[str, str] = {}
+        asset_index = 1
+
+        async def fetch_http(url: str) -> Optional[bytes]:
+            try:
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    resp = await client.get(url)
+                    if resp.status_code == 200 and resp.content:
+                        return resp.content
+            except Exception as e:
+                logger.info(f"[SCORM] HTTP image download failed for {url}: {e}")
+            return None
+
+        def guess_ext_from_url_or_type(u: str, content: Optional[bytes]) -> str:
+            ext = ''
+            # Try by URL
+            parsed = pathlib.PurePosixPath(u)
+            if parsed.suffix:
+                ext = parsed.suffix
+            if not ext:
+                # Try by mimetype of URL
+                mt = mimetypes.guess_type(u)[0]
+                if mt:
+                    gx = mimetypes.guess_extension(mt)
+                    if gx:
+                        ext = gx
+            if not ext and content is not None:
+                # Fallback generic
+                ext = '.bin'
+            if not ext:
+                ext = '.bin'
+            return ext
+
+        async def convert_one(u: str):
+            nonlocal asset_index
+            if not u or u.startswith('data:'):
+                return
+            data: Optional[bytes] = None
+            # Normalize protocol-less
+            if u.startswith('//'):
+                u_fetch = 'https:' + u
+                data = await fetch_http(u_fetch)
+            elif u.startswith('http://') or u.startswith('https://'):
+                data = await fetch_http(u)
+            elif u.startswith('/static_design_images/'):
+                filename = u.replace('/static_design_images/', '')
+                full_path = os.path.join(static_images_abs_path, filename)
+                if os.path.exists(full_path):
                     try:
-                        resp = await client.get(url)
-                        if resp.status_code == 200 and resp.content:
-                            zip_file.writestr(loc, resp.content)
-                    except Exception as _e:
-                        # Ignore download failures; keep src as-is (may load if LMS online)
-                        pass
+                        with open(full_path, 'rb') as f:
+                            data = f.read()
+                    except Exception as e:
+                        logger.info(f"[SCORM] Read static image failed for {full_path}: {e}")
+            elif u.startswith('static_design_images/'):
+                filename = u.replace('static_design_images/', '')
+                full_path = os.path.join(static_images_abs_path, filename)
+                if os.path.exists(full_path):
+                    try:
+                        with open(full_path, 'rb') as f:
+                            data = f.read()
+                    except Exception as e:
+                        logger.info(f"[SCORM] Read static image failed for {full_path}: {e}")
+            elif u.startswith('/'):
+                full_path = os.path.join(repo_root, u.lstrip('/'))
+                if os.path.exists(full_path):
+                    try:
+                        with open(full_path, 'rb') as f:
+                            data = f.read()
+                    except Exception as e:
+                        logger.info(f"[SCORM] Read repo image failed for {full_path}: {e}")
+            # else: skip unknown relative paths (likely already local or not resolvable)
 
-        return rewritten
-    except Exception:
+            if data is None:
+                return
+
+            ext = guess_ext_from_url_or_type(u, data)
+            local_name = f"img_{asset_index}{ext}"
+            asset_index += 1
+            asset_zip_path = f"{assets_prefix_in_zip}/{local_name}"
+            asset_href = f"{assets_href_prefix}/{local_name}"
+
+            try:
+                zip_file.writestr(asset_zip_path, data)
+                url_to_local[u] = asset_href
+            except Exception as e:
+                logger.info(f"[SCORM] Write asset failed for {u}: {e}")
+
+        # Download/copy in parallel
+        await asyncio.gather(*(convert_one(u) for u in unique_urls))
+
+        # Replace references
+        def replace_img_src(match: re.Match) -> str:
+            prefix, src, suffix = match.group(1), match.group(2), match.group(3)
+            new_src = url_to_local.get(src, src)
+            return f"{prefix}{new_src}{suffix}"
+
+        def replace_css_url(match: re.Match) -> str:
+            url = match.group(1)
+            new_src = url_to_local.get(url, url)
+            # Preserve as unquoted url()
+            return f"url('{new_src}')"
+
+        html = img_src_pattern.sub(replace_img_src, html)
+        html = css_url_pattern.sub(replace_css_url, html)
+        return html
+    except Exception as e:
+        logger.error(f"[SCORM] Error localizing images to assets: {e}")
         return html
 
 
@@ -1354,7 +1438,7 @@ async def build_scorm_package_zip(course_outline_id: int, user_id: str) -> Tuple
                     # Render as HTML using the same template as PDFs and inline images
                     content_dict = content if isinstance(content, dict) else {}
                     body_html = _render_slide_deck_html(matched, content_dict)
-                    body_html = await _process_image_paths_in_html(body_html)
+                    body_html = await _localize_images_to_assets(body_html, z, f"sco_{product_id}")
                 elif any(t in (mtype, comp) for t in ['quiz', 'quizdisplay']):
                     body_html = _render_quiz_html(matched, content if isinstance(content, dict) else {})
                 else:
