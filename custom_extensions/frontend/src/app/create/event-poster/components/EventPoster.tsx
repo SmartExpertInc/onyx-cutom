@@ -1,6 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef } from "react";
+import { Image, Loader, Edit3 } from 'lucide-react';
+
+const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
 interface EventPosterProps {
   eventName: string;
@@ -13,43 +16,258 @@ interface EventPosterProps {
   ticketType: string;
   freeAccessConditions: string;
   speakerImageSrc?: string;
+  onSuccess?: (message: string) => void;
+  onError?: (error: string) => void;
+}
+
+interface EditableTextProps {
+  value: string;
+  onChange: (value: string) => void;
+  style: React.CSSProperties;
+  multiline?: boolean;
+  placeholder?: string;
+}
+
+function EditableText({ value, onChange, style, multiline = false, placeholder }: EditableTextProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempValue, setTempValue] = useState(value);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
+  const handleClick = () => {
+    setIsEditing(true);
+    setTempValue(value);
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 0);
+  };
+
+  const handleSave = () => {
+    onChange(tempValue);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setTempValue(value);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancel();
+    }
+  };
+
+  if (isEditing) {
+    const Component = multiline ? 'textarea' : 'input';
+    return (
+      <Component
+        ref={inputRef as any}
+        value={tempValue}
+        onChange={(e) => setTempValue(e.target.value)}
+        onBlur={handleSave}
+        onKeyDown={handleKeyDown}
+        style={{
+          ...style,
+          background: 'rgba(255,255,255,0.1)',
+          border: '2px solid #5416af',
+          outline: 'none',
+          resize: multiline ? 'none' : undefined,
+          minHeight: multiline ? '100px' : undefined,
+        }}
+        placeholder={placeholder}
+      />
+    );
+  }
+
+  return (
+    <div
+      onClick={handleClick}
+      style={{
+        ...style,
+        cursor: 'pointer',
+        position: 'relative',
+        transition: 'all 0.2s ease',
+      }}
+      className="hover:bg-white hover:bg-opacity-10 hover:shadow-lg rounded-lg p-2 -m-2 group"
+      title="Click to edit"
+    >
+      {value || placeholder}
+      <Edit3 
+        size={16} 
+        className="absolute top-1 right-1 opacity-0 group-hover:opacity-50 transition-opacity" 
+        style={{ color: 'rgba(255,255,255,0.7)' }}
+      />
+    </div>
+  );
 }
 
 export default function EventPoster({
-  eventName,
-  mainSpeaker,
-  speakerDescription,
-  date,
-  topic,
-  additionalSpeakers,
-  ticketPrice,
-  ticketType,
-  freeAccessConditions,
-  speakerImageSrc
+  eventName: initialEventName,
+  mainSpeaker: initialMainSpeaker,
+  speakerDescription: initialSpeakerDescription,
+  date: initialDate,
+  topic: initialTopic,
+  additionalSpeakers: initialAdditionalSpeakers,
+  ticketPrice: initialTicketPrice,
+  ticketType: initialTicketType,
+  freeAccessConditions: initialFreeAccessConditions,
+  speakerImageSrc,
+  onSuccess,
+  onError
 }: EventPosterProps) {
+  // State for editable fields
+  const [eventName, setEventName] = useState(initialEventName);
+  const [mainSpeaker, setMainSpeaker] = useState(initialMainSpeaker);
+  const [speakerDescription, setSpeakerDescription] = useState(initialSpeakerDescription);
+  const [date, setDate] = useState(initialDate);
+  const [topic, setTopic] = useState(initialTopic);
+  const [additionalSpeakers, setAdditionalSpeakers] = useState(initialAdditionalSpeakers);
+  const [ticketPrice, setTicketPrice] = useState(initialTicketPrice);
+  const [ticketType, setTicketType] = useState(initialTicketType);
+  const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
+  const [isGenerating, setIsGenerating] = useState(false);
+  // Download functionality
+  const handleDownloadPoster = async () => {
+    const startTime = new Date();
+    const sessionId = `poster-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      setIsGenerating(true);
+      console.log(`📷 [POSTER_DOWNLOAD] [${sessionId}] Starting poster generation with current state`);
+      
+      // Prepare poster data payload with current state
+      const posterPayload = {
+        eventName,
+        mainSpeaker,
+        speakerDescription,
+        date,
+        topic,
+        additionalSpeakers,
+        ticketPrice,
+        ticketType,
+        freeAccessConditions,
+        speakerImageSrc: speakerImageSrc || '',
+        format: 'poster',
+        dimensions: { width: 1000, height: 1000 },
+        sessionId,
+        clientTimestamp: startTime.toISOString()
+      };
+      
+      console.log(`📷 [POSTER_DOWNLOAD] [${sessionId}] Payload:`, posterPayload);
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/poster-image/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(posterPayload),
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          try {
+            const errorText = await response.text();
+            errorMessage = errorText || errorMessage;
+          } catch {
+            // Keep default error message
+          }
+        }
+        throw new Error(errorMessage);
+      }
+
+      const blob = await response.blob();
+      
+      if (blob.size === 0) {
+        throw new Error('Received empty image file from server');
+      }
+
+      // Create download link
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+
+      // Generate filename
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const cleanProjectName = (eventName || 'poster').replace(/[^a-zA-Z0-9]/g, '-');
+      const filename = `poster-${cleanProjectName}-${timestamp}.png`;
+      link.download = filename;
+
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      onSuccess?.(`Poster image generated and downloaded: ${filename}`);
+      
+    } catch (error) {
+      console.error(`📷 [POSTER_DOWNLOAD] [${sessionId}] Error:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      onError?.(errorMessage);
+      alert(`Failed to generate poster image: ${errorMessage}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Parse date to separate day/month and year
   const dateParts = date.split('.');
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
-
-  // Construct ticket information display string
-  const ticketDisplayText = `Квиток ${ticketType} ${ticketPrice}`;
 
   // Determine speaker image source
   const defaultSpeakerImage = "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png";
   const imageSrc = speakerImageSrc || defaultSpeakerImage;
 
   return (
-    <div 
-      className="relative overflow-hidden mx-auto"
-      style={{ 
-        width: '1000px',
-        height: '1000px',
-        background: 'rgba(255,255,255,1)',
-        fontFamily: 'Montserrat, sans-serif',
-        boxSizing: 'border-box'
-      }}
-    >
+    <div className="space-y-6">
+      {/* Download Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={handleDownloadPoster}
+          disabled={isGenerating}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            isGenerating
+              ? 'bg-blue-500 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
+              : 'bg-green-600 hover:bg-green-700 text-white cursor-pointer focus:ring-green-500'
+          }`}
+          title={isGenerating ? 'Poster image generation in progress...' : 'Generate and download poster image'}
+        >
+          {isGenerating ? <Loader size={16} className="animate-spin" /> : <Image size={16} />}
+          {isGenerating ? 'Generating Poster...' : 'Generate and Download Poster'}
+        </button>
+      </div>
+
+      {/* Editable Fields Info */}
+      <div className="text-center text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+        <Edit3 size={16} className="inline mr-2" />
+        Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.
+      </div>
+
+      {/* Poster */}
+      <div 
+        className="relative overflow-hidden mx-auto"
+        style={{ 
+          width: '1000px',
+          height: '1000px',
+          background: 'rgba(255,255,255,1)',
+          fontFamily: 'Montserrat, sans-serif',
+          boxSizing: 'border-box'
+        }}
+      >
       {/* Main background - v1_5 */}
       <div
         className="absolute inset-0"
@@ -97,7 +315,10 @@ export default function EventPoster({
           {/* First row: Event name and Logo */}
           <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name */}
-            <div
+            <EditableText
+              value={eventName}
+              onChange={setEventName}
+              placeholder="Event Name"
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
@@ -106,9 +327,7 @@ export default function EventPoster({
                 textAlign: 'left',
                 lineHeight: '1.2'
               }}
-            >
-              {eventName}:
-            </div>
+            />
 
             {/* Logo */}
             <div
@@ -127,7 +346,10 @@ export default function EventPoster({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             {/* Speaker name and description */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '600px' }}>
-              <div
+              <EditableText
+                value={mainSpeaker}
+                onChange={setMainSpeaker}
+                placeholder="Main Speaker Name"
                 style={{
                   color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
@@ -136,11 +358,13 @@ export default function EventPoster({
                   textAlign: 'left',
                   lineHeight: '1.2'
                 }}
-              >
-                {mainSpeaker}
-              </div>
+              />
               
-              <div
+              <EditableText
+                value={speakerDescription}
+                onChange={setSpeakerDescription}
+                placeholder="Speaker Description"
+                multiline
                 style={{
                   color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
@@ -149,9 +373,7 @@ export default function EventPoster({
                   textAlign: 'left',
                   lineHeight: '1.2'
                 }}
-              >
-                {speakerDescription}
-              </div>
+              />
             </div>
 
             {/* Date with border */}
@@ -162,31 +384,19 @@ export default function EventPoster({
                 display: 'inline-block'
               }}
             >
-              <div
+              <EditableText
+                value={date}
+                onChange={setDate}
+                placeholder="DD.MM.YYYY"
                 style={{
                   color: 'rgba(255,255,255,1)',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
-                  fontSize: '58px',
+                  fontSize: '40px',
                   textAlign: 'center',
-                  lineHeight: '1'
+                  lineHeight: '1.2'
                 }}
-              >
-                {dayMonth}
-              </div>
-              <div
-                style={{
-                  color: 'rgba(255,255,255,1)',
-                  fontFamily: 'Montserrat',
-                  fontWeight: '300',
-                  fontSize: '52px',
-                  textAlign: 'center',
-                  lineHeight: '1',
-                  marginTop: '5px'
-                }}
-              >
-                {year}
-              </div>
+              />
             </div>
           </div>
         </div>
@@ -194,7 +404,11 @@ export default function EventPoster({
         {/* Left content area */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingRight: '50px', justifyContent: 'center', height: '100%' }}>
           {/* Topic */}
-          <div
+          <EditableText
+            value={topic}
+            onChange={setTopic}
+            placeholder="Event Topic"
+            multiline
             style={{
               color: 'rgba(235,235,235,1)',
               fontFamily: 'Montserrat',
@@ -204,12 +418,14 @@ export default function EventPoster({
               lineHeight: '1.2',
               maxWidth: '480px'
             }}
-          >
-            {topic}
-          </div>
+          />
 
           {/* Additional Speakers */}
-          <div
+          <EditableText
+            value={additionalSpeakers}
+            onChange={setAdditionalSpeakers}
+            placeholder="Additional Speakers"
+            multiline
             style={{
               color: 'rgba(235,235,235,1)',
               fontFamily: 'Montserrat',
@@ -219,9 +435,7 @@ export default function EventPoster({
               lineHeight: '1.2',
               maxWidth: '460px'
             }}
-          >
-            {additionalSpeakers}
-          </div>
+          />
         </div>
 
         {/* Right area - empty space for speaker image */}
@@ -253,7 +467,10 @@ export default function EventPoster({
             >
               Квиток
             </div>
-            <div
+            <EditableText
+              value={ticketType}
+              onChange={setTicketType}
+              placeholder="Type"
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
@@ -262,10 +479,11 @@ export default function EventPoster({
                 textAlign: 'center',
                 marginTop: '4px'
               }}
-            >
-              {ticketType}
-            </div>
-            <div
+            />
+            <EditableText
+              value={ticketPrice}
+              onChange={setTicketPrice}
+              placeholder="Price"
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
@@ -274,13 +492,15 @@ export default function EventPoster({
                 textAlign: 'center',
                 marginTop: '2px'
               }}
-            >
-              {ticketPrice}
-            </div>
+            />
           </div>
 
           {/* Free access conditions */}
-          <div
+          <EditableText
+            value={freeAccessConditions}
+            onChange={setFreeAccessConditions}
+            placeholder="Free Access Conditions"
+            multiline
             style={{
               color: 'rgba(235,235,235,1)',
               fontWeight: '600',
@@ -295,10 +515,9 @@ export default function EventPoster({
               maxWidth: '700px',
               marginLeft: '30px'
             }}
-          >
-            {freeAccessConditions}
-          </div>
+          />
         </div>
+      </div>
       </div>
     </div>
   );
