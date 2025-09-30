@@ -5962,7 +5962,7 @@ async def startup_event():
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS initial_questionnaire (
                     id SERIAL PRIMARY KEY,
-                    onyx_user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                    onyx_user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
                     data JSONB NOT NULL
                 );
             """)
