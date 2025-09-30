@@ -1139,7 +1139,7 @@ const ProjectsPageInner: React.FC = () => {
               )}
             </>
           ) : (
-            <ProjectsTable trashMode={isTrash} folderId={selectedFolderId} />
+            <ProjectsTable userId={currentUser?.id} trashMode={isTrash} folderId={selectedFolderId} />
           )}
         </main>
       </div>
