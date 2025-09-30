@@ -608,10 +608,29 @@ def _render_single_slide_simple(slide: Dict[str, Any], theme: str, slide_number:
         logger.error(f"[SCORM] Error rendering slide {slide_number}: {e}")
         return f'<div class="slide"><h1>Slide {slide_number}</h1><p>Error rendering slide content.</p></div>'
 
+def _find_repo_root_with_static_images() -> str:
+    """Walk up from this file to find the directory that contains `static_design_images`.
+    Fallback to three-levels-up if not found."""
+    try:
+        current = pathlib.Path(__file__).resolve()
+        for p in [current.parent] + list(current.parents):
+            candidate = p / 'static_design_images'
+            if candidate.exists() and candidate.is_dir():
+                logging.getLogger(__name__).info(f"[SCORM-ASSETS] Using repo root '{p}' (found static_design_images)")
+                return str(p)
+        fallback = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        logging.getLogger(__name__).warning(f"[SCORM-ASSETS] static_design_images not found by walking parents; falling back to '{fallback}'")
+        return fallback
+    except Exception as e:
+        fallback = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        logging.getLogger(__name__).error(f"[SCORM-ASSETS] Error resolving repo root: {e}; fallback '{fallback}'")
+        return fallback
+
 async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_dir: str) -> str:
     """Robust image localization with comprehensive URL handling and detailed logging"""
     try:
-        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+        # Use robust root detection
+        repo_root = _find_repo_root_with_static_images()
         static_images_abs_path = os.path.join(repo_root, 'static_design_images')
         assets_prefix_in_zip = f"{sco_dir}/assets"
         assets_href_prefix = "assets"
@@ -626,7 +645,7 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
         css_url_pattern = re.compile(r"(url\(\s*['\"]?)([^'\")]+)(['\"]?\s*\))", re.IGNORECASE)
         
         # Also look for background-image in style attributes
-        style_bg_pattern = re.compile(r'(background-image\s*:\s*url\(\s*[\'"]?)([^\'")]+)([\'"]?\s*\))', re.IGNORECASE)
+        style_bg_pattern = re.compile(r'(background-image\s*:\s*url\(\s*[\'\"]?)([^\'\")]+)([\'\"]?\s*\))', re.IGNORECASE)
 
         urls = []
         # Extract image URLs from different sources
@@ -752,6 +771,12 @@ async def _localize_images_to_assets(html: str, zip_file: zipfile.ZipFile, sco_d
             
             if not url or url.startswith('data:'):
                 logger.debug(f"[SCORM-ASSETS] Skipping data URI or empty URL: {url[:50]}...")
+                return
+            
+            # Skip CSS/font resources that are not images
+            lower_url = url.lower()
+            if 'fonts.googleapis.com' in lower_url or lower_url.endswith('.css'):
+                logger.info(f"[SCORM-ASSETS] Skipping non-image resource: {url}")
                 return
             
             data = None
