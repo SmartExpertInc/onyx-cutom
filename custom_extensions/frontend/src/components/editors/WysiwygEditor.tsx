@@ -12,7 +12,6 @@ export interface WysiwygEditorProps {
   className?: string;
   style?: React.CSSProperties;
 }
-
 export function WysiwygEditor({
   initialValue,
   onSave,
@@ -61,15 +60,15 @@ export function WysiwygEditor({
         return;
       }
 
-      // Отримати координати виділення
       const { view } = editor;
       const start = view.coordsAtPos(from);
       const end = view.coordsAtPos(to);
       
-      // Позиціонувати toolbar над центром виділення
+      // coordsAtPos вже повертає координати відносно viewport
+      // Просто використовуємо їх напряму
       setToolbarPosition({
         x: (start.left + end.left) / 2,
-        y: start.top
+        y: Math.min(start.top, end.top) // Беремо верхню точку виділення
       });
       setShowToolbar(true);
     },
@@ -116,13 +115,12 @@ export function WysiwygEditor({
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      {/* Custom BubbleMenu */}
       {showToolbar && (
         <div
           style={{
             position: 'fixed',
             left: `${toolbarPosition.x}px`,
-            top: `${toolbarPosition.y - 50}px`,
+            top: `${toolbarPosition.y - 60}px`, // 60px над текстом
             transform: 'translateX(-50%)',
             display: 'flex',
             gap: '4px',
@@ -130,9 +128,13 @@ export function WysiwygEditor({
             border: '1px solid #e5e7eb',
             borderRadius: '6px',
             padding: '4px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            zIndex: 1000,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 10000,
             pointerEvents: 'auto',
+          }}
+          onMouseDown={(e) => {
+            // Запобігти blur при кліку на toolbar
+            e.preventDefault();
           }}
         >
           <button
