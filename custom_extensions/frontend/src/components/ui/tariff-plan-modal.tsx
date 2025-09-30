@@ -365,14 +365,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               {/* Pricing Cards */}
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-8">
                 {plans.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={`relative bg-white rounded-3xl shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
-                        plan.popular 
-                        ? 'border-blue-600' 
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                    >
+                  <div key={plan.id} className="relative">
                     {plan.popular && (
                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                         <div className="bg-purple-600 text-white px-8 py-2 rounded-full text-sm font-bold shadow-lg">
@@ -380,9 +373,16 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         </div>
                       </div>
                     )}
+                    <div
+                      className={`bg-white rounded-3xl shadow-xl border-2 transition-all duration-300 hover:shadow-2xl hover:scale-105 ${
+                        plan.popular 
+                        ? 'border-blue-600' 
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                    >
                     
                     {/* Card Header */}
-                    <div className={`p-8 rounded-t-3xl ${
+                    <div className={`p-8 ${plan.popular ? 'rounded-none' : 'rounded-t-3xl'} ${
                     plan.name.includes('Free') 
                         ? 'bg-gradient-to-r from-gray-600 to-gray-700'
                         : plan.popular
@@ -467,6 +467,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? 'Contact Sales' 
                           : 'Purchase Plan'}
                       </button>
+                    </div>
                     </div>
                   </div>
                 ))}
