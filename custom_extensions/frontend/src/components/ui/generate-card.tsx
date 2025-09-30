@@ -47,21 +47,26 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         }}
         {...props}
       >
-        <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
+        <CardContent className="flex flex-col items-center justify-center gap-2 h-full p-4">
             {Icon && (
               <div 
                 className="flex items-center justify-center"
+                style={{
+                  filter: active 
+                    ? 'drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3))' 
+                    : 'drop-shadow(0 2px 4px rgba(107, 114, 128, 0.2))'
+                }}
               >
                   <Icon 
                     size={35}
                     className={cn(
                       "w-14 h-14 xs:w-14 xs:h-14 sm:w-15 sm:h-15 md:w-16 md:h-16 lg:w-17 lg:h-17 xl:w-18 xl:h-18",
-                      active ? "text-white" : "text-gray-600"
+                      active ? "text-white" : "text-gray-500"
                     )}
                   style={{
-                    color: active ? 'white' : '#4b5563',
-                    fill: active ? 'white' : '#4b5563',
-                    stroke: active ? 'white' : '#4b5563',
+                    color: active ? 'white' : '#6b7280',
+                    fill: active ? 'white' : '#6b7280',
+                    stroke: active ? 'white' : '#6b7280',
                     '--tw-text-opacity': '1',
                   }}
                 />
