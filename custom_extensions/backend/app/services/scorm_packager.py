@@ -547,11 +547,12 @@ def _render_slide_deck_html(product_row: Dict[str, Any], content: Any) -> str:
   /* SCORM overrides to match PDF dynamic heights and spacing */
   .slide-page { 
     height: auto !important; 
-    min-height: 0 !important; 
+    min-height: 660px !important; /* 16:9 of 1174px width (~660px) */
     max-height: none !important; 
     margin: 0 auto 32px auto !important; 
     display: block; 
     background: transparent; 
+    aspect-ratio: 16 / 9; /* helps on modern browsers; min-height guards older ones */
   }
   .slide-page:last-child { margin-bottom: 0 !important; }
   .slide-content { height: auto !important; min-height: 0 !important; }
