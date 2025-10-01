@@ -258,13 +258,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     fontFamily: 'Arial, sans-serif'
   };
 
-  // Text blocks - exactly as in photo: right-left-right-left-left
+  // Text blocks - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '25px', right: '7%', textAlign: 'right' as const },   // Level 1 - RIGHT
-      { top: '90px', left: '7%', textAlign: 'left' as const },     // Level 2 - LEFT
-      { top: '155px', right: '7%', textAlign: 'right' as const },  // Level 3 - RIGHT
-      { top: '220px', left: '7%', textAlign: 'left' as const },    // Level 4 - LEFT
+      { top: '25px', left: '7%', textAlign: 'left' as const },     // Level 1 - LEFT
+      { top: '90px', right: '7%', textAlign: 'right' as const },   // Level 2 - RIGHT
+      { top: '155px', left: '7%', textAlign: 'left' as const },    // Level 3 - LEFT
+      { top: '220px', right: '7%', textAlign: 'right' as const },  // Level 4 - RIGHT
       { top: '285px', left: '7%', textAlign: 'left' as const }     // Level 5 - LEFT
     ];
     
@@ -297,13 +297,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     wordWrap: 'break-word'
   };
 
-  // Triangle arrows - exactly as in photo
+  // Triangle arrows - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '55px', right: '19%' },   // Level 1 - RIGHT
-      { top: '120px', left: '19%' },   // Level 2 - LEFT
-      { top: '185px', right: '19%' },  // Level 3 - RIGHT
-      { top: '250px', left: '19%' },   // Level 4 - LEFT
+      { top: '55px', left: '19%' },    // Level 1 - LEFT
+      { top: '120px', right: '19%' },  // Level 2 - RIGHT
+      { top: '185px', left: '19%' },   // Level 3 - LEFT
+      { top: '250px', right: '19%' },  // Level 4 - RIGHT
       { top: '315px', left: '19%' }    // Level 5 - LEFT
     ];
     
