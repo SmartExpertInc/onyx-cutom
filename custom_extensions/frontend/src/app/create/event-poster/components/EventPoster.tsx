@@ -31,6 +31,7 @@ interface EditableTextProps {
   placeholder?: string;
   isTitle?: boolean;
   onAutoSave?: () => void; // Add auto-save callback
+  debouncedAutoSave?: (immediate?: boolean) => void; // Add debounced auto-save
 }
 
 function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave }: EditableTextProps) {
@@ -107,11 +108,22 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
               <Component
           ref={inputRef as any}
           value={tempValue}
-          onChange={(e) => setTempValue(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            setTempValue(newValue);
+            // Save on every keystroke - real-time auto-save
+            console.log('⌨️ [EVENT_POSTER_EDIT] Keystroke detected, saving:', newValue);
+            onChange(newValue);
+            // Trigger auto-save immediately on every change
+            if (onAutoSave) {
+              console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on keystroke');
+              onAutoSave();
+            }
+          }}
           onBlur={() => {
             // Get the current value directly from the DOM element (same as audits)
             const currentValue = inputRef.current?.value || tempValue;
-            console.log('👋 [EVENT_POSTER_EDIT] Focus lost - saving final value:', currentValue);
+            console.log('👋 [EVENT_POSTER_EDIT] Focus lost - ensuring final save:', currentValue);
             onChange(currentValue);
             setIsEditing(false);
             // Trigger auto-save immediately (same as audits)
@@ -120,7 +132,19 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
               onAutoSave();
             }
           }}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => {
+            // Save on Enter or Escape
+            if (e.key === 'Enter' && !multiline) {
+              e.preventDefault();
+              handleSave();
+            } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+              e.preventDefault();
+              handleSave();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              handleCancel();
+            }
+          }}
           style={inputStyle}
           placeholder={placeholder}
           autoFocus
