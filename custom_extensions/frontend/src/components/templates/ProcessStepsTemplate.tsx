@@ -3,135 +3,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ProcessStepsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 interface StepItem {
   title: string;
   description: string;
   icon?: string;
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          textAlign: 'left'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
 }
 
 export const ProcessStepsTemplate: React.FC<ProcessStepsProps & { 
@@ -419,25 +296,22 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
           style={{ display: 'inline-block', width: '100%' }}
         >
           {props.isEditable && editingTitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={props.title || 'The Stages of Research'}
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
-              multiline={true}
               placeholder="Enter title..."
               className="inline-editor-title"
               style={{
                 ...titleStyles,
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '0.85'
               }}
             />
           ) : (
@@ -455,9 +329,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                 }
               }}
               className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {props.title || 'The Stages of Research'}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: props.title || 'The Stages of Research' }}
+            />
           )}
         </div>
 
@@ -469,25 +342,22 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
           style={{ display: 'inline-block', width: '100%' }}
         >
           {props.isEditable && editingSubtitle ? (
-            <InlineEditor
+            <WysiwygEditor
               initialValue={(props as any).subtitle || 'Miss Jones Science Class'}
               onSave={handleSubtitleSave}
               onCancel={handleSubtitleCancel}
-              multiline={false}
               placeholder="Enter subtitle..."
               className="inline-editor-subtitle"
               style={{
                 ...subtitleStyles,
-                margin: '0',
-                padding: '0',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                overflow: 'hidden',
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
                 boxSizing: 'border-box',
-                display: 'block'
+                display: 'block',
+                lineHeight: '1.4'
               }}
             />
           ) : (
@@ -505,9 +375,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                 }
               }}
               className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            >
-              {(props as any).subtitle || 'Miss Jones Science Class'}
-            </p>
+              dangerouslySetInnerHTML={{ __html: (props as any).subtitle || 'Miss Jones Science Class' }}
+            />
           )}
         </div>
       </div>
@@ -537,25 +406,22 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
               <div style={stepContentStyles}>
                 {/* Step Title */}
                 {props.isEditable && editingStepTitle === index ? (
-                  <InlineEditor
+                  <WysiwygEditor
                     initialValue={stepTitle}
                     onSave={(newValue) => handleStepTitleSave(index, newValue)}
                     onCancel={handleStepTitleCancel}
-                    multiline={false}
                     placeholder="Enter step title..."
                     className="inline-editor-step-title"
                     style={{
                       ...stepTitleStyles,
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
-                      display: 'block'
+                      display: 'block',
+                      lineHeight: '1.2'
                     }}
                   />
                 ) : (
@@ -573,32 +439,28 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                       }
                     }}
                     className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {stepTitle}
-                  </h3>
+                    dangerouslySetInnerHTML={{ __html: stepTitle }}
+                  />
                 )}
 
                 {/* Step Description */}
                 {props.isEditable && editingStepDescription === index ? (
-                  <InlineEditor
+                  <WysiwygEditor
                     initialValue={stepDescription}
                     onSave={(newValue) => handleStepDescriptionSave(index, newValue)}
                     onCancel={handleStepDescriptionCancel}
-                    multiline={true}
                     placeholder="Enter step description..."
                     className="inline-editor-step-description"
                     style={{
                       ...stepDescriptionStyles,
-                      margin: '0',
-                      padding: '0',
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
                       wordWrap: 'break-word',
                       whiteSpace: 'pre-wrap',
                       boxSizing: 'border-box',
-                      display: 'block'
+                      display: 'block',
+                      lineHeight: '1.4'
                     }}
                   />
                 ) : (
@@ -616,9 +478,8 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
                       }
                     }}
                     className={props.isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  >
-                    {stepDescription}
-                  </p>
+                    dangerouslySetInnerHTML={{ __html: stepDescription }}
+                  />
                 )}
               </div>
             </div>

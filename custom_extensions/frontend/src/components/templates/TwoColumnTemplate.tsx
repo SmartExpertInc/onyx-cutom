@@ -4,130 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { TwoColumnProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export const TwoColumnTemplate: React.FC<TwoColumnProps & { 
   theme?: SlideTheme;
@@ -337,25 +214,22 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           {/* Left Title */}
           <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingLeftTitle ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={leftTitle || 'Assess risks for the organization.'}
                 onSave={handleLeftTitleSave}
                 onCancel={handleLeftTitleCancel}
-                multiline={true}
                 placeholder="Enter left title..."
                 className="inline-editor-left-title"
                 style={{
                   ...titleStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.2'
                 }}
               />
             ) : (
@@ -373,34 +247,30 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {leftTitle || 'Assess risks for the organization.'}
-              </h1>
+                dangerouslySetInnerHTML={{ __html: leftTitle || 'Assess risks for the organization.' }}
+              />
             )}
           </div>
 
           {/* Left Subtitle */}
           <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingLeftContent ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={leftContent || 'Present with Canva like a professional using presenter mode.'}
                 onSave={handleLeftContentSave}
                 onCancel={handleLeftContentCancel}
-                multiline={true}
                 placeholder="Enter left subtitle..."
                 className="inline-editor-left-content"
                 style={{
                   ...subtitleStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.4'
                 }}
               />
             ) : (
@@ -418,9 +288,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {leftContent || 'Present with Canva like a professional using presenter mode.'}
-              </p>
+                dangerouslySetInnerHTML={{ __html: leftContent || 'Present with Canva like a professional using presenter mode.' }}
+              />
             )}
           </div>
 
@@ -451,25 +320,22 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
           {/* Right Title */}
           <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingRightTitle ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={rightTitle || 'Assess risks for the organization.'}
                 onSave={handleRightTitleSave}
                 onCancel={handleRightTitleCancel}
-                multiline={true}
                 placeholder="Enter right title..."
                 className="inline-editor-right-title"
                 style={{
                   ...titleStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.2'
                 }}
               />
             ) : (
@@ -487,34 +353,30 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {rightTitle || 'Assess risks for the organization.'}
-              </h1>
+                dangerouslySetInnerHTML={{ __html: rightTitle || 'Assess risks for the organization.' }}
+              />
             )}
           </div>
 
           {/* Right Subtitle */}
           <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
             {isEditable && editingRightContent ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={rightContent || 'Present with Canva like a professional using presenter mode.'}
                 onSave={handleRightContentSave}
                 onCancel={handleRightContentCancel}
-                multiline={true}
                 placeholder="Enter right subtitle..."
                 className="inline-editor-right-content"
                 style={{
                   ...subtitleStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
                   wordWrap: 'break-word',
                   whiteSpace: 'pre-wrap',
                   boxSizing: 'border-box',
-                  display: 'block'
+                  display: 'block',
+                  lineHeight: '1.4'
                 }}
               />
             ) : (
@@ -532,9 +394,8 @@ export const TwoColumnTemplate: React.FC<TwoColumnProps & {
                   }
                 }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {rightContent || 'Present with Canva like a professional using presenter mode.'}
-              </p>
+                dangerouslySetInnerHTML={{ __html: rightContent || 'Present with Canva like a professional using presenter mode.' }}
+              />
             )}
           </div>
 
