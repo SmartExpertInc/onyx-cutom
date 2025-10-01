@@ -674,31 +674,73 @@ export default function ProjectInstanceViewPage() {
         return;
       }
       
-      // Debug: Log all instanceData fields to see what we're working with
-      console.log('🔍 [EVENT POSTER DEBUG] Full instanceData:', instanceData);
-      console.log('🔍 [EVENT POSTER DEBUG] instanceData.productType:', (instanceData as any).productType);
-      console.log('🔍 [EVENT POSTER DEBUG] instanceData.microproductType:', (instanceData as any).microproductType);
-      console.log('🔍 [EVENT POSTER DEBUG] instanceData.product_type:', (instanceData as any).product_type);
-      console.log('🔍 [EVENT POSTER DEBUG] instanceData.microproduct_type:', (instanceData as any).microproduct_type);
-      console.log('🔍 [EVENT POSTER DEBUG] instanceData.details:', instanceData.details);
-      console.log('🔍 [EVENT POSTER DEBUG] instanceData.details.eventName:', instanceData.details ? (instanceData.details as any).eventName : 'no details');
-      
-      // Check if this is an event poster and redirect accordingly (expanded detection)
-      if ((instanceData as any).productType === "event_poster" || 
+      // Check if this is an event poster and redirect accordingly
+      // Also check for existing event posters that might have wrong component_name
+      if ((instanceData as any).component_name === "EventPoster" || 
+          (instanceData as any).productType === "event_poster" || 
           (instanceData as any).microproductType === "event_poster" ||
           (instanceData as any).product_type === "event_poster" ||
           (instanceData as any).microproduct_type === "event_poster" ||
-          (instanceData.details && (instanceData.details as any).eventName) ||
-          (instanceData.details && (instanceData.details as any).mainSpeaker) ||
-          (instanceData.details && (instanceData.details as any).ticketPrice)) {
+          // Check for existing event posters by looking for typical event names
+          (instanceData.name && 
+           (instanceData.name.includes("конференція") || 
+            instanceData.name.includes("conference") || 
+            instanceData.name.includes("event") || 
+            instanceData.name.includes("мероприятие") ||
+            instanceData.name.includes("evento"))) ||
+          // Check if this has the wrong component_name but might be an event poster
+          ((instanceData as any).component_name === "QuizDisplay" && 
+           instanceData.name && 
+           instanceData.name.length > 10 && 
+           !instanceData.name.toLowerCase().includes("quiz") && 
+           !instanceData.name.toLowerCase().includes("test"))) {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster results page:', instanceData.project_id);
         
-        // Store poster data in localStorage for the results page
+        // For existing event posters with wrong data structure, we need to fetch the actual data
+        // from the microproduct_content field via API call
+        try {
+          const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+          const headers: HeadersInit = {};
+          const devUserId = "dummy-onyx-user-id-for-testing";
+          if (devUserId && process.env.NODE_ENV === 'development') {
+            headers['X-Dev-Onyx-User-ID'] = devUserId;
+          }
+          
+          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${instanceData.project_id}`, { 
+            headers, 
+            cache: 'no-store' 
+          });
+          
+          if (response.ok) {
+            const fullData = await response.json();
+            console.log('📥 [EVENT POSTER] Full project data:', fullData);
+            
+            // Extract event poster data from microproduct_content
+            let eventData = {};
+            if (fullData.microproduct_content) {
+              eventData = fullData.microproduct_content;
+            } else if (instanceData.details) {
+              eventData = instanceData.details;
+            }
+            
+            console.log('📥 [EVENT POSTER] Event data to store:', eventData);
+            
+            const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            localStorage.setItem(sessionKey, JSON.stringify(eventData));
+            
+            // Redirect to event poster results page with session key
+            router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
+            return;
+          }
+        } catch (error) {
+          console.error('❌ [EVENT POSTER] Failed to fetch full data:', error);
+        }
+        
+        // Fallback: use whatever data we have
         const eventData = instanceData.details || {};
         const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         localStorage.setItem(sessionKey, JSON.stringify(eventData));
         
-        // Redirect to event poster results page with session key
         router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
         return;
       }

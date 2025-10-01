@@ -34222,15 +34222,15 @@ async def save_event_poster(
             "detectedLanguage": "auto"
         }
         
-        # Insert directly into projects table
+        # Insert directly into projects table with correct component_name
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, created_at
+            microproduct_name, microproduct_content, design_template_id, component_name, created_at
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, created_at;
+                  microproduct_content, design_template_id, component_name, created_at;
         """
         
         async with pool.acquire() as conn:
@@ -34242,7 +34242,8 @@ async def save_event_poster(
                 "event_poster",  # microproduct_type
                 poster_data.eventName or "Event Poster",  # microproduct_name - use actual event name
                 microproduct_content,  # microproduct_content
-                1  # design_template_id (default)
+                1,  # design_template_id (default)
+                "EventPoster"  # component_name
             )
             
         if not row:
