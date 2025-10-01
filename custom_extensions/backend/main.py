@@ -34225,15 +34225,15 @@ async def save_event_poster(
         logger.info(f"🔍 [EVENT POSTER SAVE] Incoming poster_data: {poster_data.model_dump()}")
         logger.info(f"🔍 [EVENT POSTER SAVE] Prepared microproduct_content: {microproduct_content}")
         
-        # Insert directly into projects table with correct component_name
+        # Insert directly into projects table using correct schema
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, component_name, created_at
+            microproduct_name, microproduct_content, design_template_id, is_standalone, created_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, component_name, created_at;
+                  microproduct_content, design_template_id, is_standalone, created_at;
         """
         
         async with pool.acquire() as conn:
@@ -34246,7 +34246,7 @@ async def save_event_poster(
                 poster_data.eventName or "Event Poster",  # microproduct_name - use actual event name
                 microproduct_content,  # microproduct_content
                 1,  # design_template_id (default)
-                "EventPoster"  # component_name
+                True  # is_standalone
             )
             
         if not row:
