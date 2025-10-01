@@ -681,7 +681,7 @@ export default function ProjectInstanceViewPage() {
         const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         
         // Ensure the data structure matches what EventPoster component expects
-        const posterData = instanceData.details || {};
+        const posterData = instanceData.details as any || {};
         const formattedData = {
           eventName: posterData.eventName || '',
           mainSpeaker: posterData.mainSpeaker || '',
