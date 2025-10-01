@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import EventPoster from "../components/EventPoster";
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 function EventPosterResultsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLanguage();
 
   // State for event data
@@ -23,25 +24,43 @@ function EventPosterResultsContent() {
     speakerImage: null as string | null
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    // Get data from localStorage
-    const savedData = localStorage.getItem('eventPosterData');
+    // Get session key from URL
+    const sessionKey = searchParams?.get('sessionKey');
+    
+    if (!sessionKey) {
+      console.error('No session key found in URL');
+      router.push('/create/event-poster/questionnaire');
+      return;
+    }
+
+    // Get data from localStorage using the session key
+    const savedData = localStorage.getItem(sessionKey);
+    
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
+        console.log('Event poster data loaded:', parsedData);
         setEventData(parsedData);
-        // Clean up localStorage after loading
-        localStorage.removeItem('eventPosterData');
+        
+        // Clean up localStorage after loading (with small delay to ensure data is used)
+        setTimeout(() => {
+          localStorage.removeItem(sessionKey);
+        }, 1000);
+        
       } catch (error) {
         console.error('Failed to parse event data from localStorage:', error);
-        // Fallback to empty data or redirect to questionnaire
         router.push('/create/event-poster/questionnaire');
       }
     } else {
-      // No data found, redirect to questionnaire
+      console.error('No data found for session key:', sessionKey);
       router.push('/create/event-poster/questionnaire');
     }
-  }, [router]);
+    
+    setIsLoading(false);
+  }, [router, searchParams]);
 
   const handleBackToQuestionnaire = () => {
     router.push('/create/event-poster/questionnaire');
@@ -58,6 +77,18 @@ function EventPosterResultsContent() {
   const handleError = (error: string) => {
     console.error('❌ Poster download error:', error);
   };
+
+  // Show loading state while data is being loaded
+  if (isLoading) {
+    return (
+      <div className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading event poster...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
@@ -117,5 +148,16 @@ function EventPosterResultsContent() {
 }
 
 export default function EventPosterResults() {
-  return <EventPosterResultsContent />;
+  return (
+    <Suspense fallback={
+      <div className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <EventPosterResultsContent />
+    </Suspense>
+  );
 }

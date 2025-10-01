@@ -50,6 +50,9 @@ export default function EventPosterQuestionnaire() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Generate a unique session key
+    const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     // Prepare all data for the results page
     const eventData = {
       eventName,
@@ -64,11 +67,12 @@ export default function EventPosterQuestionnaire() {
       speakerImage: speakerImage || null
     };
 
-    // Store all data in localStorage
-    localStorage.setItem('eventPosterData', JSON.stringify(eventData));
+    // Store all data in localStorage with unique key
+    localStorage.setItem(sessionKey, JSON.stringify(eventData));
+    console.log('Event poster data stored with key:', sessionKey, eventData);
     
-    // Navigate to results page (no URL params needed)
-    router.push('/create/event-poster/results');
+    // Navigate to results page with the session key
+    router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
   };
 
   return (
