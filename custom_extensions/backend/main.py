@@ -18888,6 +18888,52 @@ async def insert_event_poster_to_db(
     return row["id"]
 
 
+# Event Poster Data Fetch Endpoint - Exact same approach as AI Audit Landing Page
+@app.get("/api/custom/event-poster/{project_id}")
+async def get_event_poster_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Get the event poster data for a specific project (same approach as AI audit landing page).
+    """
+    try:
+        logger.info(f"📥 [EVENT_POSTER_DATA] Data request for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the project data (same query as AI audit)
+        query = """
+        SELECT microproduct_content, microproduct_name 
+        FROM projects 
+        WHERE id = $1 AND onyx_user_id = $2
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, project_id, onyx_user_id)
+            
+        if not row:
+            logger.error(f"❌ [EVENT_POSTER_DATA] Project {project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Event poster project not found")
+        
+        content = row["microproduct_content"]
+        project_name = row["microproduct_name"]
+        
+        logger.info(f"💾 [EVENT_POSTER_DATA] Retrieved project data from database:")
+        logger.info(f"💾 [EVENT_POSTER_DATA] - Project name: '{project_name}'")
+        logger.info(f"💾 [EVENT_POSTER_DATA] - Content keys: {list(content.keys()) if content else 'None'}")
+        
+        # Return the event poster data directly (same structure as stored)
+        return {
+            "projectId": project_id,
+            "projectName": project_name,
+            "eventData": content
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [EVENT_POSTER_DATA] Error fetching data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch event poster data")
+
+
 def extract_open_positions_from_table(parsed_json):
     """
     Extracts open positions from a TableBlock in parsed_json.contentBlocks.

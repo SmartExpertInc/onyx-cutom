@@ -677,26 +677,8 @@ export default function ProjectInstanceViewPage() {
       // Check if this is an Event Poster project and redirect accordingly
       if (instanceData.name && instanceData.name.startsWith("Event Poster:")) {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster page:', instanceData.project_id);
-        // Store the event poster data in localStorage for the results page
-        const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Ensure the data structure matches what EventPoster component expects
-        const posterData = instanceData.details as any || {};
-        const formattedData = {
-          eventName: posterData.eventName || '',
-          mainSpeaker: posterData.mainSpeaker || '',
-          speakerDescription: posterData.speakerDescription || '',
-          date: posterData.date || '',
-          topic: posterData.topic || '',
-          additionalSpeakers: posterData.additionalSpeakers || '',
-          ticketPrice: posterData.ticketPrice || '',
-          ticketType: posterData.ticketType || '',
-          freeAccessConditions: posterData.freeAccessConditions || '',
-          speakerImage: posterData.speakerImageSrc || posterData.speakerImage || null
-        };
-        
-        localStorage.setItem(posterSessionKey, JSON.stringify(formattedData));
-        router.push(`/create/event-poster/results?sessionKey=${posterSessionKey}`);
+        // Redirect directly with project ID (same as AI audit approach)
+        router.push(`/create/event-poster/results/${instanceData.project_id}`);
         return;
       }
       
