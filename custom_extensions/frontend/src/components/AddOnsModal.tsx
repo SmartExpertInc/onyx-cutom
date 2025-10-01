@@ -126,7 +126,7 @@ interface AddOnCardProps {
 
 function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardProps) {
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition-shadow border border-gray-200">
       <CardHeader>
         <div className="flex items-start gap-4">
           <div className="bg-blue-600 rounded-full p-3">
@@ -134,7 +134,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
           </div>
           <div className="flex-1">
             <CardTitle className="text-xl">{addOn.name}</CardTitle>
-            <CardDescription className="mt-1">{addOn.description}</CardDescription>
+            <CardDescription className="mt-1 text-gray-500">{addOn.description}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -145,14 +145,17 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
         </div>
         <div className="text-3xl font-bold text-gray-900">
           {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
-        </div>
+          {addOn.priceNote === 'per month' && (
+            <span className="text-lg font-normal text-gray-600">/month</span>
+          )}
+                  </div>
         {!addOn.isEnterprise && (
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
               onClick={() => onQuantityChange(-1)}
-              className="h-10 w-10"
+              className="h-10 w-10 bg-white"
             >
               -
             </Button>
@@ -161,16 +164,16 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
               variant="outline"
               size="icon"
               onClick={() => onQuantityChange(1)}
-              className="h-10 w-10"
+              className="h-10 w-10 bg-white"
             >
               +
             </Button>
           </div>
         )}
-        <Button className="w-full" variant={addOn.isEnterprise ? "outline" : "default"}>
+        <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white" variant="download">
           {addOn.isEnterprise ? 'Contact Sales' : 'Buy Now'}
         </Button>
-        {addOn.priceNote && (
+        {addOn.priceNote && addOn.priceNote !== 'per month' && (
           <p className="text-center text-sm text-gray-500">{addOn.priceNote}</p>
         )}
       </CardContent>
@@ -205,9 +208,27 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
         <Tabs defaultValue="credits" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="mx-6 mt-6 w-auto">
-            <TabsTrigger value="credits">Credits</TabsTrigger>
-            <TabsTrigger value="connectors">Connectors</TabsTrigger>
-            <TabsTrigger value="storage">Storage</TabsTrigger>
+            <TabsTrigger 
+              value="credits" 
+              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              <Coins size={16} className="text-blue-600 group-data-[state=active]:text-white" />
+              <span>Credits</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="connectors" 
+              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              <Workflow size={16} className="text-blue-600 group-data-[state=active]:text-white" />
+              <span>Connectors</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="storage" 
+              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+            >
+              <Server size={16} className="text-blue-600 group-data-[state=active]:text-white" />
+              <span>Storage</span>
+            </TabsTrigger>
           </TabsList>
 
           <div className="overflow-y-auto flex-1 p-6">
