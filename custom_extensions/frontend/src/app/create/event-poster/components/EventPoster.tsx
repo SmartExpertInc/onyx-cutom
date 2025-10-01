@@ -155,8 +155,8 @@ export default function EventPoster({
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Parse date to separate day/month and year
-  const dateParts = date.split('.');
+  // Parse date to separate day/month and year (with null/undefined check)
+  const dateParts = (date || '').split('.');
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
 
