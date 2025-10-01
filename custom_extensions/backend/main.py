@@ -29994,7 +29994,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: rgba(235,235,235,1);
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 47px;
+                font-size: 54px;
                 text-align: left;
                 line-height: 1.2;
                 max-width: 480px;
@@ -30060,7 +30060,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .free-access {{
                 color: rgba(235,235,235,1);
                 font-weight: 600;
-                font-size: 34px;
+                font-size: 42px;
                 text-align: center;
                 line-height: 1.2;
                 background-color: #5416af;
