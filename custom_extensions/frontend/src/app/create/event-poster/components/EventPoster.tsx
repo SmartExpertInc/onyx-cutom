@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Image, Loader, Edit3, Save } from 'lucide-react';
 
@@ -51,14 +51,15 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
   };
 
   const handleSave = () => {
-    onChange(tempValue);
+    // Get the current value directly from the DOM element (same as audits)
+    const currentValue = inputRef.current?.value || tempValue;
+    console.log('🔄 [EVENT_POSTER_EDIT] Saving value directly from DOM:', currentValue);
+    onChange(currentValue);
     setIsEditing(false);
-    // Use setTimeout to ensure the onChange has time to update the parent state
+    // Trigger auto-save immediately (same as audits)
     if (onAutoSave) {
-      setTimeout(() => {
-        console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save after state update');
-        onAutoSave();
-      }, 50); // Small delay to allow React state update to complete
+      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save immediately');
+      onAutoSave();
     }
   };
 
@@ -103,16 +104,27 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       borderRadius: '4px',
     };
     return (
-      <Component
-        ref={inputRef as any}
-        value={tempValue}
-        onChange={(e) => setTempValue(e.target.value)}
-        onBlur={handleSave}
-        onKeyDown={handleKeyDown}
-        style={inputStyle}
-        placeholder={placeholder}
-        autoFocus
-      />
+              <Component
+          ref={inputRef as any}
+          value={tempValue}
+          onChange={(e) => setTempValue(e.target.value)}
+          onBlur={() => {
+            // Get the current value directly from the DOM element (same as audits)
+            const currentValue = inputRef.current?.value || tempValue;
+            console.log('👋 [EVENT_POSTER_EDIT] Focus lost - saving final value:', currentValue);
+            onChange(currentValue);
+            setIsEditing(false);
+            // Trigger auto-save immediately (same as audits)
+            if (onAutoSave) {
+              console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur');
+              onAutoSave();
+            }
+          }}
+          onKeyDown={handleKeyDown}
+          style={inputStyle}
+          placeholder={placeholder}
+          autoFocus
+        />
     );
   }
 
@@ -168,6 +180,36 @@ export default function EventPoster({
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Click outside handler to stop editing (same as audits)
+  useEffect(() => {
+    const handleGlobalClick = (event: MouseEvent) => {
+      // Check if any field is being edited
+      const editingInputs = document.querySelectorAll('input, textarea');
+      let editingElement: HTMLInputElement | HTMLTextAreaElement | null = null;
+
+      editingInputs.forEach((input) => {
+        if (input === document.activeElement || input.matches(':focus')) {
+          editingElement = input as HTMLInputElement | HTMLTextAreaElement;
+        }
+      });
+
+      if (editingElement) {
+        // Check if click is outside any editing input
+        const target = event.target as HTMLElement;
+        if (!target.closest('input, textarea')) {
+          console.log('🖱️ [EVENT_POSTER_EDIT] Clicked outside - forcing blur to save value');
+          // Force blur on the editing element to trigger auto-save
+          (editingElement as HTMLInputElement | HTMLTextAreaElement).blur();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalClick);
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalClick);
+    };
+  }, []);
 
   // Auto-save functionality (same pattern as course outlines)
   const handleAutoSave = async () => {
