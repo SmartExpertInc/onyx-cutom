@@ -1138,35 +1138,36 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'comparison-slide': {
-    id: 'comparison-slide',
-    name: 'Comparison Slide',
-    description: 'Side-by-side comparison table for contrasting concepts',
-    category: 'content',
-    icon: '⚖️',
-    component: ComparisonSlideTemplate,
-    defaultProps: {
-      title: 'Comparison',
-      subtitle: '',
-      tableData: {
-        headers: ['Feature', 'Option A', 'Option B'],
-        rows: [
-          ['Characteristic 1', 'Value A1', 'Value B1'],
-          ['Characteristic 2', 'Value A2', 'Value B2'],
-          ['Characteristic 3', 'Value A3', 'Value B3']
-        ]
-      }
-    },
-    propSchema: {
-      title: { type: 'text', label: 'Title', required: true },
-      subtitle: { type: 'text', label: 'Subtitle', required: false },
-      tableData: {
-        type: 'object',
-        label: 'Table Data',
-        required: true
-      }
-    }
-  },
+  // COMMENTED OUT - Hidden from UI
+  // 'comparison-slide': {
+  //   id: 'comparison-slide',
+  //   name: 'Comparison Slide',
+  //   description: 'Side-by-side comparison table for contrasting concepts',
+  //   category: 'content',
+  //   icon: '⚖️',
+  //   component: ComparisonSlideTemplate,
+  //   defaultProps: {
+  //     title: 'Comparison',
+  //     subtitle: '',
+  //     tableData: {
+  //       headers: ['Feature', 'Option A', 'Option B'],
+  //       rows: [
+  //         ['Characteristic 1', 'Value A1', 'Value B1'],
+  //         ['Characteristic 2', 'Value A2', 'Value B2'],
+  //         ['Characteristic 3', 'Value A3', 'Value B3']
+  //       ]
+  //     }
+  //   },
+  //   propSchema: {
+  //     title: { type: 'text', label: 'Title', required: true },
+  //     subtitle: { type: 'text', label: 'Subtitle', required: false },
+  //     tableData: {
+  //       type: 'object',
+  //       label: 'Table Data',
+  //       required: true
+  //     }
+  //   }
+  // },
 
   'table-dark': {
     id: 'table-dark',
