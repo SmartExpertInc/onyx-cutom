@@ -18906,10 +18906,10 @@ async def update_event_poster_data(project_id: int, payload: dict, request: Requ
         
         logger.info(f"🔄 [EVENT_POSTER_UPDATE] Updating content: {list(microproduct_content.keys()) if microproduct_content else 'None'}")
         
-        # Update the project data
+        # Update the project data (no updated_at column in projects table)
         update_query = """
         UPDATE projects 
-        SET microproduct_content = $1, updated_at = NOW()
+        SET microproduct_content = $1
         WHERE id = $2 AND onyx_user_id = $3
         RETURNING id, microproduct_content, microproduct_name
         """
