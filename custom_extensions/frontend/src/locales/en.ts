@@ -1530,7 +1530,53 @@ export const en = {
       ticketPricePlaceholder: "Enter ticket price",
       ticketTypePlaceholder: "Enter ticket type",
       freeAccessConditionsPlaceholder: "Enter free access conditions",
-      imageUploadedSuccessfully: "✓ Image uploaded successfully"
+      imageUploadedSuccessfully: "✓ Image uploaded successfully",
+      validation: {
+        invalidImage: "Please select a valid image file.",
+        tooLarge: "Image size must be less than 5MB."
+      }
+    },
+
+    // Event Poster Results page
+    posterResults: {
+      editQuestionnaire: "Edit Questionnaire",
+      backToProjects: "Back to Projects",
+      title: "Event Poster",
+      subtitle: "Your event poster has been generated successfully",
+      loading: "Loading event poster results..."
+    },
+
+    // Event Poster component strings
+    poster: {
+      clickToEdit: "Click to edit",
+      editHint: "Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.",
+      ticketLabel: "Ticket",
+      actions: {
+        generate: "Generate and Download Poster",
+        generating: "Generating Poster...",
+        generateTitle: "Generate and download poster image",
+        generatingTitle: "Poster image generation in progress..."
+      },
+      placeholders: {
+        dayMonth: "DD.MM",
+        year: "YYYY",
+        ticketType: "Type",
+        ticketPrice: "Price",
+        freeAccessConditions: "Free Access Conditions"
+      }
+    },
+
+    // Example default values for questionnaire
+    posterExamples: {
+      eventName: "Big Online Conference",
+      mainSpeaker: "Denys Dovhopolyi",
+      speakerDescription: "Founder of QNICORN NEST (Luxemburg) ...",
+      date: "08.10.2025",
+      topic: "VC market trends and priorities in 2025-2026",
+      additionalSpeakers: "Plus 4 star speakers: ...",
+      ticketPrice: "150€",
+      ticketType: "STANDARD",
+      freeAccessConditions: "free for business club members"
     }
   },
 };

@@ -2339,7 +2339,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
       const processedProjects = projectsData.map((p: any) => ({
         id: p.id,
         title: computeDisplayTitleFromProjectApi(p),
-        imageUrl: p.imageUrl || "",
+        imageUrl: p.imageUrl || p?.microproduct_content?.posterImageUrl || "",
         lastViewed: p.lastViewed || "Never",
         createdAt: p.created_at,
         createdBy: p.createdBy || "You",
@@ -2596,7 +2596,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         const processedProjects = projectsData.map((p: any) => ({
           id: p.id,
           title: computeDisplayTitleFromProjectApi(p),
-          imageUrl: p.imageUrl || "",
+          imageUrl: p.imageUrl || p?.microproduct_content?.posterImageUrl || "",
           lastViewed: p.lastViewed || "Never",
           createdAt: p.created_at,
           createdBy: p.createdBy || "You",

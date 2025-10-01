@@ -29305,6 +29305,85 @@ async def stream_openai_response_direct(prompt: str, model: str = None) -> str:
         return f"Error generating content: {str(e)}"
 
 
+@app.get("/api/custom/poster-image/file")
+async def get_saved_poster_image(path: str):
+    """Serve a saved poster image from output/poster_images by file name only."""
+    from pathlib import Path
+    safe_name = os.path.basename(path)
+    full_path = Path("output/poster_images") / safe_name
+    if not full_path.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(path=str(full_path), media_type="image/png", filename=safe_name)
+
+@app.post("/api/custom/posters/save")
+async def save_event_poster(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool),
+):
+    """
+    Save an Event Poster as a project so it appears in Products. Stores textual fields and an image path/URL.
+    Expects JSON body with: eventName (used as project_name), posterImageDataUrl, and optional posterImageUrl.
+    If data URL is provided, writes it to output/poster_images and stores a public URL.
+    """
+    try:
+        body = await request.json()
+        project_name = (body.get("eventName") or "Event Poster").strip()
+        poster_image_data_url = body.get("posterImageDataUrl")
+        poster_image_url = body.get("posterImageUrl")
+        
+        # Convert data URL to file if provided
+        if poster_image_data_url and poster_image_data_url.startswith('data:image/'):
+            import base64
+            import uuid
+            from pathlib import Path
+            
+            # Extract base64 data
+            header, data = poster_image_data_url.split(',', 1)
+            image_data = base64.b64decode(data)
+            
+            # Create unique filename
+            filename = f"poster_{uuid.uuid4().hex[:12]}.png"
+            output_dir = Path("output/poster_images")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save file
+            file_path = output_dir / filename
+            with open(file_path, 'wb') as f:
+                f.write(image_data)
+            
+            # Set public URL
+            poster_image_url = f"/api/custom/poster-image/file?path={filename}"
+        
+        # Get user ID from session
+        user_id = await get_user_id_from_session(request, pool)
+        if not user_id:
+            raise HTTPException(status_code=401, detail="User not authenticated")
+        
+        # Insert project record
+        async with pool.acquire() as conn:
+            project_id = await conn.fetchval("""
+                INSERT INTO projects (
+                    onyx_user_id, project_name, product_type, microproduct_type, 
+                    design_microproduct_type, microproduct_content, created_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                RETURNING id
+            """, user_id, project_name, "design", "event_poster", "event_poster", {
+                "posterImageUrl": poster_image_url,
+                "eventName": project_name,
+                **{k: v for k, v in body.items() if k not in ["posterImageDataUrl", "posterImageUrl"]}
+            })
+        
+        return {
+            "success": True,
+            "projectId": project_id,
+            "posterImageUrl": poster_image_url,
+            "message": "Event poster saved successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error saving event poster: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to save poster: {str(e)}")
+
 @app.post("/api/custom/poster-image/generate")
 async def generate_poster_image(request: Request):
     """

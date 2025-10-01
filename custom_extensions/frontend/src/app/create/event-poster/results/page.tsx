@@ -3,10 +3,12 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EventPoster from "../components/EventPoster";
+import { useLanguage } from "../../../../contexts/LanguageContext";
 
 function EventPosterResultsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t } = useLanguage();
 
   // Extract data from URL parameters
   const eventName = searchParams?.get('eventName') || '';
@@ -61,7 +63,7 @@ function EventPosterResultsContent() {
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
               </svg>
-              Edit Questionnaire
+              {t('posterResults.editQuestionnaire', 'Edit Questionnaire')}
             </button>
             
             <button
@@ -72,15 +74,15 @@ function EventPosterResultsContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
               </svg>
-              Back to Projects
+              {t('posterResults.backToProjects', 'Back to Projects')}
             </button>
           </div>
         </div>
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Poster</h1>
-            <p className="text-gray-600">Your event poster has been generated successfully</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('posterResults.title', 'Event Poster')}</h1>
+            <p className="text-gray-600">{t('posterResults.subtitle', 'Your event poster has been generated successfully')}</p>
           </div>
 
           {/* Event Poster Component with integrated download functionality */}
@@ -107,12 +109,13 @@ function EventPosterResultsContent() {
 }
 
 export default function EventPosterResults() {
+  const { t } = useLanguage();
   return (
     <Suspense fallback={
       <div className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading event poster results...</p>
+          <p className="text-gray-600">{t('posterResults.loading', 'Loading event poster results...')}</p>
         </div>
       </div>
     }>

@@ -1627,7 +1627,53 @@ export const uk = {
       ticketPricePlaceholder: "Введіть ціну квитка",
       ticketTypePlaceholder: "Введіть тип квитка",
       freeAccessConditionsPlaceholder: "Введіть умови безкоштовного доступу",
-      imageUploadedSuccessfully: "✓ Зображення успішно завантажено"
+      imageUploadedSuccessfully: "✓ Зображення успішно завантажено",
+      validation: {
+        invalidImage: "Будь ласка, виберіть коректний файл зображення.",
+        tooLarge: "Розмір зображення має бути менше 5 МБ."
+      }
+    },
+
+    // Event Poster Results page
+    posterResults: {
+      editQuestionnaire: "Редагувати анкету",
+      backToProjects: "Повернутися до проєктів",
+      title: "Постер події",
+      subtitle: "Ваш постер події успішно згенеровано",
+      loading: "Завантаження результатів постера події..."
+    },
+
+    // Event Poster component strings
+    poster: {
+      clickToEdit: "Натисніть, щоб редагувати",
+      editHint: "Натисніть на будь-який текст на постері, щоб відредагувати. Enter — зберегти, Escape — скасувати.",
+      ticketLabel: "Квиток",
+      actions: {
+        generate: "Згенерувати та завантажити постер",
+        generating: "Генеруємо постер...",
+        generateTitle: "Згенерувати та завантажити зображення постера",
+        generatingTitle: "Відбувається генерація зображення постера..."
+      },
+      placeholders: {
+        dayMonth: "ДД.ММ",
+        year: "РРРР",
+        ticketType: "Тип",
+        ticketPrice: "Ціна",
+        freeAccessConditions: "Умови безкоштовного доступу"
+      }
+    },
+
+    // Example default values for questionnaire
+    posterExamples: {
+      eventName: "Велика онлайн-конференція",
+      mainSpeaker: "Денис Довгополий",
+      speakerDescription: "засновник QNICORN NEST (Luxemburg) ...",
+      date: "08.10.2025",
+      topic: "Тренди та пріоритети ринку VC у 2025-2026 роках",
+      additionalSpeakers: "Та ще 4 зіркових спікерів: ...",
+      ticketPrice: "150€",
+      ticketType: "STANDART",
+      freeAccessConditions: "безкоштовно для членів business club"
     }
   },
 };

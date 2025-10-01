@@ -21,6 +21,7 @@ class PosterTemplateService:
         if not JINJA2_AVAILABLE:
             logger.warning("Jinja2 not available, poster template service will use fallback method")
             self.jinja_env = None
+            self._cached_default_speaker_data_url = None
             return
             
         # Set up Jinja2 environment
@@ -36,7 +37,57 @@ class PosterTemplateService:
         except Exception as e:
             logger.error(f"Failed to initialize Jinja2 environment: {e}")
             self.jinja_env = None
-    
+        
+        # Cache for default speaker image data URL
+        self._cached_default_speaker_data_url = None
+
+    def _get_default_speaker_image_data_url(self) -> str:
+        """Load and cache the default speaker image as a data URL for server-side rendering."""
+        if self._cached_default_speaker_data_url:
+            return self._cached_default_speaker_data_url
+        try:
+            import base64
+            # Try to load the default speaker image from the frontend public directory
+            # Repo-relative: custom_extensions/frontend/public/create/event-poster/figma-to-html/images/v1_8.png
+            backend_dir = os.path.dirname(__file__)
+            repo_root = os.path.abspath(os.path.join(backend_dir, "..", "..", ".."))
+            candidate_path = os.path.join(
+                repo_root,
+                "frontend",
+                "public",
+                "create",
+                "event-poster",
+                "figma-to-html",
+                "images",
+                "v1_8.png",
+            )
+            if not os.path.exists(candidate_path):
+                # Secondary candidate: some environments keep assets with src path
+                candidate_path = os.path.join(
+                    repo_root,
+                    "frontend",
+                    "src",
+                    "app",
+                    "create",
+                    "event-poster",
+                    "figma-to-html",
+                    "images",
+                    "v1_8.png",
+                )
+            if os.path.exists(candidate_path):
+                with open(candidate_path, "rb") as f:
+                    b64 = base64.b64encode(f.read()).decode("ascii")
+                    self._cached_default_speaker_data_url = f"data:image/png;base64,{b64}"
+                    logger.info("[POSTER_TEMPLATE] Loaded default speaker image from frontend public path")
+                    return self._cached_default_speaker_data_url
+        except Exception as e:
+            logger.warning(f"[POSTER_TEMPLATE] Could not load default speaker image: {e}")
+        # Fallback: transparent 1x1 PNG
+        self._cached_default_speaker_data_url = (
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII="
+        )
+        return self._cached_default_speaker_data_url
+
     def generate_poster_html(self, poster_data: Dict[str, Any]) -> str:
         """
         Generate HTML content for poster using Jinja2 templates.
@@ -122,6 +173,11 @@ class PosterTemplateService:
                 "theme": "event-poster"  # Poster theme
             }
             
+            # Ensure default speaker image when none provided
+            if not context_data["speakerImageSrc"]:
+                context_data["speakerImageSrc"] = self._get_default_speaker_image_data_url()
+                logger.info("🎬 [POSTER_TEMPLATE] Using default speaker image (no image provided)")
+
             context_prep_end = time.time()
             context_prep_duration = (context_prep_end - context_prep_start) * 1000
             
