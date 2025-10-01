@@ -34222,6 +34222,9 @@ async def save_event_poster(
             "detectedLanguage": "auto"
         }
         
+        logger.info(f"🔍 [EVENT POSTER SAVE] Incoming poster_data: {poster_data.model_dump()}")
+        logger.info(f"🔍 [EVENT POSTER SAVE] Prepared microproduct_content: {microproduct_content}")
+        
         # Insert directly into projects table with correct component_name
         insert_query = """
         INSERT INTO projects (

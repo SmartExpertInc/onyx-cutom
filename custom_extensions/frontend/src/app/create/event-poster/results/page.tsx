@@ -42,8 +42,26 @@ function EventPosterResultsContent() {
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('Event poster data loaded:', parsedData);
-        setEventData(parsedData);
+        console.log('🔍 [EVENT POSTER RESULTS] Raw savedData from localStorage:', savedData);
+        console.log('🔍 [EVENT POSTER RESULTS] Parsed data type:', typeof parsedData);
+        console.log('🔍 [EVENT POSTER RESULTS] Parsed data:', parsedData);
+        
+        // Ensure we have all the required fields with defaults
+        const completeEventData = {
+          eventName: parsedData.eventName || '',
+          mainSpeaker: parsedData.mainSpeaker || '',
+          speakerDescription: parsedData.speakerDescription || '',
+          date: parsedData.date || '',
+          topic: parsedData.topic || '',
+          additionalSpeakers: parsedData.additionalSpeakers || '',
+          ticketPrice: parsedData.ticketPrice || '',
+          ticketType: parsedData.ticketType || '',
+          freeAccessConditions: parsedData.freeAccessConditions || '',
+          speakerImage: parsedData.speakerImage || null
+        };
+        
+        console.log('🔍 [EVENT POSTER RESULTS] Complete event data:', completeEventData);
+        setEventData(completeEventData);
         
         // Clean up localStorage after loading (with small delay to ensure data is used)
         setTimeout(() => {

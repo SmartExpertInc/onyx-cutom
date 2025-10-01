@@ -595,16 +595,29 @@ export default function ProductViewNewPage() {
             if (response.ok) {
               const fullData = await response.json();
               console.log('📥 [EVENT POSTER] Full project data:', fullData);
+              console.log('📥 [EVENT POSTER] microproduct_content type:', typeof fullData.microproduct_content);
+              console.log('📥 [EVENT POSTER] microproduct_content value:', fullData.microproduct_content);
               
               // Extract event poster data from microproduct_content
               let eventData = {};
               if (fullData.microproduct_content) {
-                eventData = fullData.microproduct_content;
+                // If microproduct_content is a string, parse it as JSON
+                if (typeof fullData.microproduct_content === 'string') {
+                  try {
+                    eventData = JSON.parse(fullData.microproduct_content);
+                    console.log('📥 [EVENT POSTER] Parsed JSON eventData:', eventData);
+                  } catch (e) {
+                    console.error('❌ [EVENT POSTER] Failed to parse JSON:', e);
+                    eventData = fullData.microproduct_content;
+                  }
+                } else {
+                  eventData = fullData.microproduct_content;
+                }
               } else if (data.details) {
                 eventData = data.details;
               }
               
-              console.log('📥 [EVENT POSTER] Event data to store:', eventData);
+              console.log('📥 [EVENT POSTER] Final event data to store:', eventData);
               
               const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
               localStorage.setItem(sessionKey, JSON.stringify(eventData));
