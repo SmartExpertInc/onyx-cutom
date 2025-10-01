@@ -674,9 +674,23 @@ export default function ProjectInstanceViewPage() {
         return;
       }
       
-      // Check if this is an event poster and redirect accordingly
-      if ((instanceData as any).productType === "event_poster" || (instanceData as any).microproductType === "event_poster" || 
-          (instanceData.details && (instanceData.details as any).eventName)) {
+      // Debug: Log all instanceData fields to see what we're working with
+      console.log('🔍 [EVENT POSTER DEBUG] Full instanceData:', instanceData);
+      console.log('🔍 [EVENT POSTER DEBUG] instanceData.productType:', (instanceData as any).productType);
+      console.log('🔍 [EVENT POSTER DEBUG] instanceData.microproductType:', (instanceData as any).microproductType);
+      console.log('🔍 [EVENT POSTER DEBUG] instanceData.product_type:', (instanceData as any).product_type);
+      console.log('🔍 [EVENT POSTER DEBUG] instanceData.microproduct_type:', (instanceData as any).microproduct_type);
+      console.log('🔍 [EVENT POSTER DEBUG] instanceData.details:', instanceData.details);
+      console.log('🔍 [EVENT POSTER DEBUG] instanceData.details.eventName:', instanceData.details ? (instanceData.details as any).eventName : 'no details');
+      
+      // Check if this is an event poster and redirect accordingly (expanded detection)
+      if ((instanceData as any).productType === "event_poster" || 
+          (instanceData as any).microproductType === "event_poster" ||
+          (instanceData as any).product_type === "event_poster" ||
+          (instanceData as any).microproduct_type === "event_poster" ||
+          (instanceData.details && (instanceData.details as any).eventName) ||
+          (instanceData.details && (instanceData.details as any).mainSpeaker) ||
+          (instanceData.details && (instanceData.details as any).ticketPrice)) {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster results page:', instanceData.project_id);
         
         // Store poster data in localStorage for the results page

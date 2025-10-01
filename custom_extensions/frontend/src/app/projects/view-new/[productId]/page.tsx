@@ -612,9 +612,23 @@ export default function ProductViewNewPage() {
 
         const data: ProjectInstanceDetail = await response.json();
         
-        // Check if this is an event poster and redirect accordingly
-        if ((data as any).productType === "event_poster" || (data as any).microproductType === "event_poster" || 
-            (data.details && (data.details as any).eventName)) {
+        // Debug: Log all data fields to see what we're working with
+        console.log('🔍 [EVENT POSTER DEBUG] Full data:', data);
+        console.log('🔍 [EVENT POSTER DEBUG] data.productType:', (data as any).productType);
+        console.log('🔍 [EVENT POSTER DEBUG] data.microproductType:', (data as any).microproductType);
+        console.log('🔍 [EVENT POSTER DEBUG] data.product_type:', (data as any).product_type);
+        console.log('🔍 [EVENT POSTER DEBUG] data.microproduct_type:', (data as any).microproduct_type);
+        console.log('🔍 [EVENT POSTER DEBUG] data.details:', data.details);
+        console.log('🔍 [EVENT POSTER DEBUG] data.details.eventName:', data.details ? (data.details as any).eventName : 'no details');
+        
+        // Check if this is an event poster and redirect accordingly (expanded detection)
+        if ((data as any).productType === "event_poster" || 
+            (data as any).microproductType === "event_poster" ||
+            (data as any).product_type === "event_poster" ||
+            (data as any).microproduct_type === "event_poster" ||
+            (data.details && (data.details as any).eventName) ||
+            (data.details && (data.details as any).mainSpeaker) ||
+            (data.details && (data.details as any).ticketPrice)) {
           console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster results page:', productId);
           
           // Store poster data in localStorage for the results page
