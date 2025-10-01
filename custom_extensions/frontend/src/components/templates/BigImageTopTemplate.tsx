@@ -200,14 +200,14 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    minHeight: '600px',
-    backgroundColor: backgroundColor,
+    height: '600px', // Фиксированная высота
+    background: '#ffffff', // Белый фон как на фото
     fontFamily: currentTheme.fonts.contentFont,
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column', // Вертикальный макет
     alignItems: 'stretch',
-    justifyContent: 'space-between',
-    paddingBottom: '50px',
+    justifyContent: 'flex-start',
+    padding: '0',
     position: 'relative'
   };
 
@@ -223,49 +223,58 @@ export const BigImageTopTemplate: React.FC<BigImageTopProps & {
   const imageDimensions = getImageDimensions();
 
   const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
+    width: '100%', // Полная ширина
+    height: '50%', // Точная высота 50% от 600px
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: backgroundColor,
+    background: '#ffffff',
     minWidth: 0,
-    marginBottom: '32px'
+    marginBottom: '0',
+    flexShrink: 0 // Предотвращаем сжатие
   };
 
   const placeholderStyles: React.CSSProperties = {
     // FIXED: Always maintain full width consistency between display and saved dimensions
     width: '100%',
     // Only apply default height if no saved height exists, but keep full width
-    ...(heightPx ? { height: `${heightPx}px` } : { height: '240px' }),
-    margin: '0 auto'
+    ...(heightPx ? { height: `${heightPx}px` } : { height: '100%' }),
+    margin: '0',
+    borderRadius: '0' // Убираем скругления для полной ширины
   };
 
   const contentContainerStyles: React.CSSProperties = {
-    width: '100%',
-    padding: '60px 60px 60px 60px',
+    width: '100%', // Полная ширина
+    height: '50%', // Точная высота 50% от 600px
+    padding: '40px 40px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    justifyContent: 'flex-start',
     minWidth: 0,
+    flexShrink: 0, // Предотвращаем сжатие
+    overflow: 'hidden' // Скрываем переполнение
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
+    fontSize: '3rem', // Крупный шрифт как на фото
     fontFamily: currentTheme.fonts.titleFont,
-    color: titleColor,
+    color: '#000000', // Черный цвет как на фото
     marginBottom: '24px',
     lineHeight: '1.2',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    textAlign: 'left'
   };
 
   const subtitleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.contentSize,
+    fontSize: '1.1rem', // Чуть больше для читаемости
     fontFamily: currentTheme.fonts.contentFont,
-    color: contentColor,
+    color: '#333333', // Темно-серый цвет как на фото
     lineHeight: '1.6',
+    width: '75%',
     whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    textAlign: 'left'
   };
 
   // Handle title editing

@@ -202,7 +202,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor: currentTheme.colors.backgroundColor,
+        background: currentTheme.colors.backgroundColor,
     padding: '60px',
     position: 'relative',
     fontFamily: currentTheme.fonts.contentFont

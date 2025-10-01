@@ -6,7 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & { 
-  theme?: SlideTheme;
+  theme?: string | SlideTheme;
   onUpdate?: (props: any) => void;
   isEditable?: boolean;
 }> = ({
@@ -23,8 +23,9 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   theme,
   isEditable = false
 }) => {
-  // Use theme colors instead of props
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  // Use theme colors instead of props - ensure we always have a valid theme
+  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const currentTheme = typeof theme === 'string' ? getSlideTheme(effectiveTheme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const { backgroundColor, titleColor, subtitleColor, accentColor } = currentTheme.colors;
   
   // Inline editing state
@@ -44,7 +45,7 @@ export const HeroTitleSlideTemplate: React.FC<HeroTitleSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     minHeight: '600px',
-    backgroundColor,
+    background: backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',

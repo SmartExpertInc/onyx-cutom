@@ -48,7 +48,6 @@ import { CriticalThinkingSlideTemplate } from './CriticalThinkingSlideTemplate';
 import { PsychologicalSafetySlideTemplate } from './PsychologicalSafetySlideTemplate';
 import { DataAnalysisSlideTemplate } from './DataAnalysisSlideTemplate';
 
-// Template registry with comprehensive metadata
 export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'title-slide': {
     id: 'title-slide',
@@ -58,13 +57,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🎯',
     component: TitleSlideTemplate,
     defaultProps: {
-      title: 'Add title',
-      subtitle: 'Add subtitle',
+      title: 'Your title here',
+      subtitle: 'Add a short description.',
       author: '',
       date: '',
-      backgroundColor: '#261c4e',
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
       titleColor: '#ffffff',
-      subtitleColor: '#d9e1ff',
+      subtitleColor: '#ffffff',
       backgroundImage: ''
     },
     propSchema: {
@@ -124,11 +123,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📝',
     component: ContentSlideTemplate,
     defaultProps: {
-      title: 'Add title',
-      content: 'Add content here',
-      backgroundColor: '#261c4e',
+      title: 'Spring picnic meetup',
+      content: 'Join us for an afternoon of fun!',
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
       titleColor: '#ffffff',
-      contentColor: '#d9e1ff',
+      contentColor: '#ffffff',
       alignment: 'left',
       backgroundImage: ''
     },
@@ -330,16 +329,20 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📋',
     component: BulletPointsRightTemplate,
     defaultProps: {
-      title: 'Add title',
-      subtitle: 'Add subtitle',
-      bullets: ['Add point 1', 'Add point 2', 'Add point 3'],
+      title: 'Problem',
+      subtitle: '',
+      bullets: [
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sed vestibulum nunc, eget aliquam felis.'
+      ],
       maxColumns: 1,
-      bulletStyle: 'dot',
-      titleColor: '#1a1a1a',
-      bulletColor: '#333333',
+      bulletStyle: 'number',
+      titleColor: '#000000',
+      bulletColor: '#8b5cf6',
       backgroundColor: '#ffffff',
-      imagePrompt: 'A relevant illustration for the bullet points',
-      imageAlt: 'Add image description',
+      imagePrompt: 'Three people collaborating around a laptop on a wooden table',
+      imageAlt: 'Team collaboration',
       companyName: 'Company name'
     },
     propSchema: {
@@ -393,22 +396,17 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📑',
     component: TwoColumnTemplate,
     defaultProps: {
-      title: 'Add title',
-      leftTitle: 'Add left title',
-      leftContent: 'Add left content',
-      leftImageUrl: '',
+      leftTitle: 'Assess risks for the organization.',
+      leftContent: 'Present with Canva like a professional using presenter mode.',
+      leftImagePath: '',
       leftImageAlt: '',
-      leftImagePrompt: '',
-      rightTitle: 'Add right title',
-      rightContent: 'Add right content',
-      rightImageUrl: '',
+      rightTitle: 'Assess risks for the organization.',
+      rightContent: 'Present with Canva like a professional using presenter mode.',
+      rightImagePath: '',
       rightImageAlt: '',
-      rightImagePrompt: '',
-      columnRatio: '50-50',
-      backgroundColor: '#261c4e',
+      backgroundColor: 'linear-gradient(90deg, #002D91 0%, #000C5B 100%)',
       titleColor: '#ffffff',
-      contentColor: '#d9e1ff',
-      companyName: 'Company name'
+      subtitleColor: '#ffffff'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -440,29 +438,34 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🔄',
     component: ProcessStepsTemplate,
     defaultProps: {
-      title: 'Add title',
+      title: 'The Stages of Research',
+      subtitle: 'Miss Jones Science Class',
       steps: [
         {
-          title: 'Add step 1',
-          description: 'Add step description',
-          icon: '1️⃣'
+          title: 'PROBLEM',
+          description: 'Identify a problem and form a thesis statement.'
         },
         {
-          title: 'Add step 2',
-          description: 'Add step description',
-          icon: '2️⃣'
+          title: 'READ',
+          description: 'Review literature related to your topic.'
         },
         {
-          title: 'Add step 3',
-          description: 'Add step description',
-          icon: '3️⃣'
+          title: 'HYPOTHESIZE',
+          description: 'Come up with an educated guess based on your research.'
+        },
+        {
+          title: 'RESEARCH',
+          description: 'Read resources to support your hypothesis.'
+        },
+        {
+          title: 'CONCLUSION',
+          description: 'Interpret the results and write your conclusion.'
         }
       ],
-      layout: 'horizontal',
-      stepColor: '#007bff',
+      layout: 'vertical',
       backgroundColor: '#ffffff',
-      titleColor: '#1a1a1a',
-      companyName: 'Company name'
+      titleColor: '#000000',
+      subtitleColor: '#000000'
     },
     propSchema: {
       title: {
@@ -750,15 +753,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🖼️',
     component: BigImageTopTemplate,
     defaultProps: {
-      title: 'Add title',
-      subtitle: 'Add subtitle',
+      title: 'What Do You Know About Our Studio?',
+      subtitle: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit',
       imageUrl: '',
       imageAlt: '',
-      imagePrompt: '',
+      imagePrompt: 'modern office workspace with plants and computers',
       imageSize: 'large',
-      backgroundColor: '#261c4e',
-      titleColor: '#ffffff',
-      contentColor: '#d9e1ff',
+      backgroundColor: '#ffffff',
+      titleColor: '#000000',
+      contentColor: '#333333',
       companyName: 'Company name'
     },
     propSchema: {
@@ -790,7 +793,9 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         { heading: 'Add box 3', text: 'Add box description' },
         { heading: 'Add box 4', text: 'Add box description' }
       ],
-      companyName: 'Company name'
+      backgroundColor: '#ffffff',
+      titleColor: '#000000',
+      contentColor: '#ffffff'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -883,30 +888,44 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'event-list': {
     id: 'event-list',
     name: 'Event Dates',
-    description: 'List of event dates with descriptions, visually separated.',
+    description: 'Two-column layout with title/presenter info on blue left side and timeline on white right side',
     category: 'special',
     icon: '📅',
     component: EventListTemplate,
     defaultProps: {
+      title: 'Add title',
+      presenter: 'Add presenter name',
+      subject: 'Add subject',
       events: [
-        { date: 'April 14', description: 'You can insert here the title of the event or a small description' },
-        { date: 'June 6', description: 'You can insert here the title of the event or a small description' },
-        { date: 'July 12', description: 'You can insert here the title of the event or a small description' },
+        { description: 'description' },
+        { description: 'description' },
+        { description: 'description' },
       ],
-      titleColor: undefined, // Will use theme color
-      descriptionColor: undefined, // Will use theme content color
-      backgroundColor: undefined, // Will use theme background color
+      titleColor: undefined,
+      descriptionColor: undefined,
+      backgroundColor: undefined,
+      imagePrompt: 'timeline illustration for research stages',
+      imageAlt: 'Research timeline',
     },
     propSchema: {
+      title: { type: 'text', label: 'Title', required: true },
+      presenter: { type: 'text', label: 'Presenter', required: true },
+      subject: { type: 'text', label: 'Subject', required: true },
       events: {
         type: 'array',
-        label: 'Events',
-        description: 'List of events with date and description',
+        label: 'Timeline Steps',
+        description: 'List of timeline steps with titles and descriptions',
         required: true,
+        arrayItemType: {
+          type: 'object',
+          label: 'Step'
+        }
       },
-      titleColor: { type: 'color', label: 'Date Color', default: undefined },
-      descriptionColor: { type: 'color', label: 'Description Color', default: undefined },
-      backgroundColor: { type: 'color', label: 'Background', default: undefined },
+      titleColor: { type: 'color', label: 'Title Color', default: undefined },
+      descriptionColor: { type: 'color', label: 'Presenter Color', default: undefined },
+      backgroundColor: { type: 'color', label: 'Background Color', default: undefined },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
     }
   },
 
@@ -1083,30 +1102,22 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   'market-share': {
     id: 'market-share',
     name: 'Market Share',
-    description: 'Market share chart with bar comparison and legend',
+    description: 'Two-column layout with title/subtitle/list on blue left side and bar chart on white right side',
     category: 'content',
     icon: '📊',
     component: MarketShareTemplate,
     defaultProps: {
-      title: 'Market share',
-      subtitle: '',
+      title: 'The new os solution',
+      subtitle: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium ?',
       chartData: [
-        {
-          label: 'Mercury',
-          description: 'Mercury is the closest planet to the Sun',
-          percentage: 85,
-          color: '#2a5490',
-          year: '2023'
-        },
-        {
-          label: 'Mars',
-          description: 'Despite being red, Mars is a cold place',
-          percentage: 40,
-          color: '#9ca3af',
-          year: '2024'
-        }
+        { label: '2019', description: 'Lorem ipsum dolor sit amet', percentage: 48, color: '#4A70E8', gradientStart: '#87CEEB', gradientEnd: '#4682B4' },
+        { label: '2020', description: 'Lorem ipsum dolor sit amet', percentage: 61, color: '#FF8C00', gradientStart: '#FFA07A', gradientEnd: '#FF8C00' },
+        { label: '2021', description: 'Lorem ipsum dolor sit amet', percentage: 83, color: '#32CD32', gradientStart: '#90EE90', gradientEnd: '#3CB371' },
+        { label: '2022', description: 'Lorem ipsum dolor sit amet', percentage: 74, color: '#8A2BE2', gradientStart: '#DDA0DD', gradientEnd: '#9370DB' }
       ],
-      bottomText: 'Follow the link in the graph to modify its data and then paste the new one here. For more info, click here'
+      bottomText: '',
+      imagePrompt: 'bar chart illustration for market share data',
+      imageAlt: 'Market share bar chart',
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1114,70 +1125,76 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       chartData: {
         type: 'array',
         label: 'Chart Data',
-        required: true
+        description: 'Array of chart items with labels, descriptions, percentages and colors',
+        required: true,
+        arrayItemType: {
+          type: 'object',
+          label: 'Chart Item'
+        }
       },
-      bottomText: { type: 'text', label: 'Bottom Description', required: false }
+      bottomText: { type: 'text', label: 'Bottom Description', required: false },
+      imagePrompt: { type: 'text', label: 'Image Prompt', required: false },
+      imageAlt: { type: 'text', label: 'Image Alt', required: false },
     }
   },
 
-  'comparison-slide': {
-    id: 'comparison-slide',
-    name: 'Comparison Slide',
-    description: 'Side-by-side comparison table for contrasting concepts',
-    category: 'content',
-    icon: '⚖️',
-    component: ComparisonSlideTemplate,
-    defaultProps: {
-      title: 'Comparison',
-      subtitle: '',
-      tableData: {
-        headers: ['Feature', 'Option A', 'Option B'],
-        rows: [
-          ['Characteristic 1', 'Value A1', 'Value B1'],
-          ['Characteristic 2', 'Value A2', 'Value B2'],
-          ['Characteristic 3', 'Value A3', 'Value B3']
-        ]
-      }
-    },
-    propSchema: {
-      title: { type: 'text', label: 'Title', required: true },
-      subtitle: { type: 'text', label: 'Subtitle', required: false },
-      tableData: {
-        type: 'object',
-        label: 'Table Data',
-        required: true
-      }
-    }
-  },
+  // COMMENTED OUT - Hidden from UI
+  // 'comparison-slide': {
+  //   id: 'comparison-slide',
+  //   name: 'Comparison Slide',
+  //   description: 'Side-by-side comparison table for contrasting concepts',
+  //   category: 'content',
+  //   icon: '⚖️',
+  //   component: ComparisonSlideTemplate,
+  //   defaultProps: {
+  //     title: 'Comparison',
+  //     subtitle: '',
+  //     tableData: {
+  //       headers: ['Feature', 'Option A', 'Option B'],
+  //       rows: [
+  //         ['Characteristic 1', 'Value A1', 'Value B1'],
+  //         ['Characteristic 2', 'Value A2', 'Value B2'],
+  //         ['Characteristic 3', 'Value A3', 'Value B3']
+  //       ]
+  //     }
+  //   },
+  //   propSchema: {
+  //     title: { type: 'text', label: 'Title', required: true },
+  //     subtitle: { type: 'text', label: 'Subtitle', required: false },
+  //     tableData: {
+  //       type: 'object',
+  //       label: 'Table Data',
+  //       required: true
+  //     }
+  //   }
+  // },
 
   'table-dark': {
     id: 'table-dark',
     name: 'Table Dark',
-    description: 'Dynamic table with dark theme and checkmarks',
+    description: 'Comparison table template with features and versions',
     category: 'content',
     icon: '⬛',
     component: TableDarkTemplate,
     defaultProps: {
-      title: 'This is a table',
+      title: 'Comparison table template',
       tableData: {
-        headers: ['Mars', 'Venus', 'Jupiter'],
+        headers: ['feature 1', 'feature 2', 'feature 3', 'feature 4'],
         rows: [
-          ['Task 1', '✓', '✗', '✓'],
-          ['Task 2', '✗', '✓', '✗'],
-          ['Task 3', '✓', '✗', '✓'],
-          ['Task 4', '✗', '✓', '✗']
+          ['version 1', '✓', '✓', '✗', '✗'],
+          ['version 2', '✗', '✓', '✓', '✗'],
+          ['version 3', '✗', '✗', '✓', '✓']
         ]
       },
-      showCheckmarks: true,
-      backgroundColor: '#1a1a1a',
-      titleColor: '#ffffff',
+      backgroundColor: '#f8fafc',
+      titleColor: '#1f2937',
       headerColor: '#ffffff',
-      textColor: '#ffffff',
-      tableBackgroundColor: '#2a2a2a',
-      headerBackgroundColor: '#3a3a3a',
-      borderColor: '#4a4a4a',
-      checkmarkColor: '#10b981',
-      crossColor: '#ef4444'
+      textColor: '#374151',
+      tableBackgroundColor: '#ffffff',
+      headerBackgroundColor: '#0ea5e9',
+      borderColor: '#e5e7eb',
+      checkmarkColor: '#0ea5e9',
+      crossColor: '#94a3b8'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
@@ -1186,16 +1203,15 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         label: 'Table Data',
         required: true
       },
-      showCheckmarks: { type: 'boolean', label: 'Show Checkmarks', default: true },
-      backgroundColor: { type: 'color', label: 'Background Color', default: '#1a1a1a' },
-      titleColor: { type: 'color', label: 'Title Color', default: '#ffffff' },
+      backgroundColor: { type: 'color', label: 'Background Color', default: '#f8fafc' },
+      titleColor: { type: 'color', label: 'Title Color', default: '#1f2937' },
       headerColor: { type: 'color', label: 'Header Color', default: '#ffffff' },
-      textColor: { type: 'color', label: 'Text Color', default: '#ffffff' },
-      tableBackgroundColor: { type: 'color', label: 'Table Background', default: '#2a2a2a' },
-      headerBackgroundColor: { type: 'color', label: 'Header Background', default: '#3a3a3a' },
-      borderColor: { type: 'color', label: 'Border Color', default: '#4a4a4a' },
-      checkmarkColor: { type: 'color', label: 'Checkmark Color', default: '#10b981' },
-      crossColor: { type: 'color', label: 'Cross Color', default: '#ef4444' }
+      textColor: { type: 'color', label: 'Text Color', default: '#374151' },
+      tableBackgroundColor: { type: 'color', label: 'Table Background', default: '#ffffff' },
+      headerBackgroundColor: { type: 'color', label: 'Header Background', default: '#0ea5e9' },
+      borderColor: { type: 'color', label: 'Border Color', default: '#e5e7eb' },
+      checkmarkColor: { type: 'color', label: 'Checkmark Color', default: '#0ea5e9' },
+      crossColor: { type: 'color', label: 'Cross Color', default: '#94a3b8' }
     }
   },
 
@@ -1207,17 +1223,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '⬜',
     component: TableLightTemplate,
     defaultProps: {
-      title: 'This is a table',
+      title: 'This is table',
       tableData: {
         headers: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E', 'Team F'],
         rows: [
           ['Mercury', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
           ['Mars', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Venus', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Jupiter', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Earth', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX'],
-          ['Moon', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
+          ['Saturn', 'XX', 'XX', 'XX', 'XX', 'XX', 'XX']
         ]
       },
       backgroundColor: '#f8fafc',
