@@ -207,11 +207,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     '#1A237E'  // Dark navy blue (level 5 - largest, bottom)
   ];
 
-  // Pyramid level dimensions - BIGGER SIZE, 5 clear levels
+  // Pyramid level dimensions - 5 clear levels with proper trapezoid shape
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [120, 200, 280, 360, 440]; // 5 levels, increasing
-    const heights = [60, 60, 60, 60, 60]; // Same height for each
-    const topPositions = [0, 60, 120, 180, 240]; // Stacked perfectly
+    const widths = [130, 210, 290, 370, 450]; // 5 levels, increasing
+    const heights = [65, 65, 65, 65, 65]; // Same height for each
+    const topPositions = [0, 65, 130, 195, 260]; // Stacked perfectly
     
     return {
       position: 'absolute',
@@ -221,12 +221,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       left: '50%',
       transform: 'translateX(-50%)',
       background: pyramidColors[index],
-      clipPath: 'polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%)',
+      clipPath: 'polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%)', // More straight edges like in photo
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 5 - index,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+      boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
     };
   };
 
@@ -258,14 +258,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     fontFamily: 'Arial, sans-serif'
   };
 
-  // Text blocks - exactly as in photo
+  // Text blocks - exactly as in photo: right-left-right-left-left
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '20px', right: '8%', textAlign: 'right' as const },
-      { top: '80px', left: '8%', textAlign: 'left' as const },
-      { top: '140px', left: '8%', textAlign: 'left' as const },
-      { top: '200px', right: '8%', textAlign: 'right' as const },
-      { top: '260px', left: '8%', textAlign: 'left' as const }
+      { top: '25px', right: '7%', textAlign: 'right' as const },   // Level 1 - RIGHT
+      { top: '90px', left: '7%', textAlign: 'left' as const },     // Level 2 - LEFT
+      { top: '155px', right: '7%', textAlign: 'right' as const },  // Level 3 - RIGHT
+      { top: '220px', left: '7%', textAlign: 'left' as const },    // Level 4 - LEFT
+      { top: '285px', left: '7%', textAlign: 'left' as const }     // Level 5 - LEFT
     ];
     
     const pos = positions[index];
@@ -274,7 +274,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       top: pos.top,
       [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
       width: '30%',
-      maxWidth: '350px',
+      maxWidth: '320px',
       zIndex: 10,
       textAlign: pos.textAlign
     };
@@ -297,14 +297,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     wordWrap: 'break-word'
   };
 
-  // Triangle arrows
+  // Triangle arrows - exactly as in photo
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '50px', right: '20%' },
-      { top: '110px', left: '20%' },
-      { top: '170px', left: '20%' },
-      { top: '230px', right: '20%' },
-      { top: '290px', left: '20%' }
+      { top: '55px', right: '19%' },   // Level 1 - RIGHT
+      { top: '120px', left: '19%' },   // Level 2 - LEFT
+      { top: '185px', right: '19%' },  // Level 3 - RIGHT
+      { top: '250px', left: '19%' },   // Level 4 - LEFT
+      { top: '315px', left: '19%' }    // Level 5 - LEFT
     ];
     
     const pos = positions[index];
@@ -313,9 +313,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       ...pos,
       width: '0',
       height: '0',
-      borderLeft: '6px solid transparent',
-      borderRight: '6px solid transparent',
-      borderTop: '9px solid #1E88E5',
+      borderLeft: '7px solid transparent',
+      borderRight: '7px solid transparent',
+      borderTop: '10px solid #1E88E5',
       zIndex: 10
     };
   };
