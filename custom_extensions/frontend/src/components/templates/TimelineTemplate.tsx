@@ -276,7 +276,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   return (
     <div className="timeline-template" style={slideStyles}>
       {/* Title */}
-      <div data-draggable="true" style={{ display: 'inline-block', position: 'relative', zIndex: 20 }}>
+      <div style={{ display: 'inline-block', position: 'relative', zIndex: 20 }}>
         {isEditable && editingTitle ? (
           <InlineEditor
             initialValue={title || ''}
@@ -294,13 +294,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
         ) : (
           <h1 
             style={titleStyles}
-            onClick={(e: React.MouseEvent<HTMLHeadingElement>) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
+            onClick={() => {
               if (isEditable) {
                 setEditingTitle(true);
               }
@@ -321,10 +315,10 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
         {timelineItems.map((item, index) => (
           <React.Fragment key={index}>
             {/* Circle */}
-            <div style={circleStyles(item.top)} data-draggable="true"></div>
+            <div style={circleStyles(item.top)}></div>
 
             {/* Text Block */}
-            <div style={textBlockStyles(item.top, item.side)} data-draggable="true">
+            <div style={textBlockStyles(item.top, item.side)}>
               {/* Heading */}
               {isEditable && editingStepHeadings.includes(index) ? (
                 <InlineEditor
@@ -343,13 +337,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
               ) : (
                 <div 
                   style={headingStyles}
-                  onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
+                  onClick={() => {
                     if (isEditable) {
                       startEditingStepHeading(index);
                     }
@@ -378,13 +366,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
               ) : (
                 <div 
                   style={descriptionStyles}
-                  onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
+                  onClick={() => {
                     if (isEditable) {
                       startEditingStepDescription(index);
                     }
