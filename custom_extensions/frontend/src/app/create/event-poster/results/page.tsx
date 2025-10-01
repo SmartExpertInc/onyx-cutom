@@ -23,7 +23,7 @@ function EventPosterResultsContent() {
     freeAccessConditions: '',
     speakerImage: null as string | null
   });
-
+  
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,26 +42,8 @@ function EventPosterResultsContent() {
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('🔍 [EVENT POSTER RESULTS] Raw savedData from localStorage:', savedData);
-        console.log('🔍 [EVENT POSTER RESULTS] Parsed data type:', typeof parsedData);
-        console.log('🔍 [EVENT POSTER RESULTS] Parsed data:', parsedData);
-        
-        // Ensure we have all the required fields with defaults
-        const completeEventData = {
-          eventName: parsedData.eventName || '',
-          mainSpeaker: parsedData.mainSpeaker || '',
-          speakerDescription: parsedData.speakerDescription || '',
-          date: parsedData.date || '',
-          topic: parsedData.topic || '',
-          additionalSpeakers: parsedData.additionalSpeakers || '',
-          ticketPrice: parsedData.ticketPrice || '',
-          ticketType: parsedData.ticketType || '',
-          freeAccessConditions: parsedData.freeAccessConditions || '',
-          speakerImage: parsedData.speakerImage || null
-        };
-        
-        console.log('🔍 [EVENT POSTER RESULTS] Complete event data:', completeEventData);
-        setEventData(completeEventData);
+        console.log('Event poster data loaded:', parsedData);
+        setEventData(parsedData);
         
         // Clean up localStorage after loading (with small delay to ensure data is used)
         setTimeout(() => {
@@ -96,59 +78,6 @@ function EventPosterResultsContent() {
     console.error('❌ Poster download error:', error);
   };
 
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSaveAsProduct = async () => {
-    setIsSaving(true);
-    try {
-      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
-      
-      // Use simple direct database insertion approach like audits
-      const posterData = {
-        eventName: eventData.eventName,
-        mainSpeaker: eventData.mainSpeaker,
-        speakerDescription: eventData.speakerDescription,
-        date: eventData.date,
-        topic: eventData.topic,
-        additionalSpeakers: eventData.additionalSpeakers,
-        ticketPrice: eventData.ticketPrice,
-        ticketType: eventData.ticketType,
-        freeAccessConditions: eventData.freeAccessConditions,
-        speakerImage: eventData.speakerImage
-      };
-
-      const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      const devUserId = "dummy-onyx-user-id-for-testing";
-      if (devUserId && process.env.NODE_ENV === 'development') {
-        headers['X-Dev-Onyx-User-ID'] = devUserId;
-      }
-
-      // Try to create a dedicated endpoint for event posters
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/save`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(posterData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: "Failed to save poster as product" }));
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-      }
-
-      const savedProduct = await response.json();
-      console.log('✅ Event poster saved as product:', savedProduct);
-      
-      // Show success message
-      alert(t('interface.eventPosterForm.posterSavedSuccessfully', 'Event poster saved successfully! You can find it in your Projects page.'));
-      
-    } catch (error) {
-      console.error('❌ Failed to save poster as product:', error);
-      alert(t('interface.eventPosterForm.failedToSavePoster', 'Failed to save poster as product. Please try again.'));
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   // Show loading state while data is being loaded
   if (isLoading) {
     return (
@@ -176,7 +105,7 @@ function EventPosterResultsContent() {
 {t('interface.eventPosterForm.editQuestionnaire', 'Edit Questionnaire')}
             </button>
             
-                        <button
+            <button
               onClick={handleBackToProjects}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
             >
@@ -184,25 +113,7 @@ function EventPosterResultsContent() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
               </svg>
-              {t('interface.eventPosterForm.backToProjects', 'Back to Projects')}
-            </button>
-
-            <button
-              onClick={handleSaveAsProduct}
-              disabled={isSaving}
-              className={`text-white font-medium flex items-center px-4 py-2 rounded-md transition-colors cursor-pointer ${
-                isSaving 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-green-600 hover:bg-green-700'
-              }`}
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-              {isSaving 
-                ? t('interface.eventPosterForm.savingPoster', 'Saving...') 
-                : t('interface.eventPosterForm.saveAsProduct', 'Save as Product')
-              }
+{t('interface.eventPosterForm.backToProjects', 'Back to Projects')}
             </button>
           </div>
         </div>

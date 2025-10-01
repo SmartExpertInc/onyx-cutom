@@ -1623,11 +1623,7 @@ export const es = {
       editQuestionnaire: "Editar Cuestionario",
       backToProjects: "Volver a Proyectos", 
       eventPosterTitle: "Póster del Evento",
-      posterGeneratedSuccessfully: "Su póster del evento ha sido generado exitosamente",
-      saveAsProduct: "Guardar como Producto",
-      savingPoster: "Guardando...",
-      posterSavedSuccessfully: "¡Póster del evento guardado exitosamente! Puedes encontrarlo en tu página de Proyectos.",
-      failedToSavePoster: "Error al guardar el póster como producto. Por favor, intenta de nuevo."
+      posterGeneratedSuccessfully: "Su póster del evento ha sido generado exitosamente"
     },
     smartEdit: {
       examples: {

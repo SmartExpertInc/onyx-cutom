@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Image, Loader, Edit3 } from 'lucide-react';
+import { Image, Loader, Edit3, Save } from 'lucide-react';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -154,9 +154,10 @@ export default function EventPoster({
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Parse date to separate day/month and year (with null/undefined check)
-  const dateParts = (date || '').split('.');
+  // Parse date to separate day/month and year
+  const dateParts = date.split('.');
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
 
@@ -253,15 +254,85 @@ export default function EventPoster({
     }
   };
 
+  // Save as Product functionality - copies exact approach from AI audit
+  const handleSaveAsProduct = async () => {
+    const startTime = new Date();
+    const sessionId = `eventPoster-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      setIsSaving(true);
+      console.log(`💾 [SAVE_POSTER] [${sessionId}] Starting save as product with current state`);
+      
+      // Prepare event poster data payload with current state (exact same as audit approach)
+      const eventPosterPayload = {
+        eventName,
+        mainSpeaker,
+        speakerDescription,
+        date,
+        topic,
+        additionalSpeakers,
+        ticketPrice,
+        ticketType,
+        freeAccessConditions,
+        speakerImageSrc: imageSrc,
+        sessionId,
+        clientTimestamp: startTime.toISOString()
+      };
+      
+      console.log(`💾 [SAVE_POSTER] [${sessionId}] Payload:`, eventPosterPayload);
+
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/save-as-product`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventPosterPayload),
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          try {
+            const errorText = await response.text();
+            errorMessage = errorText || errorMessage;
+          } catch {
+            // Keep default error message
+          }
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log(`💾 [SAVE_POSTER] [${sessionId}] Success:`, data);
+      
+      onSuccess?.(`Event poster saved successfully! Project ID: ${data.id}`);
+      alert(`✅ Event poster saved as product successfully!\n\nYou can find it in your projects page.`);
+      
+    } catch (error) {
+      console.error(`💾 [SAVE_POSTER] [${sessionId}] Error:`, error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      onError?.(errorMessage);
+      alert(`Failed to save event poster: ${errorMessage}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Download Button */}
-      <div className="flex justify-center">
+      {/* Action Buttons */}
+      <div className="flex justify-center gap-4">
         <button
           onClick={handleDownloadPoster}
-          disabled={isGenerating}
+          disabled={isGenerating || isSaving}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-            isGenerating
+            isGenerating || isSaving
               ? 'bg-blue-500 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
               : 'bg-green-600 hover:bg-green-700 text-white cursor-pointer focus:ring-green-500'
           }`}
@@ -269,6 +340,20 @@ export default function EventPoster({
         >
           {isGenerating ? <Loader size={16} className="animate-spin" /> : <Image size={16} />}
           {isGenerating ? 'Generating Poster...' : 'Generate and Download Poster'}
+        </button>
+        
+        <button
+          onClick={handleSaveAsProduct}
+          disabled={isGenerating || isSaving}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            isSaving || isGenerating
+              ? 'bg-purple-500 text-white cursor-not-allowed focus:ring-purple-500 disabled:opacity-60'
+              : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
+          }`}
+          title={isSaving ? 'Saving event poster as product...' : 'Save event poster as a product you can edit later'}
+        >
+          {isSaving ? <Loader size={16} className="animate-spin" /> : <Save size={16} />}
+          {isSaving ? 'Saving as Product...' : 'Save as Product'}
         </button>
       </div>
 

@@ -12491,22 +12491,6 @@ async def get_project_instance_detail(
     # 🔍 BACKEND VIEW LOGGING: What we retrieved from database for view
     logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}")
     
-    # 🎯 EVENT POSTER SPECIFIC DEBUGGING
-    is_event_poster = (
-        row_dict.get("product_type") == "event_poster" or 
-        row_dict.get("microproduct_type") == "event_poster" or 
-        component_name == "EventPoster" or
-        (project_instance_name and "конференція" in project_instance_name.lower())
-    )
-    
-    if is_event_poster:
-        logger.info(f"🎯 [EVENT POSTER API] Project {project_id} - DETECTED EVENT POSTER")
-        logger.info(f"🎯 [EVENT POSTER API] - Project name: {project_instance_name}")
-        logger.info(f"🎯 [EVENT POSTER API] - Product type: {row_dict.get('product_type')}")
-        logger.info(f"🎯 [EVENT POSTER API] - Microproduct type: {row_dict.get('microproduct_type')}")
-        logger.info(f"🎯 [EVENT POSTER API] - Component name: {component_name}")
-        logger.info(f"🎯 [EVENT POSTER API] - Raw details_data: {details_data}")
-    
     # Parse the details_data if it's a JSON string
     parsed_details = None
     if details_data:
@@ -12525,26 +12509,6 @@ async def get_project_instance_detail(
             # Already a dict, just round hours
             parsed_details = round_hours_in_content(details_data)
             logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
-            
-            # 🎯 EVENT POSTER SPECIFIC DEBUGGING
-            is_event_poster = (
-                row_dict.get("product_type") == "event_poster" or 
-                row_dict.get("microproduct_type") == "event_poster" or 
-                component_name == "EventPoster" or
-                (project_instance_name and "конференція" in str(project_instance_name).lower())
-            )
-            
-            if is_event_poster:
-                logger.info(f"🎯 [EVENT POSTER API] Project {project_id} - DETECTED EVENT POSTER IN DICT BRANCH")
-                logger.info(f"🎯 [EVENT POSTER API] - Project name: {project_instance_name}")
-                logger.info(f"🎯 [EVENT POSTER API] - Product type: {row_dict.get('product_type')}")
-                logger.info(f"🎯 [EVENT POSTER API] - Microproduct type: {row_dict.get('microproduct_type')}")
-                logger.info(f"🎯 [EVENT POSTER API] - Component name: {component_name}")
-                logger.info(f"🎯 [EVENT POSTER API] - Has eventName?: {parsed_details.get('eventName') if parsed_details else 'No parsed_details'}")
-                logger.info(f"🎯 [EVENT POSTER API] - Has mainTitle?: {parsed_details.get('mainTitle') if parsed_details else 'No parsed_details'}")
-                logger.info(f"🎯 [EVENT POSTER API] - Has sections?: {parsed_details.get('sections') if parsed_details else 'No parsed_details'}")
-                if parsed_details and not parsed_details.get('eventName'):
-                    logger.error(f"❌ [EVENT POSTER API] Project {project_id} - EVENT POSTER DATA MISSING! This should have eventName field but doesn't.")
     
     # 🔍 BACKEND VIEW RESULT LOGGING
     if parsed_details and 'contentBlocks' in parsed_details:
@@ -18844,6 +18808,84 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
     except Exception as e:
         logger.error(f"[AI-Audit Landing Page] Error: {e}")
         set_progress(job_id, f"Error: {str(e)}")
+
+
+# Event Poster Save as Product Endpoint - Exact same approach as AI Audit
+@app.post("/api/custom/event-poster/save-as-product")
+async def save_event_poster_as_product(payload: dict, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Save event poster as a product using exact same approach as AI audit"""
+    try:
+        logger.info(f"💾 [EVENT_POSTER_SAVE] Starting save as product")
+        logger.info(f"💾 [EVENT_POSTER_SAVE] Payload: {payload}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Create project name from event name
+        event_name = payload.get('eventName', 'Event Poster')
+        project_name = f"Event Poster: {event_name}"
+        
+        # Save as a product using exact same approach as AI audit
+        project_id = await insert_event_poster_to_db(
+            pool=pool,
+            onyx_user_id=onyx_user_id,
+            project_name=project_name,
+            microproduct_content=payload,
+            chat_session_id=None
+        )
+
+        logger.info(f"💾 [EVENT_POSTER_SAVE] Successfully created project with ID: {project_id}")
+        
+        return {
+            "id": project_id,
+            "name": project_name,
+            "message": "Event poster saved successfully!"
+        }
+        
+    except Exception as e:
+        logger.error(f"💾 [EVENT_POSTER_SAVE] Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save event poster: {str(e)}")
+
+
+async def insert_event_poster_to_db(
+    pool: asyncpg.Pool,
+    onyx_user_id: str,
+    project_name: str,
+    microproduct_content: dict,
+    chat_session_id: str = None
+) -> int:
+    """Insert event poster into database - exact same approach as AI audit"""
+    
+    # First, ensure we have a Text Presentation template (same as audit)
+    template_id = await _ensure_text_presentation_template(pool)
+    
+    insert_query = """
+    INSERT INTO projects (
+        onyx_user_id, project_name, product_type, microproduct_type,
+        microproduct_name, microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9)
+    RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                microproduct_content, design_template_id, source_chat_session_id, created_at, folder_id;
+    """
+    
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            insert_query,
+            onyx_user_id,
+            project_name,
+            "Event Poster",  # product_type
+            "Event Poster",  # microproduct_type
+            project_name,  # microproduct_name
+            microproduct_content,  # event poster data
+            template_id,  # design_template_id (from _ensure_text_presentation_template)
+            chat_session_id,  # source_chat_session_id
+            None,  # folder_id - no folder assignment for now
+        )
+    
+    if not row:
+        raise HTTPException(status_code=500, detail="Failed to create event poster project entry.")
+    
+    return row["id"]
 
 
 def extract_open_positions_from_table(parsed_json):
@@ -34218,89 +34260,4 @@ async def log_static_file_requests(request: Request, call_next):
             logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
     
     return response
-    
-# Event Poster Save Endpoint
-class EventPosterData(BaseModel):
-    eventName: str
-    mainSpeaker: str
-    speakerDescription: str
-    date: str
-    topic: str
-    additionalSpeakers: str
-    ticketPrice: str
-    ticketType: str
-    freeAccessConditions: str
-    speakerImage: Optional[str] = None
-
-@app.post("/api/custom/event-poster/save")
-async def save_event_poster(
-    poster_data: EventPosterData,
-    onyx_user_id: str = Depends(get_current_onyx_user_id),
-    pool: asyncpg.Pool = Depends(get_db_pool)
-):
-    """
-    Save an event poster as a product directly to the database.
-    Similar to how audits are saved but for event posters.
-    """
-    try:
-        # Prepare content for database storage
-        microproduct_content = {
-            "eventName": poster_data.eventName,
-            "mainSpeaker": poster_data.mainSpeaker,
-            "speakerDescription": poster_data.speakerDescription,
-            "date": poster_data.date,
-            "topic": poster_data.topic,
-            "additionalSpeakers": poster_data.additionalSpeakers,
-            "ticketPrice": poster_data.ticketPrice,
-            "ticketType": poster_data.ticketType,
-            "freeAccessConditions": poster_data.freeAccessConditions,
-            "speakerImage": poster_data.speakerImage,
-            "detectedLanguage": "auto"
-        }
-        
-        logger.info(f"🔍 [EVENT POSTER SAVE] Incoming poster_data: {poster_data.model_dump()}")
-        logger.info(f"🔍 [EVENT POSTER SAVE] Prepared microproduct_content: {microproduct_content}")
-        
-        # Insert directly into projects table using correct schema
-        insert_query = """
-        INSERT INTO projects (
-            onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, design_template_id, is_standalone, created_at
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, design_template_id, is_standalone, created_at;
-        """
-        
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                insert_query,
-                onyx_user_id,
-                poster_data.eventName or "Event Poster",  # project_name
-                "event_poster",  # product_type
-                "event_poster",  # microproduct_type
-                poster_data.eventName or "Event Poster",  # microproduct_name - use actual event name
-                microproduct_content,  # microproduct_content
-                1,  # design_template_id (default)
-                True  # is_standalone
-            )
-            
-        if not row:
-            raise HTTPException(status_code=500, detail="Failed to save event poster")
-            
-        logger.info(f"✅ Event poster saved successfully: {row['id']}")
-        
-        # Return the saved project data
-        return {
-            "id": row["id"],
-            "project_name": row["project_name"],
-            "product_type": row["product_type"],
-            "microproduct_type": row["microproduct_type"],
-            "success": True,
-            "message": "Event poster saved successfully"
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Failed to save event poster: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Failed to save event poster: {str(e)}")
     
