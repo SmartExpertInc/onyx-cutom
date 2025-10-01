@@ -706,50 +706,111 @@ export default function ProjectInstanceViewPage() {
             headers['X-Dev-Onyx-User-ID'] = devUserId;
           }
           
-          const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${instanceData.project_id}`, { 
+                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${instanceData.project_id}`, { 
             headers, 
             cache: 'no-store' 
           });
           
-                      if (response.ok) {
-              const fullData = await response.json();
-              console.log('📥 [EVENT POSTER] Full project data:', fullData);
-              console.log('📥 [EVENT POSTER] fullData.details type:', typeof fullData.details);
-              console.log('📥 [EVENT POSTER] fullData.details value:', fullData.details);
-              console.log('📥 [EVENT POSTER] microproduct_content type:', typeof fullData.microproduct_content);
-              console.log('📥 [EVENT POSTER] microproduct_content value:', fullData.microproduct_content);
-              
-              // Extract event poster data - the backend logs show the data is in fullData.details
-              let eventData = {};
-              if (fullData.details && typeof fullData.details === 'object' && fullData.details.eventName) {
-                // Data is directly in details object
-                eventData = fullData.details;
-                console.log('📥 [EVENT POSTER] Using details directly:', eventData);
-              } else if (fullData.microproduct_content) {
-                // Fallback: try microproduct_content
-                if (typeof fullData.microproduct_content === 'string') {
-                  try {
-                    eventData = JSON.parse(fullData.microproduct_content);
-                    console.log('📥 [EVENT POSTER] Parsed JSON from microproduct_content:', eventData);
-                  } catch (e) {
-                    console.error('❌ [EVENT POSTER] Failed to parse JSON:', e);
-                    eventData = fullData.microproduct_content;
+          if (response.ok) {
+            const fullData = await response.json();
+            console.log('📥 [EVENT POSTER] 🔍 FULL API RESPONSE:', JSON.stringify(fullData, null, 2));
+            console.log('📥 [EVENT POSTER] Response keys:', Object.keys(fullData || {}));
+            
+            // Extract event poster data - be more aggressive in searching for it
+            let eventData: any = {};
+            let dataSource = 'none';
+            
+            // Method 1: Check fullData.details for eventName
+            if (fullData.details && typeof fullData.details === 'object' && (fullData.details as any).eventName) {
+              eventData = fullData.details;
+              dataSource = 'details';
+            }
+            // Method 2: Check if fullData itself has eventName (maybe it's at the top level)
+            else if ((fullData as any).eventName) {
+              eventData = fullData;
+              dataSource = 'root';
+            }
+            // Method 3: Check microproduct_content
+            else if (fullData.microproduct_content) {
+              if (typeof fullData.microproduct_content === 'string') {
+                try {
+                  const parsed = JSON.parse(fullData.microproduct_content);
+                  if (parsed.eventName) {
+                    eventData = parsed;
+                    dataSource = 'microproduct_content_json';
                   }
-                } else {
-                  eventData = fullData.microproduct_content;
+                } catch (e) {
+                  console.error('❌ [EVENT POSTER] Failed to parse microproduct_content as JSON:', e);
                 }
-              } else if (instanceData.details) {
-                eventData = instanceData.details;
+              } else if ((fullData.microproduct_content as any).eventName) {
+                eventData = fullData.microproduct_content;
+                dataSource = 'microproduct_content_object';
               }
+            }
+            // Method 4: Search in all nested objects for eventName
+            else {
+              console.log('📥 [EVENT POSTER] Searching for eventName in all nested objects...');
+              const searchForEventData = (obj: any, path = ''): any => {
+                if (!obj || typeof obj !== 'object') return null;
+                
+                if (obj.eventName) {
+                  console.log(`📥 [EVENT POSTER] Found eventName at path: ${path}`);
+                  return obj;
+                }
+                
+                for (const [key, value] of Object.entries(obj)) {
+                  const result: any = searchForEventData(value, `${path}.${key}`);
+                  if (result) return result;
+                }
+                return null;
+              };
               
-              console.log('📥 [EVENT POSTER] Final event data to store:', eventData);
+              const found = searchForEventData(fullData);
+              if (found) {
+                eventData = found;
+                dataSource = 'deep_search';
+              }
+            }
             
-            const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            localStorage.setItem(sessionKey, JSON.stringify(eventData));
+            console.log(`📥 [EVENT POSTER] Data source: ${dataSource}`);
+            console.log('📥 [EVENT POSTER] Final event data to store:', eventData);
+            console.log('📥 [EVENT POSTER] Event data keys:', Object.keys(eventData || {}));
             
-            // Redirect to event poster results page with session key
-            router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
-            return;
+            // Validate that we have valid event poster data
+            if (!eventData.eventName && !eventData.mainSpeaker && !eventData.date) {
+              console.warn('⚠️ [EVENT POSTER] No valid event data found, using fallback from instanceData');
+              // Try to extract from instanceData as fallback
+              if (instanceData.name) {
+                eventData = {
+                  eventName: instanceData.name,
+                  mainSpeaker: '',
+                  speakerDescription: '',
+                  date: '',
+                  topic: '',
+                  additionalSpeakers: '',
+                  ticketPrice: '',
+                  ticketType: '',
+                  freeAccessConditions: '',
+                  speakerImage: null
+                };
+                dataSource = 'fallback_instanceData';
+              }
+            }
+            
+            // Final validation
+            if (eventData && (eventData.eventName || dataSource === 'fallback_instanceData')) {
+              console.log(`📥 [EVENT POSTER] ✅ Valid event data found via: ${dataSource}`);
+              const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+              localStorage.setItem(sessionKey, JSON.stringify(eventData));
+              
+              // Redirect to event poster results page with session key
+              router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
+              return;
+            } else {
+              console.error('❌ [EVENT POSTER] No valid event data found anywhere, cannot redirect');
+              alert('Unable to load event poster data. Please try again.');
+              return;
+            }
           }
         } catch (error) {
           console.error('❌ [EVENT POSTER] Failed to fetch full data:', error);
