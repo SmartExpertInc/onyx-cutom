@@ -1595,8 +1595,12 @@ export default function ProjectInstanceViewPage() {
       return <div>No data to display</div>;
     }
 
-    // Special handling for event posters by product_type (fallback)
-    if (projectInstanceData.product_type === 'event_poster') {
+    // Special handling for event posters (fallback - check by name pattern)
+    if (projectInstanceData.name && (
+      projectInstanceData.name.includes("Event Poster") || 
+      projectInstanceData.name.includes("event_poster") ||
+      projectInstanceData.component_name === 'EventPosterDisplay'
+    )) {
       const posterData = editableData;
       return (
         <EventPosterView
@@ -1832,12 +1836,15 @@ export default function ProjectInstanceViewPage() {
         );
       case COMPONENT_NAME_EVENT_POSTER:
         const posterData = editableData;
+        const handlePosterChange = (updatedData: any) => {
+          setEditableData(updatedData);
+        };
         return (
           <EventPosterView
             dataToDisplay={posterData}
             isEditing={isEditing}
-            onTextChange={handleTextChange}
-            parentProjectName={parentProjectName}
+            onTextChange={handlePosterChange}
+            parentProjectName={parentProjectNameForCurrentView}
           />
         );
       default:
@@ -1847,7 +1854,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
+    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN, COMPONENT_NAME_EVENT_POSTER].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';
