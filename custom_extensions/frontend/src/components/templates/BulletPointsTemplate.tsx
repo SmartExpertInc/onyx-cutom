@@ -542,7 +542,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
 
   const titleStyles: React.CSSProperties = {
     fontSize: '3.5rem',
-    width: '630px',
+    width: '100%',
     fontFamily: 'serif',
     color: '#ffffff',
     fontWeight: 'bold',

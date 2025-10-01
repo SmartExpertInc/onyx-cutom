@@ -209,7 +209,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Pyramid level dimensions - 5 clear levels with proper trapezoid shape
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [130, 210, 290, 370, 450]; // 5 levels, increasing
+    const widths = [144, 210, 290, 395, 533]; // 5 levels, increasing
     const heights = [65, 65, 65, 65, 65]; // Same height for each
     const topPositions = [0, 65, 130, 195, 260]; // Stacked perfectly
     
@@ -221,9 +221,10 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       left: '50%',
       transform: 'translateX(-50%)',
       background: pyramidColors[index],
-      clipPath: 'polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%)', // More straight edges like in photo
+      clipPath: 'polygon(15% 0%, 88% 0%, 100% 100%, 0% 100%)', // More straight edges like in photo
       display: 'flex',
       alignItems: 'center',
+      borderRadius: '3px',
       justifyContent: 'center',
       zIndex: 5 - index,
       boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
