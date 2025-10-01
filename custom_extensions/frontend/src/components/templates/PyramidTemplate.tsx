@@ -210,8 +210,8 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Pyramid level dimensions - 5 clear levels with unique clipPath for each
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
     const widths = [144, 228, 311, 401, 493]; // 5 levels, increasing
-    const heights = [65, 65, 65, 65, 65]; // Same height for each
-    const topPositions = [0, 70, 140, 210, 280]; // Stacked perfectly
+    const heights = [75, 75, 75, 75, 75]; // Same height for each
+    const topPositions = [0, 80, 150, 220, 290]; // Stacked perfectly
     const clipPaths = [
       'polygon(24% 0%, 78% 0%, 100% 100%, 0% 100%)', // Level 1
       'polygon(18% 0%, 83% 0%, 100% 100%, 0% 100%)', // Level 2
