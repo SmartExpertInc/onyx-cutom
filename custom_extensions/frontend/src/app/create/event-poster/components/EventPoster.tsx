@@ -53,12 +53,12 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
   const handleSave = () => {
     onChange(tempValue);
     setIsEditing(false);
-    // Trigger auto-save with delay (same as course outlines) to avoid missing last change
+    // Use setTimeout to ensure the onChange has time to update the parent state
     if (onAutoSave) {
       setTimeout(() => {
-        console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur with delay');
+        console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save after state update');
         onAutoSave();
-      }, 100); // 100ms delay to ensure the change is processed
+      }, 50); // Small delay to allow React state update to complete
     }
   };
 
@@ -182,6 +182,7 @@ export default function EventPoster({
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       
       // Prepare the payload with current state (same format as course outlines)
+      // Use current state values at the time of auto-save
       const eventData = {
         eventName,
         mainSpeaker,
@@ -199,7 +200,7 @@ export default function EventPoster({
         microProductContent: eventData 
       };
 
-      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Sending payload:', payload);
+      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Sending payload with current values:', payload);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/update/${projectId}`, {
         method: 'PUT',
