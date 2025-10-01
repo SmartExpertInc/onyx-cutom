@@ -2,12 +2,14 @@
 
 import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key } from 'lucide-react';
 import { useState } from 'react';
-import ManageAddonsModal from './ManageAddonsModal';
+import AddOnsModal from '@/components/AddOnsModal';
+import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 
 export default function BillingPage() {
   const [isAddonsModalOpen, setIsAddonsModalOpen] = useState(false);
+  const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -38,7 +40,10 @@ export default function BillingPage() {
             <div className="text-center">
               <div className="text-6xl font-bold text-blue-600 mb-2">Plus</div>
               <div className="text-xl font-semibold text-blue-700 mb-6">Monthly</div>
-              <Button className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40">
+              <Button 
+                onClick={() => setIsTariffPlanModalOpen(true)}
+                className="bg-blue-600 text-white px-8 py-3 rounded-full font-medium hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40"
+              >
                 Switch to annual and save 20%
               </Button>
             </div>
@@ -47,7 +52,11 @@ export default function BillingPage() {
 
         {/* Upgrade to Pro */}
         <div className="mb-8">
-          <Button variant="outline" className="w-full bg-white border-2 border-gray-200 rounded-full px-6 py-4 text-gray-700 font-semibold hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md">
+          <Button 
+            onClick={() => setIsTariffPlanModalOpen(true)}
+            variant="outline" 
+            className="w-full bg-white border-2 border-gray-200 rounded-full px-6 py-4 text-gray-700 font-semibold hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 shadow-sm hover:shadow-md"
+          >
             Upgrade to Pro
           </Button>
         </div>
@@ -74,9 +83,14 @@ export default function BillingPage() {
           </div>
       </div>
 
-      <ManageAddonsModal
+      <AddOnsModal
         isOpen={isAddonsModalOpen}
         onClose={() => setIsAddonsModalOpen(false)}
+      />
+
+      <TariffPlanModal
+        open={isTariffPlanModalOpen}
+        onOpenChange={setIsTariffPlanModalOpen}
       />
     </div>
   );
