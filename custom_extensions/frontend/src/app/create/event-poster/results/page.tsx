@@ -85,34 +85,18 @@ function EventPosterResultsContent() {
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
       
-      // Prepare product data for event poster - matching ProjectCreateRequest schema
-      const productData = {
-        projectName: eventData.eventName || 'Event Poster',
-        design_template_id: 1, // Default template ID
-        microProductName: 'Event Poster',
-        aiResponse: JSON.stringify({
-          eventName: eventData.eventName,
-          mainSpeaker: eventData.mainSpeaker,
-          speakerDescription: eventData.speakerDescription,
-          date: eventData.date,
-          topic: eventData.topic,
-          additionalSpeakers: eventData.additionalSpeakers,
-          ticketPrice: eventData.ticketPrice,
-          ticketType: eventData.ticketType,
-          freeAccessConditions: eventData.freeAccessConditions,
-          speakerImage: eventData.speakerImage,
-          detectedLanguage: 'auto',
-          productType: 'event_poster'
-        }),
-        chatSessionId: null,
-        outlineId: null,
-        folder_id: null,
-        theme: null,
-        source_context_type: 'manual_creation',
-        source_context_data: {
-          tool: 'event_poster_creator',
-          version: '1.0'
-        }
+      // Use simple direct database insertion approach like audits
+      const posterData = {
+        eventName: eventData.eventName,
+        mainSpeaker: eventData.mainSpeaker,
+        speakerDescription: eventData.speakerDescription,
+        date: eventData.date,
+        topic: eventData.topic,
+        additionalSpeakers: eventData.additionalSpeakers,
+        ticketPrice: eventData.ticketPrice,
+        ticketType: eventData.ticketType,
+        freeAccessConditions: eventData.freeAccessConditions,
+        speakerImage: eventData.speakerImage
       };
 
       const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -121,10 +105,11 @@ function EventPosterResultsContent() {
         headers['X-Dev-Onyx-User-ID'] = devUserId;
       }
 
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
+      // Try to create a dedicated endpoint for event posters
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/save`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(productData),
+        body: JSON.stringify(posterData),
       });
 
       if (!response.ok) {

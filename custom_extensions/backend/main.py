@@ -34182,4 +34182,85 @@ async def log_static_file_requests(request: Request, call_next):
             logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
     
     return response
+
+# Event Poster Save Endpoint
+class EventPosterData(BaseModel):
+    eventName: str
+    mainSpeaker: str
+    speakerDescription: str
+    date: str
+    topic: str
+    additionalSpeakers: str
+    ticketPrice: str
+    ticketType: str
+    freeAccessConditions: str
+    speakerImage: Optional[str] = None
+
+@app.post("/api/custom/event-poster/save")
+async def save_event_poster(
+    poster_data: EventPosterData,
+    onyx_user_id: str = Depends(get_current_onyx_user_id),
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Save an event poster as a product directly to the database.
+    Similar to how audits are saved but for event posters.
+    """
+    try:
+        # Prepare content for database storage
+        microproduct_content = {
+            "eventName": poster_data.eventName,
+            "mainSpeaker": poster_data.mainSpeaker,
+            "speakerDescription": poster_data.speakerDescription,
+            "date": poster_data.date,
+            "topic": poster_data.topic,
+            "additionalSpeakers": poster_data.additionalSpeakers,
+            "ticketPrice": poster_data.ticketPrice,
+            "ticketType": poster_data.ticketType,
+            "freeAccessConditions": poster_data.freeAccessConditions,
+            "speakerImage": poster_data.speakerImage,
+            "detectedLanguage": "auto"
+        }
+        
+        # Insert directly into projects table
+        insert_query = """
+        INSERT INTO projects (
+            onyx_user_id, project_name, product_type, microproduct_type,
+            microproduct_name, microproduct_content, design_template_id, created_at
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+        RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
+                  microproduct_content, design_template_id, created_at;
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                insert_query,
+                onyx_user_id,
+                poster_data.eventName or "Event Poster",  # project_name
+                "event_poster",  # product_type
+                "event_poster",  # microproduct_type
+                "Event Poster",  # microproduct_name
+                microproduct_content,  # microproduct_content
+                1  # design_template_id (default)
+            )
+            
+        if not row:
+            raise HTTPException(status_code=500, detail="Failed to save event poster")
+            
+        logger.info(f"✅ Event poster saved successfully: {row['id']}")
+        
+        # Return the saved project data
+        return {
+            "id": row["id"],
+            "project_name": row["project_name"],
+            "product_type": row["product_type"],
+            "microproduct_type": row["microproduct_type"],
+            "success": True,
+            "message": "Event poster saved successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to save event poster: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to save event poster: {str(e)}")
     
