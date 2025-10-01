@@ -536,7 +536,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     justifyContent: 'flex-start',
     background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
     padding: '35px',
-    clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0 100%)', // Mirrored diagonal cut
+    clipPath: 'polygon(0 0, 100% 0, 100% 100%, 15% 100%)', // Mirrored diagonal cut - bottom left corner
     zIndex: 2
   };
 
