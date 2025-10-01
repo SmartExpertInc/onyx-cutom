@@ -23,6 +23,7 @@ import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { LessonPlanView } from '@/components/LessonPlanView';
+import { EventPosterView } from '@/components/EventPosterView';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import workspaceService, { 
   Workspace, 
@@ -104,6 +105,7 @@ const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 const COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay";
+const COMPONENT_NAME_EVENT_POSTER = "EventPosterDisplay";
 
 type ProjectViewParams = {
   projectId: string;
@@ -1590,18 +1592,26 @@ export default function ProjectInstanceViewPage() {
 
   const displayContent = () => {
     if (!projectInstanceData || pageState !== 'success') {
-      return null;
+      return <div>No data to display</div>;
     }
 
-    const parentProjectName = searchParams?.get('parentProjectName') || parentProjectNameForCurrentView;
-    const lessonNumberStr = searchParams?.get('lessonNumber');
-    let lessonNumber: number | undefined = lessonNumberStr ? parseInt(lessonNumberStr, 10) : undefined;
-
-    if (lessonNumber === undefined && projectInstanceData.details && 'lessonNumber' in projectInstanceData.details && typeof projectInstanceData.details.lessonNumber === 'number') {
-      lessonNumber = projectInstanceData.details.lessonNumber;
+    // Special handling for event posters by product_type (fallback)
+    if (projectInstanceData.product_type === 'event_poster') {
+      const posterData = editableData;
+      return (
+        <EventPosterView
+          dataToDisplay={posterData}
+          isEditing={isEditing}
+          onTextChange={handleTextChange}
+          parentProjectName={parentProjectName}
+        />
+      );
     }
 
-    switch (projectInstanceData.component_name) {
+    // Rest of the existing switch statement logic...
+    const componentName = projectInstanceData?.component_name;
+
+    switch (componentName) {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
@@ -1818,6 +1828,16 @@ export default function ProjectInstanceViewPage() {
             lessonPlanData={lessonPlanData}
             allUserMicroproducts={allUserMicroproducts}
             parentProjectName={parentProjectNameForCurrentView}
+          />
+        );
+      case COMPONENT_NAME_EVENT_POSTER:
+        const posterData = editableData;
+        return (
+          <EventPosterView
+            dataToDisplay={posterData}
+            isEditing={isEditing}
+            onTextChange={handleTextChange}
+            parentProjectName={parentProjectName}
           />
         );
       default:
