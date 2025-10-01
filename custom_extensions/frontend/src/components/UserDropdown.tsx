@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, User, Settings, Bell } from "lucide-react";
+import { LogOut, User, Settings, Bell, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { UserRole } from "../lib/types"; 
@@ -155,6 +155,11 @@ export function UserDropdown({
                   </>
                 )}
                 
+                <DropdownOption
+                  href="/payments"
+                  icon={<CreditCard size={16} className="my-auto" />}
+                  label="Payments and Plans"
+                />
                 {showAdminPanel && (
                   <DropdownOption
                     href="/admin/main"
