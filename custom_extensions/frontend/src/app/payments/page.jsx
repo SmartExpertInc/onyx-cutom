@@ -191,9 +191,9 @@ export default function BillingPage() {
       price: '$0',
       bgGradient: 'from-gray-600 to-gray-700',
       textColor: 'text-white',
-      buttonTextColor: 'text-gray-500',
-      buttonColor: 'bg-gray-200 hover:bg-gray-300',
-      isCurrent: true
+      buttonTextColor: 'text-white',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700',
+      isCurrent: false
     },
     pro: {
       name: 'Pro',
@@ -203,7 +203,7 @@ export default function BillingPage() {
       textColor: 'text-white',
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
-      isCurrent: false
+      isCurrent: true
     },
     business: {
       name: 'Business',
