@@ -23,7 +23,6 @@ import QuizDisplay from '@/components/QuizDisplay';
 import TextPresentationDisplay from '@/components/TextPresentationDisplay';
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { LessonPlanView } from '@/components/LessonPlanView';
-import { EventPosterView } from '@/components/EventPosterView';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import workspaceService, { 
   Workspace, 
@@ -105,7 +104,6 @@ const COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay
 const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 const COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay";
-const COMPONENT_NAME_EVENT_POSTER = "EventPosterDisplay";
 
 type ProjectViewParams = {
   projectId: string;
@@ -673,6 +671,21 @@ export default function ProjectInstanceViewPage() {
       if (instanceData.name && instanceData.name.includes("AI-Аудит Landing Page")) {
         console.log('🔄 [LANDING PAGE DETECTED] Redirecting to dynamic landing page:', instanceData.project_id);
         router.push(`/create/audit-2-dynamic/${instanceData.project_id}`);
+        return;
+      }
+      
+      // Check if this is an event poster and redirect accordingly
+      if ((instanceData as any).productType === "event_poster" || (instanceData as any).microproductType === "event_poster" || 
+          (instanceData.details && (instanceData.details as any).eventName)) {
+        console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster results page:', instanceData.project_id);
+        
+        // Store poster data in localStorage for the results page
+        const eventData = instanceData.details || {};
+        const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem(sessionKey, JSON.stringify(eventData));
+        
+        // Redirect to event poster results page with session key
+        router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
         return;
       }
       
@@ -1592,30 +1605,18 @@ export default function ProjectInstanceViewPage() {
 
   const displayContent = () => {
     if (!projectInstanceData || pageState !== 'success') {
-      return <div>No data to display</div>;
+      return null;
     }
 
-    // Special handling for event posters (fallback - check by name pattern)
-    if (projectInstanceData.name && (
-      projectInstanceData.name.includes("Event Poster") || 
-      projectInstanceData.name.includes("event_poster") ||
-      projectInstanceData.component_name === 'EventPosterDisplay'
-    )) {
-      const posterData = editableData;
-      return (
-        <EventPosterView
-          dataToDisplay={posterData}
-          isEditing={isEditing}
-          onTextChange={handleTextChange}
-          parentProjectName={parentProjectName}
-        />
-      );
+    const parentProjectName = searchParams?.get('parentProjectName') || parentProjectNameForCurrentView;
+    const lessonNumberStr = searchParams?.get('lessonNumber');
+    let lessonNumber: number | undefined = lessonNumberStr ? parseInt(lessonNumberStr, 10) : undefined;
+
+    if (lessonNumber === undefined && projectInstanceData.details && 'lessonNumber' in projectInstanceData.details && typeof projectInstanceData.details.lessonNumber === 'number') {
+      lessonNumber = projectInstanceData.details.lessonNumber;
     }
 
-    // Rest of the existing switch statement logic...
-    const componentName = projectInstanceData?.component_name;
-
-    switch (componentName) {
+    switch (projectInstanceData.component_name) {
       case COMPONENT_NAME_TRAINING_PLAN:
         const trainingPlanData = editableData as TrainingPlanData | null;
         return (
@@ -1834,19 +1835,6 @@ export default function ProjectInstanceViewPage() {
             parentProjectName={parentProjectNameForCurrentView}
           />
         );
-      case COMPONENT_NAME_EVENT_POSTER:
-        const posterData = editableData;
-        const handlePosterChange = (updatedData: any) => {
-          setEditableData(updatedData);
-        };
-        return (
-          <EventPosterView
-            dataToDisplay={posterData}
-            isEditing={isEditing}
-            onTextChange={handlePosterChange}
-            parentProjectName={parentProjectNameForCurrentView}
-          />
-        );
       default:
         return <DefaultDisplayComponent instanceData={projectInstanceData} t={t} />;
     }
@@ -1854,7 +1842,7 @@ export default function ProjectInstanceViewPage() {
 
   const displayName = projectInstanceData?.name || `${t('interface.projectView.project', 'Project')} ${projectId}`;
   const canEditContent = projectInstanceData &&
-    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN, COMPONENT_NAME_EVENT_POSTER].includes(projectInstanceData.component_name);
+    [COMPONENT_NAME_PDF_LESSON, COMPONENT_NAME_VIDEO_LESSON, COMPONENT_NAME_QUIZ, COMPONENT_NAME_TEXT_PRESENTATION, COMPONENT_NAME_LESSON_PLAN].includes(projectInstanceData.component_name);
 
   // Determine product language for column labels
   const productLanguage = (editableData as any)?.detectedLanguage || 'en';

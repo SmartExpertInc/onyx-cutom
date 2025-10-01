@@ -554,6 +554,22 @@ export default function ProductViewNewPage() {
         }
 
         const data: ProjectInstanceDetail = await response.json();
+        
+        // Check if this is an event poster and redirect accordingly
+        if ((data as any).productType === "event_poster" || (data as any).microproductType === "event_poster" || 
+            (data.details && (data.details as any).eventName)) {
+          console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster results page:', productId);
+          
+          // Store poster data in localStorage for the results page
+          const eventData = data.details || {};
+          const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          localStorage.setItem(sessionKey, JSON.stringify(eventData));
+          
+          // Redirect to event poster results page with session key
+          router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
+          return;
+        }
+        
         setProjectData(data);
 
         // Check for existing content for lessons

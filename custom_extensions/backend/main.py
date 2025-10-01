@@ -34182,7 +34182,7 @@ async def log_static_file_requests(request: Request, call_next):
             logger.warning(f"⚠️ [STATIC FILE RESPONSE WARNING] Response is suspiciously small: {content_length} bytes")
     
     return response
-
+    
 # Event Poster Save Endpoint
 class EventPosterData(BaseModel):
     eventName: str
@@ -34222,15 +34222,15 @@ async def save_event_poster(
             "detectedLanguage": "auto"
         }
         
-        # Insert directly into projects table with event poster specific fields
+        # Insert directly into projects table
         insert_query = """
         INSERT INTO projects (
             onyx_user_id, project_name, product_type, microproduct_type,
-            microproduct_name, microproduct_content, component_name, created_at
+            microproduct_name, microproduct_content, design_template_id, created_at
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
         RETURNING id, onyx_user_id, project_name, product_type, microproduct_type, microproduct_name,
-                  microproduct_content, component_name, created_at;
+                  microproduct_content, design_template_id, created_at;
         """
         
         async with pool.acquire() as conn:
@@ -34240,9 +34240,9 @@ async def save_event_poster(
                 poster_data.eventName or "Event Poster",  # project_name
                 "event_poster",  # product_type
                 "event_poster",  # microproduct_type
-                "Event Poster",  # microproduct_name
+                poster_data.eventName or "Event Poster",  # microproduct_name - use actual event name
                 microproduct_content,  # microproduct_content
-                "EventPosterDisplay"  # component_name - custom for event posters
+                1  # design_template_id (default)
             )
             
         if not row:
