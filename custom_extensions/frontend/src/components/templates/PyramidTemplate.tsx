@@ -200,11 +200,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Pyramid colors exactly as in photo - 5 distinct levels
   const pyramidColors = [
-    '#3D8BFF', // Light blue (level 1 - smallest, top)
-    '#00BCD4', // Cyan (level 2)
-    '#1E88E5', // Medium blue (level 3)
-    '#5E35B1', // Purple (level 4)
-    '#1A237E'  // Dark navy blue (level 5 - largest, bottom)
+    '#3D8BFF', // Bright blue (level 1 - smallest, top) - 150
+    '#00BCD4', // Cyan/turquoise (level 2) - 350
+    '#1E88E5', // Medium blue (level 3) - 1,250
+    '#5E35B1', // Purple (level 4) - 3,550
+    '#1A237E'  // Dark navy blue (level 5 - largest, bottom) - 25,000
   ];
 
   // Pyramid level dimensions - 5 clear levels with unique clipPath for each
@@ -269,11 +269,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Text blocks - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '25px', left: '7%', textAlign: 'left' as const },     // Level 1 - LEFT
-      { top: '90px', right: '7%', textAlign: 'right' as const },   // Level 2 - RIGHT
-      { top: '155px', left: '7%', textAlign: 'left' as const },    // Level 3 - LEFT
-      { top: '220px', right: '7%', textAlign: 'right' as const },  // Level 4 - RIGHT
-      { top: '285px', left: '7%', textAlign: 'left' as const }     // Level 5 - LEFT
+      { top: '15px', left: '5%', textAlign: 'left' as const },     // Level 1 - LEFT (top segment)
+      { top: '85px', right: '5%', textAlign: 'right' as const },   // Level 2 - RIGHT (second segment)
+      { top: '155px', left: '5%', textAlign: 'left' as const },    // Level 3 - LEFT (third segment)
+      { top: '225px', right: '5%', textAlign: 'right' as const },  // Level 4 - RIGHT (fourth segment)
+      { top: '295px', left: '5%', textAlign: 'left' as const }     // Level 5 - LEFT (bottom segment)
     ];
     
     const pos = positions[index];
@@ -281,8 +281,8 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       position: 'absolute',
       top: pos.top,
       [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
-      width: '30%',
-      maxWidth: '320px',
+      width: '35%',
+      maxWidth: '350px',
       zIndex: 10,
       textAlign: pos.textAlign
     };
@@ -308,11 +308,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Triangle arrows - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '55px', left: '19%' },    // Level 1 - LEFT
-      { top: '120px', right: '19%' },  // Level 2 - RIGHT
-      { top: '185px', left: '19%' },   // Level 3 - LEFT
-      { top: '250px', right: '19%' },  // Level 4 - RIGHT
-      { top: '315px', left: '19%' }    // Level 5 - LEFT
+      { top: '45px', left: '15%' },    // Level 1 - LEFT (pointing to top segment)
+      { top: '115px', right: '15%' },  // Level 2 - RIGHT (pointing to second segment)
+      { top: '185px', left: '15%' },   // Level 3 - LEFT (pointing to third segment)
+      { top: '255px', right: '15%' },  // Level 4 - RIGHT (pointing to fourth segment)
+      { top: '325px', left: '15%' }    // Level 5 - LEFT (pointing to bottom segment)
     ];
     
     const pos = positions[index];
@@ -321,9 +321,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       ...pos,
       width: '0',
       height: '0',
-      borderLeft: '7px solid transparent',
-      borderRight: '7px solid transparent',
-      borderTop: '10px solid #1E88E5',
+      borderLeft: '8px solid transparent',
+      borderRight: '8px solid transparent',
+      borderTop: '12px solid #1E88E5',
       zIndex: 10
     };
   };
