@@ -303,6 +303,9 @@ export function TextFormField({
             py-3
             mt-1
             text-base
+            shadow-md
+            hover:shadow-xl
+            transition-shadow
 
             file:border-0
             file:bg-transparent
@@ -319,10 +322,6 @@ export function TextFormField({
             disabled:cursor-not-allowed
             disabled:opacity-50
             md:text-sm
-            dark:border-neutral-700
-            dark:bg-transparent
-            dark:file:text-neutral-50
-            dark:placeholder:text-neutral-400
 
             ${heightString}
             ${sizeClass.input}

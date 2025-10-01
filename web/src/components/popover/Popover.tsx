@@ -43,6 +43,7 @@ export function Popover({
   return (
     <RadixPopover.Root open={open} onOpenChange={onOpenChange}>
       <RadixPopover.Trigger
+        className="outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
         style={triggerMaxWidth ? { width: "100%" } : {}}
         onClick={(e) => {
           e.preventDefault();
