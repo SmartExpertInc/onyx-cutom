@@ -106,23 +106,18 @@ function EventPosterResultsContent() {
           const templates = await templatesResponse.json();
           console.log('📋 Available templates:', templates);
           
-          // First preference: Event Poster template
-          const eventPosterTemplate = templates.find((t: any) => 
-            t.template_name === 'Event Poster' || 
-            t.component_name === 'EventPosterDisplay' ||
-            t.template_name?.toLowerCase().includes('event poster')
+          // Use Text Presentation template for now since it can handle arbitrary JSON data
+          const textPresentationTemplate = templates.find((t: any) => 
+            t.template_name === 'Text Presentation Template' ||
+            t.component_name === 'TextPresentationDisplay'
           );
           
-          if (eventPosterTemplate) {
-            templateId = eventPosterTemplate.id;
-            console.log('✅ Found Event Poster template:', templateId);
+          if (textPresentationTemplate) {
+            templateId = textPresentationTemplate.id;
+            console.log('✅ Using Text Presentation template for Event Poster:', templateId);
           } else {
-            // Fallback: Use Text Presentation or any available template
-            const fallbackTemplate = templates.find((t: any) => 
-              t.template_name === 'Text Presentation Template' ||
-              t.component_name === 'TextPresentationDisplay'
-            ) || templates[0]; // Use first available template
-            
+            // Fallback: Use any available template
+            const fallbackTemplate = templates[0];
             if (fallbackTemplate) {
               templateId = fallbackTemplate.id;
               console.log('📝 Using fallback template:', fallbackTemplate.template_name, 'ID:', templateId);
@@ -141,10 +136,21 @@ function EventPosterResultsContent() {
         templateId = 1;
       }
 
-      // Prepare event data without the large image for the main payload
-      const eventDataForSaving = {
-        ...eventData,
-        speakerImage: eventData.speakerImage ? 'custom_image_provided' : null // Flag that image was provided
+      // Format the event data in a structure the backend can handle
+      const formattedEventData = {
+        title: eventData.eventName || 'Event Poster',
+        content: `Event Poster Data:
+Event Name: ${eventData.eventName}
+Main Speaker: ${eventData.mainSpeaker}
+Speaker Description: ${eventData.speakerDescription}
+Date: ${eventData.date}
+Topic: ${eventData.topic}
+Additional Speakers: ${eventData.additionalSpeakers}
+Ticket Price: ${eventData.ticketPrice}
+Ticket Type: ${eventData.ticketType}
+Free Access Conditions: ${eventData.freeAccessConditions}`,
+        eventPosterData: eventData, // Keep the original data for event poster functionality
+        detectedLanguage: 'uk'
       };
 
       // Create the project data
@@ -152,23 +158,16 @@ function EventPosterResultsContent() {
         projectName: eventData.eventName || 'Event Poster',
         design_template_id: templateId,
         microProductName: 'Event Poster',
-        aiResponse: JSON.stringify(eventDataForSaving), // Send data without large base64
+        aiResponse: JSON.stringify(formattedEventData),
         chatSessionId: null,
         outlineId: null,
         folder_id: null,
         theme: null,
         source_context_type: 'manual',
-        source_context_data: { 
-          type: 'event_poster',
-          has_custom_image: !!eventData.speakerImage
-        }
+        source_context_data: { type: 'event_poster' }
       };
 
-      console.log('🚀 Saving poster with data (image size):', {
-        ...projectData,
-        aiResponse: `${projectData.aiResponse.length} characters`,
-        imageSize: eventData.speakerImage ? `${eventData.speakerImage.length} characters` : 'No image'
-      });
+      console.log('🚀 Saving poster with data:', projectData);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
         method: 'POST',
@@ -201,16 +200,6 @@ function EventPosterResultsContent() {
 
       const result = await response.json();
       console.log('✅ Poster saved as product:', result);
-
-      // If there's a custom image, store it separately for this project
-      if (eventData.speakerImage && result.id) {
-        try {
-          localStorage.setItem(`poster_image_${result.id}`, eventData.speakerImage);
-          console.log('📸 Custom image stored for project:', result.id);
-        } catch (e) {
-          console.warn('⚠️ Could not store custom image:', e);
-        }
-      }
       
       // Show success message and redirect to projects page
       alert(t('interface.eventPosterForm.savedSuccessfully', 'Event poster saved successfully! You can find it in your Products page.'));
