@@ -97,7 +97,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] p-0 max-h-[85vh] overflow-y-auto" hideCloseIcon preventCloseOnOverlayClick>
+      <DialogContent className="sm:max-w-[700px] rounded-xl p-0 max-h-[85vh] overflow-y-auto" hideCloseIcon preventCloseOnOverlayClick>
         <div className="bg-white rounded-3xl">
           <DialogHeader className="space-y-4 p-6 pb-4">
             <div className="flex items-center space-x-4">

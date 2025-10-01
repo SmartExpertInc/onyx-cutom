@@ -329,7 +329,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl w-[90vw] h-[90vh] overflow-y-auto p-0 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+      <DialogContent className="max-w-7xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-br from-blue-50 via-white to-blue-100">
         <div className="min-h-full">
           <div className="container mx-auto px-4 py-12">
             <div className="max-w-7xl mx-auto">

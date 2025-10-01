@@ -170,7 +170,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
             </Button>
           </div>
         )}
-        <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white" variant="download">
+        <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" variant="download">
           {addOn.isEnterprise ? 'Contact Sales' : 'Buy Now'}
         </Button>
         {addOn.priceNote && addOn.priceNote !== 'per month' && (
@@ -198,7 +198,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl">Manage Add-ons</DialogTitle>
           <DialogDescription>
@@ -207,24 +207,24 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
         </DialogHeader>
 
         <Tabs defaultValue="credits" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="mx-6 mt-6 w-auto">
+          <TabsList className="mx-6 mt-6 w-auto rounded-full">
             <TabsTrigger 
               value="credits" 
-              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
             >
               <Coins size={16} className="text-blue-600 group-data-[state=active]:text-white" />
               <span>Credits</span>
             </TabsTrigger>
             <TabsTrigger 
               value="connectors" 
-              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
             >
               <Workflow size={16} className="text-blue-600 group-data-[state=active]:text-white" />
               <span>Connectors</span>
             </TabsTrigger>
             <TabsTrigger 
               value="storage" 
-              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
             >
               <Server size={16} className="text-blue-600 group-data-[state=active]:text-white" />
               <span>Storage</span>
