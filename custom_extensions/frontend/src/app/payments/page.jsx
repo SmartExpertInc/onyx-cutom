@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation, X, Link, Database, Coins, Workflow, Server } from 'lucide-react';
+import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation, X, Database, Coins, Workflow, Server } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import AddOnsModal from '@/components/AddOnsModal';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
@@ -185,14 +185,6 @@ export default function BillingPage() {
 
   const purchasedItems = [
     {
-      type: 'credits',
-      name: 'Medium',
-      amount: '300 credits',
-      price: 50,
-      priceNote: '$0.17 per credit',
-      purchaseDate: '2025-09-15'
-    },
-    {
       type: 'connectors',
       name: '5 Connectors',
       amount: '5 connectors',
@@ -212,8 +204,6 @@ export default function BillingPage() {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'credits':
-        return <Coins className="w-5 h-5" />;
       case 'connectors':
         return <Workflow className="w-5 h-5" />;
       case 'storage':
