@@ -198,19 +198,20 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     height: '500px'
   };
 
-  // Pyramid level colors (gradient from light blue to dark blue/purple)
+  // Pyramid level colors exactly as in photo
   const pyramidColors = [
-    '#87CEEB', // Light blue (top)
-    '#5F9EA0', // Cadet blue
-    '#4682B4', // Steel blue
-    '#4169E1', // Royal blue
-    '#191970'  // Midnight blue (bottom)
+    '#3388FF', // Bright blue (top)
+    '#00BFFF', // Cyan/teal blue (second)
+    '#007BFF', // Standard blue (third)
+    '#6A0DAD', // Purple blue (fourth)
+    '#191970'  // Deep indigo (bottom)
   ];
 
+  // Pyramid level dimensions and positions exactly as in photo
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [120, 200, 280, 360, 440]; // Increasing widths
-    const heights = [60, 60, 60, 60, 60]; // Same height for all levels
-    const topPositions = [0, 60, 120, 180, 240]; // Stacked positions
+    const widths = [140, 200, 260, 320, 400]; // Increasing widths
+    const heights = [70, 70, 70, 70, 70]; // Same height for all levels
+    const topPositions = [0, 70, 140, 210, 280]; // Stacked positions
     
     return {
       position: 'absolute',
@@ -223,33 +224,49 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       clipPath: 'polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%)', // Trapezoid shape
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-end', // Right-align content
+      paddingRight: '20px', // Add padding for speech bubble and number
       zIndex: 5 - index // Higher levels have higher z-index
     };
   };
 
-  const numberCircleStyles: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
+  // Speech bubble styles
+  const speechBubbleStyles: React.CSSProperties = {
+    width: '24px',
+    height: '24px',
     borderRadius: '50%',
     background: '#ffffff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    color: '#000000',
+    marginRight: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   };
 
-  // Text block positioning - alternating left and right
+  const speechBubbleIconStyles: React.CSSProperties = {
+    width: '12px',
+    height: '12px',
+    borderRadius: '50%',
+    background: '#3388FF',
+    position: 'relative'
+  };
+
+  // Number styles
+  const numberStyles: React.CSSProperties = {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#ffffff',
+    fontFamily: 'Arial, sans-serif'
+  };
+
+  // Text block positioning exactly as in photo
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '20px', left: '20%' },   // Level 0 - left
-      { top: '80px', right: '20%' },  // Level 1 - right
-      { top: '140px', left: '20%' },  // Level 2 - left
-      { top: '200px', right: '20%' }, // Level 3 - right
-      { top: '260px', left: '20%' }   // Level 4 - left
+      { top: '10px', right: '15%' },   // Level 0 - top right
+      { top: '80px', left: '15%' },    // Level 1 - top left
+      { top: '150px', right: '15%' },  // Level 2 - middle right
+      { top: '220px', left: '15%' },   // Level 3 - middle left
+      { top: '290px', left: '15%' }    // Level 4 - bottom left
     ];
     
     const pos = positions[index];
@@ -257,13 +274,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       position: 'absolute',
       ...pos,
       width: '25%',
-      maxWidth: '300px',
+      maxWidth: '280px',
       zIndex: 10
     };
   };
 
   const textHeadingStyles: React.CSSProperties = {
-    fontSize: '1.2rem',
+    fontSize: '1.1rem',
     fontWeight: 'bold',
     color: '#000000',
     fontFamily: 'Georgia, serif',
@@ -272,21 +289,21 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const textDescriptionStyles: React.CSSProperties = {
-    fontSize: '0.9rem',
+    fontSize: '0.85rem',
     color: '#000000',
     fontFamily: 'Georgia, serif',
     lineHeight: 1.4,
     wordWrap: 'break-word'
   };
 
-  // Triangle arrow styles
+  // Triangle arrow styles exactly as in photo
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '50px', right: '25%' },   // Level 0 - right
-      { top: '110px', left: '25%' },   // Level 1 - left
-      { top: '170px', right: '25%' },  // Level 2 - right
-      { top: '230px', left: '25%' },   // Level 3 - left
-      { top: '290px', right: '25%' }   // Level 4 - right
+      { top: '45px', right: '25%' },   // Level 0 - top right
+      { top: '115px', left: '25%' },   // Level 1 - top left
+      { top: '185px', right: '25%' },  // Level 2 - middle right
+      { top: '255px', left: '25%' },   // Level 3 - middle left
+      { top: '325px', left: '25%' }    // Level 4 - bottom left
     ];
     
     const pos = positions[index];
@@ -368,7 +385,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemNumbers([...editingItemNumbers, index]);
   };
 
-  // Default steps if none provided
+  // Default steps exactly as in photo
   const defaultSteps: PyramidItem[] = [
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '150' },
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '350' },
@@ -430,49 +447,52 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         {/* Pyramid Levels */}
         {displaySteps.slice(0, 5).map((step, index) => (
           <div key={index} style={pyramidLevelStyles(index)} data-draggable="true">
-            {/* Number Circle */}
-            {isEditable && editingItemNumbers.includes(index) ? (
-              <InlineEditor
-                initialValue={step.number || ''}
-                onSave={(newNumber) => handleItemNumberSave(index, newNumber)}
-                onCancel={() => handleItemNumberCancel(index)}
-                placeholder="Enter number..."
-                className="inline-editor-number"
-                style={{
-                  ...numberCircleStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              />
-            ) : (
-              <div 
-                style={numberCircleStyles}
-                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  if (isEditable) {
-                    startEditingItemNumber(index);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-              >
-                {step.number || '0'}
+            {/* Speech Bubble + Number */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={speechBubbleStyles}>
+                <div style={speechBubbleIconStyles}></div>
               </div>
-            )}
+              {isEditable && editingItemNumbers.includes(index) ? (
+                <InlineEditor
+                  initialValue={step.number || ''}
+                  onSave={(newNumber) => handleItemNumberSave(index, newNumber)}
+                  onCancel={() => handleItemNumberCancel(index)}
+                  placeholder="Enter number..."
+                  className="inline-editor-number"
+                  style={{
+                    ...numberStyles,
+                    margin: '0',
+                    padding: '0',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    overflow: 'hidden',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={numberStyles}
+                  onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      startEditingItemNumber(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                >
+                  {step.number || '0'}
+                </div>
+              )}
+            </div>
           </div>
         ))}
 
@@ -576,4 +596,5 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   );
 };
 
+export default PyramidTemplate;
 export default PyramidTemplate;

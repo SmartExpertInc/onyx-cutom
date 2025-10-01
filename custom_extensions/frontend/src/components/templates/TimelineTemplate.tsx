@@ -1,6 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import { TimelineTemplateProps, TimelineStep } from '@/types/slideTemplates';
+
+export interface TimelineStep {
+  heading: string;
+  description: string;
+}
+
+export interface TimelineTemplateProps {
+  slideId: string;
+  title: string;
+  steps: TimelineStep[];
+  theme?: SlideTheme;
+  onUpdate?: (props: any) => void;
+  isEditable?: boolean;
+}
 
 interface InlineEditorProps {
   initialValue: string;
@@ -48,38 +61,37 @@ function InlineEditor({
     onSave(value);
   };
 
-  // Auto-resize textarea to fit content
+  // Auto-resize div to fit content
   useEffect(() => {
     if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+      const div = inputRef.current as HTMLDivElement;
+      div.style.height = 'auto';
+      div.style.height = div.scrollHeight + 'px';
     }
   }, [value, multiline]);
 
-  // Set initial height for textarea to match content
+  // Set initial height for div to match content
   useEffect(() => {
     if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
+      const div = inputRef.current as HTMLDivElement;
       // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
+      div.style.height = 'auto';
+      div.style.height = div.scrollHeight + 'px';
     }
   }, [multiline]);
 
   if (multiline) {
     return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+      <div
+        ref={inputRef as React.RefObject<HTMLDivElement>}
         className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e: React.FormEvent<HTMLDivElement>) => setValue(e.currentTarget.textContent || '')}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
-        placeholder={placeholder}
         style={{
           ...style,
-          // Only override browser defaults, preserve all passed styles
           background: 'transparent',
           border: 'none',
           outline: 'none',
@@ -94,24 +106,23 @@ function InlineEditor({
           display: 'block',
           lineHeight: '1.6'
         }}
-        rows={1}
-      />
+      >
+        {value}
+      </div>
     );
   }
 
   return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
+    <div
+      ref={inputRef as React.RefObject<HTMLDivElement>}
       className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      contentEditable
+      suppressContentEditableWarning
+      onInput={(e: React.FormEvent<HTMLDivElement>) => setValue(e.currentTarget.textContent || '')}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      placeholder={placeholder}
       style={{
         ...style,
-        // Only override browser defaults, preserve all passed styles
         background: 'transparent',
         border: 'none',
         outline: 'none',
@@ -122,7 +133,9 @@ function InlineEditor({
         boxSizing: 'border-box',
         display: 'block'
       }}
-    />
+    >
+      {value}
+    </div>
   );
 }
 
@@ -181,14 +194,17 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   };
 
   const timelineContainerStyles: React.CSSProperties = {
-    position: 'relative', // Changed from absolute to relative
+    position: 'absolute', // Fixed positioning to prevent layout shifts
+    top: '120px', // Position from top of slide
+    left: '0',
+    right: '0',
+    bottom: '0',
     width: '100%',
-    height: '464px',
+    height: 'calc(100% - 120px)', // Take remaining space after title
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingTop: '20px',
-    flex: 1 // Take remaining space
+    paddingTop: '20px'
   };
 
   const timelineLineStyles: React.CSSProperties = {

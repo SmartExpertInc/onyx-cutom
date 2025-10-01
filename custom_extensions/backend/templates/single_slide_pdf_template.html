@@ -442,39 +442,49 @@
         }
 
         .pyramid-level:nth-child(1) { 
-            width: 120px; 
-            height: 60px; 
+            width: 140px; 
+            height: 70px; 
             top: 0px; 
-            background: #87CEEB; 
+            background: #3388FF; 
             z-index: 5; 
+            justify-content: flex-end;
+            padding-right: 20px;
         }
         .pyramid-level:nth-child(2) { 
             width: 200px; 
-            height: 60px; 
-            top: 60px; 
-            background: #5F9EA0; 
+            height: 70px; 
+            top: 70px; 
+            background: #00BFFF; 
             z-index: 4; 
+            justify-content: flex-end;
+            padding-right: 20px;
         }
         .pyramid-level:nth-child(3) { 
-            width: 280px; 
-            height: 60px; 
-            top: 120px; 
-            background: #4682B4; 
+            width: 260px; 
+            height: 70px; 
+            top: 140px; 
+            background: #007BFF; 
             z-index: 3; 
+            justify-content: flex-end;
+            padding-right: 20px;
         }
         .pyramid-level:nth-child(4) { 
-            width: 360px; 
-            height: 60px; 
-            top: 180px; 
-            background: #4169E1; 
+            width: 320px; 
+            height: 70px; 
+            top: 210px; 
+            background: #6A0DAD; 
             z-index: 2; 
+            justify-content: flex-end;
+            padding-right: 20px;
         }
         .pyramid-level:nth-child(5) { 
-            width: 440px; 
-            height: 60px; 
-            top: 240px; 
+            width: 400px; 
+            height: 70px; 
+            top: 280px; 
             background: #191970; 
             z-index: 1; 
+            justify-content: flex-end;
+            padding-right: 20px;
         }
 
         .pyramid-number-circle {
@@ -498,11 +508,11 @@
             z-index: 10;
         }
 
-        .pyramid-text-block.level-0 { top: 20px; left: 20%; }
-        .pyramid-text-block.level-1 { top: 80px; right: 20%; }
-        .pyramid-text-block.level-2 { top: 140px; left: 20%; }
-        .pyramid-text-block.level-3 { top: 200px; right: 20%; }
-        .pyramid-text-block.level-4 { top: 260px; left: 20%; }
+        .pyramid-text-block.level-0 { top: 10px; right: 15%; }
+        .pyramid-text-block.level-1 { top: 80px; left: 15%; }
+        .pyramid-text-block.level-2 { top: 150px; right: 15%; }
+        .pyramid-text-block.level-3 { top: 220px; left: 15%; }
+        .pyramid-text-block.level-4 { top: 290px; left: 15%; }
 
         .pyramid-text-heading {
             font-size: 1.2rem;
@@ -531,11 +541,11 @@
             z-index: 10;
         }
 
-        .pyramid-triangle.level-0 { top: 50px; right: 25%; }
-        .pyramid-triangle.level-1 { top: 110px; left: 25%; }
-        .pyramid-triangle.level-2 { top: 170px; right: 25%; }
-        .pyramid-triangle.level-3 { top: 230px; left: 25%; }
-        .pyramid-triangle.level-4 { top: 290px; right: 25%; }
+        .pyramid-triangle.level-0 { top: 45px; right: 25%; }
+        .pyramid-triangle.level-1 { top: 115px; left: 25%; }
+        .pyramid-triangle.level-2 { top: 185px; right: 25%; }
+        .pyramid-triangle.level-3 { top: 255px; left: 25%; }
+        .pyramid-triangle.level-4 { top: 325px; left: 25%; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -2988,12 +2998,17 @@
                                     {% endif %}
                                 {% endif %}
                             >
-                                <div class="pyramid-number-circle">
-                                    {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
-                                        {{ slide.props.steps[i].number }}
-                                    {% else %}
-                                        {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
-                                    {% endif %}
+                                <div style="display: flex; align-items: center;">
+                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-right: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #3388FF;"></div>
+                                    </div>
+                                    <div style="font-size: 16px; font-weight: bold; color: #ffffff; font-family: Arial, sans-serif;">
+                                        {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
+                                            {{ slide.props.steps[i].number }}
+                                        {% else %}
+                                            {% if i == 0 %}150{% elif i == 1 %}350{% elif i == 2 %}1,250{% elif i == 3 %}3,550{% else %}25,000{% endif %}
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
