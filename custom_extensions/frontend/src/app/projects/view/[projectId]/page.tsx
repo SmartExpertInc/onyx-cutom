@@ -714,17 +714,23 @@ export default function ProjectInstanceViewPage() {
                       if (response.ok) {
               const fullData = await response.json();
               console.log('📥 [EVENT POSTER] Full project data:', fullData);
+              console.log('📥 [EVENT POSTER] fullData.details type:', typeof fullData.details);
+              console.log('📥 [EVENT POSTER] fullData.details value:', fullData.details);
               console.log('📥 [EVENT POSTER] microproduct_content type:', typeof fullData.microproduct_content);
               console.log('📥 [EVENT POSTER] microproduct_content value:', fullData.microproduct_content);
               
-              // Extract event poster data from microproduct_content
+              // Extract event poster data - the backend logs show the data is in fullData.details
               let eventData = {};
-              if (fullData.microproduct_content) {
-                // If microproduct_content is a string, parse it as JSON
+              if (fullData.details && typeof fullData.details === 'object' && fullData.details.eventName) {
+                // Data is directly in details object
+                eventData = fullData.details;
+                console.log('📥 [EVENT POSTER] Using details directly:', eventData);
+              } else if (fullData.microproduct_content) {
+                // Fallback: try microproduct_content
                 if (typeof fullData.microproduct_content === 'string') {
                   try {
                     eventData = JSON.parse(fullData.microproduct_content);
-                    console.log('📥 [EVENT POSTER] Parsed JSON eventData:', eventData);
+                    console.log('📥 [EVENT POSTER] Parsed JSON from microproduct_content:', eventData);
                   } catch (e) {
                     console.error('❌ [EVENT POSTER] Failed to parse JSON:', e);
                     eventData = fullData.microproduct_content;
