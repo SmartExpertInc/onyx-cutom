@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation, X } from 'lucide-react';
+import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation, X, Link, Database, Coins, Workflow, Server } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import AddOnsModal from '@/components/AddOnsModal';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
@@ -182,6 +182,46 @@ export default function BillingPage() {
   const [folders, setFolders] = useState([]);
   const [folderProjects, setFolderProjects] = useState({});
   const currentTab = 'payments';
+
+  const purchasedItems = [
+    {
+      type: 'credits',
+      name: 'Medium',
+      amount: '300 credits',
+      price: 50,
+      priceNote: '$0.17 per credit',
+      purchaseDate: '2025-09-15'
+    },
+    {
+      type: 'connectors',
+      name: '5 Connectors',
+      amount: '5 connectors',
+      price: 25,
+      priceNote: 'per month',
+      purchaseDate: '2025-09-10'
+    },
+    {
+      type: 'storage',
+      name: '5 GB Storage',
+      amount: '5 GB storage',
+      price: 150,
+      priceNote: 'per month',
+      purchaseDate: '2025-09-01'
+    }
+  ];
+
+  const getIcon = (type) => {
+    switch (type) {
+      case 'credits':
+        return <Coins className="w-5 h-5" />;
+      case 'connectors':
+        return <Workflow className="w-5 h-5" />;
+      case 'storage':
+        return <Server className="w-5 h-5" />;
+      default:
+        return null;
+    }
+  };
   
   // Plan configuration with colors and styling - easily manageable
   const planConfig = {
@@ -300,88 +340,76 @@ export default function BillingPage() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-12 flex-1">
-
-          <div className="grid lg:grid-cols-2 gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column */}
-            <div className="space-y-8">
-              {/* Workspace Subscription */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-shadow duration-300">
-                <h2 className="text-2xl font-bold text-slate-900 mb-6">Workspace subscription</h2>
-
-                <div className="space-y-4">
-                  <p className="text-slate-600 text-lg leading-relaxed">
-                    Your workspace is currently subscribed to the{' '}
-                    <span className="font-semibold text-slate-900">{currentPlan.name} ({currentPlan.type})</span> plan.
-                  </p>
-
-                  <div className="flex items-center gap-3 text-slate-600 bg-slate-50 rounded-xl px-4 py-3 border border-slate-200">
-                    <Calendar className="w-5 h-5 text-slate-400" />
-                    <span className="text-sm font-medium">No renewal needed - {currentPlan.name}</span>
-                  </div>
+            <div className="space-y-6">
+              {/* Current Plan Card */}
+              <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-sm p-8 text-white">
+                <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-6">
+                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                  <span className="text-sm font-medium">Current Plan</span>
                 </div>
-              </div>
 
-              {/* Manage Subscription */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-shadow duration-300">
-                <h2 className="text-2xl font-bold text-slate-900 mb-4">Manage subscription</h2>
+                <h2 className="text-5xl font-bold mb-2">{currentPlan.name}</h2>
+                <p className="text-2xl text-blue-100 mb-8">{currentPlan.type}</p>
 
-                <p className="text-slate-600 leading-relaxed mb-6">
-                  You can get invoices, update your payment method, and adjust your subscription in Stripe
-                </p>
+                <button 
+                  onClick={() => setIsTariffPlanModalOpen(true)}
+                  className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold py-4 rounded-lg transition-colors mb-8"
+                >
+                  {currentPlan.type === 'Free' ? 'Upgrade Plan' : 'Switch to annual and save 20%'}
+                </button>
 
-                <div className="space-y-3">
-                  <button className="w-full bg-white hover:bg-slate-50 text-slate-900 font-medium py-3.5 px-5 rounded-xl border-2 border-slate-200 transition-all duration-200 flex items-center justify-center gap-3 group">
-                    <span>Manage subscription in Stripe</span>
-                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
-                  </button>
-
-                  <button className="w-full bg-white hover:bg-red-50 text-red-600 font-medium py-3.5 px-5 rounded-xl border-2 border-red-200 hover:border-red-300 transition-all duration-200 flex items-center justify-center gap-3 group">
-                    <X className="w-4 h-4" />
-                    <span>Cancel subscription</span>
-                  </button>
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-blue-200 mb-4">
+                    What's Included
+                  </h3>
+                  <ul className="space-y-3">
+                    {currentPlan.features.map((feature, index) => (
+                      <li key={index} className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-blue-50">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Pricing Card */}
-            <div className="lg:sticky lg:top-8 h-fit">
-              <div className={`bg-gradient-to-br ${currentPlan.bgGradient} rounded-3xl shadow-2xl p-10 text-white relative overflow-hidden`}>
-                {/* Decorative Elements */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl"></div>
+            {/* Right Column */}
+            <div className="space-y-6">
+              {/* Manage Subscription */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Manage subscription</h2>
+                <p className="text-gray-600 mb-6">
+                  You can get invoices, update your payment method, and adjust your subscription in Stripe
+                </p>
 
-                <div className="relative z-10">
-                  {/* Badge */}
-                  <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 mb-6 border border-white/20">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-white/90">Current Plan</span>
-                  </div>
+                <button className="w-full bg-white border border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors mb-3 flex items-center justify-center gap-2">
+                  Manage subscription in Stripe
+                  <ExternalLink className="w-4 h-4" />
+                </button>
 
-                  <h3 className="text-6xl font-bold mb-3 tracking-tight">{currentPlan.name}</h3>
-                  <p className="text-3xl font-semibold text-white/90 mb-6">{currentPlan.type}</p>
+                <button className="w-full bg-white border border-red-300 text-red-600 font-medium py-3 px-4 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                  <X className="w-5 h-5" />
+                  Cancel subscription
+                </button>
+              </div>
 
-                  <button 
-                    onClick={() => setIsTariffPlanModalOpen(true)}
-                    className={`w-full ${currentPlan.buttonColor} ${currentPlan.buttonTextColor} font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg ${currentPlan.buttonShadow} hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
-                  >
-                    {currentPlan.type === 'Free' ? 'Upgrade Plan' : 'Switch to annual and save 20%'}
-                  </button>
-
-                  {/* Features */}
-                  <div className="mt-10 pt-8 border-t border-white/20">
-                    <h4 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-4">What's Included</h4>
-                    <ul className="space-y-3">
-                      {currentPlan.features.map((feature, index) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-white/80 text-sm leading-relaxed">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+              {/* Your Add-ons */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Add-ons</h2>
+                <div className="flex flex-wrap gap-2">
+                  {purchasedItems.map((item, index) => (
+                    <div key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+                      {getIcon(item.type)}
+                      <span className="font-medium">{item.name}</span>
+                      <X className="w-4 h-4 cursor-pointer hover:text-red-600 transition-colors" />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
