@@ -674,6 +674,16 @@ export default function ProjectInstanceViewPage() {
         return;
       }
       
+      // Check if this is an Event Poster project and redirect accordingly
+      if (instanceData.product_type && instanceData.product_type === "Event Poster") {
+        console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster page:', instanceData.project_id);
+        // Store the event poster data in localStorage for the results page
+        const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem(posterSessionKey, JSON.stringify(instanceData.details));
+        router.push(`/create/event-poster/results?sessionKey=${posterSessionKey}`);
+        return;
+      }
+      
       // 🔍 FETCH DATA LOGGING: What we got back from backend
       console.log('📥 [FETCH DATA] Received from backend:', {
         instanceData,

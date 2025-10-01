@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Image, Loader, Edit3, Save } from 'lucide-react';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -143,6 +144,8 @@ export default function EventPoster({
   onSuccess,
   onError
 }: EventPosterProps) {
+  const router = useRouter();
+  
   // State for editable fields
   const [eventName, setEventName] = useState(initialEventName);
   const [mainSpeaker, setMainSpeaker] = useState(initialMainSpeaker);
@@ -311,8 +314,26 @@ export default function EventPoster({
       const data = await response.json();
       console.log(`💾 [SAVE_POSTER] [${sessionId}] Success:`, data);
       
+      // Store the event poster data in localStorage for the results page
+      const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const posterData = {
+        eventName,
+        mainSpeaker,
+        speakerDescription,
+        date,
+        topic,
+        additionalSpeakers,
+        ticketPrice,
+        ticketType,
+        freeAccessConditions,
+        speakerImage: imageSrc
+      };
+      localStorage.setItem(posterSessionKey, JSON.stringify(posterData));
+      
+      // Redirect to event poster results page with the session key (same approach as questionnaire) 
+      router.push(`/create/event-poster/results?sessionKey=${posterSessionKey}`);
+      
       onSuccess?.(`Event poster saved successfully! Project ID: ${data.id}`);
-      alert(`✅ Event poster saved as product successfully!\n\nYou can find it in your projects page.`);
       
     } catch (error) {
       console.error(`💾 [SAVE_POSTER] [${sessionId}] Error:`, error);
