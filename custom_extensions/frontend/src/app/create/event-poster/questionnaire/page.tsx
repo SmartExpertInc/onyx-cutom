@@ -112,10 +112,10 @@ export default function EventPosterQuestionnaire() {
                     <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z" fill="currentColor"/>
                   </svg>
                 </div>
-                {t('eventPosterForm.title', 'Event Poster Questionnaire')}
+                {t('interface.eventPosterForm.title', 'Event Poster Questionnaire')}
               </h1>
               <p className="text-blue-100 text-lg">
-                {t('eventPosterForm.subtitle', 'Fill out the form below to create your event poster template')}
+                {t('interface.eventPosterForm.subtitle', 'Fill out the form below to create your event poster template')}
               </p>
             </div>
           </div>
@@ -126,41 +126,41 @@ export default function EventPosterQuestionnaire() {
               {/* Event Information Section */}
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                  {t('eventPosterForm.eventInformation', 'Event Information')}
+                  {t('interface.eventPosterForm.eventInformation', 'Event Information')}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                                         <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.eventName', 'Event Name')}</label>
+                                         <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.eventName', 'Event Name')}</label>
                       <input
                         type="text"
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                         value={eventName}
                         onChange={e => setEventName(e.target.value)}
-                        placeholder={t('eventPosterForm.eventNamePlaceholder', 'Enter event name')}
+                        placeholder={t('interface.eventPosterForm.eventNamePlaceholder', 'Enter event name')}
                       />
                   </div>
                   
                   <div>
-                                         <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.date', 'Date')}</label>
+                                         <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.date', 'Date')}</label>
                       <input
                         type="text"
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                         value={date}
                         onChange={e => setDate(e.target.value)}
-                        placeholder={t('eventPosterForm.datePlaceholder', 'Enter date')}
+                        placeholder={t('interface.eventPosterForm.datePlaceholder', 'Enter date')}
                       />
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.topic', 'Topic/Title')}</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.topic', 'Topic/Title')}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                     value={topic}
                     onChange={e => setTopic(e.target.value)}
-                    placeholder={t('eventPosterForm.topicPlaceholder', 'Enter topic/title')}
+                    placeholder={t('interface.eventPosterForm.topicPlaceholder', 'Enter topic/title')}
                   />
                 </div>
               </div>
@@ -168,38 +168,38 @@ export default function EventPosterQuestionnaire() {
               {/* Speaker Information Section */}
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                  {t('eventPosterForm.speakerInformation', 'Speaker Information')}
+                  {t('interface.eventPosterForm.speakerInformation', 'Speaker Information')}
                 </h3>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.mainSpeaker', 'Main Speaker')}</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.mainSpeaker', 'Main Speaker')}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                     value={mainSpeaker}
                     onChange={e => setMainSpeaker(e.target.value)}
-                    placeholder={t('eventPosterForm.mainSpeakerPlaceholder', 'Enter main speaker name')}
+                    placeholder={t('interface.eventPosterForm.mainSpeakerPlaceholder', 'Enter main speaker name')}
                   />
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.speakerDescription', 'Speaker Description')}</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.speakerDescription', 'Speaker Description')}</label>
                   <textarea
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400 resize-none"
                     value={speakerDescription}
                     onChange={e => setSpeakerDescription(e.target.value)}
-                    placeholder={t('eventPosterForm.speakerDescriptionPlaceholder', 'Enter speaker description')}
+                    placeholder={t('interface.eventPosterForm.speakerDescriptionPlaceholder', 'Enter speaker description')}
                     rows={3}
                   />
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.additionalSpeakers', 'Additional Speakers')}</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.additionalSpeakers', 'Additional Speakers')}</label>
                   <textarea
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400 resize-none"
                     value={additionalSpeakers}
                     onChange={e => setAdditionalSpeakers(e.target.value)}
-                    placeholder={t('eventPosterForm.additionalSpeakersPlaceholder', 'Enter additional speakers')}
+                    placeholder={t('interface.eventPosterForm.additionalSpeakersPlaceholder', 'Enter additional speakers')}
                     rows={2}
                   />
                 </div>
@@ -208,46 +208,46 @@ export default function EventPosterQuestionnaire() {
               {/* Ticket Information Section */}
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                  {t('eventPosterForm.ticketInformation', 'Ticket Information')}
+                  {t('interface.eventPosterForm.ticketInformation', 'Ticket Information')}
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.ticketPrice', 'Ticket Price')}</label>
+                    <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.ticketPrice', 'Ticket Price')}</label>
                     <input
                       type="text"
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                       value={ticketPrice}
                       onChange={e => setTicketPrice(e.target.value)}
-                      placeholder={t('eventPosterForm.ticketPricePlaceholder', 'Enter ticket price')}
+                      placeholder={t('interface.eventPosterForm.ticketPricePlaceholder', 'Enter ticket price')}
                     />
                   </div>
                   
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.ticketType', 'Ticket Type')}</label>
+                    <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.ticketType', 'Ticket Type')}</label>
                     <input
                       type="text"
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                       value={ticketType}
                       onChange={e => setTicketType(e.target.value)}
-                      placeholder={t('eventPosterForm.ticketTypePlaceholder', 'Enter ticket type')}
+                      placeholder={t('interface.eventPosterForm.ticketTypePlaceholder', 'Enter ticket type')}
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.freeAccessConditions', 'Free Access Conditions')}</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.freeAccessConditions', 'Free Access Conditions')}</label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
                     value={freeAccessConditions}
                     onChange={e => setFreeAccessConditions(e.target.value)}
-                    placeholder={t('eventPosterForm.freeAccessConditionsPlaceholder', 'Enter free access conditions')}
+                    placeholder={t('interface.eventPosterForm.freeAccessConditionsPlaceholder', 'Enter free access conditions')}
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.speakerPhoto', 'Speaker Photo')}</label>
+                  <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.speakerPhoto', 'Speaker Photo')}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -256,7 +256,7 @@ export default function EventPosterQuestionnaire() {
                   />
                   {speakerImage && (
                     <div className="mt-3">
-                      <p className="text-sm text-green-600 mb-2">{t('eventPosterForm.imageUploadedSuccessfully', '✓ Image uploaded successfully')}</p>
+                      <p className="text-sm text-green-600 mb-2">{t('interface.eventPosterForm.imageUploadedSuccessfully', '✓ Image uploaded successfully')}</p>
                       <img 
                         src={speakerImage} 
                         alt="Speaker preview" 
@@ -277,7 +277,7 @@ export default function EventPosterQuestionnaire() {
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
-                    {t('eventPosterForm.generateEventPoster', 'Generate Event Poster')}
+                    {t('interface.eventPosterForm.generateEventPoster', 'Generate Event Poster')}
                   </div>
                 </button>
               </div>

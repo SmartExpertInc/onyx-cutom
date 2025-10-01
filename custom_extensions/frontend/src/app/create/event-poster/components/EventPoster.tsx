@@ -32,7 +32,6 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
 
   const handleClick = () => {
     setIsEditing(true);
@@ -68,39 +67,27 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
 
   if (isEditing) {
     const Component = multiline ? 'textarea' : 'input';
-    // Create exact input styling to match the text element
+    // For large font fields (like date), set fixed height and font size for input
+    const isLargeFont = style && (style.fontSize === '58px' || style.fontSize === '52px');
     const inputStyle: React.CSSProperties = {
       ...style,
-      // Visual styling for editing mode
-      background: 'rgba(255,255,255,0.95)',
+      background: 'rgba(255,255,255,0.9)',
       border: '2px solid #5416af',
       outline: 'none',
-      borderRadius: '4px',
       resize: multiline ? 'none' : undefined,
-      
-      // Positioning and sizing
-      position: 'absolute',
-      top: '-2px', // Account for border
-      left: '-2px', // Account for border
-      zIndex: 1000,
+      minHeight: multiline ? '100px' : undefined,
+      height: isLargeFont ? style.fontSize : undefined,
+      fontSize: style.fontSize,
+      padding: isLargeFont ? '0 8px' : undefined,
+      lineHeight: style.lineHeight || '1.2',
       boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
-      
-      // Typography - match exactly
-      padding: '2px 6px',
-      margin: '0',
-      
-      // Size matching
-      minWidth: '200px', // Minimum usable width
-      width: multiline ? '100%' : 'auto',
-      height: multiline ? 'auto' : undefined,
-      minHeight: multiline ? '60px' : undefined,
-      
-      // Text behavior
-      overflow: multiline ? 'hidden' : 'visible',
-      whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
-      wordWrap: multiline ? 'break-word' : 'normal',
+      width: '100%',
+      textAlign: style.textAlign || 'left',
+      fontFamily: style.fontFamily,
+      fontWeight: style.fontWeight,
+      color: style.color,
+      borderRadius: '4px',
     };
-    
     return (
       <Component
         ref={inputRef as any}
@@ -117,7 +104,6 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
 
   return (
     <div
-      ref={textRef}
       onClick={handleClick}
       style={{
         ...style,
