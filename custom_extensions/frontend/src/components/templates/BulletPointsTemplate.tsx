@@ -423,7 +423,7 @@ function UnifiedBulletEditor({
     <div 
       onClick={startEditing}
       className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-      style={{ padding: '4px', borderRadius: '4px', width: '77%', minWidth: 0, boxSizing: 'border-box' }}
+      style={{ padding: '4px', borderRadius: '4px', width: '100%', minWidth: 0, boxSizing: 'border-box' }}
     >
       <ul style={{
         listStyle: 'none',
@@ -532,7 +532,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     top: '0',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     justifyContent: 'flex-start',
     background: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%)',
     padding: '35px',
@@ -621,7 +621,7 @@ export const BulletPointsTemplate: React.FC<BulletPointsProps & {
     ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
     margin: '0 auto',
     position: 'relative',
-    zIndex: 1
+    zIndex: 29
   };
 
   return (

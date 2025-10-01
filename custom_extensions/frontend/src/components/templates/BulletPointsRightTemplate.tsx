@@ -673,7 +673,7 @@ export const BulletPointsRightTemplate: React.FC<BulletPointsRightProps & {
     ...(widthPx && heightPx ? {} : { width: '100%', height: '100%', aspectRatio: '1/1' }),
     margin: '0 auto',
     position: 'relative',
-    zIndex: 1
+    zIndex: 29
   };
 
   return (
