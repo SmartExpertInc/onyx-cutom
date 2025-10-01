@@ -1,3 +1,5 @@
+"use client";
+
 import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key } from 'lucide-react';
 import { useState } from 'react';
 import ManageAddonsModal from './ManageAddonsModal';
