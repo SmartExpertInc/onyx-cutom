@@ -92,11 +92,11 @@ function EventPosterResultsContent() {
         headers['X-Dev-Onyx-User-ID'] = devUserId;
       }
 
-      // Get or create Event Poster design template
+      // Get design template
       let templateId = null;
       
       try {
-        // First try to get existing Event Poster template
+        // First try to get available templates
         const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`, {
           headers,
           credentials: 'same-origin',
@@ -104,18 +104,41 @@ function EventPosterResultsContent() {
         
         if (templatesResponse.ok) {
           const templates = await templatesResponse.json();
-          const eventPosterTemplate = templates.find((t: any) => t.template_name === 'Event Poster' || t.component_name === 'EventPosterDisplay');
+          console.log('📋 Available templates:', templates);
+          
+          // First preference: Event Poster template
+          const eventPosterTemplate = templates.find((t: any) => 
+            t.template_name === 'Event Poster' || 
+            t.component_name === 'EventPosterDisplay' ||
+            t.template_name?.toLowerCase().includes('event poster')
+          );
+          
           if (eventPosterTemplate) {
             templateId = eventPosterTemplate.id;
+            console.log('✅ Found Event Poster template:', templateId);
+          } else {
+            // Fallback: Use Text Presentation or any available template
+            const fallbackTemplate = templates.find((t: any) => 
+              t.template_name === 'Text Presentation Template' ||
+              t.component_name === 'TextPresentationDisplay'
+            ) || templates[0]; // Use first available template
+            
+            if (fallbackTemplate) {
+              templateId = fallbackTemplate.id;
+              console.log('📝 Using fallback template:', fallbackTemplate.template_name, 'ID:', templateId);
+            }
           }
+        } else {
+          console.error('❌ Failed to fetch templates:', templatesResponse.status);
         }
       } catch (e) {
-        console.warn('Could not fetch templates, using fallback');
+        console.error('❌ Error fetching templates:', e);
       }
       
-      // Fallback to a default template ID (Text Presentation or any available)
+      // Final fallback - this should not happen in a working system
       if (!templateId) {
-        templateId = 1; // Use the first available template as fallback
+        console.warn('⚠️ No templates found, this will likely fail');
+        templateId = 1;
       }
 
       // Create the project data
@@ -124,10 +147,15 @@ function EventPosterResultsContent() {
         design_template_id: templateId,
         microProductName: 'Event Poster',
         aiResponse: JSON.stringify(eventData),
+        chatSessionId: null,
+        outlineId: null,
         folder_id: null,
+        theme: null,
         source_context_type: 'manual',
         source_context_data: { type: 'event_poster' }
       };
+
+      console.log('🚀 Saving poster with data:', projectData);
 
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
         method: 'POST',
@@ -136,15 +164,32 @@ function EventPosterResultsContent() {
         credentials: 'same-origin',
       });
 
+      console.log('📡 Response status:', response.status);
+
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Failed to save poster: ${response.status} - ${errorData}`);
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.error('❌ Response error (JSON):', errorData);
+        } catch {
+          errorData = await response.text();
+          console.error('❌ Response error (Text):', errorData);
+        }
+        
+        // Show detailed error for debugging
+        const errorMessage = typeof errorData === 'object' && errorData.detail 
+          ? errorData.detail 
+          : typeof errorData === 'string' 
+            ? errorData 
+            : 'Unknown error';
+            
+        throw new Error(`Failed to save poster (${response.status}): ${errorMessage}`);
       }
 
       const result = await response.json();
       console.log('✅ Poster saved as product:', result);
       
-      // Show success message and redirect to products page
+      // Show success message and redirect to projects page
       alert(t('interface.eventPosterForm.savedSuccessfully', 'Event poster saved successfully! You can find it in your Products page.'));
       router.push('/projects');
       
