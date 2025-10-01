@@ -55,7 +55,7 @@ export function Label({
 }) {
   return (
     <label
-      className={`block font-medium text-text-700 dark:text-neutral-100 ${className} ${
+      className={`block font-medium text-gray-900 ${className} ${
         small ? "text-sm" : "text-base"
       }`}
     >

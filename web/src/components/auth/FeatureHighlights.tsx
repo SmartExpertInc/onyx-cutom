@@ -24,7 +24,7 @@ export default function FeatureHighlights() {
 
   return (
     <div className="flex-1 max-w-lg">
-      <h2 className="text-3xl font-bold text-white mb-8">
+      <h2 className="text-3xl font-bold text-gray-900 mb-8">
         Why choose our platform?
       </h2>
       <div className="space-y-6">
@@ -34,10 +34,10 @@ export default function FeatureHighlights() {
               <feature.icon className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-white mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 {feature.title}
               </h3>
-              <p className="text-white/80 text-sm leading-relaxed">
+              <p className="text-gray-900 text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>

@@ -65,7 +65,7 @@ export default function LoginPage({
             <>
               <div className="flex items-center w-full my-4">
                 <div className="flex-grow border-t border-background-300"></div>
-                <span className="px-4 text-text-500">or</span>
+                <span className="px-4 text-gray-900">or</span>
                 <div className="flex-grow border-t border-background-300"></div>
               </div>
 
