@@ -196,7 +196,6 @@ export default function EventPosterProjectResults() {
               onSuccess={handleSuccess}
               onError={handleError}
               projectId={projectId}
-              hideSaveButton={true}
             />
           </div>
         </div>

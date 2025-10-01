@@ -47,13 +47,10 @@ export default function EventPosterQuestionnaire() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Generate a unique session key
-    const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    // Prepare all data for the results page
+    // Prepare all data for the poster
     const eventData = {
       eventName,
       mainSpeaker,
@@ -64,15 +61,35 @@ export default function EventPosterQuestionnaire() {
       ticketPrice,
       ticketType,
       freeAccessConditions,
-      speakerImage: speakerImage || null
+      speakerImageSrc: speakerImage || null
     };
 
-    // Store all data in localStorage with unique key
-    localStorage.setItem(sessionKey, JSON.stringify(eventData));
-    console.log('Event poster data stored with key:', sessionKey, eventData);
-    
-    // Navigate to results page with the session key
-    router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
+    try {
+      console.log('🔄 [EVENT_POSTER_QUESTIONNAIRE] Auto-saving poster as product', eventData);
+      
+      // Automatically save as product (same as "Save as Product" button)
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/save-as-product`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(eventData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save poster: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ [EVENT_POSTER_QUESTIONNAIRE] Poster saved as product:', result);
+      
+      // Redirect to the saved poster's results page
+      router.push(`/create/event-poster/results/${result.id}`);
+      
+    } catch (error) {
+      console.error('❌ [EVENT_POSTER_QUESTIONNAIRE] Error saving poster:', error);
+      alert('Failed to save poster. Please try again.');
+    }
   };
 
   return (

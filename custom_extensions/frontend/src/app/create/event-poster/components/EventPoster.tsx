@@ -19,9 +19,8 @@ interface EventPosterProps {
   speakerImageSrc?: string;
   onSuccess?: (message: string) => void;
   onError?: (error: string) => void;
-  // New props for saved poster functionality
+  // Props for saved poster functionality
   projectId?: string; // Project ID for auto-save
-  hideSaveButton?: boolean; // Hide "Save as Product" button when viewing saved poster
 }
 
 interface EditableTextProps {
@@ -54,10 +53,12 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
   const handleSave = () => {
     onChange(tempValue);
     setIsEditing(false);
-    // Trigger auto-save when field loses focus (same as course outlines)
+    // Trigger auto-save with delay (same as course outlines) to avoid missing last change
     if (onAutoSave) {
-      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur');
-      onAutoSave();
+      setTimeout(() => {
+        console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur with delay');
+        onAutoSave();
+      }, 100); // 100ms delay to ensure the change is processed
     }
   };
 
@@ -152,8 +153,7 @@ export default function EventPoster({
   speakerImageSrc,
   onSuccess,
   onError,
-  projectId,
-  hideSaveButton = false
+  projectId
 }: EventPosterProps) {
   const router = useRouter();
   
@@ -168,7 +168,6 @@ export default function EventPoster({
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
   // Auto-save functionality (same pattern as course outlines)
   const handleAutoSave = async () => {
@@ -321,103 +320,15 @@ export default function EventPoster({
     }
   };
 
-  // Save as Product functionality - copies exact approach from AI audit
-  const handleSaveAsProduct = async () => {
-    const startTime = new Date();
-    const sessionId = `eventPoster-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
-    try {
-      setIsSaving(true);
-      console.log(`💾 [SAVE_POSTER] [${sessionId}] Starting save as product with current state`);
-      
-      // Prepare event poster data payload with current state (exact same as audit approach)
-      const eventPosterPayload = {
-        eventName,
-        mainSpeaker,
-        speakerDescription,
-        date,
-        topic,
-        additionalSpeakers,
-        ticketPrice,
-        ticketType,
-        freeAccessConditions,
-        speakerImageSrc: imageSrc,
-        sessionId,
-        clientTimestamp: startTime.toISOString()
-      };
-      
-      console.log(`💾 [SAVE_POSTER] [${sessionId}] Payload:`, eventPosterPayload);
-
-      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-      
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/save-as-product`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(eventPosterPayload),
-        credentials: 'same-origin',
-      });
-
-      if (!response.ok) {
-        let errorMessage = `Server error: ${response.status} ${response.statusText}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch {
-          try {
-            const errorText = await response.text();
-            errorMessage = errorText || errorMessage;
-          } catch {
-            // Keep default error message
-          }
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      console.log(`💾 [SAVE_POSTER] [${sessionId}] Success:`, data);
-      
-      // Store the event poster data in localStorage for the results page
-      const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const posterData = {
-        eventName,
-        mainSpeaker,
-        speakerDescription,
-        date,
-        topic,
-        additionalSpeakers,
-        ticketPrice,
-        ticketType,
-        freeAccessConditions,
-        speakerImage: imageSrc
-      };
-      localStorage.setItem(posterSessionKey, JSON.stringify(posterData));
-      
-      // Redirect to event poster results page with the session key (same approach as questionnaire) 
-      router.push(`/create/event-poster/results?sessionKey=${posterSessionKey}`);
-      
-      onSuccess?.(`Event poster saved successfully! Project ID: ${data.id}`);
-      
-    } catch (error) {
-      console.error(`💾 [SAVE_POSTER] [${sessionId}] Error:`, error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      onError?.(errorMessage);
-      alert(`Failed to save event poster: ${errorMessage}`);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Action Buttons */}
       <div className="flex justify-center gap-4">
         <button
           onClick={handleDownloadPoster}
-          disabled={isGenerating || isSaving}
+          disabled={isGenerating}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-            isGenerating || isSaving
+            isGenerating
               ? 'bg-blue-500 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
               : 'bg-green-600 hover:bg-green-700 text-white cursor-pointer focus:ring-green-500'
           }`}
@@ -426,22 +337,6 @@ export default function EventPoster({
           {isGenerating ? <Loader size={16} className="animate-spin" /> : <Image size={16} />}
           {isGenerating ? 'Generating Poster...' : 'Generate and Download Poster'}
         </button>
-        
-        {!hideSaveButton && (
-          <button
-            onClick={handleSaveAsProduct}
-            disabled={isGenerating || isSaving}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              isSaving || isGenerating
-                ? 'bg-purple-500 text-white cursor-not-allowed focus:ring-purple-500 disabled:opacity-60'
-                : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
-            }`}
-            title={isSaving ? 'Saving event poster as product...' : 'Save event poster as a product you can edit later'}
-          >
-            {isSaving ? <Loader size={16} className="animate-spin" /> : <Save size={16} />}
-            {isSaving ? 'Saving as Product...' : 'Save as Product'}
-          </button>
-        )}
       </div>
 
       {/* Editable Fields Info */}
