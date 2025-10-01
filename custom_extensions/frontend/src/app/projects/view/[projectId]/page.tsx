@@ -675,7 +675,7 @@ export default function ProjectInstanceViewPage() {
       }
       
       // Check if this is an Event Poster project and redirect accordingly
-      if (instanceData.product_type && instanceData.product_type === "Event Poster") {
+      if (instanceData.name && instanceData.name.startsWith("Event Poster:")) {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster page:', instanceData.project_id);
         // Store the event poster data in localStorage for the results page
         const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
