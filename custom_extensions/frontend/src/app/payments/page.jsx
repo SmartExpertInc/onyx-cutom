@@ -191,6 +191,7 @@ export default function BillingPage() {
       price: '$0',
       bgGradient: 'from-gray-600 to-gray-700',
       textColor: 'text-white',
+      buttonTextColor: 'text-gray-500',
       buttonColor: 'bg-gray-200 hover:bg-gray-300',
       isCurrent: true
     },
@@ -200,6 +201,7 @@ export default function BillingPage() {
       price: '$30',
       bgGradient: 'from-blue-400 to-blue-500',
       textColor: 'text-white',
+      buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       isCurrent: false
     },
@@ -209,7 +211,8 @@ export default function BillingPage() {
       price: '$90',
       bgGradient: 'from-blue-500 to-blue-600',
       textColor: 'text-white',
-      buttonColor: 'bg-blue-600 hover:bg-blue-700',
+      buttonTextColor: 'text-blue-700',
+      buttonColor: 'bg-blue-300 hover:bg-blue-400',
       isCurrent: false
     },
     enterprise: {
@@ -218,7 +221,8 @@ export default function BillingPage() {
       price: 'Custom',
       bgGradient: 'from-indigo-600 to-indigo-700',
       textColor: 'text-white',
-      buttonColor: 'bg-blue-600 hover:bg-blue-700',
+      buttonTextColor: 'text-indigo-800',
+      buttonColor: 'bg-indigo-400 hover:bg-indigo-500',
       isCurrent: false
     }
   };
@@ -232,7 +236,12 @@ export default function BillingPage() {
       <div className="ml-64 flex flex-col h-screen">
         <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Page Title */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Billing and subscription</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+          <div className="bg-blue-600 p-2 rounded-lg">
+            <CreditCard size={32} className="text-white" />
+          </div>
+          Billing and subscription
+        </h1>
 
         {/* Navigation Tabs */}
         
@@ -259,33 +268,11 @@ export default function BillingPage() {
               <div className={`text-xl font-semibold ${currentPlan.textColor} mb-6`}>{currentPlan.type}</div>
               <Button 
                 onClick={() => setIsTariffPlanModalOpen(true)}
-                className={`${currentPlan.buttonColor} text-white px-8 py-3 rounded-full font-medium transition-all duration-200 shadow-lg ${currentPlan.buttonShadow} hover:shadow-xl`}
+                className={`${currentPlan.buttonColor} ${currentPlan.buttonTextColor} px-8 py-3 rounded-full font-medium transition-all duration-200 shadow-lg ${currentPlan.buttonShadow} hover:shadow-xl`}
               >
                 {currentPlan.type === 'Free' ? 'Upgrade Plan' : 'Switch to annual and save 20%'}
               </Button>
             </div>
-          </div>
-        </div>
-
-        {/* Available Plans */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Available Plans</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.entries(planConfig).map(([key, plan]) => (
-              <div key={key} className={`bg-gradient-to-br ${plan.bgGradient} rounded-2xl p-6 shadow-md border ${plan.borderColor}`}>
-                <div className="text-center">
-                  <div className={`text-2xl font-bold ${plan.textColor} mb-1`}>{plan.name}</div>
-                  <div className={`text-sm ${plan.textColor.replace('600', '500')} mb-2`}>{plan.type}</div>
-                  <div className={`text-3xl font-bold ${plan.textColor} mb-4`}>{plan.price}</div>
-                  <Button 
-                    onClick={() => setIsTariffPlanModalOpen(true)}
-                    className={`w-full ${plan.buttonColor} text-white px-4 py-2 rounded-full font-medium transition-all duration-200`}
-                  >
-                    {plan.isCurrent ? 'Current Plan' : plan.name === 'Enterprise' ? 'Contact Sales' : 'Upgrade'}
-                  </Button>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 
