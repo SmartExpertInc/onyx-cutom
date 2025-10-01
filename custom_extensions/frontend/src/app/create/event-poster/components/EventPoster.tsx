@@ -33,6 +33,9 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
+  // Check if this is a large font field (like date)
+  const isLargeFont = style && (style.fontSize === '58px' || style.fontSize === '52px');
+
   const handleClick = () => {
     setIsEditing(true);
     setTempValue(value);
@@ -68,10 +71,9 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
   if (isEditing) {
     const Component = multiline ? 'textarea' : 'input';
     // For large font fields (like date), set fixed height and font size for input
-    const isLargeFont = style && (style.fontSize === '58px' || style.fontSize === '52px');
     const inputStyle: React.CSSProperties = {
       ...style,
-      background: 'rgba(255,255,255,0.9)',
+      background: 'transparent',
       border: '2px solid #5416af',
       outline: 'none',
       resize: multiline ? 'none' : undefined,
@@ -102,6 +104,8 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
     );
   }
 
+  const hoverPadding = isLargeFont ? 'p-4 -m-4' : 'p-2 -m-2';
+  
   return (
     <div
       onClick={handleClick}
@@ -111,12 +115,12 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
         position: 'relative',
         transition: 'all 0.2s ease',
       }}
-      className="hover:bg-white hover:bg-opacity-70 hover:shadow-lg rounded-lg p-2 -m-2 group"
+      className={`hover:bg-white hover:bg-opacity-70 hover:shadow-lg rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
       <Edit3 
-        size={16} 
+        size={isLargeFont ? 20 : 16} 
         className="absolute top-1 right-1 opacity-0 group-hover:opacity-70 transition-opacity" 
         style={{ color: 'rgba(255,255,255,0.7)' }}
       />
