@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useLanguage } from '../../../../contexts/LanguageContext';
+import { Home as HomeIcon } from "lucide-react";
 
 export default function EventPosterQuestionnaire() {
   const router = useRouter();
@@ -18,7 +20,7 @@ export default function EventPosterQuestionnaire() {
   const [ticketPrice, setTicketPrice] = useState("150€");
   const [ticketType, setTicketType] = useState("STANDART");
   const [freeAccessConditions, setFreeAccessConditions] = useState("безкоштовно для членів business club");
-  const [speakerImage, setSpeakerImage] = useState<string>('');
+  const [speakerImage, setSpeakerImage] = useState<string | null>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -78,6 +80,16 @@ export default function EventPosterQuestionnaire() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 font-sans relative overflow-hidden">
+      {/* Top-left home button */}
+      <button
+        type="button"
+        onClick={() => router.push('/projects')}
+        className="absolute top-6 left-6 z-50 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+      >
+        <HomeIcon className="w-4 h-4" />
+        {t('interface.home', 'Home')}
+      </button>
+
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>

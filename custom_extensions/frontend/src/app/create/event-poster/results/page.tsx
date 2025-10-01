@@ -3,7 +3,6 @@
 import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EventPoster from "../components/EventPoster";
-import PosterDownloadButton from "../../../../components/PosterDownloadButton";
 
 function EventPosterResultsContent() {
   const router = useRouter();
@@ -42,6 +41,14 @@ function EventPosterResultsContent() {
     router.push('/projects');
   };
 
+  const handleSuccess = (message: string) => {
+    console.log('✅ Poster download success:', message);
+  };
+
+  const handleError = (error: string) => {
+    console.error('❌ Poster download error:', error);
+  };
+
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
       <div className="max-w-7xl mx-auto">
@@ -76,30 +83,7 @@ function EventPosterResultsContent() {
             <p className="text-gray-600">Your event poster has been generated successfully</p>
           </div>
 
-          {/* Download Button positioned above poster */}
-          <div className="mb-6 flex justify-center">
-            <PosterDownloadButton 
-              eventName={eventName}
-              mainSpeaker={mainSpeaker}
-              speakerDescription={speakerDescription}
-              date={date}
-              topic={topic}
-              additionalSpeakers={additionalSpeakers}
-              ticketPrice={ticketPrice}
-              ticketType={ticketType}
-              freeAccessConditions={freeAccessConditions}
-              speakerImageSrc={speakerImageSrc}
-              projectName={eventName || 'event-poster'}
-              onSuccess={(message: string) => {
-                console.log('✅ Poster download success:', message);
-              }}
-              onError={(error: string) => {
-                console.error('❌ Poster download error:', error);
-              }}
-            />
-          </div>
-
-          {/* Event Poster Component */}
+          {/* Event Poster Component with integrated download functionality */}
           <div className="flex justify-center">
             <EventPoster
               eventName={eventName}
@@ -112,6 +96,8 @@ function EventPosterResultsContent() {
               ticketType={ticketType}
               freeAccessConditions={freeAccessConditions}
               speakerImageSrc={speakerImageSrc}
+              onSuccess={handleSuccess}
+              onError={handleError}
             />
           </div>
         </div>

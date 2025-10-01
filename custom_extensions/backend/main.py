@@ -29629,17 +29629,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
     year = '.'.join(date_parts[2:]) if len(date_parts) > 2 else ''
     
     # Handle speaker image (base64 or default)
-    speaker_image_html = ''
-    if speaker_image_src and speaker_image_src.startswith('data:image'):
-        speaker_image_html = f'''
-        <div class="speaker-photo" style="background-image: url('{speaker_image_src}');"></div>
-        '''
-    else:
-        # Use default speaker image path (same as React component)
-        default_speaker_path = '/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png'
-        speaker_image_html = f'''
-        <div class="speaker-photo" style="background-image: url('{default_speaker_path}');"></div>
-        '''
+    speaker_image_html = f'''<div class="speaker-photo" style="background-image: url('{speaker_image_src}');"></div>'''
     
     # Generate complete HTML template with exact styles from EventPoster component
     html_template = f'''
