@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation } from 'lucide-react';
+import { Calendar, ExternalLink, CreditCard, Bell, Users, Settings, Key, Home, HardDrive, FileText, ClipboardCheck, Upload, Trash2, FolderPlus, Search, Presentation, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import AddOnsModal from '@/components/AddOnsModal';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
@@ -193,6 +193,7 @@ export default function BillingPage() {
       textColor: 'text-white',
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
+      buttonShadow: 'shadow-blue-600/30',
       isCurrent: false
     },
     pro: {
@@ -203,6 +204,7 @@ export default function BillingPage() {
       textColor: 'text-white',
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
+      buttonShadow: 'shadow-blue-600/30',
       isCurrent: true
     },
     business: {
@@ -213,6 +215,7 @@ export default function BillingPage() {
       textColor: 'text-white',
       buttonTextColor: 'text-blue-700',
       buttonColor: 'bg-blue-300 hover:bg-blue-400',
+      buttonShadow: 'shadow-blue-300/30',
       isCurrent: false
     },
     enterprise: {
@@ -223,6 +226,7 @@ export default function BillingPage() {
       textColor: 'text-white',
       buttonTextColor: 'text-indigo-800',
       buttonColor: 'bg-indigo-400 hover:bg-indigo-500',
+      buttonShadow: 'shadow-indigo-400/30',
       isCurrent: false
     }
   };
