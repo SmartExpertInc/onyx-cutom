@@ -71,7 +71,7 @@ const Page = async (props: {
       <>
         <div className="absolute top-10x w-full"></div>
         <div className="flex w-full flex-col justify-center">
-          <h2 className="text-center text-xl text-strong font-bold">
+          <h2 className="text-center text-xl font-bold text-neutral-900">
             {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
           </h2>
           {cloud && (
@@ -92,7 +92,7 @@ const Page = async (props: {
             <div className="w-full justify-center">
               <div className="flex items-center w-full my-4">
                 <div className="flex-grow border-t border-background-300"></div>
-                <span className="px-4 text-text-500">or</span>
+                <span className="px-4 text-neutral-900">or</span>
                 <div className="flex-grow border-t border-background-300"></div>
               </div>
               <SignInButton authorizeUrl={authUrl} authType="cloud" />

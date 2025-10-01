@@ -1,5 +1,5 @@
 import { AuthType } from "@/lib/constants";
-import { FaGoogle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 
 export function SignInButton({
   authorizeUrl,
@@ -13,7 +13,7 @@ export function SignInButton({
     button = (
       <div className="mx-auto flex">
         <div className="my-auto mr-2">
-          <FaGoogle />
+          <FcGoogle />
         </div>
         <p className="text-sm font-medium select-none">Continue with Google</p>
       </div>
@@ -46,7 +46,7 @@ export function SignInButton({
 
   return (
     <a
-      className="mx-auto mb-4 mt-6 py-3 w-full dark:text-neutral-300 text-neutral-600 border border-neutral-300 flex rounded-full cursor-pointer hover:border-neutral-400 transition-colors"
+      className="mx-auto mb-4 mt-6 py-3 px-4 w-full bg-white text-neutral-900 dark:text-neutral-300 border border-neutral-300 flex rounded-full cursor-pointer hover:border-neutral-400 transition-colors"
       href={finalAuthorizeUrl}
     >
       {button}

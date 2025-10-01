@@ -294,14 +294,13 @@ export function TextFormField({
           className={`
             ${small && sizeClass.input}
             flex
-            h-10
             w-full
             rounded-full
             border
             border-neutral-200
             bg-white
-            px-3
-            py-2
+            px-4
+            py-3
             mt-1
             text-base
 
@@ -315,15 +314,13 @@ export function TextFormField({
             placeholder:${sizeClass.placeholder}
             caret-accent
             focus-visible:outline-none
-            focus-visible:ring-1
-            focus-visible:ring-lighter-agent
-            focus-visible:ring-offset-1
+            focus-visible:ring-2
+            focus-visible:ring-blue-700/50
             disabled:cursor-not-allowed
             disabled:opacity-50
             md:text-sm
             dark:border-neutral-700
             dark:bg-transparent
-            dark:ring-offset-neutral-950
             dark:file:text-neutral-50
             dark:placeholder:text-neutral-400
 
