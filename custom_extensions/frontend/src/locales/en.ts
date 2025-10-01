@@ -1534,7 +1534,11 @@ export const en = {
       editQuestionnaire: "Edit Questionnaire",
       backToProjects: "Back to Projects", 
       eventPosterTitle: "Event Poster",
-      posterGeneratedSuccessfully: "Your event poster has been generated successfully"
+      posterGeneratedSuccessfully: "Your event poster has been generated successfully",
+      saveAsProduct: "Save as Product",
+      saving: "Saving...",
+      savedSuccessfully: "Event poster saved successfully! You can find it in your Products page.",
+      saveError: "Failed to save poster. Please try again."
     }
   },
 };

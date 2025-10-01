@@ -1600,7 +1600,11 @@ export const ru = {
       editQuestionnaire: "Редактировать анкету",
       backToProjects: "Назад к проектам", 
       eventPosterTitle: "Постер мероприятия",
-      posterGeneratedSuccessfully: "Ваш постер мероприятия был успешно создан"
+      posterGeneratedSuccessfully: "Ваш постер мероприятия был успешно создан",
+      saveAsProduct: "Сохранить как продукт",
+      saving: "Сохранение...",
+      savedSuccessfully: "Постер мероприятия успешно сохранен! Вы можете найти его на странице Продуктов.",
+      saveError: "Не удалось сохранить постер. Пожалуйста, попробуйте еще раз."
     },
     examples: {
       adaptIndustry: {

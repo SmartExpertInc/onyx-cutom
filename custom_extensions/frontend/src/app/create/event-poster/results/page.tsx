@@ -25,6 +25,7 @@ function EventPosterResultsContent() {
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Get session key from URL
@@ -78,6 +79,83 @@ function EventPosterResultsContent() {
     console.error('❌ Poster download error:', error);
   };
 
+  const handleSaveAsProduct = async () => {
+    if (isSaving) return;
+    
+    setIsSaving(true);
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const devUserId = "dummy-onyx-user-id-for-testing";
+      
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        headers['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
+      // Get or create Event Poster design template
+      let templateId = null;
+      
+      try {
+        // First try to get existing Event Poster template
+        const templatesResponse = await fetch(`${CUSTOM_BACKEND_URL}/design_templates`, {
+          headers,
+          credentials: 'same-origin',
+        });
+        
+        if (templatesResponse.ok) {
+          const templates = await templatesResponse.json();
+          const eventPosterTemplate = templates.find((t: any) => t.template_name === 'Event Poster' || t.component_name === 'EventPosterDisplay');
+          if (eventPosterTemplate) {
+            templateId = eventPosterTemplate.id;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not fetch templates, using fallback');
+      }
+      
+      // Fallback to a default template ID (Text Presentation or any available)
+      if (!templateId) {
+        templateId = 1; // Use the first available template as fallback
+      }
+
+      // Create the project data
+      const projectData = {
+        projectName: eventData.eventName || 'Event Poster',
+        design_template_id: templateId,
+        microProductName: 'Event Poster',
+        aiResponse: JSON.stringify(eventData),
+        folder_id: null,
+        source_context_type: 'manual',
+        source_context_data: { type: 'event_poster' }
+      };
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/add`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(projectData),
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Failed to save poster: ${response.status} - ${errorData}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Poster saved as product:', result);
+      
+      // Show success message and redirect to products page
+      alert(t('interface.eventPosterForm.savedSuccessfully', 'Event poster saved successfully! You can find it in your Products page.'));
+      router.push('/projects');
+      
+    } catch (error) {
+      console.error('❌ Failed to save poster as product:', error);
+      alert(t('interface.eventPosterForm.saveError', 'Failed to save poster. Please try again.'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Show loading state while data is being loaded
   if (isLoading) {
     return (
@@ -93,30 +171,43 @@ function EventPosterResultsContent() {
   return (
     <main className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif]">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-x-4">
-            <button
-              onClick={handleBackToQuestionnaire}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-              </svg>
-{t('interface.eventPosterForm.editQuestionnaire', 'Edit Questionnaire')}
-            </button>
+                  <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-x-4">
+              <button
+                onClick={handleBackToQuestionnaire}
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                </svg>
+                {t('interface.eventPosterForm.editQuestionnaire', 'Edit Questionnaire')}
+              </button>
+              
+              <button
+                onClick={handleBackToProjects}
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                </svg>
+                {t('interface.eventPosterForm.backToProjects', 'Back to Projects')}
+              </button>
+            </div>
             
-            <button
-              onClick={handleBackToProjects}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors cursor-pointer"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
-              </svg>
-{t('interface.eventPosterForm.backToProjects', 'Back to Projects')}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveAsProduct}
+                disabled={isSaving}
+                className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                {isSaving ? t('interface.eventPosterForm.saving', 'Saving...') : t('interface.eventPosterForm.saveAsProduct', 'Save as Product')}
+              </button>
+            </div>
           </div>
-        </div>
 
         <div className="bg-white p-4 sm:p-6 md:p-8 shadow-xl rounded-xl border border-gray-200">
           <div className="mb-6">

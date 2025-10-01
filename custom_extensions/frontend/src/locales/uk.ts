@@ -1631,7 +1631,11 @@ export const uk = {
       editQuestionnaire: "Редагувати анкету",
       backToProjects: "Назад до проектів", 
       eventPosterTitle: "Постер події",
-      posterGeneratedSuccessfully: "Ваш постер події був успішно створений"
+      posterGeneratedSuccessfully: "Ваш постер події був успішно створений",
+      saveAsProduct: "Зберегти як продукт",
+      saving: "Збереження...",
+      savedSuccessfully: "Постер події успішно збережено! Ви можете знайти його на сторінці Продуктів.",
+      saveError: "Не вдалося зберегти постер. Будь ласка, спробуйте ще раз."
     }
   },
 };
