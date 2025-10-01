@@ -86,25 +86,7 @@ export default function LoginPage({
             </Title>
           </div>
           <EmailPasswordForm nextUrl={nextUrl} />
-          <div className="flex flex-col gap-y-2 items-center"></div>
         </>
-      )}
-      {!hidePageRedirect && (
-        <p className="text-center mt-4">
-          Don&apos;t have an account?{" "}
-          <span
-            onClick={() => {
-              if (typeof window !== "undefined" && window.top) {
-                window.top.location.href = "/auth/signup";
-              } else {
-                window.location.href = "/auth/signup";
-              }
-            }}
-            className="text-link font-medium cursor-pointer"
-          >
-            Create an account
-          </span>
-        </p>
       )}
     </div>
   );

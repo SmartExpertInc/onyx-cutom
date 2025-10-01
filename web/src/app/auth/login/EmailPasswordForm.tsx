@@ -153,7 +153,7 @@ export function EmailPasswordForm({
               variant="agent"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto  !py-4 w-full"
+              className="mx-auto !py-4 w-full rounded-full bg-blue-700 hover:bg-blue-800"
             >
               {isJoin ? "Join" : isSignup ? "Sign Up" : "Log In"}
             </Button>

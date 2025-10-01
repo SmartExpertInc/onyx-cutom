@@ -296,7 +296,7 @@ export function TextFormField({
             flex
             h-10
             w-full
-            rounded-md
+            rounded-full
             border
             border-neutral-200
             bg-white
