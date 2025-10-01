@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddOn {
   id: string;
@@ -125,6 +126,7 @@ interface AddOnCardProps {
 }
 
 function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardProps) {
+  const { t } = useLanguage();
   return (
     <Card className="hover:shadow-lg transition-shadow border border-gray-200">
       <CardHeader>
@@ -171,7 +173,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
           </div>
         )}
         <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" variant="download">
-          {addOn.isEnterprise ? 'Contact Sales' : 'Buy Now'}
+          {addOn.isEnterprise ? t('addOns.contactSales', 'Contact Sales') : t('addOns.buyNow', 'Buy Now')}
         </Button>
         {addOn.priceNote && addOn.priceNote !== 'per month' && (
           <p className="text-center text-sm text-gray-500">{addOn.priceNote}</p>
@@ -182,6 +184,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
 }
 
 export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModalProps) {
+  const { t } = useLanguage();
   const [quantities, setQuantities] = useState<Record<string, number>>(
     [...CREDITS_DATA, ...CONNECTORS_DATA, ...STORAGE_DATA].reduce(
       (acc, item) => ({ ...acc, [item.id]: 1 }),
@@ -200,9 +203,9 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle className="text-2xl">Manage Add-ons</DialogTitle>
+          <DialogTitle className="text-2xl">{t('addOns.title', 'Manage Add-ons')}</DialogTitle>
           <DialogDescription>
-            Review your current add-ons, adjust quantities, or explore more options to get the most out of your plan.
+            {t('addOns.description', 'Review your current add-ons, adjust quantities, or explore more options to get the most out of your plan.')}
           </DialogDescription>
         </DialogHeader>
 
@@ -213,21 +216,21 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
               className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
             >
               <Coins size={16} className="text-blue-600 group-data-[state=active]:text-white" />
-              <span>Credits</span>
+              <span>{t('addOns.credits', 'Credits')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="connectors" 
               className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
             >
               <Workflow size={16} className="text-blue-600 group-data-[state=active]:text-white" />
-              <span>Connectors</span>
+              <span>{t('addOns.connectors', 'Connectors')}</span>
             </TabsTrigger>
             <TabsTrigger 
               value="storage" 
               className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
             >
               <Server size={16} className="text-blue-600 group-data-[state=active]:text-white" />
-              <span>Storage</span>
+              <span>{t('addOns.storage', 'Storage')}</span>
             </TabsTrigger>
           </TabsList>
 

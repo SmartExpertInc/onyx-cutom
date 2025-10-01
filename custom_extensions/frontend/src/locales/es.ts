@@ -1650,4 +1650,101 @@ export const es = {
       },
     },
   },
+  survey: {
+    step1: {
+      title: "¿Para qué planeas usar ContentBuilder?"
+    },
+    step2Work: {
+      title: "¿Qué describe mejor tu rol?"
+    },
+    step3: {
+      title: "¿Cuál es el tamaño de tu empresa?"
+    },
+    step4: {
+      title: "¿Cuál es tu caso de uso principal?"
+    },
+    step2Personal: {
+      title: "¿Para qué utilizarás principalmente la plataforma?"
+    },
+    description: "Esto nos ayuda a recomendarte las mejores funciones",
+    category: {
+      work: "Trabajo",
+      workDescription: "Uso profesional para negocios, marketing o colaboración en equipo",
+      personal: "Personal",
+      personalDescription: "Proyectos personales, aprendizaje o proyectos creativos"
+    },
+    role: {
+      marketer: "Especialista en Marketing",
+      hrLd: "RRHH / Formación",
+      businessOwner: "Propietario de Negocio",
+      contentCreator: "Creador de Contenido",
+      developer: "Desarrollador",
+      other: "Otro"
+    },
+    industry: {
+      videoProduction: "Producción de Video",
+      digitalMarketing: "Marketing Digital",
+      learningDevelopment: "Aprendizaje y Desarrollo",
+      internalCommunications: "Comunicaciones Internas",
+      creativeBranding: "Creatividad / Branding",
+      other: "Otro"
+    },
+    personalUse: {
+      personalProjects: "Proyectos personales",
+      learningSkills: "Aprender nuevas habilidades",
+      portfolioCreation: "Creación de portafolio",
+      socialMedia: "Contenido para redes sociales"
+    },
+    navigation: {
+      previous: "Anterior",
+      continue: "Continuar",
+      completeSetup: "Completar Configuración",
+      step: "Paso",
+      of: "de"
+    }
+  },
+  tariffPlan: {
+    backToPlans: "Volver a los planes",
+    completeYourPurchase: "Complete su compra",
+    subscribeTo: "Suscribirse a",
+    monthly: "Mensual",
+    yearly: "Anual",
+    subscription: "suscripción",
+    month: "mes",
+    year: "año",
+    whatsIncluded: "Qué incluye:",
+    paymentInformation: "Información de pago",
+    firstName: "Nombre",
+    lastName: "Apellido",
+    emailAddress: "Correo electrónico",
+    cardNumber: "Número de tarjeta",
+    expiryDate: "Fecha de vencimiento",
+    cvv: "CVV",
+    sslEncrypted: "Cifrado SSL",
+    instantAccess: "Acceso instantáneo",
+    cancelAnytime: "Cancelar en cualquier momento",
+    processingPayment: "Procesando pago...",
+    contactSales: "Contactar con ventas",
+    subscriptionActivation: "Su suscripción se activará inmediatamente después de la confirmación del pago",
+    chooseYourPlan: "Elige tu plan",
+    billMonthly: "Facturación mensual",
+    billYearly: "Facturación anual",
+    mostPopular: "Más popular",
+    credits: "Créditos",
+    storage: "Almacenamiento",
+    support: "Soporte",
+    connectors: "Conectores",
+    collaboration: "Colaboración",
+    current: "Actual",
+    purchasePlan: "Comprar plan"
+  },
+  addOns: {
+    title: "Gestionar complementos",
+    description: "Revise sus complementos actuales, ajuste cantidades o explore más opciones para aprovechar al máximo su plan.",
+    credits: "Créditos",
+    connectors: "Conectores",
+    storage: "Almacenamiento",
+    contactSales: "Contactar con ventas",
+    buyNow: "Comprar ahora"
+  }
 };

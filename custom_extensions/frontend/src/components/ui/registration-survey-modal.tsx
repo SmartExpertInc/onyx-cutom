@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SurveyData {
   category: string;
@@ -31,6 +32,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   onComplete,
   children,
 }) => {
+  const { t } = useLanguage();
   const [surveyStep, setSurveyStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [surveyModalOpen, setSurveyModalOpen] = useState(false);
@@ -114,18 +116,14 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 isTransitioning ? 'opacity-0 transform translate-y-2' : 'opacity-100 transform translate-y-0'
               }`}>
                 <DialogTitle className="text-2xl font-bold text-gray-900">
-                  {surveyStep === 1 && "What do you plan to use ContentBuilder for?"}
-                  {surveyStep === 2 && selectedCategory === 'work' && "What best describes your role"}
-                  {surveyStep === 3 && selectedCategory === 'work' && "What is the size of your company?"}
-                  {surveyStep === 4 && selectedCategory === 'work' && "What's your primary use case?"}
-                  {surveyStep === 2 && selectedCategory === 'personal' && "What will you mainly use the platform for?"}
+                  {surveyStep === 1 && t('survey.step1.title', "What do you plan to use ContentBuilder for?")}
+                  {surveyStep === 2 && selectedCategory === 'work' && t('survey.step2Work.title', "What best describes your role")}
+                  {surveyStep === 3 && selectedCategory === 'work' && t('survey.step3.title', "What is the size of your company?")}
+                  {surveyStep === 4 && selectedCategory === 'work' && t('survey.step4.title', "What's your primary use case?")}
+                  {surveyStep === 2 && selectedCategory === 'personal' && t('survey.step2Personal.title', "What will you mainly use the platform for?")}
                 </DialogTitle>
                 <DialogDescription className="text-base text-gray-600">
-                  {surveyStep === 1 && "This helps us recommend the best features for you"}
-                  {surveyStep === 2 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
-                  {surveyStep === 3 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
-                  {surveyStep === 4 && selectedCategory === 'work' && "This helps us recommend the best features for you"}
-                  {surveyStep === 2 && selectedCategory === 'personal' && "This helps us recommend the best features for you"}
+                  {t('survey.description', "This helps us recommend the best features for you")}
                 </DialogDescription>
               </div>
             </div>
@@ -152,8 +150,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   }`}>
                     <Briefcase className={`w-6 h-6 ${selectedCategory === 'work' ? 'text-white' : 'text-gray-600'}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Work</h3>
-                  <p className="text-sm text-gray-600">Professional use for business, marketing, or team collaboration</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{t('survey.category.work', 'Work')}</h3>
+                  <p className="text-sm text-gray-600">{t('survey.category.workDescription', 'Professional use for business, marketing, or team collaboration')}</p>
                 </div>
               </div>
               
@@ -171,8 +169,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   }`}>
                     <Heart className={`w-6 h-6 ${selectedCategory === 'personal' ? 'text-white' : 'text-gray-600'}`} />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Personal</h3>
-                  <p className="text-sm text-gray-600">Personal projects, learning, or creative endeavors</p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{t('survey.category.personal', 'Personal')}</h3>
+                  <p className="text-sm text-gray-600">{t('survey.category.personalDescription', 'Personal projects, learning, or creative endeavors')}</p>
                 </div>
               </div>
             </div>
@@ -184,12 +182,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               <div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {[
-                    { value: 'marketer', label: 'Marketer' },
-                    { value: 'hr-ld', label: 'HR / L&D' },
-                    { value: 'business-owner', label: 'Business Owner' },
-                    { value: 'content-creator', label: 'Content Creator' },
-                    { value: 'developer', label: 'Developer' },
-                    { value: 'other', label: 'Other' }
+                    { value: 'marketer', label: t('survey.role.marketer', 'Marketer') },
+                    { value: 'hr-ld', label: t('survey.role.hrLd', 'HR / L&D') },
+                    { value: 'business-owner', label: t('survey.role.businessOwner', 'Business Owner') },
+                    { value: 'content-creator', label: t('survey.role.contentCreator', 'Content Creator') },
+                    { value: 'developer', label: t('survey.role.developer', 'Developer') },
+                    { value: 'other', label: t('survey.role.other', 'Other') }
                   ].map((option) => (
                     <div
                       key={option.value}
@@ -243,12 +241,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               <div>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    { value: 'video-production', label: 'Video Production', icon: <Clapperboard width={20} /> },
-                    { value: 'digital-marketing', label: 'Digital Marketing', icon: <ChartNoAxesCombined width={20} /> },
-                    { value: 'learning-development', label: 'Learning & Development', icon: <GraduationCap width={20} /> },
-                    { value: 'internal-communications', label: 'Internal Communications', icon: <MessageSquareText width={20} /> },
-                    { value: 'creative-branding', label: 'Creative / Branding', icon: <Palette width={20} /> },
-                    { value: 'other', label: 'Other', icon: <Zap width={20} /> }
+                    { value: 'video-production', label: t('survey.industry.videoProduction', 'Video Production'), icon: <Clapperboard width={20} /> },
+                    { value: 'digital-marketing', label: t('survey.industry.digitalMarketing', 'Digital Marketing'), icon: <ChartNoAxesCombined width={20} /> },
+                    { value: 'learning-development', label: t('survey.industry.learningDevelopment', 'Learning & Development'), icon: <GraduationCap width={20} /> },
+                    { value: 'internal-communications', label: t('survey.industry.internalCommunications', 'Internal Communications'), icon: <MessageSquareText width={20} /> },
+                    { value: 'creative-branding', label: t('survey.industry.creativeBranding', 'Creative / Branding'), icon: <Palette width={20} /> },
+                    { value: 'other', label: t('survey.industry.other', 'Other'), icon: <Zap width={20} /> }
                   ].map((option) => (
                     <div
                       key={option.value}
@@ -282,10 +280,10 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               <div>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    { value: 'personal-projects', label: 'Personal projects', icon: <User width={20} /> },
-                    { value: 'learning-skills', label: 'Learning new skills', icon: <BookCopy width={20} /> },
-                    { value: 'portfolio-creation', label: 'Portfolio creation', icon: <BriefcaseBusiness width={20} /> },
-                    { value: 'social-media', label: 'Social media content', icon: <TabletSmartphone width={20} /> }
+                    { value: 'personal-projects', label: t('survey.personalUse.personalProjects', 'Personal projects'), icon: <User width={20} /> },
+                    { value: 'learning-skills', label: t('survey.personalUse.learningSkills', 'Learning new skills'), icon: <BookCopy width={20} /> },
+                    { value: 'portfolio-creation', label: t('survey.personalUse.portfolioCreation', 'Portfolio creation'), icon: <BriefcaseBusiness width={20} /> },
+                    { value: 'social-media', label: t('survey.personalUse.socialMedia', 'Social media content'), icon: <TabletSmartphone width={20} /> }
                   ].map((option) => (
                     <div
                       key={option.value}
@@ -328,11 +326,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             }`}
           >
             <ChevronLeft className="w-5 h-5 mr-2" />
-            Previous
+            {t('survey.navigation.previous', 'Previous')}
           </Button>
 
           <div className="text-xs text-gray-500 font-medium">
-            Step {surveyStep} of {selectedCategory === 'work' ? '4' : '2'}
+            {t('survey.navigation.step', 'Step')} {surveyStep} {t('survey.navigation.of', 'of')} {selectedCategory === 'work' ? '4' : '2'}
           </div>
 
           {surveyStep === 4 && selectedCategory === 'work' ? (
@@ -345,7 +343,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Complete Setup
+              {t('survey.navigation.completeSetup', 'Complete Setup')}
               <CheckCircle className="w-5 h-5 ml-2" />
             </Button>
           ) : surveyStep === 2 && selectedCategory === 'personal' ? (
@@ -358,7 +356,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              Complete Setup
+              {t('survey.navigation.completeSetup', 'Complete Setup')}
               <CheckCircle className="w-5 h-5 ml-2" />
             </Button>
           ) : (
@@ -373,7 +371,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               }
               className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full font-medium hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
             >
-              Continue
+              {t('survey.navigation.continue', 'Continue')}
               <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
           )}

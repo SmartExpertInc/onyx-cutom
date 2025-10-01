@@ -1630,4 +1630,101 @@ export const uk = {
       imageUploadedSuccessfully: "✓ Зображення успішно завантажено"
     }
   },
+  survey: {
+    step1: {
+      title: "Для чого ви плануєте використовувати ContentBuilder?"
+    },
+    step2Work: {
+      title: "Що найкраще описує вашу роль"
+    },
+    step3: {
+      title: "Який розмір вашої компанії?"
+    },
+    step4: {
+      title: "Який ваш основний варіант використання?"
+    },
+    step2Personal: {
+      title: "Для чого ви в основному будете використовувати платформу?"
+    },
+    description: "Це допомагає нам рекомендувати найкращі функції для вас",
+    category: {
+      work: "Робота",
+      workDescription: "Професійне використання для бізнесу, маркетингу або командної співпраці",
+      personal: "Особисте",
+      personalDescription: "Особисті проекти, навчання або творчі починання"
+    },
+    role: {
+      marketer: "Маркетолог",
+      hrLd: "HR / Навчання",
+      businessOwner: "Власник бізнесу",
+      contentCreator: "Творець контенту",
+      developer: "Розробник",
+      other: "Інше"
+    },
+    industry: {
+      videoProduction: "Виробництво відео",
+      digitalMarketing: "Цифровий маркетинг",
+      learningDevelopment: "Навчання та розвиток",
+      internalCommunications: "Внутрішні комунікації",
+      creativeBranding: "Креатив / Брендинг",
+      other: "Інше"
+    },
+    personalUse: {
+      personalProjects: "Особисті проекти",
+      learningSkills: "Вивчення нових навичок",
+      portfolioCreation: "Створення портфоліо",
+      socialMedia: "Контент для соціальних мереж"
+    },
+    navigation: {
+      previous: "Назад",
+      continue: "Продовжити",
+      completeSetup: "Завершити налаштування",
+      step: "Крок",
+      of: "з"
+    }
+  },
+  tariffPlan: {
+    backToPlans: "Назад до планів",
+    completeYourPurchase: "Завершіть покупку",
+    subscribeTo: "Підписатися на",
+    monthly: "Щомісяця",
+    yearly: "Щороку",
+    subscription: "підписка",
+    month: "місяць",
+    year: "рік",
+    whatsIncluded: "Що включено:",
+    paymentInformation: "Платіжна інформація",
+    firstName: "Ім'я",
+    lastName: "Прізвище",
+    emailAddress: "Електронна адреса",
+    cardNumber: "Номер картки",
+    expiryDate: "Термін дії",
+    cvv: "CVV",
+    sslEncrypted: "SSL шифрування",
+    instantAccess: "Миттєвий доступ",
+    cancelAnytime: "Скасувати в будь-який час",
+    processingPayment: "Обробка платежу...",
+    contactSales: "Зв'язатися з відділом продажів",
+    subscriptionActivation: "Ваша підписка буде активована одразу після підтвердження платежу",
+    chooseYourPlan: "Виберіть свій план",
+    billMonthly: "Щомісячна оплата",
+    billYearly: "Річна оплата",
+    mostPopular: "Найпопулярніший",
+    credits: "Кредити",
+    storage: "Сховище",
+    support: "Підтримка",
+    connectors: "Конектори",
+    collaboration: "Співпраця",
+    current: "Поточний",
+    purchasePlan: "Придбати план"
+  },
+  addOns: {
+    title: "Керування додатками",
+    description: "Переглядайте ваші поточні додатки, налаштовуйте кількість або досліджуйте більше варіантів, щоб отримати максимум від вашого плану.",
+    credits: "Кредити",
+    connectors: "Конектори",
+    storage: "Сховище",
+    contactSales: "Зв'язатися з відділом продажів",
+    buyNow: "Купити зараз"
+  }
 };

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Plan {
   id: string;
@@ -109,6 +110,7 @@ interface TariffPlanModalProps {
 }
 
 const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange }) => {
+  const { t } = useLanguage();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
@@ -150,7 +152,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   className="flex items-center text-blue-600 hover:text-blue-700 mb-8 transition-colors duration-200"
                 >
                   <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to plans
+                  {t('tariffPlan.backToPlans', 'Back to plans')}
                 </button>
 
                 {/* Payment Header */}
@@ -158,8 +160,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl mb-6 shadow-xl">
                     <CreditCard className="w-10 h-10 text-white" />
                   </div>
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">Complete Your Purchase</h1>
-                  <p className="text-xl text-gray-600">Subscribe to {selectedPlan.name}</p>
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('tariffPlan.completeYourPurchase', 'Complete Your Purchase')}</h1>
+                  <p className="text-xl text-gray-600">{t('tariffPlan.subscribeTo', 'Subscribe to')} {selectedPlan.name}</p>
                 </div>
 
                 {/* Plan Summary */}
@@ -168,7 +170,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900">{selectedPlan.name}</h3>
                       <p className="text-gray-600">
-                        {billingCycle === 'monthly' ? 'Monthly' : 'Yearly'} subscription
+                        {billingCycle === 'monthly' ? t('tariffPlan.monthly', 'Monthly') : t('tariffPlan.yearly', 'Yearly')} {t('tariffPlan.subscription', 'subscription')}
                       </p>
                     </div>
                     <div className="text-right">
@@ -176,7 +178,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         {getPrice(selectedPlan)}
                         {selectedPlan.price > 0 && (
                           <span className="text-lg text-gray-500 font-normal">
-                            /{billingCycle === 'monthly' ? 'month' : 'year'}
+                            /{billingCycle === 'monthly' ? t('tariffPlan.month', 'month') : t('tariffPlan.year', 'year')}
                           </span>
                         )}
                       </div>
@@ -184,7 +186,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
 
                   <div className="bg-blue-50 rounded-2xl p-6">
-                    <h4 className="font-bold text-gray-900 mb-4">What's included:</h4>
+                    <h4 className="font-bold text-gray-900 mb-4">{t('tariffPlan.whatsIncluded', "What's included:")}</h4>
                     <div className="grid md:grid-cols-2 gap-3">
                       {selectedPlan.features.map((feature, index) => (
                         <div key={index} className="flex items-center">
@@ -198,13 +200,13 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                 {/* Payment Form */}
                 <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-8">Payment Information</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-8">{t('tariffPlan.paymentInformation', 'Payment Information')}</h3>
                   
                   <div className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          First Name
+                          {t('tariffPlan.firstName', 'First Name')}
                         </label>
                         <input
                           type="text"
@@ -214,7 +216,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Last Name
+                          {t('tariffPlan.lastName', 'Last Name')}
                         </label>
                         <input
                           type="text"
@@ -226,7 +228,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email Address
+                        {t('tariffPlan.emailAddress', 'Email Address')}
                       </label>
                       <input
                         type="email"
@@ -237,7 +239,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Card Number
+                        {t('tariffPlan.cardNumber', 'Card Number')}
                       </label>
                       <input
                         type="text"
@@ -249,7 +251,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Expiry Date
+                          {t('tariffPlan.expiryDate', 'Expiry Date')}
                         </label>
                         <input
                           type="text"
@@ -259,7 +261,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          CVV
+                          {t('tariffPlan.cvv', 'CVV')}
                         </label>
                         <input
                           type="text"
@@ -275,15 +277,15 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div className="grid md:grid-cols-3 gap-4 text-center">
                       <div className="flex items-center justify-center">
                         <Shield className="w-5 h-5 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-700 font-medium">SSL Encrypted</span>
+                        <span className="text-sm text-gray-700 font-medium">{t('tariffPlan.sslEncrypted', 'SSL Encrypted')}</span>
                       </div>
                       <div className="flex items-center justify-center">
                         <Clock className="w-5 h-5 text-blue-500 mr-2" />
-                        <span className="text-sm text-gray-700 font-medium">Instant Access</span>
+                        <span className="text-sm text-gray-700 font-medium">{t('tariffPlan.instantAccess', 'Instant Access')}</span>
                       </div>
                       <div className="flex items-center justify-center">
                         <Check className="w-5 h-5 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-700 font-medium">Cancel Anytime</span>
+                        <span className="text-sm text-gray-700 font-medium">{t('tariffPlan.cancelAnytime', 'Cancel Anytime')}</span>
                       </div>
                     </div>
                   </div>
@@ -303,20 +305,20 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     {isProcessing ? (
                       <>
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                        Processing Payment...
+                        {t('tariffPlan.processingPayment', 'Processing Payment...')}
                       </>
                     ) : selectedPlan.name.includes('Enterprise') ? (
-                      'Contact Sales'
+                      t('tariffPlan.contactSales', 'Contact Sales')
                     ) : (
                       <>
-                        Subscribe to {selectedPlan.name}
+                        {t('tariffPlan.subscribeTo', 'Subscribe to')} {selectedPlan.name}
                         <ArrowRight className="w-6 h-6 ml-3" />
                       </>
                     )}
                   </button>
 
                   <p className="text-xs text-gray-500 text-center mt-4">
-                    Your subscription will be activated immediately after payment confirmation
+                    {t('tariffPlan.subscriptionActivation', 'Your subscription will be activated immediately after payment confirmation')}
                   </p>
                 </div>
               </div>
@@ -335,7 +337,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
             <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-16">
-                <h1 className="text-5xl font-bold text-gray-900 mb-6">Choose your plan</h1>
+                <h1 className="text-5xl font-bold text-gray-900 mb-6">{t('tariffPlan.chooseYourPlan', 'Choose your plan')}</h1>
                 
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 shadow-lg border border-gray-200 mt-8">
@@ -347,7 +349,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         : 'text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    Bill Monthly
+                    {t('tariffPlan.billMonthly', 'Bill Monthly')}
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
@@ -357,7 +359,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         : 'text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    Bill Yearly
+                    {t('tariffPlan.billYearly', 'Bill Yearly')}
                   </button>
                 </div>
               </div>
@@ -376,7 +378,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         {plan.popular && (
                           <div className="absolute -top-3 left-0 right-0 z-10">
                             <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-t-3xl text-sm font-bold shadow-lg text-center">
-                              Most Popular
+                              {t('tariffPlan.mostPopular', 'Most Popular')}
                             </div>
                           </div>
                         )}
@@ -398,7 +400,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         </span>
                         {plan.price > 0 && (
                           <span className="text-lg opacity-80">
-                            / {billingCycle === 'monthly' ? 'Month' : 'Year'}
+                            / {billingCycle === 'monthly' ? t('tariffPlan.month', 'Month') : t('tariffPlan.year', 'Year')}
                           </span>
                         )}
                       </div>
@@ -410,7 +412,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="flex items-start">
                           <Coins className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="font-semibold text-gray-900">Credits</div>
+                            <div className="font-semibold text-gray-900">{t('tariffPlan.credits', 'Credits')}</div>
                             <div className="text-sm text-gray-600">{plan.credits}</div>
                           </div>
                         </div>
@@ -418,7 +420,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="flex items-start">
                           <Server className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="font-semibold text-gray-900">Storage</div>
+                            <div className="font-semibold text-gray-900">{t('tariffPlan.storage', 'Storage')}</div>
                             <div className="text-sm text-gray-600">{plan.storage}</div>
                           </div>
                         </div>
@@ -426,7 +428,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="flex items-start">
                           <MessagesSquare className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="font-semibold text-gray-900">Support</div>
+                            <div className="font-semibold text-gray-900">{t('tariffPlan.support', 'Support')}</div>
                             <div className="text-sm text-gray-600">{plan.support}</div>
                           </div>
                         </div>
@@ -434,7 +436,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="flex items-start">
                           <Workflow className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="font-semibold text-gray-900">Connectors</div>
+                            <div className="font-semibold text-gray-900">{t('tariffPlan.connectors', 'Connectors')}</div>
                             <div className="text-sm text-gray-600">{plan.connectors}</div>
                           </div>
                         </div>
@@ -442,7 +444,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         <div className="flex items-start">
                           <Users className="w-5 h-5 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
                           <div>
-                            <div className="font-semibold text-gray-900">Collaboration</div>
+                            <div className="font-semibold text-gray-900">{t('tariffPlan.collaboration', 'Collaboration')}</div>
                             <div className="text-sm text-gray-600">{plan.collaboration}</div>
                           </div>
                         </div>
@@ -462,10 +464,10 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         disabled={plan.id === 'starter'}
                       >
                         {plan.id === 'starter' 
-                          ? 'Current' 
+                          ? t('tariffPlan.current', 'Current')
                           : plan.name.includes('Enterprise') 
-                          ? 'Contact Sales' 
-                          : 'Purchase Plan'}
+                          ? t('tariffPlan.contactSales', 'Contact Sales')
+                          : t('tariffPlan.purchasePlan', 'Purchase Plan')}
                       </button>
                     </div>
                     </div>

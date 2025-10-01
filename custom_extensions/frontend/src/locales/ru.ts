@@ -1625,4 +1625,101 @@ export const ru = {
       },
     },
   },
+  survey: {
+    step1: {
+      title: "Для чего вы планируете использовать ContentBuilder?"
+    },
+    step2Work: {
+      title: "Что лучше всего описывает вашу роль"
+    },
+    step3: {
+      title: "Каков размер вашей компании?"
+    },
+    step4: {
+      title: "Какой ваш основной вариант использования?"
+    },
+    step2Personal: {
+      title: "Для чего вы в основном будете использовать платформу?"
+    },
+    description: "Это помогает нам рекомендовать лучшие функции для вас",
+    category: {
+      work: "Работа",
+      workDescription: "Профессиональное использование для бизнеса, маркетинга или командного сотрудничества",
+      personal: "Личное",
+      personalDescription: "Личные проекты, обучение или творческие начинания"
+    },
+    role: {
+      marketer: "Маркетолог",
+      hrLd: "HR / Обучение",
+      businessOwner: "Владелец бизнеса",
+      contentCreator: "Создатель контента",
+      developer: "Разработчик",
+      other: "Другое"
+    },
+    industry: {
+      videoProduction: "Производство видео",
+      digitalMarketing: "Цифровой маркетинг",
+      learningDevelopment: "Обучение и развитие",
+      internalCommunications: "Внутренние коммуникации",
+      creativeBranding: "Креатив / Брендинг",
+      other: "Другое"
+    },
+    personalUse: {
+      personalProjects: "Личные проекты",
+      learningSkills: "Изучение новых навыков",
+      portfolioCreation: "Создание портфолио",
+      socialMedia: "Контент для социальных сетей"
+    },
+    navigation: {
+      previous: "Назад",
+      continue: "Продолжить",
+      completeSetup: "Завершить настройку",
+      step: "Шаг",
+      of: "из"
+    }
+  },
+  tariffPlan: {
+    backToPlans: "Назад к планам",
+    completeYourPurchase: "Завершите покупку",
+    subscribeTo: "Подписаться на",
+    monthly: "Ежемесячно",
+    yearly: "Ежегодно",
+    subscription: "подписка",
+    month: "месяц",
+    year: "год",
+    whatsIncluded: "Что включено:",
+    paymentInformation: "Платежная информация",
+    firstName: "Имя",
+    lastName: "Фамилия",
+    emailAddress: "Электронная почта",
+    cardNumber: "Номер карты",
+    expiryDate: "Срок действия",
+    cvv: "CVV",
+    sslEncrypted: "SSL шифрование",
+    instantAccess: "Мгновенный доступ",
+    cancelAnytime: "Отменить в любое время",
+    processingPayment: "Обработка платежа...",
+    contactSales: "Связаться с отделом продаж",
+    subscriptionActivation: "Ваша подписка будет активирована сразу после подтверждения платежа",
+    chooseYourPlan: "Выберите свой план",
+    billMonthly: "Ежемесячная оплата",
+    billYearly: "Годовая оплата",
+    mostPopular: "Самый популярный",
+    credits: "Кредиты",
+    storage: "Хранилище",
+    support: "Поддержка",
+    connectors: "Коннекторы",
+    collaboration: "Совместная работа",
+    current: "Текущий",
+    purchasePlan: "Купить план"
+  },
+  addOns: {
+    title: "Управление дополнениями",
+    description: "Просматривайте ваши текущие дополнения, настраивайте количество или изучайте дополнительные опции, чтобы получить максимум от вашего плана.",
+    credits: "Кредиты",
+    connectors: "Коннекторы",
+    storage: "Хранилище",
+    contactSales: "Связаться с отделом продаж",
+    buyNow: "Купить сейчас"
+  }
 };

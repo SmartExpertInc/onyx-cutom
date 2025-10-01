@@ -1533,4 +1533,101 @@ export const en = {
       imageUploadedSuccessfully: "✓ Image uploaded successfully"
     }
   },
+  survey: {
+    step1: {
+      title: "What do you plan to use ContentBuilder for?"
+    },
+    step2Work: {
+      title: "What best describes your role"
+    },
+    step3: {
+      title: "What is the size of your company?"
+    },
+    step4: {
+      title: "What's your primary use case?"
+    },
+    step2Personal: {
+      title: "What will you mainly use the platform for?"
+    },
+    description: "This helps us recommend the best features for you",
+    category: {
+      work: "Work",
+      workDescription: "Professional use for business, marketing, or team collaboration",
+      personal: "Personal",
+      personalDescription: "Personal projects, learning, or creative endeavors"
+    },
+    role: {
+      marketer: "Marketer",
+      hrLd: "HR / L&D",
+      businessOwner: "Business Owner",
+      contentCreator: "Content Creator",
+      developer: "Developer",
+      other: "Other"
+    },
+    industry: {
+      videoProduction: "Video Production",
+      digitalMarketing: "Digital Marketing",
+      learningDevelopment: "Learning & Development",
+      internalCommunications: "Internal Communications",
+      creativeBranding: "Creative / Branding",
+      other: "Other"
+    },
+    personalUse: {
+      personalProjects: "Personal projects",
+      learningSkills: "Learning new skills",
+      portfolioCreation: "Portfolio creation",
+      socialMedia: "Social media content"
+    },
+    navigation: {
+      previous: "Previous",
+      continue: "Continue",
+      completeSetup: "Complete Setup",
+      step: "Step",
+      of: "of"
+    }
+  },
+  tariffPlan: {
+    backToPlans: "Back to plans",
+    completeYourPurchase: "Complete Your Purchase",
+    subscribeTo: "Subscribe to",
+    monthly: "Monthly",
+    yearly: "Yearly",
+    subscription: "subscription",
+    month: "month",
+    year: "year",
+    whatsIncluded: "What's included:",
+    paymentInformation: "Payment Information",
+    firstName: "First Name",
+    lastName: "Last Name",
+    emailAddress: "Email Address",
+    cardNumber: "Card Number",
+    expiryDate: "Expiry Date",
+    cvv: "CVV",
+    sslEncrypted: "SSL Encrypted",
+    instantAccess: "Instant Access",
+    cancelAnytime: "Cancel Anytime",
+    processingPayment: "Processing Payment...",
+    contactSales: "Contact Sales",
+    subscriptionActivation: "Your subscription will be activated immediately after payment confirmation",
+    chooseYourPlan: "Choose your plan",
+    billMonthly: "Bill Monthly",
+    billYearly: "Bill Yearly",
+    mostPopular: "Most Popular",
+    credits: "Credits",
+    storage: "Storage",
+    support: "Support",
+    connectors: "Connectors",
+    collaboration: "Collaboration",
+    current: "Current",
+    purchasePlan: "Purchase Plan"
+  },
+  addOns: {
+    title: "Manage Add-ons",
+    description: "Review your current add-ons, adjust quantities, or explore more options to get the most out of your plan.",
+    credits: "Credits",
+    connectors: "Connectors",
+    storage: "Storage",
+    contactSales: "Contact Sales",
+    buyNow: "Buy Now"
+  }
 };
