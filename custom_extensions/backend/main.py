@@ -30084,7 +30084,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             <div class="main-content">
                 <div class="header-section">
                     <div class="first-row">
-                        <div class="event-name">{event_name}:</div>
+                        <div class="event-name">{event_name}</div>
                         <div class="logo"></div>
                     </div>
                     
