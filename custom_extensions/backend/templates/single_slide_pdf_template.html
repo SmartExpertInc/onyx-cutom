@@ -2055,69 +2055,39 @@
 }
 
 .timeline-container {
-    position: relative;
-    width: 100%;
-    flex: 1;
-    min-height: 400px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 20px;
+    position: absolute;
+    top: 150px;
+    left: 50px;
+    right: 50px;
+    bottom: 50px;
+    width: calc(100% - 100px);
+    height: calc(100% - 200px);
 }
 
 .timeline-line {
     position: absolute;
-    top: 13.5px;
+    top: 0;
     left: calc(50% + 60px);
-    transform: translateX(-50%);
     width: 2px;
-    height: 99%;
+    height: 100%;
     background: #0F58F9;
 }
 
-.step-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.milestone-content {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: center;
-}
-
 .timeline-circle {
+    position: absolute;
+    left: calc(50% + 60px);
+    transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
     background-color: #ffffff;
     border-radius: 50%;
-    background: #ffffff;
     border: 4px solid #0F58F9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0px;
-    flex-shrink: 0;
-    position: absolute;
-    left: calc(50% + 60px);
-    transform: translateX(-50%);
     z-index: 10;
 }
 
-.text-block {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+.timeline-text-block {
     position: absolute;
-    width: 35%;
-    transform: translateY(20%);
+    transform: translateY(-50%);
 }
 
 .step-heading {
@@ -2817,69 +2787,62 @@
                     {% endif %}
                     <div class="timeline-container">
                         <div class="timeline-line"></div>
-                        {% for step in slide.props.steps %}
-                            {% if (step.heading and step.heading != 'Click to add heading') or (step.description and step.description != 'Click to add description') %}
-                                <div class="step-wrapper positioned-element"
-                                    style="top: {{ loop.index0 * 120 + 20 }}px;"
-                                    {% if slide.metadata and slide.metadata.elementPositions %}
-                                        {% set stepId = 'draggable-' + slide.slideId + '-' + (loop.index0 + 1)|string %}
-                                        {% if slide.metadata.elementPositions[stepId] %}
-                                            style="top: {{ loop.index0 * 120 + 20 }}px; transform: translate({{ slide.metadata.elementPositions[stepId].x }}px, {{ slide.metadata.elementPositions[stepId].y }}px);"
-                                        {% endif %}
-                                    {% endif %}
-                                >
-                                    <div class="milestone-content">
-                                        <div class="timeline-circle"></div>
-                                        <div class="text-block" style="left: {% if loop.index0 % 2 == 0 %}calc(50% + 60px + 50px){% else %}calc(50% + 60px - 180px){% endif %};">
-                                            {% if step.heading and step.heading != 'Click to add heading' %}
-                                                <div class="step-heading">{{ step.heading }}</div>
-                                            {% endif %}
-                                            {% if step.description and step.description != 'Click to add description' %}
-                                                <div class="step-description">{{ step.description }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
+                        
+                        <!-- Item 1 - Right side -->
+                        <div class="timeline-circle positioned-element" style="top: 5%;"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set circleId = 'draggable-' + slide.slideId + '-1' %}
+                                {% if slide.metadata.elementPositions[circleId] %}
+                                    style="top: 5%; transform: translate({{ slide.metadata.elementPositions[circleId].x }}px, {{ slide.metadata.elementPositions[circleId].y }}px);"
+                                {% endif %}
                             {% endif %}
-                        {% endfor %}
-                        {% if not slide.props.steps or slide.props.steps is not iterable or slide.props.steps is callable or slide.props.steps|length == 0 %}
-                            <div class="step-wrapper" style="top: 20px;">
-                                <div class="milestone-content">
-                                    <div class="timeline-circle"></div>
-                                    <div class="text-block" style="left: calc(50% + 60px + 50px);">
-                                        <div class="step-heading">Phase 1</div>
-                                        <div class="step-description">Initial planning and setup</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="step-wrapper" style="top: 140px;">
-                                <div class="milestone-content">
-                                    <div class="timeline-circle"></div>
-                                    <div class="text-block" style="left: calc(50% + 60px - 180px);">
-                                        <div class="step-heading">Phase 2</div>
-                                        <div class="step-description">Development and implementation</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="step-wrapper" style="top: 260px;">
-                                <div class="milestone-content">
-                                    <div class="timeline-circle"></div>
-                                    <div class="text-block" style="left: calc(50% + 60px + 50px);">
-                                        <div class="step-heading">Phase 3</div>
-                                        <div class="step-description">Testing and refinement</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="step-wrapper" style="top: 380px;">
-                                <div class="milestone-content">
-                                    <div class="timeline-circle"></div>
-                                    <div class="text-block" style="left: calc(50% + 60px - 180px);">
-                                        <div class="step-heading">Phase 4</div>
-                                        <div class="step-description">Launch and deployment</div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endif %}
+                        ></div>
+                        <div class="timeline-text-block positioned-element" style="top: 5%; left: 50px; text-align: left; width: calc(40% - 60px);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].heading %}{{ slide.props.steps[0].heading }}{% else %}Milestone 1{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[0] and slide.props.steps[0].description %}{{ slide.props.steps[0].description }}{% else %}Description of the first milestone{% endif %}</div>
+                        </div>
+
+                        <!-- Item 2 - Left side -->
+                        <div class="timeline-circle positioned-element" style="top: 30%;"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set circleId = 'draggable-' + slide.slideId + '-2' %}
+                                {% if slide.metadata.elementPositions[circleId] %}
+                                    style="top: 30%; transform: translate({{ slide.metadata.elementPositions[circleId].x }}px, {{ slide.metadata.elementPositions[circleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        ></div>
+                        <div class="timeline-text-block positioned-element" style="top: 30%; right: calc(50% + 110px); text-align: right; width: calc(40% - 60px);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].heading %}{{ slide.props.steps[1].heading }}{% else %}Milestone 2{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[1] and slide.props.steps[1].description %}{{ slide.props.steps[1].description }}{% else %}Description of the second milestone{% endif %}</div>
+                        </div>
+
+                        <!-- Item 3 - Right side -->
+                        <div class="timeline-circle positioned-element" style="top: 55%;"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set circleId = 'draggable-' + slide.slideId + '-3' %}
+                                {% if slide.metadata.elementPositions[circleId] %}
+                                    style="top: 55%; transform: translate({{ slide.metadata.elementPositions[circleId].x }}px, {{ slide.metadata.elementPositions[circleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        ></div>
+                        <div class="timeline-text-block positioned-element" style="top: 55%; left: 50px; text-align: left; width: calc(40% - 60px);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].heading %}{{ slide.props.steps[2].heading }}{% else %}Milestone 3{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[2] and slide.props.steps[2].description %}{{ slide.props.steps[2].description }}{% else %}Description of the third milestone{% endif %}</div>
+                        </div>
+
+                        <!-- Item 4 - Left side -->
+                        <div class="timeline-circle positioned-element" style="top: 80%;"
+                            {% if slide.metadata and slide.metadata.elementPositions %}
+                                {% set circleId = 'draggable-' + slide.slideId + '-4' %}
+                                {% if slide.metadata.elementPositions[circleId] %}
+                                    style="top: 80%; transform: translate({{ slide.metadata.elementPositions[circleId].x }}px, {{ slide.metadata.elementPositions[circleId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        ></div>
+                        <div class="timeline-text-block positioned-element" style="top: 80%; right: calc(50% + 110px); text-align: right; width: calc(40% - 60px);">
+                            <div class="step-heading">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].heading %}{{ slide.props.steps[3].heading }}{% else %}Milestone 4{% endif %}</div>
+                            <div class="step-description">{% if slide.props.steps and slide.props.steps[3] and slide.props.steps[3].description %}{{ slide.props.steps[3].description }}{% else %}Description of the fourth milestone{% endif %}</div>
+                        </div>
                     </div>
                 </div>
                 

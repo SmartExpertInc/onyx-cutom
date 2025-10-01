@@ -172,7 +172,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     width: '100%',
     height: '100%',
     minHeight: '600px',
-    background: backgroundImage ? backgroundColor : 'linear-gradient(135deg, #0F58F9 0%, #1023A1 100%)',
+    background: 'linear-gradient(135deg, #0F58F9 0%, #1023A1 100%)',
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
