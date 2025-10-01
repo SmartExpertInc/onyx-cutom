@@ -186,7 +186,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const textBlockStyles = (top: string, side: string): React.CSSProperties => ({
     position: 'absolute',
     top: top,
-    [side === 'left' ? 'left' : 'right']: side === 'left' ? 'calc(50% + 0px)' : 'calc(50% + 0px)',
+    [side === 'left' ? 'left' : 'right']: side === 'left' ? 'calc(50% + 0px)' : 'calc(50% + 110px)',
     width: 'calc(40% - 60px)',
     transform: 'translateY(-50%)',
     textAlign: side === 'left' ? 'left' : 'right'

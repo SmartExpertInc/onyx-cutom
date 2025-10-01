@@ -200,18 +200,18 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   // Pyramid level colors exactly as in photo
   const pyramidColors = [
-    '#3388FF', // Bright blue (top)
-    '#00BFFF', // Cyan/teal blue (second)
-    '#007BFF', // Standard blue (third)
-    '#6A0DAD', // Purple blue (fourth)
-    '#191970'  // Deep indigo (bottom)
+    '#3D8BFF', // Light blue (top, smallest)
+    '#00BCD4', // Cyan (second)
+    '#1E88E5', // Medium blue (third)
+    '#5E35B1', // Purple (fourth)
+    '#1A237E'  // Dark navy blue (bottom, largest)
   ];
 
-  // Pyramid level dimensions and positions - inverted (wider at top)
+  // Pyramid level dimensions and positions - normal pyramid (wider at bottom)
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [440, 360, 280, 200, 140]; // Decreasing widths (inverted pyramid)
-    const heights = [70, 70, 70, 70, 70]; // Same height for all levels
-    const topPositions = [0, 70, 140, 210, 280]; // Stacked positions
+    const widths = [140, 220, 300, 380, 460]; // Increasing widths (normal pyramid)
+    const heights = [65, 65, 65, 65, 65]; // Same height for all levels
+    const topPositions = [0, 65, 130, 195, 260]; // Stacked positions
     
     return {
       position: 'absolute',
@@ -221,12 +221,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       left: '50%',
       transform: 'translateX(-50%)',
       background: pyramidColors[index],
-      clipPath: 'polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)', // Inverted trapezoid shape
+      clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', // Normal trapezoid shape
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'flex-end', // Right-align content
-      paddingRight: '20px', // Add padding for speech bubble and number
-      zIndex: index + 1 // Top levels have higher z-index
+      justifyContent: 'center',
+      zIndex: 5 - index // Top levels have higher z-index
     };
   };
 
@@ -262,20 +261,22 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Text block positioning exactly as in photo
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '10px', right: '15%' },   // Level 0 - top right
-      { top: '80px', left: '15%' },    // Level 1 - top left
-      { top: '150px', right: '15%' },  // Level 2 - middle right
-      { top: '220px', left: '15%' },   // Level 3 - middle left
-      { top: '290px', left: '15%' }    // Level 4 - bottom left
+      { top: '20px', right: '10%', textAlign: 'right' as const },   // Level 0 - top right
+      { top: '85px', left: '10%', textAlign: 'left' as const },     // Level 1 - left
+      { top: '150px', left: '10%', textAlign: 'left' as const },    // Level 2 - left
+      { top: '215px', right: '10%', textAlign: 'right' as const },  // Level 3 - right
+      { top: '280px', left: '10%', textAlign: 'left' as const }     // Level 4 - bottom left
     ];
     
     const pos = positions[index];
     return {
       position: 'absolute',
-      ...pos,
-      width: '25%',
-      maxWidth: '280px',
-      zIndex: 10
+      top: pos.top,
+      [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
+      width: '28%',
+      maxWidth: '320px',
+      zIndex: 10,
+      textAlign: pos.textAlign
     };
   };
 
@@ -299,11 +300,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Triangle arrow styles exactly as in photo
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '45px', right: '25%' },   // Level 0 - top right
-      { top: '115px', left: '25%' },   // Level 1 - top left
-      { top: '185px', right: '25%' },  // Level 2 - middle right
-      { top: '255px', left: '25%' },   // Level 3 - middle left
-      { top: '325px', left: '25%' }    // Level 4 - bottom left
+      { top: '50px', right: '22%' },   // Level 0 - pointing down, right side
+      { top: '115px', left: '22%' },   // Level 1 - pointing down, left side
+      { top: '180px', left: '22%' },   // Level 2 - pointing down, left side
+      { top: '245px', right: '22%' },  // Level 3 - pointing down, right side
+      { top: '310px', left: '22%' }    // Level 4 - pointing down, left side
     ];
     
     const pos = positions[index];
@@ -312,9 +313,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       ...pos,
       width: '0',
       height: '0',
-      borderLeft: '8px solid transparent',
-      borderRight: '8px solid transparent',
-      borderTop: '12px solid #0F58F9', // Blue triangle
+      borderLeft: '7px solid transparent',
+      borderRight: '7px solid transparent',
+      borderTop: '10px solid #1E88E5', // Blue triangle
       zIndex: 10
     };
   };
