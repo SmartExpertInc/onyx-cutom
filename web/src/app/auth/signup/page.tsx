@@ -10,8 +10,6 @@ import { redirect } from "next/navigation";
 import { EmailPasswordForm } from "../login/EmailPasswordForm";
 import { SignInButton } from "../login/SignInButton";
 import AuthFlowContainer from "@/components/auth/AuthFlowContainer";
-import FeatureHighlights from "@/components/auth/FeatureHighlights";
-import SignupFormContainer from "@/components/auth/SignupFormContainer";
 import ReferralSourceSelector from "./ReferralSourceSelector";
 import AuthErrorDisplay from "@/components/auth/AuthErrorDisplay";
 
@@ -66,13 +64,13 @@ const Page = async (props: {
   }
 
   return (
-    <div className="p-4 flex items-center justify-center min-h-screen" style={{ background: 'linear-gradient(135deg, oklch(0.8576 0.0809 315.9) 0%, oklch(0.8341 0.071 266.01) 50%, oklch(0.9529 0.0286 329.29) 100%)' }}>
+    <AuthFlowContainer authState="signup">
       <HealthCheckBanner />
       <AuthErrorDisplay searchParams={searchParams} />
-      
-      <div className="w-full max-w-6xl flex gap-8 items-center justify-center">
-        <FeatureHighlights />
-        <SignupFormContainer>
+
+      <>
+        <div className="absolute top-10x w-full"></div>
+        <div className="flex w-full flex-col justify-center">
           <h2 className="text-center text-xl font-bold text-neutral-900">
             {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
           </h2>
@@ -100,9 +98,9 @@ const Page = async (props: {
               <SignInButton authorizeUrl={authUrl} authType="cloud" />
             </div>
           )}
-        </SignupFormContainer>
-      </div>
-    </div>
+        </div>
+      </>
+    </AuthFlowContainer>
   );
 };
 
