@@ -194,7 +194,7 @@ export default function BillingPage() {
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonShadow: 'shadow-blue-600/30',
-      isCurrent: false,
+      isCurrent: true,
       credits: '200 (one-time on registration)',
       storage: '1 GB',
       support: 'Email up to 48 hours',
@@ -217,7 +217,7 @@ export default function BillingPage() {
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonShadow: 'shadow-blue-600/30',
-      isCurrent: true,
+      isCurrent: false,
       credits: '600 / month',
       storage: '5 GB',
       support: 'Email up to 24 hours',
@@ -284,9 +284,9 @@ export default function BillingPage() {
   const currentPlan = Object.values(planConfig).find(plan => plan.isCurrent) || planConfig.starter;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 w-full">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
-      <div className="ml-64 flex flex-col h-screen">
+      <div className="ml-64 min-h-screen flex flex-col">
         {/* Header */}
         <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 py-6">
@@ -300,7 +300,7 @@ export default function BillingPage() {
         </div>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-7xl mx-auto px-6 py-12 flex-1">
 
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Left Column */}
@@ -317,7 +317,7 @@ export default function BillingPage() {
 
                   <div className="flex items-center gap-3 text-slate-600 bg-slate-50 rounded-xl px-4 py-3 border border-slate-200">
                     <Calendar className="w-5 h-5 text-slate-400" />
-                    <span className="text-sm font-medium">No renewal needed - Free plan</span>
+                    <span className="text-sm font-medium">No renewal needed - {currentPlan.name}</span>
                   </div>
                 </div>
               </div>
@@ -360,26 +360,6 @@ export default function BillingPage() {
 
                   <h3 className="text-6xl font-bold mb-3 tracking-tight">{currentPlan.name}</h3>
                   <p className="text-3xl font-semibold text-white/90 mb-6">{currentPlan.type}</p>
-                  
-                  {/* Plan Details */}
-                  <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Credits</div>
-                      <div className="text-white font-semibold">{currentPlan.credits}</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Storage</div>
-                      <div className="text-white font-semibold">{currentPlan.storage}</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Support</div>
-                      <div className="text-white font-semibold">{currentPlan.support}</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Connectors</div>
-                      <div className="text-white font-semibold">{currentPlan.connectors}</div>
-                    </div>
-                  </div>
 
                   <button 
                     onClick={() => setIsTariffPlanModalOpen(true)}
