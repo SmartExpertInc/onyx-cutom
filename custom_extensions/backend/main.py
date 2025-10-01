@@ -18969,13 +18969,18 @@ async def get_event_poster_data(project_id: int, request: Request, pool: asyncpg
         logger.info(f"💾 [EVENT_POSTER_DATA] Retrieved project data from database:")
         logger.info(f"💾 [EVENT_POSTER_DATA] - Project name: '{project_name}'")
         logger.info(f"💾 [EVENT_POSTER_DATA] - Content keys: {list(content.keys()) if content else 'None'}")
+        logger.info(f"💾 [EVENT_POSTER_DATA] - Content structure: {content}")
         
         # Return the event poster data directly (same structure as stored)
-        return {
+        return_data = {
             "projectId": project_id,
             "projectName": project_name,
             "eventData": content
         }
+        
+        logger.info(f"💾 [EVENT_POSTER_DATA] Returning data: {return_data}")
+        
+        return return_data
         
     except HTTPException:
         raise

@@ -45,7 +45,15 @@ export default function EventPosterProjectResults() {
         
         console.log(`📡 [EVENT_POSTER_FETCH] Making API request to: ${apiUrl}`);
         
-        const response = await fetch(apiUrl);
+        // Add cache-busting to ensure fresh data after auto-save
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store'
+        });
         
         console.log(`📡 [EVENT_POSTER_FETCH] API response status: ${response.status}`);
         
@@ -58,10 +66,18 @@ export default function EventPosterProjectResults() {
         const data = await response.json();
         
         console.log(`📥 [EVENT_POSTER_FETCH] Data received from API:`, data);
+        console.log(`📥 [EVENT_POSTER_FETCH] eventData structure:`, data.eventData);
+        console.log(`📥 [EVENT_POSTER_FETCH] eventData keys:`, data.eventData ? Object.keys(data.eventData) : 'null');
         
         // Set the event data from the API response
         if (data.eventData) {
-          setEventData(data.eventData);
+          // Handle both speakerImage and speakerImageSrc field names for compatibility
+          const eventData = {
+            ...data.eventData,
+            speakerImage: data.eventData.speakerImageSrc || data.eventData.speakerImage || null
+          };
+          setEventData(eventData);
+          console.log(`✅ [EVENT_POSTER_FETCH] Event data set:`, eventData);
         } else {
           console.error('❌ [EVENT_POSTER_FETCH] No eventData in response');
           setError('No event poster data found');

@@ -193,7 +193,7 @@ export default function EventPoster({
         ticketPrice,
         ticketType,
         freeAccessConditions,
-        speakerImage: imageSrc
+        speakerImageSrc: imageSrc // Use speakerImageSrc to match the prop name
       };
 
       const payload = { 
