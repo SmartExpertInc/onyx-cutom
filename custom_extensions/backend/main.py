@@ -12491,6 +12491,22 @@ async def get_project_instance_detail(
     # 🔍 BACKEND VIEW LOGGING: What we retrieved from database for view
     logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Raw details_data type: {type(details_data)}")
     
+    # 🎯 EVENT POSTER SPECIFIC DEBUGGING
+    is_event_poster = (
+        row_dict.get("product_type") == "event_poster" or 
+        row_dict.get("microproduct_type") == "event_poster" or 
+        component_name == "EventPoster" or
+        (project_instance_name and "конференція" in project_instance_name.lower())
+    )
+    
+    if is_event_poster:
+        logger.info(f"🎯 [EVENT POSTER API] Project {project_id} - DETECTED EVENT POSTER")
+        logger.info(f"🎯 [EVENT POSTER API] - Project name: {project_instance_name}")
+        logger.info(f"🎯 [EVENT POSTER API] - Product type: {row_dict.get('product_type')}")
+        logger.info(f"🎯 [EVENT POSTER API] - Microproduct type: {row_dict.get('microproduct_type')}")
+        logger.info(f"🎯 [EVENT POSTER API] - Component name: {component_name}")
+        logger.info(f"🎯 [EVENT POSTER API] - Raw details_data: {details_data}")
+    
     # Parse the details_data if it's a JSON string
     parsed_details = None
     if details_data:
@@ -12509,6 +12525,26 @@ async def get_project_instance_detail(
             # Already a dict, just round hours
             parsed_details = round_hours_in_content(details_data)
             logger.info(f"📋 [BACKEND VIEW] Project {project_id} - Already dict, after round_hours: {json.dumps(parsed_details, indent=2)}")
+            
+            # 🎯 EVENT POSTER SPECIFIC DEBUGGING
+            is_event_poster = (
+                row_dict.get("product_type") == "event_poster" or 
+                row_dict.get("microproduct_type") == "event_poster" or 
+                component_name == "EventPoster" or
+                (project_instance_name and "конференція" in str(project_instance_name).lower())
+            )
+            
+            if is_event_poster:
+                logger.info(f"🎯 [EVENT POSTER API] Project {project_id} - DETECTED EVENT POSTER IN DICT BRANCH")
+                logger.info(f"🎯 [EVENT POSTER API] - Project name: {project_instance_name}")
+                logger.info(f"🎯 [EVENT POSTER API] - Product type: {row_dict.get('product_type')}")
+                logger.info(f"🎯 [EVENT POSTER API] - Microproduct type: {row_dict.get('microproduct_type')}")
+                logger.info(f"🎯 [EVENT POSTER API] - Component name: {component_name}")
+                logger.info(f"🎯 [EVENT POSTER API] - Has eventName?: {parsed_details.get('eventName') if parsed_details else 'No parsed_details'}")
+                logger.info(f"🎯 [EVENT POSTER API] - Has mainTitle?: {parsed_details.get('mainTitle') if parsed_details else 'No parsed_details'}")
+                logger.info(f"🎯 [EVENT POSTER API] - Has sections?: {parsed_details.get('sections') if parsed_details else 'No parsed_details'}")
+                if parsed_details and not parsed_details.get('eventName'):
+                    logger.error(f"❌ [EVENT POSTER API] Project {project_id} - EVENT POSTER DATA MISSING! This should have eventName field but doesn't.")
     
     # 🔍 BACKEND VIEW RESULT LOGGING
     if parsed_details and 'contentBlocks' in parsed_details:

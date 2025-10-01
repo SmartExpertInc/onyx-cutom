@@ -716,6 +716,35 @@ export default function ProjectInstanceViewPage() {
             console.log('📥 [EVENT POSTER] 🔍 FULL API RESPONSE:', JSON.stringify(fullData, null, 2));
             console.log('📥 [EVENT POSTER] Response keys:', Object.keys(fullData || {}));
             
+            // 🎯 ALSO CHECK MICROPRODUCT_CONTENT: The API response might have this field too
+            console.log('📥 [EVENT POSTER] microproduct_content field:', fullData.microproduct_content);
+            console.log('📥 [EVENT POSTER] microproduct_content type:', typeof fullData.microproduct_content);
+            
+            // Try microproduct_content field first since backend logs show data is there
+            if (fullData.microproduct_content) {
+              let directEventData = null;
+              
+              if (typeof fullData.microproduct_content === 'string') {
+                try {
+                  directEventData = JSON.parse(fullData.microproduct_content);
+                  console.log('📥 [EVENT POSTER] ✅ Parsed microproduct_content:', directEventData);
+                } catch (e) {
+                  console.error('❌ [EVENT POSTER] Failed to parse microproduct_content:', e);
+                }
+              } else {
+                directEventData = fullData.microproduct_content;
+                console.log('📥 [EVENT POSTER] ✅ Direct microproduct_content:', directEventData);
+              }
+              
+              if (directEventData && (directEventData.eventName || directEventData.mainSpeaker)) {
+                console.log('📥 [EVENT POSTER] 🎯 FOUND EVENT DATA IN MICROPRODUCT_CONTENT!');
+                const sessionKey = `eventPoster_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                localStorage.setItem(sessionKey, JSON.stringify(directEventData));
+                router.push(`/create/event-poster/results?sessionKey=${sessionKey}`);
+                return;
+              }
+            }
+            
             // Extract event poster data - be more aggressive in searching for it
             let eventData: any = {};
             let dataSource = 'none';
