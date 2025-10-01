@@ -189,44 +189,36 @@ export default function BillingPage() {
       name: 'Starter',
       type: 'Free',
       price: '$0',
-      bgGradient: 'from-gray-50 to-gray-100',
-      borderColor: 'border-gray-200',
-      textColor: 'text-gray-600',
-      buttonColor: 'bg-gray-600 hover:bg-gray-700',
-      buttonShadow: 'shadow-gray-500/30 hover:shadow-gray-500/40',
+      bgGradient: 'from-gray-600 to-gray-700',
+      textColor: 'text-white',
+      buttonColor: 'bg-gray-200 hover:bg-gray-300',
       isCurrent: true
     },
     pro: {
       name: 'Pro',
       type: 'Monthly',
       price: '$30',
-      bgGradient: 'from-blue-50 to-blue-100',
-      borderColor: 'border-blue-200',
-      textColor: 'text-blue-600',
+      bgGradient: 'from-blue-400 to-blue-500',
+      textColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
-      buttonShadow: 'shadow-blue-500/30 hover:shadow-blue-500/40',
       isCurrent: false
     },
     business: {
       name: 'Business',
       type: 'Monthly',
       price: '$90',
-      bgGradient: 'from-green-50 to-green-100',
-      borderColor: 'border-green-200',
-      textColor: 'text-green-600',
-      buttonColor: 'bg-green-600 hover:bg-green-700',
-      buttonShadow: 'shadow-green-500/30 hover:shadow-green-500/40',
+      bgGradient: 'from-blue-500 to-blue-600',
+      textColor: 'text-white',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700',
       isCurrent: false
     },
     enterprise: {
       name: 'Enterprise',
       type: 'Custom',
       price: 'Custom',
-      bgGradient: 'from-purple-50 to-purple-100',
-      borderColor: 'border-purple-200',
-      textColor: 'text-purple-600',
-      buttonColor: 'bg-purple-600 hover:bg-purple-700',
-      buttonShadow: 'shadow-purple-500/30 hover:shadow-purple-500/40',
+      bgGradient: 'from-indigo-600 to-indigo-700',
+      textColor: 'text-white',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700',
       isCurrent: false
     }
   };
@@ -235,7 +227,7 @@ export default function BillingPage() {
   const currentPlan = planConfig.starter;
 
   return (
-    <div className="bg-[#F7F7F7] min-h-screen font-sans">
+    <div className="bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10 min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
         <div className="max-w-7xl mx-auto px-4 py-8">
