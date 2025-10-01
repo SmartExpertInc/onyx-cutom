@@ -21,89 +21,6 @@ interface Plan {
   features: string[];
 }
 
-const plans: Plan[] = [
-  {
-    id: 'starter',
-    name: 'Starter (Free)',
-    price: 0,
-    credits: '200 (one-time on registration)',
-    support: 'Email up to 48 hours',
-    storage: '1 GB',
-    connectors: '-',
-    collaboration: '-',
-    lmsExport: 'Only SmartExpert',
-    slides: 'max 20',
-    features: [
-      '200 credits on registration',
-      '1 GB storage',
-      'Basic email support',
-      'No connectors',
-      'No collaboration'
-    ]
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 30,
-    yearlyPrice: 25,
-    credits: '600 / month',
-    support: 'Email up to 24 hours',
-    storage: '5 GB',
-    connectors: '2',
-    collaboration: '1 (up to 3 participants)',
-    lmsExport: 'Only SmartExpert',
-    slides: '20+',
-    features: [
-      '600 credits per month',
-      '5 GB storage',
-      'Priority email support (24h)',
-      '2 platform connectors',
-      'Team collaboration (up to 3)'
-    ]
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    price: 90,
-    yearlyPrice: 75,
-    credits: '2,000 / month',
-    support: 'Priority support',
-    storage: '10 GB',
-    connectors: '5',
-    collaboration: '3 (up to 10 participants)',
-    lmsExport: 'Only SmartExpert',
-    slides: '20+',
-    popular: true,
-    features: [
-      '2,000 credits per month',
-      '10 GB storage',
-      'Priority support',
-      '5 platform connectors',
-      'Team collaboration (up to 10)'
-    ]
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 0,
-    credits: '10,000+ / month (flexible)',
-    support: 'Dedicated manager',
-    storage: '50 GB + pay-as-you-go',
-    connectors: 'All',
-    collaboration: 'Unlimited',
-    lmsExport: 'SmartExpert + custom',
-    slides: '20+',
-    features: [
-      'Custom credit allocation',
-      'Unlimited storage',
-      'Dedicated account manager',
-      'All platform connectors',
-      'Unlimited team collaboration',
-      'Custom features & integrations'
-    ]
-  }
-];
-
 interface TariffPlanModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -115,6 +32,89 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const plans: Plan[] = [
+    {
+      id: 'starter',
+      name: t('tariffPlan.plans.starter.name', 'Starter (Free)'),
+      price: 0,
+      credits: t('tariffPlan.plans.starter.credits', '200 (one-time on registration)'),
+      support: t('tariffPlan.plans.starter.support', 'Email up to 48 hours'),
+      storage: t('tariffPlan.plans.starter.storage', '1 GB'),
+      connectors: '-',
+      collaboration: '-',
+      lmsExport: t('tariffPlan.plans.starter.lmsExport', 'Only SmartExpert'),
+      slides: t('tariffPlan.plans.starter.slides', 'max 20'),
+      features: [
+        t('tariffPlan.plans.starter.features.0', '200 credits on registration'),
+        t('tariffPlan.plans.starter.features.1', '1 GB storage'),
+        t('tariffPlan.plans.starter.features.2', 'Basic email support'),
+        t('tariffPlan.plans.starter.features.3', 'No connectors'),
+        t('tariffPlan.plans.starter.features.4', 'No collaboration')
+      ]
+    },
+    {
+      id: 'pro',
+      name: t('tariffPlan.plans.pro.name', 'Pro'),
+      price: 30,
+      yearlyPrice: 25,
+      credits: t('tariffPlan.plans.pro.credits', '600 / month'),
+      support: t('tariffPlan.plans.pro.support', 'Email up to 24 hours'),
+      storage: t('tariffPlan.plans.pro.storage', '5 GB'),
+      connectors: '2',
+      collaboration: t('tariffPlan.plans.pro.collaboration', '1 (up to 3 participants)'),
+      lmsExport: t('tariffPlan.plans.pro.lmsExport', 'Only SmartExpert'),
+      slides: '20+',
+      features: [
+        t('tariffPlan.plans.pro.features.0', '600 credits per month'),
+        t('tariffPlan.plans.pro.features.1', '5 GB storage'),
+        t('tariffPlan.plans.pro.features.2', 'Priority email support (24h)'),
+        t('tariffPlan.plans.pro.features.3', '2 platform connectors'),
+        t('tariffPlan.plans.pro.features.4', 'Team collaboration (up to 3)')
+      ]
+    },
+    {
+      id: 'business',
+      name: t('tariffPlan.plans.business.name', 'Business'),
+      price: 90,
+      yearlyPrice: 75,
+      credits: t('tariffPlan.plans.business.credits', '2,000 / month'),
+      support: t('tariffPlan.plans.business.support', 'Priority support'),
+      storage: t('tariffPlan.plans.business.storage', '10 GB'),
+      connectors: '5',
+      collaboration: t('tariffPlan.plans.business.collaboration', '3 (up to 10 participants)'),
+      lmsExport: t('tariffPlan.plans.business.lmsExport', 'Only SmartExpert'),
+      slides: '20+',
+      popular: true,
+      features: [
+        t('tariffPlan.plans.business.features.0', '2,000 credits per month'),
+        t('tariffPlan.plans.business.features.1', '10 GB storage'),
+        t('tariffPlan.plans.business.features.2', 'Priority support'),
+        t('tariffPlan.plans.business.features.3', '5 platform connectors'),
+        t('tariffPlan.plans.business.features.4', 'Team collaboration (up to 10)')
+      ]
+    },
+    {
+      id: 'enterprise',
+      name: t('tariffPlan.plans.enterprise.name', 'Enterprise'),
+      price: 0,
+      credits: t('tariffPlan.plans.enterprise.credits', '10,000+ / month (flexible)'),
+      support: t('tariffPlan.plans.enterprise.support', 'Dedicated manager'),
+      storage: t('tariffPlan.plans.enterprise.storage', '50 GB + pay-as-you-go'),
+      connectors: t('tariffPlan.plans.enterprise.connectors', 'All'),
+      collaboration: t('tariffPlan.plans.enterprise.collaboration', 'Unlimited'),
+      lmsExport: t('tariffPlan.plans.enterprise.lmsExport', 'SmartExpert + custom'),
+      slides: '20+',
+      features: [
+        t('tariffPlan.plans.enterprise.features.0', 'Custom credit allocation'),
+        t('tariffPlan.plans.enterprise.features.1', 'Unlimited storage'),
+        t('tariffPlan.plans.enterprise.features.2', 'Dedicated account manager'),
+        t('tariffPlan.plans.enterprise.features.3', 'All platform connectors'),
+        t('tariffPlan.plans.enterprise.features.4', 'Unlimited team collaboration'),
+        t('tariffPlan.plans.enterprise.features.5', 'Custom features & integrations')
+      ]
+    }
+  ];
 
   const handlePurchasePlan = (plan: Plan) => {
     setSelectedPlan(plan);

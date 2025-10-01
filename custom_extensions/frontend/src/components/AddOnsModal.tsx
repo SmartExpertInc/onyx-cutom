@@ -21,103 +21,6 @@ interface ManageAddonsModalProps {
   onClose: () => void;
 }
 
-const CREDITS_DATA: AddOn[] = [
-  {
-    id: 'small',
-    name: 'Small',
-    description: 'Perfect for individual users getting started with basic credit needs.',
-    amount: '100 credits',
-    price: 20,
-    priceNote: '$0.20 per credit',
-  },
-  {
-    id: 'medium',
-    name: 'Medium',
-    description: 'Great for growing teams with moderate usage requirements.',
-    amount: '300 credits',
-    price: 50,
-    priceNote: '$0.17 per credit',
-  },
-  {
-    id: 'large',
-    name: 'Large',
-    description: 'Ideal for businesses with high-volume processing demands.',
-    amount: '1,000 credits',
-    price: 150,
-    priceNote: '$0.15 per credit',
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'Tailored solutions for large organizations with unique needs.',
-    amount: 'Custom credits',
-    price: 'Custom',
-    isEnterprise: true,
-  },
-];
-
-const CONNECTORS_DATA: AddOn[] = [
-  {
-    id: 'single',
-    name: 'Single Connector',
-    description: 'Perfect for connecting one data source to your platform.',
-    amount: '1 connector',
-    price: 5,
-    priceNote: 'per month',
-  },
-  {
-    id: 'five',
-    name: '5 Connectors',
-    description: 'Great for teams managing multiple data sources.',
-    amount: '5 connectors',
-    price: 25,
-    priceNote: 'per month',
-  },
-  {
-    id: 'ten',
-    name: '10 Connectors',
-    description: 'Ideal for businesses with extensive integration needs.',
-    amount: '10 connectors',
-    price: 50,
-    priceNote: 'per month',
-  },
-  {
-    id: 'all',
-    name: 'All Connectors',
-    description: 'Unlimited access to all available connectors.',
-    amount: 'Unlimited connectors',
-    price: 500,
-    priceNote: 'per month',
-  },
-];
-
-const STORAGE_DATA: AddOn[] = [
-  {
-    id: 'oneGb',
-    name: '1 GB Storage',
-    description: 'Perfect for small projects with minimal storage needs.',
-    amount: '1 GB storage',
-    price: 30,
-    priceNote: 'per month',
-  },
-  {
-    id: 'fiveGb',
-    name: '5 GB Storage',
-    description: 'Great for growing teams with moderate storage requirements.',
-    amount: '5 GB storage',
-    price: 150,
-    priceNote: 'per month',
-  },
-  {
-    id: 'tenGb',
-    name: '10 GB Storage',
-    description: 'Ideal for businesses with extensive data storage needs.',
-    amount: '10 GB storage',
-    price: 300,
-    priceNote: 'per month',
-  },
-];
-
 interface AddOnCardProps {
   addOn: AddOn;
   icon: LucideIcon;
@@ -185,8 +88,106 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
 
 export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModalProps) {
   const { t } = useLanguage();
+  
+  const CREDITS_DATA_TRANSLATED: AddOn[] = [
+    {
+      id: 'small',
+      name: t('addOns.packages.credits.small.name', 'Small'),
+      description: t('addOns.packages.credits.small.description', 'Perfect for individual users getting started with basic credit needs.'),
+      amount: t('addOns.packages.credits.small.amount', '100 credits'),
+      price: 20,
+      priceNote: t('addOns.packages.credits.small.priceNote', '$0.20 per credit'),
+    },
+    {
+      id: 'medium',
+      name: t('addOns.packages.credits.medium.name', 'Medium'),
+      description: t('addOns.packages.credits.medium.description', 'Great for growing teams with moderate usage requirements.'),
+      amount: t('addOns.packages.credits.medium.amount', '300 credits'),
+      price: 50,
+      priceNote: t('addOns.packages.credits.medium.priceNote', '$0.17 per credit'),
+    },
+    {
+      id: 'large',
+      name: t('addOns.packages.credits.large.name', 'Large'),
+      description: t('addOns.packages.credits.large.description', 'Ideal for businesses with high-volume processing demands.'),
+      amount: t('addOns.packages.credits.large.amount', '1,000 credits'),
+      price: 150,
+      priceNote: t('addOns.packages.credits.large.priceNote', '$0.15 per credit'),
+    },
+    {
+      id: 'enterprise',
+      name: t('addOns.packages.credits.enterprise.name', 'Enterprise'),
+      description: t('addOns.packages.credits.enterprise.description', 'Tailored solutions for large organizations with unique needs.'),
+      amount: t('addOns.packages.credits.enterprise.amount', 'Custom credits'),
+      price: t('addOns.packages.credits.enterprise.price', 'Custom'),
+      isEnterprise: true,
+    },
+  ];
+
+  const CONNECTORS_DATA_TRANSLATED: AddOn[] = [
+    {
+      id: 'single',
+      name: t('addOns.packages.connectors.single.name', 'Single Connector'),
+      description: t('addOns.packages.connectors.single.description', 'Perfect for connecting one data source to your platform.'),
+      amount: t('addOns.packages.connectors.single.amount', '1 connector'),
+      price: 5,
+      priceNote: 'per month',
+    },
+    {
+      id: 'five',
+      name: t('addOns.packages.connectors.five.name', '5 Connectors'),
+      description: t('addOns.packages.connectors.five.description', 'Great for teams managing multiple data sources.'),
+      amount: t('addOns.packages.connectors.five.amount', '5 connectors'),
+      price: 25,
+      priceNote: 'per month',
+    },
+    {
+      id: 'ten',
+      name: t('addOns.packages.connectors.ten.name', '10 Connectors'),
+      description: t('addOns.packages.connectors.ten.description', 'Ideal for businesses with extensive integration needs.'),
+      amount: t('addOns.packages.connectors.ten.amount', '10 connectors'),
+      price: 50,
+      priceNote: 'per month',
+    },
+    {
+      id: 'all',
+      name: t('addOns.packages.connectors.all.name', 'All Connectors'),
+      description: t('addOns.packages.connectors.all.description', 'Unlimited access to all available connectors.'),
+      amount: t('addOns.packages.connectors.all.amount', 'Unlimited connectors'),
+      price: 500,
+      priceNote: 'per month',
+    },
+  ];
+
+  const STORAGE_DATA_TRANSLATED: AddOn[] = [
+    {
+      id: 'oneGb',
+      name: t('addOns.packages.storage.oneGb.name', '1 GB Storage'),
+      description: t('addOns.packages.storage.oneGb.description', 'Perfect for small projects with minimal storage needs.'),
+      amount: t('addOns.packages.storage.oneGb.amount', '1 GB storage'),
+      price: 30,
+      priceNote: 'per month',
+    },
+    {
+      id: 'fiveGb',
+      name: t('addOns.packages.storage.fiveGb.name', '5 GB Storage'),
+      description: t('addOns.packages.storage.fiveGb.description', 'Great for growing teams with moderate storage requirements.'),
+      amount: t('addOns.packages.storage.fiveGb.amount', '5 GB storage'),
+      price: 150,
+      priceNote: 'per month',
+    },
+    {
+      id: 'tenGb',
+      name: t('addOns.packages.storage.tenGb.name', '10 GB Storage'),
+      description: t('addOns.packages.storage.tenGb.description', 'Ideal for businesses with extensive data storage needs.'),
+      amount: t('addOns.packages.storage.tenGb.amount', '10 GB storage'),
+      price: 300,
+      priceNote: 'per month',
+    },
+  ];
+  
   const [quantities, setQuantities] = useState<Record<string, number>>(
-    [...CREDITS_DATA, ...CONNECTORS_DATA, ...STORAGE_DATA].reduce(
+    [...CREDITS_DATA_TRANSLATED, ...CONNECTORS_DATA_TRANSLATED, ...STORAGE_DATA_TRANSLATED].reduce(
       (acc, item) => ({ ...acc, [item.id]: 1 }),
       {}
     )
@@ -236,8 +237,8 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
           <div className="overflow-y-auto flex-1 p-6">
             <TabsContent value="credits" className="mt-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {CREDITS_DATA.map((credit) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {CREDITS_DATA_TRANSLATED.map((credit) => (
                   <AddOnCard
                     key={credit.id}
                     addOn={credit}
@@ -251,7 +252,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
             <TabsContent value="connectors" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {CONNECTORS_DATA.map((connector) => (
+                {CONNECTORS_DATA_TRANSLATED.map((connector) => (
                   <AddOnCard
                     key={connector.id}
                     addOn={connector}
@@ -265,7 +266,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
 
             <TabsContent value="storage" className="mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {STORAGE_DATA.map((storage) => (
+                {STORAGE_DATA_TRANSLATED.map((storage) => (
                   <AddOnCard
                     key={storage.id}
                     addOn={storage}

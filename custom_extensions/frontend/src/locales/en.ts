@@ -1619,7 +1619,71 @@ export const en = {
     connectors: "Connectors",
     collaboration: "Collaboration",
     current: "Current",
-    purchasePlan: "Purchase Plan"
+    purchasePlan: "Purchase Plan",
+    plans: {
+      starter: {
+        name: "Starter (Free)",
+        credits: "200 (one-time on registration)",
+        support: "Email up to 48 hours",
+        storage: "1 GB",
+        lmsExport: "Only SmartExpert",
+        slides: "max 20",
+        features: {
+          0: "200 credits on registration",
+          1: "1 GB storage",
+          2: "Basic email support",
+          3: "No connectors",
+          4: "No collaboration"
+        }
+      },
+      pro: {
+        name: "Pro",
+        credits: "600 / month",
+        support: "Email up to 24 hours",
+        storage: "5 GB",
+        collaboration: "1 (up to 3 participants)",
+        lmsExport: "Only SmartExpert",
+        features: {
+          0: "600 credits per month",
+          1: "5 GB storage",
+          2: "Priority email support (24h)",
+          3: "2 platform connectors",
+          4: "Team collaboration (up to 3)"
+        }
+      },
+      business: {
+        name: "Business",
+        credits: "2,000 / month",
+        support: "Priority support",
+        storage: "10 GB",
+        collaboration: "3 (up to 10 participants)",
+        lmsExport: "Only SmartExpert",
+        features: {
+          0: "2,000 credits per month",
+          1: "10 GB storage",
+          2: "Priority support",
+          3: "5 platform connectors",
+          4: "Team collaboration (up to 10)"
+        }
+      },
+      enterprise: {
+        name: "Enterprise",
+        credits: "10,000+ / month (flexible)",
+        support: "Dedicated manager",
+        storage: "50 GB + pay-as-you-go",
+        connectors: "All",
+        collaboration: "Unlimited",
+        lmsExport: "SmartExpert + custom",
+        features: {
+          0: "Custom credit allocation",
+          1: "Unlimited storage",
+          2: "Dedicated account manager",
+          3: "All platform connectors",
+          4: "Unlimited team collaboration",
+          5: "Custom features & integrations"
+        }
+      }
+    }
   },
   addOns: {
     title: "Manage Add-ons",
@@ -1628,6 +1692,73 @@ export const en = {
     connectors: "Connectors",
     storage: "Storage",
     contactSales: "Contact Sales",
-    buyNow: "Buy Now"
+    buyNow: "Buy Now",
+    packages: {
+      credits: {
+        small: {
+          name: "Small",
+          description: "Perfect for individual users getting started with basic credit needs.",
+          amount: "100 credits",
+          priceNote: "$0.20 per credit"
+        },
+        medium: {
+          name: "Medium",
+          description: "Great for growing teams with moderate usage requirements.",
+          amount: "300 credits",
+          priceNote: "$0.17 per credit"
+        },
+        large: {
+          name: "Large",
+          description: "Ideal for businesses with high-volume processing demands.",
+          amount: "1,000 credits",
+          priceNote: "$0.15 per credit"
+        },
+        enterprise: {
+          name: "Enterprise",
+          description: "Tailored solutions for large organizations with unique needs.",
+          amount: "Custom credits",
+          price: "Custom"
+        }
+      },
+      connectors: {
+        single: {
+          name: "Single Connector",
+          description: "Perfect for connecting one data source to your platform.",
+          amount: "1 connector"
+        },
+        five: {
+          name: "5 Connectors",
+          description: "Great for teams managing multiple data sources.",
+          amount: "5 connectors"
+        },
+        ten: {
+          name: "10 Connectors",
+          description: "Ideal for businesses with extensive integration needs.",
+          amount: "10 connectors"
+        },
+        all: {
+          name: "All Connectors",
+          description: "Unlimited access to all available connectors.",
+          amount: "Unlimited connectors"
+        }
+      },
+      storage: {
+        oneGb: {
+          name: "1 GB Storage",
+          description: "Perfect for small projects with minimal storage needs.",
+          amount: "1 GB storage"
+        },
+        fiveGb: {
+          name: "5 GB Storage",
+          description: "Great for growing teams with moderate storage requirements.",
+          amount: "5 GB storage"
+        },
+        tenGb: {
+          name: "10 GB Storage",
+          description: "Ideal for businesses with extensive data storage needs.",
+          amount: "10 GB storage"
+        }
+      }
+    }
   }
 };

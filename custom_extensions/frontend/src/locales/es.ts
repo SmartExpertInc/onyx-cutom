@@ -1675,7 +1675,7 @@ export const es = {
     },
     role: {
       marketer: "Especialista en Marketing",
-      hrLd: "RRHH / Formación",
+      hrLd: "HR / Formación",
       businessOwner: "Propietario de Negocio",
       contentCreator: "Creador de Contenido",
       developer: "Desarrollador",
@@ -1736,7 +1736,71 @@ export const es = {
     connectors: "Conectores",
     collaboration: "Colaboración",
     current: "Actual",
-    purchasePlan: "Comprar plan"
+    purchasePlan: "Comprar plan",
+    plans: {
+      starter: {
+        name: "Inicial (Gratis)",
+        credits: "200 (una vez al registrarse)",
+        support: "Email hasta 48 horas",
+        storage: "1 GB",
+        lmsExport: "Solo SmartExpert",
+        slides: "máx 20",
+        features: {
+          0: "200 créditos al registrarse",
+          1: "1 GB de almacenamiento",
+          2: "Soporte básico por email",
+          3: "Sin conectores",
+          4: "Sin colaboración"
+        }
+      },
+      pro: {
+        name: "Pro",
+        credits: "600 / mes",
+        support: "Email hasta 24 horas",
+        storage: "5 GB",
+        collaboration: "1 (hasta 3 participantes)",
+        lmsExport: "Solo SmartExpert",
+        features: {
+          0: "600 créditos por mes",
+          1: "5 GB de almacenamiento",
+          2: "Soporte prioritario por email (24h)",
+          3: "2 conectores de plataforma",
+          4: "Colaboración en equipo (hasta 3)"
+        }
+      },
+      business: {
+        name: "Empresarial",
+        credits: "2,000 / mes",
+        support: "Soporte prioritario",
+        storage: "10 GB",
+        collaboration: "3 (hasta 10 participantes)",
+        lmsExport: "Solo SmartExpert",
+        features: {
+          0: "2,000 créditos por mes",
+          1: "10 GB de almacenamiento",
+          2: "Soporte prioritario",
+          3: "5 conectores de plataforma",
+          4: "Colaboración en equipo (hasta 10)"
+        }
+      },
+      enterprise: {
+        name: "Empresarial Plus",
+        credits: "10,000+ / mes (flexible)",
+        support: "Gerente dedicado",
+        storage: "50 GB + pago por uso",
+        connectors: "Todos",
+        collaboration: "Ilimitada",
+        lmsExport: "SmartExpert + personalizado",
+        features: {
+          0: "Asignación personalizada de créditos",
+          1: "Almacenamiento ilimitado",
+          2: "Gerente de cuenta dedicado",
+          3: "Todos los conectores de plataforma",
+          4: "Colaboración ilimitada en equipo",
+          5: "Funciones e integraciones personalizadas"
+        }
+      }
+    }
   },
   addOns: {
     title: "Gestionar complementos",
@@ -1745,6 +1809,73 @@ export const es = {
     connectors: "Conectores",
     storage: "Almacenamiento",
     contactSales: "Contactar con ventas",
-    buyNow: "Comprar ahora"
+    buyNow: "Comprar ahora",
+    packages: {
+      credits: {
+        small: {
+          name: "Pequeño",
+          description: "Perfecto para usuarios individuales que comienzan con necesidades básicas de créditos.",
+          amount: "100 créditos",
+          priceNote: "$0.20 por crédito"
+        },
+        medium: {
+          name: "Mediano",
+          description: "Ideal para equipos en crecimiento con requisitos de uso moderados.",
+          amount: "300 créditos",
+          priceNote: "$0.17 por crédito"
+        },
+        large: {
+          name: "Grande",
+          description: "Ideal para empresas con grandes demandas de procesamiento.",
+          amount: "1,000 créditos",
+          priceNote: "$0.15 por crédito"
+        },
+        enterprise: {
+          name: "Empresarial",
+          description: "Soluciones personalizadas para grandes organizaciones con necesidades únicas.",
+          amount: "Créditos personalizados",
+          price: "Personalizado"
+        }
+      },
+      connectors: {
+        single: {
+          name: "Conector único",
+          description: "Perfecto para conectar una fuente de datos a su plataforma.",
+          amount: "1 conector"
+        },
+        five: {
+          name: "5 Conectores",
+          description: "Ideal para equipos que gestionan múltiples fuentes de datos.",
+          amount: "5 conectores"
+        },
+        ten: {
+          name: "10 Conectores",
+          description: "Ideal para empresas con amplias necesidades de integración.",
+          amount: "10 conectores"
+        },
+        all: {
+          name: "Todos los conectores",
+          description: "Acceso ilimitado a todos los conectores disponibles.",
+          amount: "Conectores ilimitados"
+        }
+      },
+      storage: {
+        oneGb: {
+          name: "1 GB de almacenamiento",
+          description: "Perfecto para proyectos pequeños con necesidades mínimas de almacenamiento.",
+          amount: "1 GB de almacenamiento"
+        },
+        fiveGb: {
+          name: "5 GB de almacenamiento",
+          description: "Ideal para equipos en crecimiento con requisitos moderados de almacenamiento.",
+          amount: "5 GB de almacenamiento"
+        },
+        tenGb: {
+          name: "10 GB de almacenamiento",
+          description: "Ideal para empresas con amplias necesidades de almacenamiento de datos.",
+          amount: "10 GB de almacenamiento"
+        }
+      }
+    }
   }
 };
