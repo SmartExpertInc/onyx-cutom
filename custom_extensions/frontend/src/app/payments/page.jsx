@@ -194,7 +194,19 @@ export default function BillingPage() {
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonShadow: 'shadow-blue-600/30',
-      isCurrent: false
+      isCurrent: false,
+      credits: '200 (one-time on registration)',
+      storage: '1 GB',
+      support: 'Email up to 48 hours',
+      connectors: 'None',
+      collaboration: 'None',
+      features: [
+        '200 credits on registration',
+        '1 GB storage',
+        'Basic email support',
+        'No connectors',
+        'No collaboration'
+      ]
     },
     pro: {
       name: 'Pro',
@@ -205,7 +217,19 @@ export default function BillingPage() {
       buttonTextColor: 'text-white',
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonShadow: 'shadow-blue-600/30',
-      isCurrent: true
+      isCurrent: true,
+      credits: '600 / month',
+      storage: '5 GB',
+      support: 'Email up to 24 hours',
+      connectors: '2',
+      collaboration: '1 (up to 3 participants)',
+      features: [
+        '600 credits per month',
+        '5 GB storage',
+        'Priority email support (24h)',
+        '2 platform connectors',
+        'Team collaboration (up to 3)'
+      ]
     },
     business: {
       name: 'Business',
@@ -216,7 +240,19 @@ export default function BillingPage() {
       buttonTextColor: 'text-blue-700',
       buttonColor: 'bg-blue-300 hover:bg-blue-400',
       buttonShadow: 'shadow-blue-300/30',
-      isCurrent: false
+      isCurrent: false,
+      credits: '2,000 / month',
+      storage: '10 GB',
+      support: 'Priority support',
+      connectors: '5',
+      collaboration: '3 (up to 10 participants)',
+      features: [
+        '2,000 credits per month',
+        '10 GB storage',
+        'Priority support',
+        '5 platform connectors',
+        'Team collaboration (up to 10)'
+      ]
     },
     enterprise: {
       name: 'Enterprise',
@@ -227,12 +263,25 @@ export default function BillingPage() {
       buttonTextColor: 'text-indigo-800',
       buttonColor: 'bg-indigo-400 hover:bg-indigo-500',
       buttonShadow: 'shadow-indigo-400/30',
-      isCurrent: false
+      isCurrent: false,
+      credits: '10,000+ / month (flexible)',
+      storage: '50 GB + pay-as-you-go',
+      support: 'Dedicated manager',
+      connectors: 'All',
+      collaboration: 'Unlimited',
+      features: [
+        'Custom credit allocation',
+        'Unlimited storage',
+        'Dedicated account manager',
+        'All platform connectors',
+        'Unlimited team collaboration',
+        'Custom features & integrations'
+      ]
     }
   };
 
-  // Current plan (easily changeable)
-  const currentPlan = planConfig.starter;
+  // Current plan (dynamically determined by isCurrent property)
+  const currentPlan = Object.values(planConfig).find(plan => plan.isCurrent) || planConfig.starter;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -310,7 +359,27 @@ export default function BillingPage() {
                   </div>
 
                   <h3 className="text-6xl font-bold mb-3 tracking-tight">{currentPlan.name}</h3>
-                  <p className="text-3xl font-semibold text-white/90 mb-10">{currentPlan.type}</p>
+                  <p className="text-3xl font-semibold text-white/90 mb-6">{currentPlan.type}</p>
+                  
+                  {/* Plan Details */}
+                  <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Credits</div>
+                      <div className="text-white font-semibold">{currentPlan.credits}</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Storage</div>
+                      <div className="text-white font-semibold">{currentPlan.storage}</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Support</div>
+                      <div className="text-white font-semibold">{currentPlan.support}</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      <div className="text-white/70 text-xs uppercase tracking-wider mb-1">Connectors</div>
+                      <div className="text-white font-semibold">{currentPlan.connectors}</div>
+                    </div>
+                  </div>
 
                   <button 
                     onClick={() => setIsTariffPlanModalOpen(true)}
@@ -323,30 +392,14 @@ export default function BillingPage() {
                   <div className="mt-10 pt-8 border-t border-white/20">
                     <h4 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-4">What's Included</h4>
                     <ul className="space-y-3">
-                      <li className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-white/80 text-sm leading-relaxed">Basic workspace features</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-white/80 text-sm leading-relaxed">Up to 3 team members</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-white/80 text-sm leading-relaxed">Community support</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-white/80 text-sm leading-relaxed">5GB storage</span>
-                      </li>
+                      {currentPlan.features.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-white/80 text-sm leading-relaxed">{feature}</span>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 </div>
