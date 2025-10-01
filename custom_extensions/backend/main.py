@@ -18888,6 +18888,56 @@ async def insert_event_poster_to_db(
     return row["id"]
 
 
+# Event Poster Update Endpoint - Auto-save functionality 
+@app.put("/api/custom/event-poster/update/{project_id}")
+async def update_event_poster_data(project_id: int, payload: dict, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """
+    Update event poster data (auto-save functionality).
+    """
+    try:
+        logger.info(f"🔄 [EVENT_POSTER_UPDATE] Auto-save request for project ID: {project_id}")
+        
+        onyx_user_id = await get_current_onyx_user_id(request)
+        
+        # Get the microProductContent from payload
+        microproduct_content = payload.get('microProductContent')
+        if not microproduct_content:
+            raise HTTPException(status_code=400, detail="microProductContent is required")
+        
+        logger.info(f"🔄 [EVENT_POSTER_UPDATE] Updating content: {list(microproduct_content.keys()) if microproduct_content else 'None'}")
+        
+        # Update the project data
+        update_query = """
+        UPDATE projects 
+        SET microproduct_content = $1, updated_at = NOW()
+        WHERE id = $2 AND onyx_user_id = $3
+        RETURNING id, microproduct_content, microproduct_name
+        """
+        
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(update_query, microproduct_content, project_id, onyx_user_id)
+            
+        if not row:
+            logger.error(f"❌ [EVENT_POSTER_UPDATE] Project {project_id} not found for user {onyx_user_id}")
+            raise HTTPException(status_code=404, detail="Event poster project not found or no permission")
+        
+        logger.info(f"✅ [EVENT_POSTER_UPDATE] Successfully updated project {project_id}")
+        
+        # Return the updated data
+        return {
+            "success": True,
+            "projectId": project_id,
+            "microproduct_content": row["microproduct_content"],
+            "project_name": row["microproduct_name"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ [EVENT_POSTER_UPDATE] Error updating data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update event poster data")
+
+
 # Event Poster Data Fetch Endpoint - Exact same approach as AI Audit Landing Page
 @app.get("/api/custom/event-poster/{project_id}")
 async def get_event_poster_data(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):

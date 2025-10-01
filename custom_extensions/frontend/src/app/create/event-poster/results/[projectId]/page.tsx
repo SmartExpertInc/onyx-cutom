@@ -179,6 +179,8 @@ export default function EventPosterProjectResults() {
               speakerImageSrc={eventData.speakerImage || undefined}
               onSuccess={handleSuccess}
               onError={handleError}
+              projectId={projectId}
+              hideSaveButton={true}
             />
           </div>
         </div>

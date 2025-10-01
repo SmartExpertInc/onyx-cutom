@@ -19,6 +19,9 @@ interface EventPosterProps {
   speakerImageSrc?: string;
   onSuccess?: (message: string) => void;
   onError?: (error: string) => void;
+  // New props for saved poster functionality
+  projectId?: string; // Project ID for auto-save
+  hideSaveButton?: boolean; // Hide "Save as Product" button when viewing saved poster
 }
 
 interface EditableTextProps {
@@ -28,9 +31,10 @@ interface EditableTextProps {
   multiline?: boolean;
   placeholder?: string;
   isTitle?: boolean;
+  onAutoSave?: () => void; // Add auto-save callback
 }
 
-function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false }: EditableTextProps) {
+function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -50,6 +54,11 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
   const handleSave = () => {
     onChange(tempValue);
     setIsEditing(false);
+    // Trigger auto-save when field loses focus (same as course outlines)
+    if (onAutoSave) {
+      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur');
+      onAutoSave();
+    }
   };
 
   const handleCancel = () => {
@@ -142,7 +151,9 @@ export default function EventPoster({
   freeAccessConditions: initialFreeAccessConditions,
   speakerImageSrc,
   onSuccess,
-  onError
+  onError,
+  projectId,
+  hideSaveButton = false
 }: EventPosterProps) {
   const router = useRouter();
   
@@ -158,6 +169,58 @@ export default function EventPoster({
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Auto-save functionality (same pattern as course outlines)
+  const handleAutoSave = async () => {
+    if (!projectId) {
+      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] No project ID, skipping auto-save');
+      return;
+    }
+
+    console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Starting auto-save for project:', projectId);
+
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+      
+      // Prepare the payload with current state (same format as course outlines)
+      const eventData = {
+        eventName,
+        mainSpeaker,
+        speakerDescription,
+        date,
+        topic,
+        additionalSpeakers,
+        ticketPrice,
+        ticketType,
+        freeAccessConditions,
+        speakerImage: imageSrc
+      };
+
+      const payload = { 
+        microProductContent: eventData 
+      };
+
+      console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Sending payload:', payload);
+
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/event-poster/update/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        console.error('🔄 [EVENT_POSTER_AUTO_SAVE] Failed:', response.status);
+        return; // Silent fail for auto-save
+      }
+
+      const data = await response.json();
+      console.log('✅ [EVENT_POSTER_AUTO_SAVE] Success:', data);
+
+    } catch (error) {
+      console.error('🔄 [EVENT_POSTER_AUTO_SAVE] Error:', error);
+      // Silent fail for auto-save - don't show error to user
+    }
+  };
 
   // Parse date to separate day/month and year - with safety check
   const safeDateValue = date || '';
@@ -364,19 +427,21 @@ export default function EventPoster({
           {isGenerating ? 'Generating Poster...' : 'Generate and Download Poster'}
         </button>
         
-        <button
-          onClick={handleSaveAsProduct}
-          disabled={isGenerating || isSaving}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-            isSaving || isGenerating
-              ? 'bg-purple-500 text-white cursor-not-allowed focus:ring-purple-500 disabled:opacity-60'
-              : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
-          }`}
-          title={isSaving ? 'Saving event poster as product...' : 'Save event poster as a product you can edit later'}
-        >
-          {isSaving ? <Loader size={16} className="animate-spin" /> : <Save size={16} />}
-          {isSaving ? 'Saving as Product...' : 'Save as Product'}
-        </button>
+        {!hideSaveButton && (
+          <button
+            onClick={handleSaveAsProduct}
+            disabled={isGenerating || isSaving}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              isSaving || isGenerating
+                ? 'bg-purple-500 text-white cursor-not-allowed focus:ring-purple-500 disabled:opacity-60'
+                : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
+            }`}
+            title={isSaving ? 'Saving event poster as product...' : 'Save event poster as a product you can edit later'}
+          >
+            {isSaving ? <Loader size={16} className="animate-spin" /> : <Save size={16} />}
+            {isSaving ? 'Saving as Product...' : 'Save as Product'}
+          </button>
+        )}
       </div>
 
       {/* Editable Fields Info */}
@@ -447,6 +512,7 @@ export default function EventPoster({
               value={eventName}
               onChange={setEventName}
               placeholder="Event Name"
+              onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
@@ -478,6 +544,7 @@ export default function EventPoster({
                 value={mainSpeaker}
                 onChange={setMainSpeaker}
                 placeholder="Main Speaker Name"
+                onAutoSave={handleAutoSave}
                 style={{
                   color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
@@ -493,6 +560,7 @@ export default function EventPoster({
                 onChange={setSpeakerDescription}
                 placeholder="Speaker Description"
                 multiline
+                onAutoSave={handleAutoSave}
                 style={{
                   color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
@@ -515,14 +583,14 @@ export default function EventPoster({
             >
               <EditableText
                 value={dayMonth}
-                onChange={val => {
-                  // Update only the dayMonth part, keep year unchanged
-                  const newDate = val + (year ? '.' + year : '');
-                  setDate(newDate);
+                onChange={(newDayMonth) => {
+                  const newFullDate = year ? `${newDayMonth}.${year}` : newDayMonth;
+                  setDate(newFullDate);
                 }}
                 placeholder="DD.MM"
+                onAutoSave={handleAutoSave}
                 style={{
-                  color: 'rgba(255,255,255,1)',
+                  color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
                   fontSize: '58px',
@@ -534,14 +602,14 @@ export default function EventPoster({
               />
               <EditableText
                 value={year}
-                onChange={val => {
-                  // Update only the year part, keep dayMonth unchanged
-                  const newDate = dayMonth + (val ? '.' + val : '');
-                  setDate(newDate);
+                onChange={(newYear) => {
+                  const newFullDate = dayMonth ? `${dayMonth}.${newYear}` : newYear;
+                  setDate(newFullDate);
                 }}
                 placeholder="YYYY"
+                onAutoSave={handleAutoSave}
                 style={{
-                  color: 'rgba(255,255,255,1)',
+                  color: 'rgba(235,235,235,1)',
                   fontFamily: 'Montserrat',
                   fontWeight: '300',
                   fontSize: '52px',
@@ -564,6 +632,7 @@ export default function EventPoster({
             placeholder="Event Topic"
             multiline
             isTitle={true}
+            onAutoSave={handleAutoSave}
             style={{
               color: 'rgba(235,235,235,1)',
               fontFamily: 'Montserrat',
@@ -581,6 +650,7 @@ export default function EventPoster({
             onChange={setAdditionalSpeakers}
             placeholder="Additional Speakers"
             multiline
+            onAutoSave={handleAutoSave}
             style={{
               color: 'rgba(235,235,235,1)',
               fontFamily: 'Montserrat',
@@ -626,6 +696,7 @@ export default function EventPoster({
               value={ticketType}
               onChange={setTicketType}
               placeholder="Type"
+              onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
@@ -639,6 +710,7 @@ export default function EventPoster({
               value={ticketPrice}
               onChange={setTicketPrice}
               placeholder="Price"
+              onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontFamily: 'Montserrat',
@@ -668,6 +740,7 @@ export default function EventPoster({
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
               multiline
+              onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
                 fontWeight: '600',
