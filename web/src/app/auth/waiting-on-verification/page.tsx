@@ -44,22 +44,17 @@ export default async function Page() {
       </div>
       <div
         className="p-4 flex flex-col items-center justify-center min-h-screen"
-        style={{
-          background:
-            "linear-gradient(135deg, oklch(0.8576 0.0809 315.9) 0%, oklch(0.8341 0.071 266.01) 50%, oklch(0.9529 0.0286 329.29) 100%)",
-        }}
       >
         <div
-          className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center dark:border-none flex-col rounded-2xl hover:shadow-xl border border-gray-100 gap-y-2 transition-all duration-200"
+          className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 gap-y-2 transition-all duration-200"
           style={{
-            backgroundColor: "rgba(255, 255, 255, 0.88)",
             backdropFilter: "blur(40px)",
             boxShadow:
               "0px 4px 8px 0px #00000014, -4px -4px 4px -4px #FFFFFF inset, 4px 4px 4px -4px #FFFFFF inset",
           }}
         >
           <Logo width={70} height={70} />
-          <div className="mt-4 w-full">
+          <div className="w-full">
             <div className="flex">
               <Text className="text-center font-medium text-lg mt-6 w-108">
                 Hey <i>{currentUser.email}</i> - it looks like you haven&apos;t

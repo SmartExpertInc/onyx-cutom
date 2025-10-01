@@ -10,6 +10,8 @@ import { redirect } from "next/navigation";
 import { EmailPasswordForm } from "../login/EmailPasswordForm";
 import { SignInButton } from "../login/SignInButton";
 import AuthFlowContainer from "@/components/auth/AuthFlowContainer";
+import FeatureHighlights from "@/components/auth/FeatureHighlights";
+import SignupFormContainer from "@/components/auth/SignupFormContainer";
 import ReferralSourceSelector from "./ReferralSourceSelector";
 import AuthErrorDisplay from "@/components/auth/AuthErrorDisplay";
 
@@ -64,43 +66,45 @@ const Page = async (props: {
   }
 
   return (
-    <AuthFlowContainer authState="signup">
+    <>
       <HealthCheckBanner />
       <AuthErrorDisplay searchParams={searchParams} />
+      <AuthFlowContainer authState="signup">
+        <FeatureHighlights />
+        <SignupFormContainer>
+          <div className="absolute top-10x w-full"></div>
+          <div className="flex w-full flex-col justify-center">
+            <h2 className="text-center text-xl font-bold text-neutral-900">
+              {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
+            </h2>
+            {cloud && (
+              <>
+                <div className="w-full flex flex-col items-center space-y-4 mb-4 mt-4">
+                  <ReferralSourceSelector />
+                </div>
+              </>
+            )}
 
-      <>
-        <div className="absolute top-10x w-full"></div>
-        <div className="flex w-full flex-col justify-center">
-          <h2 className="text-center text-xl font-bold text-neutral-900">
-            {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
-          </h2>
-          {cloud && (
-            <>
-              <div className="w-full flex flex-col items-center space-y-4 mb-4 mt-4">
-                <ReferralSourceSelector />
+            <EmailPasswordForm
+              isSignup
+              shouldVerify={authTypeMetadata?.requiresVerification}
+              nextUrl={nextUrl}
+              defaultEmail={defaultEmail}
+            />
+            {cloud && authUrl && (
+              <div className="w-full justify-center">
+                <div className="flex items-center w-full my-4">
+                  <div className="flex-grow border-t border-background-300"></div>
+                  <span className="px-4 text-neutral-900">or</span>
+                  <div className="flex-grow border-t border-background-300"></div>
+                </div>
+                <SignInButton authorizeUrl={authUrl} authType="cloud" />
               </div>
-            </>
-          )}
-
-          <EmailPasswordForm
-            isSignup
-            shouldVerify={authTypeMetadata?.requiresVerification}
-            nextUrl={nextUrl}
-            defaultEmail={defaultEmail}
-          />
-          {cloud && authUrl && (
-            <div className="w-full justify-center">
-              <div className="flex items-center w-full my-4">
-                <div className="flex-grow border-t border-background-300"></div>
-                <span className="px-4 text-neutral-900">or</span>
-                <div className="flex-grow border-t border-background-300"></div>
-              </div>
-              <SignInButton authorizeUrl={authUrl} authType="cloud" />
-            </div>
-          )}
-        </div>
-      </>
-    </AuthFlowContainer>
+            )}
+          </div>
+        </SignupFormContainer>
+      </AuthFlowContainer>
+    </>
   );
 };
 
