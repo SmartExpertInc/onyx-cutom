@@ -89,7 +89,6 @@ COMPONENT_NAME_VIDEO_LESSON_PRESENTATION = "VideoLessonPresentationDisplay"  # N
 COMPONENT_NAME_QUIZ = "QuizDisplay"
 COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay"
 COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay"  # New component for lesson plans
-COMPONENT_NAME_EVENT_POSTER = "EventPosterDisplay"  # New component for event posters
 
 # --- LLM Configuration for JSON Parsing ---
 # === OpenAI ChatGPT configuration (replacing previous Cohere call) ===
@@ -757,20 +756,6 @@ class VideoLessonData(BaseModel):
     slides: List[VideoLessonSlideData] = Field(default_factory=list)
     currentSlideId: Optional[str] = None # To store the active slide from frontend
     lessonNumber: Optional[int] = None  # Sequential number in Training Plan
-    detectedLanguage: Optional[str] = None
-    model_config = {"from_attributes": True}
-
-class EventPosterDetails(BaseModel):
-    eventName: str
-    mainSpeaker: str
-    speakerDescription: str
-    date: str
-    topic: str
-    additionalSpeakers: str
-    ticketPrice: str
-    ticketType: str
-    freeAccessConditions: str
-    speakerImage: Optional[str] = None
     detectedLanguage: Optional[str] = None
     model_config = {"from_attributes": True}
 

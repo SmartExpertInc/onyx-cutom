@@ -1625,9 +1625,9 @@ export const es = {
       eventPosterTitle: "Póster del Evento",
       posterGeneratedSuccessfully: "Su póster del evento ha sido generado exitosamente",
       saveAsProduct: "Guardar como Producto",
-      saving: "Guardando...",
-      savedSuccessfully: "¡Póster del evento guardado exitosamente! Lo encontrará en su página de Productos.",
-      saveError: "Error al guardar el póster. Por favor, inténtelo de nuevo."
+      savingPoster: "Guardando...",
+      posterSavedSuccessfully: "¡Póster del evento guardado exitosamente! Puedes encontrarlo en tu página de Proyectos.",
+      failedToSavePoster: "Error al guardar el póster como producto. Por favor, intenta de nuevo."
     },
     smartEdit: {
       examples: {
