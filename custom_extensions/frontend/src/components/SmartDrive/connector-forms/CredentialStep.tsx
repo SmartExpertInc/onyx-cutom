@@ -239,9 +239,15 @@ const CredentialStep: FC<CredentialStepProps> = ({
                 {/* Help tooltip button (persistent while hovering tooltip area) */}
                 <div className="relative flex items-center gap-2">
                   <div
-                    className="relative"
+                    className="relative credential-help-trigger"
                     onMouseEnter={() => setHelpOpen(true)}
-                    onMouseLeave={() => setHelpOpen(false)}
+                    onMouseLeave={(e) => {
+                      // Only close if mouse is not entering the tooltip
+                      const related = (e as React.MouseEvent).relatedTarget as HTMLElement | null;
+                      if (!related || !related.closest('.credential-help-tooltip')) {
+                        setHelpOpen(false);
+                      }
+                    }}
                   >
                     <button
                       type="button"
@@ -252,9 +258,17 @@ const CredentialStep: FC<CredentialStepProps> = ({
                       i
                     </button>
                     <div
-                      className="absolute right-0 top-full mt-2 w-[28rem] max-w-[90vw] z-50"
+                      className="absolute right-0 top-full mt-2 w-[28rem] max-w-[90vw] z-50 credential-help-tooltip"
                       role="tooltip"
                       style={{ display: helpOpen ? 'block' : 'none' }}
+                      onMouseEnter={() => setHelpOpen(true)}
+                      onMouseLeave={(e) => {
+                        // Only close if mouse is not entering the icon
+                        const related = (e as React.MouseEvent).relatedTarget as HTMLElement | null;
+                        if (!related || !related.closest('.credential-help-trigger')) {
+                          setHelpOpen(false);
+                        }
+                      }}
                     >
                       <div className="rounded-lg shadow-xl border border-gray-200 bg-white p-4 text-sm leading-5 text-gray-800">
                          {(() => {
