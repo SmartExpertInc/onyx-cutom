@@ -159,8 +159,9 @@ export default function EventPoster({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Parse date to separate day/month and year
-  const dateParts = date.split('.');
+  // Parse date to separate day/month and year - with safety check
+  const safeDateValue = date || '';
+  const dateParts = safeDateValue.split('.');
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
 

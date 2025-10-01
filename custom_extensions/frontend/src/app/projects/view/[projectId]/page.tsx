@@ -679,7 +679,23 @@ export default function ProjectInstanceViewPage() {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster page:', instanceData.project_id);
         // Store the event poster data in localStorage for the results page
         const posterSessionKey = `eventPoster_saved_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        localStorage.setItem(posterSessionKey, JSON.stringify(instanceData.details));
+        
+        // Ensure the data structure matches what EventPoster component expects
+        const posterData = instanceData.details || {};
+        const formattedData = {
+          eventName: posterData.eventName || '',
+          mainSpeaker: posterData.mainSpeaker || '',
+          speakerDescription: posterData.speakerDescription || '',
+          date: posterData.date || '',
+          topic: posterData.topic || '',
+          additionalSpeakers: posterData.additionalSpeakers || '',
+          ticketPrice: posterData.ticketPrice || '',
+          ticketType: posterData.ticketType || '',
+          freeAccessConditions: posterData.freeAccessConditions || '',
+          speakerImage: posterData.speakerImageSrc || posterData.speakerImage || null
+        };
+        
+        localStorage.setItem(posterSessionKey, JSON.stringify(formattedData));
         router.push(`/create/event-poster/results?sessionKey=${posterSessionKey}`);
         return;
       }
