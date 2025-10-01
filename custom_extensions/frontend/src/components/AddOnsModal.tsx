@@ -207,7 +207,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
         </DialogHeader>
 
         <Tabs defaultValue="credits" className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="mx-6 mt-6 w-auto rounded-full">
+          <TabsList className="ml-6 mt-6 w-fit rounded-full gap-2">
             <TabsTrigger 
               value="credits" 
               className="group flex items-center gap-2 bg-gray-100 text-gray-900 data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-full"
