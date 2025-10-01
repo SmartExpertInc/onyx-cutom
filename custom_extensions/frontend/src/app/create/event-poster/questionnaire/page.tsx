@@ -50,12 +50,7 @@ export default function EventPosterQuestionnaire() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Store image separately in localStorage to avoid URL length limits
-    if (speakerImage) {
-      localStorage.setItem('temp_speaker_image', speakerImage);
-    }
-    
-    // Prepare data for the results page
+    // Prepare all data for the results page
     const eventData = {
       eventName,
       mainSpeaker,
@@ -66,16 +61,14 @@ export default function EventPosterQuestionnaire() {
       ticketPrice,
       ticketType,
       freeAccessConditions,
-      hasCustomSpeakerImage: speakerImage ? 'true' : 'false'
+      speakerImage: speakerImage || null
     };
 
-    // Navigate to results page with data
-    const queryParams = new URLSearchParams();
-    Object.entries(eventData).forEach(([key, value]) => {
-      queryParams.append(key, value);
-    });
+    // Store all data in localStorage
+    localStorage.setItem('eventPosterData', JSON.stringify(eventData));
     
-    router.push(`/create/event-poster/results?${queryParams.toString()}`);
+    // Navigate to results page (no URL params needed)
+    router.push('/create/event-poster/results');
   };
 
   return (

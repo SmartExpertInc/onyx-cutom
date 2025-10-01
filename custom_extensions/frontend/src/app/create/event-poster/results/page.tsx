@@ -1,39 +1,47 @@
 "use client";
 
-import React, { Suspense, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import EventPoster from "../components/EventPoster";
 import { useLanguage } from '../../../../contexts/LanguageContext';
 
 function EventPosterResultsContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { t } = useLanguage();
 
-  // Extract data from URL parameters
-  const eventName = searchParams?.get('eventName') || '';
-  const mainSpeaker = searchParams?.get('mainSpeaker') || '';
-  const speakerDescription = searchParams?.get('speakerDescription') || '';
-  const date = searchParams?.get('date') || '';
-  const topic = searchParams?.get('topic') || '';
-  const additionalSpeakers = searchParams?.get('additionalSpeakers') || '';
-  const ticketPrice = searchParams?.get('ticketPrice') || '';
-  const ticketType = searchParams?.get('ticketType') || '';
-  const freeAccessConditions = searchParams?.get('freeAccessConditions') || '';
-  const hasCustomSpeakerImage = searchParams?.get('hasCustomSpeakerImage') === 'true';
-  
-  const [speakerImageSrc, setSpeakerImageSrc] = useState<string>('');
+  // State for event data
+  const [eventData, setEventData] = useState({
+    eventName: '',
+    mainSpeaker: '',
+    speakerDescription: '',
+    date: '',
+    topic: '',
+    additionalSpeakers: '',
+    ticketPrice: '',
+    ticketType: '',
+    freeAccessConditions: '',
+    speakerImage: null as string | null
+  });
 
   useEffect(() => {
-    if (hasCustomSpeakerImage) {
-      const savedImage = localStorage.getItem('temp_speaker_image');
-      if (savedImage) {
-        setSpeakerImageSrc(savedImage);
-        // Clean up localStorage
-        localStorage.removeItem('temp_speaker_image');
+    // Get data from localStorage
+    const savedData = localStorage.getItem('eventPosterData');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setEventData(parsedData);
+        // Clean up localStorage after loading
+        localStorage.removeItem('eventPosterData');
+      } catch (error) {
+        console.error('Failed to parse event data from localStorage:', error);
+        // Fallback to empty data or redirect to questionnaire
+        router.push('/create/event-poster/questionnaire');
       }
+    } else {
+      // No data found, redirect to questionnaire
+      router.push('/create/event-poster/questionnaire');
     }
-  }, [hasCustomSpeakerImage]);
+  }, [router]);
 
   const handleBackToQuestionnaire = () => {
     router.push('/create/event-poster/questionnaire');
@@ -88,16 +96,16 @@ function EventPosterResultsContent() {
           {/* Event Poster Component with integrated download functionality */}
           <div className="flex justify-center">
             <EventPoster
-              eventName={eventName}
-              mainSpeaker={mainSpeaker}
-              speakerDescription={speakerDescription}
-              date={date}
-              topic={topic}
-              additionalSpeakers={additionalSpeakers}
-              ticketPrice={ticketPrice}
-              ticketType={ticketType}
-              freeAccessConditions={freeAccessConditions}
-              speakerImageSrc={speakerImageSrc}
+              eventName={eventData.eventName}
+              mainSpeaker={eventData.mainSpeaker}
+              speakerDescription={eventData.speakerDescription}
+              date={eventData.date}
+              topic={eventData.topic}
+              additionalSpeakers={eventData.additionalSpeakers}
+              ticketPrice={eventData.ticketPrice}
+              ticketType={eventData.ticketType}
+              freeAccessConditions={eventData.freeAccessConditions}
+              speakerImageSrc={eventData.speakerImage || undefined}
               onSuccess={handleSuccess}
               onError={handleError}
             />
@@ -109,16 +117,5 @@ function EventPosterResultsContent() {
 }
 
 export default function EventPosterResults() {
-  return (
-    <Suspense fallback={
-      <div className="p-4 md:p-8 bg-gray-100 min-h-screen font-['Inter',_sans-serif] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading event poster results...</p>
-        </div>
-      </div>
-    }>
-      <EventPosterResultsContent />
-    </Suspense>
-  );
+  return <EventPosterResultsContent />;
 }

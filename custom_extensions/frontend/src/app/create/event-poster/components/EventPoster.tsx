@@ -26,9 +26,10 @@ interface EditableTextProps {
   style: React.CSSProperties;
   multiline?: boolean;
   placeholder?: string;
+  isTitle?: boolean;
 }
 
-function EditableText({ value, onChange, style, multiline = false, placeholder }: EditableTextProps) {
+function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -77,7 +78,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder }
       border: '2px solid #5416af',
       outline: 'none',
       resize: multiline ? 'none' : undefined,
-      minHeight: multiline ? '100px' : undefined,
+      minHeight: multiline ? (isTitle ? '200px' : '100px') : undefined,
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
       padding: isLargeFont ? '0 8px' : undefined,
@@ -455,6 +456,7 @@ export default function EventPoster({
             onChange={setTopic}
             placeholder="Event Topic"
             multiline
+            isTitle={true}
             style={{
               color: 'rgba(235,235,235,1)',
               fontFamily: 'Montserrat',
