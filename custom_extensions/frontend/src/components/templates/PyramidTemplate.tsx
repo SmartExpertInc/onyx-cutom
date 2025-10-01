@@ -207,9 +207,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     '#191970'  // Deep indigo (bottom)
   ];
 
-  // Pyramid level dimensions and positions exactly as in photo
+  // Pyramid level dimensions and positions - inverted (wider at top)
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [140, 200, 260, 320, 400]; // Increasing widths
+    const widths = [440, 360, 280, 200, 140]; // Decreasing widths (inverted pyramid)
     const heights = [70, 70, 70, 70, 70]; // Same height for all levels
     const topPositions = [0, 70, 140, 210, 280]; // Stacked positions
     
@@ -221,12 +221,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       left: '50%',
       transform: 'translateX(-50%)',
       background: pyramidColors[index],
-      clipPath: 'polygon(0% 0%, 100% 0%, 85% 100%, 15% 100%)', // Trapezoid shape
+      clipPath: 'polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)', // Inverted trapezoid shape
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'flex-end', // Right-align content
       paddingRight: '20px', // Add padding for speech bubble and number
-      zIndex: 5 - index // Higher levels have higher z-index
+      zIndex: index + 1 // Top levels have higher z-index
     };
   };
 
@@ -446,7 +446,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       <div style={mainContentStyles}>
         {/* Pyramid Levels */}
         {displaySteps.slice(0, 5).map((step, index) => (
-          <div key={index} style={pyramidLevelStyles(index)} data-draggable="true">
+          <div key={index} style={pyramidLevelStyles(index)}>
             {/* Speech Bubble + Number */}
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={speechBubbleStyles}>
@@ -476,18 +476,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
               ) : (
                 <div 
                   style={numberStyles}
-                  onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
+                  onClick={() => {
                     if (isEditable) {
                       startEditingItemNumber(index);
                     }
                   }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                  className={isEditable ? 'cursor-pointer' : ''}
                 >
                   {step.number || '0'}
                 </div>
@@ -498,7 +492,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
         {/* Text Blocks */}
         {displaySteps.slice(0, 5).map((step, index) => (
-          <div key={`text-${index}`} style={textBlockStyles(index)} data-draggable="true">
+          <div key={`text-${index}`} style={textBlockStyles(index)}>
             {/* Heading */}
             {isEditable && editingItemHeadings.includes(index) ? (
               <InlineEditor
@@ -525,18 +519,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             ) : (
               <div 
                 style={textHeadingStyles}
-                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
+                onClick={() => {
                   if (isEditable) {
                     startEditingItemHeading(index);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer' : ''}
               >
                 {step.heading || 'Headline'}
               </div>
@@ -568,18 +556,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             ) : (
               <div 
                 style={textDescriptionStyles}
-                onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
+                onClick={() => {
                   if (isEditable) {
                     startEditingItemDescription(index);
                   }
                 }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+                className={isEditable ? 'cursor-pointer' : ''}
               >
                 {step.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
               </div>
@@ -589,7 +571,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
         {/* Triangle Arrows */}
         {displaySteps.slice(0, 5).map((_, index) => (
-          <div key={`triangle-${index}`} style={triangleStyles(index)} data-draggable="true"></div>
+          <div key={`triangle-${index}`} style={triangleStyles(index)}></div>
         ))}
       </div>
     </div>

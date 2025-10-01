@@ -155,19 +155,19 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const timelineLineStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '0',
+    top: '11px',
     left: 'calc(50% + 60px)',
     width: '2px',
-    height: '100%',
+    height: '115%',
     background: '#0F58F9'
   };
 
   // 4 static timeline items with precise positioning
   const timelineItems = [
-    { top: '5%', side: 'right' },
-    { top: '30%', side: 'left' },
-    { top: '55%', side: 'right' },
-    { top: '80%', side: 'left' }
+    { top: '10%', side: 'left' },
+    { top: '35%', side: 'right' },
+    { top: '60%', side: 'left' },
+    { top: '85%', side: 'right' }
   ];
 
   const circleStyles = (top: string): React.CSSProperties => ({
@@ -186,10 +186,10 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const textBlockStyles = (top: string, side: string): React.CSSProperties => ({
     position: 'absolute',
     top: top,
-    [side === 'left' ? 'right' : 'left']: side === 'left' ? 'calc(50% + 110px)' : '50px',
-    width: side === 'left' ? 'calc(40% - 60px)' : 'calc(40% - 60px)',
+    [side === 'left' ? 'left' : 'right']: side === 'left' ? 'calc(50% + 110px)' : 'calc(50% + 110px)',
+    width: 'calc(40% - 60px)',
     transform: 'translateY(-50%)',
-    textAlign: side === 'left' ? 'right' : 'left'
+    textAlign: side === 'left' ? 'left' : 'right'
   });
 
   const headingStyles: React.CSSProperties = {
