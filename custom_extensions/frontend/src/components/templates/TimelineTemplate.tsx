@@ -172,6 +172,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const slideStyles: React.CSSProperties = {
     minHeight: '600px',
+    height: '100%',
     background: '#ffffff', // White background as in photo
     display: 'flex',
     flexDirection: 'column',
@@ -190,17 +191,15 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
     marginBottom: '50px',
     textAlign: 'left',
     wordWrap: 'break-word',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    flexShrink: 0 // Don't shrink title
   };
 
   const timelineContainerStyles: React.CSSProperties = {
-    position: 'absolute', // Fixed positioning to prevent layout shifts
-    top: '120px', // Position from top of slide
-    left: '0',
-    right: '0',
-    bottom: '0',
+    position: 'relative', // Changed back to relative for stable layout
     width: '100%',
-    height: 'calc(100% - 120px)', // Take remaining space after title
+    flex: 1, // Take all remaining space
+    minHeight: '400px', // Minimum height for content
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
