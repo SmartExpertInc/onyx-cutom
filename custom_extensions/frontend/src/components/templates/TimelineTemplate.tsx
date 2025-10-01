@@ -164,10 +164,10 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   // 4 static timeline items with precise positioning
   const timelineItems = [
-    { top: '10%', side: 'left' },
-    { top: '35%', side: 'right' },
-    { top: '60%', side: 'left' },
-    { top: '85%', side: 'right' }
+    { top: '9%', side: 'left', topCircle: '5%' },
+    { top: '35%', side: 'right', topCircle: '31%' },
+    { top: '60%', side: 'left', topCircle: '56%' },
+    { top: '85%', side: 'right', topCircle: '81%' }
   ];
 
   const circleStyles = (top: string): React.CSSProperties => ({
@@ -186,7 +186,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
   const textBlockStyles = (top: string, side: string): React.CSSProperties => ({
     position: 'absolute',
     top: top,
-    [side === 'left' ? 'left' : 'right']: side === 'left' ? 'calc(50% + 110px)' : 'calc(50% + 110px)',
+    [side === 'left' ? 'left' : 'right']: side === 'left' ? 'calc(50% + 0px)' : 'calc(50% + 0px)',
     width: 'calc(40% - 60px)',
     transform: 'translateY(-50%)',
     textAlign: side === 'left' ? 'left' : 'right'
@@ -315,7 +315,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
         {timelineItems.map((item, index) => (
           <React.Fragment key={index}>
             {/* Circle */}
-            <div style={circleStyles(item.top)}></div>
+            <div style={circleStyles(item.topCircle)}></div>
 
             {/* Text Block */}
             <div style={textBlockStyles(item.top, item.side)}>
