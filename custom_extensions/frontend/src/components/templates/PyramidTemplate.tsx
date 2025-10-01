@@ -149,7 +149,6 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   isEditable = false
 }: PyramidTemplateProps) => {
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
@@ -168,22 +167,22 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', // Subtle gradient background
-    padding: '50px',
+    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+    padding: '40px',
     display: 'flex',
     flexDirection: 'column',
-    fontFamily: 'Georgia, serif', // Serif font as in photo
+    fontFamily: 'Georgia, serif',
     minHeight: '600px',
     width: '100%',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'visible'
   };
 
   const titleStyles: React.CSSProperties = {
-    color: '#000000', // Black title as in photo
-    fontSize: '2.5rem',
+    color: '#000000',
+    fontSize: '2rem',
     fontFamily: 'Georgia, serif',
-    marginBottom: '40px',
+    marginBottom: '30px',
     textAlign: 'left',
     wordWrap: 'break-word',
     fontWeight: 'bold'
@@ -195,23 +194,24 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
-    height: '500px'
+    height: '450px',
+    paddingTop: '20px'
   };
 
-  // Pyramid level colors exactly as in photo
+  // Pyramid colors exactly as in photo - 5 distinct levels
   const pyramidColors = [
-    '#3D8BFF', // Light blue (top, smallest)
-    '#00BCD4', // Cyan (second)
-    '#1E88E5', // Medium blue (third)
-    '#5E35B1', // Purple (fourth)
-    '#1A237E'  // Dark navy blue (bottom, largest)
+    '#3D8BFF', // Light blue (level 1 - smallest, top)
+    '#00BCD4', // Cyan (level 2)
+    '#1E88E5', // Medium blue (level 3)
+    '#5E35B1', // Purple (level 4)
+    '#1A237E'  // Dark navy blue (level 5 - largest, bottom)
   ];
 
-  // Pyramid level dimensions and positions - normal pyramid (wider at bottom)
+  // Pyramid level dimensions - BIGGER SIZE, 5 clear levels
   const pyramidLevelStyles = (index: number): React.CSSProperties => {
-    const widths = [140, 220, 300, 380, 460]; // Increasing widths (normal pyramid)
-    const heights = [65, 65, 65, 65, 65]; // Same height for all levels
-    const topPositions = [0, 65, 130, 195, 260]; // Stacked positions
+    const widths = [120, 200, 280, 360, 440]; // 5 levels, increasing
+    const heights = [60, 60, 60, 60, 60]; // Same height for each
+    const topPositions = [0, 60, 120, 180, 240]; // Stacked perfectly
     
     return {
       position: 'absolute',
@@ -221,18 +221,19 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       left: '50%',
       transform: 'translateX(-50%)',
       background: pyramidColors[index],
-      clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)', // Normal trapezoid shape
+      clipPath: 'polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 5 - index // Top levels have higher z-index
+      zIndex: 5 - index,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
     };
   };
 
-  // Speech bubble styles
+  // Speech bubble
   const speechBubbleStyles: React.CSSProperties = {
-    width: '24px',
-    height: '24px',
+    width: '22px',
+    height: '22px',
     borderRadius: '50%',
     background: '#ffffff',
     display: 'flex',
@@ -243,29 +244,28 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   };
 
   const speechBubbleIconStyles: React.CSSProperties = {
-    width: '12px',
-    height: '12px',
+    width: '10px',
+    height: '10px',
     borderRadius: '50%',
-    background: '#3388FF',
-    position: 'relative'
+    background: '#1E88E5'
   };
 
   // Number styles
   const numberStyles: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '15px',
     fontWeight: 'bold',
     color: '#ffffff',
     fontFamily: 'Arial, sans-serif'
   };
 
-  // Text block positioning exactly as in photo
+  // Text blocks - exactly as in photo
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '20px', right: '10%', textAlign: 'right' as const },   // Level 0 - top right
-      { top: '85px', left: '10%', textAlign: 'left' as const },     // Level 1 - left
-      { top: '150px', left: '10%', textAlign: 'left' as const },    // Level 2 - left
-      { top: '215px', right: '10%', textAlign: 'right' as const },  // Level 3 - right
-      { top: '280px', left: '10%', textAlign: 'left' as const }     // Level 4 - bottom left
+      { top: '20px', right: '8%', textAlign: 'right' as const },
+      { top: '80px', left: '8%', textAlign: 'left' as const },
+      { top: '140px', left: '8%', textAlign: 'left' as const },
+      { top: '200px', right: '8%', textAlign: 'right' as const },
+      { top: '260px', left: '8%', textAlign: 'left' as const }
     ];
     
     const pos = positions[index];
@@ -273,19 +273,19 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       position: 'absolute',
       top: pos.top,
       [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
-      width: '28%',
-      maxWidth: '320px',
+      width: '30%',
+      maxWidth: '350px',
       zIndex: 10,
       textAlign: pos.textAlign
     };
   };
 
   const textHeadingStyles: React.CSSProperties = {
-    fontSize: '1.1rem',
+    fontSize: '1rem',
     fontWeight: 'bold',
     color: '#000000',
     fontFamily: 'Georgia, serif',
-    marginBottom: '8px',
+    marginBottom: '6px',
     wordWrap: 'break-word'
   };
 
@@ -297,14 +297,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     wordWrap: 'break-word'
   };
 
-  // Triangle arrow styles exactly as in photo
+  // Triangle arrows
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '50px', right: '22%' },   // Level 0 - pointing down, right side
-      { top: '115px', left: '22%' },   // Level 1 - pointing down, left side
-      { top: '180px', left: '22%' },   // Level 2 - pointing down, left side
-      { top: '245px', right: '22%' },  // Level 3 - pointing down, right side
-      { top: '310px', left: '22%' }    // Level 4 - pointing down, left side
+      { top: '50px', right: '20%' },
+      { top: '110px', left: '20%' },
+      { top: '170px', left: '20%' },
+      { top: '230px', right: '20%' },
+      { top: '290px', left: '20%' }
     ];
     
     const pos = positions[index];
@@ -313,14 +313,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       ...pos,
       width: '0',
       height: '0',
-      borderLeft: '7px solid transparent',
-      borderRight: '7px solid transparent',
-      borderTop: '10px solid #1E88E5', // Blue triangle
+      borderLeft: '6px solid transparent',
+      borderRight: '6px solid transparent',
+      borderTop: '9px solid #1E88E5',
       zIndex: 10
     };
   };
 
-  // Handle title editing
+  // Handlers
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
       onUpdate({ title: newTitle });
@@ -332,7 +332,6 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingTitle(false);
   };
 
-  // Handle item heading editing
   const handleItemHeadingSave = (index: number, newHeading: string) => {
     if (onUpdate && steps) {
       const updatedSteps = [...steps];
@@ -346,7 +345,6 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemHeadings(editingItemHeadings.filter((i: number) => i !== index));
   };
 
-  // Handle item description editing
   const handleItemDescriptionSave = (index: number, newDescription: string) => {
     if (onUpdate && steps) {
       const updatedSteps = [...steps];
@@ -360,7 +358,6 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemDescriptions(editingItemDescriptions.filter((i: number) => i !== index));
   };
 
-  // Handle item number editing
   const handleItemNumberSave = (index: number, newNumber: string) => {
     if (onUpdate && steps) {
       const updatedSteps = [...steps];
@@ -386,7 +383,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     setEditingItemNumbers([...editingItemNumbers, index]);
   };
 
-  // Default steps exactly as in photo
+  // Default 5 steps
   const defaultSteps: PyramidItem[] = [
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '150' },
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '350' },
@@ -395,7 +392,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     { heading: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', number: '25,000' }
   ];
 
-  const displaySteps = steps.length > 0 ? steps : defaultSteps;
+  const displaySteps = steps.length >= 5 ? steps.slice(0, 5) : defaultSteps;
 
   return (
     <div className="pyramid-template" style={slideStyles}>
@@ -408,36 +405,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             onCancel={handleTitleCancel}
             multiline={true}
             placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              margin: '0',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
+            style={{ ...titleStyles, margin: '0', padding: '0' }}
           />
         ) : (
           <h1 
             style={titleStyles}
-            onClick={(e: React.MouseEvent<HTMLHeadingElement>) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
+            onClick={() => { if (isEditable) setEditingTitle(true); }}
+            className={isEditable ? 'cursor-pointer' : ''}
           >
             {title || 'Comparison table template'}
           </h1>
@@ -445,10 +419,9 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       </div>
 
       <div style={mainContentStyles}>
-        {/* Pyramid Levels */}
-        {displaySteps.slice(0, 5).map((step, index) => (
+        {/* 5 Pyramid Levels */}
+        {displaySteps.map((step, index) => (
           <div key={index} style={pyramidLevelStyles(index)}>
-            {/* Speech Bubble + Number */}
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <div style={speechBubbleStyles}>
                 <div style={speechBubbleIconStyles}></div>
@@ -458,30 +431,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
                   initialValue={step.number || ''}
                   onSave={(newNumber) => handleItemNumberSave(index, newNumber)}
                   onCancel={() => handleItemNumberCancel(index)}
-                  placeholder="Enter number..."
-                  className="inline-editor-number"
-                  style={{
-                    ...numberStyles,
-                    margin: '0',
-                    padding: '0',
-                    border: 'none',
-                    outline: 'none',
-                    resize: 'none',
-                    overflow: 'hidden',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
+                  placeholder="Number..."
+                  style={{ ...numberStyles, margin: '0', padding: '0' }}
                 />
               ) : (
                 <div 
                   style={numberStyles}
-                  onClick={() => {
-                    if (isEditable) {
-                      startEditingItemNumber(index);
-                    }
-                  }}
+                  onClick={() => { if (isEditable) startEditingItemNumber(index); }}
                   className={isEditable ? 'cursor-pointer' : ''}
                 >
                   {step.number || '0'}
@@ -491,77 +447,41 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           </div>
         ))}
 
-        {/* Text Blocks */}
-        {displaySteps.slice(0, 5).map((step, index) => (
+        {/* 5 Text Blocks */}
+        {displaySteps.map((step, index) => (
           <div key={`text-${index}`} style={textBlockStyles(index)}>
-            {/* Heading */}
             {isEditable && editingItemHeadings.includes(index) ? (
               <InlineEditor
                 initialValue={step.heading || ''}
                 onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
                 onCancel={() => handleItemHeadingCancel(index)}
                 multiline={true}
-                placeholder="Enter heading..."
-                className="inline-editor-heading"
-                style={{
-                  ...textHeadingStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
+                placeholder="Heading..."
+                style={{ ...textHeadingStyles, margin: '0', padding: '0' }}
               />
             ) : (
               <div 
                 style={textHeadingStyles}
-                onClick={() => {
-                  if (isEditable) {
-                    startEditingItemHeading(index);
-                  }
-                }}
+                onClick={() => { if (isEditable) startEditingItemHeading(index); }}
                 className={isEditable ? 'cursor-pointer' : ''}
               >
                 {step.heading || 'Headline'}
               </div>
             )}
 
-            {/* Description */}
             {isEditable && editingItemDescriptions.includes(index) ? (
               <InlineEditor
                 initialValue={step.description || ''}
                 onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
                 onCancel={() => handleItemDescriptionCancel(index)}
                 multiline={true}
-                placeholder="Enter description..."
-                className="inline-editor-description"
-                style={{
-                  ...textDescriptionStyles,
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
+                placeholder="Description..."
+                style={{ ...textDescriptionStyles, margin: '0', padding: '0' }}
               />
             ) : (
               <div 
                 style={textDescriptionStyles}
-                onClick={() => {
-                  if (isEditable) {
-                    startEditingItemDescription(index);
-                  }
-                }}
+                onClick={() => { if (isEditable) startEditingItemDescription(index); }}
                 className={isEditable ? 'cursor-pointer' : ''}
               >
                 {step.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
@@ -570,8 +490,8 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
           </div>
         ))}
 
-        {/* Triangle Arrows */}
-        {displaySteps.slice(0, 5).map((_, index) => (
+        {/* 5 Triangle Arrows */}
+        {displaySteps.map((_, index) => (
           <div key={`triangle-${index}`} style={triangleStyles(index)}></div>
         ))}
       </div>
