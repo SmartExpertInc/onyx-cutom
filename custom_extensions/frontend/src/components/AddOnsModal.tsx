@@ -26,9 +26,10 @@ interface AddOnCardProps {
   icon: LucideIcon;
   quantity: number;
   onQuantityChange: (delta: number) => void;
+  showAmount?: boolean;
 }
 
-function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardProps) {
+function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount = true }: AddOnCardProps) {
   const { t } = useLanguage();
   return (
     <Card className="hover:shadow-lg transition-shadow border border-gray-200">
@@ -44,10 +45,12 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange }: AddOnCardP
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <div className="w-2 h-2 bg-gray-400 rounded-full" />
-          <span>{addOn.amount}</span>
-        </div>
+        {showAmount && (
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="w-2 h-2 bg-gray-400 rounded-full" />
+            <span>{addOn.amount}</span>
+                  </div>
+        )}
         <div className="text-3xl font-bold text-gray-900">
           {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
           {addOn.priceNote === 'per month' && (
@@ -259,6 +262,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     icon={Workflow}
                     quantity={quantities[connector.id]}
                     onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
+                    showAmount={false}
                   />
                 ))}
               </div>
@@ -273,6 +277,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     icon={Server}
                     quantity={quantities[storage.id]}
                     onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
+                    showAmount={false}
                   />
                 ))}
               </div>
