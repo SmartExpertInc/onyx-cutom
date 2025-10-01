@@ -38,6 +38,7 @@ import { UserDropdown } from '../../components/UserDropdown';
 import LanguageDropdown from '../../components/LanguageDropdown';
 import { useLanguage } from '../../contexts/LanguageContext';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
+import AddOnsModal from '../../components/AddOnsModal';
 import SmartDriveConnectors from '../../components/SmartDrive/SmartDriveConnectors';
 import WorkspaceMembers from '../../components/WorkspaceMembers';
 import useFeaturePermission, { preloadFeaturePermissions } from '../../hooks/useFeaturePermission';
@@ -49,6 +50,7 @@ import { LMSAccountStatus } from '../../types/lmsTypes';
 import { ToastProvider } from '../../components/ui/toast';
 import { identifyUser, resetUserIdentity, updateUserProfile, trackPageView } from '@/lib/mixpanelClient';
 import Userback, { UserbackWidget } from '@userback/widget';
+import { Button } from '@/components/ui/button';
 
 
 interface User {
@@ -612,7 +614,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -654,8 +656,9 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
     <header className="flex items-center justify-between p-4 px-8 border-b border-gray-200 bg-white sticky top-0 z-10">
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
+        <Button variant="download" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
         <button 
-          onClick={onTariffModalOpen}
+          onClick={onAddOnsModalOpen}
           className="flex items-center gap-2 text-sm font-semibold text-gray-800 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer"
         >
           <Coins size={20} className="text-gray-900" />
@@ -691,6 +694,7 @@ const ProjectsPageInner: React.FC = () => {
   const [selectedClientForOffer, setSelectedClientForOffer] = useState<any>(null);
   const [workspaceData, setWorkspaceData] = useState<any>(null);
   const [tariffModalOpen, setTariffModalOpen] = useState(false);
+  const [addOnsModalOpen, setAddOnsModalOpen] = useState(false);
   
   // LMS Export states
   const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
@@ -1117,7 +1121,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
           {isSmartDrive ? (
             <SmartDriveConnectors />
@@ -1164,6 +1168,10 @@ const ProjectsPageInner: React.FC = () => {
       <TariffPlanModal
         open={tariffModalOpen}
         onOpenChange={setTariffModalOpen}
+      />
+      <AddOnsModal
+        isOpen={addOnsModalOpen}
+        onClose={() => setAddOnsModalOpen(false)}
       />
     </div>
   );
