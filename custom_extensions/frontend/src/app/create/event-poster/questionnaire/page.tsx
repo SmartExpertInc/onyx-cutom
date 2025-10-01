@@ -10,16 +10,16 @@ export default function EventPosterQuestionnaire() {
   const router = useRouter();
   const { t } = useLanguage();
   
-  // Pre-populated data as specified (use localized example strings)
-  const [eventName, setEventName] = useState(t('posterExamples.eventName', 'Big Online Conference'));
-  const [mainSpeaker, setMainSpeaker] = useState(t('posterExamples.mainSpeaker', 'Denys Dovhopolyi'));
-  const [speakerDescription, setSpeakerDescription] = useState(t('posterExamples.speakerDescription', 'Founder of QNICORN NEST (Luxemburg) ...'));
-  const [date, setDate] = useState(t('posterExamples.date', '08.10.2025'));
-  const [topic, setTopic] = useState(t('posterExamples.topic', 'VC market trends and priorities in 2025-2026'));
-  const [additionalSpeakers, setAdditionalSpeakers] = useState(t('posterExamples.additionalSpeakers', 'Plus 4 star speakers: ...'));
-  const [ticketPrice, setTicketPrice] = useState(t('posterExamples.ticketPrice', '150€'));
-  const [ticketType, setTicketType] = useState(t('posterExamples.ticketType', 'STANDARD'));
-  const [freeAccessConditions, setFreeAccessConditions] = useState(t('posterExamples.freeAccessConditions', 'free for business club members'));
+  // Pre-populated data as specified
+  const [eventName, setEventName] = useState("Велика онлайн-конференція");
+  const [mainSpeaker, setMainSpeaker] = useState("Денис Довгополий");
+  const [speakerDescription, setSpeakerDescription] = useState("засновник QNICORN NEST (Luxemburg), першого штучного інтелекту, який вже 8 років шукає фінансування та автоматизує процес спілкування з інвесторами");
+  const [date, setDate] = useState("08.10.2025");
+  const [topic, setTopic] = useState("Тренди та пріоритети ринку VC у 2025-2026 роках");
+  const [additionalSpeakers, setAdditionalSpeakers] = useState("Та ще 4 зіркових спікерів: Сергій Рабенко, Олександр Борняков, Антон Вайсбурд та Андрій Лазоренко");
+  const [ticketPrice, setTicketPrice] = useState("150€");
+  const [ticketType, setTicketType] = useState("STANDART");
+  const [freeAccessConditions, setFreeAccessConditions] = useState("безкоштовно для членів business club");
   const [speakerImage, setSpeakerImage] = useState<string | null>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,13 +27,13 @@ export default function EventPosterQuestionnaire() {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert(t('eventPosterForm.validation.invalidImage', 'Please select a valid image file.'));
+        alert('Please select a valid image file.');
         return;
       }
       
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert(t('eventPosterForm.validation.tooLarge', 'Image size must be less than 5MB.'));
+        alert('Image size must be less than 5MB.');
         return;
       }
       
@@ -131,25 +131,25 @@ export default function EventPosterQuestionnaire() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.eventName', 'Event Name')}</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
-                      value={eventName}
-                      onChange={e => setEventName(e.target.value)}
-                      placeholder={t('eventPosterForm.eventNamePlaceholder', 'Enter event name')}
-                    />
+                                         <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.eventName', 'Event Name')}</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
+                        value={eventName}
+                        onChange={e => setEventName(e.target.value)}
+                        placeholder={t('eventPosterForm.eventNamePlaceholder', 'Enter event name')}
+                      />
                   </div>
                   
                   <div>
-                    <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.date', 'Date')}</label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
-                      value={date}
-                      onChange={e => setDate(e.target.value)}
-                      placeholder={t('eventPosterForm.datePlaceholder', 'Enter date')}
-                    />
+                                         <label className="block font-semibold mb-2 text-gray-700">{t('eventPosterForm.date', 'Date')}</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800 placeholder-gray-400"
+                        value={date}
+                        onChange={e => setDate(e.target.value)}
+                        placeholder={t('eventPosterForm.datePlaceholder', 'Enter date')}
+                      />
                   </div>
                 </div>
                 

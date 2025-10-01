@@ -46,7 +46,6 @@ interface Project {
   createdBy: string;
   createdAt: string;
   isGamma?: boolean;
-  imageUrl?: string; // Added imageUrl to the interface
 }
 
 interface ProjectCardProps {
@@ -447,14 +446,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}99)`,
           }}
         >
-          {project.imageUrl && (
-            <img
-              src={project.imageUrl}
-              alt={displayTitle}
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: 'center center', opacity: 0.9 }}
-            />
-          )}
           {/* Top row with badge positioned absolutely */}
           <div className="relative">
             {/* Private badge positioned absolutely in top-right */}

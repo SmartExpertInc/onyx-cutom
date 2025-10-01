@@ -1620,54 +1620,11 @@ export const es = {
       ticketTypePlaceholder: "Ingrese el tipo de entrada",
       freeAccessConditionsPlaceholder: "Ingrese las condiciones de acceso gratuito",
       imageUploadedSuccessfully: "✓ Imagen cargada exitosamente",
-      validation: {
-        invalidImage: "Por favor seleccione un archivo de imagen válido.",
-        tooLarge: "El tamaño de la imagen debe ser menor a 5 MB."
-      }
+      editQuestionnaire: "Editar Cuestionario",
+      backToProjects: "Volver a Proyectos", 
+      eventPosterTitle: "Póster del Evento",
+      posterGeneratedSuccessfully: "Su póster del evento ha sido generado exitosamente"
     },
-
-    // Event Poster Results page
-    posterResults: {
-      editQuestionnaire: "Editar cuestionario",
-      backToProjects: "Volver a Proyectos",
-      title: "Póster de Evento",
-      subtitle: "Tu póster de evento se ha generado exitosamente",
-      loading: "Cargando resultados del póster de evento..."
-    },
-
-    // Event Poster component strings
-    poster: {
-      clickToEdit: "Haz clic para editar",
-      editHint: "Haz clic en cualquier texto del póster para editarlo. Presiona Enter para guardar, Escape para cancelar.",
-      ticketLabel: "Entrada",
-      actions: {
-        generate: "Generar y Descargar Póster",
-        generating: "Generando Póster...",
-        generateTitle: "Generar y descargar imagen del póster",
-        generatingTitle: "Generación de imagen del póster en curso..."
-      },
-      placeholders: {
-        dayMonth: "DD.MM",
-        year: "AAAA",
-        ticketType: "Tipo",
-        ticketPrice: "Precio",
-        freeAccessConditions: "Condiciones de Acceso Gratuito"
-      }
-    },
-
-    // Example default values for questionnaire
-    posterExamples: {
-      eventName: "Gran conferencia en línea",
-      mainSpeaker: "Denys Dovhopolyi",
-      speakerDescription: "Fundador de QNICORN NEST (Luxemburgo) ...",
-      date: "08.10.2025",
-      topic: "Tendencias y prioridades del mercado VC en 2025–2026",
-      additionalSpeakers: "Y 4 ponentes estrella más: ...",
-      ticketPrice: "150€",
-      ticketType: "STANDART",
-      freeAccessConditions: "gratis para miembros del business club"
-    },
-
     smartEdit: {
       examples: {
         makeAllTests: {
