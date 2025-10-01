@@ -85,13 +85,12 @@ function EventPosterResultsContent() {
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
       
-      // Prepare product data for event poster
+      // Prepare product data for event poster - matching ProjectCreateRequest schema
       const productData = {
         projectName: eventData.eventName || 'Event Poster',
-        productType: 'event_poster',
-        microproductType: 'event_poster',
-        microproductName: 'Event Poster',
-        microproductContent: {
+        design_template_id: 1, // Default template ID
+        microProductName: 'Event Poster',
+        aiResponse: JSON.stringify({
           eventName: eventData.eventName,
           mainSpeaker: eventData.mainSpeaker,
           speakerDescription: eventData.speakerDescription,
@@ -102,10 +101,18 @@ function EventPosterResultsContent() {
           ticketType: eventData.ticketType,
           freeAccessConditions: eventData.freeAccessConditions,
           speakerImage: eventData.speakerImage,
-          detectedLanguage: 'auto'
-        },
-        designTemplateId: 1, // Default template ID
-        chatSessionId: null
+          detectedLanguage: 'auto',
+          productType: 'event_poster'
+        }),
+        chatSessionId: null,
+        outlineId: null,
+        folder_id: null,
+        theme: null,
+        source_context_type: 'manual_creation',
+        source_context_data: {
+          tool: 'event_poster_creator',
+          version: '1.0'
+        }
       };
 
       const headers: HeadersInit = { 'Content-Type': 'application/json' };
