@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-// import messageImg from '/message_img.png';
+import messImg from '/mess_img.svg';
 
 export interface PyramidItem {
   heading: string;
@@ -249,7 +249,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Message image
   const MessageIcon = () => (
     <img 
-      src="/mess_img.svg" 
+      src={messImg} 
       alt="Message" 
       style={messageImageStyles}
     />

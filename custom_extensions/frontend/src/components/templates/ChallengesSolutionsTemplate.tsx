@@ -1,194 +1,46 @@
-// custom_extensions/frontend/src/components/templates/ChallengesSolutionsTemplate.tsx
-
 import React, { useState, useRef, useEffect } from 'react';
-import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import groupImg from '/group_img.png';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
+export interface ChallengesSolutionsItem {
+  title: string;
 }
 
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  // Auto-resize textarea to fit content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  // Set initial height for textarea to match content
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      // Set initial height based on content
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          // Only override browser defaults, preserve all passed styles
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        // Only override browser defaults, preserve all passed styles
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block'
-      }}
-    />
-  );
-}
-
-// FIXED: Function to detect language and provide localized headers
-const getLocalizedHeaders = (title: string, challenges: string[], solutions: string[]): { challengesTitle: string, solutionsTitle: string } => {
-  // Combine all text content to analyze language
-  const allText = [title, ...(challenges || []), ...(solutions || [])].join(' ').toLowerCase();
-  
-  // Language detection patterns
-  const ukrainianChars = /[її єю ґ]/gi;
-  const russianChars = /[ыъё]/gi;
-  const spanishChars = /[ñáéíóúü]/gi;
-  
-  // Count matches
-  const ukrainianMatches = (allText.match(ukrainianChars) || []).length;
-  const russianMatches = (allText.match(russianChars) || []).length;
-  const spanishMatches = (allText.match(spanishChars) || []).length;
-  
-  // Determine language based on character frequency
-  if (ukrainianMatches > 0) {
-    return { challengesTitle: 'Виклики', solutionsTitle: 'Рішення' };
-  } else if (russianMatches > 0) {
-    return { challengesTitle: 'Вызовы', solutionsTitle: 'Решения' };
-  } else if (spanishMatches > 0) {
-    return { challengesTitle: 'Desafíos', solutionsTitle: 'Soluciones' };
-  } else {
-    // Default to English
-    return { challengesTitle: 'Challenges', solutionsTitle: 'Solutions' };
-  }
-};
-
-export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & { 
+export interface ChallengesSolutionsTemplateProps {
+  title?: string;
+  subtitle?: string;
+  challengesItems?: ChallengesSolutionsItem[];
+  solutionsItems?: ChallengesSolutionsItem[];
   theme?: SlideTheme;
-  onUpdate?: (props: any) => void;
   isEditable?: boolean;
-}> = ({
-  slideId,
-  title,
-  challengesTitle,
-  solutionsTitle,
-  challenges,
-  solutions,
-  onUpdate,
+  onUpdate?: (data: any) => void;
+}
+
+const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
+  title = 'Challenges & Solution',
+  subtitle = 'Type The Subtitle Of Your Great Here',
+  challengesItems = [
+    { title: 'Title goes here' },
+    { title: 'Title goes here' },
+    { title: 'Title goes here' }
+  ],
+  solutionsItems = [
+    { title: 'Title goes here' },
+    { title: 'Title goes here' },
+    { title: 'Title goes here' }
+  ],
   theme,
-  isEditable = false
+  isEditable = false,
+  onUpdate
 }) => {
-  // FIXED: Use localized headers based on content language
-  const localizedHeaders = getLocalizedHeaders(title || '', challenges || [], solutions || []);
-  const finalChallengesTitle = challengesTitle || localizedHeaders.challengesTitle;
-  const finalSolutionsTitle = solutionsTitle || localizedHeaders.solutionsTitle;
   const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
   
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingChallengesTitle, setEditingChallengesTitle] = useState(false);
-  const [editingSolutionsTitle, setEditingSolutionsTitle] = useState(false);
-  const [editingChallenges, setEditingChallenges] = useState<number[]>([]);
-  const [editingSolutions, setEditingSolutions] = useState<number[]>([]);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  // Refs for draggable elements (following Big Image Left pattern)
-  const titleRef = useRef<HTMLDivElement>(null);
-  
-  // Use existing slideId for element positioning (following Big Image Left pattern)
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingChallengesItems, setEditingChallengesItems] = useState<number[]>([]);
+  const [editingSolutionsItems, setEditingSolutionsItems] = useState<number[]>([]);
+  const autoSaveTimeoutRef = useRef<number | null>(null);
   
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -200,86 +52,161 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    width: '100%',
+    background: '#ffffff',
+    padding: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    fontFamily: 'Georgia, serif',
     minHeight: '600px',
-        background: currentTheme.colors.backgroundColor,
-    padding: '60px',
+    width: '100%',
     position: 'relative',
-    fontFamily: currentTheme.fonts.contentFont
+    overflow: 'hidden'
   };
 
   const titleStyles: React.CSSProperties = {
-    fontSize: currentTheme.fonts.titleSize,
-    fontWeight: 700,
-    color: currentTheme.colors.titleColor,
-    fontFamily: currentTheme.fonts.titleFont,
-    textAlign: 'center',
-    marginBottom: '50px',
-    lineHeight: 1.3,
-    maxWidth: '900px',
-    margin: '0 auto 50px auto',
-    wordWrap: 'break-word'
+    color: '#000000',
+    fontSize: '2.5rem',
+    fontFamily: 'Georgia, serif',
+    marginBottom: '10px',
+    textAlign: 'left',
+    wordWrap: 'break-word',
+    fontWeight: 'bold'
   };
 
-  const gridStyles: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '40px',
-    maxWidth: '1000px',
-    margin: '0 auto'
+  const subtitleStyles: React.CSSProperties = {
+    color: '#000000',
+    fontSize: '1.1rem',
+    fontFamily: 'Arial, sans-serif',
+    marginBottom: '40px',
+    textAlign: 'left',
+    wordWrap: 'break-word',
+    fontWeight: 'normal'
   };
 
-  const calloutBoxStyles = (bgColor: string): React.CSSProperties => ({
-    backgroundColor: bgColor,
-    borderRadius: '12px',
-    padding: '24px',
-    border: '1px solid rgba(0,0,0,0.1)',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-  });
-
-  const headerStyles: React.CSSProperties = {
+  const mainContentStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px',
-    marginBottom: '20px'
+    justifyContent: 'center',
+    flexGrow: 1,
+    position: 'relative',
+    height: '400px'
   };
 
-  const sectionTitleStyles: React.CSSProperties = {
-    fontSize: '1.25rem',
-    fontWeight: 700,
-    color: currentTheme.colors.contentColor,
-    fontFamily: currentTheme.fonts.titleFont,
-    margin: 0,
-    wordWrap: 'break-word'
-  };
-
-  const listStyles: React.CSSProperties = {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0
-  };
-
-  const listItemStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '8px',
-    marginBottom: '12px',
-    fontSize: currentTheme.fonts.contentSize,
-    lineHeight: 1.5,
-    color: currentTheme.colors.contentColor,
-    fontFamily: currentTheme.fonts.contentFont
-  };
-
-  const bulletStyles: React.CSSProperties = {
-    minWidth: '6px',
-    width: '6px',
-    height: '6px',
-    backgroundColor: currentTheme.colors.contentColor,
+  // Venn diagram circles
+  const leftCircleStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '25%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '200px',
+    height: '200px',
     borderRadius: '50%',
-    marginTop: '8px'
+    background: '#B3E5FC', // Light blue
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2
   };
 
-  // Handle title editing
+  const rightCircleStyles: React.CSSProperties = {
+    position: 'absolute',
+    right: '25%',
+    top: '50%',
+    transform: 'translate(50%, -50%)',
+    width: '200px',
+    height: '200px',
+    borderRadius: '50%',
+    background: '#4FC3F7', // Turquoise blue
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2
+  };
+
+  const overlapStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '200px',
+    height: '200px',
+    borderRadius: '50%',
+    background: '#29B6F6', // Darker blue for overlap
+    zIndex: 1
+  };
+
+  const circleLabelStyles: React.CSSProperties = {
+    color: '#000000',
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    fontFamily: 'Arial, sans-serif',
+    marginTop: '10px'
+  };
+
+  const iconStyles: React.CSSProperties = {
+    width: '40px',
+    height: '40px',
+    objectFit: 'contain'
+  };
+
+  // Dotted lines and items
+  const leftItemsContainerStyles: React.CSSProperties = {
+    position: 'absolute',
+    left: '5%',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '30px',
+    zIndex: 3
+  };
+
+  const rightItemsContainerStyles: React.CSSProperties = {
+    position: 'absolute',
+    right: '5%',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '30px',
+    zIndex: 3
+  };
+
+  const itemStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  };
+
+  const itemIconStyles: React.CSSProperties = {
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    background: '#1976D2',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0
+  };
+
+  const itemTextStyles: React.CSSProperties = {
+    color: '#000000',
+    fontSize: '0.9rem',
+    fontFamily: 'Arial, sans-serif',
+    fontWeight: 'normal'
+  };
+
+  // Dotted line styles
+  const dottedLineStyles: React.CSSProperties = {
+    position: 'absolute',
+    height: '2px',
+    background: 'repeating-linear-gradient(to right, #1976D2 0px, #1976D2 4px, transparent 4px, transparent 8px)',
+    zIndex: 1
+  };
+
+  // Handlers
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
       onUpdate({ title: newTitle });
@@ -287,364 +214,231 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
     setEditingTitle(false);
   };
 
+  const handleSubtitleSave = (newSubtitle: string) => {
+    if (onUpdate) {
+      onUpdate({ subtitle: newSubtitle });
+    }
+    setEditingSubtitle(false);
+  };
+
+  const handleChallengesItemSave = (index: number, newTitle: string) => {
+    if (onUpdate && challengesItems) {
+      const updatedItems = [...challengesItems];
+      updatedItems[index] = { ...updatedItems[index], title: newTitle };
+      onUpdate({ challengesItems: updatedItems });
+    }
+    setEditingChallengesItems(editingChallengesItems.filter((i: number) => i !== index));
+  };
+
+  const handleSolutionsItemSave = (index: number, newTitle: string) => {
+    if (onUpdate && solutionsItems) {
+      const updatedItems = [...solutionsItems];
+      updatedItems[index] = { ...updatedItems[index], title: newTitle };
+      onUpdate({ solutionsItems: updatedItems });
+    }
+    setEditingSolutionsItems(editingSolutionsItems.filter((i: number) => i !== index));
+  };
+
+  const startEditingTitle = () => {
+    if (isEditable) {
+      setEditingTitle(true);
+    }
+  };
+
+  const startEditingSubtitle = () => {
+    if (isEditable) {
+      setEditingSubtitle(true);
+    }
+  };
+
+  const startEditingChallengesItem = (index: number) => {
+    if (isEditable) {
+      setEditingChallengesItems([...editingChallengesItems, index]);
+    }
+  };
+
+  const startEditingSolutionsItem = (index: number) => {
+    if (isEditable) {
+      setEditingSolutionsItems([...editingSolutionsItems, index]);
+    }
+  };
+
   const handleTitleCancel = () => {
     setEditingTitle(false);
   };
 
-  // Handle challenges title editing
-  const handleChallengesTitleSave = (newChallengesTitle: string) => {
-    if (onUpdate) {
-      onUpdate({ challengesTitle: newChallengesTitle });
-    }
-    setEditingChallengesTitle(false);
+  const handleSubtitleCancel = () => {
+    setEditingSubtitle(false);
   };
 
-  const handleChallengesTitleCancel = () => {
-    setEditingChallengesTitle(false);
+  const handleChallengesItemCancel = (index: number) => {
+    setEditingChallengesItems(editingChallengesItems.filter((i: number) => i !== index));
   };
 
-  // Handle solutions title editing
-  const handleSolutionsTitleSave = (newSolutionsTitle: string) => {
-    if (onUpdate) {
-      onUpdate({ solutionsTitle: newSolutionsTitle });
-    }
-    setEditingSolutionsTitle(false);
+  const handleSolutionsItemCancel = (index: number) => {
+    setEditingSolutionsItems(editingSolutionsItems.filter((i: number) => i !== index));
   };
 
-  const handleSolutionsTitleCancel = () => {
-    setEditingSolutionsTitle(false);
+  // Inline Editor Component
+  const InlineEditor: React.FC<{
+    initialValue: string;
+    onSave: (value: string) => void;
+    onCancel: () => void;
+    style?: React.CSSProperties;
+    placeholder?: string;
+  }> = ({ initialValue, onSave, onCancel, style, placeholder }) => {
+    const [value, setValue] = useState(initialValue);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
+      }
+    }, []);
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onSave(value);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+
+    const handleBlur = () => {
+      onSave(value);
+    };
+
+    return (
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        style={style}
+        placeholder={placeholder}
+      />
+    );
   };
-
-  // Handle challenge editing
-  const handleChallengeSave = (index: number, newChallenge: string) => {
-    if (onUpdate && challenges) {
-      const updatedChallenges = [...challenges];
-      updatedChallenges[index] = newChallenge;
-      onUpdate({ challenges: updatedChallenges });
-    }
-    setEditingChallenges(editingChallenges.filter(i => i !== index));
-  };
-
-  const handleChallengeCancel = (index: number) => {
-    setEditingChallenges(editingChallenges.filter((i: number) => i !== index));
-  };
-
-  // Handle solution editing
-  const handleSolutionSave = (index: number, newSolution: string) => {
-    if (onUpdate && solutions) {
-      const updatedSolutions = [...solutions];
-      updatedSolutions[index] = newSolution;
-      onUpdate({ solutions: updatedSolutions });
-    }
-    setEditingSolutions(editingSolutions.filter((i: number) => i !== index));
-  };
-
-  const handleSolutionCancel = (index: number) => {
-    setEditingSolutions(editingSolutions.filter((i: number) => i !== index));
-  };
-
-  const startEditingChallenge = (index: number) => {
-    setEditingChallenges([...editingChallenges, index]);
-  };
-
-  const startEditingSolution = (index: number) => {
-    setEditingSolutions([...editingSolutions, index]);
-  };
-
-  // SVG Icons
-  const XMarkIcon = () => (
-    <svg 
-      width="24" 
-      height="24" 
-      viewBox="0 0 512 512" 
-      fill={currentTheme.colors.accentColor}
-      style={{ flexShrink: 0 }}
-    >
-      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
-    </svg>
-  );
-
-  const CheckIcon = () => (
-    <svg 
-      width="24" 
-      height="24" 
-      viewBox="0 0 512 512" 
-      fill={currentTheme.colors.accentColor}
-      style={{ flexShrink: 0 }}
-    >
-      <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
-    </svg>
-  );
 
   return (
-    <div className="challenges-solutions-template" style={slideStyles}>
-      {/* Main Title - wrapped */}
-      <div 
-        ref={titleRef}
-        data-moveable-element={`${slideId}-title`}
-        data-draggable="true" 
-        style={{ display: 'inline-block', width: '100%' }}
-      >
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title || ''}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={true}
-            placeholder="Enter slide title..."
-            className="inline-editor-title"
-            style={{
-              ...titleStyles,
-              // Ensure title behaves exactly like h1 element
-              margin: '0 auto 50px auto',
-              padding: '0',
-              border: 'none',
-              outline: 'none',
-              resize: 'none',
-              overflow: 'hidden',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block'
-            }}
-          />
-        ) : (
-          <h1 
-            style={titleStyles}
-            onClick={(e) => {
-              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-              }
-              if (isEditable) {
-                setEditingTitle(true);
-              }
-            }}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-          >
-            {title || 'Click to add title'}
-          </h1>
-        )}
-      </div>
-
-      {/* Two Column Grid */}
-      <div style={gridStyles}>
-        {/* Challenges Column */}
-        <div 
-          data-moveable-element={`${slideId}-challenges`}
-          data-draggable="true"
-          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
+    <div style={slideStyles}>
+      {/* Title */}
+      {editingTitle ? (
+        <InlineEditor
+          initialValue={title}
+          onSave={handleTitleSave}
+          onCancel={handleTitleCancel}
+          style={titleStyles}
+          placeholder="Enter title..."
+        />
+      ) : (
+        <h1 
+          style={titleStyles}
+          onClick={startEditingTitle}
+          className={isEditable ? 'cursor-pointer' : ''}
         >
-          <div style={headerStyles}>
-            <XMarkIcon />
-            {isEditable && editingChallengesTitle ? (
-              <InlineEditor
-                initialValue={finalChallengesTitle || ''}
-                onSave={handleChallengesTitleSave}
-                onCancel={handleChallengesTitleCancel}
-                multiline={true}
-                placeholder="Enter challenges title..."
-                className="inline-editor-challenges-title"
-                style={{
-                  ...sectionTitleStyles,
-                  // Ensure title behaves exactly like h2 element
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
-              />
-            ) : (
-              <h2 
-                style={sectionTitleStyles}
-                onClick={(e) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  if (isEditable) {
-                    setEditingChallengesTitle(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-              >
-                                  {finalChallengesTitle || 'Click to add challenges title'}
-              </h2>
-            )}
-          </div>
-          <ul style={listStyles}>
-            {challenges?.map((challenge: string, index: number) => (
-              <li key={index} style={listItemStyles}>
-                <div style={bulletStyles}></div>
-                {isEditable && editingChallenges.includes(index) ? (
-                  <InlineEditor
-                    initialValue={challenge || ''}
-                    onSave={(newChallenge) => handleChallengeSave(index, newChallenge)}
-                    onCancel={() => handleChallengeCancel(index)}
-                    multiline={true}
-                    placeholder="Enter challenge..."
-                    className="inline-editor-challenge"
-                    style={{
-                      fontSize: currentTheme.fonts.contentSize,
-                      lineHeight: 1.5,
-                      color: currentTheme.colors.contentColor,
-                      fontFamily: currentTheme.fonts.contentFont,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      width: '100%',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      margin: '0',
-                      padding: '0'
-                    }}
-                  />
-                ) : (
-                  <span 
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingChallenge(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-                  >
-                    {challenge || 'Click to add challenge'}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          {title}
+        </h1>
+      )}
+
+      {/* Subtitle */}
+      {editingSubtitle ? (
+        <InlineEditor
+          initialValue={subtitle}
+          onSave={handleSubtitleSave}
+          onCancel={handleSubtitleCancel}
+          style={subtitleStyles}
+          placeholder="Enter subtitle..."
+        />
+      ) : (
+        <h2 
+          style={subtitleStyles}
+          onClick={startEditingSubtitle}
+          className={isEditable ? 'cursor-pointer' : ''}
+        >
+          {subtitle}
+        </h2>
+      )}
+
+      <div style={mainContentStyles}>
+        {/* Overlap area */}
+        <div style={overlapStyles}></div>
+
+        {/* Left Circle - Challenges */}
+        <div style={leftCircleStyles}>
+          <img src={groupImg} alt="Challenges" style={iconStyles} />
+          <div style={circleLabelStyles}>Challenges</div>
         </div>
 
-        {/* Solutions Column */}
-        <div 
-          data-moveable-element={`${slideId}-solutions`}
-          data-draggable="true"
-          style={calloutBoxStyles(currentTheme.colors.backgroundColor)}
-        >
-          <div style={headerStyles}>
-            <CheckIcon />
-            {isEditable && editingSolutionsTitle ? (
-              <InlineEditor
-                initialValue={finalSolutionsTitle || ''}
-                onSave={handleSolutionsTitleSave}
-                onCancel={handleSolutionsTitleCancel}
-                multiline={true}
-                placeholder="Enter solutions title..."
-                className="inline-editor-solutions-title"
-                style={{
-                  ...sectionTitleStyles,
-                  // Ensure title behaves exactly like h2 element
-                  margin: '0',
-                  padding: '0',
-                  border: 'none',
-                  outline: 'none',
-                  resize: 'none',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  boxSizing: 'border-box',
-                  display: 'block'
-                }}
-              />
-            ) : (
-              <h2 
-                style={sectionTitleStyles}
-                onClick={(e) => {
-                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  if (isEditable) {
-                    setEditingSolutionsTitle(true);
-                  }
-                }}
-                className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover-border-opacity-50' : ''}
-              >
-                {solutionsTitle || 'Click to add solutions title'}
-              </h2>
-            )}
-          </div>
-          <ul style={listStyles}>
-            {solutions?.map((solution: string, index: number) => (
-              <li key={index} style={listItemStyles}>
-                <div style={bulletStyles}></div>
-                {isEditable && editingSolutions.includes(index) ? (
-                  <InlineEditor
-                    initialValue={solution || ''}
-                    onSave={(newSolution) => handleSolutionSave(index, newSolution)}
-                    onCancel={() => handleSolutionCancel(index)}
-                    multiline={true}
-                    placeholder="Enter solution..."
-                    className="inline-editor-solution"
-                    style={{
-                      fontSize: currentTheme.fonts.contentSize,
-                      lineHeight: 1.5,
-                      color: currentTheme.colors.contentColor,
-                      fontFamily: currentTheme.fonts.contentFont,
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      resize: 'none',
-                      overflow: 'hidden',
-                      width: '100%',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      margin: '0',
-                      padding: '0'
-                    }}
-                  />
-                ) : (
-                  <span 
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingSolution(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer border border-transparent hover-border-gray-300 hover-border-opacity-50' : ''}
-                  >
-                    {solution || 'Click to add solution'}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+        {/* Right Circle - Solutions */}
+        <div style={rightCircleStyles}>
+          <img src={groupImg} alt="Solutions" style={iconStyles} />
+          <div style={circleLabelStyles}>Solution</div>
+        </div>
+
+        {/* Left Items - Challenges */}
+        <div style={leftItemsContainerStyles}>
+          {challengesItems.map((item, index) => (
+            <div key={index} style={itemStyles}>
+              <div style={itemIconStyles}>
+                <div style={{ color: '#ffffff', fontSize: '10px' }}>💬</div>
+              </div>
+              {editingChallengesItems.includes(index) ? (
+                <InlineEditor
+                  initialValue={item.title}
+                  onSave={(newTitle) => handleChallengesItemSave(index, newTitle)}
+                  onCancel={() => handleChallengesItemCancel(index)}
+                  style={itemTextStyles}
+                  placeholder="Enter title..."
+                />
+              ) : (
+                <div 
+                  style={itemTextStyles}
+                  onClick={() => startEditingChallengesItem(index)}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                >
+                  {item.title}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Right Items - Solutions */}
+        <div style={rightItemsContainerStyles}>
+          {solutionsItems.map((item, index) => (
+            <div key={index} style={itemStyles}>
+              <div style={itemIconStyles}>
+                <div style={{ color: '#ffffff', fontSize: '10px' }}>💬</div>
+              </div>
+              {editingSolutionsItems.includes(index) ? (
+                <InlineEditor
+                  initialValue={item.title}
+                  onSave={(newTitle) => handleSolutionsItemSave(index, newTitle)}
+                  onCancel={() => handleSolutionsItemCancel(index)}
+                  style={itemTextStyles}
+                  placeholder="Enter title..."
+                />
+              ) : (
+                <div 
+                  style={itemTextStyles}
+                  onClick={() => startEditingSolutionsItem(index)}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                >
+                  {item.title}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
-export default ChallengesSolutionsTemplate; 
+export default ChallengesSolutionsTemplate;

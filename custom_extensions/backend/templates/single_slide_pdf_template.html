@@ -1159,41 +1159,150 @@
             word-wrap: break-word;
         }
         
-        /* Challenges & Solutions Template - EXACT FRONTEND MATCH */
+        /* Challenges & Solutions Template - NEW DESIGN */
         .challenges-solutions {
-            width: 100%;
-            height: 100%; /* Fill the entire slide content area */
-            background-color: var(--bg-color);
-            padding: 60px;
-            position: relative;
-            font-family: var(--content-font);
+            background: #ffffff;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-             overflow: hidden; /* FIXED: Prevent white areas from elements outside boundaries */
+            font-family: Georgia, serif;
+            min-height: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
         }
         
         .challenges-solutions .slide-title {
-            font-size: 45px; /* Exact frontend match */
-            color: var(--title-color);
-            font-family: var(--title-font);
-            text-align: center;
-            margin-bottom: 50px; /* Exact frontend match */
-            line-height: 1.3;
-            max-width: 1174px; /* Updated to match new slide width */
-            margin: 0 auto 50px auto;
+            color: #000000;
+            font-size: 2.5rem;
+            font-family: Georgia, serif;
+            margin-bottom: 10px;
+            text-align: left;
             word-wrap: break-word;
+            font-weight: bold;
         }
         
-        .challenges-solutions .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px; /* Exact frontend match */
-            max-width: 1000px; /* Exact frontend match */
-            margin: 0 auto;
-            flex: 1;
-            width: 100%;
-            box-sizing: border-box;
+        .challenges-solutions .slide-subtitle {
+            color: #000000;
+            font-size: 1.1rem;
+            font-family: Arial, sans-serif;
+            margin-bottom: 40px;
+            text-align: left;
+            word-wrap: break-word;
+            font-weight: normal;
+        }
+        
+        .challenges-solutions .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            position: relative;
+            height: 400px;
+        }
+        
+        .challenges-solutions .overlap {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #29B6F6;
+            z-index: 1;
+        }
+        
+        .challenges-solutions .left-circle {
+            position: absolute;
+            left: 25%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #B3E5FC;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        .challenges-solutions .right-circle {
+            position: absolute;
+            right: 25%;
+            top: 50%;
+            transform: translate(50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #4FC3F7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        .challenges-solutions .circle-label {
+            color: #000000;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            margin-top: 10px;
+        }
+        
+        .challenges-solutions .circle-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+        
+        .challenges-solutions .left-items {
+            position: absolute;
+            left: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            z-index: 3;
+        }
+        
+        .challenges-solutions .right-items {
+            position: absolute;
+            right: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            z-index: 3;
+        }
+        
+        .challenges-solutions .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .challenges-solutions .item-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #1976D2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .challenges-solutions .item-text {
+            color: #000000;
+            font-size: 0.9rem;
+            font-family: Arial, sans-serif;
+            font-weight: normal;
         }
         
         .callout-box {
@@ -2571,62 +2680,59 @@
                 
             {% elif slide.templateId == 'challenges-solutions' %}
                 <div class="challenges-solutions">
-                    {% if slide.props.title and slide.props.title != 'Click to add title' %}
-                        <h1 class="slide-title positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set titleId = 'draggable-' + slide.slideId + '-0' %}
-                                {% if slide.metadata.elementPositions[titleId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[titleId].x }}px, {{ slide.metadata.elementPositions[titleId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >{{ slide.props.title }}</h1>
-                    {% endif %}
-                    <div class="grid">
-                        <div class="callout-box positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set challengesId = 'draggable-' + slide.slideId + '-1' %}
-                                {% if slide.metadata.elementPositions[challengesId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[challengesId].x }}px, {{ slide.metadata.elementPositions[challengesId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <div class="callout-header">
-                                <svg class="icon-xmark" viewBox="0 0 512 512">
-                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c-9.4 9.4-9.4 24.6 0 33.9l47 47-47 47c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l47-47 47 47c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-47-47 47-47c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-47 47-47-47c-9.4-9.4-24.6-9.4-33.9 0z"/>
-                                </svg>
-                                <h2 class="section-title">{{ slide.props.challengesTitle or 'Виклики' }}</h2>
-                            </div>
-                            <ul class="callout-list">
-                                {% for challenge in slide.props.challenges %}
-                                    <li class="callout-item">
-                                        <div class="callout-bullet"></div>
-                                        <span>{{ challenge or 'Click to add challenge' }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                    <h1 class="slide-title">{{ slide.props.title or 'Challenges & Solution' }}</h1>
+                    <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
+                    
+                    <div class="main-content">
+                        <!-- Overlap area -->
+                        <div class="overlap"></div>
+                        
+                        <!-- Left Circle - Challenges -->
+                        <div class="left-circle">
+                            <img src="file:///app/static/group_img.png" alt="Challenges" class="circle-icon" />
+                            <div class="circle-label">Challenges</div>
                         </div>
-                        <div class="callout-box positioned-element"
-                            {% if slide.metadata and slide.metadata.elementPositions %}
-                                {% set solutionsId = 'draggable-' + slide.slideId + '-2' %}
-                                {% if slide.metadata.elementPositions[solutionsId] %}
-                                    style="transform: translate({{ slide.metadata.elementPositions[solutionsId].x }}px, {{ slide.metadata.elementPositions[solutionsId].y }}px);"
-                                {% endif %}
-                            {% endif %}
-                        >
-                            <div class="callout-header">
-                                <svg class="icon-check" viewBox="0 0 512 512">
-                                    <path d="M256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zm0 464A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L369 209z"/>
-                                </svg>
-                                <h2 class="section-title">{{ slide.props.solutionsTitle or 'Рішення' }}</h2>
-                            </div>
-                            <ul class="callout-list">
-                                {% for solution in slide.props.solutions %}
-                                    <li class="callout-item">
-                                        <div class="callout-bullet"></div>
-                                        <span>{{ solution or 'Click to add solution' }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                        
+                        <!-- Right Circle - Solutions -->
+                        <div class="right-circle">
+                            <img src="file:///app/static/group_img.png" alt="Solutions" class="circle-icon" />
+                            <div class="circle-label">Solution</div>
+                        </div>
+                        
+                        <!-- Left Items - Challenges -->
+                        <div class="left-items">
+                            {% for i in range(3) %}
+                                <div class="item">
+                                    <div class="item-icon">
+                                        <div style="color: #ffffff; font-size: 10px;">💬</div>
+                                    </div>
+                                    <div class="item-text">
+                                        {% if slide.props.challengesItems and slide.props.challengesItems[i] and slide.props.challengesItems[i].title %}
+                                            {{ slide.props.challengesItems[i].title }}
+                                        {% else %}
+                                            Title goes here
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Right Items - Solutions -->
+                        <div class="right-items">
+                            {% for i in range(3) %}
+                                <div class="item">
+                                    <div class="item-icon">
+                                        <div style="color: #ffffff; font-size: 10px;">💬</div>
+                                    </div>
+                                    <div class="item-text">
+                                        {% if slide.props.solutionsItems and slide.props.solutionsItems[i] and slide.props.solutionsItems[i].title %}
+                                            {{ slide.props.solutionsItems[i].title }}
+                                        {% else %}
+                                            Title goes here
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
