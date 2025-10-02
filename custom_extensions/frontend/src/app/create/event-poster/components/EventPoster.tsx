@@ -398,10 +398,10 @@ export default function EventPoster({
           variant="download"
           onClick={handleDownloadPoster}
           disabled={isGenerating}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full transition-colors ${
+          className={`flex items-center gap-2 px-4 py-4 rounded-lg w-full transition-colors ${
             isGenerating
-              ? 'bg-blue-500 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
-              : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
+              : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
           }`}
           title={isGenerating ? t('interface.eventPosterForm.posterGenerationInProgress', 'Poster image generation in progress...') : t('interface.eventPosterForm.generateAndDownloadPosterTooltip', 'Generate and download poster image')}
         >
