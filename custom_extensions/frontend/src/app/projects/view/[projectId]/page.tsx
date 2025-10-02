@@ -675,11 +675,7 @@ export default function ProjectInstanceViewPage() {
       }
       
       // Check if this is an Event Poster project and redirect accordingly
-      const looksLikePosterDetails = !!(instanceData.details && (
-        (instanceData.details as any).eventName ||
-        ((instanceData.details as any).topic && (instanceData.details as any).date)
-      ));
-      if ((instanceData.name && instanceData.name.startsWith("Event Poster:")) || looksLikePosterDetails) {
+      if (instanceData.name && instanceData.name.startsWith("Event Poster:")) {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster page:', instanceData.project_id);
         // Redirect directly with project ID (same as AI audit approach)
         router.push(`/create/event-poster/results/${instanceData.project_id}`);
@@ -707,6 +703,13 @@ export default function ProjectInstanceViewPage() {
         setAllUserMicroproducts(allMicroproductsData);
         const currentMicroproductInList = allMicroproductsData.find(mp => mp.id === instanceData.project_id);
         setParentProjectNameForCurrentView(currentMicroproductInList?.projectName);
+        // Resilient Event Poster detection based on parent project name (cannot be renamed)
+        const parentName = currentMicroproductInList?.projectName || '';
+        if (parentName.includes('Event Poster')) {
+          console.log('🔄 [EVENT POSTER DETECTED VIA PARENT] Redirecting to event poster page:', instanceData.project_id);
+          router.push(`/create/event-poster/results/${instanceData.project_id}`);
+          return;
+        }
       } else {
         console.warn(t('interface.projectView.couldNotFetchFullProjectsList', 'Could not fetch full projects list to determine parent project name.'));
       }

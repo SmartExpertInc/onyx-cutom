@@ -66,7 +66,7 @@ export default function EventPosterQuestionnaire() {
 
     try {
       console.log('🔄 [EVENT_POSTER_QUESTIONNAIRE] Auto-saving poster as product', eventData);
-      
+
       // Automatically save as product (same as "Save as Product" button)
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
       
