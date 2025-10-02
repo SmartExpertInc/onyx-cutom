@@ -1164,7 +1164,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
       ...Object.keys(template).map((key) => ({
         name: key,
         label: credentialDisplayNames[key] || key,
-        type: key.toLowerCase().includes('json')
+        type: key.toLowerCase().includes('json') || key.toLowerCase().includes('content')
           ? 'file'
           : (key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('secret')
             ? 'password'
@@ -1271,11 +1271,6 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
                   aria-label={t('interface.selectFile', 'Select file')}
                 />
               </label>
-              <div className="mt-2 text-sm text-gray-600">
-                {formData[field.name]
-                  ? formData[field.name]
-                  : t('interface.noFileSelected', 'No file selected')}
-              </div>
             </div>
           ) : field.type === 'email' ? (
             <Input
