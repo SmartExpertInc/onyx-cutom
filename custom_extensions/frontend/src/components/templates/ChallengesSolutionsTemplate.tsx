@@ -175,7 +175,7 @@ export const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsProps & {
   const localizedHeaders = getLocalizedHeaders(title || '', challenges || [], solutions || []);
   const finalChallengesTitle = challengesTitle || localizedHeaders.challengesTitle;
   const finalSolutionsTitle = solutionsTitle || localizedHeaders.solutionsTitle;
-  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const effectiveTheme = typeof theme === 'string' && (theme as string).trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
   
   // Inline editing state

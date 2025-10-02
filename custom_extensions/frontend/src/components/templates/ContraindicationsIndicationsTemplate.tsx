@@ -139,7 +139,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   isEditable = false,
   onUpdate
 }) => {
-  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const effectiveTheme = typeof theme === 'string' && (theme as string).trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
   const tColor = titleColor || currentTheme.colors.titleColor;
   const contraColor = contraindicationsColor || currentTheme.colors.contentColor;

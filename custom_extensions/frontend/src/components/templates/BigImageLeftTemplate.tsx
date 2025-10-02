@@ -161,7 +161,7 @@ export const BigImageLeftTemplate: React.FC<BigImageLeftProps & {
   getPlaceholderGenerationState
 }) => {
   // Use theme colors instead of props
-  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const effectiveTheme = typeof theme === 'string' && (theme as string).trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   

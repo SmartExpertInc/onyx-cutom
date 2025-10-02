@@ -131,7 +131,7 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
   isEditable = false,
   onUpdate
 }) => {
-  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const effectiveTheme = typeof theme === 'string' && (theme as string).trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
   const tColor = titleColor || currentTheme.colors.titleColor;
   const txtColor = textColor || currentTheme.colors.contentColor;

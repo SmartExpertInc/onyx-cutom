@@ -149,7 +149,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   onUpdate,
   isEditable = false
 }: PyramidTemplateProps) => {
-  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const effectiveTheme = typeof theme === 'string' && (theme as string).trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor, accentColor } = currentTheme.colors;
   

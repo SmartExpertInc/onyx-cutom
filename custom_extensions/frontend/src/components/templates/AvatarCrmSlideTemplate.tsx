@@ -142,7 +142,7 @@ export const AvatarCrmSlideTemplate: React.FC<AvatarSlideProps & {
   isEditable = false
 }) => {
   // Use theme colors instead of props
-  const effectiveTheme = typeof theme === 'string' && theme.trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
+  const effectiveTheme = typeof theme === 'string' && (theme as string).trim() !== '' ? theme : DEFAULT_SLIDE_THEME;
   const currentTheme = getSlideTheme(effectiveTheme);
   const { backgroundColor, titleColor, contentColor } = currentTheme.colors;
   
