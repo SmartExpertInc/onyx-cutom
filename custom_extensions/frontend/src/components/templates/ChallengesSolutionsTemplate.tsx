@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import groupImg from '/group_img.png';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
@@ -201,15 +202,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       )}
 
       <div style={mainContentStyles}>
-        {/* Group Icon */}
-        <svg width="200" height="200" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="8" r="3" fill="#1976D2"/>
-          <circle cx="6" cy="16" r="2" fill="#1976D2"/>
-          <circle cx="18" cy="16" r="2" fill="#1976D2"/>
-          <path d="M12 11C9.5 11 7.5 12.5 7 14.5C7.5 15.5 8.5 16 9.5 16H14.5C15.5 16 16.5 15.5 17 14.5C16.5 12.5 14.5 11 12 11Z" fill="#1976D2"/>
-          <path d="M6 16C6 13.5 7.5 11.5 9.5 11C8.5 10.5 7.5 10 6 10C4.5 10 3.5 10.5 2.5 11C4.5 11.5 6 13.5 6 16Z" fill="#1976D2"/>
-          <path d="M18 16C18 13.5 19.5 11.5 21.5 11C20.5 10.5 19.5 10 18 10C16.5 10 15.5 10.5 14.5 11C16.5 11.5 18 13.5 18 16Z" fill="#1976D2"/>
-        </svg>
+        {/* Group Image */}
+        <img 
+          src={groupImg} 
+          alt="Group" 
+          style={imageStyles}
+        />
       </div>
     </div>
   );
