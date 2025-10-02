@@ -64,9 +64,9 @@ export default function LoginPage({
           {authUrl && authTypeMetadata && (
             <>
               <div className="flex items-center w-full my-4">
-                <div className="flex-grow border-t-2 border-gray-300"></div>
+                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
                 <span className="px-4 text-gray-900">or</span>
-                <div className="flex-grow border-t-2 border-gray-300"></div>
+                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
               </div>
 
               <SignInButton

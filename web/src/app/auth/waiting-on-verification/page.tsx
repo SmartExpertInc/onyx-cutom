@@ -45,24 +45,24 @@ export default async function Page() {
       <div
         className="p-4 flex flex-col items-center justify-center min-h-screen"
       >
-        <div className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl shadow-md hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
+        <div className="w-full max-w-md pt-8 pb-6 px-8 mx-4 flex items-center flex-col rounded-2xl shadow-md hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           {/* Semitransparent blue circle with mail icon */}
-          <div className="w-16 h-16 rounded-full bg-[#1d4ed8] flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-[#1d4ed8] flex items-center justify-center mb-4">
             <Mail className="w-8 h-8 text-[#FFFFFF]" />
           </div>
           
           {/* Title */}
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Check your email
           </h2>
           
           {/* Content */}
-          <div className="text-center space-y-4">
+          <div className="text-center">
             <Text className="text-gray-900 font-semibold">
               Hey <i className="text-[#1d4ed8] font-semibold">{currentUser.email}</i> - it looks like you haven&apos;t verified your email yet.
             </Text>
             
-            <Text className="text-gray-700 m-0 !mt-0">
+            <Text className="text-gray-700 mt-4">
               Check your inbox for an email from us to get started!
             </Text>
             
