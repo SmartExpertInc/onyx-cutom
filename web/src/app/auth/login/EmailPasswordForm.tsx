@@ -140,7 +140,6 @@ export function EmailPasswordForm({
               label="Email"
               type="email"
               placeholder="email@yourcompany.com"
-              className=""
               style={{ backgroundColor: 'white !important', borderColor: '#d4d4d4 !important', color: '#0a0a0a !important' }}
             />
 
@@ -149,7 +148,6 @@ export function EmailPasswordForm({
               label="Password"
               type="password"
               placeholder="**************"
-              className=""
               style={{ backgroundColor: 'white !important', borderColor: '#d4d4d4 !important', color: '#0a0a0a !important' }}
             />
 
