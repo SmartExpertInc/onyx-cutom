@@ -181,6 +181,7 @@ export default function BillingPage() {
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [folders, setFolders] = useState([]);
   const [folderProjects, setFolderProjects] = useState({});
+  const { t } = useLanguage();
   const currentTab = 'payments';
 
   const purchasedItems = [
