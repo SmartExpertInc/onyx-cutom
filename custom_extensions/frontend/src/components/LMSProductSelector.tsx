@@ -6,6 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Product } from '../types/lmsTypes';
 import LMSExportButton from './LMSExportButton';
 import LMSProductCard from './LMSProductCard';
+import ScormDownloadButton from './ScormDownloadButton';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
@@ -242,6 +243,12 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
           </Button>
 
           <LMSExportButton selectedProducts={selectedProducts} products={products} />
+          {selectedProducts.size === 1 && (
+            <ScormDownloadButton
+              courseOutlineId={Array.from(selectedProducts)[0]}
+              label="Download SCORM 2004"
+            />
+          )}
         </div>
 
         {/* Subtitle on the left */}
