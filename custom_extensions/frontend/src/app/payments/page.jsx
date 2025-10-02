@@ -389,7 +389,7 @@ export default function BillingPage() {
                             setItemToCancel(item);
                             setIsCancelModalOpen(true);
                           }}
-                          className="w-full bg-red-50 border border-red-300 text-red-600 font-medium py-2 px-3 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                          className="bg-red-50 border border-red-300 text-sm text-red-600 font-medium py-1 px-2 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 mx-4 my-2"
                         >
                           <X className="w-5 h-5" />
                           Cancel
