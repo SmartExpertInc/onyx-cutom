@@ -86,45 +86,25 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
 
   if (isEditing) {
     const Component = multiline ? 'textarea' : 'input';
-    // Completely override all default browser styling to match display div exactly
+    // For large font fields (like date), set fixed height and font size for input
     const inputStyle: React.CSSProperties = {
       ...style,
-      // Reset all default browser styling
       background: 'transparent',
       border: '2px solid transparent',
       outline: 'none',
-      margin: 0,
-      padding: isLargeFont ? '0 8px' : '0',
-      boxSizing: 'border-box',
-      display: 'block',
-      position: 'relative',
-      cursor: 'text',
-      // Override browser defaults
       resize: multiline ? 'none' : undefined,
       minHeight: multiline ? (isTitle ? '260px' : '100px') : undefined,
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
+      padding: isLargeFont ? '0 8px' : undefined,
       lineHeight: style.lineHeight || '1.2',
-      // Ensure width is preserved exactly
-      width: style.width || '100%',
-      minWidth: style.minWidth || 'auto',
-      maxWidth: style.maxWidth || 'none',
+      boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
+      width: '100%',
       textAlign: style.textAlign || 'left',
       fontFamily: style.fontFamily,
       fontWeight: style.fontWeight,
       color: style.color,
       borderRadius: '4px',
-      // Remove any browser-specific styling
-      appearance: 'none',
-      WebkitAppearance: 'none',
-      MozAppearance: 'none',
-      // Ensure consistent rendering
-      verticalAlign: 'top',
-      whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
-      overflow: 'hidden',
-      // Prevent textarea from shrinking
-      flexShrink: 0,
-      flexGrow: 0,
     };
     return (
               <Component
@@ -184,21 +164,6 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         cursor: 'pointer',
         position: 'relative',
         transition: 'all 0.2s ease',
-        // Match input styling exactly
-        margin: 0,
-        padding: 0,
-        boxSizing: 'border-box',
-        display: 'block',
-        verticalAlign: 'top',
-        whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
-        overflow: 'hidden',
-        // Ensure width is preserved exactly
-        width: style.width || '100%',
-        minWidth: style.minWidth || 'auto',
-        maxWidth: style.maxWidth || 'none',
-        // Prevent shrinking
-        flexShrink: 0,
-        flexGrow: 0,
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
