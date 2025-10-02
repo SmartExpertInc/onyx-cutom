@@ -51,18 +51,18 @@ const ReferralSourceSelector: React.FC<ReferralSourceSelectorProps> = ({
       <Select value={referralSource} onValueChange={handleChange}>
         <SelectTrigger
           id="referral-source"
-          className="w-full rounded-full shadow-md hover:shadow-xl focus:ring-0 focus:ring-offset-0 bg-[#ffffff] border-[#d4d4d4] text-gray-900"
+          className="w-full rounded-full shadow-md hover:shadow-xl focus:ring-0 focus:ring-offset-0 !bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 dark:!bg-[#ffffff] dark:!border-[#d4d4d4] dark:!text-gray-900"
         >
           <SelectValue placeholder="Select an option" />
         </SelectTrigger>
         <SelectContent 
-          className="max-h-60 shadow-md hover:shadow-xl overflow-y-auto rounded-2xl bg-[#ffffff] border-[#d4d4d4] text-gray-900"
+          className="max-h-60 shadow-md hover:shadow-xl overflow-y-auto rounded-2xl !bg-[#ffffff] !border-[#d4d4d4] !text-gray-900 dark:!bg-[#ffffff] dark:!border-[#d4d4d4] dark:!text-gray-900"
         >
           {referralOptions.map((option) => (
             <SelectItem
               key={option.value}
               value={option.value}
-              className="py-3 px-4 hover:rounded-full cursor-pointer text-gray-900"
+              className="py-3 px-4 hover:rounded-full cursor-pointer !text-gray-900 dark:!text-gray-900 hover:!bg-gray-100 dark:hover:!bg-gray-100 focus:!bg-gray-100 dark:focus:!bg-gray-100 focus:!text-gray-900 dark:focus:!text-gray-900"
             >
               {option.label}
             </SelectItem>
