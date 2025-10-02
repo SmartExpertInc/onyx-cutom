@@ -5,7 +5,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
   subtitle?: string;
-  theme?: SlideTheme;
+  theme?: string;
   isEditable?: boolean;
   slideId?: string;
   onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
