@@ -96,7 +96,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       minHeight: multiline ? (isTitle ? '260px' : '100px') : undefined,
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
-      padding: isLargeFont ? '0 8px' : undefined,
+      padding: isLargeFont ? '16px' : '8px',
       lineHeight: style.lineHeight || '1.2',
       boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
       width: '100%',
@@ -154,7 +154,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
     );
   }
 
-  const hoverPadding = isLargeFont ? 'p-2 -m-4' : 'p-1 -m-2';
+  const hoverPadding = isLargeFont ? 'p-4' : 'p-2';
   
   return (
     <div
@@ -165,7 +165,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
       }}
-      className={`border-2 border-transparent hover:border-gray-400 rounded-lg group`}
+      className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
