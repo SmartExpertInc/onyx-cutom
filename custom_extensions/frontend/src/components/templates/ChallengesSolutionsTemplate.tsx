@@ -254,56 +254,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
         }}>
           {[1, 2, 3].map((item, index) => (
             <div key={index} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '15px'
+              fontSize: '16px',
+              color: '#000000',
+              fontFamily: 'Arial, sans-serif',
+              fontWeight: 'normal'
             }}>
-              <div style={{
-                fontSize: '16px',
-                color: '#000000',
-                fontFamily: 'Arial, sans-serif',
-                fontWeight: 'normal'
-              }}>
-                Title goes here
-              </div>
-              <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: '#1976D2',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative'
-              }}>
-                <div style={{
-                  width: '12px',
-                  height: '12px',
-                  backgroundColor: '#ffffff',
-                  borderRadius: '50%',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-2px',
-                    right: '-2px',
-                    width: '6px',
-                    height: '6px',
-                    backgroundColor: '#ffffff',
-                    borderRadius: '50%'
-                  }}></div>
-                </div>
-                {/* Dotted line to center */}
-                <div style={{
-                  position: 'absolute',
-                  right: '-100px',
-                  top: '50%',
-                  width: '100px',
-                  height: '2px',
-                  borderTop: '2px dotted #1976D2',
-                  transform: 'translateY(-50%)'
-                }}></div>
-              </div>
+              Title goes here
             </div>
           ))}
         </div>
@@ -321,63 +277,51 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
         }}>
           {[1, 2, 3].map((item, index) => (
             <div key={index} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '15px',
-              flexDirection: 'row-reverse'
+              fontSize: '16px',
+              color: '#000000',
+              fontFamily: 'Arial, sans-serif',
+              fontWeight: 'normal',
+              textAlign: 'right'
             }}>
-              <div style={{
-                fontSize: '16px',
-                color: '#000000',
-                fontFamily: 'Arial, sans-serif',
-                fontWeight: 'normal'
-              }}>
-                Title goes here
-              </div>
-              <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                backgroundColor: '#1976D2',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative'
-              }}>
-                <div style={{
-                  width: '12px',
-                  height: '12px',
-                  backgroundColor: '#ffffff',
-                  borderRadius: '50%',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-2px',
-                    right: '-2px',
-                    width: '6px',
-                    height: '6px',
-                    backgroundColor: '#ffffff',
-                    borderRadius: '50%'
-                  }}></div>
-                </div>
-                {/* Dotted line to center */}
-                <div style={{
-                  position: 'absolute',
-                  left: '-100px',
-                  top: '50%',
-                  width: '100px',
-                  height: '2px',
-                  borderTop: '2px dotted #1976D2',
-                  transform: 'translateY(-50%)'
-                }}></div>
-              </div>
+              Title goes here
             </div>
           ))}
         </div>
 
         <div style={imageContainerStyles}>
           <Image src={groupImg} alt="Group" width={500} height={400} />
+        </div>
+
+        {/* Bottom labels */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, 120px)',
+          display: 'flex',
+          gap: '100px',
+          zIndex: 10
+        }}>
+          <div style={{
+            fontSize: '18px',
+            color: '#000000',
+            fontFamily: 'Arial, sans-serif',
+            fontWeight: 'normal',
+            textAlign: 'center',
+            width: '200px'
+          }}>
+            Challenges
+          </div>
+          <div style={{
+            fontSize: '18px',
+            color: '#000000',
+            fontFamily: 'Arial, sans-serif',
+            fontWeight: 'normal',
+            textAlign: 'center',
+            width: '200px'
+          }}>
+            Solutions
+          </div>
         </div>
       </div>
     </div>
