@@ -241,6 +241,141 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
 
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
+        {/* Left side text items */}
+        <div style={{
+          position: 'absolute',
+          left: '40px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '40px',
+          zIndex: 10
+        }}>
+          {[1, 2, 3].map((item, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '15px'
+            }}>
+              <div style={{
+                fontSize: '16px',
+                color: '#000000',
+                fontFamily: 'Arial, sans-serif',
+                fontWeight: 'normal'
+              }}>
+                Title goes here
+              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: '#1976D2',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '50%',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-2px',
+                    right: '-2px',
+                    width: '6px',
+                    height: '6px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '50%'
+                  }}></div>
+                </div>
+                {/* Dotted line to center */}
+                <div style={{
+                  position: 'absolute',
+                  right: '-100px',
+                  top: '50%',
+                  width: '100px',
+                  height: '2px',
+                  borderTop: '2px dotted #1976D2',
+                  transform: 'translateY(-50%)'
+                }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Right side text items */}
+        <div style={{
+          position: 'absolute',
+          right: '40px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '40px',
+          zIndex: 10
+        }}>
+          {[1, 2, 3].map((item, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '15px',
+              flexDirection: 'row-reverse'
+            }}>
+              <div style={{
+                fontSize: '16px',
+                color: '#000000',
+                fontFamily: 'Arial, sans-serif',
+                fontWeight: 'normal'
+              }}>
+                Title goes here
+              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                backgroundColor: '#1976D2',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+              }}>
+                <div style={{
+                  width: '12px',
+                  height: '12px',
+                  backgroundColor: '#ffffff',
+                  borderRadius: '50%',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: '-2px',
+                    right: '-2px',
+                    width: '6px',
+                    height: '6px',
+                    backgroundColor: '#ffffff',
+                    borderRadius: '50%'
+                  }}></div>
+                </div>
+                {/* Dotted line to center */}
+                <div style={{
+                  position: 'absolute',
+                  left: '-100px',
+                  top: '50%',
+                  width: '100px',
+                  height: '2px',
+                  borderTop: '2px dotted #1976D2',
+                  transform: 'translateY(-50%)'
+                }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         <div style={imageContainerStyles}>
           <Image src={groupImg} alt="Group" width={500} height={400} />
         </div>
