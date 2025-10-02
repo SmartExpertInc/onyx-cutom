@@ -178,6 +178,8 @@ const Sidebar = ({ currentTab, onFolderSelect, selectedFolderId, folders, folder
 export default function BillingPage() {
   const [isAddonsModalOpen, setIsAddonsModalOpen] = useState(false);
   const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [itemToCancel, setItemToCancel] = useState(null);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [folders, setFolders] = useState([]);
   const [folderProjects, setFolderProjects] = useState({});
@@ -368,7 +370,7 @@ export default function BillingPage() {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Your Add-ons */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-200 p-6 relative overflow-hidden">
+              <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
                 <div className="relative z-10">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -377,10 +379,21 @@ export default function BillingPage() {
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {purchasedItems.map((item, index) => (
-                      <div key={index} className="inline-flex items-center gap-3 px-6 py-4 bg-white/80 backdrop-blur-sm text-blue-700 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
-                        {getIcon(item.type)}
-                        <span className="font-medium text-base">{item.name}</span>
-                        <X className="w-5 h-5 cursor-pointer hover:text-red-600 transition-colors" />
+                      <div key={index} className="flex flex-col w-full max-w-xs bg-white backdrop-blur-sm text-blue-700 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        <div className="flex items-center gap-3 px-6 py-4">
+                          {getIcon(item.type)}
+                          <span className="font-medium text-base">{item.name}</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setItemToCancel(item);
+                            setIsCancelModalOpen(true);
+                          }}
+                          className="w-full bg-red-50 border border-red-300 text-red-600 font-medium py-2 px-3 rounded-b-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <X className="w-5 h-5" />
+                          Cancel
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -398,7 +411,13 @@ export default function BillingPage() {
                   <ExternalLink className="w-4 h-4" />
                 </button>
 
-                <button className="w-full bg-white border border-red-300 text-red-600 font-medium py-3 px-4 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                <button 
+                  onClick={() => {
+                    setItemToCancel({ type: 'subscription', name: 'Current Plan', amount: 'Full subscription' });
+                    setIsCancelModalOpen(true);
+                  }}
+                  className="w-full bg-white border border-red-300 text-red-600 font-medium py-3 px-4 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                >
                   <X className="w-5 h-5" />
                   Cancel subscription
                 </button>
@@ -417,6 +436,112 @@ export default function BillingPage() {
         open={isTariffPlanModalOpen}
         onOpenChange={setIsTariffPlanModalOpen}
       />
+
+      {/* Cancel Subscription Confirmation Modal */}
+      {isCancelModalOpen && itemToCancel && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <X className="w-5 h-5 text-red-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Cancel {itemToCancel.type === 'subscription' ? 'Subscription' : 'Add-on'}
+                </h3>
+              </div>
+              
+              {/* Item Details */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  {getIcon(itemToCancel.type)}
+                  <span className="font-medium text-gray-900">{itemToCancel.name}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {itemToCancel.type === 'subscription' ? (
+                    <>
+                      <p>Current Plan: {currentPlan.name}</p>
+                      <p>Price: {currentPlan.price}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p>Amount: {itemToCancel.amount}</p>
+                      <p>Price: ${itemToCancel.price}/month</p>
+                      <p>Purchased: {itemToCancel.purchaseDate}</p>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to cancel this {itemToCancel.type === 'subscription' ? 'subscription' : 'add-on'}? This action will:
+              </p>
+              
+              <ul className="space-y-2 mb-6 text-sm text-gray-600">
+                {itemToCancel.type === 'subscription' ? (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      End your current plan immediately
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      Remove access to premium features
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      Cancel all active add-ons
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      You can reactivate anytime
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      Remove {itemToCancel.name} from your account
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      Stop billing for this add-on
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                      You can re-add it anytime
+                    </li>
+                  </>
+                )}
+              </ul>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setIsCancelModalOpen(false);
+                    setItemToCancel(null);
+                  }}
+                  className="flex-1 bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Keep {itemToCancel.type === 'subscription' ? 'Subscription' : 'Add-on'}
+                </button>
+                <button
+                  onClick={() => {
+                    // Handle actual cancellation logic here
+                    console.log('Cancelling:', itemToCancel);
+                    setIsCancelModalOpen(false);
+                    setItemToCancel(null);
+                    // Add your cancellation logic
+                  }}
+                  className="flex-1 bg-red-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Yes, Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
