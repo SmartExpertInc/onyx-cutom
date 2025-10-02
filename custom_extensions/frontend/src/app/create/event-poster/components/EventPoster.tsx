@@ -94,7 +94,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       border: '2px solid transparent',
       outline: 'none',
       margin: 0,
-      padding: isLargeFont ? '0 8px' : undefined,
+      padding: isLargeFont ? '0 8px' : '0',
       boxSizing: 'border-box',
       display: 'block',
       position: 'relative',
@@ -105,7 +105,10 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
       lineHeight: style.lineHeight || '1.2',
-      width: '100%',
+      // Ensure width is preserved exactly
+      width: style.width || '100%',
+      minWidth: style.minWidth || 'auto',
+      maxWidth: style.maxWidth || 'none',
       textAlign: style.textAlign || 'left',
       fontFamily: style.fontFamily,
       fontWeight: style.fontWeight,
@@ -119,6 +122,9 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       verticalAlign: 'top',
       whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
       overflow: 'hidden',
+      // Prevent textarea from shrinking
+      flexShrink: 0,
+      flexGrow: 0,
     };
     return (
               <Component
@@ -186,6 +192,13 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         verticalAlign: 'top',
         whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
         overflow: 'hidden',
+        // Ensure width is preserved exactly
+        width: style.width || '100%',
+        minWidth: style.minWidth || 'auto',
+        maxWidth: style.maxWidth || 'none',
+        // Prevent shrinking
+        flexShrink: 0,
+        flexGrow: 0,
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
