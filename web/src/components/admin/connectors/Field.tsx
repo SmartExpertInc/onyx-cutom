@@ -205,6 +205,7 @@ export function TextFormField({
   width,
   vertical,
   className,
+  style,
 }: {
   name: string;
   removeLabel?: boolean;
@@ -232,6 +233,7 @@ export function TextFormField({
   width?: string;
   vertical?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -329,6 +331,7 @@ export function TextFormField({
             ${isCode ? "font-mono" : ""}
             ${className}
           `}
+          style={style}
           disabled={disabled}
           placeholder={placeholder}
           autoComplete={autoCompleteDisabled ? "off" : undefined}
