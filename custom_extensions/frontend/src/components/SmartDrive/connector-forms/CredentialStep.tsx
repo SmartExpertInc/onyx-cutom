@@ -1244,10 +1244,11 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
               <input
                 type="file"
                 name={field.name}
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    handleInputChange(field.name, file.name);
+                    const text = await file.text();
+                    handleInputChange(field.name, text);
                   }
                 }}
                 required={field.required}
