@@ -140,7 +140,7 @@ export function EmailPasswordForm({
               label="Email"
               type="email"
               placeholder="email@yourcompany.com"
-              className="dark:!bg-white dark:!border-neutral-200 dark:!text-neutral-950 dark:placeholder:!text-neutral-500"
+              className="!bg-white !border-neutral-200 !text-neutral-950 placeholder:!text-neutral-500 dark:!bg-white dark:!border-neutral-200 dark:!text-neutral-950 dark:placeholder:!text-neutral-500"
             />
 
             <TextFormField
@@ -148,7 +148,7 @@ export function EmailPasswordForm({
               label="Password"
               type="password"
               placeholder="**************"
-              className="dark:!bg-white dark:!border-neutral-200 dark:!text-neutral-950 dark:placeholder:!text-neutral-500"
+              className="!bg-white !border-neutral-200 !text-neutral-950 placeholder:!text-neutral-500 dark:!bg-white dark:!border-neutral-200 dark:!text-neutral-950 dark:placeholder:!text-neutral-500"
             />
 
             <Button
