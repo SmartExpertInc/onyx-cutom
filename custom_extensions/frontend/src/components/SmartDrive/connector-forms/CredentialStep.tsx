@@ -242,9 +242,9 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     className="relative credential-help-trigger"
                     onMouseEnter={() => setHelpOpen(true)}
                     onMouseLeave={(e) => {
-                      // Only close if mouse is not entering the tooltip
+                      // Only close if mouse is not entering the tooltip or the icon
                       const related = (e as React.MouseEvent).relatedTarget as HTMLElement | null;
-                      if (!related || !related.closest('.credential-help-tooltip')) {
+                      if (!related || (!related.closest('.credential-help-tooltip') && !related.closest('.credential-help-trigger'))) {
                         setHelpOpen(false);
                       }
                     }}
@@ -257,15 +257,27 @@ const CredentialStep: FC<CredentialStepProps> = ({
                     >
                       i
                     </button>
+                    {/* Invisible bridge to prevent tooltip from closing when moving from icon to tooltip */}
+                    <div
+                      className="absolute right-0 top-full w-[28rem] max-w-[90vw] h-2 z-40 credential-help-tooltip"
+                      style={{ display: helpOpen ? 'block' : 'none' }}
+                      onMouseEnter={() => setHelpOpen(true)}
+                      onMouseLeave={(e) => {
+                        const related = (e as React.MouseEvent).relatedTarget as HTMLElement | null;
+                        if (!related || (!related.closest('.credential-help-trigger') && !related.closest('.credential-help-tooltip'))) {
+                          setHelpOpen(false);
+                        }
+                      }}
+                    />
                     <div
                       className="absolute right-0 top-full mt-2 w-[28rem] max-w-[90vw] z-50 credential-help-tooltip"
                       role="tooltip"
                       style={{ display: helpOpen ? 'block' : 'none' }}
                       onMouseEnter={() => setHelpOpen(true)}
                       onMouseLeave={(e) => {
-                        // Only close if mouse is not entering the icon
+                        // Only close if mouse is not entering the icon or the tooltip
                         const related = (e as React.MouseEvent).relatedTarget as HTMLElement | null;
-                        if (!related || !related.closest('.credential-help-trigger')) {
+                        if (!related || (!related.closest('.credential-help-trigger') && !related.closest('.credential-help-tooltip'))) {
                           setHelpOpen(false);
                         }
                       }}
@@ -1125,6 +1137,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
   onCredentialCreated,
   onCancel,
 }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1241,19 +1254,28 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
             />
           ) : field.type === 'file' ? (
             <div className="relative">
-              <input
-                type="file"
-                name={field.name}
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const text = await file.text();
-                    handleInputChange(field.name, text);
-                  }
-                }}
-                required={field.required}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-              />
+              <label className="block">
+                <span className="sr-only">{t('interface.selectFile', 'Select file')}</span>
+                <input
+                  type="file"
+                  name={field.name}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const text = await file.text();
+                      handleInputChange(field.name, text);
+                    }
+                  }}
+                  required={field.required}
+                  className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  aria-label={t('interface.selectFile', 'Select file')}
+                />
+              </label>
+              <div className="mt-2 text-sm text-gray-600">
+                {formData[field.name]
+                  ? formData[field.name]
+                  : t('interface.noFileSelected', 'No file selected')}
+              </div>
             </div>
           ) : field.type === 'email' ? (
             <Input
