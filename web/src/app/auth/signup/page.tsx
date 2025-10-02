@@ -71,7 +71,7 @@ const Page = async (props: {
       <>
         <div className="absolute top-10x w-full"></div>
         <div className="flex w-full flex-col justify-center">
-          <h2 className="text-center text-xl font-bold text-gray-900">
+          <h2 className="text-center text-3xl font-bold text-gray-900">
             {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
           </h2>
           {cloud && (

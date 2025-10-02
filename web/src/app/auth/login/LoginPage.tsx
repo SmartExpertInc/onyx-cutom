@@ -35,7 +35,7 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="text-center text-xl font-bold text-neutral-900">
+            <h2 className="text-center text-3xl font-bold text-neutral-900">
               <LoginText />
             </h2>
             <SignInButton
