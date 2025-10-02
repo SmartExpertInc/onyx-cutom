@@ -78,6 +78,20 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     setIsExporting(true);
     setExportStatus('idle');
 
+    // Determine which LMS base URL will be used (DEV overrides US/EU)
+    try {
+      const devFlagResp = await fetch('/api/custom-projects-backend/features/check/is_dev_lms', { credentials: 'same-origin' });
+      const usFlagResp = await fetch('/api/custom-projects-backend/features/check/is_us_lms', { credentials: 'same-origin' });
+      const devFlag = devFlagResp.ok ? await devFlagResp.json() : { is_enabled: true };
+      const usFlag = usFlagResp.ok ? await usFlagResp.json() : { is_enabled: true };
+      const isDev = !!devFlag.is_enabled;
+      const isUs = !!usFlag.is_enabled;
+      const baseUrl = isDev ? 'https://dev.smartexpert.net' : (isUs ? 'https://app.smartexpert.io' : 'https://app.smartexpert.net');
+      console.log('🔗 LMS export will use base URL:', baseUrl);
+    } catch (e) {
+      console.log('🔗 LMS export base URL (default due to error): https://dev.smartexpert.net');
+    }
+
     // Show initial export toast
     const displayCourseNames = getDisplayCourseNames(60);
     const toastId = addToast({

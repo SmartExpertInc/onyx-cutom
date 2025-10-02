@@ -6661,6 +6661,8 @@ async def startup_event():
                     ('col_video_presentation', 'Column: Video Lesson', 'Shows the Video Lesson column', 'Columns'),
                     ('col_lesson_presentation', 'Column: Presentation', 'Shows the Presentation column', 'Columns'),
                     ('export_scorm_2004', 'Export to SCORM 2004', 'Enable SCORM 2004 ZIP export button in course view', 'Exports'),
+                    ('is_us_lms', 'LMS: Use US (.io)', 'If enabled (and DEV disabled), use https://app.smartexpert.io for LMS requests', 'LMS'),
+                    ('is_dev_lms', 'LMS: Use DEV (.net dev)', 'If enabled, always use https://dev.smartexpert.net for LMS requests (overrides US/EU)', 'LMS'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
@@ -6693,25 +6695,29 @@ async def startup_event():
             except Exception as e:
                 logger.warning(f"Error seeding feature definitions (may already exist): {e}")
 
-            # Create feature entries for existing users (all disabled by default)
+            # Create feature entries for existing users (defaults: enable LMS flags)
             try:
                 users = await connection.fetch("SELECT onyx_user_id FROM user_credits")
                 
                 if users:
                     # Get all active feature names
                     feature_names = await connection.fetch("SELECT feature_name FROM feature_definitions WHERE is_active = true")
+
+                    # Feature names that should default to TRUE
+                    default_true_features = { 'is_us_lms', 'is_dev_lms' }
                     
                     for user in users:
                         user_id = user['onyx_user_id']
                         for feature_row in feature_names:
                             feature_name = feature_row['feature_name']
+                            is_enabled_default = feature_name in default_true_features
                             await connection.execute("""
                                 INSERT INTO user_features (user_id, feature_name, is_enabled)
-                                VALUES ($1, $2, false)
+                                VALUES ($1, $2, $3)
                                 ON CONFLICT (user_id, feature_name) DO NOTHING
-                            """, user_id, feature_name)
+                            """, user_id, feature_name, is_enabled_default)
                     
-                    logger.info(f"Created feature entries for {len(users)} existing users.")
+                    logger.info(f"Created feature entries for {len(users)} existing users with LMS defaults enabled.")
             except Exception as e:
                 logger.warning(f"Error creating user feature entries (may already exist): {e}")
 
@@ -34142,6 +34148,25 @@ async def export_to_lms(
         results = []
         total = len(accessible_ids)
         completed = 0
+        # Resolve LMS base URL from user feature flags
+        is_dev = True
+        is_us = True
+        try:
+            async with DB_POOL.acquire() as connection:
+                rows = await connection.fetch(
+                    """
+                    SELECT feature_name, is_enabled
+                    FROM user_features
+                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms')
+                    """,
+                    onyx_user_id,
+                )
+                flags = {r['feature_name']: bool(r['is_enabled']) for r in rows}
+                is_dev = flags.get('is_dev_lms', True)
+                is_us = flags.get('is_us_lms', True)
+        except Exception:
+            pass
+        smartexpert_base_url = "https://dev.smartexpert.net" if is_dev else ("https://app.smartexpert.io" if is_us else "https://app.smartexpert.net")
         yield (json.dumps({"type": "start", "total": total}) + "\n").encode()
 
         for product_id in accessible_ids:
@@ -34266,8 +34291,30 @@ async def create_workspace_owner(http_request: Request):
         if not token:
             token = DEFAULT_SMARTEXPERT_TOKEN
         params = {"name": name_part, "email": user_email, "token": token or ""}
-        target_url = "https://dev.smartexpert.net/store-workspace-owner"
-        logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part}")
+        # Resolve LMS base URL from user feature flags
+        is_dev = True
+        is_us = True
+        try:
+            async with DB_POOL.acquire() as connection:
+                rows = await connection.fetch(
+                    """
+                    SELECT feature_name, is_enabled 
+                    FROM user_features 
+                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms')
+                    """,
+                    user_uuid,
+                )
+                flags = {r['feature_name']: bool(r['is_enabled']) for r in rows}
+                is_dev = flags.get('is_dev_lms', True)
+                is_us = flags.get('is_us_lms', True)
+        except Exception:
+            pass
+        if is_dev:
+            base_url = "https://dev.smartexpert.net"
+        else:
+            base_url = "https://app.smartexpert.io" if is_us else "https://app.smartexpert.net"
+        target_url = f"{base_url}/store-workspace-owner"
+        logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part} base={base_url}")
         import httpx
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.get(target_url, params=params, headers={"User-Agent": "Custom Extensions Backend"})

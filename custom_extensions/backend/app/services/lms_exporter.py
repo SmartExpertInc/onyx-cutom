@@ -17,9 +17,13 @@ logger = logging.getLogger(__name__)
 DEFAULT_SMARTEXPERT_TOKEN = "$2y$12$r5QySSqmYsCvg9DczLhx0ewIhoTsYwNDDD4P8XuHNswtNpEdjQOYm"
 
 
-async def post_export_to_smartexpert(structure_json: bytes, user_email: str, token: Optional[str]) -> Optional[Dict[str, Any]]:
+async def post_export_to_smartexpert(structure_json: bytes, user_email: str, token: Optional[str], base_url: Optional[str] = None) -> Optional[Dict[str, Any]]:
     try:
-        api_url = os.environ.get('SMARTEXPERT_API_URL', 'https://dev.smartexpert.net/api/v1/generate-product')
+        api_url = None
+        if base_url:
+            api_url = f"{base_url.rstrip('/')}/api/v1/generate-product"
+        else:
+            api_url = os.environ.get('SMARTEXPERT_API_URL', 'https://dev.smartexpert.net/api/v1/generate-product')
         api_token = token or DEFAULT_SMARTEXPERT_TOKEN
         if not api_token:
             logger.info("[SmartExpert] Token not provided; skipping external POST")
@@ -52,7 +56,8 @@ async def export_course_outline_to_lms_format(
     course_outline_id: int,
     user_id: str,
     user_email: str,
-    smartexpert_token: Optional[str] = None
+    smartexpert_token: Optional[str] = None,
+    smartexpert_base_url: Optional[str] = None
 ) -> dict:
     logger.info(f"[LMS] Export start | user={user_id} course_id={course_outline_id}")
 
@@ -558,7 +563,7 @@ async def export_course_outline_to_lms_format(
     structure_path = await upload_file_to_smartdrive(user_id, structure_json, "course_structure.json", export_folder)
     structure_download_link = await create_public_download_link(user_id, structure_path)
 
-    smartexpert_result = await post_export_to_smartexpert(structure_json, user_email, smartexpert_token)
+    smartexpert_result = await post_export_to_smartexpert(structure_json, user_email, smartexpert_token, smartexpert_base_url)
 
     return {
         "courseTitle": main_title,
