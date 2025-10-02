@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import Image from 'next/image';
 import groupImg from './group_img.png';
-// import groupImg from './group_img.png';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
