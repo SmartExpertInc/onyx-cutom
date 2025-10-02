@@ -45,6 +45,24 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  // Log the LMS base URL on page mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const devFlagResp = await fetch('/api/custom-projects-backend/features/check/is_dev_lms', { credentials: 'same-origin' });
+        const usFlagResp = await fetch('/api/custom-projects-backend/features/check/is_us_lms', { credentials: 'same-origin' });
+        const devFlag = devFlagResp.ok ? await devFlagResp.json() : { is_enabled: true };
+        const usFlag = usFlagResp.ok ? await usFlagResp.json() : { is_enabled: true };
+        const isDev = !!devFlag.is_enabled;
+        const isUs = !!usFlag.is_enabled;
+        const baseUrl = isDev ? 'https://dev.smartexpert.net' : (isUs ? 'https://app.smartexpert.io' : 'https://app.smartexpert.net');
+        console.log('🔗 LMS export base URL:', baseUrl);
+      } catch (e) {
+        console.log('🔗 LMS export base URL (default due to error): https://dev.smartexpert.net');
+      }
+    })();
+  }, []);
+
   // Fetch products
   const fetchProducts = useCallback(async () => {
     setLoading(true);

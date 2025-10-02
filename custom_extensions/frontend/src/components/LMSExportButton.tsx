@@ -104,8 +104,7 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
     });
 
     try {
-      console.log('🎓 Starting LMS export for course outlines:', Array.from(selectedProducts));
-
+      
       const response = await fetch('/api/custom-projects-backend/lms/export', {
         method: 'POST',
         headers: {
@@ -143,7 +142,6 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
             try {
               const packet = JSON.parse(trimmed);
               if (packet.type === 'progress') {
-                console.log('📦 LMS export progress:', packet.message || packet);
                 // Convert course numbers to course names in progress message
                 const convertedMessage = convertProgressMessage(packet.message || `Processing course export...`);
                 // Update toast with progress
@@ -151,17 +149,15 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
                   description: convertedMessage,
                 });
               } else if (packet.type === 'start') {
-                console.log('🚀 LMS export started:', packet);
-                const convertedStartMessage = convertProgressMessage(packet.message || `Export in progress...`);
-                updateToast(toastId, {
-                  description: convertedStartMessage,
-                });
+                
               } else if (packet.type === 'done') {
                 finalPayload = packet.payload;
                 userMessage = packet.userMessage;
+              } else {
+                
               }
-            } catch (e) {
-              console.warn('⚠️ Failed to parse export stream packet:', e, line);
+            } catch (err) {
+              
             }
           }
         }
