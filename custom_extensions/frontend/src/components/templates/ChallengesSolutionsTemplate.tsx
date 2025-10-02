@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
   subtitle?: string;
   theme?: string;
-  imagePath?: string;
   isEditable?: boolean;
   slideId?: string;
   onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
@@ -117,7 +115,6 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   title = 'Challenges & Solutions',
   subtitle = 'Type The Subtitle Of Your Great Here',
   theme,
-  imagePath: initialImagePath = '/group_img.png',
   isEditable = true,
   slideId = 'challenges-solutions',
   onUpdate
@@ -127,7 +124,6 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
-  const [imagePath, setImagePath] = useState<string>(initialImagePath);
   const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTitleSave = (value: string) => {
@@ -146,12 +142,6 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     }
   };
 
-  const handleImageUploaded = (newImagePath: string) => {
-    setImagePath(newImagePath);
-    if (onUpdate) {
-      onUpdate({ imagePath: newImagePath });
-    }
-  };
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -250,14 +240,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
         <div style={imageContainerStyles}>
-          <ClickableImagePlaceholder
-            imagePath={imagePath || '/group_img.png'}
-            onImageUploaded={handleImageUploaded}
-            size="LARGE"
-            position="CENTER"
-            description="Click to upload group image"
-            prompt="A professional group of diverse people working together on challenges and solutions"
-            isEditable={isEditable}
+          <img 
+            src="/group_img.png" 
+            alt="Group" 
             style={{
               width: '100%',
               height: '100%',
@@ -265,10 +250,6 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
               maxHeight: '400px',
               objectFit: 'contain'
             }}
-            elementId={`${slideId}-main-image`}
-            slideContainerRef={slideContainerRef}
-            templateId="challenges-solutions"
-            cropMode="contain"
           />
         </div>
       </div>
