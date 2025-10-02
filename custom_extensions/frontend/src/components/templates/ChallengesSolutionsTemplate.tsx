@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import groupImg from '/group_img.png';
+// import groupImg from './group_img.png';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
@@ -62,7 +62,7 @@ function InlineEditor({
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder={placeholder}
@@ -91,23 +91,23 @@ function InlineEditor({
       ref={inputRef as React.RefObject<HTMLInputElement>}
       type="text"
       value={value}
-      onChange={(e) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      className={className}
-      style={{
-        ...style,
-        border: 'none',
-        outline: 'none',
-        background: 'transparent',
-        fontFamily: 'inherit',
-        fontSize: 'inherit',
-        fontWeight: 'inherit',
-        color: 'inherit',
-        textAlign: 'inherit',
-        width: '100%'
-      }}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        className={className}
+        style={{
+          ...style,
+          border: 'none',
+          outline: 'none',
+          background: 'transparent',
+          fontFamily: 'inherit',
+          fontSize: 'inherit',
+          fontWeight: 'inherit',
+          color: 'inherit',
+          textAlign: 'inherit',
+          width: '100%'
+        }}
     />
   );
 }
@@ -119,7 +119,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   isEditable = true,
   slideId = 'challenges-solutions',
   onUpdate
-}) => {
+}: ChallengesSolutionsTemplateProps) => {
   const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
@@ -242,7 +242,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       <div style={mainContentStyles}>
         <div style={imageContainerStyles}>
           <img 
-            src={groupImg} 
+            src="/group_img.png" 
             alt="Group" 
             style={{
               width: '100%',
