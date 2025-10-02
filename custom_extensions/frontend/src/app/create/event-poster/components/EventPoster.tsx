@@ -165,7 +165,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
       }}
-      className={`hover:bg-white hover:bg-opacity-70 hover:shadow-lg rounded-lg ${hoverPadding} group`}
+      className={`hover:border-2 hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
