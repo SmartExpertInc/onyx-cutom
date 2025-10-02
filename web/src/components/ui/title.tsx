@@ -7,12 +7,13 @@ export default function Title({
 }: {
   children: React.ReactNode;
   className?: string;
-  size?: "lg" | "md" | "sm";
+  size?: "xl" | "lg" | "md" | "sm";
 }) {
   return (
     <h1
       className={cn(
         "text-lg text-neutral-800 dark:text-neutral-200 font-medium",
+        size === "xl" && "text-3xl",
         size === "lg" && "text-2xl",
         size === "md" && "text-xl",
         size === "sm" && "text-lg",

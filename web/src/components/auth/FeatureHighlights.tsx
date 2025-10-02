@@ -58,8 +58,7 @@ export default function FeatureHighlights() {
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className="w-4 h-4" 
-                    style={{ fill: '#facc15 !important', color: '#facc15 !important' }}
+                    className="w-4 h-4 text-[#facc15] fill-[#facc15]"
                   />
                 ))}
               </div>
@@ -82,8 +81,7 @@ export default function FeatureHighlights() {
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className="w-4 h-4" 
-                    style={{ fill: '#facc15 !important', color: '#facc15 !important' }}
+                    className="w-4 h-4 text-[#facc15] fill-[#facc15]" 
                   />
                 ))}
               </div>

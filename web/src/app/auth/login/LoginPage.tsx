@@ -35,7 +35,7 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="text-center text-3xl font-bold text-neutral-900">
+            <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
               <LoginText />
             </h2>
             <SignInButton
@@ -47,7 +47,7 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="text-center text-xl text-strong font-bold dark:!text-strong">
+          <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
             <LoginText />
           </h2>
           <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
@@ -64,9 +64,9 @@ export default function LoginPage({
           {authUrl && authTypeMetadata && (
             <>
               <div className="flex items-center w-full my-4">
-                <div className="flex-grow border-t border-background-300"></div>
+                <div className="flex-grow border-t-2 border-gray-300"></div>
                 <span className="px-4 text-gray-900">or</span>
-                <div className="flex-grow border-t border-background-300"></div>
+                <div className="flex-grow border-t-2 border-gray-300"></div>
               </div>
 
               <SignInButton
@@ -81,7 +81,7 @@ export default function LoginPage({
       {authTypeMetadata?.authType === "basic" && (
         <>
           <div className="flex">
-            <Title className="mb-2 mx-auto text-3xl font-bold text-neutral-900 dark:!text-neutral-900">
+            <Title size="xl" className="mb-2 text-center font-bold text-gray-900">
               <LoginText />
             </Title>
           </div>

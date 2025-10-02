@@ -51,21 +51,18 @@ const ReferralSourceSelector: React.FC<ReferralSourceSelectorProps> = ({
       <Select value={referralSource} onValueChange={handleChange}>
         <SelectTrigger
           id="referral-source"
-          className="w-full rounded-full shadow-md hover:shadow-xl focus:ring-0 focus:ring-offset-0"
-          style={{ backgroundColor: 'white !important', borderColor: '#d4d4d4 !important', color: '#0a0a0a !important' }}
+          className="w-full rounded-full shadow-md hover:shadow-xl focus:ring-0 focus:ring-offset-0 bg-[#ffffff] border-[#d4d4d4] text-gray-900"
         >
           <SelectValue placeholder="Select an option" />
         </SelectTrigger>
         <SelectContent 
-          className="max-h-60 shadow-md hover:shadow-xl overflow-y-auto rounded-2xl"
-          style={{ backgroundColor: 'white !important', borderColor: '#d4d4d4 !important', color: '#0a0a0a !important' }}
+          className="max-h-60 shadow-md hover:shadow-xl overflow-y-auto rounded-2xl bg-[#ffffff] border-[#d4d4d4] text-gray-900"
         >
           {referralOptions.map((option) => (
             <SelectItem
               key={option.value}
               value={option.value}
-              className="py-3 px-4 hover:rounded-full cursor-pointer"
-              style={{ color: '#0a0a0a !important' }}
+              className="py-3 px-4 hover:rounded-full cursor-pointer text-gray-900"
             >
               {option.label}
             </SelectItem>

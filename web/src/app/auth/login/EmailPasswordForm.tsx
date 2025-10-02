@@ -140,7 +140,7 @@ export function EmailPasswordForm({
               label="Email"
               type="email"
               placeholder="email@yourcompany.com"
-              style={{ backgroundColor: 'white !important', borderColor: '#d4d4d4 !important', color: '#0a0a0a !important' }}
+              className="bg-[#ffffff] border-[#d4d4d4] text-gray-900"
             />
 
             <TextFormField
@@ -148,15 +148,14 @@ export function EmailPasswordForm({
               label="Password"
               type="password"
               placeholder="**************"
-              style={{ backgroundColor: 'white !important', borderColor: '#d4d4d4 !important', color: '#0a0a0a !important' }}
+              className="bg-[#ffffff] border-[#d4d4d4] text-gray-900"
             />
 
             <Button
               variant="default"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full shadow-md hover:shadow-xl transition-shadow mt-4"
-              style={{ backgroundColor: '#1d4ed8 !important', color: 'white !important' }}
+              className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full shadow-md hover:shadow-xl transition-shadow mt-4 bg-[#1d4ed8] text-[#ffffff]"
             >
               {isJoin ? "Join" : isSignup ? "Sign Up" : "Log In"}
             </Button>
