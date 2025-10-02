@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Image, Loader, Edit3, Save } from 'lucide-react';
+import { useLanguage } from "../../../../contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -191,6 +193,7 @@ export default function EventPoster({
   onError,
   projectId
 }: EventPosterProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   
   // State for editable fields
@@ -391,25 +394,26 @@ export default function EventPoster({
     <div className="space-y-6">
       {/* Action Buttons */}
       <div className="flex justify-center gap-4">
-        <button
+        <Button
+          variant="download"
           onClick={handleDownloadPoster}
           disabled={isGenerating}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg w-full transition-colors ${
             isGenerating
               ? 'bg-blue-500 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
-              : 'bg-green-600 hover:bg-green-700 text-white cursor-pointer focus:ring-green-500'
+              : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
           }`}
-          title={isGenerating ? 'Poster image generation in progress...' : 'Generate and download poster image'}
+          title={isGenerating ? t('interface.eventPosterForm.posterGenerationInProgress', 'Poster image generation in progress...') : t('interface.eventPosterForm.generateAndDownloadPosterTooltip', 'Generate and download poster image')}
         >
           {isGenerating ? <Loader size={16} className="animate-spin" /> : <Image size={16} />}
-          {isGenerating ? 'Generating Poster...' : 'Generate and Download Poster'}
-        </button>
+          {isGenerating ? `${t('interface.eventPosterForm.generatingPoster', 'Generating Poster...')}` : `${t('interface.eventPosterForm.generateAndDownloadPoster', 'Generate and Download Poster')}`}
+        </Button>
       </div>
 
       {/* Editable Fields Info */}
       <div className="text-center text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
         <Edit3 size={16} className="inline mr-2" />
-        Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.
+        {t('interface.eventPosterForm.editInstructions', 'Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.')}
       </div>
 
       {/* Poster */}
