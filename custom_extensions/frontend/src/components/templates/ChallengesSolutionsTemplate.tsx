@@ -201,11 +201,14 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       )}
 
       <div style={mainContentStyles}>
-        {/* Group Image */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src="/group_img.png" 
           alt="Group" 
           style={imageStyles}
+          onError={(e) => {
+            console.error('Image failed to load:', e);
+          }}
         />
       </div>
     </div>
