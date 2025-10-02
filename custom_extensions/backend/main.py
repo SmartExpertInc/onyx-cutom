@@ -30479,40 +30479,6 @@ async def set_smartdrive_credentials(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/custom/smartdrive/credentials")
-async def set_smartdrive_credentials(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
-    """Set or update user's Nextcloud credentials"""
-    try:
-        onyx_user_id = await get_current_onyx_user_id(request)
-        data = await request.json()
-        
-        nextcloud_username = data.get('nextcloud_username', '').strip()
-        nextcloud_password = data.get('nextcloud_password', '').strip()
-        nextcloud_base_url = data.get('nextcloud_base_url', 'http://nc1.contentbuilder.ai:8080').strip()
-        
-        if not nextcloud_username or not nextcloud_password:
-            raise HTTPException(status_code=400, detail="Username and password are required")
-        
-        # Encrypt password
-        encrypted_password = encrypt_password(nextcloud_password)
-        
-        async with pool.acquire() as conn:
-            await conn.execute("""
-                UPDATE smartdrive_accounts 
-                SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
-                WHERE onyx_user_id = $1
-            """, onyx_user_id, nextcloud_username, encrypted_password, nextcloud_base_url, datetime.now(timezone.utc))
-            
-        logger.info(f"Updated Nextcloud credentials for user: {onyx_user_id}")
-        return {"success": True, "message": "Nextcloud credentials saved successfully"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error setting SmartDrive credentials: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.get("/api/custom/smartdrive/list")
 async def list_smartdrive_files(
     request: Request,
