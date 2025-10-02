@@ -17,6 +17,7 @@ import {
   Plus
 } from 'lucide-react';
 import AvatarPopup from './AvatarPopup';
+import { useAvatarData } from './AvatarDataService';
 
 interface ToolbarProps {
   onActiveToolChange?: (toolId: string) => void;
@@ -42,6 +43,26 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
   const interactionButtonRef = useRef<HTMLDivElement>(null);
   const avatarButtonRef = useRef<HTMLDivElement>(null);
   const defaultButtonRef = useRef<HTMLDivElement>(null);
+
+  // 🔍 **DEBUG LOGGING: Toolbar Component Initialization**
+  console.log('🎬 [TOOLBAR] Toolbar component initialized');
+
+  // Use real avatar data service
+  const { avatarData, processedAvatars, isLoading, error, refreshAvatars } = useAvatarData();
+
+  // 🔍 **DEBUG LOGGING: Avatar Data Service Integration**
+  console.log('🎬 [TOOLBAR] Avatar data service state:', {
+    avatarDataCount: avatarData.length,
+    processedAvatarsCount: processedAvatars.length,
+    isLoading,
+    error
+  });
+
+  const handleAvatarSelect = (avatar: any, variant?: any) => {
+    console.log('🎬 [TOOLBAR] Avatar selected from toolbar:', avatar, variant);
+    // Here you would typically add the selected avatar to the video editor
+    setIsAvatarPopupOpen(false);
+  };
 
   // Custom flag icon with EN text
   const renderCustomFlag = () => (
@@ -443,6 +464,8 @@ export default function Toolbar({ onActiveToolChange, onTextButtonClick, onShape
         <AvatarPopup 
           isOpen={isAvatarPopupOpen}
           onClose={() => setIsAvatarPopupOpen(false)}
+          onAvatarSelect={handleAvatarSelect}
+          avatarData={avatarData}
           displayMode="popup"
           position={{
             x: avatarButtonRef.current ? (() => {
