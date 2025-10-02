@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import groupImg from '/group_img.png';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
@@ -204,7 +203,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       <div style={mainContentStyles}>
         {/* Group Image */}
         <img 
-          src={groupImg} 
+          src="/group_img.png" 
           alt="Group" 
           style={imageStyles}
         />
