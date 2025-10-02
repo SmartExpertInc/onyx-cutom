@@ -675,7 +675,11 @@ export default function ProjectInstanceViewPage() {
       }
       
       // Check if this is an Event Poster project and redirect accordingly
-      if (instanceData.name && instanceData.name.startsWith("Event Poster:")) {
+      const looksLikePosterDetails = !!(instanceData.details && (
+        (instanceData.details as any).eventName ||
+        ((instanceData.details as any).topic && (instanceData.details as any).date)
+      ));
+      if ((instanceData.name && instanceData.name.startsWith("Event Poster:")) || looksLikePosterDetails) {
         console.log('🔄 [EVENT POSTER DETECTED] Redirecting to event poster page:', instanceData.project_id);
         // Redirect directly with project ID (same as AI audit approach)
         router.push(`/create/event-poster/results/${instanceData.project_id}`);
