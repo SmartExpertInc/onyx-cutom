@@ -45,32 +45,21 @@ export default async function Page() {
       <div
         className="p-4 flex flex-col items-center justify-center min-h-screen"
       >
-        <div
-          className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 gap-y-2 transition-all duration-200"
-          style={{
-            backdropFilter: "blur(40px)",
-            boxShadow:
-              "0px 4px 8px 0px #00000014, -4px -4px 4px -4px #FFFFFF inset, 4px 4px 4px -4px #FFFFFF inset",
-          }}
-        >
+        <div className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 transition-all duration-200">
           <Logo width={70} height={70} />
-          <div className="w-full">
-            <div className="flex">
-              <Text className="text-center font-medium text-lg mt-6 w-108">
-                Hey <i>{currentUser.email}</i> - it looks like you haven&apos;t
-                verified your email yet.
-                <br />
-                Check your inbox for an email from us to get started!
-                <br />
-                <br />
-                If you don&apos;t see anything, click{" "}
-                <RequestNewVerificationEmail email={currentUser.email}>
-                  here
-                </RequestNewVerificationEmail>{" "}
-                to request a new email.
-              </Text>
-            </div>
-          </div>
+          <Text className="text-center font-medium text-lg mt-6 w-108">
+            Hey <i>{currentUser.email}</i> - it looks like you haven&apos;t
+            verified your email yet.
+            <br />
+            Check your inbox for an email from us to get started!
+            <br />
+            <br />
+            If you don&apos;t see anything, click{" "}
+            <RequestNewVerificationEmail email={currentUser.email}>
+              here
+            </RequestNewVerificationEmail>{" "}
+            to request a new email.
+          </Text>
         </div>
       </div>
     </main>

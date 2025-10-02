@@ -62,7 +62,7 @@ export default function FeatureHighlights() {
             </div>
           </div>
           <p className="text-gray-700 text-sm">
-            "This platform transformed how our team creates training materials. The quality is outstanding!"
+            &ldquo;This platform transformed how our team creates training materials. The quality is outstanding!&rdquo;
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export default function FeatureHighlights() {
             </div>
           </div>
           <p className="text-gray-700 text-sm">
-            "Incredible value and ease of use. I've created more content in a month than I did all last year."
+            &ldquo;Incredible value and ease of use. I&rsquo;ve created more content in a month than I did all last year.&rdquo;
           </p>
         </div>
       </div>
