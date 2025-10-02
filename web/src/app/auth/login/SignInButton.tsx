@@ -15,13 +15,13 @@ export function SignInButton({
         <div className="my-auto mr-2">
           <FcGoogle />
         </div>
-        <p className="text-sm font-medium select-none text-gray-900 dark:!text-gray-900">Continue with Google</p>
+        <p className="text-sm font-medium select-none" style={{ color: '#111827 !important' }}>Continue with Google</p>
       </div>
     );
   } else if (authType === "oidc") {
     button = (
       <div className="mx-auto flex">
-        <p className="text-sm font-medium select-none text-neutral-900 dark:!text-neutral-900">
+        <p className="text-sm font-medium select-none" style={{ color: '#111827 !important' }}>
           Continue with OIDC SSO
         </p>
       </div>
@@ -29,7 +29,7 @@ export function SignInButton({
   } else if (authType === "saml") {
     button = (
       <div className="mx-auto flex">
-        <p className="text-sm font-medium select-none text-neutral-900 dark:!text-neutral-900">
+        <p className="text-sm font-medium select-none" style={{ color: '#111827 !important' }}>
           Continue with SAML SSO
         </p>
       </div>
@@ -46,7 +46,8 @@ export function SignInButton({
 
   return (
       <a
-        className="mx-auto mb-4 mt-6 py-3 px-4 w-full bg-white dark:!bg-white text-neutral-900 dark:!text-neutral-900 border border-neutral-300 dark:!border-neutral-300 flex rounded-full cursor-pointer shadow-md hover:shadow-xl transition-all"
+        className="mx-auto mb-4 mt-6 py-3 px-4 w-full flex rounded-full cursor-pointer shadow-md hover:shadow-xl transition-all"
+        style={{ backgroundColor: 'white !important', color: '#111827 !important', borderColor: '#d4d4d4 !important' }}
         href={finalAuthorizeUrl}
       >
       {button}

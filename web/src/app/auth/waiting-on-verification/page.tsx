@@ -8,7 +8,7 @@ import { HealthCheckBanner } from "@/components/health/healthcheck";
 import { User } from "@/lib/types";
 import Text from "@/components/ui/text";
 import { RequestNewVerificationEmail } from "./RequestNewVerificationEmail";
-import { Logo } from "@/components/logo/Logo";
+import { Mail } from "lucide-react";
 // keep layout minimal; apply the same gradient background as signup
 
 export default async function Page() {
@@ -46,20 +46,41 @@ export default async function Page() {
         className="p-4 flex flex-col items-center justify-center min-h-screen"
       >
         <div className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 transition-all duration-200">
-          <Logo width={70} height={70} />
-          <Text className="text-center font-medium text-lg mt-6 w-108">
-            Hey <i>{currentUser.email}</i> - it looks like you haven&apos;t
-            verified your email yet.
-            <br />
-            Check your inbox for an email from us to get started!
-            <br />
-            <br />
-            If you don&apos;t see anything, click{" "}
-            <RequestNewVerificationEmail email={currentUser.email}>
-              here
-            </RequestNewVerificationEmail>{" "}
-            to request a new email.
-          </Text>
+          {/* Semitransparent blue circle with mail icon */}
+          <div className="w-20 h-20 rounded-full bg-blue-500/30 flex items-center justify-center mb-4">
+            <Mail className="w-10 h-10 text-blue-600" />
+          </div>
+          
+          {/* Title */}
+          <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+            Check your email
+          </h1>
+          
+          {/* Content */}
+          <div className="text-center space-y-4">
+            <Text className="text-gray-700">
+              Hey <i className="text-blue-600">{currentUser.email}</i> - it looks like you haven&apos;t verified your email yet.
+            </Text>
+            
+            <Text className="text-gray-700">
+              Check your inbox for an email from us to get started!
+            </Text>
+            
+            <Text className="text-gray-700">
+              If you don&apos;t see anything, click{" "}
+              <RequestNewVerificationEmail email={currentUser.email}>
+                <span className="text-blue-600 font-semibold">here</span>
+              </RequestNewVerificationEmail>{" "}
+              to request a new email.
+            </Text>
+            
+            <Text className="text-gray-700">
+              Still having trouble?{" "}
+              <a href="mailto:support@example.com" className="text-blue-600">
+                Contact support
+              </a>
+            </Text>
+          </div>
         </div>
       </div>
     </main>
