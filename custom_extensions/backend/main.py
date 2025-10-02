@@ -8793,15 +8793,31 @@ async def migrate_onyx_users_to_credits_table() -> int:
                 migrated_count = 0
                 for user in onyx_users:
                     try:
+                        # Insert user credits (original migration logic)
                         await custom_conn.execute("""
                             INSERT INTO user_credits (onyx_user_id, name, credits_balance)
                             VALUES ($1, $2, 100)
                             ON CONFLICT (onyx_user_id) DO NOTHING
                         """, user['onyx_user_id'], user['name'])
+                        
+                        # Create SmartDrive account placeholder for migrated user
+                        # This ensures migrated users also get SmartDrive accounts like new users
+                        await custom_conn.execute("""
+                            INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                            VALUES ($1, $2, $3, $4)
+                            ON CONFLICT (onyx_user_id) DO NOTHING
+                        """, user['onyx_user_id'], '{}', datetime.now(timezone.utc), datetime.now(timezone.utc))
+                        
+                        # Also assign default user type to migrated users
+                        await assign_default_user_type(user['onyx_user_id'], custom_conn)
+                        
                         migrated_count += 1
+                        logger.info(f"Migrated user {user['onyx_user_id']} ({user['name']}) with credits and SmartDrive account")
+                        
                     except Exception as e:
                         logger.warning(f"Failed to migrate user {user['onyx_user_id']}: {e}")
                 
+                logger.info(f"Successfully migrated {migrated_count} users with credits, SmartDrive accounts, and user types")
                 return migrated_count
                 
         except Exception as e:
@@ -28319,12 +28335,63 @@ async def migrate_onyx_users_to_credits(
         
         return {
             "success": True,
-            "message": f"Successfully migrated {migrated_count} new users with 100 credits each",
+            "message": f"Successfully migrated {migrated_count} new users with 100 credits each and SmartDrive accounts",
             "users_migrated": migrated_count
         }
     except Exception as e:
         logger.error(f"Error migrating users: {e}")
         raise HTTPException(status_code=500, detail="Failed to migrate users")
+
+@app.post("/api/custom/admin/smartdrive/create-missing-accounts")
+async def create_missing_smartdrive_accounts(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to create SmartDrive accounts for users who don't have them yet"""
+    await verify_admin_user(request)
+    
+    try:
+        async with pool.acquire() as conn:
+            # Find users with credits but no SmartDrive account
+            users_without_smartdrive = await conn.fetch("""
+                SELECT uc.onyx_user_id, uc.name
+                FROM user_credits uc
+                LEFT JOIN smartdrive_accounts sa ON uc.onyx_user_id = sa.onyx_user_id
+                WHERE sa.onyx_user_id IS NULL
+            """)
+            
+            if not users_without_smartdrive:
+                return {
+                    "success": True,
+                    "message": "All users already have SmartDrive accounts",
+                    "accounts_created": 0
+                }
+            
+            created_count = 0
+            for user in users_without_smartdrive:
+                try:
+                    # Create SmartDrive account placeholder
+                    await conn.execute("""
+                        INSERT INTO smartdrive_accounts (onyx_user_id, sync_cursor, created_at, updated_at)
+                        VALUES ($1, $2, $3, $4)
+                        ON CONFLICT (onyx_user_id) DO NOTHING
+                    """, user['onyx_user_id'], '{}', datetime.now(timezone.utc), datetime.now(timezone.utc))
+                    
+                    created_count += 1
+                    logger.info(f"Created SmartDrive account for existing user: {user['onyx_user_id']} ({user['name']})")
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to create SmartDrive account for user {user['onyx_user_id']}: {e}")
+            
+            return {
+                "success": True,
+                "message": f"Successfully created SmartDrive accounts for {created_count} users",
+                "accounts_created": created_count
+            }
+            
+    except Exception as e:
+        logger.error(f"Error creating missing SmartDrive accounts: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create SmartDrive accounts")
 
 @app.post("/api/custom/admin/credits/modify", response_model=CreditTransactionResponse)
 async def modify_user_credits(
