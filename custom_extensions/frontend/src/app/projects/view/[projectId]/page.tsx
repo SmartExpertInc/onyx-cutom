@@ -41,6 +41,7 @@ import { createPortal } from 'react-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import useFeaturePermission from '../../../../hooks/useFeaturePermission';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
+import { ToastProvider } from '@/components/ui/toast';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -1979,12 +1980,14 @@ export default function ProjectInstanceViewPage() {
             )}
 
             {projectInstanceData && projectInstanceData.component_name === COMPONENT_NAME_TRAINING_PLAN && projectId && scormEnabled && (
-              <ScormDownloadButton
-                courseOutlineId={Number(projectId)}
-                label={t('interface.projectView.exportScorm', 'Export to SCORM 2004')}
-                className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
-                style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
-              />
+              <ToastProvider>
+                <ScormDownloadButton
+                  courseOutlineId={Number(projectId)}
+                  label={t('interface.projectView.exportScorm', 'Export to SCORM 2004')}
+                  className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
+                  style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
+                />
+              </ToastProvider>
             )}
 
             {/* Theme Picker button for Training Plans */}
