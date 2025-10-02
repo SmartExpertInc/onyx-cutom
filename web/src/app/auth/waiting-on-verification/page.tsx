@@ -45,38 +45,38 @@ export default async function Page() {
       <div
         className="p-4 flex flex-col items-center justify-center min-h-screen"
       >
-        <div className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 transition-all duration-200">
+        <div className="w-full max-w-md pt-8 pb-6 px-8 mx-4 gap-y-4 flex items-center flex-col rounded-2xl hover:shadow-xl backdrop-blur-md bg-white/20 border border-white/30 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           {/* Semitransparent blue circle with mail icon */}
-          <div className="w-20 h-20 rounded-full bg-blue-500/30 flex items-center justify-center mb-4">
-            <Mail className="w-10 h-10 text-blue-600" />
+          <div className="w-20 h-20 rounded-full bg-[#1d4ed8] flex items-center justify-center mb-4">
+            <Mail className="w-10 h-10 text-[#FFFFFF]" />
           </div>
           
           {/* Title */}
-          <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Check your email
-          </h1>
+          </h2>
           
           {/* Content */}
           <div className="text-center space-y-4">
-            <Text className="text-gray-700">
-              Hey <i className="text-blue-600">{currentUser.email}</i> - it looks like you haven&apos;t verified your email yet.
+            <Text className="text-gray-900 font-semibold">
+              Hey <i className="text-[#1d4ed8] font-semibold">{currentUser.email}</i> - it looks like you haven&apos;t verified your email yet.
             </Text>
             
-            <Text className="text-gray-700">
+            <Text className="text-gray-700 mb-4">
               Check your inbox for an email from us to get started!
             </Text>
             
             <Text className="text-gray-700">
               If you don&apos;t see anything, click{" "}
               <RequestNewVerificationEmail email={currentUser.email}>
-                <span className="text-blue-600 font-semibold">here</span>
+                <span className="text-[#1d4ed8] font-semibold">here</span>
               </RequestNewVerificationEmail>{" "}
               to request a new email.
             </Text>
             
-            <Text className="text-gray-700">
+            <Text className="text-gray-700 mt-6">
               Still having trouble?{" "}
-              <a href="mailto:support@example.com" className="text-blue-600">
+              <a href="mailto:support@example.com" className="text-[#1d4ed8]">
                 Contact support
               </a>
             </Text>
