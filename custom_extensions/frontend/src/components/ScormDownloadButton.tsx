@@ -8,9 +8,11 @@ import { useToast } from './ui/toast';
 interface ScormDownloadButtonProps {
   courseOutlineId: number;
   label?: string;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutlineId, label }) => {
+const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutlineId, label, className, style }) => {
   const { addToast, updateToast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -50,7 +52,7 @@ const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutline
   };
 
   return (
-    <Button onClick={handleDownload} disabled={isExporting} className={`flex items-center gap-2 px-4 ${isExporting ? 'cursor-wait opacity-80' : ''}`}>
+    <Button onClick={handleDownload} disabled={isExporting} className={`flex items-center gap-2 ${className || 'px-4'} ${isExporting ? 'cursor-wait opacity-80' : ''}`} style={style}>
       {isExporting ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Download size={18} />}
       {label || (isExporting ? 'Exporting…' : 'Download SCORM 2004')}
     </Button>

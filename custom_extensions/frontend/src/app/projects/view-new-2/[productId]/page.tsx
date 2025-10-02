@@ -10,6 +10,7 @@ import CustomViewCard, { defaultContentTypes } from '@/components/ui/custom-view
 import SmartPromptEditor from '@/components/SmartPromptEditor';
 import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
+import ScormDownloadButton from '@/components/ScormDownloadButton';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -106,6 +107,7 @@ export default function ProductViewNewPage() {
   const { t } = useLanguage();
   const { isEnabled: videoLessonEnabled } = useFeaturePermission('video_lesson');
   const { isEnabled: columnVideoLessonEnabled } = useFeaturePermission('column_video_lesson');
+  const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   
   const [projectData, setProjectData] = useState<ProjectInstanceDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -924,6 +926,15 @@ export default function ProductViewNewPage() {
               >
                 <Sparkles size={14} style={{ color: 'white' }} /> {t('actions.smartEdit', 'Smart Edit')}
               </button>
+            )}
+
+            {projectData && projectData.component_name === COMPONENT_NAME_TRAINING_PLAN && productId && scormEnabled && (
+              <ScormDownloadButton
+                courseOutlineId={Number(productId)}
+                label={t('interface.viewNew.exportScorm', 'Export to SCORM 2004')}
+                className="rounded px-[15px] py-[5px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
+                style={{ fontSize: '14px', fontWeight: 600, lineHeight: '140%', letterSpacing: '0.05em' }}
+              />
             )}
 
             {/* Download PDF button for Course Outline
