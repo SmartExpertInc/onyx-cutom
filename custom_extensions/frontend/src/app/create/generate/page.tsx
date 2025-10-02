@@ -1601,7 +1601,7 @@ function GenerateProductPicker() {
                         label: `${count} ${t('interface.generate.questions', 'questions')}`
                       }))}
                       icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
-                      label="Questions"
+                      label={t('interface.generate.questions', 'Questions')}
                     />
                   </>
                 )}

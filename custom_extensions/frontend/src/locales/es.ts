@@ -1372,6 +1372,7 @@ export const es = {
       short: "Corto",
       medium: "Medio",
       long: "Largo",
+      lessons: "Lecciones",
       english: "Inglés",
       ukrainian: "Ucraniano",
       spanish: "Español",

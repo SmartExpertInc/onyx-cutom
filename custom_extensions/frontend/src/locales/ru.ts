@@ -1390,6 +1390,7 @@ export const ru = {
       short: "Короткий",
       medium: "Средний",
       long: "Длинный",
+      lessons: "Уроки",
       helpComingSoon: "Справка (скоро)",
       english: "Английский",
       ukrainian: "Украинский",
