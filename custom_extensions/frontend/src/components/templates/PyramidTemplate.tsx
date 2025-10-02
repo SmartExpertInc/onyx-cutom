@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+// import messageImg from '/message_img.png';
 
 export interface PyramidItem {
   heading: string;
@@ -245,6 +246,19 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     objectFit: 'contain'
   };
 
+  // Fallback SVG icon for message
+  const MessageIcon = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ marginRight: '8px' }}>
+      <path 
+        d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16Z" 
+        fill="#1E88E5"
+      />
+      <circle cx="8" cy="10" r="1" fill="#1E88E5"/>
+      <circle cx="12" cy="10" r="1" fill="#1E88E5"/>
+      <circle cx="16" cy="10" r="1" fill="#1E88E5"/>
+    </svg>
+  );
+
   // Number styles
   const numberStyles: React.CSSProperties = {
     fontSize: '15px',
@@ -420,11 +434,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         {displaySteps.map((step, index) => (
           <div key={index} style={pyramidLevelStyles(index)}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <img 
-                src="/message_img.png" 
-                alt="Message" 
-                style={messageImageStyles}
-              />
+              <MessageIcon />
               {isEditable && editingItemNumbers.includes(index) ? (
                 <InlineEditor
                   initialValue={step.number || ''}
