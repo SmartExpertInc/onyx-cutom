@@ -154,7 +154,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
     );
   }
 
-  const hoverPadding = isLargeFont ? 'p-4 -m-4' : 'p-2 -m-2';
+  const hoverPadding = isLargeFont ? 'p-2 -m-4' : 'p-1 -m-2';
   
   return (
     <div
@@ -165,7 +165,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
       }}
-      className={`hover:border-2 hover:border-gray-400 rounded-lg ${hoverPadding} group`}
+      className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
