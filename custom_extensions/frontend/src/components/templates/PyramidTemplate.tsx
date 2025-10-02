@@ -175,7 +175,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     minHeight: '600px',
     width: '100%',
     position: 'relative',
-    overflow: 'visible'
+    overflow: 'hidden'
   };
 
   const titleStyles: React.CSSProperties = {
@@ -194,7 +194,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
-    height: '450px'
+    top: '87px',
   };
 
   // Pyramid colors exactly as in photo - 5 distinct levels
@@ -230,7 +230,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       clipPath: clipPaths[index],
       display: 'flex',
       alignItems: 'center',
-      borderRadius: '3px',
+      borderRadius: '5px',
       justifyContent: 'center',
       zIndex: 5 - index,
       boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
@@ -268,11 +268,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Text blocks - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '35px', left: '5%', textAlign: 'left' as const },     // Level 1 - LEFT (top segment)
-      { top: '115px', right: '5%', textAlign: 'right' as const },   // Level 2 - RIGHT (second segment)
-      { top: '195px', left: '5%', textAlign: 'left' as const },    // Level 3 - LEFT (third segment)
-      { top: '275px', right: '5%', textAlign: 'right' as const },  // Level 4 - RIGHT (fourth segment)
-      { top: '355px', left: '5%', textAlign: 'left' as const }     // Level 5 - LEFT (bottom segment)
+      { top: '-19px', left: '13%', textAlign: 'right' as const },     // Level 1 - LEFT (top segment)
+      { top: '55px', right: '10%', textAlign: 'left' as const },   // Level 2 - RIGHT (second segment)
+      { top: '124px', left: '7%', textAlign: 'right' as const },    // Level 3 - LEFT (third segment)
+      { top: '218px', right: '2%', textAlign: 'left' as const },  // Level 4 - RIGHT (fourth segment)
+      { top: '285px', left: '0%', textAlign: 'right' as const }     // Level 5 - LEFT (bottom segment)
     ];
     
     const pos = positions[index];
@@ -281,7 +281,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       top: pos.top,
       [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
       width: '35%',
-      maxWidth: '350px',
+      maxWidth: '250px',
       zIndex: 10,
       textAlign: pos.textAlign
     };
@@ -298,6 +298,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const textDescriptionStyles: React.CSSProperties = {
     fontSize: '0.85rem',
+    marginTop: '15px',
     color: '#000000',
     fontFamily: 'Georgia, serif',
     lineHeight: 1.4,
