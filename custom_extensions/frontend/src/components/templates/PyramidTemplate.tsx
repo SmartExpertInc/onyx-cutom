@@ -274,13 +274,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       { top: '218px', right: '2%', textAlign: 'left' as const },  // Level 4 - RIGHT (fourth segment)
       { top: '285px', left: '0%', textAlign: 'right' as const }     // Level 5 - LEFT (bottom segment)
     ];
-    
+
     const pos = positions[index];
     return {
       position: 'absolute',
       top: pos.top,
-      left: pos.left,
-      [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
+      left: pos.left ? pos.left : 'auto',
+      right: pos.right ? pos.right : 'auto',
       width: '35%',
       maxWidth: '250px',
       zIndex: 10,
