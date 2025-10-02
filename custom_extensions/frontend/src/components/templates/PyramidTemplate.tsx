@@ -279,6 +279,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     return {
       position: 'absolute',
       top: pos.top,
+      left: pos.left,
       [pos.textAlign === 'right' ? 'right' : 'left']: pos.textAlign === 'right' ? pos.right : pos.left,
       width: '35%',
       maxWidth: '250px',
