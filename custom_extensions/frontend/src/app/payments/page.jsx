@@ -209,9 +209,9 @@ export default function BillingPage() {
   const getIcon = (type) => {
     switch (type) {
       case 'connectors':
-        return <Workflow className="w-5 h-5" />;
+        return <Workflow className="w-6 h-6" />;
       case 'storage':
-        return <Server className="w-5 h-5" />;
+        return <Server className="w-6 h-6" />;
       default:
         return null;
     }
@@ -389,7 +389,7 @@ export default function BillingPage() {
                             setItemToCancel(item);
                             setIsCancelModalOpen(true);
                           }}
-                          className="w-full bg-red-50 border border-red-300 text-red-600 font-medium py-2 px-3 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 m-2"
+                          className="w-full bg-red-50 border border-red-300 text-red-600 font-medium py-2 px-3 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
                         >
                           <X className="w-5 h-5" />
                           Cancel
@@ -452,9 +452,6 @@ export default function BillingPage() {
               </div>
               Cancel {itemToCancel?.type === 'subscription' ? 'Subscription' : 'Add-on'}
             </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to cancel this {itemToCancel?.type === 'subscription' ? 'subscription' : 'add-on'}? This action will have the following consequences:
-            </DialogDescription>
           </DialogHeader>
           
           {itemToCancel && (
@@ -480,6 +477,10 @@ export default function BillingPage() {
                   )}
                 </div>
               </div>
+              
+              <DialogDescription>
+                Are you sure you want to cancel this {itemToCancel.type === 'subscription' ? 'subscription' : 'add-on'}? This action will:
+              </DialogDescription>
               
               <ul className="space-y-2 text-sm text-gray-600">
                 {itemToCancel.type === 'subscription' ? (
@@ -529,7 +530,7 @@ export default function BillingPage() {
               Keep {itemToCancel?.type === 'subscription' ? 'Subscription' : 'Add-on'}
             </Button>
             <Button
-              variant="destructive"
+              variant="download"
               onClick={() => {
                 // Handle actual cancellation logic here
                 console.log('Cancelling:', itemToCancel);
@@ -537,7 +538,7 @@ export default function BillingPage() {
                 setItemToCancel(null);
                 // Add your cancellation logic
               }}
-              className="flex-1"
+              className="flex-1 bg-red-500 text-white hover:bg-red-600 border-red-500"
             >
               Yes, Cancel
             </Button>
