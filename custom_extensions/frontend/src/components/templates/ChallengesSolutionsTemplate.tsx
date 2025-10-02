@@ -6,6 +6,7 @@ export interface ChallengesSolutionsTemplateProps {
   title?: string;
   subtitle?: string;
   theme?: string;
+  imagePath?: string;
   isEditable?: boolean;
   slideId?: string;
   onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
@@ -116,6 +117,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   title = 'Challenges & Solutions',
   subtitle = 'Type The Subtitle Of Your Great Here',
   theme,
+  imagePath: initialImagePath = '',
   isEditable = true,
   slideId = 'challenges-solutions',
   onUpdate
@@ -125,7 +127,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
-  const [imagePath, setImagePath] = useState<string>('');
+  const [imagePath, setImagePath] = useState<string>(initialImagePath);
   const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTitleSave = (value: string) => {
