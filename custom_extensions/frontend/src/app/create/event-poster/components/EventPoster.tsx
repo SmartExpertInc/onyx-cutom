@@ -86,17 +86,18 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
 
   if (isEditing) {
     const Component = multiline ? 'textarea' : 'input';
-    // For large font fields (like date), set fixed height and font size for input
+    // Ensure input/textarea has exactly the same dimensions as the display div
     const inputStyle: React.CSSProperties = {
       ...style,
       background: 'transparent',
-      border: '2px solid #5416af',
+      border: '2px solid transparent',
       outline: 'none',
       resize: multiline ? 'none' : undefined,
       minHeight: multiline ? (isTitle ? '260px' : '100px') : undefined,
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
-      padding: isLargeFont ? '16px' : '8px',
+      padding: isLargeFont ? '0 8px' : '0', // Remove default padding to match div
+      margin: '0', // Remove default margins
       lineHeight: style.lineHeight || '1.2',
       boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
       width: '100%',
@@ -105,6 +106,10 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       fontWeight: style.fontWeight,
       color: style.color,
       borderRadius: '4px',
+      // Ensure no layout shifts by matching display div exactly
+      position: 'relative',
+      display: 'block',
+      verticalAlign: 'top',
     };
     return (
               <Component
@@ -164,6 +169,12 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         cursor: 'pointer',
         position: 'relative',
         transition: 'all 0.2s ease',
+        // Ensure consistent layout with input/textarea
+        padding: isLargeFont ? '0 8px' : '0',
+        margin: '0',
+        display: 'block',
+        verticalAlign: 'top',
+        boxSizing: 'border-box',
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
