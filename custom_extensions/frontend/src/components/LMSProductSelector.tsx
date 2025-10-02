@@ -6,7 +6,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Product } from '../types/lmsTypes';
 import LMSExportButton from './LMSExportButton';
 import LMSProductCard from './LMSProductCard';
-import ScormDownloadButton from './ScormDownloadButton';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
@@ -218,12 +217,11 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 z-10" />
             <Input
-              variant="shadow"
               type="text"
               placeholder="Search course outlines..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10"
+              className="w-full pl-10 shadow-sm"
             />
           </div>
 
@@ -243,12 +241,6 @@ const LMSProductSelector: React.FC<LMSProductSelectorProps> = ({
           </Button>
 
           <LMSExportButton selectedProducts={selectedProducts} products={products} />
-          {selectedProducts.size === 1 && (
-            <ScormDownloadButton
-              courseOutlineId={Array.from(selectedProducts)[0]}
-              label="Download SCORM 2004"
-            />
-          )}
         </div>
 
         {/* Subtitle on the left */}

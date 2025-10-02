@@ -6660,6 +6660,7 @@ async def startup_event():
                     ('col_one_pager', 'Column: One-Pager', 'Shows the One-Pager column', 'Columns'),
                     ('col_video_presentation', 'Column: Video Lesson', 'Shows the Video Lesson column', 'Columns'),
                     ('col_lesson_presentation', 'Column: Presentation', 'Shows the Presentation column', 'Columns'),
+                    ('export_scorm_2004', 'Export to SCORM 2004', 'Enable SCORM 2004 ZIP export button in course view', 'Exports'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
