@@ -1571,10 +1571,10 @@ function GenerateProductPicker() {
                       value={quizLanguage}
                       onValueChange={setQuizLanguage}
                       options={[
-                        { value: "English", label: t('interface.english', 'English') },
-                        { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                        { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                        { value: "Russian", label: t('interface.russian', 'Russian') }
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
@@ -1689,10 +1689,10 @@ function GenerateProductPicker() {
                           value={textLanguage}
                           onValueChange={setTextLanguage}
                           options={[
-                            { value: "English", label: t('interface.english', 'English') },
-                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
                           ]}
                           icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
@@ -1710,10 +1710,7 @@ function GenerateProductPicker() {
                         />
                         <CustomMultiSelector
                           selectedValues={textStyles}
-                          onSelectionChange={(newValues) => {
-                            setTextStyles(newValues);
-                            handleStylesClick();
-                          }}
+                          onSelectionChange={setTextStyles}
                           options={[
                             { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
                             { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
@@ -1762,10 +1759,7 @@ function GenerateProductPicker() {
                     />
                     <CustomMultiSelector
                       selectedValues={textStyles}
-                      onSelectionChange={() => {
-                        setTextStyles(textStyles);
-                        handleStylesClick();
-                      }}
+                      onSelectionChange={setTextStyles}
                       options={[
                         { value: "headlines", label: t('interface.generate.headlines', 'Headlines'), tooltip: stylePurposes.headlines },
                         { value: "paragraphs", label: t('interface.generate.paragraphs', 'Paragraphs'), tooltip: stylePurposes.paragraphs },
@@ -1778,7 +1772,7 @@ function GenerateProductPicker() {
                         { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                       ]}
                       icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
-                      label="Styles"
+                      label={t('interface.generate.selectStyles', 'Styles')}
                       placeholder={t('interface.generate.selectStyles', 'Select styles')}
                     />
                   </>

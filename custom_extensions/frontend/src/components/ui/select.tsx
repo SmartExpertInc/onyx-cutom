@@ -370,10 +370,7 @@ function CustomMultiSelector({
                   checked={selectedValues.includes(option.value)}
                   onChange={() => handleToggle(option.value)}
                   className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleToggle(option.value)
-                  }}
+                  onClick={(e) => e.stopPropagation()}
                 />
                 {option.label}
               </div>
