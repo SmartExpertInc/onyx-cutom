@@ -445,7 +445,7 @@
             width: 144px; 
             height: 65px; 
             top: 0px; 
-            background: #3D8BFF; 
+            background: #2A7CFF; 
             z-index: 5; 
             justify-content: center;
             clip-path: polygon(24% 0%, 78% 0%, 100% 100%, 0% 100%);
@@ -456,7 +456,7 @@
             width: 228px; 
             height: 65px; 
             top: 70px; 
-            background: #00BCD4; 
+            background: #09ACD8; 
             z-index: 4; 
             justify-content: center;
             clip-path: polygon(18% 0%, 83% 0%, 100% 100%, 0% 100%);
@@ -467,7 +467,7 @@
             width: 311px; 
             height: 65px; 
             top: 140px; 
-            background: #1E88E5; 
+            background: #1B94E8; 
             z-index: 3; 
             justify-content: center;
             clip-path: polygon(13% 0%, 87% 0%, 100% 100%, 0% 100%);
@@ -478,7 +478,7 @@
             width: 401px; 
             height: 65px; 
             top: 210px; 
-            background: #5E35B1; 
+            background: #3A11C3; 
             z-index: 2; 
             justify-content: center;
             clip-path: polygon(11% 0%, 89% 0%, 100% 100%, 0% 100%);
@@ -489,7 +489,7 @@
             width: 493px; 
             height: 65px; 
             top: 280px; 
-            background: #1A237E; 
+            background: #01298A; 
             z-index: 1; 
             justify-content: center;
             clip-path: polygon(9% 0%, 91% 0%, 100% 100%, 0% 100%);
@@ -551,11 +551,11 @@
             z-index: 10;
         }
 
-        .pyramid-triangle.level-0 { top: 65px; left: 15%; }
-        .pyramid-triangle.level-1 { top: 145px; right: 15%; }
-        .pyramid-triangle.level-2 { top: 225px; left: 15%; }
-        .pyramid-triangle.level-3 { top: 305px; right: 15%; }
-        .pyramid-triangle.level-4 { top: 385px; left: 15%; }
+        .pyramid-triangle.level-0 { top: 21px; left: 42%; border-top: 12px solid #2A7CFF; }
+        .pyramid-triangle.level-1 { top: 98px; right: 39%; border-top: 12px solid #09ACD8; }
+        .pyramid-triangle.level-2 { top: 168px; left: 36%; border-top: 12px solid #1B94E8; }
+        .pyramid-triangle.level-3 { top: 265px; right: 31%; border-top: 12px solid #3A11C3; }
+        .pyramid-triangle.level-4 { top: 340px; left: 27%; border-top: 12px solid #01298A; }
         
         .pyramid-template .pyramid-container {
             flex: 0 0 45%;
@@ -2947,9 +2947,7 @@
                                 {% endif %}
                             >
                                 <div style="display: flex; align-items: center;">
-                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; margin-right: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #3388FF;"></div>
-                                    </div>
+                                    <img src="file:///app/static/message_img.png" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;" alt="Message" />
                                     <div style="font-size: 16px; font-weight: bold; color: #ffffff; font-family: Arial, sans-serif;">
                                         {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
                                             {{ slide.props.steps[i].number }}

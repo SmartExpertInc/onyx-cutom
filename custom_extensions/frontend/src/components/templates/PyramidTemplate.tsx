@@ -197,13 +197,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     top: '87px',
   };
 
-  // Pyramid colors exactly as in photo - 5 distinct levels
+  // Pyramid colors exactly as requested - 5 distinct levels
   const pyramidColors = [
-    '#3D8BFF', // Bright blue (level 1 - smallest, top) - 150
-    '#00BCD4', // Cyan/turquoise (level 2) - 350
-    '#1E88E5', // Medium blue (level 3) - 1,250
-    '#5E35B1', // Purple (level 4) - 3,550
-    '#1A237E'  // Dark navy blue (level 5 - largest, bottom) - 25,000
+    '#2A7CFF', // Level 1 - smallest, top
+    '#09ACD8', // Level 2
+    '#1B94E8', // Level 3
+    '#3A11C3', // Level 4
+    '#01298A'  // Level 5 - largest, bottom
   ];
 
   // Pyramid level dimensions - 5 clear levels with unique clipPath for each
@@ -237,24 +237,12 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     };
   };
 
-  // Speech bubble
-  const speechBubbleStyles: React.CSSProperties = {
+  // Message image
+  const messageImageStyles: React.CSSProperties = {
     width: '22px',
     height: '22px',
-    borderRadius: '50%',
-    background: '#ffffff',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginRight: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-  };
-
-  const speechBubbleIconStyles: React.CSSProperties = {
-    width: '10px',
-    height: '10px',
-    borderRadius: '50%',
-    background: '#1E88E5'
+    objectFit: 'contain'
   };
 
   // Number styles
@@ -309,11 +297,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Triangle arrows - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '65px', left: '15%' },    // Level 1 - LEFT (pointing to top segment)
-      { top: '145px', right: '15%' },  // Level 2 - RIGHT (pointing to second segment)
-      { top: '225px', left: '15%' },   // Level 3 - LEFT (pointing to third segment)
-      { top: '305px', right: '15%' },  // Level 4 - RIGHT (pointing to fourth segment)
-      { top: '385px', left: '15%' }    // Level 5 - LEFT (pointing to bottom segment)
+      { top: '21px', left: '42%' },    // Level 1 - LEFT (pointing to top segment)
+      { top: '98px', right: '39%' },  // Level 2 - RIGHT (pointing to second segment)
+      { top: '168px', left: '36%' },   // Level 3 - LEFT (pointing to third segment)
+      { top: '265px', right: '31%' },  // Level 4 - RIGHT (pointing to fourth segment)
+      { top: '340px', left: '27%' }    // Level 5 - LEFT (pointing to bottom segment)
     ];
     
     const pos = positions[index];
@@ -324,7 +312,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
       height: '0',
       borderLeft: '8px solid transparent',
       borderRight: '8px solid transparent',
-      borderTop: '12px solid #1E88E5',
+      borderTop: `12px solid ${pyramidColors[index]}`,
       zIndex: 10
     };
   };
@@ -432,9 +420,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         {displaySteps.map((step, index) => (
           <div key={index} style={pyramidLevelStyles(index)}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={speechBubbleStyles}>
-                <div style={speechBubbleIconStyles}></div>
-              </div>
+              <img 
+                src="/message_img.png" 
+                alt="Message" 
+                style={messageImageStyles}
+              />
               {isEditable && editingItemNumbers.includes(index) ? (
                 <InlineEditor
                   initialValue={step.number || ''}

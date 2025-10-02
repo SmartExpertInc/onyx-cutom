@@ -269,7 +269,7 @@ function UnifiedBulletEditor({
 
   const bulletTextStyles: React.CSSProperties = {
     fontFamily: 'sans-serif',
-    fontSize: '1.2rem',
+    fontSize: '0.9rem',
     marginTop: '-5px',
     opacity:'0.8',
     color: '#ffffff', // White text on dark background
@@ -464,7 +464,10 @@ function UnifiedBulletEditor({
         listStyle: 'none',
         padding: 0,
         margin: 0,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
       }}>
         {bullets.map((bullet: string, index: number) => (
           <li key={index} style={{ 
@@ -472,7 +475,7 @@ function UnifiedBulletEditor({
             alignItems: 'flex-start', 
             gap: '12px', 
             marginBottom: '35px',
-            width: '100%'
+            width: '70%'
           }}>
             <span style={bulletIconStyles}>
               {getBulletIcon(bulletStyle, index)}
