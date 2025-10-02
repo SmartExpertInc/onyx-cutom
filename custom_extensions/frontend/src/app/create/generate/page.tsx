@@ -1318,10 +1318,10 @@ function GenerateProductPicker() {
               value={language}
               onValueChange={setLanguage}
               options={[
-                { value: "English", label: t('interface.english', 'English') },
-                { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                { value: "Russian", label: t('interface.russian', 'Russian') }
+                { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
               ]}
               icon={<Globe className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}
@@ -1393,10 +1393,10 @@ function GenerateProductPicker() {
                           value={language}
                           onValueChange={setLanguage}
                           options={[
-                            { value: "English", label: t('interface.english', 'English') },
-                            { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                            { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                            { value: "Russian", label: t('interface.russian', 'Russian') }
+                            { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                            { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                            { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                            { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
                           ]}
                           icon={<Globe className="w-4 h-4 text-gray-600" />}
                           label={t('interface.language', 'Language')}
@@ -1423,10 +1423,10 @@ function GenerateProductPicker() {
                       value={language}
                       onValueChange={setLanguage}
                       options={[
-                        { value: "English", label: t('interface.english', 'English') },
-                        { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                        { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                        { value: "Russian", label: t('interface.russian', 'Russian') }
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
@@ -1701,17 +1701,17 @@ function GenerateProductPicker() {
                           value={textLength}
                           onValueChange={setTextLength}
                           options={[
-                            { value: "short", label: t('interface.generate.short', 'Short') },
-                            { value: "medium", label: t('interface.generate.medium', 'Medium') },
-                            { value: "long", label: t('interface.generate.long', 'Long') }
+                            { value: t('interface.generate.short', 'Short'), label: t('interface.generate.short', 'Short') },
+                            { value: t('interface.generate.medium', 'Medium'), label: t('interface.generate.medium', 'Medium') },
+                            { value: t('interface.generate.long', 'Long'), label: t('interface.generate.long', 'Long') }
                           ]}
                           icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
                           label={t('interface.generate.length', 'Length')}
                         />
                         <CustomMultiSelector
                           selectedValues={textStyles}
-                          onSelectionChange={() => {
-                            setTextStyles(textStyles);
+                          onSelectionChange={(newValues) => {
+                            setTextStyles(newValues);
                             handleStylesClick();
                           }}
                           options={[
@@ -1741,10 +1741,10 @@ function GenerateProductPicker() {
                       value={textLanguage}
                       onValueChange={setTextLanguage}
                       options={[
-                        { value: "English", label: t('interface.english', 'English') },
-                        { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                        { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                        { value: "Russian", label: t('interface.russian', 'Russian') }
+                        { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                        { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                        { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                        { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
                       ]}
                       icon={<Globe className="w-4 h-4 text-gray-600" />}
                       label={t('interface.language', 'Language')}
@@ -1753,9 +1753,9 @@ function GenerateProductPicker() {
                       value={textLength}
                       onValueChange={setTextLength}
                       options={[
-                        { value: "short", label: t('interface.generate.short', 'Short') },
-                        { value: "medium", label: t('interface.generate.medium', 'Medium') },
-                        { value: "long", label: t('interface.generate.long', 'Long') }
+                        { value: t('interface.generate.short', 'Short'), label: t('interface.generate.short', 'Short') },
+                        { value: t('interface.generate.medium', 'Medium'), label: t('interface.generate.medium', 'Medium') },
+                        { value: t('interface.generate.long', 'Long'), label: t('interface.generate.long', 'Long') }
                       ]}
                       icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
                       label={t('interface.generate.length', 'Length')}
@@ -1803,10 +1803,10 @@ function GenerateProductPicker() {
               value={language}
               onValueChange={setLanguage}
               options={[
-                { value: "English", label: t('interface.english', 'English') },
-                { value: "Ukrainian", label: t('interface.ukrainian', 'Ukrainian') },
-                { value: "Spanish", label: t('interface.spanish', 'Spanish') },
-                { value: "Russian", label: t('interface.russian', 'Russian') }
+                { value: t('interface.english', 'English'), label: t('interface.english', 'English') },
+                { value: t('interface.ukrainian', 'Ukrainian'), label: t('interface.ukrainian', 'Ukrainian') },
+                { value: t('interface.spanish', 'Spanish'), label: t('interface.spanish', 'Spanish') },
+                { value: t('interface.russian', 'Russian'), label: t('interface.russian', 'Russian') }
               ]}
               icon={<Globe className="w-4 h-4 text-gray-600" />}
               label={t('interface.language', 'Language')}

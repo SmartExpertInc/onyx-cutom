@@ -1101,6 +1101,7 @@ export const en = {
       short: "Short",
       medium: "Medium",
       long: "Long",
+      questionFew: "Questions",
       lessons: "Lessons",
       selectStyles: "Select styles",
       // Text style options
