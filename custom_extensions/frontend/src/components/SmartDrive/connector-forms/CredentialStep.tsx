@@ -1151,7 +1151,11 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
       ...Object.keys(template).map((key) => ({
         name: key,
         label: credentialDisplayNames[key] || key,
-        type: key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('secret') ? 'password' : 'text',
+        type: key.toLowerCase().includes('json')
+          ? 'file'
+          : (key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('secret')
+            ? 'password'
+            : 'text'),
         required: true,
       })),
     ];
@@ -1163,7 +1167,7 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
     setError(null);
 
     try {
-              const response = await fetch('/api/custom-projects-backend/credentials', {
+        const response = await fetch('/api/custom-projects-backend/credentials', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
