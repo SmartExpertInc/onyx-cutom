@@ -1159,7 +1159,7 @@
             word-wrap: break-word;
         }
         
-        /* Challenges & Solutions Template - NEW DESIGN */
+        /* Challenges & Solutions Template - SIMPLIFIED DESIGN */
         .challenges-solutions {
             background: #ffffff;
             padding: 40px;
@@ -1201,108 +1201,10 @@
             height: 400px;
         }
         
-        .challenges-solutions .overlap {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: #29B6F6;
-            z-index: 1;
-        }
-        
-        .challenges-solutions .left-circle {
-            position: absolute;
-            left: 25%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: #B3E5FC;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-        }
-        
-        .challenges-solutions .right-circle {
-            position: absolute;
-            right: 25%;
-            top: 50%;
-            transform: translate(50%, -50%);
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: #4FC3F7;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-        }
-        
-        .challenges-solutions .circle-label {
-            color: #000000;
-            font-size: 1.2rem;
-            font-weight: bold;
-            font-family: Arial, sans-serif;
-            margin-top: 10px;
-        }
-        
-        .challenges-solutions .circle-icon {
-            width: 40px;
-            height: 40px;
+        .challenges-solutions .main-image {
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-        }
-        
-        .challenges-solutions .left-items {
-            position: absolute;
-            left: 5%;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            z-index: 3;
-        }
-        
-        .challenges-solutions .right-items {
-            position: absolute;
-            right: 5%;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            z-index: 3;
-        }
-        
-        .challenges-solutions .item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .challenges-solutions .item-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #1976D2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        
-        .challenges-solutions .item-text {
-            color: #000000;
-            font-size: 0.9rem;
-            font-family: Arial, sans-serif;
-            font-weight: normal;
         }
         
         .callout-box {
@@ -2684,60 +2586,7 @@
                     <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
                     
                     <div class="main-content">
-                        <!-- Overlap area -->
-                        <div class="overlap"></div>
-                        
-                        <!-- Left Circle - Challenges -->
-                        <div class="left-circle">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7.5V9.5C15 10.3 14.3 11 13.5 11H10.5C9.7 11 9 10.3 9 9.5V7.5L3 7V9C3 9.6 3.4 10 4 10H5V20C5 20.6 5.4 21 6 21H8C8.6 21 9 20.6 9 20V16H15V20C15 20.6 15.4 21 16 21H18C18.6 21 19 20.6 19 20V10H20C20.6 10 21 9.6 21 9Z" fill="#ffffff"/>
-                            </svg>
-                            <div class="circle-label">Challenges</div>
-                        </div>
-                        
-                        <!-- Right Circle - Solutions -->
-                        <div class="right-circle">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                                <path d="M12 2L2 7L12 12L22 7L12 2ZM2 17L12 22L22 17M2 12L12 17L22 12" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                            </svg>
-                            <div class="circle-label">Solution</div>
-                        </div>
-                        
-                        <!-- Left Items - Challenges -->
-                        <div class="left-items">
-                            {% for i in range(3) %}
-                                <div class="item">
-                                    <div class="item-icon">
-                                        <div style="color: #ffffff; font-size: 10px;">💬</div>
-                                    </div>
-                                    <div class="item-text">
-                                        {% if slide.props.challengesItems and slide.props.challengesItems[i] and slide.props.challengesItems[i].title %}
-                                            {{ slide.props.challengesItems[i].title }}
-                                        {% else %}
-                                            Title goes here
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        
-                        <!-- Right Items - Solutions -->
-                        <div class="right-items">
-                            {% for i in range(3) %}
-                                <div class="item">
-                                    <div class="item-icon">
-                                        <div style="color: #ffffff; font-size: 10px;">💬</div>
-                                    </div>
-                                    <div class="item-text">
-                                        {% if slide.props.solutionsItems and slide.props.solutionsItems[i] and slide.props.solutionsItems[i].title %}
-                                            {{ slide.props.solutionsItems[i].title }}
-                                        {% else %}
-                                            Title goes here
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
+                        <img src="file:///app/static/group_img.png" alt="Group" class="main-image" />
                     </div>
                 </div>
                 

@@ -1,15 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 
-export interface ChallengesSolutionsItem {
-  title: string;
-}
-
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
   subtitle?: string;
-  challengesItems?: ChallengesSolutionsItem[];
-  solutionsItems?: ChallengesSolutionsItem[];
   theme?: SlideTheme;
   isEditable?: boolean;
   onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
@@ -18,16 +12,6 @@ export interface ChallengesSolutionsTemplateProps {
 const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
   title = 'Challenges & Solution',
   subtitle = 'Type The Subtitle Of Your Great Here',
-  challengesItems = [
-    { title: 'Title goes here' },
-    { title: 'Title goes here' },
-    { title: 'Title goes here' }
-  ],
-  solutionsItems = [
-    { title: 'Title goes here' },
-    { title: 'Title goes here' },
-    { title: 'Title goes here' }
-  ],
   theme,
   isEditable = false,
   onUpdate
@@ -37,8 +21,6 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   // Inline editing state
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
-  const [editingChallengesItems, setEditingChallengesItems] = useState<number[]>([]);
-  const [editingSolutionsItems, setEditingSolutionsItems] = useState<number[]>([]);
   const autoSaveTimeoutRef = useRef<number | null>(null);
   
   // Cleanup timeouts on unmount
@@ -91,118 +73,10 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     height: '400px'
   };
 
-  // Venn diagram circles
-  const leftCircleStyles: React.CSSProperties = {
-    position: 'absolute',
-    left: '25%',
-    top: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '200px',
-    height: '200px',
-    borderRadius: '50%',
-    background: '#B3E5FC', // Light blue
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2
-  };
-
-  const rightCircleStyles: React.CSSProperties = {
-    position: 'absolute',
-    right: '25%',
-    top: '50%',
-    transform: 'translate(50%, -50%)',
-    width: '200px',
-    height: '200px',
-    borderRadius: '50%',
-    background: '#4FC3F7', // Turquoise blue
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2
-  };
-
-  const overlapStyles: React.CSSProperties = {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '200px',
-    height: '200px',
-    borderRadius: '50%',
-    background: '#29B6F6', // Darker blue for overlap
-    zIndex: 1
-  };
-
-  const circleLabelStyles: React.CSSProperties = {
-    color: '#000000',
-    fontSize: '1.2rem',
-    fontWeight: 'bold',
-    fontFamily: 'Arial, sans-serif',
-    marginTop: '10px'
-  };
-
-  const iconStyles: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
+  const imageStyles: React.CSSProperties = {
+    maxWidth: '100%',
+    maxHeight: '100%',
     objectFit: 'contain'
-  };
-
-  // Dotted lines and items
-  const leftItemsContainerStyles: React.CSSProperties = {
-    position: 'absolute',
-    left: '5%',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '30px',
-    zIndex: 3
-  };
-
-  const rightItemsContainerStyles: React.CSSProperties = {
-    position: 'absolute',
-    right: '5%',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '30px',
-    zIndex: 3
-  };
-
-  const itemStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
-  };
-
-  const itemIconStyles: React.CSSProperties = {
-    width: '20px',
-    height: '20px',
-    borderRadius: '50%',
-    background: '#1976D2',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0
-  };
-
-  const itemTextStyles: React.CSSProperties = {
-    color: '#000000',
-    fontSize: '0.9rem',
-    fontFamily: 'Arial, sans-serif',
-    fontWeight: 'normal'
-  };
-
-  // Dotted line styles
-  const dottedLineStyles: React.CSSProperties = {
-    position: 'absolute',
-    height: '2px',
-    background: 'repeating-linear-gradient(to right, #1976D2 0px, #1976D2 4px, transparent 4px, transparent 8px)',
-    zIndex: 1
   };
 
   // Handlers
@@ -220,24 +94,6 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     setEditingSubtitle(false);
   };
 
-  const handleChallengesItemSave = (index: number, newTitle: string) => {
-    if (onUpdate && challengesItems) {
-      const updatedItems = [...challengesItems];
-      updatedItems[index] = { ...updatedItems[index], title: newTitle };
-      onUpdate({ challengesItems: updatedItems });
-    }
-    setEditingChallengesItems(editingChallengesItems.filter((i: number) => i !== index));
-  };
-
-  const handleSolutionsItemSave = (index: number, newTitle: string) => {
-    if (onUpdate && solutionsItems) {
-      const updatedItems = [...solutionsItems];
-      updatedItems[index] = { ...updatedItems[index], title: newTitle };
-      onUpdate({ solutionsItems: updatedItems });
-    }
-    setEditingSolutionsItems(editingSolutionsItems.filter((i: number) => i !== index));
-  };
-
   const startEditingTitle = () => {
     if (isEditable) {
       setEditingTitle(true);
@@ -250,32 +106,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     }
   };
 
-  const startEditingChallengesItem = (index: number) => {
-    if (isEditable) {
-      setEditingChallengesItems([...editingChallengesItems, index]);
-    }
-  };
-
-  const startEditingSolutionsItem = (index: number) => {
-    if (isEditable) {
-      setEditingSolutionsItems([...editingSolutionsItems, index]);
-    }
-  };
-
   const handleTitleCancel = () => {
     setEditingTitle(false);
   };
 
   const handleSubtitleCancel = () => {
     setEditingSubtitle(false);
-  };
-
-  const handleChallengesItemCancel = (index: number) => {
-    setEditingChallengesItems(editingChallengesItems.filter((i: number) => i !== index));
-  };
-
-  const handleSolutionsItemCancel = (index: number) => {
-    setEditingSolutionsItems(editingSolutionsItems.filter((i: number) => i !== index));
   };
 
   // Inline Editor Component
@@ -365,80 +201,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       )}
 
       <div style={mainContentStyles}>
-        {/* Overlap area */}
-        <div style={overlapStyles}></div>
-
-        {/* Left Circle - Challenges */}
-        <div style={leftCircleStyles}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7.5V9.5C15 10.3 14.3 11 13.5 11H10.5C9.7 11 9 10.3 9 9.5V7.5L3 7V9C3 9.6 3.4 10 4 10H5V20C5 20.6 5.4 21 6 21H8C8.6 21 9 20.6 9 20V16H15V20C15 20.6 15.4 21 16 21H18C18.6 21 19 20.6 19 20V10H20C20.6 10 21 9.6 21 9Z" fill="#ffffff"/>
-          </svg>
-          <div style={circleLabelStyles}>Challenges</div>
-        </div>
-
-        {/* Right Circle - Solutions */}
-        <div style={rightCircleStyles}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L2 7L12 12L22 7L12 2ZM2 17L12 22L22 17M2 12L12 17L22 12" stroke="#ffffff" strokeWidth="2" fill="none"/>
-          </svg>
-          <div style={circleLabelStyles}>Solution</div>
-        </div>
-
-        {/* Left Items - Challenges */}
-        <div style={leftItemsContainerStyles}>
-          {challengesItems.map((item, index) => (
-            <div key={index} style={itemStyles}>
-              <div style={itemIconStyles}>
-                <div style={{ color: '#ffffff', fontSize: '10px' }}>💬</div>
-              </div>
-              {editingChallengesItems.includes(index) ? (
-                <InlineEditor
-                  initialValue={item.title}
-                  onSave={(newTitle) => handleChallengesItemSave(index, newTitle)}
-                  onCancel={() => handleChallengesItemCancel(index)}
-                  style={itemTextStyles}
-                  placeholder="Enter title..."
-                />
-              ) : (
-                <div 
-                  style={itemTextStyles}
-                  onClick={() => startEditingChallengesItem(index)}
-                  className={isEditable ? 'cursor-pointer' : ''}
-                >
-                  {item.title}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Right Items - Solutions */}
-        <div style={rightItemsContainerStyles}>
-          {solutionsItems.map((item, index) => (
-            <div key={index} style={itemStyles}>
-              <div style={itemIconStyles}>
-                <div style={{ color: '#ffffff', fontSize: '10px' }}>💬</div>
-              </div>
-              {editingSolutionsItems.includes(index) ? (
-                <InlineEditor
-                  initialValue={item.title}
-                  onSave={(newTitle) => handleSolutionsItemSave(index, newTitle)}
-                  onCancel={() => handleSolutionsItemCancel(index)}
-                  style={itemTextStyles}
-                  placeholder="Enter title..."
-                />
-              ) : (
-                <div 
-                  style={itemTextStyles}
-                  onClick={() => startEditingSolutionsItem(index)}
-                  className={isEditable ? 'cursor-pointer' : ''}
-                >
-                  {item.title}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Group Image */}
+        <img 
+          src="/group_img.png" 
+          alt="Group" 
+          style={imageStyles}
+        />
       </div>
     </div>
   );
