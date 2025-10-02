@@ -1395,7 +1395,7 @@ export default function QuizClient() {
                                     <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                   <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                                  <span className="text-[#09090B]">{selectedLanguage === 'en' ? 'English' : selectedLanguage === 'uk' ? 'Ukrainian' : selectedLanguage === 'es' ? 'Spanish' : 'Russian'}</span>
+                                  <span className="text-[#09090B]">{selectedLanguage === 'en' ? `${t('interface.english', 'English')}` : selectedLanguage === 'uk' ? `${t('interface.ukrainian', 'Ukrainian')}` : selectedLanguage === 'es' ? `${t('interface.spanish', 'Spanish')}` : `${t('interface.russian', 'Russian')}`}</span>
                                 </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
