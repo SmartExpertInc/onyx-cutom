@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
-import groupImg from '/group_img.png';
 
 export interface ChallengesSolutionsItem {
   title: string;
@@ -371,13 +370,17 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
 
         {/* Left Circle - Challenges */}
         <div style={leftCircleStyles}>
-          <img src={groupImg} alt="Challenges" style={iconStyles} />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 7.5V9.5C15 10.3 14.3 11 13.5 11H10.5C9.7 11 9 10.3 9 9.5V7.5L3 7V9C3 9.6 3.4 10 4 10H5V20C5 20.6 5.4 21 6 21H8C8.6 21 9 20.6 9 20V16H15V20C15 20.6 15.4 21 16 21H18C18.6 21 19 20.6 19 20V10H20C20.6 10 21 9.6 21 9Z" fill="#ffffff"/>
+          </svg>
           <div style={circleLabelStyles}>Challenges</div>
         </div>
 
         {/* Right Circle - Solutions */}
         <div style={rightCircleStyles}>
-          <img src={groupImg} alt="Solutions" style={iconStyles} />
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7L12 12L22 7L12 2ZM2 17L12 22L22 17M2 12L12 17L22 12" stroke="#ffffff" strokeWidth="2" fill="none"/>
+          </svg>
           <div style={circleLabelStyles}>Solution</div>
         </div>
 
