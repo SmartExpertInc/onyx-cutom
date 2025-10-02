@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Download } from 'lucide-react';
-import { Button } from './ui/button';
 import { useToast } from './ui/toast';
 
 interface ScormDownloadButtonProps {
@@ -32,7 +31,7 @@ const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutline
       const blob = await res.blob();
       const disposition = res.headers.get('Content-Disposition') || '';
       const match = disposition.match(/filename=([^;]+)/i);
-      const filename = match ? decodeURIComponent(match[1].replace(/"/g, '')) : `course_${courseOutlineId}_scorm2004.zip`;
+      const filename = match ? decodeURIComponent(match[1].replace(/\"/g, '')) : `course_${courseOutlineId}_scorm2004.zip`;
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -52,10 +51,15 @@ const ScormDownloadButton: React.FC<ScormDownloadButtonProps> = ({ courseOutline
   };
 
   return (
-    <Button onClick={handleDownload} disabled={isExporting} className={`flex items-center gap-2 ${className || 'px-4'} ${isExporting ? 'cursor-wait opacity-80' : ''}`} style={style}>
+    <button
+      onClick={handleDownload}
+      disabled={isExporting}
+      className={`flex items-center gap-2 rounded transition-all duration-200 hover:shadow-lg focus:outline-none disabled:opacity-60 ${className || 'px-[15px] py-[5px] pr-[20px]'}`}
+      style={style}
+    >
       {isExporting ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> : <Download size={18} />}
       {label || (isExporting ? 'Exporting…' : 'Download SCORM 2004')}
-    </Button>
+    </button>
   );
 };
 
