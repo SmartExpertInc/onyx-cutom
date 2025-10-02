@@ -10,7 +10,7 @@ import { BulletPointsTemplate } from './BulletPointsTemplate';
 import { BulletPointsRightTemplate } from './BulletPointsRightTemplate';
 import { TwoColumnTemplate } from './TwoColumnTemplate';
 import { ProcessStepsTemplate } from './ProcessStepsTemplate';
-import { ChallengesSolutionsTemplate } from './ChallengesSolutionsTemplate';
+import ChallengesSolutionsTemplate from './ChallengesSolutionsTemplate';
 import { HeroTitleSlideTemplate } from './HeroTitleSlideTemplate';
 import { BigImageTopTemplate } from './BigImageTopTemplate';
 import { FourBoxGridTemplate } from './FourBoxGridTemplate';

@@ -12,7 +12,7 @@ export interface ChallengesSolutionsTemplateProps {
   solutionsItems?: ChallengesSolutionsItem[];
   theme?: SlideTheme;
   isEditable?: boolean;
-  onUpdate?: (data: any) => void;
+  onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
 }
 
 const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
