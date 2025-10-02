@@ -81,7 +81,7 @@ export default function LoginPage({
       {authTypeMetadata?.authType === "basic" && (
         <>
           <div className="flex">
-            <Title className="mb-2 mx-auto text-xl font-bold text-neutral-900">
+            <Title className="mb-2 mx-auto text-3xl font-bold text-neutral-900 dark:!text-neutral-900">
               <LoginText />
             </Title>
           </div>
