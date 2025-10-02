@@ -1,45 +1,165 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
   subtitle?: string;
   theme?: SlideTheme;
   isEditable?: boolean;
+  slideId?: string;
   onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
 }
 
-const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
-  title = 'Challenges & Solution',
-  subtitle = 'Type The Subtitle Of Your Great Here',
-  theme,
-  isEditable = false,
-  onUpdate
-}) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  
-  // Inline editing state
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [editingSubtitle, setEditingSubtitle] = useState(false);
-  const autoSaveTimeoutRef = useRef<number | null>(null);
-  
-  // Cleanup timeouts on unmount
+interface InlineEditorProps {
+  initialValue: string;
+  onSave: (value: string) => void;
+  onCancel: () => void;
+  multiline?: boolean;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function InlineEditor({ 
+  initialValue, 
+  onSave, 
+  onCancel, 
+  multiline = false, 
+  placeholder = "",
+  className = "",
+  style = {}
+}: InlineEditorProps) {
+  const [value, setValue] = useState(initialValue);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+
   useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
   }, []);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
+      e.preventDefault();
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+    }
+  };
+
+  const handleBlur = () => {
+    onSave(value);
+  };
+
+  if (multiline) {
+    return (
+      <textarea
+        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        className={className}
+        style={{
+          ...style,
+          border: 'none',
+          outline: 'none',
+          background: 'transparent',
+          resize: 'none',
+          fontFamily: 'inherit',
+          fontSize: 'inherit',
+          fontWeight: 'inherit',
+          color: 'inherit',
+          textAlign: 'inherit',
+          lineHeight: 'inherit',
+          width: '100%',
+          minHeight: '60px'
+        }}
+      />
+    );
+  }
+
+  return (
+    <input
+      ref={inputRef as React.RefObject<HTMLInputElement>}
+      type="text"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      className={className}
+      style={{
+        ...style,
+        border: 'none',
+        outline: 'none',
+        background: 'transparent',
+        fontFamily: 'inherit',
+        fontSize: 'inherit',
+        fontWeight: 'inherit',
+        color: 'inherit',
+        textAlign: 'inherit',
+        width: '100%'
+      }}
+    />
+  );
+}
+
+const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = ({
+  title = 'Challenges & Solutions',
+  subtitle = 'Type The Subtitle Of Your Great Here',
+  theme,
+  isEditable = true,
+  slideId = 'challenges-solutions',
+  onUpdate
+}) => {
+  const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const [imagePath, setImagePath] = useState<string>('');
+  const slideContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleTitleSave = (value: string) => {
+    setCurrentTitle(value);
+    setIsEditingTitle(false);
+    if (onUpdate) {
+      onUpdate({ title: value });
+    }
+  };
+
+  const handleSubtitleSave = (value: string) => {
+    setCurrentSubtitle(value);
+    setIsEditingSubtitle(false);
+    if (onUpdate) {
+      onUpdate({ subtitle: value });
+    }
+  };
+
+  const handleImageUploaded = (newImagePath: string) => {
+    setImagePath(newImagePath);
+    if (onUpdate) {
+      onUpdate({ imagePath: newImagePath });
+    }
+  };
+
   const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
     background: '#ffffff',
     padding: '40px',
     display: 'flex',
     flexDirection: 'column',
     fontFamily: 'Georgia, serif',
     minHeight: '600px',
-    width: '100%',
     position: 'relative',
     overflow: 'hidden'
   };
@@ -51,7 +171,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     marginBottom: '10px',
     textAlign: 'left',
     wordWrap: 'break-word',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    flexShrink: 0
   };
 
   const subtitleStyles: React.CSSProperties = {
@@ -61,7 +182,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     marginBottom: '40px',
     textAlign: 'left',
     wordWrap: 'break-word',
-    fontWeight: 'normal'
+    fontWeight: 'normal',
+    flexShrink: 0
   };
 
   const mainContentStyles: React.CSSProperties = {
@@ -70,146 +192,83 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
-    height: '400px'
+    height: '400px',
+    width: '100%'
   };
 
-  const imageStyles: React.CSSProperties = {
-    maxWidth: '100%',
-    maxHeight: '100%',
-    objectFit: 'contain'
-  };
-
-  // Handlers
-  const handleTitleSave = (newTitle: string) => {
-    if (onUpdate) {
-      onUpdate({ title: newTitle });
-    }
-    setEditingTitle(false);
-  };
-
-  const handleSubtitleSave = (newSubtitle: string) => {
-    if (onUpdate) {
-      onUpdate({ subtitle: newSubtitle });
-    }
-    setEditingSubtitle(false);
-  };
-
-  const startEditingTitle = () => {
-    if (isEditable) {
-      setEditingTitle(true);
-    }
-  };
-
-  const startEditingSubtitle = () => {
-    if (isEditable) {
-      setEditingSubtitle(true);
-    }
-  };
-
-  const handleTitleCancel = () => {
-    setEditingTitle(false);
-  };
-
-  const handleSubtitleCancel = () => {
-    setEditingSubtitle(false);
-  };
-
-  // Inline Editor Component
-  const InlineEditor: React.FC<{
-    initialValue: string;
-    onSave: (value: string) => void;
-    onCancel: () => void;
-    style?: React.CSSProperties;
-    placeholder?: string;
-  }> = ({ initialValue, onSave, onCancel, style, placeholder }) => {
-    const [value, setValue] = useState(initialValue);
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-        inputRef.current.select();
-      }
-    }, []);
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        onSave(value);
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        onCancel();
-      }
-    };
-
-    const handleBlur = () => {
-      onSave(value);
-    };
-
-    return (
-      <input
-        ref={inputRef}
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        style={style}
-        placeholder={placeholder}
-      />
-    );
+  const imageContainerStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative'
   };
 
   return (
-    <div style={slideStyles}>
+    <div style={slideStyles} ref={slideContainerRef}>
       {/* Title */}
-      {editingTitle ? (
+      {isEditingTitle ? (
         <InlineEditor
-          initialValue={title}
+          initialValue={currentTitle}
           onSave={handleTitleSave}
-          onCancel={handleTitleCancel}
+          onCancel={() => setIsEditingTitle(false)}
+          placeholder="Enter title"
           style={titleStyles}
-          placeholder="Enter title..."
         />
       ) : (
-        <h1 
+        <h1
           style={titleStyles}
-          onClick={startEditingTitle}
-          className={isEditable ? 'cursor-pointer' : ''}
+          onClick={() => isEditable && setIsEditingTitle(true)}
+          data-draggable={isEditable}
         >
-          {title}
+          {currentTitle}
         </h1>
       )}
 
       {/* Subtitle */}
-      {editingSubtitle ? (
+      {isEditingSubtitle ? (
         <InlineEditor
-          initialValue={subtitle}
+          initialValue={currentSubtitle}
           onSave={handleSubtitleSave}
-          onCancel={handleSubtitleCancel}
+          onCancel={() => setIsEditingSubtitle(false)}
+          placeholder="Enter subtitle"
           style={subtitleStyles}
-          placeholder="Enter subtitle..."
         />
       ) : (
-        <h2 
+        <h2
           style={subtitleStyles}
-          onClick={startEditingSubtitle}
-          className={isEditable ? 'cursor-pointer' : ''}
+          onClick={() => isEditable && setIsEditingSubtitle(true)}
+          data-draggable={isEditable}
         >
-          {subtitle}
+          {currentSubtitle}
         </h2>
       )}
 
+      {/* Main Content with Image */}
       <div style={mainContentStyles}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img 
-          src="/group_img.png" 
-          alt="Group" 
-          style={imageStyles}
-          onError={(e) => {
-            console.error('Image failed to load:', e);
-          }}
-        />
+        <div style={imageContainerStyles}>
+          <ClickableImagePlaceholder
+            imagePath={imagePath}
+            onImageUploaded={handleImageUploaded}
+            size="LARGE"
+            position="CENTER"
+            description="Click to upload group image"
+            prompt="A professional group of diverse people working together on challenges and solutions"
+            isEditable={isEditable}
+            style={{
+              width: '100%',
+              height: '100%',
+              maxWidth: '500px',
+              maxHeight: '400px',
+              objectFit: 'contain'
+            }}
+            elementId={`${slideId}-main-image`}
+            slideContainerRef={slideContainerRef}
+            templateId="challenges-solutions"
+            cropMode="contain"
+          />
+        </div>
       </div>
     </div>
   );
