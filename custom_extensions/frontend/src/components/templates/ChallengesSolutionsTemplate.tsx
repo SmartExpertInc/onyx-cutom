@@ -117,7 +117,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   title = 'Challenges & Solutions',
   subtitle = 'Type The Subtitle Of Your Great Here',
   theme,
-  imagePath: initialImagePath = '',
+  imagePath: initialImagePath = '/group_img.png',
   isEditable = true,
   slideId = 'challenges-solutions',
   onUpdate
@@ -251,7 +251,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
       <div style={mainContentStyles}>
         <div style={imageContainerStyles}>
           <ClickableImagePlaceholder
-            imagePath={imagePath}
+            imagePath={imagePath || '/group_img.png'}
             onImageUploaded={handleImageUploaded}
             size="LARGE"
             position="CENTER"
