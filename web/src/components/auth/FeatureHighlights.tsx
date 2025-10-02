@@ -24,7 +24,7 @@ export default function FeatureHighlights() {
 
   return (
     <div className="flex-1 max-w-lg">
-      <h2 className="text-3xl font-bold text-gray-900 mb-8">
+      <h2 className="text-3xl font-bold text-gray-900 mb-6">
         Why choose our platform?
       </h2>
       <div className="space-y-6">
@@ -34,7 +34,7 @@ export default function FeatureHighlights() {
               <feature.icon className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
                 {feature.title}
               </h3>
               <p className="text-gray-900 text-sm leading-relaxed">
@@ -47,7 +47,7 @@ export default function FeatureHighlights() {
 
       <div className="mt-8 space-y-6">
         {/* Review 1 */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white backdrop-blur-md border border-white/30 rounded-2xl p-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
               <User className="w-6 h-6 text-white" />
@@ -67,7 +67,7 @@ export default function FeatureHighlights() {
         </div>
 
         {/* Review 2 */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white backdrop-blur-md border border-white/30 rounded-2xl p-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
               <User className="w-6 h-6 text-white" />

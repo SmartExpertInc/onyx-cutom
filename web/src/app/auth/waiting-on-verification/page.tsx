@@ -38,7 +38,7 @@ export default async function Page() {
   }
 
   return (
-    <main>
+    <main style={{ background: 'linear-gradient(135deg, oklch(0.8576 0.0809 315.9) 0%, oklch(0.8341 0.071 266.01) 50%, oklch(0.9529 0.0286 329.29) 100%)' }}>
       <div className="absolute top-10x w-full">
         <HealthCheckBanner />
       </div>
