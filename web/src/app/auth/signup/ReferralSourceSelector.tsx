@@ -45,13 +45,13 @@ const ReferralSourceSelector: React.FC<ReferralSourceSelectorProps> = ({
 
   return (
     <div className="w-full max-w-sm gap-y-2 flex flex-col mx-auto">
-      <Label className="text-gray-900" small={false}>
+      <Label className="text-gray-900 dark:text-gray-900" small={false}>
         How did you hear about us?
       </Label>
       <Select value={referralSource} onValueChange={handleChange}>
         <SelectTrigger
           id="referral-source"
-          className="w-full border-background-300 rounded-full shadow-md hover:shadow-xl focus:ring-0 focus:ring-offset-0"
+          className="w-full border-background-300 dark:border-background-300 rounded-full shadow-md hover:shadow-xl focus:ring-0 focus:ring-offset-0"
         >
           <SelectValue placeholder="Select an option" />
         </SelectTrigger>
@@ -60,7 +60,7 @@ const ReferralSourceSelector: React.FC<ReferralSourceSelectorProps> = ({
             <SelectItem
               key={option.value}
               value={option.value}
-              className="py-3 px-4 hover:bg-indigo-100 hover:rounded-full cursor-pointer"
+              className="py-3 px-4 hover:bg-indigo-100 dark:hover:bg-indigo-100 hover:rounded-full cursor-pointer"
             >
               {option.label}
             </SelectItem>

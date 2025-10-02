@@ -90,9 +90,9 @@ const Page = async (props: {
         {cloud && authUrl && (
           <div className="w-full justify-center">
             <div className="flex items-center w-full my-4">
-              <div className="flex-grow border-t-2 border-background-300"></div>
-              <span className="px-4 text-gray-900">or</span>
-              <div className="flex-grow border-t-2 border-background-300"></div>
+              <div className="flex-grow border-t-2 border-background-300 dark:border-background-300"></div>
+              <span className="px-4 text-gray-900 dark:text-gray-900">or</span>
+              <div className="flex-grow border-t-2 border-background-300 dark:border-background-300"></div>
             </div>
             <SignInButton authorizeUrl={authUrl} authType="cloud" />
           </div>

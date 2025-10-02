@@ -47,7 +47,7 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="text-center text-xl text-strong font-bold">
+          <h2 className="text-center text-xl text-strong font-bold dark:!text-strong">
             <LoginText />
           </h2>
           <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />

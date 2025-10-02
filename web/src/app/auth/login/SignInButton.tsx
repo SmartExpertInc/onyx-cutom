@@ -15,7 +15,7 @@ export function SignInButton({
         <div className="my-auto mr-2">
           <FcGoogle />
         </div>
-        <p className="text-sm font-medium select-none text-gray-900">Continue with Google</p>
+        <p className="text-sm font-medium select-none text-gray-900 dark:!text-gray-900">Continue with Google</p>
       </div>
     );
   } else if (authType === "oidc") {
@@ -45,10 +45,10 @@ export function SignInButton({
   }
 
   return (
-    <a
-      className="mx-auto mb-4 mt-6 py-3 px-4 w-full bg-white text-neutral-900 dark:text-neutral-300 border border-neutral-300 flex rounded-full cursor-pointer shadow-md hover:shadow-xl transition-all"
-      href={finalAuthorizeUrl}
-    >
+      <a
+        className="mx-auto mb-4 mt-6 py-3 px-4 w-full bg-white text-neutral-900 dark:!text-neutral-900 border border-neutral-300 dark:!border-neutral-300 flex rounded-full cursor-pointer shadow-md hover:shadow-xl transition-all"
+        href={finalAuthorizeUrl}
+      >
       {button}
     </a>
   );

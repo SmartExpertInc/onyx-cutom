@@ -20,7 +20,7 @@ export default function AuthFlowContainer({
         <div className="w-full max-w-md pt-8 pb-6 px-8 gap-y-4 flex items-center flex-col rounded-2xl shadow-md hover:shadow-xl backdrop-blur-md border border-white/30 gap-y-2 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           <div className="w-full">{children}</div>
           {authState === "login" && (
-            <div className="text-sm mt-4 text-center w-full text-text-800 font-medium">
+            <div className="text-sm mt-4 text-center w-full text-gray-900 font-medium">
               Don&apos;t have an account?{" "}
               <Link
                 href="/auth/signup"

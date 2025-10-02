@@ -140,6 +140,7 @@ export function EmailPasswordForm({
               label="Email"
               type="email"
               placeholder="email@yourcompany.com"
+              className="dark:!bg-white dark:!border-neutral-200 dark:!text-neutral-950 dark:placeholder:!text-neutral-500"
             />
 
             <TextFormField
@@ -147,13 +148,14 @@ export function EmailPasswordForm({
               label="Password"
               type="password"
               placeholder="**************"
+              className="dark:!bg-white dark:!border-neutral-200 dark:!text-neutral-950 dark:placeholder:!text-neutral-500"
             />
 
             <Button
-              variant="agent"
+              variant="default"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full bg-blue-700 hover:!bg-blue-700 shadow-md hover:shadow-xl transition-shadow mt-4"
+              className="mx-auto !py-3 !px-4 !h-auto w-full rounded-full !bg-blue-700 hover:!bg-blue-700 dark:!bg-blue-700 dark:hover:!bg-blue-700 !text-white dark:!text-white shadow-md hover:shadow-xl transition-shadow mt-4"
             >
               {isJoin ? "Join" : isSignup ? "Sign Up" : "Log In"}
             </Button>
