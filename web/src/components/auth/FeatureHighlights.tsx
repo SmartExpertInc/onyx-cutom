@@ -31,10 +31,7 @@ export default function FeatureHighlights() {
         {features.map((feature, index) => (
           <div key={index} className="flex items-start gap-4">
             <div className={`${feature.color} rounded-full p-3 flex-shrink-0`}>
-              <feature.icon 
-                className="w-4 h-4" 
-                style={{ color: 'white !important', fill: 'white !important' }}
-              />
+              <feature.icon className="w-4 h-4 text-[#FFFFFF]" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -53,10 +50,7 @@ export default function FeatureHighlights() {
         <div className="shadow-md hover:shadow-xl backdrop-blur-md border border-white/30 rounded-2xl p-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
-              <User 
-                className="w-6 h-6" 
-                style={{ color: 'white !important', fill: 'white !important' }}
-              />
+              <User className="w-6 h-6 text-[#FFFFFF]" />
             </div>
             <div>
               <h4 className="font-semibold text-gray-900">Sara Johnson</h4>
@@ -80,10 +74,7 @@ export default function FeatureHighlights() {
         <div className="shadow-md hover:shadow-xl backdrop-blur-md border border-white/30 rounded-2xl p-4" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
-              <User 
-                className="w-6 h-6" 
-                style={{ color: 'white !important', fill: 'white !important' }}
-              />
+              <User className="w-6 h-6 text-[#FFFFFF]" />
             </div>
             <div>
               <h4 className="font-semibold text-gray-900">Michael Chen</h4>
