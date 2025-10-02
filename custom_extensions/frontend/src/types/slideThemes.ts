@@ -25,6 +25,7 @@ export interface SlideTheme {
     tableDeleteButtonColor?: string;
     tableDeleteButtonTextColor?: string;
     marketShareGradient?: string;
+    pyramidBackgroundColor?: string;
   };
   fonts: {
     titleFont: string;
@@ -59,7 +60,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       tableCrossColor: '#94a3b8',  // Серый цвет для крестиков
       tableDeleteButtonColor: '#FFB6C1',  // Розовый фон для кнопки удаления
       tableDeleteButtonTextColor: '#FF0000',  // Красный текст для кнопки удаления
-      marketShareGradient: 'linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%)'  // Новый градиент для MarketShare
+      marketShareGradient: 'linear-gradient(to bottom, #0F58F9 0%, #1023A1 100%)',  // Новый градиент для MarketShare
+      pyramidBackgroundColor: '#ffffff'  // Белый фон для Pyramid
     },
     fonts: {
       titleFont: 'Lora, serif',

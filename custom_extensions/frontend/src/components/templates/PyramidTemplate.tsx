@@ -190,12 +190,13 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
 
   const mainContentStyles: React.CSSProperties = {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
     height: '450px',
-    paddingTop: '20px'
+    paddingBottom: '20px',
+    background: currentTheme.colors.pyramidBackgroundColor || '#ffffff'
   };
 
   // Pyramid colors exactly as in photo - 5 distinct levels
@@ -269,11 +270,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Text blocks - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const textBlockStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '15px', left: '5%', textAlign: 'left' as const },     // Level 1 - LEFT (top segment)
-      { top: '85px', right: '5%', textAlign: 'right' as const },   // Level 2 - RIGHT (second segment)
-      { top: '155px', left: '5%', textAlign: 'left' as const },    // Level 3 - LEFT (third segment)
-      { top: '225px', right: '5%', textAlign: 'right' as const },  // Level 4 - RIGHT (fourth segment)
-      { top: '295px', left: '5%', textAlign: 'left' as const }     // Level 5 - LEFT (bottom segment)
+      { top: '35px', left: '5%', textAlign: 'left' as const },     // Level 1 - LEFT (top segment)
+      { top: '115px', right: '5%', textAlign: 'right' as const },   // Level 2 - RIGHT (second segment)
+      { top: '195px', left: '5%', textAlign: 'left' as const },    // Level 3 - LEFT (third segment)
+      { top: '275px', right: '5%', textAlign: 'right' as const },  // Level 4 - RIGHT (fourth segment)
+      { top: '355px', left: '5%', textAlign: 'left' as const }     // Level 5 - LEFT (bottom segment)
     ];
     
     const pos = positions[index];
@@ -308,11 +309,11 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   // Triangle arrows - exactly as in photo: LEFT-RIGHT-LEFT-RIGHT-LEFT
   const triangleStyles = (index: number): React.CSSProperties => {
     const positions = [
-      { top: '45px', left: '15%' },    // Level 1 - LEFT (pointing to top segment)
-      { top: '115px', right: '15%' },  // Level 2 - RIGHT (pointing to second segment)
-      { top: '185px', left: '15%' },   // Level 3 - LEFT (pointing to third segment)
-      { top: '255px', right: '15%' },  // Level 4 - RIGHT (pointing to fourth segment)
-      { top: '325px', left: '15%' }    // Level 5 - LEFT (pointing to bottom segment)
+      { top: '65px', left: '15%' },    // Level 1 - LEFT (pointing to top segment)
+      { top: '145px', right: '15%' },  // Level 2 - RIGHT (pointing to second segment)
+      { top: '225px', left: '15%' },   // Level 3 - LEFT (pointing to third segment)
+      { top: '305px', right: '15%' },  // Level 4 - RIGHT (pointing to fourth segment)
+      { top: '385px', left: '15%' }    // Level 5 - LEFT (pointing to bottom segment)
     ];
     
     const pos = positions[index];
