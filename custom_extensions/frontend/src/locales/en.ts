@@ -1531,7 +1531,11 @@ export const en = {
       ticketTypePlaceholder: "Enter ticket type",
       freeAccessConditionsPlaceholder: "Enter free access conditions",
       imageUploadedSuccessfully: "✓ Image uploaded successfully"
-    }
+    },
+    
+    // Billing
+    billing: "Billing",
+    billingAndSubscription: "Billing and subscription"
   },
   survey: {
     step1: {

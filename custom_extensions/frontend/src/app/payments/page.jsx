@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import useFeaturePermission from '@/hooks/useFeaturePermission';
+import { HeadTextCustom } from '@/components/ui/head-text-custom';
 
 // Sidebar component definition (exact copy from projects page)
 const Sidebar = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
@@ -225,15 +226,15 @@ export default function BillingPage() {
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonShadow: 'shadow-blue-600/30',
       isCurrent: true,
-      credits: '200 (one-time on registration)',
-      storage: '1 GB',
-      support: 'Email up to 48 hours',
+      credits: t('tariffPlan.plans.starter.credits', '200 (one-time on registration)'),
+      storage: t('tariffPlan.plans.starter.storage', '1 GB'),
+      support: t('tariffPlan.plans.starter.support', 'Email up to 48 hours'),
       connectors: 'None',
       collaboration: 'None',
       features: [
-        '200 credits on registration',
-        '1 GB storage',
-        'Basic email support',
+        t('tariffPlan.plans.starter.credits', '200 (one-time on registration)'),
+        t('tariffPlan.plans.starter.storage', '1 GB'),
+        t('tariffPlan.plans.starter.support', 'Email up to 48 hours'),
         'No connectors',
         'No collaboration'
       ]
@@ -248,17 +249,17 @@ export default function BillingPage() {
       buttonColor: 'bg-blue-600 hover:bg-blue-700',
       buttonShadow: 'shadow-blue-600/30',
       isCurrent: false,
-      credits: '600 / month',
-      storage: '5 GB',
-      support: 'Email up to 24 hours',
+      credits: t('tariffPlan.plans.pro.credits', '600 / month'),
+      storage: t('tariffPlan.plans.pro.storage', '5 GB'),
+      support: t('tariffPlan.plans.pro.support', 'Email up to 24 hours'),
       connectors: '2',
       collaboration: '1 (up to 3 participants)',
       features: [
-        '600 credits per month',
-        '5 GB storage',
-        'Priority email support (24h)',
-        '2 platform connectors',
-        'Team collaboration (up to 3)'
+        t('tariffPlan.plans.pro.features.0', '600 credits per month'),
+        t('tariffPlan.plans.pro.features.1', '5 GB storage'),
+        t('tariffPlan.plans.pro.support', 'Email up to 24 hours'),
+        t('tariffPlan.plans.pro.features.3', '2 platform connectors'),
+        t('tariffPlan.plans.pro.features.4', 'Team collaboration (up to 3)')
       ]
     },
     business: {
@@ -271,17 +272,17 @@ export default function BillingPage() {
       buttonColor: 'bg-blue-300 hover:bg-blue-400',
       buttonShadow: 'shadow-blue-300/30',
       isCurrent: false,
-      credits: '2,000 / month',
-      storage: '10 GB',
-      support: 'Priority support',
+      credits: t('tariffPlan.plans.business.credits', '2,000 / month'),
+      storage: t('tariffPlan.plans.business.storage', '10 GB'),
+      support: t('tariffPlan.plans.business.support', 'Priority support'),
       connectors: '5',
-      collaboration: '3 (up to 10 participants)',
+      collaboration: t('tariffPlan.plans.business.collaboration', '3 (up to 10 participants)'),
       features: [
-        '2,000 credits per month',
-        '10 GB storage',
-        'Priority support',
-        '5 platform connectors',
-        'Team collaboration (up to 10)'
+        t('tariffPlan.plans.business.features.0', '2,000 credits per month'),
+        t('tariffPlan.plans.business.features.1', '10 GB storage'),
+        t('tariffPlan.plans.business.features.2', 'Priority support'),
+        t('tariffPlan.plans.business.features.3', '5 platform connectors'),
+        t('tariffPlan.plans.business.features.4', 'Team collaboration (up to 10)')
       ]
     },
     enterprise: {
@@ -294,18 +295,18 @@ export default function BillingPage() {
       buttonColor: 'bg-indigo-400 hover:bg-indigo-500',
       buttonShadow: 'shadow-indigo-400/30',
       isCurrent: false,
-      credits: '10,000+ / month (flexible)',
-      storage: '50 GB + pay-as-you-go',
-      support: 'Dedicated manager',
-      connectors: 'All',
-      collaboration: 'Unlimited',
+      credits: t('tariffPlan.plans.enterprise.credits', '10,000+ / month (flexible)'),
+      storage: t('tariffPlan.plans.enterprise.storage', '50 GB + pay-as-you-go'),
+      support: t('tariffPlan.plans.enterprise.support', 'Dedicated manager'),
+      connectors: t('tariffPlan.plans.enterprise.connectors', 'All'),
+      collaboration: t('tariffPlan.plans.enterprise.collaboration', 'Unlimited'),
       features: [
-        'Custom credit allocation',
-        'Unlimited storage',
-        'Dedicated account manager',
-        'All platform connectors',
-        'Unlimited team collaboration',
-        'Custom features & integrations'
+        t('tariffPlan.plans.enterprise.features.0', 'Custom credit allocation'),
+        t('tariffPlan.plans.enterprise.features.1', 'Unlimited storage'),
+        t('tariffPlan.plans.enterprise.features.2', 'Dedicated account manager'),
+        t('tariffPlan.plans.enterprise.features.3', 'All platform connectors'),
+        t('tariffPlan.plans.enterprise.features.4', 'Unlimited team collaboration'),
+        t('tariffPlan.plans.enterprise.features.5', 'Custom features & integrations')
       ]
     }
   };
@@ -320,12 +321,10 @@ export default function BillingPage() {
         {/* Header */}
         <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30">
-                <CreditCard className="w-7 h-7 text-white" strokeWidth={2.5} />
-              </div>
-              <h1 className="text-3xl font-bold text-slate-900">Billing and subscription</h1>
-            </div>
+            <HeadTextCustom 
+              text={t('interface.billingAndSubscription', 'Billing and subscription')}
+              textSize="text-3xl"
+            />
           </div>
         </div>
 
@@ -371,6 +370,25 @@ export default function BillingPage() {
 
             {/* Right Column */}
             <div className="space-y-6">
+              {/* Your Add-ons */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-200 p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
+                <div className="relative z-10">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Your Add-ons
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {purchasedItems.map((item, index) => (
+                      <div key={index} className="inline-flex items-center gap-3 px-6 py-4 bg-white/80 backdrop-blur-sm text-blue-700 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
+                        {getIcon(item.type)}
+                        <span className="font-medium text-base">{item.name}</span>
+                        <X className="w-5 h-5 cursor-pointer hover:text-red-600 transition-colors" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
               {/* Manage Subscription */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Manage subscription</h2>
@@ -387,20 +405,6 @@ export default function BillingPage() {
                   <X className="w-5 h-5" />
                   Cancel subscription
                 </button>
-              </div>
-
-              {/* Your Add-ons */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Add-ons</h2>
-                <div className="flex flex-wrap gap-2">
-                  {purchasedItems.map((item, index) => (
-                    <div key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
-                      {getIcon(item.type)}
-                      <span className="font-medium">{item.name}</span>
-                      <X className="w-4 h-4 cursor-pointer hover:text-red-600 transition-colors" />
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>

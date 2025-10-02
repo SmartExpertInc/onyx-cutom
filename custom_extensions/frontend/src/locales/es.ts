@@ -1649,6 +1649,10 @@ export const es = {
         },
       },
     },
+    
+    // Billing
+    billing: "Facturación",
+    billingAndSubscription: "Facturación y suscripción"
   },
   survey: {
     step1: {

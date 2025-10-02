@@ -1628,7 +1628,11 @@ export const uk = {
       ticketTypePlaceholder: "Введіть тип квитка",
       freeAccessConditionsPlaceholder: "Введіть умови безкоштовного доступу",
       imageUploadedSuccessfully: "✓ Зображення успішно завантажено"
-    }
+    },
+    
+    // Billing
+    billing: "Біллінг",
+    billingAndSubscription: "Біллінг та підписка"
   },
   survey: {
     step1: {
