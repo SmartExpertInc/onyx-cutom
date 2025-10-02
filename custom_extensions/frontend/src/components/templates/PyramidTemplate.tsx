@@ -167,8 +167,8 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
   }, []);
 
   const slideStyles: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-    padding: '40px',
+    background: currentTheme.colors.pyramidBackgroundColor || '#ffffff',
+    padding: '40px 40px 0px 40px',
     display: 'flex',
     flexDirection: 'column',
     fontFamily: 'Georgia, serif',
@@ -194,9 +194,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
-    height: '450px',
-    paddingBottom: '20px',
-    background: currentTheme.colors.pyramidBackgroundColor || '#ffffff'
+    height: '450px'
   };
 
   // Pyramid colors exactly as in photo - 5 distinct levels
