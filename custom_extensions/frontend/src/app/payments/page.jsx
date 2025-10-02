@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import useFeaturePermission from '@/hooks/useFeaturePermission';
-import { HeadTextCustom } from '@/components/ui/head-text-custom';
 
 // Sidebar component definition (exact copy from projects page)
 const Sidebar = ({ currentTab, onFolderSelect, selectedFolderId, folders, folderProjects }) => {
@@ -321,10 +320,7 @@ export default function BillingPage() {
         {/* Header */}
         <div className="border-b border-slate-200 bg-white/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-6 py-6">
-            <HeadTextCustom 
-              text={t('interface.billingAndSubscription', 'Billing and subscription')}
-              textSize="text-3xl"
-            />
+            <h1 className="text-3xl font-bold text-slate-900">{t('interface.billingAndSubscription', 'Billing and subscription')}</h1>
           </div>
         </div>
 
