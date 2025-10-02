@@ -1292,6 +1292,7 @@ export const ru = {
       textStyles: "Стили текста",
       selectStyles: "Выберите стили",
       stylesSelected: "стилей выбрано",
+      styles: "Стили",
       useExistingOutline: "Использовать существующий план",
       createNewOutline: "Создать новый план",
       selectOutline: "Выберите план",

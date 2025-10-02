@@ -1274,6 +1274,7 @@ export const es = {
       textStyles: "Estilos de texto",
       selectStyles: "Seleccionar estilos",
       stylesSelected: "estilos seleccionados",
+      styles: "Estilos",
       useExistingOutline: "Usar plan existente",
       createNewOutline: "Crear nuevo plan",
       selectOutline: "Seleccionar plan",

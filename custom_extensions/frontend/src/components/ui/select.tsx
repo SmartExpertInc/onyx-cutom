@@ -220,9 +220,11 @@ function SelectScrollUpButton({
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
       className={cn(
-        "flex cursor-default items-center justify-center py-1",
+        "flex cursor-pointer items-center justify-center py-1 hover:bg-gray-100",
         className
       )}
+      onPointerEnter={(e) => e.preventDefault()}
+      onPointerMove={(e) => e.preventDefault()}
       {...props}
     >
       <ChevronUpIcon className="size-4" />
@@ -238,9 +240,11 @@ function SelectScrollDownButton({
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
       className={cn(
-        "flex cursor-default items-center justify-center py-1",
+        "flex cursor-pointer items-center justify-center py-1 hover:bg-gray-100",
         className
       )}
+      onPointerEnter={(e) => e.preventDefault()}
+      onPointerMove={(e) => e.preventDefault()}
       {...props}
     >
       <ChevronDownIcon className="size-4" />

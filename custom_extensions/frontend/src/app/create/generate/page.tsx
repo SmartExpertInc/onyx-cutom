@@ -152,8 +152,8 @@ function GenerateProductPicker() {
   // For prompt input and filters we keep in state and navigate later
   const [prompt, setPrompt] = useState("");
   const [modulesCount, setModulesCount] = useState(4);
-  const [lessonsPerModule, setLessonsPerModule] = useState("3-4 per module");
-  const [language, setLanguage] = useState("English");
+  const [lessonsPerModule, setLessonsPerModule] = useState(`3-4 ${t('interface.generate.perModule', 'per module')}`);
+  const [language, setLanguage] = useState(t('interface.english', 'English'));
 
   // All filters are always true (removed dropdown functionality)
   const filters = {
@@ -434,7 +434,7 @@ function GenerateProductPicker() {
   const [quizLessonsForModule, setQuizLessonsForModule] = useState<string[]>([]);
   const [selectedQuizLesson, setSelectedQuizLesson] = useState<string>("");
   const [quizQuestionCount, setQuizQuestionCount] = useState(10);
-  const [quizLanguage, setQuizLanguage] = useState("English");
+  const [quizLanguage, setQuizLanguage] = useState(t('interface.english', 'English'));
   const [useExistingQuizOutline, setUseExistingQuizOutline] = useState<boolean | null>(false);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<string[]>([
     "multiple-choice",
@@ -842,8 +842,8 @@ function GenerateProductPicker() {
   const [textLessonsForModule, setTextLessonsForModule] = useState<string[]>([]);
   const [selectedTextOutlineId, setSelectedTextOutlineId] = useState<number | null>(null);
   const [selectedTextLesson, setSelectedTextLesson] = useState<string>("");
-  const [textLanguage, setTextLanguage] = useState<string>("English");
-  const [textLength, setTextLength] = useState<string>("medium");
+  const [textLanguage, setTextLanguage] = useState<string>(t('interface.english', 'English'));
+  const [textLength, setTextLength] = useState<string>(t('interface.generate.medium', 'medium'));
   const [textStyles, setTextStyles] = useState<string[]>(["headlines", "paragraphs", "bullet_lists", "numbered_lists", "alerts", "recommendations", "section_breaks", "icons", "important_sections"]);
   const [showTextStylesDropdown, setShowTextStylesDropdown] = useState(false);
 
@@ -1368,7 +1368,7 @@ function GenerateProductPicker() {
                           label: m.name
                         }))}
                         icon={<FolderIcon className="w-4 h-4 text-gray-600" />}
-                        label="Module"
+                        label={t('interface.generate.modules', 'Modules')}
                       />
                     )}
 
@@ -1409,7 +1409,7 @@ function GenerateProductPicker() {
                             label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
                           }))}
                           icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
-                          label="Slides"
+                          label={t('interface.generate.slides', 'Slides')}
                         />
                       </>
                     )}
@@ -1439,7 +1439,7 @@ function GenerateProductPicker() {
                         label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
                       }))}
                       icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
-                      label="Slides"
+                      label={t('interface.generate.slides', 'Slides')}
                     />
                   </>
                 )}
@@ -1546,7 +1546,7 @@ function GenerateProductPicker() {
                             { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                           ]}
                           icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
-                          label="Question Types"
+                          label={t('interface.generate.questionTypes', 'Question Types')}
                           placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                         />
                         <CustomPillSelector
@@ -1557,7 +1557,7 @@ function GenerateProductPicker() {
                             label: `${count} ${t('interface.generate.questions', 'questions')}`
                           }))}
                           icon={<MessageCircleQuestion className="w-4 h-4 text-gray-600" />}
-                          label="Questions"
+                          label={t('interface.generate.questions', 'Questions')}
                         />
                       </>
                     )}
@@ -1590,7 +1590,7 @@ function GenerateProductPicker() {
                         { value: "open-answer", label: t('interface.generate.openAnswer', 'Open Answer') }
                       ]}
                       icon={<FileQuestion className="w-4 h-4 text-gray-600" />}
-                      label="Question Types"
+                      label={t('interface.generate.questionTypes', 'Question Types')}
                       placeholder={t('interface.generate.selectQuestionTypes', 'Select Question Types')}
                     />
                     <CustomPillSelector
@@ -1706,7 +1706,7 @@ function GenerateProductPicker() {
                             { value: "long", label: t('interface.generate.long', 'Long') }
                           ]}
                           icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
-                          label="Length"
+                          label={t('interface.generate.length', 'Length')}
                         />
                         <CustomMultiSelector
                           selectedValues={textStyles}
@@ -1726,7 +1726,7 @@ function GenerateProductPicker() {
                             { value: "important_sections", label: t('interface.generate.importantSections', 'Important Sections'), tooltip: stylePurposes.important_sections }
                           ]}
                           icon={<Paintbrush className="w-4 h-4 text-gray-600" />}
-                          label="Styles"
+                          label={t('interface.generate.selectStyles', 'Styles')}
                           placeholder={t('interface.generate.selectStyles', 'Select styles')}
                         />
                       </>
@@ -1758,7 +1758,7 @@ function GenerateProductPicker() {
                         { value: "long", label: t('interface.generate.long', 'Long') }
                       ]}
                       icon={<RulerDimensionLine className="w-4 h-4 text-gray-600" />}
-                      label="Length"
+                      label={t('interface.generate.length', 'Length')}
                     />
                     <CustomMultiSelector
                       selectedValues={textStyles}
@@ -1797,7 +1797,7 @@ function GenerateProductPicker() {
                 label: `${count} ${t('interface.generate.slides', 'slides')}`
               }))}
               icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
-              label="Slides"
+              label={t('interface.generate.slides', 'Slides')}
             />
             <CustomPillSelector
               value={language}

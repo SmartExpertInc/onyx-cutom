@@ -1283,6 +1283,7 @@ export const uk = {
       textStyles: "Стилі тексту",
       selectStyles: "Виберіть стилі",
       stylesSelected: "стилів вибрано",
+      styles: "Стилі",
       useExistingOutline: "Використовувати існуючий план",
       createNewOutline: "Створити новий план",
       selectOutline: "Виберіть план",
