@@ -6,6 +6,7 @@ import AddOnsModal from '@/components/AddOnsModal';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import useFeaturePermission from '@/hooks/useFeaturePermission';
@@ -437,21 +438,29 @@ export default function BillingPage() {
       />
 
       {/* Cancel Subscription Confirmation Modal */}
-      {isCancelModalOpen && itemToCancel && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <X className="w-5 h-5 text-red-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Cancel {itemToCancel.type === 'subscription' ? 'Subscription' : 'Add-on'}
-                </h3>
+      <Dialog open={isCancelModalOpen} onOpenChange={(open) => {
+        if (!open) {
+          setIsCancelModalOpen(false);
+          setItemToCancel(null);
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="w-5 h-5 text-red-600" />
               </div>
-              
+              Cancel {itemToCancel?.type === 'subscription' ? 'Subscription' : 'Add-on'}
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this {itemToCancel?.type === 'subscription' ? 'subscription' : 'add-on'}? This action will have the following consequences:
+            </DialogDescription>
+          </DialogHeader>
+          
+          {itemToCancel && (
+            <>
               {/* Item Details */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-2">
                   {getIcon(itemToCancel.type)}
                   <span className="font-medium text-gray-900">{itemToCancel.name}</span>
@@ -472,11 +481,7 @@ export default function BillingPage() {
                 </div>
               </div>
               
-              <p className="text-gray-600 mb-6">
-                Are you sure you want to cancel this {itemToCancel.type === 'subscription' ? 'subscription' : 'add-on'}? This action will:
-              </p>
-              
-              <ul className="space-y-2 mb-6 text-sm text-gray-600">
+              <ul className="space-y-2 text-sm text-gray-600">
                 {itemToCancel.type === 'subscription' ? (
                   <>
                     <li className="flex items-center gap-2">
@@ -509,34 +514,36 @@ export default function BillingPage() {
                   </>
                 )}
               </ul>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setIsCancelModalOpen(false);
-                    setItemToCancel(null);
-                  }}
-                  className="flex-1 bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Keep {itemToCancel.type === 'subscription' ? 'Subscription' : 'Add-on'}
-                </button>
-                <button
-                  onClick={() => {
-                    // Handle actual cancellation logic here
-                    console.log('Cancelling:', itemToCancel);
-                    setIsCancelModalOpen(false);
-                    setItemToCancel(null);
-                    // Add your cancellation logic
-                  }}
-                  className="flex-1 bg-red-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Yes, Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </>
+          )}
+          
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCancelModalOpen(false);
+                setItemToCancel(null);
+              }}
+              className="flex-1"
+            >
+              Keep {itemToCancel?.type === 'subscription' ? 'Subscription' : 'Add-on'}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                // Handle actual cancellation logic here
+                console.log('Cancelling:', itemToCancel);
+                setIsCancelModalOpen(false);
+                setItemToCancel(null);
+                // Add your cancellation logic
+              }}
+              className="flex-1"
+            >
+              Yes, Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
