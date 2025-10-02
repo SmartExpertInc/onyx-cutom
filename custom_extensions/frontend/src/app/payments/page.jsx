@@ -371,15 +371,14 @@ export default function BillingPage() {
             <div className="space-y-6">
               {/* Your Add-ons */}
               <div className="bg-white rounded-xl shadow-lg border border-blue-200 p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
                 <div className="relative z-10">
                   <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     Your Add-ons
                   </h2>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {purchasedItems.map((item, index) => (
-                      <div key={index} className="flex flex-col w-full max-w-xs bg-white backdrop-blur-sm text-blue-700 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
+                      <div key={index} className="flex flex-col bg-blue-50 backdrop-blur-sm text-blue-700 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
                         <div className="flex items-center gap-3 px-6 py-4">
                           {getIcon(item.type)}
                           <span className="font-medium text-base">{item.name}</span>
@@ -389,7 +388,7 @@ export default function BillingPage() {
                             setItemToCancel(item);
                             setIsCancelModalOpen(true);
                           }}
-                          className="w-full bg-red-50 border border-red-300 text-red-600 font-medium py-2 px-3 rounded-b-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                          className="w-full bg-red-50 border border-red-300 text-red-600 font-medium py-2 px-3 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2 m-2"
                         >
                           <X className="w-5 h-5" />
                           Cancel
@@ -490,10 +489,6 @@ export default function BillingPage() {
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                      Cancel all active add-ons
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                       You can reactivate anytime
                     </li>
                   </>
@@ -501,7 +496,7 @@ export default function BillingPage() {
                   <>
                     <li className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                      Remove {itemToCancel.name} from your account
+                      Remove {itemToCancel.name} subscription from your account
                     </li>
                     <li className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
