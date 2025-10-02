@@ -8808,6 +8808,98 @@ async def migrate_onyx_users_to_credits_table() -> int:
                             ON CONFLICT (onyx_user_id) DO NOTHING
                         """, user['onyx_user_id'], '{}', datetime.now(timezone.utc), datetime.now(timezone.utc))
                         
+                        # Full Nextcloud provisioning for migrated users (same as new users)
+                        try:
+                            base_url = os.environ.get("NEXTCLOUD_BASE_URL") or "http://nc1.contentbuilder.ai:8080"
+                            nc_admin_user = os.environ.get("NEXTCLOUD_ADMIN_USERNAME")
+                            nc_admin_pass = os.environ.get("NEXTCLOUD_ADMIN_PASSWORD")
+                            
+                            if nc_admin_user and nc_admin_pass:
+                                import secrets
+                                import re as _re
+                                
+                                # Generate Nextcloud user ID and password
+                                raw_id = str(user['onyx_user_id'])
+                                sanitized = _re.sub(r"[^a-zA-Z0-9_\-]", "", raw_id.replace("-", ""))
+                                userid = f"sd_{sanitized[:24]}"
+                                new_password = secrets.token_urlsafe(16)
+
+                                # Normalize base URL to https if needed
+                                from urllib.parse import urlparse
+                                parsed = urlparse(base_url)
+                                if parsed.scheme == "http":
+                                    base_url = f"https://{parsed.netloc}{parsed.path}".rstrip("/")
+                                else:
+                                    base_url = (base_url or "").rstrip("/")
+                                ocs_base = base_url
+
+                                # Create Nextcloud user
+                                headers = {"OCS-APIRequest": "true", "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"}
+                                async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                                    create_url = f"{ocs_base}/ocs/v2.php/cloud/users"
+                                    create_resp = await client.post(
+                                        create_url,
+                                        data={"userid": userid, "password": new_password},
+                                        headers=headers,
+                                        auth=(nc_admin_user, nc_admin_pass)
+                                    )
+                                    
+                                    # Parse OCS response
+                                    ocs_ok = False
+                                    reset_needed = False
+                                    try:
+                                        j = create_resp.json()
+                                        sc = j.get("ocs", {}).get("meta", {}).get("statuscode")
+                                        if sc == 100:
+                                            ocs_ok = True
+                                        elif sc == 102:
+                                            reset_needed = True
+                                    except Exception:
+                                        pass
+                                        
+                                    if create_resp.status_code == 409 or reset_needed or (not ocs_ok and create_resp.status_code in (200, 201)):
+                                        # User exists, reset password
+                                        update_url = f"{ocs_base}/ocs/v2.php/cloud/users/{userid}"
+                                        update_resp = await client.put(
+                                            update_url,
+                                            data={"key": "password", "value": new_password},
+                                            headers=headers,
+                                            auth=(nc_admin_user, nc_admin_pass)
+                                        )
+                                        if update_resp.status_code not in (200, 201, 204):
+                                            logger.warning(f"Failed to reset Nextcloud password for migrated user {userid}: {update_resp.status_code}")
+                                    elif (create_resp.status_code not in (200, 201)) and not ocs_ok:
+                                        logger.error(f"Failed to create Nextcloud user for migrated user: {create_resp.status_code}")
+                                        # Continue with migration even if Nextcloud fails
+                                        raise Exception("Nextcloud creation failed")
+
+                                # Save encrypted credentials
+                                encrypted = encrypt_password(new_password)
+                                await custom_conn.execute(
+                                    """
+                                    UPDATE smartdrive_accounts
+                                    SET nextcloud_username = $2, nextcloud_password_encrypted = $3, nextcloud_base_url = $4, updated_at = $5
+                                    WHERE onyx_user_id = $1
+                                    """,
+                                    user['onyx_user_id'], userid, encrypted, base_url, datetime.now(timezone.utc)
+                                )
+
+                                # Clean default skeleton files using comprehensive cleanup function
+                                try:
+                                    deleted_count = await cleanup_nextcloud_default_files(base_url, userid, new_password)
+                                    logger.info(f"[SmartDrive Migration] Cleaned up {deleted_count} default files for migrated user {userid}")
+                                except Exception as cleanup_error:
+                                    logger.error(f"[SmartDrive Migration] Failed to cleanup default files for user {userid}: {cleanup_error}")
+                                    # Don't fail the whole migration if cleanup fails
+
+                                logger.info(f"[SmartDrive Migration] Fully provisioned Nextcloud account for migrated user: {user['onyx_user_id']} -> {userid}")
+                            else:
+                                logger.warning(f"[SmartDrive Migration] Nextcloud admin credentials not configured, user {user['onyx_user_id']} will need manual setup")
+                                
+                        except Exception as smartdrive_error:
+                            logger.error(f"[SmartDrive Migration] Failed to provision Nextcloud for user {user['onyx_user_id']}: {smartdrive_error}")
+                            # Don't fail the whole migration if SmartDrive provisioning fails
+                        
                         # Also assign default user type to migrated users
                         await assign_default_user_type(user['onyx_user_id'], custom_conn)
                         
