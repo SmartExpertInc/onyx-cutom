@@ -120,26 +120,26 @@ function InlineEditor({
 
 export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
   slideId,
-  title = 'Revenue Distribution Analysis',
+  title = 'Pie chart',
   chartData = {
     segments: [
-      { label: 'Cloud Services', percentage: 35, color: '#3B82F6', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.' },
-      { label: 'Mobile Applications', percentage: 28, color: '#10B981', description: 'Mobile app development showing consistent growth and expanding market penetration.' },
-      { label: 'Data Analytics', percentage: 22, color: '#F59E0B', description: 'Data analytics services contributing substantial recurring revenue streams.' },
-      { label: 'AI Solutions', percentage: 15, color: '#EF4444', description: 'AI and machine learning solutions providing additional revenue diversification.' },
-      { label: 'Security Tools', percentage: 12, color: '#8B5CF6', description: 'Cybersecurity tools and services addressing critical market needs.' },
-      { label: 'Integration Services', percentage: 8, color: '#EC4899', description: 'System integration and consulting services rounding out our portfolio.' }
+      { label: 'Headline', percentage: 16.67, color: '#ED8E8C', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#FFBF55', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#993EFB', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#0F58F9', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#DC6D17', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 16.67, color: '#0F4C97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' }
     ]
   },
   monthlyData = [
-    { month: 'Cloud Services', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.', color: '#3B82F6', percentage: '35%' },
-    { month: 'Mobile Applications', description: 'Mobile app development showing consistent growth and expanding market penetration.', color: '#10B981', percentage: '28%' },
-    { month: 'Data Analytics', description: 'Data analytics services contributing substantial recurring revenue streams.', color: '#F59E0B', percentage: '22%' },
-    { month: 'AI Solutions', description: 'AI and machine learning solutions providing additional revenue diversification.', color: '#EF4444', percentage: '15%' },
-    { month: 'Security Tools', description: 'Cybersecurity tools and services addressing critical market needs.', color: '#8B5CF6', percentage: '12%' },
-    { month: 'Integration Services', description: 'System integration and consulting services rounding out our portfolio.', color: '#EC4899', percentage: '8%' }
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#ED8E8C', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FFBF55', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#993EFB', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F58F9', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#DC6D17', percentage: '16.67%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F4C97', percentage: '16.67%' }
   ],
-  descriptionText = 'Click on elements to edit chart data and customize the visualization',
+  descriptionText = 'Editable infographic',
   theme,
   onUpdate,
   isEditable = false
@@ -374,50 +374,30 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Left Column - Segments 1-3 */}
           <div className="flex flex-col gap-8">
             {monthlyData.slice(0, 3).map((item, index) => (
-              <div key={index} className="flex flex-col gap-3 max-w-xs">
-                <div className="flex items-center gap-3">
-                  {/* Color indicator - clickable for editing */}
-                  <div 
-                    className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                    style={{ backgroundColor: item.color }}
-                    onClick={(e) => isEditable && startEditingColor(index, e)}
-                    title="Click to change color"
-                  />
-                  
-                  {/* Segment name with percentage */}
-                  <div 
-                    className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
-                    style={{ backgroundColor: item.color }}
-                  >
-                    {editingSegment === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={item.month}
-                        onSave={(value) => handleSegmentSave(index, value)}
-                        onCancel={() => handleSegmentCancel(index)}
-                        style={{
-                          color: '#ffffff',
-                          textAlign: 'center',
-                          fontWeight: 'bold',
-                          fontSize: '1.125rem'
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && startEditingSegment(index)}
-                      >
-                        {item.month}
-                      </span>
-                    )}
-                    
-                    {/* Percentage badge on segment name */}
-                    <div 
-                      className="absolute -top-2 -right-2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded-full shadow-lg border-2"
-                      style={{ borderColor: item.color }}
+              <div key={index} className="flex flex-col gap-2 max-w-xs">
+                {/* Headline */}
+                <div 
+                  className="font-bold text-lg cursor-pointer hover:opacity-80"
+                  style={{ color: item.color }}
+                >
+                  {editingSegment === index && isEditable ? (
+                    <InlineEditor
+                      initialValue={item.month}
+                      onSave={(value) => handleSegmentSave(index, value)}
+                      onCancel={() => handleSegmentCancel(index)}
+                      style={{
+                        color: item.color,
+                        fontWeight: 'bold',
+                        fontSize: '1.125rem'
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      onClick={() => isEditable && startEditingSegment(index)}
                     >
-                      {item.percentage}
-                    </div>
-                  </div>
+                      {item.month}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Description */}
@@ -476,50 +456,30 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             {monthlyData.slice(3, 6).map((item, index) => {
               const actualIndex = index + 3;
               return (
-                <div key={actualIndex} className="flex flex-col gap-3 max-w-xs">
-                  <div className="flex items-center gap-3">
-                    {/* Color indicator - clickable for editing */}
-                    <div 
-                      className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
-                      style={{ backgroundColor: item.color }}
-                      onClick={(e) => isEditable && startEditingColor(actualIndex, e)}
-                      title="Click to change color"
-                    />
-                    
-                    {/* Segment name with percentage */}
-                    <div 
-                      className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
-                      style={{ backgroundColor: item.color }}
-                    >
-                      {editingSegment === actualIndex && isEditable ? (
-                        <InlineEditor
-                          initialValue={item.month}
-                          onSave={(value) => handleSegmentSave(actualIndex, value)}
-                          onCancel={() => handleSegmentCancel(actualIndex)}
-                          style={{
-                            color: '#ffffff',
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            fontSize: '1.125rem'
-                          }}
-                        />
-                      ) : (
-                        <span 
-                          className="cursor-pointer hover:opacity-80"
-                          onClick={() => isEditable && startEditingSegment(actualIndex)}
-                        >
-                          {item.month}
-                        </span>
-                      )}
-                      
-                      {/* Percentage badge on segment name */}
-                      <div 
-                        className="absolute -top-2 -right-2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded-full shadow-lg border-2"
-                        style={{ borderColor: item.color }}
+                <div key={actualIndex} className="flex flex-col gap-2 max-w-xs">
+                  {/* Headline */}
+                  <div 
+                    className="font-bold text-lg cursor-pointer hover:opacity-80"
+                    style={{ color: item.color }}
+                  >
+                    {editingSegment === actualIndex && isEditable ? (
+                      <InlineEditor
+                        initialValue={item.month}
+                        onSave={(value) => handleSegmentSave(actualIndex, value)}
+                        onCancel={() => handleSegmentCancel(actualIndex)}
+                        style={{
+                          color: item.color,
+                          fontWeight: 'bold',
+                          fontSize: '1.125rem'
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        onClick={() => isEditable && startEditingSegment(actualIndex)}
                       >
-                        {item.percentage}
-                      </div>
-                    </div>
+                        {item.month}
+                      </span>
+                    )}
                   </div>
                   
                   {/* Description */}
