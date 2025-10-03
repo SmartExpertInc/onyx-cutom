@@ -538,11 +538,7 @@ export default function EventPoster({
         </Button>
       </div>
 
-      {/* Editable Fields Info */}
-      <div className="text-center text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-        <Edit3 size={16} className="inline mr-2" />
-        {t('interface.eventPosterForm.editInstructions', 'Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.')}
-      </div>
+      
 
       {/* Poster */}
       <div 
