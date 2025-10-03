@@ -146,25 +146,15 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   // Позиционирование элементов
   const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
   const [rightProjectPosition, setRightProjectPosition] = useState({ right: '15%', top: '50%' });
-  const [leftHeadingsPositions, setLeftHeadingsPositions] = useState([
+  const [leftItemsPositions, setLeftItemsPositions] = useState([
     { left: '5%', top: '25%' },
     { left: '5%', top: '40%' },
     { left: '5%', top: '55%' }
   ]);
-  const [rightHeadingsPositions, setRightHeadingsPositions] = useState([
+  const [rightItemsPositions, setRightItemsPositions] = useState([
     { right: '5%', top: '25%' },
     { right: '5%', top: '40%' },
     { right: '5%', top: '55%' }
-  ]);
-  const [leftDescriptionsPositions, setLeftDescriptionsPositions] = useState([
-    { left: '5%', top: '30%' },
-    { left: '5%', top: '45%' },
-    { left: '5%', top: '60%' }
-  ]);
-  const [rightDescriptionsPositions, setRightDescriptionsPositions] = useState([
-    { right: '5%', top: '30%' },
-    { right: '5%', top: '45%' },
-    { right: '5%', top: '60%' }
   ]);
   
   const slideContainerRef = useRef<HTMLDivElement>(null);
@@ -467,8 +457,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
         {leftHeadings.map((heading: string, index: number) => (
           <div key={`left-${index}`} style={{
             position: 'absolute',
-            left: leftHeadingsPositions[index].left,
-            top: leftHeadingsPositions[index].top,
+            left: leftItemsPositions[index].left,
+            top: leftItemsPositions[index].top,
             zIndex: 10,
             maxWidth: '200px'
           }}>
@@ -515,18 +505,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               </div>
             )}
 
-          </div>
-        ))}
-
-        {/* Left Side Description Blocks */}
-        {leftDescriptions.map((description: string, index: number) => (
-          <div key={`left-desc-${index}`} style={{
-            position: 'absolute',
-            left: leftDescriptionsPositions[index].left,
-            top: leftDescriptionsPositions[index].top,
-            zIndex: 10,
-            maxWidth: '200px'
-          }}>
+            {/* Description */}
             {editingLeftDescriptions[index] ? (
               <InlineEditor
                 initialValue={leftDescriptions[index]}
@@ -564,18 +543,19 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 }}
                 data-draggable={isEditable}
               >
-                {description}
+                {leftDescriptions[index]}
               </div>
             )}
           </div>
         ))}
 
+
         {/* Right Side Text Blocks */}
         {rightHeadings.map((heading: string, index: number) => (
           <div key={`right-${index}`} style={{
             position: 'absolute',
-            right: rightHeadingsPositions[index].right,
-            top: rightHeadingsPositions[index].top,
+            right: rightItemsPositions[index].right,
+            top: rightItemsPositions[index].top,
             zIndex: 10,
             maxWidth: '200px',
             textAlign: 'right'
@@ -625,19 +605,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               </div>
             )}
 
-          </div>
-        ))}
-
-        {/* Right Side Description Blocks */}
-        {rightDescriptions.map((description: string, index: number) => (
-          <div key={`right-desc-${index}`} style={{
-            position: 'absolute',
-            right: rightDescriptionsPositions[index].right,
-            top: rightDescriptionsPositions[index].top,
-            zIndex: 10,
-            maxWidth: '200px',
-            textAlign: 'right'
-          }}>
+            {/* Description */}
             {editingRightDescriptions[index] ? (
               <InlineEditor
                 initialValue={rightDescriptions[index]}
@@ -677,11 +645,12 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 }}
                 data-draggable={isEditable}
               >
-                {description}
+                {rightDescriptions[index]}
               </div>
             )}
           </div>
         ))}
+
       </div>
     </div>
   );
