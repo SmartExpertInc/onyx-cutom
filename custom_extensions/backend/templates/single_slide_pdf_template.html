@@ -1874,11 +1874,24 @@
         .contraindications-indications-template {
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
+            background: #ffffff;
+            padding: 40px;
             display: flex;
             flex-direction: column;
-            padding: 40px;
-            font-family: 'Martel Sans', sans-serif;
+            font-family: Georgia, serif;
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contraindications-indications-template .main-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            position: relative;
+            height: 400px;
+            width: 100%;
         }
         
         .contraindications-indications-container {
@@ -3068,55 +3081,88 @@
                 </div>
                 
             {% elif slide.templateId == 'contraindications-indications' %}
-                <!-- DEBUG: contraindications-indications template -->
-                <!-- DEBUG: slide.props.contraindications = {{ slide.props.contraindications }} -->
-                <!-- DEBUG: slide.props.indications = {{ slide.props.indications }} -->
                 <div class="contraindications-indications-template">
-                    <h1 class="slide-title">{{ slide.props.title or 'Contraindications and indications' }}</h1>
-                    <div class="contraindications-indications-container">
-                        <div class="contraindications-section">
-                            <div class="section-header contraindications-header">
-                                <h2>You shouldn't</h2>
-                            </div>
-                            <div class="section-content">
-                                {% if slide.props.contraindications %}
-                                    {% for item in slide.props.contraindications %}
-                                        <div class="list-item">
-                                            <div class="list-bullet contraindications-bullet"></div>
-                                            <div class="list-text">{{ item or 'Click to add contraindication' }}</div>
-                                        </div>
-                                    {% endfor %}
-                                {% else %}
-                                    {% for i in range(5) %}
-                                        <div class="list-item">
-                                            <div class="list-bullet contraindications-bullet"></div>
-                                            <div class="list-text">Describe the things patients shouldn't do here</div>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
+                    <div class="main-content">
+                        <!-- Central Image Container -->
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img src="file:///app/static/contrad_img.png" alt="Contraindications and Indications" style="width: 100%; height: 100%; object-fit: contain;" />
+                        </div>
+
+                        <!-- Vertical Line - Full Height -->
+                        <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 100%; background: linear-gradient(to bottom, transparent, #0F58F9, transparent); z-index: 10;"></div>
+
+                        <!-- VS Button - Center -->
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70px; height: 50px; border-radius: 40px; background: #0F58F9; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 1.2rem; font-weight: bold; font-family: Arial, sans-serif; z-index: 20;">
+                            VS
+                        </div>
+
+                        <!-- Left Project Title -->
+                        <div style="position: absolute; left: 4.8%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 150px;">
+                                The first project
                             </div>
                         </div>
-                        
-                        <div class="indications-section">
-                            <div class="section-header indications-header">
-                                <h2>You should</h2>
+
+                        <!-- Right Project Title -->
+                        <div style="position: absolute; right: -2%; top: 50%; transform: translateY(-50%); z-index: 10;">
+                            <div style="width: 200px; font-size: 1.5rem; color: #ffffff; font-family: Arial, sans-serif; text-align: center; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 150px;">
+                                The second project
                             </div>
-                            <div class="section-content">
-                                {% if slide.props.indications %}
-                                    {% for item in slide.props.indications %}
-                                        <div class="list-item">
-                                            <div class="list-bullet indications-bullet"></div>
-                                            <div class="list-text">{{ item or 'Click to add indication' }}</div>
-                                        </div>
-                                    {% endfor %}
-                                {% else %}
-                                    {% for i in range(5) %}
-                                        <div class="list-item">
-                                            <div class="list-bullet indications-bullet"></div>
-                                            <div class="list-text">Describe the things patients should do here</div>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
+                        </div>
+
+                        <!-- Left Side Text Blocks -->
+                        <div style="position: absolute; left: 23%; top: 27%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; left: 26%; top: 44%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; left: 22%; top: 62%; z-index: 10; max-width: 200px;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <!-- Right Side Text Blocks -->
+                        <div style="position: absolute; right: 23%; top: 27%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; right: 26%; top: 44%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
+                            </div>
+                        </div>
+
+                        <div style="position: absolute; right: 22%; top: 62%; z-index: 10; max-width: 200px; text-align: right;">
+                            <div style="font-size: 0.9rem; font-weight: bold; color: #000000; font-family: Arial, sans-serif; margin-bottom: 4px;">
+                                Heading text goes here
+                            </div>
+                            <div style="font-size: 0.8rem; color: #000000; font-family: Arial, sans-serif; line-height: 1.3;">
+                                Lorem ipsum dolor sit amet, consectetur elit, sed do
                             </div>
                         </div>
                     </div>
