@@ -79,25 +79,25 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
 
   // Layout
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#1A1A1A', color:'#E5E7EB', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#282828', color:'#9B9B9B', padding:'8px 18px', fontSize:'16px' };
-  const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#D2D2D2' };
-  const descStyle: React.CSSProperties = { width:'795px', color:'#909090', fontSize:'14px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#000000', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#FFFFFF', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'20px', border:'1px solid #E5E7EB', display:'flex', alignItems:'center', gap:'8px' };
+  const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000', textAlign:'center', marginBottom:'16px' };
+  const descStyle: React.CSSProperties = { width:'795px', color:'#34353C', fontSize:'14px', textAlign:'left', lineHeight:'1.5' };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#29282A', height:'338px', padding:'16px 18px', borderRadius:'2px', position:'relative' };
+  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'12px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#9C9C9C', fontSize:'12px' };
-  const barBase: React.CSSProperties = { width:'40px', background:'#894DF4', position:'relative' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#AAA9A7', fontSize:'12px', gap:'10px' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#6B7280', fontSize:'12px' };
+  const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #3498DB, #6CB4EE)', position:'relative', borderRadius:'4px 4px 0 0' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#6B7280', fontSize:'12px', gap:'10px' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };
-  const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#DBDBDB' };
-  const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#929292', fontSize:'15px' };
+  const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000' };
+  const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
@@ -166,6 +166,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   return (
     <div className="data-driven-insights inter-theme" style={slide}>
       <div style={tagStyle}>
+        <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#4285F4' }}></div>
         {isEditable && edit?.key==='tag' ? (
           <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable(tagStyle)} />
         ) : (
@@ -192,9 +193,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={chartsWrap}>
         <div style={panel} onMouseEnter={()=> setHoverPanel('left')} onMouseLeave={()=> setHoverPanel(null)}>
           {isEditable && edit?.key==='lct' ? (
-            <ImprovedInlineEditor initialValue={leftChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#999999', fontSize:'14px' })} />
+            <ImprovedInlineEditor initialValue={leftChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#34353C', fontSize:'14px' })} />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
+            <div onClick={()=> isEditable && setEdit({ key:'lct' })} style={{ color:'#34353C', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{leftChartTitle}</div>
           )}
           {renderBars('left', leftSeries)}
           <div style={yearRow}>{leftSeries.map((b,i)=>(
@@ -208,9 +209,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
         <div style={panel} onMouseEnter={()=> setHoverPanel('right')} onMouseLeave={()=> setHoverPanel(null)}>
           {isEditable && edit?.key==='rct' ? (
-            <ImprovedInlineEditor initialValue={rightChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#999999', fontSize:'14px' })} />
+            <ImprovedInlineEditor initialValue={rightChartTitle} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightChartTitle:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#34353C', fontSize:'14px' })} />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#999999', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
+            <div onClick={()=> isEditable && setEdit({ key:'rct' })} style={{ color:'#34353C', fontSize:'14px', cursor: isEditable ? 'pointer':'default' }}>{rightChartTitle}</div>
           )}
           {renderBars('right', rightSeries)}
           <div style={yearRow}>{rightSeries.map((b,i)=>(

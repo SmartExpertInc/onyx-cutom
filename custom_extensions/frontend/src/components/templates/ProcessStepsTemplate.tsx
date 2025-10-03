@@ -214,7 +214,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
       style={{
         padding: '40px',
         minHeight: '600px',
-        backgroundColor: '#E0E7FF',
+        backgroundColor: currentTheme.colors.backgroundColor,
         fontFamily: currentTheme.fonts.contentFont,
       }}
     >
