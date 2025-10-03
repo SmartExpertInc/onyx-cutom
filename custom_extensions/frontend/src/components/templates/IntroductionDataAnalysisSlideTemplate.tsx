@@ -73,13 +73,12 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'56px',
-    fontWeight:700,
+    fontSize:'64px',
     color:'#FFFFFF',
-    lineHeight:1.3,
+    lineHeight:1.2,
     marginBottom:'40px',
     whiteSpace: 'pre-line',
-    fontFamily: "'Lora', serif"
+    fontFamily: currentTheme.fonts.titleFont,
   };
 
   // Icon frame
