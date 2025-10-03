@@ -817,8 +817,7 @@ export default function EventPoster({
               value={freeAccessConditions}
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
-              multiline={false} // Single line to prevent expansion
-              disableAutoResize={true} // Disable auto-resize for fixed dimensions
+              multiline={true} // Enable multiline like topic section
               onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
