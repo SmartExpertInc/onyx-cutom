@@ -164,16 +164,55 @@ class HTMLToImageService:
         try:
             # Try to use playwright for HTML to image conversion
             from playwright.async_api import async_playwright
+            import os
             
             logger.info("Using Playwright for HTML to PNG conversion")
             
             async with async_playwright() as p:
                 # Launch browser
                 browser = await p.chromium.launch(headless=True)
-                page = await browser.new_page(viewport={'width': 1000, 'height': 1000})
+
+                # Determine a base URL so root-relative assets like "/static_design_images/..." resolve
+                base_url = (
+                    os.getenv("HTML_RENDER_BASE_URL")
+                    or os.getenv("PUBLIC_BASE_URL")
+                    or "http://localhost:8000"
+                )
+                logger.info(f"Using base URL for HTML rendering: {base_url}")
+
+                context = await browser.new_context(
+                    viewport={'width': 1000, 'height': 1000},
+                    base_url=base_url
+                )
+                page = await context.new_page()
                 
                 # Set content and wait for load
-                await page.set_content(html_content, wait_until='networkidle')
+                # Inject <base> tag if not present so relative URLs resolve to base_url
+                html_with_base = html_content
+                try:
+                    if '<base' not in html_content:
+                        if '<head>' in html_content:
+                            html_with_base = html_content.replace('<head>', f'<head><base href="{base_url}">')
+                        else:
+                            html_with_base = f'<base href="{base_url}">{html_content}'
+                except Exception:
+                    html_with_base = html_content
+
+                await page.set_content(html_with_base, wait_until='load')
+                # Ensure network settles and images decode
+                await page.wait_for_load_state('networkidle')
+                # Wait for all <img> to finish loading (or error) before screenshot
+                await page.evaluate(
+                    """
+                    async () => {
+                      const imgs = Array.from(document.images || []);
+                      await Promise.all(imgs.map(img => img.complete ? Promise.resolve() : new Promise((res) => {
+                        img.addEventListener('load', res, { once: true });
+                        img.addEventListener('error', res, { once: true });
+                      })));
+                    }
+                    """
+                )
                 
                 # Take screenshot (fixed API - no width/height parameters)
                 await page.screenshot(
@@ -182,6 +221,7 @@ class HTMLToImageService:
                     full_page=True
                 )
                 
+                await context.close()
                 await browser.close()
                 
             if os.path.exists(output_path):
