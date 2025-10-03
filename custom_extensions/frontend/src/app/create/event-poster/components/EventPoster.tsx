@@ -829,21 +829,19 @@ export default function EventPoster({
                 background: 'transparent',
                 borderRadius: '30px',
                 padding: '10px 16px',
-                // width: '100%',
-                // height: '100%',
+                width: '600px',
+                height: '100%',
                 boxSizing: 'border-box',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'hidden',
-                whiteSpace: 'normal', // Allow text wrapping
-                wordWrap: 'break-word', // Break long words if needed
+                overflow: 'visible', // Allow content to be visible when editing
+                whiteSpace: 'nowrap', // Keep text on single line
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
-                maxWidth: 'calc(100% - 250px)', // Reserve space for logo (141px + margin)
               }}
             />
           </div>
