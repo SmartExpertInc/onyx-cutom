@@ -126,6 +126,23 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
   const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  
+  // Состояние для элементов списков
+  const [challengeItems, setChallengeItems] = useState([
+    'Title goes here',
+    'Title goes here', 
+    'Title goes here'
+  ]);
+  const [solutionItems, setSolutionItems] = useState([
+    'Title goes here',
+    'Title goes here',
+    'Title goes here'
+  ]);
+  
+  // Состояния редактирования для каждого элемента
+  const [editingChallengeItems, setEditingChallengeItems] = useState([false, false, false]);
+  const [editingSolutionItems, setEditingSolutionItems] = useState([false, false, false]);
+  
   const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTitleSave = (value: string) => {
@@ -141,6 +158,43 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     setIsEditingSubtitle(false);
     if (onUpdate) {
       onUpdate({ subtitle: value });
+    }
+  };
+
+  // Обработчики для элементов списков
+  const handleChallengeItemSave = (index: number, value: string) => {
+    const newItems = [...challengeItems];
+    newItems[index] = value;
+    setChallengeItems(newItems);
+    
+    const newEditingStates = [...editingChallengeItems];
+    newEditingStates[index] = false;
+    setEditingChallengeItems(newEditingStates);
+  };
+
+  const handleSolutionItemSave = (index: number, value: string) => {
+    const newItems = [...solutionItems];
+    newItems[index] = value;
+    setSolutionItems(newItems);
+    
+    const newEditingStates = [...editingSolutionItems];
+    newEditingStates[index] = false;
+    setEditingSolutionItems(newEditingStates);
+  };
+
+  const handleChallengeItemEdit = (index: number) => {
+    if (isEditable) {
+      const newEditingStates = [...editingChallengeItems];
+      newEditingStates[index] = true;
+      setEditingChallengeItems(newEditingStates);
+    }
+  };
+
+  const handleSolutionItemEdit = (index: number) => {
+    if (isEditable) {
+      const newEditingStates = [...editingSolutionItems];
+      newEditingStates[index] = true;
+      setEditingSolutionItems(newEditingStates);
     }
   };
 
@@ -163,7 +217,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     fontSize: '2.5rem',
     fontFamily: 'Georgia, serif',
     marginBottom: '10px',
-    textAlign: 'left',
+    textAlign: 'center',
     wordWrap: 'break-word',
     fontWeight: 'bold',
     flexShrink: 0
@@ -174,7 +228,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
     fontSize: '1.1rem',
     fontFamily: 'Arial, sans-serif',
     marginBottom: '40px',
-    textAlign: 'left',
+    textAlign: 'center',
     wordWrap: 'break-word',
     fontWeight: 'normal',
     flexShrink: 0
@@ -252,14 +306,42 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
           gap: '40px',
           zIndex: 10
         }}>
-          {[1, 2, 3].map((item, index) => (
-            <div key={index} style={{
-              fontSize: '16px',
-              color: '#000000',
-              fontFamily: 'Arial, sans-serif',
-              fontWeight: 'normal'
-            }}>
-              Title goes here
+          {challengeItems.map((item: string, index: number) => (
+            <div key={index}>
+              {editingChallengeItems[index] ? (
+                <InlineEditor
+                  initialValue={challengeItems[index]}
+                  onSave={(value) => handleChallengeItemSave(index, value)}
+                  onCancel={() => {
+                    const newEditingStates = [...editingChallengeItems];
+                    newEditingStates[index] = false;
+                    setEditingChallengeItems(newEditingStates);
+                  }}
+                  placeholder="Enter challenge"
+                  style={{
+                    fontSize: '20px',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: 'normal',
+                    width: '100%',
+                    minWidth: '200px'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={{
+                    fontSize: '20px',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: 'normal',
+                    cursor: isEditable ? 'pointer' : 'default'
+                  }}
+                  onClick={() => handleChallengeItemEdit(index)}
+                  data-draggable={isEditable}
+                >
+                  {item}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -267,23 +349,52 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
         {/* Right side text items */}
         <div style={{
           position: 'absolute',
-          right: '40px',
+          right: '140px',
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '40px',
+          gap: '81px',
           zIndex: 10
         }}>
-          {[1, 2, 3].map((item, index) => (
-            <div key={index} style={{
-              fontSize: '16px',
-              color: '#000000',
-              fontFamily: 'Arial, sans-serif',
-              fontWeight: 'normal',
-              textAlign: 'right'
-            }}>
-              Title goes here
+          {solutionItems.map((item: string, index: number) => (
+            <div key={index}>
+              {editingSolutionItems[index] ? (
+                <InlineEditor
+                  initialValue={solutionItems[index]}
+                  onSave={(value) => handleSolutionItemSave(index, value)}
+                  onCancel={() => {
+                    const newEditingStates = [...editingSolutionItems];
+                    newEditingStates[index] = false;
+                    setEditingSolutionItems(newEditingStates);
+                  }}
+                  placeholder="Enter solution"
+                  style={{
+                    fontSize: '20px',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: 'normal',
+                    textAlign: 'right',
+                    width: '100%',
+                    minWidth: '200px'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={{
+                    fontSize: '20px',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: 'normal',
+                    textAlign: 'right',
+                    cursor: isEditable ? 'pointer' : 'default'
+                  }}
+                  onClick={() => handleSolutionItemEdit(index)}
+                  data-draggable={isEditable}
+                >
+                  {item}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -295,30 +406,29 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
         {/* Bottom labels */}
         <div style={{
           position: 'absolute',
-          top: '50%',
+          top: '45%',
           left: '50%',
           transform: 'translate(-50%, 120px)',
           display: 'flex',
-          gap: '100px',
-          zIndex: 10
+          gap: '70px',
+          zIndex: 10,
+          paddingRight: '15px'
         }}>
           <div style={{
-            fontSize: '18px',
+            fontSize: '19px',
             color: '#000000',
             fontFamily: 'Arial, sans-serif',
             fontWeight: 'normal',
             textAlign: 'center',
-            width: '200px'
           }}>
             Challenges
           </div>
           <div style={{
-            fontSize: '18px',
+            fontSize: '19px',
             color: '#000000',
             fontFamily: 'Arial, sans-serif',
             fontWeight: 'normal',
             textAlign: 'center',
-            width: '200px'
           }}>
             Solutions
           </div>
