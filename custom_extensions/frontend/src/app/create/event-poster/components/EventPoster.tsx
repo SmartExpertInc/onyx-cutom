@@ -829,8 +829,8 @@ export default function EventPoster({
                 background: 'transparent',
                 borderRadius: '30px',
                 padding: '10px 16px',
-                width: '100%',
-                height: '100%',
+                // width: '100%',
+                // height: '100%',
                 boxSizing: 'border-box',
                 display: 'flex',
                 alignItems: 'center',
@@ -843,6 +843,7 @@ export default function EventPoster({
                 left: 0,
                 right: 0,
                 bottom: 0,
+                maxWidth: 'calc(100% - 250px)', // Reserve space for logo (141px + margin)
               }}
             />
           </div>
