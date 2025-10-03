@@ -143,10 +143,6 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   const [editingLeftDescriptions, setEditingLeftDescriptions] = useState([false, false, false]);
   const [editingRightDescriptions, setEditingRightDescriptions] = useState([false, false, false]);
   
-  // Состояние для перетаскивания блоков
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   
   // Позиционирование элементов
   const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
@@ -226,69 +222,6 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     setEditingRightDescriptions(newEditingStates);
   };
 
-  // Обработчики для перетаскивания левых блоков
-  const handleLeftBlockMouseDown = (e: React.MouseEvent, index: number) => {
-    if (!isEditable) return;
-    e.preventDefault();
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setDragOffset({ x: 0, y: 0 });
-  };
-
-  const handleLeftBlockMouseMove = (e: React.MouseEvent, index: number) => {
-    if (!isDragging || !isEditable) return;
-    e.preventDefault();
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
-    setDragOffset({ x: deltaX, y: deltaY });
-  };
-
-  const handleLeftBlockMouseUp = (e: React.MouseEvent, index: number) => {
-    if (!isDragging || !isEditable) return;
-    setIsDragging(false);
-    
-    // Обновляем позицию блока
-    const newPositions = [...leftItemsPositions];
-    const currentPos = newPositions[index];
-    const newLeft = `calc(${currentPos.left} + ${dragOffset.x}px)`;
-    const newTop = `calc(${currentPos.top} + ${dragOffset.y}px)`;
-    
-    newPositions[index] = { left: newLeft, top: newTop };
-    setLeftItemsPositions(newPositions);
-    setDragOffset({ x: 0, y: 0 });
-  };
-
-  // Обработчики для перетаскивания правых блоков
-  const handleRightBlockMouseDown = (e: React.MouseEvent, index: number) => {
-    if (!isEditable) return;
-    e.preventDefault();
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setDragOffset({ x: 0, y: 0 });
-  };
-
-  const handleRightBlockMouseMove = (e: React.MouseEvent, index: number) => {
-    if (!isDragging || !isEditable) return;
-    e.preventDefault();
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
-    setDragOffset({ x: deltaX, y: deltaY });
-  };
-
-  const handleRightBlockMouseUp = (e: React.MouseEvent, index: number) => {
-    if (!isDragging || !isEditable) return;
-    setIsDragging(false);
-    
-    // Обновляем позицию блока
-    const newPositions = [...rightItemsPositions];
-    const currentPos = newPositions[index];
-    const newRight = `calc(${currentPos.right} + ${dragOffset.x}px)`;
-    const newTop = `calc(${currentPos.top} + ${dragOffset.y}px)`;
-    
-    newPositions[index] = { right: newRight, top: newTop };
-    setRightItemsPositions(newPositions);
-    setDragOffset({ x: 0, y: 0 });
-  };
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -531,15 +464,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               left: leftItemsPositions[index].left,
               top: leftItemsPositions[index].top,
               zIndex: 10,
-              maxWidth: '200px',
-              cursor: isEditable ? 'move' : 'default',
-              transform: isDragging ? `translate(${dragOffset.x}px, ${dragOffset.y}px)` : 'none',
-              userSelect: 'none'
+              maxWidth: '200px'
             }}
-            onMouseDown={(e) => handleLeftBlockMouseDown(e, index)}
-            onMouseMove={(e) => handleLeftBlockMouseMove(e, index)}
-            onMouseUp={(e) => handleLeftBlockMouseUp(e, index)}
-            data-draggable={isEditable}
           >
             {/* Heading */}
             {editingLeftHeadings[index] ? (
@@ -639,15 +565,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               top: rightItemsPositions[index].top,
               zIndex: 10,
               maxWidth: '200px',
-              textAlign: 'right',
-              cursor: isEditable ? 'move' : 'default',
-              transform: isDragging ? `translate(${dragOffset.x}px, ${dragOffset.y}px)` : 'none',
-              userSelect: 'none'
+              textAlign: 'right'
             }}
-            onMouseDown={(e) => handleRightBlockMouseDown(e, index)}
-            onMouseMove={(e) => handleRightBlockMouseMove(e, index)}
-            onMouseUp={(e) => handleRightBlockMouseUp(e, index)}
-            data-draggable={isEditable}
           >
             {/* Heading */}
             {editingRightHeadings[index] ? (
