@@ -271,7 +271,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           height: '145px',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: '#4285F4'
+          backgroundColor: '#0F58F9'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -309,7 +309,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             {/* Main tip block */}
             <div style={{
               padding: '30px',
-              backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#4285F4' : 'transparent',
+              backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
               minHeight: '310px',
               display: 'flex',
               paddingLeft: '32px',

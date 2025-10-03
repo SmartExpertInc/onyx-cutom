@@ -336,42 +336,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
         ))}
       </div>
 
-      {/* Footer with page number and logo */}
-      <div style={{
-        position: 'absolute',
-        bottom: '44px',
-        left: '44px',
-        right: '44px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        {/* Page number */}
-        <div style={{
-          fontSize: '14px',
-          color: '#909090',
-          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-        }}>
-          {slideIndex.toString().padStart(2, '0')}
-        </div>
-        
-        {/* Logo section */}
-        <div style={logoSection}>
-          <ClickableImagePlaceholder 
-            imagePath={logoPath} 
-            onImageUploaded={(p)=> {
-              console.log('Logo uploaded:', p);
-              onUpdate && onUpdate({ logoPath:p });
-            }} 
-            size="SMALL" 
-            position="CENTER" 
-            description="Logo" 
-            isEditable={isEditable} 
-            style={logoIcon}
-          />
-          <span>Your Logo</span>
-        </div>
-      </div>
     </div>
   );
 };
