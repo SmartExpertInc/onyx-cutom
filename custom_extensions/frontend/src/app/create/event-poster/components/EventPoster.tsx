@@ -93,7 +93,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       border: '2px solid transparent',
       outline: 'none',
       resize: multiline ? 'none' : undefined,
-      minHeight: style.height || (multiline ? (isTitle ? '260px' : '100px') : undefined),
+      minHeight: style.minHeight || (multiline ? (isTitle ? '260px' : '100px') : undefined),
       height: style.height || (isLargeFont ? style.fontSize : undefined),
       maxHeight: style.maxHeight,
       fontSize: style.fontSize,
@@ -106,6 +106,9 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       fontWeight: style.fontWeight,
       color: style.color,
       borderRadius: '4px',
+      overflow: style.overflow,
+      whiteSpace: style.whiteSpace,
+      textOverflow: style.textOverflow,
       // Remove browser-specific styling that causes shifts
       appearance: 'none',
       WebkitAppearance: 'none',
@@ -180,10 +183,13 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         display: 'block',
         boxSizing: 'border-box',
         verticalAlign: 'top',
-        // Preserve fixed dimensions
+        // Preserve fixed dimensions to prevent shrinking
         height: style.height,
         minHeight: style.minHeight,
         maxHeight: style.maxHeight,
+        overflow: style.overflow,
+        whiteSpace: style.whiteSpace,
+        textOverflow: style.textOverflow,
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
@@ -715,6 +721,11 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '30px',
               maxWidth: '1400px',
+              minHeight: '60px', // Fixed minimum height to prevent shrinking
+              height: '60px', // Fixed height to maintain single line
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
@@ -725,7 +736,7 @@ export default function EventPoster({
               value={freeAccessConditions}
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
-              multiline
+              multiline={false}
               onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
@@ -737,10 +748,13 @@ export default function EventPoster({
                 borderRadius: '30px',
                 padding: '10px 16px',
                 width: '100%',
-                height: '80px', // Fixed height to prevent expansion
-                minHeight: '80px', // Ensure minimum height
-                maxHeight: '80px', // Prevent growing beyond this height
+                height: '40px', // Fixed height for input
+                minHeight: '40px',
+                maxHeight: '40px',
                 boxSizing: 'border-box',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
               }}
             />
           </div>
