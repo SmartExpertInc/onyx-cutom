@@ -1216,8 +1216,6 @@ export default function LessonPresentationClient() {
     previewAbortRef.current = abortController;
 
     setLoadingEdit(true);
-    // Show global loading animation during entire Smart Edit regeneration
-    setLoading(true);
     setError(null);
     // Keep existing content visible during edit - only reset streaming states
     setFirstLineRemoved(false);
@@ -1383,8 +1381,6 @@ export default function LessonPresentationClient() {
 
         if (/\S/.test(accumulatedText) && !textareaVisible) {
           setTextareaVisible(true);
-          // Keep global loading during Smart Edit; it will be turned off in finally
-          if (!loadingEdit) setLoading(false);
         }
       }
     } catch (e: any) {
