@@ -119,6 +119,27 @@ class PosterTemplateService:
                     if base_url:
                         speaker_src = base_url.rstrip('/') + speaker_src
                         logger.info(f"🎬 [POSTER_TEMPLATE] [{session_id}] Normalized speakerImageSrc to absolute: {speaker_src}")
+                    else:
+                        # If no base URL is configured, try embedding the file as data URL to avoid network fetch
+                        try:
+                            # Expect path like "/static_design_images/<filename>"
+                            parts = speaker_src.lstrip('/').split('/', 1)
+                            if len(parts) == 2 and parts[0] == 'static_design_images':
+                                local_path = os.path.join(parts[0], parts[1])
+                                if os.path.exists(local_path):
+                                    with open(local_path, 'rb') as f:
+                                        data = f.read()
+                                    import base64
+                                    # Guess MIME by extension
+                                    ext = os.path.splitext(local_path)[1].lower()
+                                    mime = 'image/png' if ext in ['.png'] else 'image/jpeg' if ext in ['.jpg', '.jpeg'] else 'image/webp' if ext == '.webp' else 'image/png'
+                                    b64 = base64.b64encode(data).decode('ascii')
+                                    speaker_src = f"data:{mime};base64,{b64}"
+                                    logger.info(f"🎬 [POSTER_TEMPLATE] [{session_id}] Embedded speakerImageSrc as data URL ({mime}, {len(b64)} base64 chars)")
+                                else:
+                                    logger.warning(f"🎬 [POSTER_TEMPLATE] [{session_id}] Local image not found for embedding: {local_path}")
+                        except Exception as embed_err:
+                            logger.warning(f"🎬 [POSTER_TEMPLATE] [{session_id}] Failed to embed speakerImageSrc: {embed_err}")
             except Exception as _e:
                 logger.warning(f"🎬 [POSTER_TEMPLATE] [{session_id}] Could not normalize speakerImageSrc: {_e}")
 
