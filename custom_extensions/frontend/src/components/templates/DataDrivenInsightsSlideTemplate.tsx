@@ -23,7 +23,7 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
 }
 
 export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
-  tag = 'Statistics',
+  tag = 'Presentation',
   title = 'Data-Driven Insights: Statistics and Trends',
   description = 'Provide statistics about the market size to show the potential for growth. Share how many customers your company has acquired to date. Share product performance statistics to show how your product compares to competitors, etc.',
   leftChartTitle = 'The global market for XYZ product is estimated to reach $XX billion by 2025, growing at a CAGR of XX% from 2020 to 2025',
@@ -80,25 +80,25 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
   // Layout
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#000000', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'#FFFFFF', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'20px', border:'1px solid #E5E7EB', display:'flex', alignItems:'center', gap:'8px' };
-  const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000', textAlign:'center', marginBottom:'16px' };
-  const descStyle: React.CSSProperties = { width:'795px', color:'#34353C', fontSize:'14px', textAlign:'left', lineHeight:'1.5' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'transparent', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'20px', border:'1px solid #000000', display:'flex', alignItems:'center', gap:'8px', fontFamily:'Inter, sans-serif' };
+  const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:900, color:'#000000', textAlign:'left', marginBottom:'16px' };
+  const descStyle: React.CSSProperties = { width:'795px', color:'#34353C', fontSize:'15px', textAlign:'left', lineHeight:'1.5', fontFamily:'Inter, sans-serif' };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'12px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
+  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#6B7280', fontSize:'12px' };
-  const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #3498DB, #6CB4EE)', position:'relative', borderRadius:'4px 4px 0 0' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#6B7280', fontSize:'12px', gap:'10px' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'Inter, sans-serif' };
+  const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #C2E0FF, #1158C3)', position:'relative', borderRadius:'1px 1px 1px 1px' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'Inter, sans-serif' };
 
-  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'260px', width:'385px', display:'grid', rowGap:'15px' };
+  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4' };
-  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'120px', height:'120px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
+  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -143,11 +143,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
                 window.addEventListener('mouseup', onUp);
               }}
             >
-              <div style={{ position:'absolute', bottom:`${hh + 6}px`, left:'50%', transform:'translateX(-50%)', color:'#9D9D9D', fontSize:'12px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default' }}
+              <div style={{ position:'absolute', bottom:'50%', left:'50%', transform:'translate(-50%, 50%)', color:'#FFFFFF', fontSize:'12px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default' }}
                 onClick={()=> isEditable && setEdit({ key: `${panelKey}-val-${i}` })}
               >
                 {edit?.key===`${panelKey}-val-${i}` ? (
-                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontSize:'12px' }} />
+                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'Inter, sans-serif', fontSize:'12px' }} />
                 ) : b.value }
               </div>
               {isEditable && hoverBar && hoverBar.panel===panelKey && hoverBar.idx===i && (
@@ -166,7 +166,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   return (
     <div className="data-driven-insights inter-theme" style={slide}>
       <div style={tagStyle}>
-        <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#4285F4' }}></div>
+        <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#0F58F9' }}></div>
         {isEditable && edit?.key==='tag' ? (
           <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable(tagStyle)} />
         ) : (
