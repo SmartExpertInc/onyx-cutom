@@ -3,7 +3,7 @@
 /* Font Face Definitions */
 @font-face {
   font-family: 'Lora';
-  src: url('../fonts/Lora-VariableFont_wght.ttf') format('truetype');
+  src: url('/fonts/Lora-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -12,7 +12,7 @@
 /* CSS Custom Properties for Font Management */
 :root {
   --font-family-app: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-family-slide-title: 'Lora Variable', 'Lora', serif;
+  --font-family-slide-title: 'Lora', serif;
   --font-family-slide-content: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 

@@ -79,7 +79,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     lineHeight:1.3,
     marginBottom:'40px',
     whiteSpace: 'pre-line',
-    fontFamily: currentTheme.fonts.titleFont
+    fontFamily: "'Lora', serif"
   };
 
   // Icon frame

@@ -362,7 +362,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             minHeight: '65px',
             maxHeight: '65px',
             display: 'flex',
-            fontFamily: currentTheme.fonts.titleFont,
+            fontFamily: "'Lora', serif",
             alignItems: 'center',
             overflow: 'hidden'
           }}>
@@ -376,7 +376,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   fontSize: '65px',
                   color: '#FFFFFF',
                   lineHeight: '1.1',
-                  fontFamily: currentTheme.fonts.titleFont,
+                  fontFamily: "'Lora', serif",
                   width: '100%',
                   height: '100%',
                   minHeight: '65px',
@@ -396,7 +396,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   fontSize: '65px',
                   color: '#FFFFFF',
                   lineHeight: '1.1',
-                  fontFamily: currentTheme.fonts.titleFont,
+                  fontFamily: "'Lora', serif",
                   minHeight: '65px',
                   maxHeight: '65px',
                   overflow: 'hidden'
