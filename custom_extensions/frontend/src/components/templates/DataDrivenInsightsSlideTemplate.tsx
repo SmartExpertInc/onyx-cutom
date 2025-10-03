@@ -112,7 +112,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     color:'#000000', 
     textAlign:'left', 
     marginBottom:'16px',
-    fontFamily:'"Inter", sans-serif'
+    fontFamily:'serif'
   };
   const descStyle: React.CSSProperties = { 
     width:'795px', 
@@ -124,7 +124,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
-  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };
+  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', right:'480px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
@@ -205,11 +205,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   return (
     <>
       <style>{`
-        .data-driven-insights * {
+        .data-driven-insights *:not(.title-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .data-driven-insights .title-text {
-          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        .data-driven-insights .title-element {
+          font-family: serif !important;
           font-weight: 900 !important;
         }
       `}</style>
@@ -235,11 +235,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
             initialValue={title} 
             onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} 
             onCancel={()=> setEdit(null)} 
-            className="title-text"
-            style={{ ...titleStyle, fontWeight:900, fontFamily:'"Inter", sans-serif' }} 
+            className="title-element"
+            style={{ ...titleStyle, fontWeight:900, fontFamily:'serif' }} 
           />
         ) : (
-          <div className="title-text" onClick={()=> isEditable && setEdit({ key:'title' })} style={{ ...titleStyle, cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div className="title-element" onClick={()=> isEditable && setEdit({ key:'title' })} style={{ ...titleStyle, cursor: isEditable ? 'pointer':'default' }}>{title}</div>
         )}
       </div>
 
