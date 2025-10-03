@@ -237,7 +237,7 @@ export default function EventPoster({
   }, []);
 
   // Auto-save functionality (same pattern as course outlines)
-  const handleAutoSave = async () => {
+  const handleAutoSave = async (overrides?: { speakerImageSrc?: string }) => {
     if (!projectId) {
       console.log('🔄 [EVENT_POSTER_AUTO_SAVE] No project ID, skipping auto-save');
       return;
@@ -260,7 +260,8 @@ export default function EventPoster({
         ticketPrice,
         ticketType,
         freeAccessConditions,
-        speakerImageSrc: imageSrc // Use speakerImageSrc to match the prop name
+        // Prefer explicit override (e.g., just-selected image), else current image
+        speakerImageSrc: overrides?.speakerImageSrc ?? imageSrc // Use speakerImageSrc to match the prop name
       };
 
       const payload = { 
@@ -324,8 +325,8 @@ export default function EventPoster({
     reader.onload = (e) => {
       const base64String = e.target?.result as string;
       setLocalSpeakerImage(base64String);
-      // Trigger auto-save so it persists immediately
-      handleAutoSave();
+      // Trigger auto-save so it persists immediately with the new image
+      handleAutoSave({ speakerImageSrc: base64String });
     };
     reader.readAsDataURL(file);
     // reset the value so selecting the same file again triggers change
@@ -469,10 +470,9 @@ export default function EventPoster({
         }}
       />
 
-      {/* Speaker Photo - Dynamic with click-to-replace */}
+      {/* Speaker Photo - Dynamic (visual layer only) */}
       <div
-        className="absolute group cursor-pointer"
-        onClick={handleImageAreaClick}
+        className="absolute"
         style={{
           width: '519px',
           height: '713px',
@@ -481,12 +481,37 @@ export default function EventPoster({
           backgroundPosition: 'center center',
           backgroundSize: 'cover',
           top: '329px',
+          left: '525px'
+        }}
+      />
+
+      {/* Bottom gradient */}
+      <div
+        className="absolute"
+        style={{
+          width: '1000px',
+          height: '455px',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%)',
+          top: '552px',
+          left: '1px',
+          pointerEvents: 'none'
+        }}
+      />
+
+      {/* Clickable overlay (top layer) for replacing the speaker image */}
+      <div
+        className="absolute group cursor-pointer"
+        onClick={handleImageAreaClick}
+        style={{
+          width: '519px',
+          height: '713px',
+          top: '329px',
           left: '525px',
-          zIndex: 20
+          zIndex: 25,
+          background: 'transparent'
         }}
         title="Click to replace image"
       >
-        {/* subtle overlay hint on hover */}
         <div
           className="opacity-0 group-hover:opacity-100 transition-opacity duration-150"
           style={{
@@ -510,19 +535,6 @@ export default function EventPoster({
           style={{ display: 'none' }}
         />
       </div>
-
-      {/* Bottom gradient */}
-      <div
-        className="absolute"
-        style={{
-          width: '1000px',
-          height: '455px',
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%)',
-          top: '552px',
-          left: '1px',
-          pointerEvents: 'none'
-        }}
-      />
 
       {/* Main content grid layout */}
       <div className="relative z-10 h-full" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateRows: 'auto 1fr auto', padding: '53px' }}>
