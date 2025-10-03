@@ -1343,7 +1343,8 @@ export default function LessonPresentationClient() {
                 setOriginalJsonResponse(JSON.stringify(json));
                 setContent(convertPresentationJsonToMarkdown(json));
               } else {
-                setContent(accumulatedText);
+                const md = getPreviewTextFromPartialJson(accumulatedText);
+                setContent(md || accumulatedText);
               }
             } else if (pkt.type === "done") {
               if (typeof pkt.content === 'string') {

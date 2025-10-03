@@ -21775,14 +21775,13 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
     if not payload.aiResponse or not payload.aiResponse.strip():
         raise HTTPException(status_code=400, detail="AI response content is required")
 
-    # NEW: Regenerate changed slides if user made edits; produce updated JSON
+    # NEW: If Smart Edit provided originalContent JSON and editedSlides, apply edits locally without re-parsing/regeneration
     regenerated_json: Optional[Dict[str, Any]] = None
     try:
         if getattr(payload, 'hasUserEdits', False) and getattr(payload, 'originalContent', None) and getattr(payload, 'editedSlides', None):
             orig = json.loads(payload.originalContent)  # type: ignore[arg-type]
             if isinstance(orig, dict) and isinstance(orig.get("slides"), list):
                 slides = orig["slides"]
-                is_video_lesson_local = payload.productType == "video_lesson_presentation"
                 for edit in payload.editedSlides:  # type: ignore[attr-defined]
                     try:
                         slide_num = int(edit.get("slideNumber"))
@@ -21797,42 +21796,12 @@ async def wizard_lesson_finalize(payload: LessonWizardFinalize, request: Request
                         target = slides[idx]
                         new_title = edit.get("newTitle")
                         new_points = edit.get("previewKeyPoints")
-                        regen_payload = {
-                            "product": "Video Lesson Slides Deck" if is_video_lesson_local else "Slides Deck",
-                            "action": "regenerate-slide",
-                            "language": "en",
-                            "regeneration": {
-                                "slideNumber": slide_num,
-                                "prioritizedTopics": new_points if isinstance(new_points, list) else None,
-                                "newTitle": new_title if isinstance(new_title, str) else None,
-                                "theme": payload.theme,
-                            },
-                            "context": {"lessonTitle": payload.lessonTitle}
-                        }
-                        json_example = DEFAULT_VIDEO_LESSON_JSON_EXAMPLE_FOR_LLM if is_video_lesson_local else DEFAULT_SLIDE_DECK_JSON_EXAMPLE_FOR_LLM
-                        wizard_message = (
-                            "WIZARD_REQUEST\n" + json.dumps(regen_payload) +
-                            "\nCRITICAL: This is an edit. Regenerate ONLY this slide so that its content fully matches the updated title and prioritized topics. Prioritize previewKeyPoints over the title if both are present.\n"
-                            "Follow the SAME rules and JSON schema as initial generation (component-based slides with appropriate templateId and props).\n"
-                            "Use the EXACT prop structure shown in these examples for each template:\n" + 
-                            json_example + "\n" +
-                            "You MUST output ONLY a single JSON object of the slide with fields: slideId, slideNumber, slideTitle, templateId, props" + (", voiceoverText" if is_video_lesson_local else "") + ".\n"
-                            "Do NOT include code fences, markdown, or commentary. Return JSON object only.\n"
-                        )
-                        # Collect once-off response
-                        regenerated_text = ""
-                        async for chunk in stream_openai_response(wizard_message):
-                            if chunk.get("type") == "delta":
-                                regenerated_text += chunk.get("text", "")
-                        cleaned = regenerated_text.strip()
-                        if cleaned.startswith("```"):
-                            cleaned = cleaned.strip('`')
-                            cleaned = cleaned.replace("json", "", 1).strip()
-                        new_slide_obj = json.loads(cleaned)
-                        new_slide_obj["slideNumber"] = slide_num
-                        slides[idx] = new_slide_obj
+                        if isinstance(new_title, str) and new_title:
+                            target["slideTitle"] = new_title
+                        if isinstance(new_points, list):
+                            target["previewKeyPoints"] = new_points
                     except Exception as regen_err:
-                        logger.warning(f"[REGEN_SLIDE] Failed to regenerate slide {edit}: {regen_err}")
+                        logger.warning(f"[REGEN_APPLY_EDITS] Failed to apply edited slide {edit}: {regen_err}")
                 regenerated_json = orig
     except Exception as e:
         logger.warning(f"[REGEN_EDITED_SLIDES] Skipping edits processing due to error: {e}")
