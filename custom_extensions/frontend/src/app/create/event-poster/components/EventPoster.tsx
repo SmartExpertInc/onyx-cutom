@@ -86,17 +86,26 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
 
   if (isEditing) {
     const Component = multiline ? 'textarea' : 'input';
-    // For large font fields (like date), set fixed height and font size for input
+    
+    // Calculate appropriate height for multiline text based on content
+    let calculatedHeight: string | undefined;
+    if (multiline) {
+      const lines = (tempValue || placeholder || '').split('\n').length;
+      const fontSize = parseInt(style.fontSize?.toString().replace('px', '') || '16');
+      const lineHeight = parseFloat(style.lineHeight?.toString() || '1.2');
+      const padding = parseInt(style.padding?.toString().split(' ')[0]?.replace('px', '') || '10') * 2; // top + bottom
+      calculatedHeight = `${Math.max(fontSize * lineHeight * lines + padding, 40)}px`;
+    }
+    
     const inputStyle: React.CSSProperties = {
       ...style,
       background: 'transparent',
       border: '2px solid transparent',
       outline: 'none',
-      resize: multiline ? 'none' : undefined,
-      minHeight: multiline ? (isTitle ? '260px' : '60px') : undefined,
-      height: isLargeFont ? style.fontSize : undefined,
+      resize: 'none',
+      height: isLargeFont ? style.fontSize : calculatedHeight,
       fontSize: style.fontSize,
-      padding: isLargeFont ? '0 8px' : undefined,
+      padding: isLargeFont ? '0 8px' : style.padding,
       lineHeight: style.lineHeight || '1.2',
       boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
       width: '100%',
@@ -174,12 +183,11 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
         // Match input styling to prevent layout shifts
-        padding: isLargeFont ? '0 8px' : (multiline ? '10px 16px' : '0'), // Match input padding
+        padding: isLargeFont ? '0 8px' : '0', // Match input padding
         margin: '0', // Match input margin
         display: 'block', // Match input display
         boxSizing: 'border-box', // Match input box-sizing
         verticalAlign: 'top', // Match input vertical alignment
-        minHeight: multiline ? (isTitle ? '260px' : '60px') : undefined, // Match input minHeight
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
@@ -711,15 +719,10 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '30px',
               maxWidth: '1400px',
-              minWidth: '400px',
-              minHeight: '80px',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
             }}
           >
             <EditableText
@@ -738,7 +741,6 @@ export default function EventPoster({
                 borderRadius: '30px',
                 padding: '10px 16px',
                 width: '100%',
-                minHeight: '60px',
                 boxSizing: 'border-box',
               }}
             />
