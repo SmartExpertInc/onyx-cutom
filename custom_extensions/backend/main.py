@@ -12603,9 +12603,10 @@ async def get_project_instance_detail(
             lesson_plan_data = None
     
     # 🔍 CRITICAL DEBUG: Log the exact response being sent to frontend
-    # For video products, ensure we preserve the raw dictionary without Pydantic validation
-    if component_name == COMPONENT_NAME_VIDEO_PRODUCT and parsed_details:
-        # Create response with raw video metadata to avoid Pydantic validation issues
+    # For video products and video lesson presentations, ensure we preserve the raw dictionary without Pydantic validation
+    if (component_name in [COMPONENT_NAME_VIDEO_PRODUCT, COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_SLIDE_DECK]) and parsed_details:
+        # Create response with raw video/slide metadata to avoid Pydantic validation issues
+        # This prevents the slides array from being corrupted to contentBlocks
         response_data = MicroProductApiResponse(
             name=project_instance_name, slug=project_slug, project_id=project_id,
             design_template_id=row_dict["design_template_id"], component_name=component_name,
@@ -12616,10 +12617,11 @@ async def get_project_instance_detail(
             quality_tier=row_dict.get("quality_tier"),
             is_advanced=row_dict.get("is_advanced"),
             advanced_rates=row_dict.get("advanced_rates"),
-        lesson_plan_data=lesson_plan_data
+            lesson_plan_data=lesson_plan_data
         )
         # Override the details field to ensure it remains as raw dict
         response_data.details = parsed_details
+        logger.info(f"🔍 [DATA INTEGRITY] Project {project_id} - Preserved raw dict for {component_name} to prevent slides→contentBlocks corruption")
     else:
         # For other content types, use normal processing
         response_data = MicroProductApiResponse(
@@ -12634,7 +12636,7 @@ async def get_project_instance_detail(
             advanced_rates=row_dict.get("advanced_rates")
         )
     
-    # 🔍 CRITICAL DEBUG: For video products, log the exact response being sent
+    # 🔍 CRITICAL DEBUG: For video products and slide-based components, log the exact response being sent
     if component_name == COMPONENT_NAME_VIDEO_PRODUCT:
         logger.info(f"🎬 [CRITICAL DEBUG] Sending response to frontend for Project {project_id}:")
         logger.info(f"🎬 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
@@ -12649,6 +12651,19 @@ async def get_project_instance_detail(
             logger.info(f"🎬 [CRITICAL DEBUG] ✅ FIXED: Video metadata preserved successfully!")
         else:
             logger.info(f"🎬 [CRITICAL DEBUG] ❌ Response has NO videoUrl!")
+    elif component_name in [COMPONENT_NAME_VIDEO_LESSON_PRESENTATION, COMPONENT_NAME_SLIDE_DECK]:
+        logger.info(f"📊 [CRITICAL DEBUG] Sending slide-based response to frontend for Project {project_id}:")
+        logger.info(f"📊 [CRITICAL DEBUG] Response component_name: {response_data.component_name}")
+        logger.info(f"📊 [CRITICAL DEBUG] Response details type: {type(response_data.details)}")
+        if isinstance(response_data.details, dict):
+            logger.info(f"📊 [CRITICAL DEBUG] ✅ Response dict has slides: {'slides' in response_data.details}")
+            logger.info(f"📊 [CRITICAL DEBUG] ✅ Response dict has contentBlocks: {'contentBlocks' in response_data.details}")
+            if 'slides' in response_data.details:
+                logger.info(f"📊 [CRITICAL DEBUG] ✅ FIXED: Slides array preserved with {len(response_data.details['slides'])} slides")
+            elif 'contentBlocks' in response_data.details:
+                logger.error(f"📊 [CRITICAL DEBUG] ❌ BUG: Data corrupted to contentBlocks instead of slides!")
+        else:
+            logger.warning(f"📊 [CRITICAL DEBUG] Response details is not a dict: {type(response_data.details)}")
     
     return response_data
 
