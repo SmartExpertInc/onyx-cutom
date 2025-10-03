@@ -304,7 +304,51 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
         <div style={imageContainerStyles}>
-          <Image src={contradImg} alt="Contraindications and Indications" style={{width: '100%', height: '100%'}} />
+          <Image src={contradImg} alt="Contraindications and Indications" style={{width: '100%'}} />
+        </div>
+
+        {/* Central VS Line and Button */}
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 15,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          height: '100%'
+        }}>
+          {/* Vertical Line */}
+          <div style={{
+            width: '2px',
+            height: '100%',
+            background: '#E0E0E0',
+            position: 'absolute',
+            top: '0',
+            left: '50%',
+            transform: 'translateX(-50%)'
+          }}></div>
+          
+          {/* VS Button */}
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: '#1976D2',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontSize: '1.2rem',
+            fontWeight: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            zIndex: 20,
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            border: '3px solid #ffffff'
+          }}>
+            VS
+          </div>
         </div>
 
         {/* Left Project Title */}
