@@ -93,7 +93,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       border: '2px solid transparent',
       outline: 'none',
       resize: multiline ? 'none' : undefined,
-      minHeight: multiline ? (isTitle ? '260px' : '130px') : undefined,
+      minHeight: multiline ? (isTitle ? '260px' : '100px') : undefined,
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
       padding: isLargeFont ? '0 8px' : undefined,
@@ -105,6 +105,15 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       fontWeight: style.fontWeight,
       color: style.color,
       borderRadius: '4px',
+      // Remove browser-specific styling that causes shifts
+      appearance: 'none',
+      WebkitAppearance: 'none',
+      MozAppearance: 'none',
+      // Ensure consistent positioning
+      display: 'block',
+      position: 'relative',
+      cursor: 'text',
+      verticalAlign: 'top',
     };
     return (
               <Component
@@ -164,6 +173,12 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         cursor: 'pointer',
         position: 'relative',
         transition: 'all 0.2s ease',
+        // Match input styling to prevent layout shifts
+        padding: isLargeFont ? '0 8px' : '0', // Match input padding
+        margin: '0', // Match input margin
+        display: 'block', // Match input display
+        boxSizing: 'border-box', // Match input box-sizing
+        verticalAlign: 'top', // Match input vertical alignment
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
