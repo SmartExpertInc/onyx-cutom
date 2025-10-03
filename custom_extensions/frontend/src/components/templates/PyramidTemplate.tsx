@@ -252,16 +252,14 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
     <Image 
       src={messageImg} 
       alt="Message" 
-      width={22} 
-      height={22} 
+      width={30}
       style={{ marginRight: '8px' }}
     />
   );
 
   // Number styles
   const numberStyles: React.CSSProperties = {
-    fontSize: '15px',
-    fontWeight: 'bold',
+    fontSize: '19px',
     color: '#ffffff',
     fontFamily: 'Arial, sans-serif'
   };
