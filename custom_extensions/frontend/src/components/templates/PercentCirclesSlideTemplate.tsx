@@ -12,6 +12,8 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   percent: string; // e.g., '10%'
   bottomCards: Array<{ value: string; text: string; hasArrow?: boolean }>;
   avatarPath?: string;
+  logoPath?: string;
+  slideIndex?: number;
 }
 
 export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme?: SlideTheme | string }> = ({
@@ -22,6 +24,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     { value:'35%', text:'Companies with diverse leadership outperform competitors by 35%', hasArrow:true }
   ],
   avatarPath = '',
+  logoPath = '',
+  slideIndex = 1,
   isEditable = true, // Set to true by default for testing
   onUpdate,
   theme
@@ -58,7 +62,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     top:'60px', 
     right:'500px', // Add right margin to prevent overlap with avatar
     fontSize:'50px', 
-    fontWeight:900, 
+    fontWeight:1100, 
     color:'#000000',
     whiteSpace:'pre-line',
     lineHeight:1.2,
@@ -106,7 +110,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     height:'170px', 
     borderRadius:'50%', 
     overflow:'hidden', 
-    background:'#4285F4',
+    background:'#0F58F9',
     border:'3px solid #FFFFFF',
     zIndex:10
   };
@@ -117,8 +121,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     position:'absolute',
     left:'44px',
     right:'44px',
-    bottom:'44px',
-    height:'140px',
+    bottom:'60px',
+    height:'135px',
     display:'grid',
     gridTemplateColumns:'1fr 1fr',
     gap:'20px'
@@ -140,7 +144,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Text styles for white cards
   const cardValueStyle: React.CSSProperties = {
     fontSize:'47px',
-    fontWeight:700,
+    fontWeight:900,
     color:'#000000',
     marginBottom:'8px'
   };
@@ -159,7 +163,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
   const cardTextStyleSecond: React.CSSProperties = {
     ...cardTextStyle,
-    width:'270px'
+    width:'300px'
   };
 
   // Arrow icon for second card
@@ -168,7 +172,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     right:'49px',
     width:'45px',
     height:'45px',
-    borderRadius:'6px',
+    borderRadius:'2px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
@@ -188,6 +192,31 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     margin:0, 
     whiteSpace:'pre-wrap' 
   });
+
+  // Logo section styling
+  const logoSection: React.CSSProperties = {
+    position:'absolute',
+    bottom:'44px',
+    right:'44px',
+    display:'flex',
+    alignItems:'center',
+    gap:'8px',
+    fontSize:'14px',
+    color:'#909090',
+    fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  };
+
+  const logoIcon: React.CSSProperties = {
+    width:'20px',
+    height:'20px',
+    borderRadius:'50%',
+    border:'1px solid #909090',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'center',
+    fontSize:'12px',
+    cursor: isEditable ? 'pointer' : 'default'
+  };
 
   return (
     <div className="percent-circles inter-theme" style={slide}>
@@ -305,6 +334,43 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
             )}
           </div>
         ))}
+      </div>
+
+      {/* Footer with page number and logo */}
+      <div style={{
+        position: 'absolute',
+        bottom: '44px',
+        left: '44px',
+        right: '44px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        {/* Page number */}
+        <div style={{
+          fontSize: '14px',
+          color: '#909090',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+          {slideIndex.toString().padStart(2, '0')}
+        </div>
+        
+        {/* Logo section */}
+        <div style={logoSection}>
+          <ClickableImagePlaceholder 
+            imagePath={logoPath} 
+            onImageUploaded={(p)=> {
+              console.log('Logo uploaded:', p);
+              onUpdate && onUpdate({ logoPath:p });
+            }} 
+            size="SMALL" 
+            position="CENTER" 
+            description="Logo" 
+            isEditable={isEditable} 
+            style={logoIcon}
+          />
+          <span>Your Logo</span>
+        </div>
       </div>
     </div>
   );

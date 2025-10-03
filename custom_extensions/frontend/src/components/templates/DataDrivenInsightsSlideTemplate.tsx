@@ -20,6 +20,8 @@ export interface DataDrivenInsightsProps extends BaseTemplateProps {
   yTicks?: number[]; // e.g., [20,40,60,80]
   metrics: Array<{ value: string; caption: string }>;
   avatarPath?: string;
+  logoPath?: string;
+  slideIndex?: number;
 }
 
 export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps & { theme?: SlideTheme | string }> = ({
@@ -40,6 +42,8 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     { value: 'XM', caption: 'active users who spend an average of 30 minutes per day using our product.' }
   ],
   avatarPath = '',
+  logoPath = '',
+  slideIndex = 1,
   isEditable = false,
   onUpdate,
   theme
@@ -81,7 +85,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   // Layout
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#000000', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'transparent', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'20px', border:'2px solid #000000', display:'flex', alignItems:'center', gap:'8px', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
-  const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:900, color:'#000000', textAlign:'left', marginBottom:'16px' };
+  const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:1100, color:'#000000', textAlign:'left', marginBottom:'16px' };
   const descStyle: React.CSSProperties = { width:'795px', color:'#34353C', fontSize:'15px', textAlign:'left', lineHeight:'1.5', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
@@ -98,7 +102,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
-  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#1F2125' };
+  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -247,6 +251,60 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
       <div style={avatar}>
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+      </div>
+
+      {/* Footer with page number and logo */}
+      <div style={{
+        position: 'absolute',
+        bottom: '40px',
+        left: '40px',
+        right: '40px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        {/* Page number */}
+        <div style={{
+          fontSize: '14px',
+          color: '#909090',
+          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+          {slideIndex.toString().padStart(2, '0')}
+        </div>
+        
+        {/* Logo section */}
+        <div style={{
+          display:'flex',
+          alignItems:'center',
+          gap:'8px',
+          fontSize:'14px',
+          color:'#909090',
+          fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        }}>
+          <ClickableImagePlaceholder 
+            imagePath={logoPath} 
+            onImageUploaded={(p)=> {
+              console.log('Logo uploaded:', p);
+              onUpdate && onUpdate({ logoPath:p });
+            }} 
+            size="SMALL" 
+            position="CENTER" 
+            description="Logo" 
+            isEditable={isEditable} 
+            style={{
+              width:'20px',
+              height:'20px',
+              borderRadius:'50%',
+              border:'1px solid #909090',
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              fontSize:'12px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          />
+          <span>Your Logo</span>
+        </div>
       </div>
     </div>
   );
