@@ -341,9 +341,9 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none',
-                    fontSize: '12px',
+                    fontSize: '20px',
                     color: '#09090BCC',
-                    fontWeight: '300',
+                    fontWeight: '400',
                     fontFamily: currentTheme.fonts.contentFont
                   }}
                 >
@@ -409,8 +409,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '26px',
-            color: '#FFFFFF',
+            fontSize: '28px',
+            color: 'rgba(255, 255, 255, 0.8)',
             lineHeight: '1.4',
             maxWidth: '643px',
             minHeight: '30px',
@@ -425,11 +425,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 multiline={true}
                 className="benefits-description-editor"
                 style={{
-                  fontSize: '26px',
-                  color: '#FFFFFF',
+                  fontSize: '28px',
+                  color: 'rgba(255, 255, 255, 0.8)',
                   lineHeight: '1.4',
                   fontFamily: currentTheme.fonts.contentFont,
                   fontWeight: '300',
+                  letterSpacing: '0.05rem',
                   width: '100%'
                 }}
               />
@@ -440,10 +441,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   fontSize: '28px',
-                  color: '#FFFFFF',
+                  color: 'rgba(255, 255, 255, 0.8)',
                   lineHeight: '1.4',
                   fontFamily: currentTheme.fonts.contentFont,
                   fontWeight: '300',
+                  letterSpacing: '0.05rem',
                   maxWidth: '643px',
                   minHeight: '30px',
                   width: '100%'
@@ -459,7 +461,6 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <div style={{
           display: 'flex',
           gap: '55px',
-          marginTop: '20px'
         }}>
           {Array.from({ length: totalSteps }, (_, i) => (
             <div
@@ -489,8 +490,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           position: 'absolute',
           top: '60px',
           right: '60px',
-          width: '190px',
-          height: '190px',
+          width: '170px',
+          height: '170px',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#ffffff',
@@ -536,7 +537,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                fontSize: '20px',
+                fontSize: '24px',
                 color: '#5E5E5E'
               }}
             >
@@ -550,9 +551,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   onCancel={handleBenefitCancel}
                   className="benefit-editor"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '24px',
                     color: '#5E5E5E',
                     fontFamily: currentTheme.fonts.contentFont,
+                    letterSpacing: '0.05rem',
                     flex: '1'
                   }}
                 />
@@ -563,9 +565,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none',
                     flex: '1',
-                    fontSize: '20px',
+                    fontSize: '24px',
                     color: '#5E5E5E',
-                    fontFamily: currentTheme.fonts.contentFont
+                    fontFamily: currentTheme.fonts.contentFont,
+                    letterSpacing: '0.05rem'
                   }}
                 >
                   {benefit}
@@ -620,7 +623,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
               <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-            <span style={{ fontSize: '14px', fontWeight: 300, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
           </div>
         )}
       </div>

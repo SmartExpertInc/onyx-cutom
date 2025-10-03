@@ -174,7 +174,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
               <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
               <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-            <span style={{ fontSize: '14px', fontWeight: 300, color: '#ffffff', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#ffffff', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
           </div>
         )}
       </div>
@@ -249,8 +249,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
             className="page-number-editor"
             style={{
               color: '#ffffff',
-              fontSize: '17px',
-              fontWeight: '300',
+              fontSize: '18px',
+              fontWeight: '400',
               fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
               height: 'auto'
@@ -261,8 +261,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
               color: '#ffffff',
-              fontSize: '17px',
-              fontWeight: '300',
+              fontSize: '18px',
+              fontWeight: '400',
               fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
