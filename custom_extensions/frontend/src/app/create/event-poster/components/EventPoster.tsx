@@ -93,7 +93,7 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
       border: '2px solid transparent',
       outline: 'none',
       resize: multiline ? 'none' : undefined,
-      minHeight: multiline ? (isTitle ? '260px' : '100px') : undefined,
+      minHeight: multiline ? (isTitle ? '260px' : '60px') : undefined,
       height: isLargeFont ? style.fontSize : undefined,
       fontSize: style.fontSize,
       padding: isLargeFont ? '0 8px' : undefined,
@@ -174,11 +174,12 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
         // Match input styling to prevent layout shifts
-        padding: isLargeFont ? '0 8px' : '0', // Match input padding
+        padding: isLargeFont ? '0 8px' : (multiline ? '10px 16px' : '0'), // Match input padding
         margin: '0', // Match input margin
         display: 'block', // Match input display
         boxSizing: 'border-box', // Match input box-sizing
         verticalAlign: 'top', // Match input vertical alignment
+        minHeight: multiline ? (isTitle ? '260px' : '60px') : undefined, // Match input minHeight
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
@@ -710,10 +711,15 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '30px',
               maxWidth: '1400px',
+              minWidth: '400px',
+              minHeight: '80px',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <EditableText
@@ -732,6 +738,7 @@ export default function EventPoster({
                 borderRadius: '30px',
                 padding: '10px 16px',
                 width: '100%',
+                minHeight: '60px',
                 boxSizing: 'border-box',
               }}
             />
