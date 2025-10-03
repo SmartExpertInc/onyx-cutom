@@ -124,7 +124,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
-  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', right:'480px', minHeight:'46px' };
+  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'480px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
