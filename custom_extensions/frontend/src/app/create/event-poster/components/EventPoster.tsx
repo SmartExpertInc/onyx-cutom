@@ -829,14 +829,15 @@ export default function EventPoster({
                 background: 'transparent',
                 borderRadius: '30px',
                 padding: '10px 16px',
-                width: '600px',
+                width: '100%',
                 height: '100%',
                 boxSizing: 'border-box',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'visible', // Allow content to be visible when editing
-                whiteSpace: 'nowrap', // Keep text on single line
+                overflow: 'hidden',
+                whiteSpace: 'normal', // Allow text wrapping
+                wordWrap: 'break-word', // Break long words if needed
                 position: 'absolute',
                 top: 0,
                 left: 0,
