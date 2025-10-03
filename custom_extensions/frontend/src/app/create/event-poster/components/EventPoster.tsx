@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Image, Loader, Edit3, Save } from 'lucide-react';
 import PresentationImageUpload from '../../../../components/PresentationImageUpload';
 import ImageEditModal from '../../../../components/ImageEditModal';
+import { useLanguage } from "../../../../contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -34,9 +36,10 @@ interface EditableTextProps {
   isTitle?: boolean;
   onAutoSave?: () => void; // Add auto-save callback
   debouncedAutoSave?: (immediate?: boolean) => void; // Add debounced auto-save
+  disableAutoResize?: boolean; // Add option to disable auto-resize
 }
 
-function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave }: EditableTextProps) {
+function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave, disableAutoResize = false }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -84,31 +87,31 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
     }
   };
 
+  // Auto-resize textarea to fit content (like InlineEditor) - only if not disabled
+  useEffect(() => {
+    if (multiline && inputRef.current && isEditing && !disableAutoResize) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [tempValue, multiline, isEditing, disableAutoResize]);
+
+  // Set initial height for textarea to match content - only if not disabled
+  useEffect(() => {
+    if (multiline && inputRef.current && isEditing && !disableAutoResize) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline, isEditing, disableAutoResize]);
+
   if (isEditing) {
-    const Component = multiline ? 'textarea' : 'input';
-    // For large font fields (like date), set fixed height and font size for input
-    const inputStyle: React.CSSProperties = {
-      ...style,
-      background: 'transparent',
-      border: '2px solid #5416af',
-      outline: 'none',
-      resize: multiline ? 'none' : undefined,
-      minHeight: multiline ? (isTitle ? '260px' : '100px') : undefined,
-      height: isLargeFont ? style.fontSize : undefined,
-      fontSize: style.fontSize,
-      padding: isLargeFont ? '0 8px' : undefined,
-      lineHeight: style.lineHeight || '1.2',
-      boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
-      width: '100%',
-      textAlign: style.textAlign || 'left',
-      fontFamily: style.fontFamily,
-      fontWeight: style.fontWeight,
-      color: style.color,
-      borderRadius: '4px',
-    };
-    return (
-              <Component
-          ref={inputRef as any}
+    if (multiline) {
+      return (
+        <textarea
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          className="inline-editor-textarea"
           value={tempValue}
           onChange={(e) => {
             const newValue = e.target.value;
@@ -134,27 +137,98 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
               onAutoSave();
             }
           }}
-          onKeyDown={(e) => {
-            // Save on Enter or Escape
-            if (e.key === 'Enter' && !multiline) {
-              e.preventDefault();
-              handleSave();
-            } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-              e.preventDefault();
-              handleSave();
-            } else if (e.key === 'Escape') {
-              e.preventDefault();
-              handleCancel();
-            }
-          }}
-          style={inputStyle}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus
+          style={{
+            ...style,
+            // Only override browser defaults, preserve all passed styles
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            boxShadow: 'none',
+            resize: 'none',
+            overflow: 'hidden',
+            width: '100%',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
+            minHeight: isTitle ? '260px' : '100px',
+            boxSizing: 'border-box',
+            display: 'block',
+            lineHeight: style.lineHeight || '1.2',
+            textAlign: style.textAlign || 'left',
+            fontFamily: style.fontFamily,
+            fontWeight: style.fontWeight,
+            color: style.color,
+            fontSize: style.fontSize,
+            borderRadius: style.borderRadius || '4px',
+            padding: style.padding || (isLargeFont ? '0 8px' : undefined),
+          }}
+          rows={1}
         />
+      );
+    }
+
+    return (
+      <input
+        ref={inputRef as React.RefObject<HTMLInputElement>}
+        className="inline-editor-input"
+        type="text"
+        value={tempValue}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          setTempValue(newValue);
+          // Save on every keystroke - real-time auto-save
+          console.log('⌨️ [EVENT_POSTER_EDIT] Keystroke detected, saving:', newValue);
+          onChange(newValue);
+          // Trigger auto-save immediately on every change
+          if (onAutoSave) {
+            console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on keystroke');
+            onAutoSave();
+          }
+        }}
+        onBlur={() => {
+          // Get the current value directly from the DOM element (same as audits)
+          const currentValue = inputRef.current?.value || tempValue;
+          console.log('👋 [EVENT_POSTER_EDIT] Focus lost - ensuring final save:', currentValue);
+          onChange(currentValue);
+          setIsEditing(false);
+          // Trigger auto-save immediately (same as audits)
+          if (onAutoSave) {
+            console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur');
+            onAutoSave();
+          }
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        autoFocus
+        style={{
+          ...style,
+          // Only override browser defaults, preserve all passed styles
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: style.lineHeight || '1.2',
+          textAlign: style.textAlign || 'left',
+          fontFamily: style.fontFamily,
+          fontWeight: style.fontWeight,
+          color: style.color,
+          fontSize: style.fontSize,
+          borderRadius: style.borderRadius || '4px',
+          padding: style.padding || (isLargeFont ? '0 8px' : undefined),
+          height: isLargeFont ? style.fontSize : undefined,
+        }}
+      />
     );
   }
 
-  const hoverPadding = isLargeFont ? 'p-4 -m-4' : 'p-2 -m-2';
+  const hoverPadding = isLargeFont ? 'p-4' : 'p-2';
   
   return (
     <div
@@ -164,8 +238,14 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         cursor: 'pointer',
         position: 'relative',
         transition: 'all 0.2s ease',
+        // Match input styling to prevent layout shifts
+        padding: isLargeFont ? '0 8px' : '0', // Match input padding
+        margin: '0', // Match input margin
+        display: 'block', // Match input display
+        boxSizing: 'border-box', // Match input box-sizing
+        verticalAlign: 'top', // Match input vertical alignment
       }}
-      className={`hover:bg-white hover:bg-opacity-70 hover:shadow-lg rounded-lg ${hoverPadding} group`}
+      className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
@@ -193,6 +273,7 @@ export default function EventPoster({
   onError,
   projectId
 }: EventPosterProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   
   // State for editable fields
@@ -441,25 +522,26 @@ export default function EventPoster({
     <div className="space-y-6">
       {/* Action Buttons */}
       <div className="flex justify-center gap-4">
-        <button
+        <Button
+          variant="download"
           onClick={handleDownloadPoster}
           disabled={isGenerating}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+          className={`flex items-center gap-2 px-4 py-6 rounded-lg w-full transition-colors ${
             isGenerating
-              ? 'bg-blue-500 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
-              : 'bg-green-600 hover:bg-green-700 text-white cursor-pointer focus:ring-green-500'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white cursor-not-allowed focus:ring-blue-500 disabled:opacity-60'
+              : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:bg-blue-700 text-white cursor-pointer focus:ring-blue-500'
           }`}
-          title={isGenerating ? 'Poster image generation in progress...' : 'Generate and download poster image'}
+          title={isGenerating ? t('interface.eventPosterForm.posterGenerationInProgress', 'Poster image generation in progress...') : t('interface.eventPosterForm.generateAndDownloadPosterTooltip', 'Generate and download poster image')}
         >
           {isGenerating ? <Loader size={16} className="animate-spin" /> : <Image size={16} />}
-          {isGenerating ? 'Generating Poster...' : 'Generate and Download Poster'}
-        </button>
+          {isGenerating ? `${t('interface.eventPosterForm.generatingPoster', 'Generating Poster...')}` : `${t('interface.eventPosterForm.generateAndDownloadPoster', 'Generate and Download Poster')}`}
+        </Button>
       </div>
 
       {/* Editable Fields Info */}
       <div className="text-center text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
         <Edit3 size={16} className="inline mr-2" />
-        Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.
+        {t('interface.eventPosterForm.editInstructions', 'Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.')}
       </div>
 
       {/* Poster */}
@@ -580,7 +662,10 @@ export default function EventPoster({
                 fontWeight: '400',
                 fontSize: '33px',
                 textAlign: 'left',
-                lineHeight: '1.2'
+                lineHeight: '1.2',
+                maxWidth: 'calc(100% - 180px)', // Reserve space for logo (141px + margin)
+                overflow: 'hidden',
+                wordWrap: 'break-word'
               }}
             />
 
@@ -640,6 +725,9 @@ export default function EventPoster({
                 padding: '15px 20px',
                 display: 'inline-block',
                 textAlign: 'center',
+                width: '220px', // Fixed width
+                boxSizing: 'border-box', // Include padding in width
+                overflow: 'hidden', // Prevent content overflow
               }}
             >
               <EditableText
@@ -659,6 +747,11 @@ export default function EventPoster({
                   lineHeight: '1',
                   background: 'transparent',
                   marginBottom: '0',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               />
               <EditableText
@@ -678,6 +771,11 @@ export default function EventPoster({
                   lineHeight: '1',
                   background: 'transparent',
                   marginTop: '5px',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               />
             </div>
@@ -735,11 +833,13 @@ export default function EventPoster({
               border: '2px solid #5416af',
               borderRadius: '30px',
               padding: '10px 14px',
-              minWidth: '160px',
+              width: '200px', // Fixed width instead of minWidth
               lineHeight: '1',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              boxSizing: 'border-box', // Include padding in width calculation
+              overflow: 'hidden', // Prevent content from expanding the container
             }}
           >
             <div
@@ -764,7 +864,12 @@ export default function EventPoster({
                 fontWeight: '600',
                 fontSize: '27px',
                 textAlign: 'center',
-                marginTop: '4px'
+                marginTop: '4px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
               }}
             />
             <EditableText
@@ -778,7 +883,12 @@ export default function EventPoster({
                 fontWeight: '900',
                 fontSize: '41px',
                 textAlign: 'center',
-                marginTop: '2px'
+                marginTop: '2px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                wordWrap: 'break-word'
               }}
             />
           </div>
@@ -788,19 +898,25 @@ export default function EventPoster({
             className="group"
             style={{
               borderRadius: '30px',
-              marginLeft: '30px',
-              maxWidth: '1400px',
+              marginLeft: '10px',
+              width: '600px', // Fixed width - never changes
+              height: '100px', // Fixed height - never changes
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden', // Prevent any overflow
+              position: 'relative', // For absolute positioning of text
             }}
           >
             <EditableText
               value={freeAccessConditions}
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
-              multiline
+              multiline={true} // Enable multiline like topic section
               onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
@@ -812,7 +928,19 @@ export default function EventPoster({
                 borderRadius: '30px',
                 padding: '10px 16px',
                 width: '100%',
+                height: '100%',
                 boxSizing: 'border-box',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                whiteSpace: 'normal', // Allow text wrapping
+                wordWrap: 'break-word', // Break long words if needed
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
               }}
             />
           </div>

@@ -7,6 +7,7 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon, FolderIcon, ChevronDown, Inf
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { useLanguage } from "../../contexts/LanguageContext"
 
 // Simple Tooltip Component
 const SimpleTooltip: React.FC<{ children: React.ReactNode; content: string }> = ({ children, content }) => {
@@ -220,7 +221,7 @@ function SelectScrollUpButton({
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
       className={cn(
-        "flex cursor-default items-center justify-center py-1",
+        "flex cursor-default items-center justify-center py-1 pointer-events-none",
         className
       )}
       {...props}
@@ -238,7 +239,7 @@ function SelectScrollDownButton({
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
       className={cn(
-        "flex cursor-default items-center justify-center py-1",
+        "flex cursor-default items-center justify-center py-1 pointer-events-none",
         className
       )}
       {...props}
@@ -317,6 +318,7 @@ function CustomMultiSelector({
   placeholder,
   className
 }: CustomMultiSelectorProps) {
+  const { t } = useLanguage()
   const [isOpen, setIsOpen] = React.useState(false)
 
   const handleToggle = (value: string) => {
@@ -331,7 +333,7 @@ function CustomMultiSelector({
     ? placeholder || `Select ${label}`
     : selectedValues.length === 1
     ? options.find(opt => opt.value === selectedValues[0])?.label || selectedValues[0]
-    : `${selectedValues.length} types selected`
+    : `${selectedValues.length} ${t('interface.generate.typesSelected', 'types selected')}`
 
   return (
     <div className="border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">

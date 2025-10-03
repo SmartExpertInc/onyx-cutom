@@ -1694,7 +1694,7 @@ export default function LessonPresentationClient() {
                                     <path d="M2.47229 6.375H16.5279" stroke="black" strokeLinecap="round" strokeLinejoin="round"/>
                                   </svg>
                                   <span className="text-[#09090B] opacity-50">{t('interface.language', 'Language')}:</span>
-                                  <span className="text-[#09090B]">{language === 'en' ? 'English' : language === 'uk' ? 'Ukrainian' : language === 'es' ? 'Spanish' : 'Russian'}</span>
+                                  <span className="text-[#09090B]">{language === 'en' ? `${t('interface.english', 'English')}` : language === 'uk' ? `${t('interface.ukrainian', 'Ukrainian')}` : language === 'es' ? `${t('interface.spanish', 'Spanish')}` : `${t('interface.russian', 'Russian')}`}</span>
                         </div>
                               </SelectTrigger>
                               <SelectContent className="border-white" sideOffset={15}>
