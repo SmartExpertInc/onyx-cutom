@@ -158,13 +158,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#ffff',
+    backgroundColor: '#FFFFFF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
+    padding: '60px 80px 40px 80px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -231,9 +231,11 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         {/* Title */}
         <div style={{
           fontSize: '61px',
-          color: '#3D3D3D',
+          color: '#000000',
           lineHeight: '1.2',
-          maxWidth: '76%'
+          maxWidth: '76%',
+          fontWeight: 900,
+          fontFamily: 'serif'
         }}>
           {isEditable && editingTitle ? (
             <InlineEditor
@@ -244,8 +246,10 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               className="soft-skills-title-editor"
               style={{
                 fontSize: '61px',
-                color: '#3D3D3D',
-                lineHeight: '1.2'
+                color: '#000000',
+                lineHeight: '1.2',
+                fontWeight: 900,
+                fontFamily: 'serif'
               }}
             />
           ) : (
@@ -267,6 +271,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           height: '145px',
           borderRadius: '50%',
           overflow: 'hidden',
+          backgroundColor: '#4285F4'
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -304,18 +309,20 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             {/* Main tip block */}
             <div style={{
               padding: '30px',
-              backgroundColor: index === 0 ? '#916AF6' : index === 1 ? '#212121' : 'transparent',
+              backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#4285F4' : 'transparent',
               minHeight: '310px',
               display: 'flex',
               paddingLeft: '32px',
               paddingTop: '40px',
               zIndex: '2',
+              borderRadius: '12px',
             }}>
               <div style={{
                 fontSize: '32px',
-                fontWeight: '500',
-                color: '#EBDEF8',
+                fontWeight: '700',
+                color: index === 0 ? '#000000' : '#FFFFFF',
                 lineHeight: '1.4',
+                fontFamily: 'Inter, sans-serif'
               }}>
                 {isEditable && editingTips === index ? (
                   <InlineEditor
@@ -327,9 +334,10 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     style={{
                       fontSize: '32px',
                       maxWidth: '386px',
-                      fontWeight: '500',
-                      color: '#EBDEF8',
+                      fontWeight: '700',
+                      color: index === 0 ? '#000000' : '#FFFFFF',
                       lineHeight: '1.4',
+                      fontFamily: 'Inter, sans-serif',
                       background: 'transparent',
                       border: 'none',
                       outline: 'none'
@@ -349,62 +357,56 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               </div>
             </div>
 
-            {/* Additional block that extends out */}
-            <div style={{
-              padding: '20px',
-              backgroundColor: index === 0 ? '#212121' : index === 1 ? '#916AF6' : 'transparent',
-              minHeight: '80px',
-              height: '304px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              top: '-303px',
-              zIndex: '1',
-              marginTop: '-10px', // Makes it overlap slightly
-              marginLeft: '16px', // Makes it extend out to the right
-              marginRight: '-11px' // Makes it extend out to the right
-            }}>
-              <div style={{
-                fontSize: '18px',
-                fontWeight: '400',
-                color: themeBg,
-                lineHeight: '1.3',
-                textAlign: 'center'
-              }}>
-                {isEditable && editingAdditionalTips === index ? (
-                  <InlineEditor
-                    initialValue={currentAdditionalTips[index]}
-                    onSave={(value) => handleAdditionalTipSave(index, value)}
-                    onCancel={handleAdditionalTipCancel}
-                    multiline={true}
-                    className="additional-tip-editor"
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: '400',
-                      color: themeBg,
-                      lineHeight: '1.3',
-                      textAlign: 'center',
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none'
-                    }}
-                  />
-                ) : (
-                  <div
-                    onClick={() => isEditable && setEditingAdditionalTips(index)}
-                    style={{
-                      cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {currentAdditionalTips[index]}
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         ))}
+      </div>
+
+      {/* Footer separator and elements */}
+      <div style={{
+        position: 'absolute',
+        bottom: '0',
+        left: '0',
+        right: '0',
+        height: '40px',
+        borderTop: '1px solid #E5E7EB',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0 80px',
+        backgroundColor: '#FFFFFF'
+      }}>
+        {/* Page number */}
+        <div style={{
+          fontSize: '14px',
+          color: '#909090',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          27
+        </div>
+        
+        {/* Logo placeholder */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '14px',
+          color: '#909090',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '1px solid #909090',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px'
+          }}>
+            +
+          </div>
+          Your Logo
+        </div>
       </div>
     </div>
   );
