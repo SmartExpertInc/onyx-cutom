@@ -563,7 +563,10 @@ export default function EventPoster({
                 fontWeight: '400',
                 fontSize: '33px',
                 textAlign: 'left',
-                lineHeight: '1.2'
+                lineHeight: '1.2',
+                maxWidth: 'calc(100% - 180px)', // Reserve space for logo (141px + margin)
+                overflow: 'hidden',
+                wordWrap: 'break-word'
               }}
             />
 
@@ -718,11 +721,13 @@ export default function EventPoster({
               border: '2px solid #5416af',
               borderRadius: '30px',
               padding: '10px 14px',
-              minWidth: '160px',
+              width: '160px', // Fixed width instead of minWidth
               lineHeight: '1',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              boxSizing: 'border-box', // Include padding in width calculation
+              overflow: 'hidden', // Prevent content from expanding the container
             }}
           >
             <div
@@ -747,7 +752,12 @@ export default function EventPoster({
                 fontWeight: '600',
                 fontSize: '27px',
                 textAlign: 'center',
-                marginTop: '4px'
+                marginTop: '4px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                wordWrap: 'break-word'
               }}
             />
             <EditableText
@@ -761,7 +771,12 @@ export default function EventPoster({
                 fontWeight: '900',
                 fontSize: '41px',
                 textAlign: 'center',
-                marginTop: '2px'
+                marginTop: '2px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+                wordWrap: 'break-word'
               }}
             />
           </div>
@@ -773,7 +788,7 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '10px',
               width: '600px', // Fixed width - never changes
-              height: '80px', // Fixed height - never changes
+              height: '100px', // Fixed height - never changes
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
