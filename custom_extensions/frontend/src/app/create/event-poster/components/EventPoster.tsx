@@ -724,7 +724,7 @@ export default function EventPoster({
               marginLeft: '30px',
               width: '600px', // Fixed width to prevent shrinking
               minWidth: '600px', // Ensure minimum width
-              height: '60px', // Fixed height to maintain single line
+              maxHeight: '90px', // Fixed height to maintain single line
               minHeight: '60px',
               display: 'flex',
               alignItems: 'center',
