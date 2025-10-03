@@ -84,44 +84,31 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
     }
   };
 
+  // Auto-resize textarea to fit content (like InlineEditor)
+  useEffect(() => {
+    if (multiline && inputRef.current && isEditing) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [tempValue, multiline, isEditing]);
+
+  // Set initial height for textarea to match content
+  useEffect(() => {
+    if (multiline && inputRef.current && isEditing) {
+      const textarea = inputRef.current as HTMLTextAreaElement;
+      // Set initial height based on content
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  }, [multiline, isEditing]);
+
   if (isEditing) {
-    const Component = multiline ? 'textarea' : 'input';
-    // For large font fields (like date), set fixed height and font size for input
-    const inputStyle: React.CSSProperties = {
-      ...style,
-      background: 'transparent',
-      border: '2px solid transparent',
-      outline: 'none',
-      resize: multiline ? 'none' : undefined,
-      minHeight: style.minHeight || (multiline ? (isTitle ? '260px' : '100px') : undefined),
-      height: style.height || (isLargeFont ? style.fontSize : undefined),
-      maxHeight: style.maxHeight,
-      fontSize: style.fontSize,
-      padding: isLargeFont ? '0 8px' : style.padding,
-      lineHeight: style.lineHeight || '1.2',
-      boxSizing: 'border-box' as React.CSSProperties['boxSizing'],
-      width: '100%',
-      textAlign: style.textAlign || 'left',
-      fontFamily: style.fontFamily,
-      fontWeight: style.fontWeight,
-      color: style.color,
-      borderRadius: '4px',
-      overflow: style.overflow,
-      whiteSpace: style.whiteSpace,
-      textOverflow: style.textOverflow,
-      // Remove browser-specific styling that causes shifts
-      appearance: 'none',
-      WebkitAppearance: 'none',
-      MozAppearance: 'none',
-      // Ensure consistent positioning
-      display: 'block',
-      position: 'relative',
-      cursor: 'text',
-      verticalAlign: 'top',
-    };
-    return (
-              <Component
-          ref={inputRef as any}
+    if (multiline) {
+      return (
+        <textarea
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          className="inline-editor-textarea"
           value={tempValue}
           onChange={(e) => {
             const newValue = e.target.value;
@@ -147,23 +134,94 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
               onAutoSave();
             }
           }}
-          onKeyDown={(e) => {
-            // Save on Enter or Escape
-            if (e.key === 'Enter' && !multiline) {
-              e.preventDefault();
-              handleSave();
-            } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-              e.preventDefault();
-              handleSave();
-            } else if (e.key === 'Escape') {
-              e.preventDefault();
-              handleCancel();
-            }
-          }}
-          style={inputStyle}
+          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoFocus
+          style={{
+            ...style,
+            // Only override browser defaults, preserve all passed styles
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            boxShadow: 'none',
+            resize: 'none',
+            overflow: 'hidden',
+            width: '100%',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
+            minHeight: isTitle ? '260px' : '100px',
+            boxSizing: 'border-box',
+            display: 'block',
+            lineHeight: style.lineHeight || '1.2',
+            textAlign: style.textAlign || 'left',
+            fontFamily: style.fontFamily,
+            fontWeight: style.fontWeight,
+            color: style.color,
+            fontSize: style.fontSize,
+            borderRadius: style.borderRadius || '4px',
+            padding: style.padding || (isLargeFont ? '0 8px' : undefined),
+          }}
+          rows={1}
         />
+      );
+    }
+
+    return (
+      <input
+        ref={inputRef as React.RefObject<HTMLInputElement>}
+        className="inline-editor-input"
+        type="text"
+        value={tempValue}
+        onChange={(e) => {
+          const newValue = e.target.value;
+          setTempValue(newValue);
+          // Save on every keystroke - real-time auto-save
+          console.log('⌨️ [EVENT_POSTER_EDIT] Keystroke detected, saving:', newValue);
+          onChange(newValue);
+          // Trigger auto-save immediately on every change
+          if (onAutoSave) {
+            console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on keystroke');
+            onAutoSave();
+          }
+        }}
+        onBlur={() => {
+          // Get the current value directly from the DOM element (same as audits)
+          const currentValue = inputRef.current?.value || tempValue;
+          console.log('👋 [EVENT_POSTER_EDIT] Focus lost - ensuring final save:', currentValue);
+          onChange(currentValue);
+          setIsEditing(false);
+          // Trigger auto-save immediately (same as audits)
+          if (onAutoSave) {
+            console.log('🔄 [EVENT_POSTER_AUTO_SAVE] Triggering auto-save on blur');
+            onAutoSave();
+          }
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        autoFocus
+        style={{
+          ...style,
+          // Only override browser defaults, preserve all passed styles
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none',
+          width: '100%',
+          wordWrap: 'break-word',
+          whiteSpace: 'pre-wrap',
+          boxSizing: 'border-box',
+          display: 'block',
+          lineHeight: style.lineHeight || '1.2',
+          textAlign: style.textAlign || 'left',
+          fontFamily: style.fontFamily,
+          fontWeight: style.fontWeight,
+          color: style.color,
+          fontSize: style.fontSize,
+          borderRadius: style.borderRadius || '4px',
+          padding: style.padding || (isLargeFont ? '0 8px' : undefined),
+          height: isLargeFont ? style.fontSize : undefined,
+        }}
+      />
     );
   }
 
@@ -178,22 +236,13 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
         // Match input styling to prevent layout shifts
-        padding: isLargeFont ? '0 8px' : style.padding || '0',
-        margin: '0',
-        display: 'block',
-        boxSizing: 'border-box',
-        verticalAlign: 'top',
-        // Preserve fixed dimensions to prevent shrinking
-        height: style.height,
-        minHeight: style.minHeight,
-        maxHeight: style.maxHeight,
-        overflow: style.overflow,
-        whiteSpace: style.whiteSpace,
-        textOverflow: style.textOverflow,
-        // Reserve space for border to prevent shifting
-        border: '2px solid transparent',
+        padding: isLargeFont ? '0 8px' : '0', // Match input padding
+        margin: '0', // Match input margin
+        display: 'block', // Match input display
+        boxSizing: 'border-box', // Match input box-sizing
+        verticalAlign: 'top', // Match input vertical alignment
       }}
-      className={`hover:border-gray-400 rounded-lg ${hoverPadding} group`}
+      className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
@@ -722,26 +771,18 @@ export default function EventPoster({
             style={{
               borderRadius: '30px',
               marginLeft: '30px',
-              width: '600px', // Fixed width to prevent shrinking
-              minWidth: '600px', // Ensure minimum width
-              maxHeight: '90px', // Fixed height to maintain single line
-              minHeight: '60px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              maxWidth: '1400px',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
-              position: 'relative',
-              overflow: 'hidden', // Prevent content from overflowing the container
             }}
           >
             <EditableText
               value={freeAccessConditions}
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
-              multiline={false}
+              multiline
               onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
@@ -751,19 +792,9 @@ export default function EventPoster({
                 lineHeight: '1.2',
                 background: 'transparent',
                 borderRadius: '30px',
-                padding: '10px 20px',
-                width: 'calc(100% - 40px)', // Account for padding
-                height: '40px',
-                minHeight: '40px',
-                maxHeight: '40px',
+                padding: '10px 16px',
+                width: '100%',
                 boxSizing: 'border-box',
-                overflowX: 'auto', // Allow horizontal scrolling
-                overflowY: 'hidden', // Prevent vertical scrolling
-                whiteSpace: 'nowrap',
-                // textOverflow: 'visible', // Don't cut off text
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
               }}
             />
           </div>
