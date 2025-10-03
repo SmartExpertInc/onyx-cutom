@@ -34,6 +34,14 @@ interface EditableTextProps {
   debouncedAutoSave?: (immediate?: boolean) => void; // Add debounced auto-save
 }
 
+interface EditableImageProps {
+  src: string;
+  onChange: (src: string) => void;
+  style: React.CSSProperties;
+  alt?: string;
+  onAutoSave?: () => void; // Add auto-save callback
+}
+
 function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
@@ -176,6 +184,176 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
   );
 }
 
+function EditableImage({ src, onChange, style, alt = "Image", onAutoSave }: EditableImageProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(src);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Please select an image smaller than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setSelectedImage(result);
+        onChange(result);
+        setIsEditing(false);
+
+        // Trigger auto-save immediately
+        if (onAutoSave) {
+          console.log('🔄 [EVENT_POSTER_IMAGE_AUTO_SAVE] Triggering auto-save after image change');
+          onAutoSave();
+        }
+      };
+      reader.onerror = () => {
+        alert('Error reading the selected file. Please try again.');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCancel = () => {
+    setSelectedImage(src);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancel();
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please drop a valid image file');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Please drop an image smaller than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setSelectedImage(result);
+        onChange(result);
+        setIsEditing(false);
+
+        // Trigger auto-save immediately
+        if (onAutoSave) {
+          console.log('🔄 [EVENT_POSTER_IMAGE_AUTO_SAVE] Triggering auto-save after image drop');
+          onAutoSave();
+        }
+      };
+      reader.onerror = () => {
+        alert('Error reading the dropped file. Please try again.');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div
+        style={style}
+        className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${
+          isDragOver ? 'border-green-500 bg-green-50' : 'border-blue-500 bg-blue-50'
+        }`}
+        onKeyDown={handleKeyDown}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        tabIndex={0}
+      >
+        <div className="text-center mb-4">
+          <p className="text-sm text-gray-600 mb-2">
+            {isDragOver ? 'Drop image here' : 'Select a new image or drag & drop:'}
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          />
+        </div>
+        <div className="flex justify-center gap-2">
+          <button
+            onClick={handleCancel}
+            className="px-3 py-1 text-sm bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={handleClick}
+      style={style}
+      className="cursor-pointer relative group hover:shadow-lg rounded-lg transition-all duration-200"
+      title="Click to replace image"
+    >
+      <div
+        style={{
+          backgroundImage: `url("${selectedImage}")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center center',
+          backgroundSize: 'cover',
+          ...style,
+        }}
+      />
+      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
+        <Edit3
+          size={24}
+          className="opacity-0 group-hover:opacity-70 transition-opacity text-white"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function EventPoster({
   eventName: initialEventName,
   mainSpeaker: initialMainSpeaker,
@@ -186,7 +364,7 @@ export default function EventPoster({
   ticketPrice: initialTicketPrice,
   ticketType: initialTicketType,
   freeAccessConditions: initialFreeAccessConditions,
-  speakerImageSrc,
+  speakerImageSrc: initialSpeakerImageSrc,
   onSuccess,
   onError,
   projectId
@@ -203,6 +381,7 @@ export default function EventPoster({
   const [ticketPrice, setTicketPrice] = useState(initialTicketPrice);
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [freeAccessConditions, setFreeAccessConditions] = useState(initialFreeAccessConditions);
+  const [speakerImageSrc, setSpeakerImageSrc] = useState(initialSpeakerImageSrc || "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png");
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Click outside handler to stop editing (same as audits)
@@ -259,7 +438,7 @@ export default function EventPoster({
         ticketPrice,
         ticketType,
         freeAccessConditions,
-        speakerImageSrc: imageSrc // Use speakerImageSrc to match the prop name
+        speakerImageSrc: speakerImageSrc // Use state variable for speaker image
       };
 
       const payload = { 
@@ -294,8 +473,8 @@ export default function EventPoster({
   const dayMonth = dateParts.slice(0, 2).join('.');
   const year = dateParts.slice(2).join('.');
 
-  // Determine speaker image source
-  const imageSrc = speakerImageSrc || "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png";
+  // Determine speaker image source - now using state variable
+  const imageSrc = speakerImageSrc;
 
   // Download functionality
   const handleDownloadPoster = async () => {
@@ -317,7 +496,7 @@ export default function EventPoster({
         ticketPrice,
         ticketType,
         freeAccessConditions,
-        speakerImageSrc: imageSrc,
+        speakerImageSrc: speakerImageSrc,
         format: 'poster',
         dimensions: { width: 1000, height: 1000 },
         sessionId,
@@ -409,7 +588,7 @@ export default function EventPoster({
       {/* Editable Fields Info */}
       <div className="text-center text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
         <Edit3 size={16} className="inline mr-2" />
-        Click on any text in the poster to edit it. Press Enter to save, Escape to cancel.
+        Click on any text or images in the poster to edit them. Press Enter to save, Escape to cancel.
       </div>
 
       {/* Poster */}
@@ -434,19 +613,19 @@ export default function EventPoster({
         }}
       />
 
-      {/* Speaker Photo - Dynamic */}
-      <div
-        className="absolute"
+      {/* Speaker Photo - Dynamic and Editable */}
+      <EditableImage
+        src={imageSrc || "/custom-projects-ui/create/event-poster/figma-to-html/images/v1_8.png"}
+        onChange={setSpeakerImageSrc}
+        onAutoSave={handleAutoSave}
         style={{
           width: '519px',
           height: '713px',
-          background: `url("${imageSrc}")`,
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
+          position: 'absolute',
           top: '329px',
           left: '525px',
         }}
+        alt="Speaker photo"
       />
 
       {/* Bottom gradient */}
