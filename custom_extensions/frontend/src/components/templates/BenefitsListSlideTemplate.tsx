@@ -289,7 +289,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', 
         position: 'relative',
         padding: '40px 60px',
-        paddingTop: '56px',
+        paddingTop: '48px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -304,16 +304,16 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           }}>
             <div style={{
               backgroundColor: '#ffffff',
-              borderRadius: '20px',
-              padding: '8px 12px',
+              borderRadius: '24px',
+              padding: '8px 18px',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '12px'
             }}>
               {/* Circle indicator */}
               <div style={{
-                width: '6px',
-                height: '6px',
+                width: '8px',
+                height: '8px',
                 borderRadius: '50%',
                 backgroundColor: '#0F58F9'
               }} />
@@ -326,9 +326,9 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   onCancel={handleSubtitleCancel}
                   className="benefits-subtitle-editor"
                   style={{
-                    fontSize: '12px',
+                    fontSize: '20px',
                     color: '#09090BCC',
-                    fontWeight: '300',
+                    fontWeight: '400',
                     fontFamily: currentTheme.fonts.contentFont,
                     background: 'transparent',
                     border: 'none',
@@ -355,9 +355,9 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Main title */}
           <div style={{
-            fontSize: '65px',
+            fontSize: '48px',
             color: '#FFFFFF',
-            marginBottom: '20px',
+            marginBottom: '10px',
             lineHeight: '1.1',
             minHeight: '65px',
             maxHeight: '65px',
@@ -373,7 +373,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleTitleCancel}
                 className="benefits-title-editor"
                 style={{
-                  fontSize: '65px',
+                  fontSize: '48px',
                   color: '#FFFFFF',
                   lineHeight: '1.1',
                   fontFamily: "'Lora', serif",
@@ -393,7 +393,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   height: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  fontSize: '65px',
+                  fontSize: '48px',
                   color: '#FFFFFF',
                   lineHeight: '1.1',
                   fontFamily: "'Lora', serif",
@@ -429,6 +429,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   color: '#FFFFFF',
                   lineHeight: '1.4',
                   fontFamily: currentTheme.fonts.contentFont,
+                  fontWeight: '300',
                   width: '100%'
                 }}
               />
@@ -442,6 +443,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   color: '#FFFFFF',
                   lineHeight: '1.4',
                   fontFamily: currentTheme.fonts.contentFont,
+                  fontWeight: '300',
                   maxWidth: '643px',
                   minHeight: '30px',
                   width: '100%'
@@ -456,15 +458,15 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         {/* Navigation squares */}
         <div style={{
           display: 'flex',
-          gap: '45px',
+          gap: '55px',
           marginTop: '20px'
         }}>
           {Array.from({ length: totalSteps }, (_, i) => (
             <div
               key={i}
               style={{
-                width: '45px',
-                height: '45px',
+                width: '55px',
+                height: '55px',
                 borderRadius: '2px',
                 border: `2px solid #ffffff`,
                 backgroundColor: i + 1 === currentStep ? "#ffffff" : 'transparent',
@@ -472,7 +474,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: i + 1 === currentStep ? '#0F58F9' : '#ffffff',
-                fontSize: '25px',
+                fontSize: '32px',
                 fontWeight: '',
                 fontFamily: currentTheme.fonts.contentFont
               }}
@@ -491,6 +493,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           height: '190px',
           borderRadius: '50%',
           overflow: 'hidden',
+          backgroundColor: '#ffffff',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
