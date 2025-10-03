@@ -626,7 +626,7 @@ export default function EventPoster({
                 padding: '15px 20px',
                 display: 'inline-block',
                 textAlign: 'center',
-                width: '120px', // Fixed width
+                width: '140px', // Fixed width
                 boxSizing: 'border-box', // Include padding in width
                 overflow: 'hidden', // Prevent content overflow
               }}
@@ -734,7 +734,7 @@ export default function EventPoster({
               border: '2px solid #5416af',
               borderRadius: '30px',
               padding: '10px 14px',
-              width: '160px', // Fixed width instead of minWidth
+              width: '180px', // Fixed width instead of minWidth
               lineHeight: '1',
               display: 'flex',
               flexDirection: 'column',
