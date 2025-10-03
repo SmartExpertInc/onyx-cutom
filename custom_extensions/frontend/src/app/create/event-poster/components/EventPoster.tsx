@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Image, Loader, Edit3, Save } from 'lucide-react';
+import PresentationImageUpload from '../../../../components/PresentationImageUpload';
+import ImageEditModal from '../../../../components/ImageEditModal';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -304,33 +306,45 @@ export default function EventPoster({
     setLocalSpeakerImage(speakerImageSrc);
   }, [speakerImageSrc]);
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // Poster image upload + crop flow (reusing presentation components)
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showImageEditModal, setShowImageEditModal] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
 
   const handleImageAreaClick = () => {
-    fileInputRef.current?.click();
+    setShowUploadModal(true);
   };
 
-  const handleImageFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file.');
-      return;
+  const handlePosterImageUploaded = (imagePath: string, imageFile?: File) => {
+    // If we have the raw file, let the user crop first
+    if (imageFile) {
+      setPendingImageFile(imageFile);
+      setShowImageEditModal(true);
+    } else if (imagePath) {
+      // No crop flow available, use as-is
+      setLocalSpeakerImage(imagePath);
+      handleAutoSave({ speakerImageSrc: imagePath });
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB.');
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64String = e.target?.result as string;
-      setLocalSpeakerImage(base64String);
-      // Trigger auto-save so it persists immediately with the new image
-      handleAutoSave({ speakerImageSrc: base64String });
-    };
-    reader.readAsDataURL(file);
-    // reset the value so selecting the same file again triggers change
-    event.target.value = '';
+    setShowUploadModal(false);
+  };
+
+  const handleConfirmCrop = (croppedImagePath: string) => {
+    setLocalSpeakerImage(croppedImagePath);
+    handleAutoSave({ speakerImageSrc: croppedImagePath });
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  };
+
+  const handleDoNotCrop = (originalImagePath: string) => {
+    setLocalSpeakerImage(originalImagePath);
+    handleAutoSave({ speakerImageSrc: originalImagePath });
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+  };
+
+  const handleCancelEdit = () => {
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
   };
 
   // Download functionality
@@ -527,14 +541,24 @@ export default function EventPoster({
         >
           Replace Image
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageFileChange}
-          style={{ display: 'none' }}
-        />
       </div>
+
+      {/* Upload modal and crop modal (portals) */}
+      <PresentationImageUpload
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        onImageUploaded={handlePosterImageUploaded}
+        title="Upload Image"
+      />
+      <ImageEditModal
+        isOpen={showImageEditModal}
+        onClose={handleCancelEdit}
+        imageFile={pendingImageFile}
+        placeholderDimensions={{ width: 519, height: 713 }}
+        onConfirmCrop={handleConfirmCrop}
+        onDoNotCrop={handleDoNotCrop}
+        onCancel={handleCancelEdit}
+      />
 
       {/* Main content grid layout */}
       <div className="relative z-10 h-full" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateRows: 'auto 1fr auto', padding: '53px' }}>
