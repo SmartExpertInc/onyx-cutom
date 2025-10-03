@@ -143,6 +143,11 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   const [editingLeftDescriptions, setEditingLeftDescriptions] = useState([false, false, false]);
   const [editingRightDescriptions, setEditingRightDescriptions] = useState([false, false, false]);
   
+  // Состояние для перетаскивания блоков
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  
   // Позиционирование элементов
   const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
   const [rightProjectPosition, setRightProjectPosition] = useState({ right: '15%', top: '50%' });
@@ -221,13 +226,77 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     setEditingRightDescriptions(newEditingStates);
   };
 
+  // Обработчики для перетаскивания левых блоков
+  const handleLeftBlockMouseDown = (e: React.MouseEvent, index: number) => {
+    if (!isEditable) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  const handleLeftBlockMouseMove = (e: React.MouseEvent, index: number) => {
+    if (!isDragging || !isEditable) return;
+    e.preventDefault();
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    setDragOffset({ x: deltaX, y: deltaY });
+  };
+
+  const handleLeftBlockMouseUp = (e: React.MouseEvent, index: number) => {
+    if (!isDragging || !isEditable) return;
+    setIsDragging(false);
+    
+    // Обновляем позицию блока
+    const newPositions = [...leftItemsPositions];
+    const currentPos = newPositions[index];
+    const newLeft = `calc(${currentPos.left} + ${dragOffset.x}px)`;
+    const newTop = `calc(${currentPos.top} + ${dragOffset.y}px)`;
+    
+    newPositions[index] = { left: newLeft, top: newTop };
+    setLeftItemsPositions(newPositions);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  // Обработчики для перетаскивания правых блоков
+  const handleRightBlockMouseDown = (e: React.MouseEvent, index: number) => {
+    if (!isEditable) return;
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragOffset({ x: 0, y: 0 });
+  };
+
+  const handleRightBlockMouseMove = (e: React.MouseEvent, index: number) => {
+    if (!isDragging || !isEditable) return;
+    e.preventDefault();
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    setDragOffset({ x: deltaX, y: deltaY });
+  };
+
+  const handleRightBlockMouseUp = (e: React.MouseEvent, index: number) => {
+    if (!isDragging || !isEditable) return;
+    setIsDragging(false);
+    
+    // Обновляем позицию блока
+    const newPositions = [...rightItemsPositions];
+    const currentPos = newPositions[index];
+    const newRight = `calc(${currentPos.right} + ${dragOffset.x}px)`;
+    const newTop = `calc(${currentPos.top} + ${dragOffset.y}px)`;
+    
+    newPositions[index] = { right: newRight, top: newTop };
+    setRightItemsPositions(newPositions);
+    setDragOffset({ x: 0, y: 0 });
+  };
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     height: '100%',
     background: '#ffffff',
     padding: '40px',
-    display: 'flex',
-    flexDirection: 'column',
+        display: 'flex',
+        flexDirection: 'column',
     fontFamily: 'Georgia, serif',
     minHeight: '600px',
     position: 'relative',
@@ -261,7 +330,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
-    position: 'relative',
+        position: 'relative',
     height: '400px',
     width: '100%'
   };
@@ -366,47 +435,47 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           zIndex: 10
         }}>
           {editingLeftProject ? (
-            <InlineEditor
+          <InlineEditor
               initialValue={leftProjectTitle}
               onSave={handleLeftProjectSave}
               onCancel={() => setIsEditingLeftProject(false)}
               placeholder="Enter project title"
-              style={{
+            style={{
                 fontSize: '1.2rem',
                 fontWeight: 'bold',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
-                textAlign: 'center',
+              textAlign: 'center',
                 background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
                 borderRadius: '8px',
                 minWidth: '150px'
-              }}
-            />
-          ) : (
-            <div
-              style={{
+            }}
+          />
+        ) : (
+          <div
+            style={{
                 fontSize: '1.2rem',
                 fontWeight: 'bold',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
-                textAlign: 'center',
-                cursor: isEditable ? 'pointer' : 'default',
+              textAlign: 'center',
+              cursor: isEditable ? 'pointer' : 'default',
                 background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
                 borderRadius: '8px',
                 minWidth: '150px'
-              }}
+            }}
               onClick={() => isEditable && setIsEditingLeftProject(true)}
               data-draggable={isEditable}
-            >
+          >
               {leftProjectTitle}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
         {/* Right Project Title */}
-        <div style={{
+      <div style={{ 
           position: 'absolute',
           right: rightProjectPosition.right,
           top: rightProjectPosition.top,
@@ -442,7 +511,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 cursor: isEditable ? 'pointer' : 'default',
                 background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
-                borderRadius: '8px',
+            borderRadius: '8px',
                 minWidth: '150px'
               }}
               onClick={() => isEditable && setIsEditingRightProject(true)}
@@ -451,17 +520,27 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               {rightProjectTitle}
             </div>
           )}
-        </div>
-
+          </div>
+          
         {/* Left Side Text Blocks */}
         {leftHeadings.map((heading: string, index: number) => (
-          <div key={`left-${index}`} style={{
-            position: 'absolute',
-            left: leftItemsPositions[index].left,
-            top: leftItemsPositions[index].top,
-            zIndex: 10,
-            maxWidth: '200px'
-          }}>
+          <div 
+            key={`left-${index}`} 
+            style={{
+              position: 'absolute',
+              left: leftItemsPositions[index].left,
+              top: leftItemsPositions[index].top,
+              zIndex: 10,
+              maxWidth: '200px',
+              cursor: isEditable ? 'move' : 'default',
+              transform: isDragging ? `translate(${dragOffset.x}px, ${dragOffset.y}px)` : 'none',
+              userSelect: 'none'
+            }}
+            onMouseDown={(e) => handleLeftBlockMouseDown(e, index)}
+            onMouseMove={(e) => handleLeftBlockMouseMove(e, index)}
+            onMouseUp={(e) => handleLeftBlockMouseUp(e, index)}
+            data-draggable={isEditable}
+          >
             {/* Heading */}
             {editingLeftHeadings[index] ? (
               <InlineEditor
@@ -490,8 +569,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default'
-                }}
+                cursor: isEditable ? 'pointer' : 'default'
+              }}
                 onClick={() => {
                   if (isEditable) {
                     const newEditingStates = [...editingLeftHeadings];
@@ -507,7 +586,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
 
             {/* Description */}
             {editingLeftDescriptions[index] ? (
-              <InlineEditor
+                  <InlineEditor
                 initialValue={leftDescriptions[index]}
                 onSave={(value) => handleLeftDescriptionSave(index, value)}
                 onCancel={() => {
@@ -516,16 +595,16 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                   setEditingLeftDescriptions(newEditingStates);
                 }}
                 placeholder="Enter description"
-                multiline={true}
-                style={{
+                    multiline={true}
+                    style={{
                   fontSize: '0.8rem',
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   lineHeight: '1.3',
                   cursor: isEditable ? 'pointer' : 'default'
-                }}
-              />
-            ) : (
+                    }}
+                  />
+                ) : (
               <div
                 style={{
                   fontSize: '0.8rem',
@@ -544,22 +623,32 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 data-draggable={isEditable}
               >
                 {leftDescriptions[index]}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            ))}
 
 
         {/* Right Side Text Blocks */}
         {rightHeadings.map((heading: string, index: number) => (
-          <div key={`right-${index}`} style={{
-            position: 'absolute',
-            right: rightItemsPositions[index].right,
-            top: rightItemsPositions[index].top,
-            zIndex: 10,
-            maxWidth: '200px',
-            textAlign: 'right'
-          }}>
+          <div 
+            key={`right-${index}`} 
+            style={{
+              position: 'absolute',
+              right: rightItemsPositions[index].right,
+              top: rightItemsPositions[index].top,
+              zIndex: 10,
+              maxWidth: '200px',
+              textAlign: 'right',
+              cursor: isEditable ? 'move' : 'default',
+              transform: isDragging ? `translate(${dragOffset.x}px, ${dragOffset.y}px)` : 'none',
+              userSelect: 'none'
+            }}
+            onMouseDown={(e) => handleRightBlockMouseDown(e, index)}
+            onMouseMove={(e) => handleRightBlockMouseMove(e, index)}
+            onMouseUp={(e) => handleRightBlockMouseUp(e, index)}
+            data-draggable={isEditable}
+          >
             {/* Heading */}
             {editingRightHeadings[index] ? (
               <InlineEditor
@@ -602,7 +691,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 data-draggable={isEditable}
               >
                 {heading}
-              </div>
+            </div>
             )}
 
             {/* Description */}
@@ -616,17 +705,17 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                   setEditingRightDescriptions(newEditingStates);
                 }}
                 placeholder="Enter description"
-                multiline={true}
-                style={{
+                    multiline={true}
+                    style={{
                   fontSize: '0.8rem',
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   lineHeight: '1.3',
                   cursor: isEditable ? 'pointer' : 'default',
                   textAlign: 'right'
-                }}
-              />
-            ) : (
+                    }}
+                  />
+                ) : (
               <div
                 style={{
                   fontSize: '0.8rem',
@@ -646,14 +735,14 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 data-draggable={isEditable}
               >
                 {rightDescriptions[index]}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ))}
+            ))}
 
       </div>
     </div>
   );
 };
 
-export default ContraindicationsIndicationsTemplate;
+export default ContraindicationsIndicationsTemplate; 
