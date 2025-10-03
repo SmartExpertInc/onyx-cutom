@@ -1216,6 +1216,8 @@ export default function LessonPresentationClient() {
     previewAbortRef.current = abortController;
 
     setLoadingEdit(true);
+    // Show global loading animation during entire Smart Edit regeneration
+    setLoading(true);
     setError(null);
     // Keep existing content visible during edit - only reset streaming states
     setFirstLineRemoved(false);
@@ -1332,7 +1334,7 @@ export default function LessonPresentationClient() {
             const pkt = JSON.parse(trimmedLine);
             if (!hasReceivedData) {
               hasReceivedData = true;
-              setLoadingEdit(false); // Stop showing "Applying" once stream starts
+              // Keep both global loading and edit overlay visible until stream completes
             }
 
             if (pkt.type === "delta") {
@@ -1366,7 +1368,6 @@ export default function LessonPresentationClient() {
             // If not JSON, treat as plain text
             if (!hasReceivedData) {
               hasReceivedData = true;
-              setLoadingEdit(false);
             }
             accumulatedText += trimmedLine + "\n";
             const json = tryParsePresentationJson(accumulatedText);
@@ -1382,7 +1383,8 @@ export default function LessonPresentationClient() {
 
         if (/\S/.test(accumulatedText) && !textareaVisible) {
           setTextareaVisible(true);
-          setLoading(false);
+          // Keep global loading during Smart Edit; it will be turned off in finally
+          if (!loadingEdit) setLoading(false);
         }
       }
     } catch (e: any) {
@@ -1390,6 +1392,7 @@ export default function LessonPresentationClient() {
         setError(e.message || "Failed to apply edit");
       }
     } finally {
+      // End of Smart Edit regeneration: hide both loaders
       setLoading(false);
       setLoadingEdit(false);
       setEditPrompt("");
