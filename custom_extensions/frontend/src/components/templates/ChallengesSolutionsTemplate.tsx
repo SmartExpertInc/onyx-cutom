@@ -298,12 +298,12 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps> = 
         {/* Left side text items */}
         <div style={{
           position: 'absolute',
-          left: '40px',
+          left: '140px',
           top: '50%',
           transform: 'translateY(-50%)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '40px',
+          gap: '81px',
           zIndex: 10
         }}>
           {challengeItems.map((item: string, index: number) => (

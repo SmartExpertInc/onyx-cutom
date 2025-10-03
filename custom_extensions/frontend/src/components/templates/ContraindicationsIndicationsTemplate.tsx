@@ -1,6 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ContraindicationsIndicationsTemplateProps } from '@/types/slideTemplates';
-import { getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
+import Image from 'next/image';
+import contradImg from './contrad_img.png';
+
+export interface ContraindicationsIndicationsTemplateProps {
+  title?: string;
+  subtitle?: string;
+  theme?: string;
+  isEditable?: boolean;
+  slideId?: string;
+  onUpdate?: (data: Partial<ContraindicationsIndicationsTemplateProps>) => void;
+}
 
 interface InlineEditorProps {
   initialValue: string;
@@ -48,41 +58,31 @@ function InlineEditor({
     onSave(value);
   };
 
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
   if (multiline) {
     return (
       <textarea
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
         value={value}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder={placeholder}
+        className={className}
         style={{
           ...style,
-          background: 'transparent',
           border: 'none',
           outline: 'none',
-          boxShadow: 'none',
+          background: 'transparent',
           resize: 'none',
-          overflow: 'hidden',
+          fontFamily: 'inherit',
+          fontSize: 'inherit',
+          fontWeight: 'inherit',
+          color: 'inherit',
+          textAlign: 'inherit',
+          lineHeight: 'inherit',
           width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-          lineHeight: '1.6'
+          minHeight: '60px'
         }}
-        rows={1}
       />
     );
   }
@@ -90,290 +90,162 @@ function InlineEditor({
   return (
     <input
       ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
       type="text"
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       placeholder={placeholder}
+      className={className}
       style={{
         ...style,
-        background: 'transparent',
         border: 'none',
         outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        wordWrap: 'break-word',
-        whiteSpace: 'pre-wrap',
-        boxSizing: 'border-box',
-        display: 'block',
-        lineHeight: '1.2'
+        background: 'transparent',
+        fontFamily: 'inherit',
+        fontSize: 'inherit',
+        fontWeight: 'inherit',
+        color: 'inherit',
+        textAlign: 'inherit',
+        width: '100%'
       }}
     />
   );
 }
 
 const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndicationsTemplateProps> = ({
-  title = 'Contraindications and indications',
-  contraindications = [
-    'Describe the things patients should do here',
-    'Describe the things patients should do here',
-    'Describe the things patients should do here',
-    'Describe the things patients should do here',
-    'Describe the things patients should do here'
-  ],
-  indications = [
-    'Describe the things patients shouldn\'t do here',
-    'Describe the things patients shouldn\'t do here',
-    'Describe the things patients shouldn\'t do here',
-    'Describe the things patients shouldn\'t do here',
-    'Describe the things patients shouldn\'t do here'
-  ],
-  titleColor,
-  contraindicationsColor,
-  indicationsColor,
-  backgroundColor,
-  slideId,
+  title = 'Contraindications and Indications',
+  subtitle = 'Type The Subtitle Of Your Great Here',
   theme,
-  isEditable = false,
+  isEditable = true,
+  slideId = 'contraindications-indications',
   onUpdate
-}) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
-  const tColor = titleColor || currentTheme.colors.titleColor;
-  const contraColor = contraindicationsColor || currentTheme.colors.contentColor;
-  const indColor = indicationsColor || currentTheme.colors.contentColor;
-  const bgColor = backgroundColor || currentTheme.colors.backgroundColor;
+}: ContraindicationsIndicationsTemplateProps) => {
+  const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
+  const slideContainerRef = useRef<HTMLDivElement>(null);
 
-  // Inline editing state
-  const [editingTitle, setEditingTitle] = useState(false);
-  const [editingContraindications, setEditingContraindications] = useState<{ [key: number]: boolean }>({});
-  const [editingIndications, setEditingIndications] = useState<{ [key: number]: boolean }>({});
-
-  const handleTitleSave = (newTitle: string) => {
+  const handleTitleSave = (value: string) => {
+    setCurrentTitle(value);
+    setIsEditingTitle(false);
     if (onUpdate) {
-      onUpdate({ title: newTitle });
+      onUpdate({ title: value });
     }
-    setEditingTitle(false);
   };
 
-  const handleTitleCancel = () => {
-    setEditingTitle(false);
+  const handleSubtitleSave = (value: string) => {
+    setCurrentSubtitle(value);
+    setIsEditingSubtitle(false);
+    if (onUpdate) {
+      onUpdate({ subtitle: value });
+    }
   };
 
-  const handleContraindicationSave = (index: number, value: string) => {
-    if (onUpdate) {
-      const updatedContraindications = [...contraindications];
-      updatedContraindications[index] = value;
-      onUpdate({ contraindications: updatedContraindications });
-    }
-    setEditingContraindications(prev => ({ ...prev, [index]: false }));
+  const slideStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    background: '#ffffff',
+    padding: '40px',
+    display: 'flex',
+    flexDirection: 'column',
+    fontFamily: 'Georgia, serif',
+    minHeight: '600px',
+    position: 'relative',
+    overflow: 'hidden'
   };
 
-  const handleIndicationSave = (index: number, value: string) => {
-    if (onUpdate) {
-      const updatedIndications = [...indications];
-      updatedIndications[index] = value;
-      onUpdate({ indications: updatedIndications });
-    }
-    setEditingIndications(prev => ({ ...prev, [index]: false }));
+  const titleStyles: React.CSSProperties = {
+    color: '#000000',
+    fontSize: '2.5rem',
+    fontFamily: 'Georgia, serif',
+    marginBottom: '10px',
+    textAlign: 'center',
+    wordWrap: 'break-word',
+    fontWeight: 'bold',
+    flexShrink: 0
+  };
+
+  const subtitleStyles: React.CSSProperties = {
+    color: '#000000',
+    fontSize: '1.1rem',
+    fontFamily: 'Arial, sans-serif',
+    marginBottom: '40px',
+    textAlign: 'center',
+    wordWrap: 'break-word',
+    fontWeight: 'normal',
+    flexShrink: 0
+  };
+
+  const mainContentStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    position: 'relative',
+    height: '400px',
+    width: '100%'
+  };
+
+  const imageContainerStyles: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative'
   };
 
   return (
-    <div
-      style={{
-        background: bgColor,
-        minHeight: 600,
-        display: 'flex',
-        flexDirection: 'column',
-        fontFamily: currentTheme.fonts.contentFont,
-        position: 'relative',
-        padding: '40px',
-        boxSizing: 'border-box'
-      }}
-    >
-      {/* Title Section */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        {isEditable && editingTitle ? (
-          <InlineEditor
-            initialValue={title}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            multiline={false}
-            placeholder="Enter title..."
-            style={{
-              fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
-              textAlign: 'center',
-              width: '100%',
-              fontFamily: currentTheme.fonts.titleFont
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
-              textAlign: 'center',
-              cursor: isEditable ? 'pointer' : 'default',
-              fontFamily: currentTheme.fonts.titleFont
-            }}
-            onClick={() => isEditable && setEditingTitle(true)}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-          >
-            {title || (isEditable ? 'Click to add title' : '')}
-          </div>
-        )}
-      </div>
+    <div style={slideStyles} ref={slideContainerRef}>
+      {/* Title */}
+      {isEditingTitle ? (
+        <InlineEditor
+          initialValue={currentTitle}
+          onSave={handleTitleSave}
+          onCancel={() => setIsEditingTitle(false)}
+          placeholder="Enter title"
+          style={titleStyles}
+        />
+      ) : (
+        <h1
+          style={titleStyles}
+          onClick={() => isEditable && setIsEditingTitle(true)}
+          data-draggable={isEditable}
+        >
+          {currentTitle}
+        </h1>
+      )}
 
-      {/* Content Section */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '40px',
-        flex: 1
-      }}>
-        {/* Left Column - Contraindications */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px',
-            padding: '15px',
-            marginBottom: '20px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontWeight: 600,
-              fontSize: '18px',
-              color: '#6c757d',
-              fontFamily: currentTheme.fonts.titleFont
-            }}>
-              You shouldn't
-            </div>
-          </div>
-          
-          <div style={{ flex: 1 }}>
-            {contraindications.map((item, index) => (
-              <div key={index} style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                marginBottom: '12px',
-                padding: '8px',
-                borderRadius: '4px',
-                cursor: isEditable ? 'pointer' : 'default'
-              }}
-              onClick={() => isEditable && setEditingContraindications(prev => ({ ...prev, [index]: true }))}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ff6b6b',
-                  marginRight: '12px',
-                  marginTop: '6px',
-                  flexShrink: 0
-                }} />
-                {isEditable && editingContraindications[index] ? (
-                  <InlineEditor
-                    initialValue={item}
-                    onSave={(value) => handleContraindicationSave(index, value)}
-                    onCancel={() => setEditingContraindications(prev => ({ ...prev, [index]: false }))}
-                    multiline={true}
-                    placeholder="Enter contraindication..."
-                    style={{
-                      fontSize: currentTheme.fonts.contentSize,
-                      color: contraColor,
-                      lineHeight: '1.4',
-                      flex: 1
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    fontSize: currentTheme.fonts.contentSize,
-                    color: contraColor,
-                    lineHeight: '1.4',
-                    flex: 1
-                  }}>
-                    {item || (isEditable ? 'Click to add contraindication' : '')}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Subtitle */}
+      {isEditingSubtitle ? (
+        <InlineEditor
+          initialValue={currentSubtitle}
+          onSave={handleSubtitleSave}
+          onCancel={() => setIsEditingSubtitle(false)}
+          placeholder="Enter subtitle"
+          style={subtitleStyles}
+        />
+      ) : (
+        <h2
+          style={subtitleStyles}
+          onClick={() => isEditable && setIsEditingSubtitle(true)}
+          data-draggable={isEditable}
+        >
+          {currentSubtitle}
+        </h2>
+      )}
 
-        {/* Right Column - Indications */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{
-            backgroundColor: '#f8f9fa',
-            borderRadius: '8px',
-            padding: '15px',
-            marginBottom: '20px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontWeight: 600,
-              fontSize: '18px',
-              color: '#6c757d',
-              fontFamily: currentTheme.fonts.titleFont
-            }}>
-              You should
-            </div>
-          </div>
-          
-          <div style={{ flex: 1 }}>
-            {indications.map((item, index) => (
-              <div key={index} style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                marginBottom: '12px',
-                padding: '8px',
-                borderRadius: '4px',
-                cursor: isEditable ? 'pointer' : 'default'
-              }}
-              onClick={() => isEditable && setEditingIndications(prev => ({ ...prev, [index]: true }))}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#ff6b6b',
-                  marginRight: '12px',
-                  marginTop: '6px',
-                  flexShrink: 0
-                }} />
-                {isEditable && editingIndications[index] ? (
-                  <InlineEditor
-                    initialValue={item}
-                    onSave={(value) => handleIndicationSave(index, value)}
-                    onCancel={() => setEditingIndications(prev => ({ ...prev, [index]: false }))}
-                    multiline={true}
-                    placeholder="Enter indication..."
-                    style={{
-                      fontSize: currentTheme.fonts.contentSize,
-                      color: indColor,
-                      lineHeight: '1.4',
-                      flex: 1
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    fontSize: currentTheme.fonts.contentSize,
-                    color: indColor,
-                    lineHeight: '1.4',
-                    flex: 1
-                  }}>
-                    {item || (isEditable ? 'Click to add indication' : '')}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+      {/* Main Content with Image */}
+      <div style={mainContentStyles}>
+        <div style={imageContainerStyles}>
+          <Image src={contradImg} alt="Contraindications and Indications" width={500} height={400} />
         </div>
       </div>
     </div>
   );
 };
 
-export default ContraindicationsIndicationsTemplate; 
+export default ContraindicationsIndicationsTemplate;
