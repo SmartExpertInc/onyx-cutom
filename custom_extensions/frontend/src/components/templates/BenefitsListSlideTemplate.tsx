@@ -362,6 +362,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             minHeight: '65px',
             maxHeight: '65px',
             display: 'flex',
+            fontFamily: currentTheme.fonts.titleFont,
             alignItems: 'center',
             overflow: 'hidden'
           }}>

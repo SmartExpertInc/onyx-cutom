@@ -78,7 +78,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     color:'#FFFFFF',
     lineHeight:1.3,
     marginBottom:'40px',
-    whiteSpace: 'pre-line'
+    whiteSpace: 'pre-line',
+    fontFamily: currentTheme.fonts.titleFont
   };
 
   // Icon frame
