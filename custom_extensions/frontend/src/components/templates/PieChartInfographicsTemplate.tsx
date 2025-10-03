@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { PieChartInfographicsTemplateProps } from '@/types/slideTemplates';
+import Image from 'next/image';
+import linesImg from './lines.png';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -144,7 +146,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   onUpdate,
   isEditable = false
 }: PieChartInfographicsTemplateProps) => {
-  const currentTheme = theme || getSlideTheme(DEFAULT_SLIDE_THEME);
+  const currentTheme = getSlideTheme('dark-purple');
   const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
   
   // State for inline editing
@@ -409,12 +411,23 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        background: themeBg,
+        background: '#ffffff',
         minHeight: '600px'
       }}
     >
+      {/* Background Image */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1
+      }}>
+        <Image src={linesImg} alt="Lines background" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+      </div>
       {/* Main Content Container */}
-      <div className="w-full max-w-7xl mx-auto">
+      <div className="w-full max-w-7xl mx-auto" style={{ position: 'relative', zIndex: 10 }}>
         
         {/* Title */}
         <div className="text-center mb-12">

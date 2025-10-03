@@ -254,7 +254,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           transform: 'translateX(-50%)',
           width: '2px',
           height: '100%',
-          background: 'linear-gradient(to bottom, transparent, #1976ff, transparent)',
+          background: 'linear-gradient(to bottom, transparent, #0F58F9, transparent)',
           zIndex: 10
         }}></div>
 
