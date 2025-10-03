@@ -482,6 +482,7 @@ export default function EventPoster({
           backgroundSize: 'cover',
           top: '329px',
           left: '525px',
+          zIndex: 20
         }}
         title="Click to replace image"
       >
@@ -519,6 +520,7 @@ export default function EventPoster({
           background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 100%)',
           top: '552px',
           left: '1px',
+          pointerEvents: 'none'
         }}
       />
 
