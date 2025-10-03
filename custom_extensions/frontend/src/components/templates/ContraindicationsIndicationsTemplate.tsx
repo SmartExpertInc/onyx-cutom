@@ -141,10 +141,10 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   
   
   // Позиционирование элементов
-  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
-  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '15%', top: '50%' });
+  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '4.8%', top: '50%' });
+  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '-2%', top: '50%' });
   const [leftItemsPositions, setLeftItemsPositions] = useState([
-    { left: '23%', top: '27%%' },
+    { left: '23%', top: '27%' },
     { left: '26%', top: '44%' },
     { left: '22%', top: '62%' }
   ]);
@@ -254,7 +254,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           transform: 'translateX(-50%)',
           width: '2px',
           height: '100%',
-          background: '#E0E0E0',
+          background: 'linear-gradient(to bottom, transparent, #1976ff, transparent)',
           zIndex: 10
         }}></div>
 
@@ -264,10 +264,10 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: '#1976D2',
+          width: '70px',
+          height: '50px',
+          borderRadius: '40px',
+          background: '#0F58F9',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -276,8 +276,6 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           fontWeight: 'bold',
           fontFamily: 'Arial, sans-serif',
           zIndex: 20,
-          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-          border: '3px solid #ffffff'
         }}>
           VS
         </div>
