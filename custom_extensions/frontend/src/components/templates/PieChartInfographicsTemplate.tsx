@@ -372,22 +372,24 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {monthlyData.map((item, index) => {
             // Позиции для 6 текстовых блоков как на фото
             const positions = [
-              { left: '5%', top: '10%', textAlign: 'left' },    // Top-left
-              { left: '5%', top: '30%', textAlign: 'left' },    // Left-middle
-              { left: '5%', top: '65%', textAlign: 'left' },    // Left-bottom
-              { right: '5%', top: '65%', textAlign: 'right' }, // Right-bottom
-              { right: '5%', top: '30%', textAlign: 'right' }, // Right-middle
-              { right: '5%', top: '10%', textAlign: 'right' }  // Top-right
+              { left: '5%', top: '10%', textAlign: 'left' as const },    // Top-left
+              { left: '5%', top: '30%', textAlign: 'left' as const },    // Left-middle
+              { left: '5%', top: '65%', textAlign: 'left' as const },    // Left-bottom
+              { right: '5%', top: '65%', textAlign: 'right' as const }, // Right-bottom
+              { right: '5%', top: '30%', textAlign: 'right' as const }, // Right-middle
+              { right: '5%', top: '10%', textAlign: 'right' as const }  // Top-right
             ];
             
-            const position = positions[index] || { left: '5%', top: '10%', textAlign: 'left' };
+            const position = positions[index] || { left: '5%', top: '10%', textAlign: 'left' as const };
             
             return (
               <div 
                 key={index} 
                 className="absolute max-w-xs"
                 style={{
-                  ...position,
+                  left: position.left,
+                  right: position.right,
+                  top: position.top,
                   zIndex: 10
                 }}
               >
@@ -397,7 +399,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                     className="font-bold text-lg"
                     style={{ 
                       color: item.color,
-                      textAlign: position.textAlign as any
+                      textAlign: position.textAlign
                     }}
                   >
                     {editingSegment === index && isEditable ? (
@@ -409,7 +411,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                           color: item.color,
                           fontWeight: 'bold',
                           fontSize: '1.125rem',
-                          textAlign: position.textAlign as any
+                          textAlign: position.textAlign
                         }}
                       />
                     ) : (
@@ -425,7 +427,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   {/* Description */}
                   <div 
                     className="text-sm text-gray-600 leading-relaxed"
-                    style={{ textAlign: position.textAlign as any }}
+                    style={{ textAlign: position.textAlign }}
                   >
                     {editingSegmentDesc === index && isEditable ? (
                       <InlineEditor
@@ -439,7 +441,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                           lineHeight: '1.6',
                           width: '100%',
                           minHeight: '60px',
-                          textAlign: position.textAlign as any
+                          textAlign: position.textAlign
                         }}
                       />
                     ) : (
