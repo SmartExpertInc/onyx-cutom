@@ -626,6 +626,9 @@ export default function EventPoster({
                 padding: '15px 20px',
                 display: 'inline-block',
                 textAlign: 'center',
+                width: '120px', // Fixed width
+                boxSizing: 'border-box', // Include padding in width
+                overflow: 'hidden', // Prevent content overflow
               }}
             >
               <EditableText
@@ -645,6 +648,11 @@ export default function EventPoster({
                   lineHeight: '1',
                   background: 'transparent',
                   marginBottom: '0',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               />
               <EditableText
@@ -664,6 +672,11 @@ export default function EventPoster({
                   lineHeight: '1',
                   background: 'transparent',
                   marginTop: '5px',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               />
             </div>
@@ -757,7 +770,7 @@ export default function EventPoster({
                 maxWidth: '100%',
                 boxSizing: 'border-box',
                 overflow: 'hidden',
-                wordWrap: 'break-word'
+                whiteSpace: 'nowrap'
               }}
             />
             <EditableText
