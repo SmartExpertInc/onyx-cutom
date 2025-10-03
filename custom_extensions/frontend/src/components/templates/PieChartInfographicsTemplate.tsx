@@ -125,21 +125,25 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   title = 'Pie chart',
   chartData = {
     segments: [
-      { label: 'Headline', percentage: 20, color: '#FF6B6B', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 16, color: '#4ECDC4', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 14, color: '#45B7D1', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12, color: '#96CEB4', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 18, color: '#FECA57', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 20, color: '#FF9FF3', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' }
+      { label: 'Headline', percentage: 12.5, color: '#ED8E8C', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#FFBF55', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#993EFB', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#07B11E', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#0F58F9', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#DC6D17', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#0F4C97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      { label: 'Headline', percentage: 12.5, color: '#0F7B97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' }
     ]
   },
   monthlyData = [
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FF6B6B', percentage: '20%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#4ECDC4', percentage: '16%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#45B7D1', percentage: '14%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#96CEB4', percentage: '12%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FECA57', percentage: '18%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FF9FF3', percentage: '20%' }
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#ED8E8C', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FFBF55', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#993EFB', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#07B11E', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F58F9', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#DC6D17', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F4C97', percentage: '12.5%' },
+    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F7B97', percentage: '12.5%' }
   ],
   descriptionText = 'Editable infographic',
   theme,
@@ -370,14 +374,16 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
           {/* Text Blocks with Absolute Positioning */}
           {monthlyData.map((item, index) => {
-            // Позиции для 6 текстовых блоков как на фото
+            // Позиции для 8 текстовых блоков как на фото (4 слева + 4 справа)
             const positions = [
-              { left: '5%', top: '10%', textAlign: 'left' as const },    // Top-left
-              { left: '5%', top: '30%', textAlign: 'left' as const },    // Left-middle
-              { left: '5%', top: '65%', textAlign: 'left' as const },    // Left-bottom
-              { right: '5%', top: '65%', textAlign: 'right' as const }, // Right-bottom
-              { right: '5%', top: '30%', textAlign: 'right' as const }, // Right-middle
-              { right: '5%', top: '10%', textAlign: 'right' as const }  // Top-right
+              { left: '5%', top: '8%', textAlign: 'left' as const },     // Left-top
+              { left: '5%', top: '25%', textAlign: 'left' as const },    // Left-upper-middle
+              { left: '5%', top: '50%', textAlign: 'left' as const },    // Left-middle
+              { left: '5%', top: '75%', textAlign: 'left' as const },    // Left-bottom
+              { right: '5%', top: '75%', textAlign: 'right' as const }, // Right-bottom
+              { right: '5%', top: '50%', textAlign: 'right' as const }, // Right-middle
+              { right: '5%', top: '25%', textAlign: 'right' as const }, // Right-upper-middle
+              { right: '5%', top: '8%', textAlign: 'right' as const }   // Right-top
             ];
             
             const position = positions[index] || { left: '5%', top: '10%', textAlign: 'left' as const };
