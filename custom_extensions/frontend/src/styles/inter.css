@@ -9,46 +9,37 @@
   font-display: swap;
 }
 
-/* Global Font Application - INTER EVERYWHERE */
-* {
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif !important;
+/* CSS Custom Properties for Font Management */
+:root {
+  --font-family-app: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-family-slide-title: 'Lora Variable', 'Lora', serif;
+  --font-family-slide-content: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Slide Titles - LORA */
+/* Global Font Application - INTER EVERYWHERE */
+* {
+  font-family: var(--font-family-app) !important;
+}
+
+/* Slide Template Container - All templates inherit this */
+[class*="-template"],
+[class*="-slide-template"] {
+  --font-family-title: var(--font-family-slide-title);
+}
+
+/* Slide Titles - Use CSS variable */
+[class*="-template"] h1,
+[class*="-slide-template"] h1,
 .slide-title,
 .slide-title-text,
-.slide-title-display,
-.content-slide-template h1,
-.title-slide-template h1,
-.timeline-template h1,
-.pyramid-template h1,
-.process-steps-template h1,
-.two-column-template h1,
-.benefits-list-template h1,
-.thank-you-template h1,
-.hero-title-template h1,
-.big-image-top-template h1,
-.big-image-left-template h1,
-.big-numbers-template h1,
-.challenges-solutions-template h1,
-.four-box-grid-template h1,
-.introduction-data-analysis-template h1,
-.avatar-service-template h1,
-.work-life-balance-template h1,
-.stay-safe-tips-template h1,
-.solution-steps-template h1,
-.soft-skills-types-template h1,
-.soft-skills-develop-template h1,
-.soft-skills-assessment-template h1,
-.resources-template h1,
-.resources-list-template h1,
-.resilience-behaviors-template h1,
-.psychological-safety-template h1,
-.proof-statistics-template h1,
-.table-of-contents-template h1,
-.topics-template h1,
-.two-column-slide-template h1 {
-  font-family: 'Lora Variable', 'Lora', serif !important;
+.slide-title-display {
+  font-family: var(--font-family-title) !important;
+  font-weight: 600 !important;
+}
+
+/* Inline Editor Titles */
+.inline-editor-title {
+  font-family: var(--font-family-title) !important;
   font-weight: 600 !important;
 }
 

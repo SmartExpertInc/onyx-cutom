@@ -404,7 +404,7 @@
 .slide-title-text,
 .slide-title-display {
   font-size: 45px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-slide-title, 'Lora Variable', 'Lora', serif);
   font-weight: 600;
   color: #ffffff;
   margin: 0;
@@ -532,28 +532,28 @@
 
 .professional-headline.level-1 .heading-text {
   font-size: 45px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-slide-title, 'Lora Variable', 'Lora', serif);
   font-weight: 600;
   color: #ffffff;
 }
 
 .professional-headline.level-2 .heading-text {
   font-size: 35px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-slide-title, 'Lora Variable', 'Lora', serif);
   font-weight: 600;
   color: #ffffff;
 }
 
 .professional-headline.level-3 .heading-text {
   font-size: 28px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-slide-title, 'Lora Variable', 'Lora', serif);
   font-weight: 600;
   color: #ffffff;
 }
 
 .professional-headline.level-4 .heading-text {
   font-size: 22px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-slide-title, 'Lora Variable', 'Lora', serif);
   font-weight: 500;
   color: #ffffff;
 }
@@ -923,7 +923,7 @@
 /* Specific styles for different block types to maintain exact appearance */
 .inline-editor-input[data-block-type="headline"],
 .inline-editor-textarea[data-block-type="headline"] {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family-slide-title, 'Lora Variable', 'Lora', serif);
   font-weight: 600;
   color: #ffffff;
   line-height: 1.3;

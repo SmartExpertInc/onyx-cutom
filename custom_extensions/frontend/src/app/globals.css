@@ -77,7 +77,7 @@
 
 body {
   color: var(--foreground);
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-family-app, 'Inter', ui-sans-serif, system-ui, sans-serif);
   font-weight: 400;
   font-size: 18px;
 }
