@@ -808,8 +808,8 @@ export default function EventPoster({
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
-                whiteSpace: 'nowrap', // Prevent text wrapping
-                textOverflow: 'ellipsis', // Show ellipsis for long text
+                whiteSpace: 'normal', // Allow text wrapping
+                wordWrap: 'break-word', // Break long words if needed
                 position: 'absolute',
                 top: 0,
                 left: 0,
