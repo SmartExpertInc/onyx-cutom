@@ -125,10 +125,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   title = 'Pie chart',
   chartData = {
     segments: [
+      // Левые 4 сегмента (сверху вниз)
       { label: 'Headline', percentage: 12.5, color: '#ED8E8C', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
       { label: 'Headline', percentage: 12.5, color: '#FFBF55', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
       { label: 'Headline', percentage: 12.5, color: '#993EFB', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
       { label: 'Headline', percentage: 12.5, color: '#07B11E', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
+      // Правые 4 сегмента (снизу вверх)
       { label: 'Headline', percentage: 12.5, color: '#0F58F9', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
       { label: 'Headline', percentage: 12.5, color: '#DC6D17', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
       { label: 'Headline', percentage: 12.5, color: '#0F4C97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
@@ -136,10 +138,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     ]
   },
   monthlyData = [
+    // Левые 4 элемента (сверху вниз)
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#ED8E8C', percentage: '12.5%' },
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FFBF55', percentage: '12.5%' },
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#993EFB', percentage: '12.5%' },
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#07B11E', percentage: '12.5%' },
+    // Правые 4 элемента (снизу вверх)
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F58F9', percentage: '12.5%' },
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#DC6D17', percentage: '12.5%' },
     { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F4C97', percentage: '12.5%' },
@@ -374,15 +378,17 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
 
           {/* Text Blocks with Absolute Positioning */}
           {monthlyData.map((item, index) => {
-            // Позиции для 8 текстовых блоков как на фото (4 слева + 4 справа)
+            // Позиции для 8 текстовых блоков (4 слева + 4 справа)
             const positions = [
+              // Левые 4 элемента (сверху вниз)
               { left: '5%', top: '8%', textAlign: 'left' as const },     // Left-top
-              { left: '5%', top: '25%', textAlign: 'left' as const },    // Left-upper-middle
-              { left: '5%', top: '50%', textAlign: 'left' as const },    // Left-middle
-              { left: '5%', top: '75%', textAlign: 'left' as const },    // Left-bottom
-              { right: '5%', top: '75%', textAlign: 'right' as const }, // Right-bottom
-              { right: '5%', top: '50%', textAlign: 'right' as const }, // Right-middle
-              { right: '5%', top: '25%', textAlign: 'right' as const }, // Right-upper-middle
+              { left: '5%', top: '30%', textAlign: 'left' as const },   // Left-upper-middle
+              { left: '5%', top: '55%', textAlign: 'left' as const },  // Left-lower-middle
+              { left: '5%', top: '80%', textAlign: 'left' as const },  // Left-bottom
+              // Правые 4 элемента (снизу вверх)
+              { right: '5%', top: '80%', textAlign: 'right' as const }, // Right-bottom
+              { right: '5%', top: '55%', textAlign: 'right' as const }, // Right-lower-middle
+              { right: '5%', top: '30%', textAlign: 'right' as const }, // Right-upper-middle
               { right: '5%', top: '8%', textAlign: 'right' as const }   // Right-top
             ];
             
