@@ -720,9 +720,10 @@ export default function EventPoster({
             style={{
               borderRadius: '30px',
               marginLeft: '30px',
-              maxWidth: '1400px',
-              minHeight: '60px', // Fixed minimum height to prevent shrinking
+              width: '600px', // Fixed width to prevent shrinking
+              minWidth: '600px', // Ensure minimum width
               height: '60px', // Fixed height to maintain single line
+              minHeight: '60px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -730,6 +731,7 @@ export default function EventPoster({
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
+              position: 'relative',
             }}
           >
             <EditableText
@@ -746,15 +748,18 @@ export default function EventPoster({
                 lineHeight: '1.2',
                 background: 'transparent',
                 borderRadius: '30px',
-                padding: '10px 16px',
-                width: '100%',
-                height: '40px', // Fixed height for input
+                padding: '10px 20px',
+                width: 'calc(100% - 40px)', // Account for padding
+                height: '40px',
                 minHeight: '40px',
                 maxHeight: '40px',
                 boxSizing: 'border-box',
-                overflow: 'hidden',
+                overflow: 'visible', // Allow text to be fully visible
                 whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
+                textOverflow: 'visible', // Don't cut off text
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             />
           </div>
