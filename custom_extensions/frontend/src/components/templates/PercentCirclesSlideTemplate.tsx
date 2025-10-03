@@ -28,12 +28,12 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
 
-  // Main slide with light beige background
+  // Main slide with light blue background
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#ffff', 
-    color:'#0F172A', 
+    background:'#E0E7FF', 
+    color:'#000000', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
   };
@@ -46,20 +46,21 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     top:'44px',
     height:'400px',
     background:'#FFFFFF',
-    border:'2px solid #3C3F46',
-    borderRadius:'24px'
+    borderRadius:'16px',
+    boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
   };
 
-  // Title styling - dark gray, bold, two lines
+  // Title styling - black, bold, two lines
   const titleStyle: React.CSSProperties = { 
     position:'absolute', 
     left:'80px', 
     top:'60px', 
     fontSize:'50px', 
-    fontWeight:700, 
-    color:'#121110',
+    fontWeight:900, 
+    color:'#000000',
     whiteSpace:'pre-line',
-    lineHeight:1.2
+    lineHeight:1.2,
+    fontFamily:'serif'
   };
 
   // Circles row - 10 circles total, positioned near avatar
@@ -75,21 +76,22 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const circleBase: React.CSSProperties = {
     width:'90px',
     height:'90px',
-    borderRadius:'43%',
-    border:'2px solid #696864',
+    borderRadius:'50%',
+    border:'1px solid #4285F4',
     background:'#FFFFFF',
     display:'flex',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    marginRight:'10px'
   };
 
   const circleFilled: React.CSSProperties = {
     ...circleBase,
-    background:'#4CCD6A', // Bright green
+    background:'#4285F4', // Blue
     fontSize:'20px',
     fontWeight:700,
-    border:'5px solid #6AAF71',
-    color:'#175118',
+    border:'none',
+    color:'#FFFFFF',
     borderRadius:'50%'
   };
 
@@ -102,11 +104,11 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     height:'170px', 
     borderRadius:'50%', 
     overflow:'hidden', 
-    background:'#C7D6FF',
+    background:'#4285F4',
     border:'3px solid #FFFFFF',
     zIndex:10
   };
-  const ring1: React.CSSProperties = { position:'absolute', right:'113px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:25 };
+  const ring1: React.CSSProperties = { position:'absolute', right:'113px', top:'90px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #4285F4', background:'transparent', zIndex:25 };
 
   // Bottom section - two green cards
   const bottomSection: React.CSSProperties = {
@@ -120,19 +122,20 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     gap:'20px'
   };
 
-  // Green card styling
-  const greenCard: React.CSSProperties = {
-    background:'#6CDB78',
+  // White card styling
+  const whiteCard: React.CSSProperties = {
+    background:'#FFFFFF',
     borderRadius:'12px',
     padding:'20px 50px',
     paddingRight: '175px',
     display:'flex',
     justifyContent:'space-between',
     alignItems:'center',
-    position:'relative'
+    position:'relative',
+    boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
   };
 
-  // Text styles for green cards
+  // Text styles for white cards
   const cardValueStyle: React.CSSProperties = {
     fontSize:'46px',
     fontWeight:700,
@@ -142,8 +145,9 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
   const cardTextStyle: React.CSSProperties = {
     fontSize:'16px',
-    color:'#235D26',
-    lineHeight:1.3
+    color:'#34353C',
+    lineHeight:1.3,
+    fontFamily:'Inter, sans-serif'
   };
 
   const cardTextStyleFirst: React.CSSProperties = {
@@ -162,12 +166,13 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     right:'49px',
     width:'45px',
     height:'45px',
-    borderRadius:'50%',
+    borderRadius:'6px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
-    color:'#000000',
-    border:'1px solid #000000',
+    color:'#FFFFFF',
+    background:'#4285F4',
+    border:'none',
     fontSize:'28px'
   };
 
@@ -242,10 +247,10 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       </div>
       <div style={ring1} />
 
-      {/* Bottom section with green cards */}
+      {/* Bottom section with white cards */}
       <div style={bottomSection}>
         {bottomCards.map((card, i) => (
-          <div key={i} style={greenCard}>
+          <div key={i} style={whiteCard}>
             {/* Value - only for first card */}
             {i === 0 && (
               <div style={cardValueStyle} onClick={()=> isEditable && setEdit({ k:`bv${i}` })}>
