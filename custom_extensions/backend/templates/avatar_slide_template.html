@@ -577,6 +577,12 @@
             /* Remove all text and icon styles */
         }
         
+        /* CRITICAL FIX: Enable transform positioning for draggable text elements */
+        .positioned-element {
+            position: relative; /* Required for transform: translate() to work */
+            display: inline-block; /* Preserve element dimensions */
+        }
+        
         /* Hide all placeholder content */
         .avatar-placeholder .placeholder-icon,
         .avatar-placeholder .placeholder-text,
@@ -687,13 +693,6 @@
             border-radius: 0 0 450px 0 !important;
             z-index: 1 !important;
         }
-        
-        /* CRITICAL FIX: Dynamic positioning support for video slides - matches PDF template */
-        .positioned-element {
-            /* Keep elements in their natural flexbox flow while allowing transforms */
-            /* Removed position: absolute to prevent positioning conflicts */
-            transform-origin: top left; /* CRITICAL: Ensures transforms are calculated from top-left corner */
-        }
     </style>
 </head>
 <body>
@@ -718,14 +717,28 @@
                         <div class="right-content">
                             <!-- Title with question mark -->
                             {% if title %}
-                                <div style="display: flex; align-items: center; gap: 18px;">
+                                <div style="display: flex; align-items: center; gap: 18px;" class="positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="display: flex; align-items: center; gap: 18px; transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >
                                 <span class="icon question-icon">?</span>
                                     <h1 class="slide-title">{{title}}</h1>
                             </div>
                             {% endif %}
 
                             <!-- Checklist -->
-                            <div class="checklist-container">
+                            <div class="checklist-container positioned-element"
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set checklistId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[checklistId] %}
+                                        style="transform: translate({{ metadata.elementPositions[checklistId].x }}px, {{ metadata.elementPositions[checklistId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for item in items %}
                                     <div class="checklist-item">
                                         <span class="icon {% if item.isPositive %}positive-icon{% else %}negative-icon{% endif %}">
@@ -762,12 +775,26 @@
                     <!-- Left Panel - Dark Promotional Section -->
                     <div class="left-panel">
                         <!-- Pink Banner -->
-                        <div class="banner">
+                        <div class="banner positioned-element"
+                            {% if metadata and metadata.elementPositions %}
+                                {% set bannerId = 'draggable-' + slideId + '-0' %}
+                                {% if metadata.elementPositions[bannerId] %}
+                                    style="transform: translate({{ metadata.elementPositions[bannerId].x }}px, {{ metadata.elementPositions[bannerId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             {{ title }}
                         </div>
                         
                         <!-- Checklist -->
-                        <div class="checklist">
+                        <div class="checklist positioned-element"
+                            {% if metadata and metadata.elementPositions %}
+                                {% set checklistId = 'draggable-' + slideId + '-1' %}
+                                {% if metadata.elementPositions[checklistId] %}
+                                    style="transform: translate({{ metadata.elementPositions[checklistId].x }}px, {{ metadata.elementPositions[checklistId].y }}px);"
+                                {% endif %}
+                            {% endif %}
+                        >
                             {% if subtitle %}
                             <div class="checklist-item">
                                 <span class="checkmark">✓</span>
@@ -871,11 +898,25 @@
                         <div class="right-content">
                             <!-- Title -->
                             {% if title %}
-                                <h1 class="slide-title">{{ title }}</h1>
+                                <h1 class="slide-title positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ title }}</h1>
                             {% endif %}
 
                             <!-- Buttons Grid -->
-                            <div class="buttons-container">
+                            <div class="buttons-container positioned-element"
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set buttonsId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[buttonsId] %}
+                                        style="transform: translate({{ metadata.elementPositions[buttonsId].x }}px, {{ metadata.elementPositions[buttonsId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for button in buttons %}
                                     <div class="button">{{ button.text }}</div>
                                 {% endfor %}
@@ -897,11 +938,25 @@
                         <div class="left-content">
                             <!-- Title -->
                             {% if title %}
-                                <h1 class="slide-title">{{ title }}</h1>
+                                <h1 class="slide-title positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ title }}</h1>
                             {% endif %}
 
                             <!-- Steps -->
-                            <div class="steps-container">
+                            <div class="steps-container positioned-element"
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set stepsId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[stepsId] %}
+                                        style="transform: translate({{ metadata.elementPositions[stepsId].x }}px, {{ metadata.elementPositions[stepsId].y }}px);"
+                                    {% endif %}
+                                {% endif %}
+                            >
                                 {% for step in steps %}
                                     <div class="step-box">{{ step }}</div>
                                     {% if not loop.last %}
@@ -935,15 +990,48 @@
                 <div class="slide">
                     <!-- Fallback for unknown template IDs - show actual content -->
                     {% if title %}
-                        <h1 class="slide-title" style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;">{{ title }}</h1>
+                        <h1 class="slide-title positioned-element" 
+                            {% if metadata and metadata.elementPositions %}
+                                {% set titleId = 'draggable-' + slideId + '-0' %}
+                                {% if metadata.elementPositions[titleId] %}
+                                    style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem; transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                {% else %}
+                                    style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;"
+                                {% endif %}
+                            {% else %}
+                                style="font-size: 3.5rem; color: var(--title-color); text-align: center; margin-bottom: 2rem;"
+                            {% endif %}
+                        >{{ title }}</h1>
                     {% endif %}
                     
                     {% if subtitle %}
-                        <h2 class="slide-subtitle" style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;">{{ subtitle }}</h2>
+                        <h2 class="slide-subtitle positioned-element" 
+                            {% if metadata and metadata.elementPositions %}
+                                {% set subtitleId = 'draggable-' + slideId + '-1' %}
+                                {% if metadata.elementPositions[subtitleId] %}
+                                    style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem; transform: translate({{ metadata.elementPositions[subtitleId].x }}px, {{ metadata.elementPositions[subtitleId].y }}px);"
+                                {% else %}
+                                    style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;"
+                                {% endif %}
+                            {% else %}
+                                style="font-size: 2.25rem; color: var(--subtitle-color); text-align: center; margin-bottom: 2rem;"
+                            {% endif %}
+                        >{{ subtitle }}</h2>
                     {% endif %}
                     
                     {% if content %}
-                        <p class="content-text" style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;">{{ content }}</p>
+                        <p class="content-text positioned-element" 
+                            {% if metadata and metadata.elementPositions %}
+                                {% set contentId = 'draggable-' + slideId + '-2' %}
+                                {% if metadata.elementPositions[contentId] %}
+                                    style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto; transform: translate({{ metadata.elementPositions[contentId].x }}px, {{ metadata.elementPositions[contentId].y }}px);"
+                                {% else %}
+                                    style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;"
+                                {% endif %}
+                            {% else %}
+                                style="font-size: 1.8rem; color: var(--content-color); text-align: center; line-height: 1.5; max-width: 80%; margin: 0 auto;"
+                            {% endif %}
+                        >{{ content }}</p>
                     {% endif %}
                     
                     {% if not title and not subtitle and not content %}
