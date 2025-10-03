@@ -84,9 +84,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
   // Layout
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#000000', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'transparent', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'20px', border:'2px solid #000000', display:'flex', alignItems:'center', gap:'8px', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'transparent', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'20px', border:'2px solid #000000', display:'flex', alignItems:'center', gap:'8px', fontFamily:'Inter, sans-serif !important' };
   const titleStyle: React.CSSProperties = { fontSize:'38px', fontWeight:1100, color:'#000000', textAlign:'left', marginBottom:'16px' };
-  const descStyle: React.CSSProperties = { width:'795px', color:'#34353C', fontSize:'15px', textAlign:'left', lineHeight:'1.5', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
+  const descStyle: React.CSSProperties = { width:'795px', color:'#34353C', fontSize:'15px', textAlign:'left', lineHeight:'1.5', fontFamily:'Inter, sans-serif !important'};
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'160px', right:'480px', minHeight:'46px' };
@@ -95,13 +95,13 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'Inter, sans-serif !important' };
   const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', position:'relative', borderRadius:'1px 1px 1px 1px' };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'Inter, sans-serif !important' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000' };
-  const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' };
+  const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'Inter, sans-serif !important' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
@@ -151,7 +151,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
                 onClick={()=> isEditable && setEdit({ key: `${panelKey}-val-${i}` })}
               >
                 {edit?.key===`${panelKey}-val-${i}` ? (
-                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontSize:'12px' }} />
+                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'Inter, sans-serif !important', fontSize:'12px' }} />
                 ) : b.value }
               </div>
               {isEditable && hoverBar && hoverBar.panel===panelKey && hoverBar.idx===i && (
@@ -267,7 +267,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         <div style={{
           fontSize: '14px',
           color: '#909090',
-          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          fontFamily:'Inter, sans-serif !important'
         }}>
           {slideIndex.toString().padStart(2, '0')}
         </div>
@@ -279,7 +279,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           gap:'8px',
           fontSize:'14px',
           color:'#909090',
-          fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          fontFamily:'Inter, sans-serif !important'
         }}>
           <ClickableImagePlaceholder 
             imagePath={logoPath} 
