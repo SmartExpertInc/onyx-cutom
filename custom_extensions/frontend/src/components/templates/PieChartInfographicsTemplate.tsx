@@ -145,7 +145,8 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   isEditable = false
 }: PieChartInfographicsTemplateProps) => {
   const currentTheme = getSlideTheme('dark-purple');
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
+  const { titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
+  const themeBg = '#ffffff'; // Белый фон для dark-purple темы
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
