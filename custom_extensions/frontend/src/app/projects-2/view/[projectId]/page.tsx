@@ -73,47 +73,104 @@ export default function Projects2ViewPage() {
 
   // NEW: Function to add new slide (called by SlideAddButton)
   const handleAddSlide = (newSlide: ComponentBasedSlide) => {
-    if (!videoLessonData) return;
+    console.log('🔍 handleAddSlide called with:', {
+      newSlide,
+      isComponentBasedVideoLesson,
+      hasVideoLessonData: !!videoLessonData,
+      hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+    });
 
-    // Convert ComponentBasedSlide to VideoLessonSlideData
-    const videoLessonSlide: VideoLessonSlideData = {
-      slideId: newSlide.slideId,
-      slideNumber: videoLessonData.slides.length + 1,
-      slideTitle: newSlide.props?.title || `Slide ${videoLessonData.slides.length + 1}`,
-      displayedText: newSlide.props?.content || '',
-      displayedPictureDescription: '',
-      displayedVideoDescription: '',
-      voiceoverText: ''
-    };
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // Handle component-based slide deck (new structure)
+      const updatedSlides = [...componentBasedSlideDeck.slides, newSlide];
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...componentBasedSlideDeck,
+        slides: updatedSlides,
+        currentSlideId: newSlide.slideId
+      };
 
-    const updatedData = {
-      ...videoLessonData,
-      slides: [...videoLessonData.slides, videoLessonSlide]
-    };
+      console.log('🔍 Adding slide to component-based deck:', {
+        originalSlideCount: componentBasedSlideDeck.slides.length,
+        newSlideCount: updatedSlides.length,
+        newSlideId: newSlide.slideId
+      });
 
-    setVideoLessonData(updatedData);
-    setCurrentSlideId(videoLessonSlide.slideId);
-    
-    // Save to backend
-    saveVideoLessonData(updatedData);
+      setComponentBasedSlideDeck(updatedDeck);
+      setCurrentSlideId(newSlide.slideId);
+      
+      // Save to backend
+      saveVideoLessonData(updatedDeck);
+    } else if (videoLessonData) {
+      // Handle old video lesson structure (legacy)
+      const videoLessonSlide: VideoLessonSlideData = {
+        slideId: newSlide.slideId,
+        slideNumber: videoLessonData.slides.length + 1,
+        slideTitle: newSlide.props?.title || `Slide ${videoLessonData.slides.length + 1}`,
+        displayedText: newSlide.props?.content || '',
+        displayedPictureDescription: '',
+        displayedVideoDescription: '',
+        voiceoverText: ''
+      };
+
+      const updatedData = {
+        ...videoLessonData,
+        slides: [...videoLessonData.slides, videoLessonSlide]
+      };
+
+      console.log('🔍 Adding slide to legacy video lesson:', {
+        originalSlideCount: videoLessonData.slides.length,
+        newSlideCount: updatedData.slides.length,
+        newSlideId: videoLessonSlide.slideId
+      });
+
+      setVideoLessonData(updatedData);
+      setCurrentSlideId(videoLessonSlide.slideId);
+      
+      // Save to backend
+      saveVideoLessonData(updatedData);
+    } else {
+      console.error('❌ handleAddSlide: No valid data structure found!', {
+        isComponentBasedVideoLesson,
+        hasVideoLessonData: !!videoLessonData,
+        hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+      });
+    }
   };
 
   // NEW: Function to save Video Lesson data
   const saveVideoLessonData = async (data: VideoLessonData | ComponentBasedSlideDeck) => {
     try {
       if (!projectId) {
+        console.error('❌ saveVideoLessonData: No projectId provided');
         return;
       }
+      
+      console.log('💾 Saving video lesson data:', {
+        projectId,
+        dataType: data.constructor.name,
+        slideCount: 'slides' in data ? data.slides.length : 'N/A'
+      });
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ microProductContent: data })
       });
+      
       if (!response.ok) {
-        // Handle error silently or with user notification
+        const errorText = await response.text();
+        console.error('❌ Failed to save video lesson data:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText
+        });
+        throw new Error(`Failed to save: ${response.status} ${response.statusText}`);
       }
+      
+      console.log('✅ Video lesson data saved successfully');
     } catch (error) {
-      // Handle error silently or with user notification
+      console.error('❌ Error saving video lesson data:', error);
+      // TODO: Show user notification for save errors
     }
   };
 
@@ -189,37 +246,85 @@ export default function Projects2ViewPage() {
 
   // NEW: Function to delete slide (following old interface pattern)
   const handleDeleteSlide = (slideId: string) => {
-    if (!videoLessonData || videoLessonData.slides.length <= 1) {
-      return;
+    console.log('🗑️ handleDeleteSlide called with:', {
+      slideId,
+      isComponentBasedVideoLesson,
+      hasVideoLessonData: !!videoLessonData,
+      hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+    });
+
+    if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // Handle component-based slide deck (new structure)
+      if (componentBasedSlideDeck.slides.length <= 1) {
+        console.log('⚠️ Cannot delete slide: only one slide remaining');
+        return;
+      }
+
+      const updatedSlides = componentBasedSlideDeck.slides.filter(slide => slide.slideId !== slideId);
+      const updatedDeck: ComponentBasedSlideDeck = {
+        ...componentBasedSlideDeck,
+        slides: updatedSlides,
+        currentSlideId: currentSlideId === slideId ? updatedSlides[0]?.slideId : currentSlideId
+      };
+
+      console.log('🗑️ Deleting slide from component-based deck:', {
+        originalSlideCount: componentBasedSlideDeck.slides.length,
+        newSlideCount: updatedSlides.length,
+        deletedSlideId: slideId
+      });
+
+      setComponentBasedSlideDeck(updatedDeck);
+      setCurrentSlideId(updatedDeck.currentSlideId || undefined);
+      
+      // Save to backend
+      saveVideoLessonData(updatedDeck);
+    } else if (videoLessonData) {
+      // Handle old video lesson structure (legacy)
+      if (videoLessonData.slides.length <= 1) {
+        console.log('⚠️ Cannot delete slide: only one slide remaining');
+        return;
+      }
+      
+      // Filter out the deleted slide and renumber remaining slides
+      const updatedSlides = videoLessonData.slides
+        .filter(slide => slide.slideId !== slideId)
+        .map((slide, index) => ({
+          ...slide,
+          slideNumber: index + 1
+        }));
+
+      const updatedData = {
+        ...videoLessonData,
+        slides: updatedSlides
+      };
+
+      // Handle current slide selection after deletion
+      let newCurrentSlideId = currentSlideId;
+      if (currentSlideId === slideId) {
+        // If we deleted the current slide, select the next one or previous one
+        const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
+        const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
+        newCurrentSlideId = nextSlide?.slideId;
+      }
+
+      console.log('🗑️ Deleting slide from legacy video lesson:', {
+        originalSlideCount: videoLessonData.slides.length,
+        newSlideCount: updatedSlides.length,
+        deletedSlideId: slideId
+      });
+
+      setVideoLessonData(updatedData);
+      setCurrentSlideId(newCurrentSlideId);
+      
+      // Save to backend
+      saveVideoLessonData(updatedData);
+    } else {
+      console.error('❌ handleDeleteSlide: No valid data structure found!', {
+        isComponentBasedVideoLesson,
+        hasVideoLessonData: !!videoLessonData,
+        hasComponentBasedSlideDeck: !!componentBasedSlideDeck
+      });
     }
-    
-    // Filter out the deleted slide and renumber remaining slides
-    const updatedSlides = videoLessonData.slides
-      .filter(slide => slide.slideId !== slideId)
-      .map((slide, index) => ({
-        ...slide,
-        slideNumber: index + 1
-      }));
-
-    const updatedData = {
-      ...videoLessonData,
-      slides: updatedSlides
-    };
-
-    // Handle current slide selection after deletion
-    let newCurrentSlideId = currentSlideId;
-    if (currentSlideId === slideId) {
-      // If we deleted the current slide, select the next one or previous one
-      const deletedIndex = videoLessonData.slides.findIndex(s => s.slideId === slideId);
-      const nextSlide = updatedSlides[deletedIndex] || updatedSlides[deletedIndex - 1];
-      newCurrentSlideId = nextSlide?.slideId;
-    }
-
-    setVideoLessonData(updatedData);
-    setCurrentSlideId(newCurrentSlideId);
-    
-    // Save to backend
-    saveVideoLessonData(updatedData);
   };
 
   // NEW: Load Video Lesson data on component mount
