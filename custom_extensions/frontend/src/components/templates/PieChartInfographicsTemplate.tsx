@@ -162,6 +162,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   const [editingSegment, setEditingSegment] = useState<number | null>(null);
   const [editingSegmentDesc, setEditingSegmentDesc] = useState<number | null>(null);
   const [editingDescText, setEditingDescText] = useState(false);
+  const [editingColor, setEditingColor] = useState<{index: number, position: {x: number, y: number}} | null>(null);
 
   // Auto-save timeout
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -263,6 +264,43 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingSegmentDesc(index);
   };
 
+  const startEditingColor = (index: number, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2
+    };
+    setEditingColor({ index, position });
+  };
+
+  const handleColorSave = (segmentIndex: number, newColor: string) => {
+    setEditingColor(null);
+    
+    const newSegments = [...chartData.segments];
+    newSegments[segmentIndex] = {
+      ...newSegments[segmentIndex],
+      color: newColor
+    };
+    
+    const newMonthlyData = [...monthlyData];
+    newMonthlyData[segmentIndex] = {
+      ...newMonthlyData[segmentIndex],
+      color: newColor
+    };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData,
+      descriptionText
+    };
+    scheduleAutoSave(newData);
+  };
+
+  const handleColorCancel = (segmentIndex: number) => {
+    setEditingColor(null);
+  };
+
   // Create conic gradient for pie chart
   const generatePieChartGradient = () => {
     const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
@@ -352,8 +390,86 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
         </div>
 
         {/* Main Layout Container */}
-        <div className="relative flex items-center justify-center" style={{ height: '500px' }}>
+        <div className="flex items-center justify-center gap-16">
           
+          {/* Left Column - Segments 1-4 */}
+          <div className="flex flex-col gap-8">
+            {monthlyData.slice(0, 4).map((item, index) => (
+              <div key={index} className="flex flex-col gap-3 max-w-xs">
+                <div className="flex items-center gap-3">
+                  {/* Color indicator - clickable for editing */}
+                  <div 
+                    className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: item.color }}
+                    onClick={(e) => isEditable && startEditingColor(index, e)}
+                    title="Click to change color"
+                  />
+                  
+                  {/* Segment name with percentage */}
+                  <div 
+                    className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    {editingSegment === index && isEditable ? (
+                      <InlineEditor
+                        initialValue={item.month}
+                        onSave={(value) => handleSegmentSave(index, value)}
+                        onCancel={() => handleSegmentCancel(index)}
+                        style={{
+                          color: '#ffffff',
+                          textAlign: 'center',
+                          fontWeight: 'bold',
+                          fontSize: '1.125rem'
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        className="cursor-pointer hover:opacity-80"
+                        onClick={() => isEditable && startEditingSegment(index)}
+                      >
+                        {item.month}
+                      </span>
+                    )}
+                    
+                    {/* Percentage badge on segment name */}
+                    <div 
+                      className="absolute -top-2 -right-2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded-full shadow-lg border-2"
+                      style={{ borderColor: item.color }}
+                    >
+                      {item.percentage}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Description */}
+                <div className="text-gray-600 text-sm leading-relaxed">
+                  {editingSegmentDesc === index && isEditable ? (
+                    <InlineEditor
+                      initialValue={item.description}
+                      onSave={(value) => handleSegmentDescSave(index, value)}
+                      onCancel={() => handleSegmentDescCancel(index)}
+                      multiline={true}
+                      style={{
+                        color: '#6B7280',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.6',
+                        width: '100%',
+                        minHeight: '60px'
+                      }}
+                    />
+                  ) : (
+                    <div 
+                      className="cursor-pointer hover:opacity-80"
+                      onClick={() => isEditable && startEditingSegmentDesc(index)}
+                    >
+                      {item.description}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Pie Chart Container */}
           <div className="relative flex-shrink-0">
             <div 
@@ -376,99 +492,86 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             </div>
           </div>
 
-          {/* Text Blocks with Absolute Positioning */}
-          {monthlyData.map((item, index) => {
-            // Позиции для 8 текстовых блоков (4 слева + 4 справа)
-            const positions = [
-              // Левые 4 элемента (сверху вниз)
-              { left: '5%', top: '8%', textAlign: 'left' as const },     // Left-top
-              { left: '5%', top: '30%', textAlign: 'left' as const },   // Left-upper-middle
-              { left: '5%', top: '55%', textAlign: 'left' as const },  // Left-lower-middle
-              { left: '5%', top: '80%', textAlign: 'left' as const },  // Left-bottom
-              // Правые 4 элемента (снизу вверх)
-              { right: '5%', top: '80%', textAlign: 'right' as const }, // Right-bottom
-              { right: '5%', top: '55%', textAlign: 'right' as const }, // Right-lower-middle
-              { right: '5%', top: '30%', textAlign: 'right' as const }, // Right-upper-middle
-              { right: '5%', top: '8%', textAlign: 'right' as const }   // Right-top
-            ];
-            
-            const position = positions[index] || { left: '5%', top: '10%', textAlign: 'left' as const };
-            
-            return (
-              <div 
-                key={index} 
-                className="absolute max-w-xs"
-                style={{
-                  left: position.left,
-                  right: position.right,
-                  top: position.top,
-                  zIndex: 10
-                }}
-              >
-                <div className="flex flex-col gap-2">
-                  {/* Headline */}
-                  <div 
-                    className="font-bold text-lg"
-                    style={{ 
-                      color: item.color,
-                      textAlign: position.textAlign
-                    }}
-                  >
-                    {editingSegment === index && isEditable ? (
-                      <InlineEditor
-                        initialValue={item.month}
-                        onSave={(value) => handleSegmentSave(index, value)}
-                        onCancel={() => handleSegmentCancel(index)}
-                        style={{
-                          color: item.color,
-                          fontWeight: 'bold',
-                          fontSize: '1.125rem',
-                          textAlign: position.textAlign
-                        }}
-                      />
-                    ) : (
-                      <span 
-                        className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && startEditingSegment(index)}
+          {/* Right Column - Segments 5-8 */}
+          <div className="flex flex-col gap-8">
+            {monthlyData.slice(4, 8).map((item, index) => {
+              const actualIndex = index + 4;
+              return (
+                <div key={actualIndex} className="flex flex-col gap-3 max-w-xs">
+                  <div className="flex items-center gap-3">
+                    {/* Color indicator - clickable for editing */}
+                    <div 
+                      className="w-4 h-4 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: item.color }}
+                      onClick={(e) => isEditable && startEditingColor(actualIndex, e)}
+                      title="Click to change color"
+                    />
+                    
+                    {/* Segment name with percentage */}
+                    <div 
+                      className="px-4 py-2 rounded-lg font-bold text-white text-center text-lg flex-1 relative"
+                      style={{ backgroundColor: item.color }}
+                    >
+                      {editingSegment === actualIndex && isEditable ? (
+                        <InlineEditor
+                          initialValue={item.month}
+                          onSave={(value) => handleSegmentSave(actualIndex, value)}
+                          onCancel={() => handleSegmentCancel(actualIndex)}
+                          style={{
+                            color: '#ffffff',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            fontSize: '1.125rem'
+                          }}
+                        />
+                      ) : (
+                        <span 
+                          className="cursor-pointer hover:opacity-80"
+                          onClick={() => isEditable && startEditingSegment(actualIndex)}
+                        >
+                          {item.month}
+                        </span>
+                      )}
+                      
+                      {/* Percentage badge on segment name */}
+                      <div 
+                        className="absolute -top-2 -right-2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded-full shadow-lg border-2"
+                        style={{ borderColor: item.color }}
                       >
-                        {item.month}
-                      </span>
-                    )}
+                        {item.percentage}
+                      </div>
+                    </div>
                   </div>
                   
                   {/* Description */}
-                  <div 
-                    className="text-sm text-gray-600 leading-relaxed"
-                    style={{ textAlign: position.textAlign }}
-                  >
-                    {editingSegmentDesc === index && isEditable ? (
+                  <div className="text-gray-600 text-sm leading-relaxed">
+                    {editingSegmentDesc === actualIndex && isEditable ? (
                       <InlineEditor
                         initialValue={item.description}
-                        onSave={(value) => handleSegmentDescSave(index, value)}
-                        onCancel={() => handleSegmentDescCancel(index)}
+                        onSave={(value) => handleSegmentDescSave(actualIndex, value)}
+                        onCancel={() => handleSegmentDescCancel(actualIndex)}
                         multiline={true}
                         style={{
                           color: '#6B7280',
                           fontSize: '0.875rem',
                           lineHeight: '1.6',
                           width: '100%',
-                          minHeight: '60px',
-                          textAlign: position.textAlign
+                          minHeight: '60px'
                         }}
                       />
                     ) : (
                       <div 
                         className="cursor-pointer hover:opacity-80"
-                        onClick={() => isEditable && startEditingSegmentDesc(index)}
+                        onClick={() => isEditable && startEditingSegmentDesc(actualIndex)}
                       >
                         {item.description}
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
