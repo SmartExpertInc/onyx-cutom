@@ -770,7 +770,7 @@ export default function EventPoster({
             className="group"
             style={{
               borderRadius: '30px',
-              marginLeft: '30px',
+              marginLeft: '10px',
               maxWidth: '1400px',
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
@@ -792,8 +792,8 @@ export default function EventPoster({
                 lineHeight: '1.2',
                 background: 'transparent',
                 borderRadius: '30px',
-                padding: '10px 16px',
-                width: '100%',
+                padding: '2px 3px',
+                width: '600px',
                 boxSizing: 'border-box',
               }}
             />
