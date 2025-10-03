@@ -687,6 +687,13 @@
             border-radius: 0 0 450px 0 !important;
             z-index: 1 !important;
         }
+        
+        /* CRITICAL FIX: Dynamic positioning support for video slides - matches PDF template */
+        .positioned-element {
+            /* Keep elements in their natural flexbox flow while allowing transforms */
+            /* Removed position: absolute to prevent positioning conflicts */
+            transform-origin: top left; /* CRITICAL: Ensures transforms are calculated from top-left corner */
+        }
     </style>
 </head>
 <body>
