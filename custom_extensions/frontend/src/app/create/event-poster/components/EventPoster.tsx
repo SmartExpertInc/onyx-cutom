@@ -190,8 +190,10 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         overflow: style.overflow,
         whiteSpace: style.whiteSpace,
         textOverflow: style.textOverflow,
+        // Reserve space for border to prevent shifting
+        border: '2px solid transparent',
       }}
-      className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
+      className={`hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
     >
       {value || placeholder}
@@ -732,6 +734,7 @@ export default function EventPoster({
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
               position: 'relative',
+              overflow: 'hidden', // Prevent content from overflowing the container
             }}
           >
             <EditableText
@@ -754,9 +757,10 @@ export default function EventPoster({
                 minHeight: '40px',
                 maxHeight: '40px',
                 boxSizing: 'border-box',
-                overflow: 'visible', // Allow text to be fully visible
+                overflowX: 'auto', // Allow horizontal scrolling
+                overflowY: 'hidden', // Prevent vertical scrolling
                 whiteSpace: 'nowrap',
-                textOverflow: 'visible', // Don't cut off text
+                // textOverflow: 'visible', // Don't cut off text
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
