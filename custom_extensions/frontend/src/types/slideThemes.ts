@@ -34,7 +34,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Inter, ui-sans-serif, system-ui, sans-serif',
       titleSize: '45px',
       contentSize: '18px'
     }
@@ -52,7 +52,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Inter, ui-sans-serif, system-ui, sans-serif',
       titleSize: '36px',
       contentSize: '16px'
     }
@@ -70,7 +70,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Inter, ui-sans-serif, system-ui, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -108,7 +108,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Inter, ui-sans-serif, system-ui, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -126,7 +126,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Inter, ui-sans-serif, system-ui, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -144,7 +144,7 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
     },
     fonts: {
       titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      contentFont: 'Inter, ui-sans-serif, system-ui, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }

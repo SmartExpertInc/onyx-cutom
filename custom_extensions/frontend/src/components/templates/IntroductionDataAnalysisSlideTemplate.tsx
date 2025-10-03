@@ -67,8 +67,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   // Right side - title
   const titleContainer: React.CSSProperties = {
     position:'absolute',
-    right:'130px',
-    top:'70px',
+    right:'115px',
+    top:'90px',
     width:'430px'
   };
 
@@ -77,7 +77,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     fontWeight:700,
     color:'#FFFFFF',
     lineHeight:1.3,
-    marginBottom:'40px'
+    marginBottom:'40px',
+    whiteSpace: 'pre-line'
   };
 
   // Icon frame
