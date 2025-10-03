@@ -143,6 +143,30 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   const [editingLeftDescriptions, setEditingLeftDescriptions] = useState([false, false, false]);
   const [editingRightDescriptions, setEditingRightDescriptions] = useState([false, false, false]);
   
+  // Позиционирование элементов
+  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
+  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '15%', top: '50%' });
+  const [leftHeadingsPositions, setLeftHeadingsPositions] = useState([
+    { left: '5%', top: '25%' },
+    { left: '5%', top: '40%' },
+    { left: '5%', top: '55%' }
+  ]);
+  const [rightHeadingsPositions, setRightHeadingsPositions] = useState([
+    { right: '5%', top: '25%' },
+    { right: '5%', top: '40%' },
+    { right: '5%', top: '55%' }
+  ]);
+  const [leftDescriptionsPositions, setLeftDescriptionsPositions] = useState([
+    { left: '5%', top: '30%' },
+    { left: '5%', top: '45%' },
+    { left: '5%', top: '60%' }
+  ]);
+  const [rightDescriptionsPositions, setRightDescriptionsPositions] = useState([
+    { right: '5%', top: '30%' },
+    { right: '5%', top: '45%' },
+    { right: '5%', top: '60%' }
+  ]);
+  
   const slideContainerRef = useRef<HTMLDivElement>(null);
 
   const handleTitleSave = (value: string) => {
@@ -307,55 +331,47 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           <Image src={contradImg} alt="Contraindications and Indications" style={{width: '100%'}} />
         </div>
 
-        {/* Central VS Line and Button */}
+        {/* Vertical Line - Full Height */}
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '2px',
+          height: '100%',
+          background: '#E0E0E0',
+          zIndex: 10
+        }}></div>
+
+        {/* VS Button - Center */}
         <div style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          zIndex: 15,
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          background: '#1976D2',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          height: '100%'
+          justifyContent: 'center',
+          color: '#ffffff',
+          fontSize: '1.2rem',
+          fontWeight: 'bold',
+          fontFamily: 'Arial, sans-serif',
+          zIndex: 20,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+          border: '3px solid #ffffff'
         }}>
-          {/* Vertical Line */}
-          <div style={{
-            width: '2px',
-            height: '100%',
-            background: '#E0E0E0',
-            position: 'absolute',
-            top: '0',
-            left: '50%',
-            transform: 'translateX(-50%)'
-          }}></div>
-          
-          {/* VS Button */}
-          <div style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            background: '#1976D2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            fontFamily: 'Arial, sans-serif',
-            zIndex: 20,
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            border: '3px solid #ffffff'
-          }}>
-            VS
-          </div>
+          VS
         </div>
 
         {/* Left Project Title */}
         <div style={{
           position: 'absolute',
-          left: '15%',
-          top: '50%',
+          left: leftProjectPosition.left,
+          top: leftProjectPosition.top,
           transform: 'translateY(-50%)',
           zIndex: 10
         }}>
@@ -402,8 +418,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
         {/* Right Project Title */}
         <div style={{
           position: 'absolute',
-          right: '15%',
-          top: '50%',
+          right: rightProjectPosition.right,
+          top: rightProjectPosition.top,
           transform: 'translateY(-50%)',
           zIndex: 10
         }}>
@@ -451,8 +467,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
         {leftHeadings.map((heading: string, index: number) => (
           <div key={`left-${index}`} style={{
             position: 'absolute',
-            left: '5%',
-            top: `${25 + index * 15}%`,
+            left: leftHeadingsPositions[index].left,
+            top: leftHeadingsPositions[index].top,
             zIndex: 10,
             maxWidth: '200px'
           }}>
@@ -499,7 +515,18 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               </div>
             )}
 
-            {/* Description */}
+          </div>
+        ))}
+
+        {/* Left Side Description Blocks */}
+        {leftDescriptions.map((description: string, index: number) => (
+          <div key={`left-desc-${index}`} style={{
+            position: 'absolute',
+            left: leftDescriptionsPositions[index].left,
+            top: leftDescriptionsPositions[index].top,
+            zIndex: 10,
+            maxWidth: '200px'
+          }}>
             {editingLeftDescriptions[index] ? (
               <InlineEditor
                 initialValue={leftDescriptions[index]}
@@ -537,7 +564,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 }}
                 data-draggable={isEditable}
               >
-                {leftDescriptions[index]}
+                {description}
               </div>
             )}
           </div>
@@ -547,8 +574,8 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
         {rightHeadings.map((heading: string, index: number) => (
           <div key={`right-${index}`} style={{
             position: 'absolute',
-            right: '5%',
-            top: `${25 + index * 15}%`,
+            right: rightHeadingsPositions[index].right,
+            top: rightHeadingsPositions[index].top,
             zIndex: 10,
             maxWidth: '200px',
             textAlign: 'right'
@@ -598,7 +625,19 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               </div>
             )}
 
-            {/* Description */}
+          </div>
+        ))}
+
+        {/* Right Side Description Blocks */}
+        {rightDescriptions.map((description: string, index: number) => (
+          <div key={`right-desc-${index}`} style={{
+            position: 'absolute',
+            right: rightDescriptionsPositions[index].right,
+            top: rightDescriptionsPositions[index].top,
+            zIndex: 10,
+            maxWidth: '200px',
+            textAlign: 'right'
+          }}>
             {editingRightDescriptions[index] ? (
               <InlineEditor
                 initialValue={rightDescriptions[index]}
@@ -638,7 +677,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
                 }}
                 data-draggable={isEditable}
               >
-                {rightDescriptions[index]}
+                {description}
               </div>
             )}
           </div>
