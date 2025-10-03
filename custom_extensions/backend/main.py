@@ -29311,8 +29311,12 @@ async def preview_slide_html(request: Request):
         # Get the first slide
         slide_props = slides_data[0]
         template_id = slide_props.get("templateId")
+        slide_id = slide_props.get("slideId")
+        metadata = slide_props.get("metadata", {})
         
         logger.info(f"🔍 [HTML_PREVIEW] Template ID: {template_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Slide ID: {slide_id}")
+        logger.info(f"🔍 [HTML_PREVIEW] Metadata: {metadata}")
         logger.info(f"🔍 [HTML_PREVIEW] Slide props keys: {list(slide_props.keys())}")
         
         if not template_id:
@@ -29322,6 +29326,33 @@ async def preview_slide_html(request: Request):
         # Extract actual props
         actual_props = slide_props.get("props", slide_props)
         logger.info(f"🔍 [HTML_PREVIEW] Actual props keys: {list(actual_props.keys())}")
+        
+        # CRITICAL: Log text element positioning data at endpoint level
+        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] === ENDPOINT LEVEL POSITIONING ANALYSIS ===")
+        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Raw slide data received:")
+        logger.info(f"  - Slide ID: {slide_id}")
+        logger.info(f"  - Metadata: {metadata}")
+        logger.info(f"  - Metadata type: {type(metadata)}")
+        
+        if metadata and isinstance(metadata, dict):
+            element_positions = metadata.get('elementPositions', {})
+            logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Element positions in metadata:")
+            logger.info(f"  - Element positions: {element_positions}")
+            logger.info(f"  - Element positions keys: {list(element_positions.keys()) if element_positions else 'None'}")
+            
+            # Log each text element position at endpoint level
+            if element_positions:
+                for element_id, position in element_positions.items():
+                    if 'draggable' in element_id:  # Text elements use draggable IDs
+                        logger.info(f"🔍 [ENDPOINT_POSITIONING_DEBUG] Text Element at Endpoint:")
+                        logger.info(f"    - Element ID: {element_id}")
+                        logger.info(f"    - Position: {position}")
+                        logger.info(f"    - X coordinate: {position.get('x', 'MISSING')}")
+                        logger.info(f"    - Y coordinate: {position.get('y', 'MISSING')}")
+            else:
+                logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO ELEMENT POSITIONS FOUND IN SLIDE METADATA")
+        else:
+            logger.warning(f"🔍 [ENDPOINT_POSITIONING_DEBUG] ⚠️ NO METADATA IN SLIDE DATA")
         
         # Log some key props for debugging
         for key, value in actual_props.items():
@@ -29333,10 +29364,10 @@ async def preview_slide_html(request: Request):
         # Import the HTML template service
         from app.services.html_template_service import html_template_service
         
-        # Generate clean HTML
+        # Generate clean HTML with slideId and metadata
         logger.info(f"🔍 [HTML_PREVIEW] Generating HTML content...")
         html_content = html_template_service.generate_clean_html_for_video(
-            template_id, actual_props, theme
+            template_id, actual_props, theme, metadata=metadata, slide_id=slide_id
         )
         
         logger.info(f"🔍 [HTML_PREVIEW] HTML content generated")
