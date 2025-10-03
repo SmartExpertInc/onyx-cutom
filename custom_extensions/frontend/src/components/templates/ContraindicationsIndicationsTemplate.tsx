@@ -141,17 +141,17 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   
   
   // Позиционирование элементов
-  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '1', top: '50%' });
-  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '1%', top: '50%' });
+  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
+  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '15%', top: '50%' });
   const [leftItemsPositions, setLeftItemsPositions] = useState([
-    { left: '23%', top: '20%' },
-    { left: '25%', top: '43%' },
-    { left: '22%', top: '67%' }
+    { left: '23%', top: '27%%' },
+    { left: '26%', top: '44%' },
+    { left: '22%', top: '62%' }
   ]);
   const [rightItemsPositions, setRightItemsPositions] = useState([
-    { right: '23%', top: '19%' },
-    { right: '25%', top: '42%' },
-    { right: '22%', top: '65%' }
+    { right: '23%', top: '27%' },
+    { right: '26%', top: '44%' },
+    { right: '22%', top: '62%' }
   ]);
   
   const slideContainerRef = useRef<HTMLDivElement>(null);
@@ -343,30 +343,26 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               onCancel={() => setIsEditingRightProject(false)}
               placeholder="Enter project title"
               style={{
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
+                fontSize: '1.5rem',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
-                textAlign: 'center',
-                background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
                 borderRadius: '8px',
-                minWidth: '150px'
+                minWidth: '150px',
+                width: '200px'
               }}
             />
           ) : (
             <div
               style={{
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
+                fontSize: '1.5rem',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
-                textAlign: 'center',
                 cursor: isEditable ? 'pointer' : 'default',
-                background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
             borderRadius: '8px',
-                minWidth: '150px'
+                minWidth: '150px',
+                width: '200px'
               }}
               onClick={() => isEditable && setIsEditingRightProject(true)}
               data-draggable={isEditable}
