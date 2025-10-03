@@ -145,14 +145,16 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
   isEditable = false
 }: PieChartInfographicsTemplateProps) => {
   const currentTheme = getSlideTheme('dark-purple');
-  const { titleColor: themeTitle, contentColor: themeContent } = currentTheme.colors;
+  const { contentColor: themeContent } = currentTheme.colors;
   const themeBg = '#ffffff'; // Белый фон для dark-purple темы
+  const themeTitle = '#000000'; // Черный цвет заголовка
   
   // State for inline editing
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSegment, setEditingSegment] = useState<number | null>(null);
   const [editingSegmentDesc, setEditingSegmentDesc] = useState<number | null>(null);
   const [editingDescText, setEditingDescText] = useState(false);
+  const [editingPercentage, setEditingPercentage] = useState<number | null>(null);
   const [editingColor, setEditingColor] = useState<{index: number, position: {x: number, y: number}} | null>(null);
 
   // Auto-save timeout
@@ -239,6 +241,35 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     setEditingSegmentDesc(null);
   };
 
+  const handlePercentageSave = (segmentIndex: number, newValue: string) => {
+    setEditingPercentage(null);
+    const newPercentage = parseFloat(newValue) || 0;
+    
+    const newSegments = [...chartData.segments];
+    newSegments[segmentIndex] = {
+      ...newSegments[segmentIndex],
+      percentage: newPercentage
+    };
+    
+    const newMonthlyData = [...monthlyData];
+    newMonthlyData[segmentIndex] = {
+      ...newMonthlyData[segmentIndex],
+      percentage: `${newPercentage.toFixed(2)}%`
+    };
+    
+    const newData = { 
+      title, 
+      chartData: { segments: newSegments }, 
+      monthlyData: newMonthlyData,
+      descriptionText
+    };
+    scheduleAutoSave(newData);
+  };
+
+  const handlePercentageCancel = (segmentIndex: number) => {
+    setEditingPercentage(null);
+  };
+
   const startEditingTitle = () => {
     setEditingTitle(true);
   };
@@ -306,6 +337,41 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     });
     
     return `conic-gradient(${gradientStops.join(', ')})`;
+  };
+
+  // Handle clicking on a pie chart segment
+  const handleSegmentClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isEditable) return;
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const clickX = event.clientX - rect.left - centerX;
+    const clickY = event.clientY - rect.top - centerY;
+    
+    // Check if click is outside center circle (radius 64px = w-32/2)
+    const distanceFromCenter = Math.sqrt(clickX * clickX + clickY * clickY);
+    if (distanceFromCenter < 64) return; // Don't trigger on center circle
+    
+    // Calculate angle from click position
+    let angle = Math.atan2(clickY, clickX) * (180 / Math.PI);
+    angle = (angle + 90 + 360) % 360; // Normalize to 0-360, starting from top
+    
+    // Find which segment was clicked
+    const totalPercentage = chartData.segments.reduce((sum, segment) => sum + segment.percentage, 0);
+    let cumulativePercentage = 0;
+    
+    for (let i = 0; i < chartData.segments.length; i++) {
+      const startAngle = (cumulativePercentage / (totalPercentage || 1)) * 360;
+      const endAngle = ((cumulativePercentage + chartData.segments[i].percentage) / (totalPercentage || 1)) * 360;
+      
+      if (angle >= startAngle && angle < endAngle) {
+        setEditingPercentage(i);
+        break;
+      }
+      
+      cumulativePercentage += chartData.segments[i].percentage;
+    }
   };
 
   return (
@@ -433,15 +499,16 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           {/* Pie Chart Container */}
           <div className="relative flex-shrink-0">
             <div 
-              className="pie-chart-container relative rounded-full"
+              className="pie-chart-container relative rounded-full cursor-pointer"
               style={{ 
                 width: '400px', 
                 height: '400px',
                 background: generatePieChartGradient()
               }}
+              onClick={handleSegmentClick}
             >
               {/* Center Circle */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-lg">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-gray-800">Total</div>
@@ -450,6 +517,57 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 </div>
               </div>
             </div>
+
+            {/* Percentage Editor Modal */}
+            {editingPercentage !== null && isEditable && (
+              <div 
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 shadow-2xl border border-gray-200 z-50"
+                style={{ minWidth: '300px' }}
+              >
+                <h3 className="text-lg font-bold mb-4">Edit Segment</h3>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Percentage (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    defaultValue={chartData.segments[editingPercentage].percentage}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const value = (e.target as HTMLInputElement).value;
+                        handlePercentageSave(editingPercentage, value);
+                      } else if (e.key === 'Escape') {
+                        handlePercentageCancel(editingPercentage);
+                      }
+                    }}
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      const input = e.currentTarget.parentElement?.parentElement?.querySelector('input');
+                      if (input) {
+                        handlePercentageSave(editingPercentage, input.value);
+                      }
+                    }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-300 text-gray-900 rounded hover:bg-gray-400 transition-colors"
+                    onClick={() => handlePercentageCancel(editingPercentage)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Segments 4-6 */}
