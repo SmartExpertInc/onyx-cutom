@@ -241,7 +241,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
         <div style={imageContainerStyles}>
-          <Image src={contradImg} alt="Contraindications and Indications" width={500} height={400} />
+          <Image src={contradImg} alt="Contraindications and Indications" style={{width: '100%', height: '100%'}} />
         </div>
       </div>
     </div>
