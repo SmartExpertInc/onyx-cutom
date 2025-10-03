@@ -16,7 +16,7 @@ export interface IntroductionDataAnalysisProps extends BaseTemplateProps {
 }
 
 export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAnalysisProps & { theme?: SlideTheme | string }> = ({
-  title = 'Introduction to Data Analysis',
+  title = 'Introduction\nto Data Analysis',
   avatarPath = '',
   iconPath = '',
   logoNew = '',
@@ -43,11 +43,11 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   // Left side - avatar frame
   const avatarFrame: React.CSSProperties = {
     position:'absolute',
-    left:'40px',
+    left:'55px',
     top:'50%',
     transform:'translateY(-50%)',
-    width:'370px',
-    height:'366px',
+    width:'500px',
+    height:'486px',
     background:'#FFFFFF',
     borderRadius:'10px',
     display:'flex',
@@ -57,9 +57,9 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   };
 
   const avatarContainer: React.CSSProperties = {
-    width:'347px',
+    width:'467px',
     position:'absolute',
-    bottom:'-28px',
+    bottom:'-24px',
     borderRadius:'16px',
     overflow:'hidden',
   };
@@ -69,34 +69,35 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     position:'absolute',
     right:'130px',
     top:'70px',
-    width:'400px'
+    width:'430px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'35px',
+    fontSize:'56px',
     fontWeight:700,
     color:'#FFFFFF',
-    lineHeight:1.2,
+    lineHeight:1.3,
     marginBottom:'40px'
   };
 
   // Icon frame
   const iconFrame: React.CSSProperties = {
     position:'absolute',
-    right:'130px',
-    top:'230px',
-    width:'400px',
-    height:'371px',
+    right:'55px',
+    top:'280px',
+    width:'488px',
+    height:'290px',
     background:'#FFFFFF',
-    borderRadius:'40px',
+    borderRadius:'10px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center'
   };
 
   const iconContainer: React.CSSProperties = {
-    width:'140px',
-    overflow:'hidden'
+    width:'180px',
+    overflow:'hidden',
+    marginBottom: 0
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
@@ -172,7 +173,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
               <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
               <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-            <span style={{ fontSize: '14px', fontWeight: 300, color: '#ffffff' }}>Your Logo</span>
+            <span style={{ fontSize: '14px', fontWeight: 300, color: '#ffffff', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
           </div>
         )}
       </div>
@@ -249,6 +250,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
               color: '#ffffff',
               fontSize: '17px',
               fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
               height: 'auto'
             }}
@@ -260,6 +262,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
               color: '#ffffff',
               fontSize: '17px',
               fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}

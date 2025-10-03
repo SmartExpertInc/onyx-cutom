@@ -734,9 +734,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             onCancel={handlePageNumberCancel}
             className="page-number-editor"
             style={{
-              color: '##09090B99',
+              color: '#09090B99',
               fontSize: '17px',
               fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
               height: 'auto'
             }}
@@ -748,6 +749,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               color: '#09090B99',
               fontSize: '17px',
               fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',
               userSelect: 'none'
             }}
