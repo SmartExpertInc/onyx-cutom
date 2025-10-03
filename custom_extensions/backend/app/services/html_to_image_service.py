@@ -213,6 +213,34 @@ class HTMLToImageService:
                     }
                     """
                 )
+                # Additionally ensure CSS background-images are loaded (not tracked by document.images)
+                await page.evaluate(
+                    """
+                    async () => {
+                      const elements = Array.from(document.querySelectorAll('*'));
+                      const bgUrls = [];
+                      for (const el of elements) {
+                        const style = getComputedStyle(el);
+                        const bg = style.backgroundImage;
+                        if (!bg || bg === 'none') continue;
+                        const matches = Array.from(bg.matchAll(/url\(("|')?([^"')]+)("|')?\)/g));
+                        for (const m of matches) {
+                          if (m[2]) bgUrls.push(m[2]);
+                        }
+                      }
+                      await Promise.all(bgUrls.map(src => new Promise((resolve) => {
+                        try {
+                          const img = new Image();
+                          img.onload = () => resolve(true);
+                          img.onerror = () => resolve(false);
+                          img.src = src;
+                        } catch {
+                          resolve(false);
+                        }
+                      })));
+                    }
+                    """
+                )
                 
                 # Take screenshot (fixed API - no width/height parameters)
                 await page.screenshot(

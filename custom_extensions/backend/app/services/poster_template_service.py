@@ -108,6 +108,20 @@ class PosterTemplateService:
             logger.info(f"🎬 [POSTER_TEMPLATE] [{session_id}] === CONTEXT PREPARATION ===")
             context_prep_start = time.time()
             
+            # Normalize image URL: make absolute if starts with '/'
+            speaker_src = poster_data.get('speakerImageSrc', '')
+            try:
+                if isinstance(speaker_src, str) and speaker_src.startswith('/'):
+                    base_url = (
+                        os.getenv('HTML_RENDER_BASE_URL')
+                        or os.getenv('PUBLIC_BASE_URL')
+                    )
+                    if base_url:
+                        speaker_src = base_url.rstrip('/') + speaker_src
+                        logger.info(f"🎬 [POSTER_TEMPLATE] [{session_id}] Normalized speakerImageSrc to absolute: {speaker_src}")
+            except Exception as _e:
+                logger.warning(f"🎬 [POSTER_TEMPLATE] [{session_id}] Could not normalize speakerImageSrc: {_e}")
+
             context_data = {
                 "eventName": poster_data.get('eventName', ''),
                 "mainSpeaker": poster_data.get('mainSpeaker', ''),
@@ -118,7 +132,7 @@ class PosterTemplateService:
                 "ticketPrice": poster_data.get('ticketPrice', ''),
                 "ticketType": poster_data.get('ticketType', ''),
                 "freeAccessConditions": poster_data.get('freeAccessConditions', ''),
-                "speakerImageSrc": poster_data.get('speakerImageSrc', ''),
+                "speakerImageSrc": speaker_src,
                 "theme": "event-poster"  # Poster theme
             }
             
