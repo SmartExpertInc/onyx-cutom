@@ -415,6 +415,8 @@ export interface BenefitsListSlideProps extends BaseTemplateProps {
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
+  logoNew?: string;
 }
 
 export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {

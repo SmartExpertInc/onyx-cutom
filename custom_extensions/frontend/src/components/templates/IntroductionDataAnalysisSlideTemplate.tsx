@@ -5,28 +5,36 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export interface IntroductionDataAnalysisProps extends BaseTemplateProps {
   title: string;
   avatarPath?: string;
   iconPath?: string;
+  logoNew?: string;
+  pageNumber?: string;
 }
 
 export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAnalysisProps & { theme?: SlideTheme | string }> = ({
   title = 'Introduction to Data Analysis',
   avatarPath = '',
   iconPath = '',
+  logoNew = '',
+  pageNumber = '05',
   isEditable = false,
   onUpdate,
   theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#1C3927', 
+    background:'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     color:'#FFFFFF', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative' 
@@ -35,13 +43,13 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   // Left side - avatar frame
   const avatarFrame: React.CSSProperties = {
     position:'absolute',
-    left:'55px',
+    left:'40px',
     top:'50%',
     transform:'translateY(-50%)',
-    width:'540px',
-    height:'540px',
-    background:'#EEFC83',
-    borderRadius:'40px',
+    width:'370px',
+    height:'366px',
+    background:'#FFFFFF',
+    borderRadius:'10px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
@@ -65,7 +73,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'55px',
+    fontSize:'35px',
     fontWeight:700,
     color:'#FFFFFF',
     lineHeight:1.2,
@@ -100,8 +108,75 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     margin:0
   });
 
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ logoNew: newLogoPath });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
   return (
     <div style={slide}>
+      {/* Logo in top-left corner */}
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #ffffff',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '14px', fontWeight: 300, color: '#ffffff' }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
       {/* Left side - Avatar frame */}
       <div style={avatarFrame}>
         <div style={avatarContainer}>
@@ -147,6 +222,65 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
           />
         </div>
       </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(255, 255, 255, 0.5)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#ffffff',
+              fontSize: '17px',
+              fontWeight: '300',
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#ffffff',
+              fontSize: '17px',
+              fontWeight: '300',
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showUploadModal && (
+        <PresentationImageUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
