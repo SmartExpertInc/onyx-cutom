@@ -38,7 +38,8 @@ class HTMLTemplateService:
     def generate_avatar_slide_html(self, 
                                  template_id: str, 
                                  props: Dict[str, Any], 
-                                 theme: str = "dark-purple") -> str:
+                                 theme: str = "dark-purple",
+                                 metadata: Dict[str, Any] = None) -> str:
         """
         Generate clean HTML for avatar slides.
         
@@ -46,6 +47,7 @@ class HTMLTemplateService:
             template_id: The avatar template ID (avatar-checklist, avatar-crm, etc.)
             props: Slide properties from frontend
             theme: Theme name (dark-purple, light-modern, corporate-blue)
+            metadata: Slide metadata (contains elementPositions for drag-and-drop)
             
         Returns:
             Generated HTML string
@@ -55,6 +57,7 @@ class HTMLTemplateService:
             logger.info(f"🎬 [HTML_TEMPLATE] Props received:")
             logger.info(f"  - Props type: {type(props)}")
             logger.info(f"  - Props keys: {list(props.keys())}")
+            logger.info(f"🎬 [HTML_TEMPLATE] Metadata received: {metadata}")
             
             # Log detailed props content
             for key, value in props.items():
@@ -66,16 +69,19 @@ class HTMLTemplateService:
             # Load the avatar slide template
             template = self.jinja_env.get_template("avatar_slide_template.html")
             
+            # CRITICAL FIX: Include metadata in context data for element positioning
             # Prepare context data
             context_data = {
                 "templateId": template_id,
                 "theme": theme,
+                "metadata": metadata or {},  # Pass metadata to template
                 **props  # Spread all props into context
             }
             
             logger.info(f"🎬 [HTML_TEMPLATE] Context data prepared:")
             logger.info(f"  - Template ID: {template_id}")
             logger.info(f"  - Theme: {theme}")
+            logger.info(f"  - Metadata: {metadata}")
             logger.info(f"  - Context keys: {list(context_data.keys())}")
             
             # Render the template
@@ -154,7 +160,8 @@ class HTMLTemplateService:
     def generate_clean_html_for_video(self, 
                                     template_id: str, 
                                     props: Dict[str, Any], 
-                                    theme: str = "dark-purple") -> str:
+                                    theme: str = "dark-purple",
+                                    metadata: Dict[str, Any] = None) -> str:
         """
         Generate clean HTML optimized for video generation.
         
@@ -164,6 +171,7 @@ class HTMLTemplateService:
             template_id: The avatar template ID
             props: Slide properties from frontend
             theme: Theme name
+            metadata: Slide metadata (contains elementPositions for drag-and-drop)
             
         Returns:
             Clean HTML string ready for PNG conversion
@@ -172,8 +180,8 @@ class HTMLTemplateService:
             # Validate and normalize props
             validated_props = self.validate_avatar_slide_props(template_id, props)
             
-            # Generate HTML
-            html_content = self.generate_avatar_slide_html(template_id, validated_props, theme)
+            # Generate HTML with metadata
+            html_content = self.generate_avatar_slide_html(template_id, validated_props, theme, metadata=metadata)
             
             logger.info(f"Generated clean HTML for video: {template_id}")
             return html_content
