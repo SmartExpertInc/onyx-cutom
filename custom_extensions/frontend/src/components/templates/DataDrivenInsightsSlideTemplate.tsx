@@ -108,14 +108,14 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
   const titleStyle: React.CSSProperties = { 
     fontSize:'38px', 
-    fontWeight:900, 
+    fontWeight:700, 
     color:'#000000', 
     textAlign:'left', 
     marginBottom:'16px',
     fontFamily:'serif'
   };
   const descStyle: React.CSSProperties = { 
-    width:'795px', 
+    width:'525px', 
     color:'#34353C', 
     fontSize:'15px', 
     textAlign:'left', 
@@ -123,7 +123,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     fontFamily:'"Inter", sans-serif'
   };
   // wrappers to prevent layout shift on edit
-  const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'90px', right:'480px', width:'780px', minHeight:'50px' };
+  const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', right:'480px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
@@ -135,7 +135,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
-  const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:800, color:'#000000' };
+  const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:700, color:'#000000', fontFamily:'serif' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'"Inter", sans-serif' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
@@ -205,12 +205,13 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   return (
     <>
       <style>{`
-        .data-driven-insights *:not(.title-element) {
+        .data-driven-insights *:not(.title-element):not(.metric-value) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .data-driven-insights .title-element {
+        .data-driven-insights .title-element,
+        .data-driven-insights .metric-value {
           font-family: serif !important;
-          font-weight: 900 !important;
+          font-weight: 700 !important;
         }
       `}</style>
       <div 
@@ -288,9 +289,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={rightMetrics}>
         {metrics.map((m, i)=> (
           <div key={i}>
-            <div style={metricValue} onClick={()=> isEditable && setEdit({ key:`mv${i}` })}>
+            <div className="metric-value" style={metricValue} onClick={()=> isEditable && setEdit({ key:`mv${i}` })}>
               {isEditable && edit?.key===`mv${i}` ? (
-                <ImprovedInlineEditor initialValue={m.value} onSave={(v)=>{ const next=[...metrics]; next[i]={ ...next[i], value:v }; onUpdate&&onUpdate({ metrics: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable(metricValue)} />
+                <ImprovedInlineEditor initialValue={m.value} onSave={(v)=>{ const next=[...metrics]; next[i]={ ...next[i], value:v }; onUpdate&&onUpdate({ metrics: next }); setEdit(null); }} onCancel={()=> setEdit(null)} className="metric-value" style={inlineStable(metricValue)} />
               ) : (
                 m.value
               )}
