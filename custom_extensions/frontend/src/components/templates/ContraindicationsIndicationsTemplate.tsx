@@ -122,10 +122,6 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   onUpdate
 }: ContraindicationsIndicationsTemplateProps) => {
   const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(title);
-  const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   
   // Состояние для текстовых элементов
   const [leftProjectTitle, setLeftProjectTitle] = useState('The first project');
@@ -145,36 +141,21 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   
   
   // Позиционирование элементов
-  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '15%', top: '50%' });
-  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '15%', top: '50%' });
+  const [leftProjectPosition, setLeftProjectPosition] = useState({ left: '1', top: '50%' });
+  const [rightProjectPosition, setRightProjectPosition] = useState({ right: '1%', top: '50%' });
   const [leftItemsPositions, setLeftItemsPositions] = useState([
-    { left: '5%', top: '25%' },
-    { left: '5%', top: '40%' },
-    { left: '5%', top: '55%' }
+    { left: '23%', top: '20%' },
+    { left: '25%', top: '43%' },
+    { left: '22%', top: '67%' }
   ]);
   const [rightItemsPositions, setRightItemsPositions] = useState([
-    { right: '5%', top: '25%' },
-    { right: '5%', top: '40%' },
-    { right: '5%', top: '55%' }
+    { right: '23%', top: '19%' },
+    { right: '25%', top: '42%' },
+    { right: '22%', top: '65%' }
   ]);
   
   const slideContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleTitleSave = (value: string) => {
-    setCurrentTitle(value);
-    setIsEditingTitle(false);
-    if (onUpdate) {
-      onUpdate({ title: value });
-    }
-  };
-
-  const handleSubtitleSave = (value: string) => {
-    setCurrentSubtitle(value);
-    setIsEditingSubtitle(false);
-    if (onUpdate) {
-      onUpdate({ subtitle: value });
-    }
-  };
 
   const handleLeftProjectSave = (value: string) => {
     setLeftProjectTitle(value);
@@ -236,27 +217,6 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     overflow: 'hidden'
   };
 
-  const titleStyles: React.CSSProperties = {
-    color: '#000000',
-    fontSize: '2.5rem',
-    fontFamily: 'Georgia, serif',
-    marginBottom: '10px',
-    textAlign: 'center',
-    wordWrap: 'break-word',
-    fontWeight: 'bold',
-    flexShrink: 0
-  };
-
-  const subtitleStyles: React.CSSProperties = {
-    color: '#000000',
-    fontSize: '1.1rem',
-    fontFamily: 'Arial, sans-serif',
-    marginBottom: '40px',
-    textAlign: 'center',
-    wordWrap: 'break-word',
-    fontWeight: 'normal',
-    flexShrink: 0
-  };
 
   const mainContentStyles: React.CSSProperties = {
     display: 'flex',
@@ -279,43 +239,6 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
 
   return (
     <div style={slideStyles} ref={slideContainerRef}>
-      {/* Title */}
-      {isEditingTitle ? (
-        <InlineEditor
-          initialValue={currentTitle}
-          onSave={handleTitleSave}
-          onCancel={() => setIsEditingTitle(false)}
-          placeholder="Enter title"
-          style={titleStyles}
-        />
-      ) : (
-        <h1
-          style={titleStyles}
-          onClick={() => isEditable && setIsEditingTitle(true)}
-          data-draggable={isEditable}
-        >
-          {currentTitle}
-        </h1>
-      )}
-
-      {/* Subtitle */}
-      {isEditingSubtitle ? (
-        <InlineEditor
-          initialValue={currentSubtitle}
-          onSave={handleSubtitleSave}
-          onCancel={() => setIsEditingSubtitle(false)}
-          placeholder="Enter subtitle"
-          style={subtitleStyles}
-        />
-      ) : (
-        <h2
-          style={subtitleStyles}
-          onClick={() => isEditable && setIsEditingSubtitle(true)}
-          data-draggable={isEditable}
-        >
-          {currentSubtitle}
-        </h2>
-      )}
 
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
@@ -374,12 +297,11 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               onCancel={() => setIsEditingLeftProject(false)}
               placeholder="Enter project title"
             style={{
-                fontSize: '1.2rem',
+                width: '200px',
+                fontSize: '1.5rem',
                 fontWeight: 'bold',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
-              textAlign: 'center',
-                background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
                 borderRadius: '8px',
                 minWidth: '150px'
@@ -388,13 +310,12 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
         ) : (
           <div
             style={{
-                fontSize: '1.2rem',
+                width: '200px',
+                fontSize: '1.5rem',
                 fontWeight: 'bold',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
-              textAlign: 'center',
               cursor: isEditable ? 'pointer' : 'default',
-                background: 'rgba(0,0,0,0.3)',
                 padding: '10px',
                 borderRadius: '8px',
                 minWidth: '150px'
