@@ -86,24 +86,16 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
 
   if (isEditing) {
     const Component = multiline ? 'textarea' : 'input';
-    
-    // Calculate appropriate height for multiline text based on content
-    let calculatedHeight: string | undefined;
-    if (multiline) {
-      const lines = (tempValue || placeholder || '').split('\n').length;
-      const fontSize = parseInt(style.fontSize?.toString().replace('px', '') || '16');
-      const lineHeight = parseFloat(style.lineHeight?.toString() || '1.2');
-      const padding = parseInt(style.padding?.toString().split(' ')[0]?.replace('px', '') || '10') * 2; // top + bottom
-      calculatedHeight = `${Math.max(fontSize * lineHeight * lines + padding, 40)}px`;
-    }
-    
+    // For large font fields (like date), set fixed height and font size for input
     const inputStyle: React.CSSProperties = {
       ...style,
       background: 'transparent',
       border: '2px solid transparent',
       outline: 'none',
-      resize: 'none',
-      height: isLargeFont ? style.fontSize : calculatedHeight,
+      resize: multiline ? 'none' : undefined,
+      minHeight: style.height || (multiline ? (isTitle ? '260px' : '100px') : undefined),
+      height: style.height || (isLargeFont ? style.fontSize : undefined),
+      maxHeight: style.maxHeight,
       fontSize: style.fontSize,
       padding: isLargeFont ? '0 8px' : style.padding,
       lineHeight: style.lineHeight || '1.2',
@@ -183,11 +175,15 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
         position: 'relative',
         transition: 'all 0.2s ease',
         // Match input styling to prevent layout shifts
-        padding: isLargeFont ? '0 8px' : '0', // Match input padding
-        margin: '0', // Match input margin
-        display: 'block', // Match input display
-        boxSizing: 'border-box', // Match input box-sizing
-        verticalAlign: 'top', // Match input vertical alignment
+        padding: isLargeFont ? '0 8px' : style.padding || '0',
+        margin: '0',
+        display: 'block',
+        boxSizing: 'border-box',
+        verticalAlign: 'top',
+        // Preserve fixed dimensions
+        height: style.height,
+        minHeight: style.minHeight,
+        maxHeight: style.maxHeight,
       }}
       className={`border-2 border-transparent hover:border-gray-400 rounded-lg ${hoverPadding} group`}
       title="Click to edit"
@@ -741,6 +737,9 @@ export default function EventPoster({
                 borderRadius: '30px',
                 padding: '10px 16px',
                 width: '100%',
+                height: '80px', // Fixed height to prevent expansion
+                minHeight: '80px', // Ensure minimum height
+                maxHeight: '80px', // Prevent growing beyond this height
                 boxSizing: 'border-box',
               }}
             />
