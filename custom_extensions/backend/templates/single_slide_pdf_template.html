@@ -428,7 +428,7 @@
             justify-content: center;
             flex-grow: 1;
             position: relative;
-            height: 450px;
+            height: 500px;
         }
 
         .pyramid-level {
@@ -443,7 +443,7 @@
 
         .pyramid-level:nth-child(1) { 
             width: 144px; 
-            height: 65px; 
+            height: 75px; 
             top: 0px; 
             background: #2A7CFF; 
             z-index: 5; 
@@ -454,8 +454,8 @@
         }
         .pyramid-level:nth-child(2) { 
             width: 228px; 
-            height: 65px; 
-            top: 70px; 
+            height: 75px; 
+            top: 80px; 
             background: #09ACD8; 
             z-index: 4; 
             justify-content: center;
@@ -465,8 +465,8 @@
         }
         .pyramid-level:nth-child(3) { 
             width: 311px; 
-            height: 65px; 
-            top: 140px; 
+            height: 75px; 
+            top: 160px; 
             background: #1B94E8; 
             z-index: 3; 
             justify-content: center;
@@ -476,8 +476,8 @@
         }
         .pyramid-level:nth-child(4) { 
             width: 401px; 
-            height: 65px; 
-            top: 210px; 
+            height: 75px; 
+            top: 240px; 
             background: #3A11C3; 
             z-index: 2; 
             justify-content: center;
@@ -487,8 +487,8 @@
         }
         .pyramid-level:nth-child(5) { 
             width: 493px; 
-            height: 65px; 
-            top: 280px; 
+            height: 75px; 
+            top: 320px; 
             background: #01298A; 
             z-index: 1; 
             justify-content: center;
@@ -518,23 +518,23 @@
             z-index: 10;
         }
 
-        .pyramid-text-block.level-0 { top: 35px; left: 5%; text-align: left; width: 35%; max-width: 350px; }
-        .pyramid-text-block.level-1 { top: 115px; right: 5%; text-align: right; width: 35%; max-width: 350px; }
-        .pyramid-text-block.level-2 { top: 195px; left: 5%; text-align: left; width: 35%; max-width: 350px; }
-        .pyramid-text-block.level-3 { top: 275px; right: 5%; text-align: right; width: 35%; max-width: 350px; }
-        .pyramid-text-block.level-4 { top: 355px; left: 5%; text-align: left; width: 35%; max-width: 350px; }
+        .pyramid-text-block.level-0 { top: -19px; left: 13%; text-align: right; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-1 { top: 55px; right: 10%; text-align: left; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-2 { top: 124px; left: 7%; text-align: right; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-3 { top: 218px; right: 2%; text-align: left; width: 35%; max-width: 250px; }
+        .pyramid-text-block.level-4 { top: 285px; left: 0%; text-align: right; width: 35%; max-width: 250px; }
 
         .pyramid-text-heading {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             color: #000000;
             font-family: Georgia, serif;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             word-wrap: break-word;
         }
 
         .pyramid-text-description {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #000000;
             font-family: Georgia, serif;
             line-height: 1.4;
@@ -2593,84 +2593,15 @@
                     <h2 class="slide-subtitle">{{ slide.props.subtitle or 'Type The Subtitle Of Your Great Here' }}</h2>
                     
                     <div class="main-content">
-                        <!-- Left side text items -->
-                        <div style="position: absolute; left: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="font-size: 16px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #1976D2; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <div style="width: 12px; height: 12px; background-color: #ffffff; border-radius: 50%; position: relative;">
-                                        <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background-color: #ffffff; border-radius: 50%;"></div>
-                                    </div>
-                                    <div style="position: absolute; right: -100px; top: 50%; width: 100px; height: 2px; border-top: 2px dotted #1976D2; transform: translateY(-50%);"></div>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="font-size: 16px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #1976D2; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <div style="width: 12px; height: 12px; background-color: #ffffff; border-radius: 50%; position: relative;">
-                                        <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background-color: #ffffff; border-radius: 50%;"></div>
-                                    </div>
-                                    <div style="position: absolute; right: -100px; top: 50%; width: 100px; height: 2px; border-top: 2px dotted #1976D2; transform: translateY(-50%);"></div>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="font-size: 16px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #1976D2; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <div style="width: 12px; height: 12px; background-color: #ffffff; border-radius: 50%; position: relative;">
-                                        <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background-color: #ffffff; border-radius: 50%;"></div>
-                                    </div>
-                                    <div style="position: absolute; right: -100px; top: 50%; width: 100px; height: 2px; border-top: 2px dotted #1976D2; transform: translateY(-50%);"></div>
-                                </div>
-                            </div>
+                        <!-- Central Image Container -->
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img src="file:///app/static/group_img.png" alt="Group" style="width: 500px; height: 400px; object-fit: contain;" />
                         </div>
 
-                        <!-- Right side text items -->
-                        <div style="position: absolute; right: 140px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 81px; z-index: 10;">
-                            <div style="display: flex; align-items: center; gap: 15px; flex-direction: row-reverse;">
-                                <div style="font-size: 16px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #1976D2; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <div style="width: 12px; height: 12px; background-color: #ffffff; border-radius: 50%; position: relative;">
-                                        <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background-color: #ffffff; border-radius: 50%;"></div>
-                                    </div>
-                                    <div style="position: absolute; left: -100px; top: 50%; width: 100px; height: 2px; border-top: 2px dotted #1976D2; transform: translateY(-50%);"></div>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 15px; flex-direction: row-reverse;">
-                                <div style="font-size: 16px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #1976D2; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <div style="width: 12px; height: 12px; background-color: #ffffff; border-radius: 50%; position: relative;">
-                                        <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background-color: #ffffff; border-radius: 50%;"></div>
-                                    </div>
-                                    <div style="position: absolute; left: -100px; top: 50%; width: 100px; height: 2px; border-top: 2px dotted #1976D2; transform: translateY(-50%);"></div>
-                                </div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 15px; flex-direction: row-reverse;">
-                                <div style="font-size: 16px; color: #000000; font-family: Arial, sans-serif; font-weight: normal;">Title goes here</div>
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background-color: #1976D2; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <div style="width: 12px; height: 12px; background-color: #ffffff; border-radius: 50%; position: relative;">
-                                        <div style="position: absolute; top: -2px; right: -2px; width: 6px; height: 6px; background-color: #ffffff; border-radius: 50%;"></div>
-                                    </div>
-                                    <div style="position: absolute; left: -100px; top: 50%; width: 100px; height: 2px; border-top: 2px dotted #1976D2; transform: translateY(-50%);"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Central Venn Diagram -->
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; z-index: 5;">
-                            <!-- Left Circle - Challenges -->
-                            <div style="width: 200px; height: 200px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; margin-right: -50px; z-index: 2;">
-                                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 40px;">👥</div>
-                            </div>
-                            <!-- Right Circle - Solution -->
-                            <div style="width: 200px; height: 200px; border-radius: 50%; background-color: rgba(25, 118, 210, 0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 1;">
-                                <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; color: #ffffff; font-size: 40px;">🏢</div>
-                            </div>
-                        </div>
-
-                        <!-- Circle Labels -->
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, 120px); display: flex; gap: 100px; z-index: 10;">
-                            <div style="font-size: 18px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center; width: 200px;">Challenges</div>
-                            <div style="font-size: 18px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center; width: 200px;">Solution</div>
+                        <!-- Bottom Labels -->
+                        <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, 120px); display: flex; gap: 70px; z-index: 10; padding-right: 15px;">
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">Challenges</div>
+                            <div style="font-size: 19px; color: #000000; font-family: Arial, sans-serif; font-weight: normal; text-align: center;">Solutions</div>
                         </div>
                     </div>
                 </div>
@@ -2991,8 +2922,8 @@
                             {% endif %}
                         >
                                 <div style="display: flex; align-items: center;">
-                                    <img src="file:///app/static/mess_img.svg" style="width: 22px; height: 22px; margin-right: 8px; object-fit: contain;" alt="Message" />
-                                    <div style="font-size: 16px; font-weight: bold; color: #ffffff; font-family: Arial, sans-serif;">
+                                    <img src="file:///app/static/message_img.png" style="width: 30px; height: 30px; margin-right: 8px; object-fit: contain;" alt="Message" />
+                                    <div style="font-size: 19px; color: #ffffff; font-family: Arial, sans-serif;">
                                         {% if slide.props.steps and slide.props.steps[i] and slide.props.steps[i].number %}
                                             {{ slide.props.steps[i].number }}
                                         {% else %}
