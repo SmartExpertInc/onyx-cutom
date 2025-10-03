@@ -4,7 +4,9 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from '../../../../contexts/LanguageContext';
-import { Home as HomeIcon } from "lucide-react";
+import { Home as HomeIcon, Image as ImageIcon, Scissors } from "lucide-react";
+import PresentationImageUpload from '../../../../components/PresentationImageUpload';
+import ImageEditModal from '../../../../components/ImageEditModal';
 
 export default function EventPosterQuestionnaire() {
   const router = useRouter();
@@ -21,34 +23,59 @@ export default function EventPosterQuestionnaire() {
   const [ticketType, setTicketType] = useState("STANDART");
   const [freeAccessConditions, setFreeAccessConditions] = useState("безкоштовно для членів business club");
   const [speakerImage, setSpeakerImage] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select a valid image file.');
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size must be less than 5MB.');
-        return;
-      }
-      
-      // Convert to base64 for URL transfer
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64String = e.target?.result as string;
-        setSpeakerImage(base64String);
-      };
-      reader.readAsDataURL(file);
+  // Upload + crop state (reuse same flow as poster editor)
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showImageEditModal, setShowImageEditModal] = useState(false);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+
+  // Open upload modal
+  const openUpload = () => {
+    setShowUploadModal(true);
+  };
+
+  // When image is uploaded in modal
+  const handlePosterImageUploaded = (imagePath: string, imageFile?: File) => {
+    if (imageFile) {
+      setPendingImageFile(imageFile);
+      setShowImageEditModal(true);
+    } else if (imagePath) {
+      setSpeakerImage(imagePath);
     }
+    setFormError(null);
+    setShowUploadModal(false);
+  };
+
+  const handleConfirmCrop = (croppedImagePath: string) => {
+    setSpeakerImage(croppedImagePath);
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+    setFormError(null);
+  };
+
+  const handleDoNotCrop = (originalImagePath: string) => {
+    setSpeakerImage(originalImagePath);
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
+    setFormError(null);
+  };
+
+  const handleCancelEdit = () => {
+    setShowImageEditModal(false);
+    setPendingImageFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Enforce required image
+    if (!speakerImage) {
+      setFormError(t('interface.eventPosterForm.imageRequired', 'Please upload and crop a speaker image before continuing.'));
+      // Scroll to image section
+      const el = document.getElementById('speaker-image-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     
     // Prepare all data for the poster
     const eventData = {
@@ -260,23 +287,47 @@ export default function EventPosterQuestionnaire() {
                   />
                 </div>
 
-                <div>
+                <div id="speaker-image-section">
                   <label className="block font-semibold mb-2 text-gray-700">{t('interface.eventPosterForm.speakerPhoto', 'Speaker Photo')}</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-300 focus:border-blue-500 focus:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-gray-800"
-                  />
-                  {speakerImage && (
-                    <div className="mt-3">
-                      <p className="text-sm text-green-600 mb-2">{t('interface.eventPosterForm.imageUploadedSuccessfully', '✓ Image uploaded successfully')}</p>
-                      <img 
-                        src={speakerImage} 
-                        alt="Speaker preview" 
-                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                      />
+                  {/* Portrait preview + action */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div
+                      className="relative border-2 border-dashed rounded-xl bg-gray-50 overflow-hidden"
+                      style={{ width: '259.5px', height: '356.5px' }}
+                    >
+                      {speakerImage ? (
+                        <img src={speakerImage} alt="Speaker preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                          <ImageIcon className="w-10 h-10 mb-2" />
+                          <span className="text-sm">{t('interface.eventPosterForm.portraitImageRequired', 'Portrait image required')}</span>
+                        </div>
+                      )}
                     </div>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={openUpload}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow"
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                        {speakerImage ? t('interface.eventPosterForm.changeImage', 'Change Image') : t('interface.eventPosterForm.uploadImage', 'Upload Image')}
+                      </button>
+                      {speakerImage && (
+                        <button
+                          type="button"
+                          onClick={() => setShowImageEditModal(true)}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow"
+                        >
+                          <Scissors className="w-4 h-4" />
+                          {t('interface.eventPosterForm.recropImage', 'Re-crop')}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {formError && (
+                    <p className="mt-2 text-sm text-red-600">{formError}</p>
                   )}
                 </div>
               </div>
@@ -296,6 +347,23 @@ export default function EventPosterQuestionnaire() {
                 </button>
               </div>
             </form>
+            {/* Upload and crop modals */}
+            <PresentationImageUpload
+              isOpen={showUploadModal}
+              onClose={() => setShowUploadModal(false)}
+              onImageUploaded={handlePosterImageUploaded}
+              title={t('interface.modals.aiImageGeneration.uploadImage', 'Upload Image')}
+            />
+            <ImageEditModal
+              isOpen={showImageEditModal}
+              onClose={handleCancelEdit}
+              imageFile={pendingImageFile}
+              // Use the same portrait dimensions as poster image area: 519x713
+              placeholderDimensions={{ width: 519, height: 713 }}
+              onConfirmCrop={handleConfirmCrop}
+              onDoNotCrop={handleDoNotCrop}
+              onCancel={handleCancelEdit}
+            />
           </div>
         </div>
       </div>

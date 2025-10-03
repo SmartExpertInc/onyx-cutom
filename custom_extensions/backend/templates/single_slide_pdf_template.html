@@ -2404,14 +2404,14 @@
                                 <img src="{{ slide.props.leftImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: {{ (slide.props.leftWidthPx|string + 'px') if slide.props.leftWidthPx else '100%' }};
-                                        height: {{ (slide.props.leftHeightPx|string + 'px') if slide.props.leftHeightPx else 'auto' }};
+                                        {% if slide.props.leftWidthPx %}width: {{ slide.props.leftWidthPx }}px;{% else %}width: auto;{% endif %}
+                                        {% if slide.props.leftHeightPx %}height: {{ slide.props.leftHeightPx }}px;{% else %}height: auto;{% endif %}
                                         margin: 0; margin-bottom: 24px !important;
-                                        max-width: 100%;
-                                        object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'cover' }};
+                                        max-width: 400px; max-height: 280px;
+                                        object-fit: {{ slide.props.leftObjectFit if slide.props.leftObjectFit else 'contain' }};
                                         transform: translate({{ (slide.props.leftImageOffset.x|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.x is defined else '0px' }}, {{ (slide.props.leftImageOffset.y|string + 'px') if slide.props.leftImageOffset and slide.props.leftImageOffset.y is defined else '0px' }}) scale({{ slide.props.leftImageScale if slide.props.leftImageScale else 1 }});
                                         transform-origin: center center;
-                                        border-radius: 8px;
+                                        border-radius: 8px; display: block;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
@@ -2451,14 +2451,14 @@
                                 <img src="{{ slide.props.rightImagePath }}" 
                                      alt="Uploaded image" 
                                      style="
-                                        width: {{ (slide.props.rightWidthPx|string + 'px') if slide.props.rightWidthPx else '100%' }};
-                                        height: {{ (slide.props.rightHeightPx|string + 'px') if slide.props.rightHeightPx else 'auto' }};
+                                        {% if slide.props.rightWidthPx %}width: {{ slide.props.rightWidthPx }}px;{% else %}width: auto;{% endif %}
+                                        {% if slide.props.rightHeightPx %}height: {{ slide.props.rightHeightPx }}px;{% else %}height: auto;{% endif %}
                                         margin: 0; margin-bottom: 24px !important;
-                                        max-width: 100%;
-                                        object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'cover' }};
+                                        max-width: 400px; max-height: 280px;
+                                        object-fit: {{ slide.props.rightObjectFit if slide.props.rightObjectFit else 'contain' }};
                                         transform: translate({{ (slide.props.rightImageOffset.x|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.x is defined else '0px' }}, {{ (slide.props.rightImageOffset.y|string + 'px') if slide.props.rightImageOffset and slide.props.rightImageOffset.y is defined else '0px' }}) scale({{ slide.props.rightImageScale if slide.props.rightImageScale else 1 }});
                                         transform-origin: center center;
-                                        border-radius: 8px;
+                                        border-radius: 8px; display: block;
                                      "
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                                 <div class="placeholder" style="display: none;">
