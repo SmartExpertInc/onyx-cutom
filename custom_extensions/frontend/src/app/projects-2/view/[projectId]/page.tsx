@@ -81,18 +81,28 @@ export default function Projects2ViewPage() {
     });
 
     if (isComponentBasedVideoLesson && componentBasedSlideDeck) {
+      // 🔧 CRITICAL FIX: Ensure slide has slideTitle for backend compatibility
+      // This matches the golden reference implementation in SmartSlideDeckViewer
+      const slideWithBackendCompat: any = {
+        ...newSlide,
+        slideTitle: newSlide.props?.title || `Slide ${componentBasedSlideDeck.slides.length + 1}`, // ← CRITICAL: Backend expects this
+        slideNumber: componentBasedSlideDeck.slides.length + 1
+      };
+
       // Handle component-based slide deck (new structure)
-      const updatedSlides = [...componentBasedSlideDeck.slides, newSlide];
+      const updatedSlides = [...componentBasedSlideDeck.slides, slideWithBackendCompat];
       const updatedDeck: ComponentBasedSlideDeck = {
         ...componentBasedSlideDeck,
         slides: updatedSlides,
         currentSlideId: newSlide.slideId
       };
 
-      console.log('🔍 Adding slide to component-based deck:', {
+      console.log('🔍 Adding slide to component-based deck with backend compatibility:', {
         originalSlideCount: componentBasedSlideDeck.slides.length,
         newSlideCount: updatedSlides.length,
-        newSlideId: newSlide.slideId
+        newSlideId: newSlide.slideId,
+        hasSlideTitle: !!slideWithBackendCompat.slideTitle,
+        slideTitle: slideWithBackendCompat.slideTitle
       });
 
       setComponentBasedSlideDeck(updatedDeck);
@@ -151,9 +161,16 @@ export default function Projects2ViewPage() {
         slideCount: 'slides' in data ? data.slides.length : 'N/A'
       });
 
+      // 🔧 CRITICAL FIX: Add dev user header to match old UI's golden reference pattern
+      const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
+      const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
+      if (devUserId && process.env.NODE_ENV === 'development') {
+        saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
+      }
+
       const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: saveOperationHeaders,
         body: JSON.stringify({ microProductContent: data })
       });
       
