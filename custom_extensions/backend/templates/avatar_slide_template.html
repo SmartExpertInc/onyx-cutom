@@ -804,19 +804,40 @@
                     <div class="content-container" style="background-color: transparent; height: 100%;">
                         <!-- Left content -->
                         <div class="left-content" style="background-color: transparent;">
-                            <!-- Title -->
+                            <!-- Title with positioning support -->
                             {% if title %}
-                                <h1 class="slide-title">{{ title }}</h1>
+                                <h1 class="slide-title positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set titleId = 'draggable-' + slideId + '-0' %}
+                                        {% if metadata.elementPositions[titleId] %}
+                                            style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ title }}</h1>
                             {% endif %}
 
-                            <!-- Subtitle -->
+                            <!-- Subtitle with positioning support -->
                             {% if subtitle %}
-                                <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                                <h2 class="slide-subtitle positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set subtitleId = 'draggable-' + slideId + '-1' %}
+                                        {% if metadata.elementPositions[subtitleId] %}
+                                            style="transform: translate({{ metadata.elementPositions[subtitleId].x }}px, {{ metadata.elementPositions[subtitleId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ subtitle }}</h2>
                             {% endif %}
 
-                            <!-- Content -->
+                            <!-- Content with positioning support -->
                             {% if content %}
-                                <p class="content-text">{{ content }}</p>
+                                <p class="content-text positioned-element"
+                                    {% if metadata and metadata.elementPositions %}
+                                        {% set contentId = 'draggable-' + slideId + '-2' %}
+                                        {% if metadata.elementPositions[contentId] %}
+                                            style="transform: translate({{ metadata.elementPositions[contentId].x }}px, {{ metadata.elementPositions[contentId].y }}px);"
+                                        {% endif %}
+                                    {% endif %}
+                                >{{ content }}</p>
                             {% endif %}
                         </div>
 
