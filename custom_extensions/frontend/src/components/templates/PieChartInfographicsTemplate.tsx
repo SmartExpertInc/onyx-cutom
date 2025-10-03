@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import { PieChartInfographicsTemplateProps } from '@/types/slideTemplates';
-import Image from 'next/image';
-import linesImg from './lines.png';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -122,34 +120,26 @@ function InlineEditor({
 
 export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplateProps> = ({
   slideId,
-  title = 'Pie chart',
+  title = 'Revenue Distribution Analysis',
   chartData = {
     segments: [
-      // Левые 4 сегмента (сверху вниз)
-      { label: 'Headline', percentage: 12.5, color: '#ED8E8C', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12.5, color: '#FFBF55', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12.5, color: '#993EFB', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12.5, color: '#07B11E', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      // Правые 4 сегмента (снизу вверх)
-      { label: 'Headline', percentage: 12.5, color: '#0F58F9', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12.5, color: '#DC6D17', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12.5, color: '#0F4C97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' },
-      { label: 'Headline', percentage: 12.5, color: '#0F7B97', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor' }
+      { label: 'Cloud Services', percentage: 35, color: '#3B82F6', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.' },
+      { label: 'Mobile Applications', percentage: 28, color: '#10B981', description: 'Mobile app development showing consistent growth and expanding market penetration.' },
+      { label: 'Data Analytics', percentage: 22, color: '#F59E0B', description: 'Data analytics services contributing substantial recurring revenue streams.' },
+      { label: 'AI Solutions', percentage: 15, color: '#EF4444', description: 'AI and machine learning solutions providing additional revenue diversification.' },
+      { label: 'Security Tools', percentage: 12, color: '#8B5CF6', description: 'Cybersecurity tools and services addressing critical market needs.' },
+      { label: 'Integration Services', percentage: 8, color: '#EC4899', description: 'System integration and consulting services rounding out our portfolio.' }
     ]
   },
   monthlyData = [
-    // Левые 4 элемента (сверху вниз)
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#ED8E8C', percentage: '12.5%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#FFBF55', percentage: '12.5%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#993EFB', percentage: '12.5%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#07B11E', percentage: '12.5%' },
-    // Правые 4 элемента (снизу вверх)
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F58F9', percentage: '12.5%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#DC6D17', percentage: '12.5%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F4C97', percentage: '12.5%' },
-    { month: 'Headline', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor', color: '#0F7B97', percentage: '12.5%' }
+    { month: 'Cloud Services', description: 'Our cloud services continue to drive significant revenue with strong market demand and customer satisfaction.', color: '#3B82F6', percentage: '35%' },
+    { month: 'Mobile Applications', description: 'Mobile app development showing consistent growth and expanding market penetration.', color: '#10B981', percentage: '28%' },
+    { month: 'Data Analytics', description: 'Data analytics services contributing substantial recurring revenue streams.', color: '#F59E0B', percentage: '22%' },
+    { month: 'AI Solutions', description: 'AI and machine learning solutions providing additional revenue diversification.', color: '#EF4444', percentage: '15%' },
+    { month: 'Security Tools', description: 'Cybersecurity tools and services addressing critical market needs.', color: '#8B5CF6', percentage: '12%' },
+    { month: 'Integration Services', description: 'System integration and consulting services rounding out our portfolio.', color: '#EC4899', percentage: '8%' }
   ],
-  descriptionText = 'Editable infographic',
+  descriptionText = 'Click on elements to edit chart data and customize the visualization',
   theme,
   onUpdate,
   isEditable = false
@@ -321,23 +311,12 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
     <div 
       className="relative w-full h-full flex flex-col justify-center items-center p-8 font-sans"
       style={{ 
-        background: '#ffffff',
+        background: themeBg,
         minHeight: '600px'
       }}
     >
-      {/* Background Image */}
-      <div style={{
-        position: 'absolute',
-        top: '169px',
-        left: '50.4%',
-        transform: 'translateX(-50%)',
-        width: '39%',
-        zIndex: 1
-      }}>
-        <Image src={linesImg} alt="Lines background" style={{width: '100%'}} />
-      </div>
       {/* Main Content Container */}
-      <div className="w-full max-w-7xl mx-auto" style={{ position: 'relative', zIndex: 10 }}>
+      <div className="w-full max-w-7xl mx-auto">
         
         {/* Title */}
         <div className="text-center mb-12">
@@ -347,7 +326,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               style={{
-                color: '#000000',
+                color: themeTitle,
                 fontSize: '3.5rem',
                 fontWeight: 'bold',
                 lineHeight: '1.2',
@@ -357,7 +336,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
           ) : (
             <h1 
               className="text-6xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ color: '#000000' }}
+              style={{ color: themeTitle }}
               onClick={() => isEditable && startEditingTitle()}
             >
               {title}
@@ -392,9 +371,9 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
         {/* Main Layout Container */}
         <div className="flex items-center justify-center gap-16">
           
-          {/* Left Column - Segments 1-4 */}
+          {/* Left Column - Segments 1-3 */}
           <div className="flex flex-col gap-8">
-            {monthlyData.slice(0, 4).map((item, index) => (
+            {monthlyData.slice(0, 3).map((item, index) => (
               <div key={index} className="flex flex-col gap-3 max-w-xs">
                 <div className="flex items-center gap-3">
                   {/* Color indicator - clickable for editing */}
@@ -492,10 +471,10 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
             </div>
           </div>
 
-          {/* Right Column - Segments 5-8 */}
+          {/* Right Column - Segments 4-6 */}
           <div className="flex flex-col gap-8">
-            {monthlyData.slice(4, 8).map((item, index) => {
-              const actualIndex = index + 4;
+            {monthlyData.slice(3, 6).map((item, index) => {
+              const actualIndex = index + 3;
               return (
                 <div key={actualIndex} className="flex flex-col gap-3 max-w-xs">
                   <div className="flex items-center gap-3">
