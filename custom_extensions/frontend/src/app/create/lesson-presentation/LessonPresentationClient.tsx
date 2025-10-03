@@ -742,13 +742,30 @@ export default function LessonPresentationClient() {
     });
   };
 
-  // Helper: detect if a string is a single JSON object with slides
+  // Helper: robustly extract and parse a slides JSON object from arbitrary text
   const tryParsePresentationJson = (text: string): any | null => {
     try {
+      if (!text) return null;
       const trimmed = (text || "").trim();
-      if (!trimmed.startsWith("{")) return null;
-      const obj = JSON.parse(trimmed);
-      if (obj && typeof obj === "object" && Array.isArray(obj.slides)) return obj;
+      // 1) Direct parse if starts with JSON
+      if (trimmed.startsWith("{")) {
+        const obj = JSON.parse(trimmed);
+        if (obj && typeof obj === "object" && Array.isArray((obj as any).slides)) return obj;
+      }
+      // 2) Strip common code fences
+      const unfenced = trimmed.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+      if (unfenced.startsWith("{")) {
+        const obj = JSON.parse(unfenced);
+        if (obj && typeof obj === "object" && Array.isArray((obj as any).slides)) return obj;
+      }
+      // 3) Extract first balanced JSON-looking slice
+      const start = trimmed.indexOf("{");
+      const end = trimmed.lastIndexOf("}");
+      if (start !== -1 && end !== -1 && end > start) {
+        const candidate = trimmed.slice(start, end + 1);
+        const obj = JSON.parse(candidate);
+        if (obj && typeof obj === "object" && Array.isArray((obj as any).slides)) return obj;
+      }
       return null;
     } catch (_) {
       return null;
@@ -1255,6 +1272,7 @@ export default function LessonPresentationClient() {
 
       // Clear content only when we start receiving new data
       let hasReceivedData = false;
+      let clearedOnFirstDelta = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -1265,12 +1283,35 @@ export default function LessonPresentationClient() {
               const pkt = JSON.parse(buffer.trim());
               if (pkt.type === "delta") {
                 accumulatedText += pkt.text;
-                setContent(accumulatedText);
+                const json = tryParsePresentationJson(accumulatedText);
+                if (json) {
+                  if (!clearedOnFirstDelta) { setContent(""); clearedOnFirstDelta = true; }
+                  setOriginalJsonResponse(JSON.stringify(json));
+                  setContent(convertPresentationJsonToMarkdown(json));
+                } else {
+                  setContent(accumulatedText);
+                }
+              } else if (pkt.type === "done" && typeof pkt.content === 'string') {
+                const json = tryParsePresentationJson(pkt.content);
+                if (json) {
+                  if (!clearedOnFirstDelta) { setContent(""); clearedOnFirstDelta = true; }
+                  setOriginalJsonResponse(JSON.stringify(json));
+                  setContent(convertPresentationJsonToMarkdown(json));
+                } else {
+                  setContent(pkt.content);
+                }
               }
             } catch (e) {
               // If not JSON, treat as plain text
               accumulatedText += buffer;
-              setContent(accumulatedText);
+              const json = tryParsePresentationJson(accumulatedText);
+              if (json) {
+                if (!clearedOnFirstDelta) { setContent(""); clearedOnFirstDelta = true; }
+                setOriginalJsonResponse(JSON.stringify(json));
+                setContent(convertPresentationJsonToMarkdown(json));
+              } else {
+                setContent(accumulatedText);
+              }
             }
           }
           setStreamDone(true);
@@ -1284,19 +1325,37 @@ export default function LessonPresentationClient() {
         buffer = lines.pop() || ""; // Keep incomplete line in buffer
 
         for (const line of lines) {
-          if (!line.trim()) continue;
+          const trimmedLine = line.trim();
+          if (!trimmedLine) continue;
 
           try {
-            const pkt = JSON.parse(line);
+            const pkt = JSON.parse(trimmedLine);
             if (!hasReceivedData) {
               hasReceivedData = true;
               setLoadingEdit(false); // Stop showing "Applying" once stream starts
             }
 
             if (pkt.type === "delta") {
+              if (!clearedOnFirstDelta) { setContent(""); clearedOnFirstDelta = true; }
               accumulatedText += pkt.text;
-              setContent(accumulatedText);
+              const json = tryParsePresentationJson(accumulatedText);
+              if (json) {
+                setOriginalJsonResponse(JSON.stringify(json));
+                setContent(convertPresentationJsonToMarkdown(json));
+              } else {
+                setContent(accumulatedText);
+              }
             } else if (pkt.type === "done") {
+              if (typeof pkt.content === 'string') {
+                const json = tryParsePresentationJson(pkt.content);
+                if (json) {
+                  if (!clearedOnFirstDelta) { setContent(""); clearedOnFirstDelta = true; }
+                  setOriginalJsonResponse(JSON.stringify(json));
+                  setContent(convertPresentationJsonToMarkdown(json));
+                } else {
+                  setContent(pkt.content);
+                }
+              }
               setStreamDone(true);
               break;
             } else if (pkt.type === "error") {
@@ -1308,8 +1367,15 @@ export default function LessonPresentationClient() {
               hasReceivedData = true;
               setLoadingEdit(false);
             }
-            accumulatedText += line;
-            setContent(accumulatedText);
+            accumulatedText += trimmedLine + "\n";
+            const json = tryParsePresentationJson(accumulatedText);
+            if (json) {
+              if (!clearedOnFirstDelta) { setContent(""); clearedOnFirstDelta = true; }
+              setOriginalJsonResponse(JSON.stringify(json));
+              setContent(convertPresentationJsonToMarkdown(json));
+            } else {
+              setContent(accumulatedText);
+            }
           }
         }
 
