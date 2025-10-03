@@ -34,9 +34,10 @@ interface EditableTextProps {
   isTitle?: boolean;
   onAutoSave?: () => void; // Add auto-save callback
   debouncedAutoSave?: (immediate?: boolean) => void; // Add debounced auto-save
+  disableAutoResize?: boolean; // Add option to disable auto-resize
 }
 
-function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave }: EditableTextProps) {
+function EditableText({ value, onChange, style, multiline = false, placeholder, isTitle = false, onAutoSave, disableAutoResize = false }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -84,24 +85,24 @@ function EditableText({ value, onChange, style, multiline = false, placeholder, 
     }
   };
 
-  // Auto-resize textarea to fit content (like InlineEditor)
+  // Auto-resize textarea to fit content (like InlineEditor) - only if not disabled
   useEffect(() => {
-    if (multiline && inputRef.current && isEditing) {
+    if (multiline && inputRef.current && isEditing && !disableAutoResize) {
       const textarea = inputRef.current as HTMLTextAreaElement;
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
-  }, [tempValue, multiline, isEditing]);
+  }, [tempValue, multiline, isEditing, disableAutoResize]);
 
-  // Set initial height for textarea to match content
+  // Set initial height for textarea to match content - only if not disabled
   useEffect(() => {
-    if (multiline && inputRef.current && isEditing) {
+    if (multiline && inputRef.current && isEditing && !disableAutoResize) {
       const textarea = inputRef.current as HTMLTextAreaElement;
       // Set initial height based on content
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
-  }, [multiline, isEditing]);
+  }, [multiline, isEditing, disableAutoResize]);
 
   if (isEditing) {
     if (multiline) {
@@ -771,18 +772,25 @@ export default function EventPoster({
             style={{
               borderRadius: '30px',
               marginLeft: '10px',
-              maxWidth: '1400px',
+              width: '600px', // Fixed width - never changes
+              height: '80px', // Fixed height - never changes
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
               backgroundColor: '#5416af',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden', // Prevent any overflow
+              position: 'relative', // For absolute positioning of text
             }}
           >
             <EditableText
               value={freeAccessConditions}
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
-              multiline
+              multiline={false} // Single line to prevent expansion
+              disableAutoResize={true} // Disable auto-resize for fixed dimensions
               onAutoSave={handleAutoSave}
               style={{
                 color: 'rgba(235,235,235,1)',
@@ -792,9 +800,21 @@ export default function EventPoster({
                 lineHeight: '1.2',
                 background: 'transparent',
                 borderRadius: '30px',
-                padding: '2px 3px',
-                width: '600px',
+                padding: '10px 16px',
+                width: '100%',
+                height: '100%',
                 boxSizing: 'border-box',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap', // Prevent text wrapping
+                textOverflow: 'ellipsis', // Show ellipsis for long text
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
               }}
             />
           </div>
