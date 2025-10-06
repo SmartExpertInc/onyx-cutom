@@ -27585,6 +27585,246 @@ async def create_billing_portal_session(
         raise HTTPException(status_code=500, detail="Failed to create billing portal session")
 
 
+class CreateCheckoutRequest(BaseModel):
+    priceId: str
+    planName: Optional[str] = None
+
+
+@app.post("/api/custom/billing/checkout")
+async def create_checkout_session(
+    request: Request,
+    payload: CreateCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Checkout session for purchasing a new subscription."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        # Lazy import to avoid hard dependency if not configured
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Auto-create a Stripe customer if missing
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user_email or None,
+                metadata={"onyx_user_id": onyx_user_id},
+            )
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        # Determine return URLs
+        base_url = (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL', 'http://custom_frontend:3001')).rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        # Create checkout session
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=[{
+                'price': payload.priceId,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                'onyx_user_id': onyx_user_id,
+                'plan_name': payload.planName or 'Unknown Plan'
+            }
+        )
+        
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating checkout session: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create checkout session")
+
+
+@app.post("/api/custom/billing/webhook")
+async def stripe_webhook(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Handle Stripe webhooks to update subscription status."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        # Get the raw body and signature
+        body = await request.body()
+        signature = request.headers.get('stripe-signature')
+        
+        if not signature:
+            raise HTTPException(status_code=400, detail="Missing Stripe signature")
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        
+        # You'll need to set STRIPE_WEBHOOK_SECRET in your environment
+        webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+        if not webhook_secret:
+            logger.warning("STRIPE_WEBHOOK_SECRET not set, skipping signature verification")
+            event = stripe.Event.construct_from(json.loads(body), stripe.api_key)
+        else:
+            try:
+                event = stripe.Webhook.construct_event(body, signature, webhook_secret)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid payload")
+            except stripe.SignatureVerificationError:
+                raise HTTPException(status_code=400, detail="Invalid signature")
+
+        # Handle the event
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            onyx_user_id = session.get('metadata', {}).get('onyx_user_id')
+            
+            if onyx_user_id and session.get('mode') == 'subscription':
+                subscription_id = session.get('subscription')
+                customer_id = session.get('customer')
+                
+                # Get subscription details
+                subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+                
+                # Extract plan info
+                plan = "starter"
+                interval = None
+                price_id = None
+                
+                if subscription.items and len(subscription.items.data) > 0:
+                    price = subscription.items.data[0].price
+                    price_id = price.id
+                    interval = price.recurring.interval if hasattr(price, 'recurring') else None
+                    
+                    # Infer plan from product name
+                    product = getattr(price, 'product', None)
+                    product_name = getattr(product, 'name', '') if product else ''
+                    lowered = product_name.lower()
+                    if 'business' in lowered:
+                        plan = 'business'
+                    elif 'pro' in lowered:
+                        plan = 'pro'
+                
+                # Update user billing
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        INSERT INTO user_billing (
+                            onyx_user_id, stripe_customer_id, subscription_status, 
+                            subscription_id, current_price_id, current_plan, 
+                            current_interval, updated_at
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+                        ON CONFLICT (onyx_user_id)
+                        DO UPDATE SET 
+                            subscription_status = EXCLUDED.subscription_status,
+                            subscription_id = EXCLUDED.subscription_id,
+                            current_price_id = EXCLUDED.current_price_id,
+                            current_plan = EXCLUDED.current_plan,
+                            current_interval = EXCLUDED.current_interval,
+                            updated_at = now()
+                        """,
+                        onyx_user_id, customer_id, subscription.status,
+                        subscription_id, price_id, plan, interval
+                    )
+                
+                logger.info(f"Updated billing for user {onyx_user_id}: {plan} ({interval})")
+
+        elif event['type'] == 'customer.subscription.updated':
+            subscription = event['data']['object']
+            customer_id = subscription.get('customer')
+            
+            # Find user by customer ID
+            async with pool.acquire() as conn:
+                user_record = await conn.fetchrow(
+                    "SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1",
+                    customer_id
+                )
+            
+            if user_record:
+                onyx_user_id = user_record['onyx_user_id']
+                
+                # Extract updated plan info
+                plan = "starter"
+                interval = None
+                price_id = None
+                
+                if subscription.get('items') and len(subscription['items']['data']) > 0:
+                    price = subscription['items']['data'][0]['price']
+                    price_id = price['id']
+                    interval = price.get('recurring', {}).get('interval')
+                    
+                    # Infer plan from product name
+                    product_name = price.get('product', {}).get('name', '') if isinstance(price.get('product'), dict) else ''
+                    lowered = product_name.lower()
+                    if 'business' in lowered:
+                        plan = 'business'
+                    elif 'pro' in lowered:
+                        plan = 'pro'
+                
+                # Update user billing
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        UPDATE user_billing 
+                        SET subscription_status = $2, current_price_id = $3, 
+                            current_plan = $4, current_interval = $5, updated_at = now()
+                        WHERE onyx_user_id = $1
+                        """,
+                        onyx_user_id, subscription['status'], price_id, plan, interval
+                    )
+                
+                logger.info(f"Updated subscription for user {onyx_user_id}: {subscription['status']}")
+
+        elif event['type'] == 'customer.subscription.deleted':
+            subscription = event['data']['object']
+            customer_id = subscription.get('customer')
+            
+            # Find user by customer ID and mark as cancelled
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    UPDATE user_billing 
+                    SET subscription_status = 'canceled', current_plan = 'starter',
+                        current_price_id = NULL, current_interval = NULL, updated_at = now()
+                    WHERE stripe_customer_id = $1
+                    """,
+                    customer_id
+                )
+            
+            logger.info(f"Cancelled subscription for customer {customer_id}")
+
+        return {"status": "success"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Webhook processing failed")
+
+
 class CancelSubscriptionRequest(BaseModel):
     subscriptionId: Optional[str] = None
 

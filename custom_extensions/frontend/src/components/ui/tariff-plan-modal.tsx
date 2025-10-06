@@ -208,12 +208,33 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     onClick={async () => {
                       try {
                         setPortalLoading(true);
-                        const res = await fetch('/api/custom-projects-backend/billing/portal', { method: 'POST', credentials: 'same-origin' });
-                        if (!res.ok) throw new Error('Failed to open Stripe portal');
+                        
+                        // Map plan to Stripe price ID
+                        const priceIdMap = {
+                          'pro': billingCycle === 'yearly' ? 'price_1SEBUCH2U2KQUmUhkym5Q9TS' : 'price_1SEBM4H2U2KQUmUhkn6A7Hlm',
+                          'business': billingCycle === 'yearly' ? 'price_1SEBUoH2U2KQUmUhMktbhCsm' : 'price_1SEBTeH2U2KQUmUhi02e1uC9'
+                        };
+                        
+                        const priceId = priceIdMap[selectedPlan.id];
+                        if (!priceId) {
+                          throw new Error('Price ID not configured for this plan');
+                        }
+                        
+                        const res = await fetch('/api/custom-projects-backend/billing/checkout', { 
+                          method: 'POST', 
+                          credentials: 'same-origin',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ 
+                            priceId: priceId,
+                            planName: selectedPlan.name 
+                          })
+                        });
+                        if (!res.ok) throw new Error('Failed to create checkout session');
                         const data = await res.json();
                         if (data?.url) window.location.href = data.url;
                       } catch (e) {
                         console.error(e);
+                        alert('Failed to start checkout. Please try again.');
                       } finally {
                         setPortalLoading(false);
                       }
