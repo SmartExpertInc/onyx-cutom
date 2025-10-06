@@ -162,7 +162,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               onCancel={() => setEditingTagText(false)}
               className="tag-text-editor"
               style={{
-                fontSize: '20px',
+                fontSize: '18px',
                 color: '#09090BCC',
                 fontWeight: '400',
                 fontFamily: currentTheme.fonts.contentFont,
@@ -179,7 +179,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
                 userSelect: 'none',
-                fontSize: '20px',
+                fontSize: '18px',
                 color: '#09090BCC',
                 fontWeight: '400',
                 fontFamily: currentTheme.fonts.contentFont
@@ -201,7 +201,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         color: '#09090B',
         lineHeight: '1.1',
         maxWidth: '600px',
-        fontFamily: currentTheme.fonts.titleFont,
+        fontFamily: "'Lora', serif",
       }}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
@@ -216,7 +216,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
-              fontFamily: currentTheme.fonts.titleFont,
+              fontFamily: "'Lora', serif",
             }}
           />
         ) : (
