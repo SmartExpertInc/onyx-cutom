@@ -596,7 +596,7 @@ export default function BillingPage() {
                   setIsCancelModalOpen(false);
                   setItemToCancel(null);
                   // Refresh billing info
-                  const refreshed = await fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' });
+                  const refreshed = await fetch('/api/custom-projects-backend/billing/me?refresh=1', { credentials: 'same-origin' });
                   if (refreshed.ok) setBillingInfo(await refreshed.json());
                 } catch (e) {
                   console.error(e);
