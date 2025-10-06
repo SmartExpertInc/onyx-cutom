@@ -34929,6 +34929,26 @@ async def set_lms_user_settings(http_request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to save LMS user settings")
 
+@app.post("/api/custom/admin/lms/reset-user-modal")
+async def reset_lms_user_modal_admin(http_request: Request):
+    """Admin-only: reset the LMS account choice so the modal shows again for a specific user."""
+    await verify_admin_user(http_request)
+    try:
+        body = await http_request.json()
+        target_user_id = (body or {}).get("user_id")
+        if not target_user_id:
+            raise HTTPException(status_code=400, detail="Missing user_id")
+        async with DB_POOL.acquire() as connection:
+            await connection.execute(
+                "DELETE FROM lms_user_settings WHERE onyx_user_id = $1",
+                target_user_id,
+            )
+        return {"success": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to reset LMS modal state")
+
 @app.post("/api/custom/lms/create-workspace-owner")
 async def create_workspace_owner(http_request: Request):
     """Create SmartExpert Workspace Owner using user's email and provided or default token."""

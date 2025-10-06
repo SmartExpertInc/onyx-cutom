@@ -297,6 +297,35 @@ const FeaturesTab: React.FC = () => {
 
       {/* Feature Table */}
       <div className="overflow-x-auto">
+        <div className="flex items-center gap-2 mb-3">
+          <input
+            type="text"
+            placeholder="Enter User ID to reset LMS modal (press Enter)"
+            className="px-3 py-2 border rounded"
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                const userId = (e.target as HTMLInputElement).value.trim();
+                if (!userId) return;
+                try {
+                  const resp = await fetch(`${CUSTOM_BACKEND_URL}/admin/lms/reset-user-modal`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ user_id: userId }),
+                  });
+                  if (resp.ok) {
+                    alert(`Reset LMS modal state for user ${userId}`);
+                  } else {
+                    alert(`Failed to reset LMS modal for user ${userId}`);
+                  }
+                } catch {
+                  alert('Network error while resetting LMS modal');
+                }
+              }
+            }}
+          />
+          <span className="text-xs text-gray-500">Admin tool</span>
+        </div>
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
