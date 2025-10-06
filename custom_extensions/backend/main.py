@@ -27537,26 +27537,44 @@ async def create_billing_portal_session(
         if not STRIPE_SECRET_KEY:
             raise HTTPException(status_code=500, detail="Stripe is not configured")
 
-        onyx_user_id = await get_current_onyx_user_id(request)
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
 
         async with pool.acquire() as conn:
             record = await conn.fetchrow(
                 "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
                 onyx_user_id,
             )
-        if not record or not record.get("stripe_customer_id"):
-            raise HTTPException(status_code=404, detail="No Stripe customer for user")
 
         # Lazy import to avoid hard dependency if not configured
         import stripe  # type: ignore
         stripe.api_key = STRIPE_SECRET_KEY
+
+        # Auto-create a Stripe customer if missing
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user_email or None,
+                metadata={"onyx_user_id": onyx_user_id},
+            )
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
 
         # Determine return URL: use env if provided, else default to billing page
         default_return = f"{(settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL', 'http://custom_frontend:3001')).rstrip('/')}/custom-projects-ui/payments"
         return_url = STRIPE_BILLING_RETURN_URL or default_return
 
         session = stripe.billing_portal.Session.create(
-            customer=record["stripe_customer_id"],
+            customer=stripe_customer_id,
             return_url=return_url,
         )
         return {"url": session.url}
