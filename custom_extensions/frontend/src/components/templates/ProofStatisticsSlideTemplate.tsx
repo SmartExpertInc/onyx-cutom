@@ -381,16 +381,16 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       {/* Right Section - Conclusion and Bullet Points */}
       <div style={{
         position: 'absolute',
-        top: '240px',
+        top: '255px',
         right: '60px',
         width: '400px',
       }}>
         {/* Conclusion Text */}
         <div style={{
-          fontSize: '16px',
+          fontSize: '18px',
           color: 'rgba(9, 9, 11, 0.8)',
           lineHeight: '1.4',
-          marginBottom: '20px',
+          marginBottom: '40px',
         }}>
           {isEditable && editingConclusionText ? (
             <ImprovedInlineEditor
@@ -400,7 +400,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               className="conclusion-text-editor"
               multiline={true}
               style={{
-                fontSize: '16px',
+                fontSize: '18px',
                 color: 'rgba(9, 9, 11, 0.8)',
                 lineHeight: '1.4',
                 width: '100%',
@@ -424,7 +424,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: '15px',
         }}>
           {currentBulletPoints.map((bulletPoint, index) => (
             <div key={index} style={{
@@ -438,12 +438,12 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                 marginTop: '8px',
                 flexShrink: 0,
               }}>
-                <svg width="10" height="12" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="8" height="10" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M5.53846 2.27823C6.15385 2.59901 6.15385 3.40099 5.53846 3.72177L1.38462 5.8871C0.769231 6.20789 -3.10607e-08 5.8069 0 5.16532L2.09658e-07 0.834678C2.40719e-07 0.193101 0.769231 -0.207887 1.38462 0.112902L5.53846 2.27823Z" fill="#0F58F9"/>
                 </svg>
               </div>
               <div style={{
-                fontSize: '16px',
+                fontSize: '18px',
                 color: 'rgba(9, 9, 11, 0.8)',
                 lineHeight: '1.4',
                 flex: 1,
@@ -455,7 +455,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                     onCancel={() => setEditingBulletPoints(null)}
                     className="bullet-point-editor"
                     style={{
-                      fontSize: '16px',
+                      fontSize: '18px',
                       color: 'rgba(9, 9, 11, 0.8)',
                       lineHeight: '1.4',
                       width: '100%',
