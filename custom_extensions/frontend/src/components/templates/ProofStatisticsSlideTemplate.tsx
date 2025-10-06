@@ -140,7 +140,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       {/* Tag */}
       <div style={{
         position: 'absolute',
-        top: '40px',
+        top: '30px',
         left: '60px',
         marginBottom: '25px',
         display: 'flex',
@@ -203,13 +203,13 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       {/* Title */}
       <div style={{
         position: 'absolute',
-        top: '95px',
+        top: '100px',
         left: '60px',
-        fontSize: '50px',
+        fontSize: '48px',
         fontWeight: 'bold',
         color: '#09090B',
         lineHeight: '1.1',
-        maxWidth: '600px',
+        maxWidth: '900px',
         fontFamily: "'Lora', serif",
       }}>
         {isEditable && editingTitle ? (
@@ -219,7 +219,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             onCancel={() => setEditingTitle(false)}
             className="proof-title-editor title-element"
             style={{
-              fontSize: '50px',
+              fontSize: '48px',
               fontWeight: 'bold',
               color: '#09090B',
               lineHeight: '1.1',
@@ -247,12 +247,12 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       {/* Description */}
       <div style={{
         position: 'absolute',
-        top: '155px',
+        top: '172px',
         left: '60px',
         fontSize: '16px',
         color: 'rgba(9, 9, 11, 0.8)',
         lineHeight: '1.4',
-        maxWidth: '454px',
+        maxWidth: '480px',
       }}>
         {isEditable && editingDescription ? (
           <ImprovedInlineEditor
@@ -285,12 +285,12 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       {/* Statistics Grid */}
       <div style={{
         position: 'absolute',
-        top: '240px',
+        top: '255px',
         left: '60px',
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
         gridTemplateRows: 'repeat(3, 1fr)',
-        gap: '30px',
+        gap: '20px',
         width: '600px',
         backgroundColor: '#F3F5FF',
         padding: '44px',
@@ -306,10 +306,10 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
           }}>
             {/* Statistic Value */}
             <div className="title-element" style={{
-              fontSize: '32px',
+              fontSize: '28px',
               fontWeight: 'semibold',
               color: '#09090B',
-              marginBottom: '12px',
+              marginBottom: '6px',
               fontFamily: "'Lora', serif",
             }}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'value' ? (
@@ -499,7 +499,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
           isEditable={isEditable}
           style={{
             width: '110%',
-            height: '1110%',
+            height: '110%',
             borderRadius: '50%',
             position: 'relative',
             bottom: '-20px',
