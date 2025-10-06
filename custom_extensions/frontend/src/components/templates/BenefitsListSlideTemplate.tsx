@@ -514,11 +514,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '100%',
-              height: '100%',
+              width: '110%',
+              height: '110%',
               borderRadius: '50%',
               position: 'relative',
-              bottom: '-20px',
+              bottom: '-10px',
+              left: '50%',
+              transform: 'translateX(-50%)',
               objectFit: 'cover'
             }}
           />

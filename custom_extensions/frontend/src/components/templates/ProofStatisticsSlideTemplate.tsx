@@ -65,7 +65,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '40px 60px',
+    padding: '30px 60px',
   };
 
   const handleTagTextSave = (newTagText: string) => {
@@ -498,11 +498,13 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
           description="Profile photo"
           isEditable={isEditable}
           style={{
-            width: '100%',
-            height: '100%',
+            width: '110%',
+            height: '1110%',
             borderRadius: '50%',
             position: 'relative',
             bottom: '-20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
             objectFit: 'cover'
           }}
         />
