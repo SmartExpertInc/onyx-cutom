@@ -579,8 +579,8 @@
         
         /* CRITICAL FIX: Enable transform positioning for draggable text elements */
         .positioned-element {
-            position: relative; /* Required for transform: translate() to work */
-            display: inline-block; /* Preserve element dimensions */
+            /* Keep elements in their natural flexbox flow while allowing transforms */
+            /* Removed position: relative to prevent positioning conflicts (same fix as PDF) */
         }
         
         /* Hide all placeholder content */
