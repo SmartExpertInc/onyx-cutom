@@ -283,6 +283,15 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   return (
     <div className="benefits-list-slide-template inter-theme" style={slideStyles}>
+      <style>{`
+        .benefits-list-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .benefits-list-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
       {/* Top section with blue gradient background */}
       <div style={{
         flex: '0 0 427px', // Фиксированная высота для верхней секции
@@ -371,7 +380,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 initialValue={currentTitle}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
-                className="benefits-title-editor"
+                className="benefits-title-editor title-element"
                 style={{
                   fontSize: '48px',
                   color: '#FFFFFF',
@@ -385,6 +394,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               />
             ) : (
               <div
+                className="title-element"
                 onClick={() => isEditable && setEditingTitle(true)}
                 style={{
                   cursor: isEditable ? 'pointer' : 'default',
