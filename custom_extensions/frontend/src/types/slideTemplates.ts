@@ -815,6 +815,7 @@ export interface EnterpriseRoadmapSlideProps extends BaseTemplateProps {
   tableData: Array<Record<string, string>>; // flexible rows keyed by current headers
   profileImagePath?: string;
   profileImageAlt?: string;
+  companyLogoPath?: string;
   companyName?: string;
   reportType?: string;
   date?: string;
