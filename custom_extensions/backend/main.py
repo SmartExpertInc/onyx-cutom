@@ -34950,9 +34950,9 @@ async def create_workspace_owner(http_request: Request):
                     """
                     SELECT feature_name, is_enabled 
                     FROM user_features 
-                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms')
+                    WHERE user_id = ANY($1::text[]) AND feature_name IN ('is_us_lms','is_dev_lms')
                     """,
-                    user_uuid,
+                    [user_uuid, user_email],
                 )
                 flags = {r['feature_name']: bool(r['is_enabled']) for r in rows}
                 is_dev = flags.get('is_dev_lms', True)
@@ -34971,7 +34971,7 @@ async def create_workspace_owner(http_request: Request):
                 resolved_token = token or os.environ.get('LMS_NET_TOKEN') or DEFAULT_SMARTEXPERT_TOKEN
         params["token"] = resolved_token or ""
         target_url = f"{base_url}/store-workspace-owner"
-        logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part} base={base_url}")
+        logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part} target={target_url}")
         import httpx
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.get(target_url, params=params, headers={"User-Agent": "Custom Extensions Backend"})
