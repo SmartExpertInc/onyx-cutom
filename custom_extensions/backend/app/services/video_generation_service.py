@@ -372,26 +372,107 @@ class ElaiVideoGenerationService:
             # Prepare slides for Elai API
             elai_slides = []
             for i, slide in enumerate(slides_data):
+                # Extract slide data
+                slide_id = slide.get("slideId", f"slide-{i}")
+                props = slide.get("props", {})
+                metadata = slide.get("metadata", {})
+                element_positions = metadata.get("elementPositions", {})
+                
+                # Build canvas objects starting with avatar
+                canvas_objects = [{
+                    "type": "avatar",
+                    "left": 510,
+                    "top": 255,
+                    "fill": "#4868FF",
+                    "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
+                    "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
+                    "width": 1080,
+                    "height": 1080,
+                    "src": avatar_data.get("canvas_url"),
+                    "avatarType": "transparent",
+                    "animation": {
+                        "type": None,
+                        "exitType": None
+                    }
+                }]
+                
+                # Add text elements with dynamic positioning
+                text_elements_added = 0
+                
+                # Add title if present
+                if props.get("title") and props.get("title") != "Click to add title":
+                    title_id = f"draggable-{slide_id}-0"
+                    title_position = element_positions.get(title_id, {"x": 100, "y": 100})  # Default position
+                    
+                    canvas_objects.append({
+                        "type": "text",
+                        "left": title_position.get("x", 100),
+                        "top": title_position.get("y", 100),
+                        "width": 800,
+                        "height": 100,
+                        "fill": "#000000",
+                        "fontSize": 48,
+                        "fontFamily": "Arial",
+                        "fontWeight": "bold",
+                        "text": props.get("title"),
+                        "textAlign": "left",
+                        "textDecoration": "none"
+                    })
+                    text_elements_added += 1
+                    logger.info(f"Added title text element at position ({title_position.get('x', 100)}, {title_position.get('y', 100)})")
+                
+                # Add subtitle if present
+                if props.get("subtitle") and props.get("subtitle") != "Click to add content":
+                    subtitle_id = f"draggable-{slide_id}-1"
+                    subtitle_position = element_positions.get(subtitle_id, {"x": 100, "y": 200})  # Default position
+                    
+                    canvas_objects.append({
+                        "type": "text",
+                        "left": subtitle_position.get("x", 100),
+                        "top": subtitle_position.get("y", 200),
+                        "width": 800,
+                        "height": 80,
+                        "fill": "#333333",
+                        "fontSize": 32,
+                        "fontFamily": "Arial",
+                        "fontWeight": "normal",
+                        "text": props.get("subtitle"),
+                        "textAlign": "left",
+                        "textDecoration": "none"
+                    })
+                    text_elements_added += 1
+                    logger.info(f"Added subtitle text element at position ({subtitle_position.get('x', 100)}, {subtitle_position.get('y', 200)})")
+                
+                # Add content text if present
+                if props.get("content") and props.get("content") != "Click to add content":
+                    content_id = f"draggable-{slide_id}-2"
+                    content_position = element_positions.get(content_id, {"x": 100, "y": 300})  # Default position
+                    
+                    canvas_objects.append({
+                        "type": "text",
+                        "left": content_position.get("x", 100),
+                        "top": content_position.get("y", 300),
+                        "width": 800,
+                        "height": 200,
+                        "fill": "#666666",
+                        "fontSize": 24,
+                        "fontFamily": "Arial",
+                        "fontWeight": "normal",
+                        "text": props.get("content"),
+                        "textAlign": "left",
+                        "textDecoration": "none"
+                    })
+                    text_elements_added += 1
+                    logger.info(f"Added content text element at position ({content_position.get('x', 100)}, {content_position.get('y', 300)})")
+                
+                logger.info(f"Slide {i+1}: Added {text_elements_added} text elements with dynamic positioning")
+                logger.info(f"Slide {i+1}: Element positions available: {list(element_positions.keys())}")
+                
                 elai_slide = {
                     "id": i + 1,
                     "status": "edited",
                     "canvas": {
-                        "objects": [{
-                            "type": "avatar",
-                            "left": 510,
-                            "top": 255,
-                            "fill": "#4868FF",
-                            "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
-                            "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
-                            "width": 1080,
-                            "height": 1080,
-                            "src": avatar_data.get("canvas_url"),
-                            "avatarType": "transparent",
-                            "animation": {
-                                "type": None,
-                                "exitType": None
-                            }
-                        }],
+                        "objects": canvas_objects,
                         "background": "#ffffff",  # Keep original white background for safety
                         "version": "4.4.0"
                     },
