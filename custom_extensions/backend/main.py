@@ -27494,14 +27494,16 @@ async def get_billing_info(
                 import stripe  # type: ignore
                 stripe.api_key = STRIPE_SECRET_KEY
                 sub = stripe.Subscription.retrieve(subscription_id, expand=["items.data.price.product"])
-                status = sub.status
-                if sub.items and len(sub.items.data) > 0:
-                    price = sub.items.data[0].price
-                    price_id = price.id
-                    interval = (price.recurring.interval if getattr(price, "recurring", None) else None)
+                status = sub.get("status") or getattr(sub, "status", None)
+                items = sub.get("items") or sub["items"] if isinstance(sub, dict) else sub["items"]
+                data_list = items.get("data") if isinstance(items, dict) else getattr(items, "data", None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]["price"]
+                    price_id = price.get("id") or getattr(price, "id", None)
+                    interval = (price.get("recurring", {}) or getattr(price, "recurring", None) or {}).get("interval")
                     # Infer plan from product name if available
-                    product = getattr(price, "product", None)
-                    product_name = getattr(product, "name", "") if product else ""
+                    product = price.get("product") if isinstance(price, dict) else getattr(price, "product", None)
+                    product_name = (product.get("name") if isinstance(product, dict) else getattr(product, "name", "")) if product else ""
                     lowered = (product_name or "").lower()
                     if "business" in lowered:
                         plan = "business"
@@ -27715,14 +27717,17 @@ async def stripe_webhook(
                 interval = None
                 price_id = None
                 
-                if subscription.items and len(subscription.items.data) > 0:
-                    price = subscription.items.data[0].price
-                    price_id = price.id
-                    interval = price.recurring.interval if hasattr(price, 'recurring') else None
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]['price'] if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                    price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                    recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                    interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
                     
                     # Infer plan from product name
-                    product = getattr(price, 'product', None)
-                    product_name = getattr(product, 'name', '') if product else ''
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
                     lowered = product_name.lower()
                     if 'business' in lowered:
                         plan = 'business'
@@ -27756,7 +27761,7 @@ async def stripe_webhook(
 
         elif event['type'] == 'customer.subscription.updated':
             subscription = event['data']['object']
-            customer_id = subscription.get('customer')
+            customer_id = subscription.get('customer') if isinstance(subscription, dict) else getattr(subscription, 'customer', None)
             
             # Find user by customer ID
             async with pool.acquire() as conn:
@@ -27773,13 +27778,17 @@ async def stripe_webhook(
                 interval = None
                 price_id = None
                 
-                if subscription.get('items') and len(subscription['items']['data']) > 0:
-                    price = subscription['items']['data'][0]['price']
-                    price_id = price['id']
-                    interval = price.get('recurring', {}).get('interval')
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]['price'] if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                    price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                    recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                    interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
                     
                     # Infer plan from product name
-                    product_name = price.get('product', {}).get('name', '') if isinstance(price.get('product'), dict) else ''
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
                     lowered = product_name.lower()
                     if 'business' in lowered:
                         plan = 'business'
