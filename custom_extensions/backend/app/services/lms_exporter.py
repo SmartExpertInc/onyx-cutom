@@ -28,7 +28,9 @@ async def post_export_to_smartexpert(structure_json: bytes, user_email: str, tok
         api_token = token
         if not api_token:
             base = (base_url or '').lower()
-            if 'app.smartexpert.io' in base:
+            if 'lms.toliman.com.ua' in base:
+                api_token = os.environ.get('LMS_CHUDO_TOKEN')
+            elif 'app.smartexpert.io' in base:
                 api_token = os.environ.get('LMS_IO_TOKEN')
             elif base.endswith('app.smartexpert.net') or 'app.smartexpert.net' in base:
                 api_token = os.environ.get('LMS_NET_TOKEN')

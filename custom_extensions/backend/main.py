@@ -6659,6 +6659,7 @@ async def startup_event():
                     ('export_scorm_2004', 'Export to SCORM 2004', 'Enable SCORM 2004 ZIP export button in course view', 'Exports'),
                     ('is_us_lms', 'LMS: Use US (.io)', 'If enabled (and DEV disabled), use https://app.smartexpert.io for LMS requests', 'LMS'),
                     ('is_dev_lms', 'LMS: Use DEV (.net dev)', 'If enabled, always use https://dev.smartexpert.net for LMS requests (overrides US/EU)', 'LMS'),
+                    ('is_chudomaket', 'LMS: Use Chudomaket', 'Override and use https://lms.toliman.com.ua for all LMS requests', 'LMS'),
                 ]
 
                 for feature_name, display_name, description, category in initial_features:
@@ -8799,11 +8800,11 @@ async def migrate_onyx_users_to_credits_table() -> int:
                             logger.info(f"User {user['onyx_user_id']} already has credits, skipping credit creation")
                         else:
                             # Insert user credits (original migration logic)
-                            await custom_conn.execute("""
-                                INSERT INTO user_credits (onyx_user_id, name, credits_balance)
-                                VALUES ($1, $2, 100)
-                                ON CONFLICT (onyx_user_id) DO NOTHING
-                            """, user['onyx_user_id'], user['name'])
+                        await custom_conn.execute("""
+                            INSERT INTO user_credits (onyx_user_id, name, credits_balance)
+                            VALUES ($1, $2, 100)
+                            ON CONFLICT (onyx_user_id) DO NOTHING
+                        """, user['onyx_user_id'], user['name'])
                             logger.info(f"Created credits for user {user['onyx_user_id']}")
                         
                         # Check if user already has full SmartDrive provisioning
@@ -34800,16 +34801,21 @@ async def export_to_lms(
                     """
                     SELECT feature_name, is_enabled
                     FROM user_features
-                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms')
+                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms','is_chudomaket')
                     """,
                     onyx_user_id,
                 )
                 flags = {r['feature_name']: bool(r['is_enabled']) for r in rows}
+                is_chudo = flags.get('is_chudomaket', False)
                 is_dev = flags.get('is_dev_lms', True)
                 is_us = flags.get('is_us_lms', True)
         except Exception:
             pass
-        smartexpert_base_url = "https://dev.smartexpert.net" if is_dev else ("https://app.smartexpert.io" if is_us else "https://app.smartexpert.net")
+        smartexpert_base_url = (
+            "https://lms.toliman.com.ua" if is_chudo else (
+            "https://dev.smartexpert.net" if is_dev else (
+            "https://app.smartexpert.io" if is_us else "https://app.smartexpert.net"))
+        )
         yield (json.dumps({"type": "start", "total": total}) + "\n").encode()
 
         for product_id in accessible_ids:
@@ -34953,16 +34959,20 @@ async def create_workspace_owner(http_request: Request):
                     """
                     SELECT feature_name, is_enabled 
                     FROM user_features 
-                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms')
+                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms','is_chudomaket')
                     """,
                     onyx_user_id,
                 )
                 flags = {r['feature_name']: bool(r['is_enabled']) for r in rows}
+                is_chudo = flags.get('is_chudomaket', False)
                 is_dev = flags.get('is_dev_lms', True)
                 is_us = flags.get('is_us_lms', True)
         except Exception:
             pass
-        if is_dev:
+        if is_chudo:
+            base_url = "https://lms.toliman.com.ua"
+            resolved_token = token or os.environ.get('LMS_CHUDO_TOKEN') or DEFAULT_SMARTEXPERT_TOKEN
+        elif is_dev:
             base_url = "https://dev.smartexpert.net"
             resolved_token = token or DEFAULT_SMARTEXPERT_TOKEN
         else:
