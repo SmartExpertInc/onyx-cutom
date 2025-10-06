@@ -27569,8 +27569,9 @@ async def create_billing_portal_session(
                     stripe_customer_id,
                 )
 
-        # Determine return URL: use env if provided, else default to billing page
-        default_return = f"{(settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL', 'http://custom_frontend:3001')).rstrip('/')}/custom-projects-ui/payments"
+        # Determine return URL: prefer WEB_DOMAIN, then CUSTOM_FRONTEND_URL, else default to docker hostname
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        default_return = f"{(preferred_domain or 'http://custom_frontend:3001').rstrip('/')}/custom-projects-ui/payments"
         return_url = STRIPE_BILLING_RETURN_URL or default_return
 
         session = stripe.billing_portal.Session.create(
@@ -27634,7 +27635,8 @@ async def create_checkout_session(
                 )
 
         # Determine return URLs
-        base_url = (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL', 'http://custom_frontend:3001')).rstrip('/')
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
         success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
         cancel_url = f"{base_url}/custom-projects-ui/payments"
 
