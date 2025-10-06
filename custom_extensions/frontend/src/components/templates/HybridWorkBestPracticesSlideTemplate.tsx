@@ -10,7 +10,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   theme?: SlideTheme | string;
 }> = ({
   slideId,
-  title = 'HYBRID WORK BEST PRACTICES',
+  title = 'Hybrid work best practices',
   subtitle = '',
   mainStatement = 'To adopt a hybrid work model, you need the right people, processes, and technology.',
   practices = [
@@ -62,7 +62,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F0F2F7',
+    backgroundColor: '#E0E7FF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -148,34 +148,25 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         justifyContent: 'space-between',
         alignItems: 'center',
         zIndex: 10
-      }}>
-        {/* Page number */}
-        <div style={{
-          fontSize: '14px',
-          color: '#A2A19D',
-          fontFamily: 'Inter, sans-serif'
-        }}>
-          801
-        </div>
-        
+      }}>    
         {/* Logo */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
           fontSize: '14px',
-          color: '#A2A19D',
+          color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
           <div style={{
             width: '20px',
             height: '20px',
             borderRadius: '50%',
-            border: '1px solid #A2A19D',
+            border: '1px solid black',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '12px'
+            fontSize: '14px'
           }}>
             +
           </div>
@@ -192,7 +183,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         padding: '40px 60px',
         paddingRight: '0px',
         paddingBottom: '0px',
-        paddingTop: '80px'
+        paddingTop: '40px'
       }}>
         {/* Left column */}
         <div style={{
@@ -208,17 +199,12 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
               marginBottom: '30px'
             }}>
               <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#3B8BE9'
-              }}></div>
-              <div style={{
                 padding: '8px 18px',
+                display: 'flex',
+                gap: '8px',
                 border: '2px solid #333333',
                 borderRadius: '20px',
                 fontSize: '16px',
@@ -226,6 +212,12 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: '400'
               }}>
+                <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#3B8BE9'
+              }}></div>
                 {isEditable && editingTitle ? (
                   <ImprovedInlineEditor
                     initialValue={currentTitle}
@@ -272,7 +264,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   multiline={true}
                   className="title-element"
                   style={{
-                    fontSize: '48px',
+                    fontSize: '35px',
                     maxWidth: '400px',
                     color: '#333333',
                     lineHeight: '1.2',
@@ -299,14 +291,14 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
           {/* Profile image at bottom */}
           <div style={{
-            width: '165px',
-            height: '165px',
+            width: '170px',
+            height: '170px',
             borderRadius: '50%',
             overflow: 'hidden',
             alignSelf: 'flex-start',
             position: 'absolute',
-            bottom: '25px',
-            backgroundColor: '#3B8BE9'
+            bottom: '90px',
+            backgroundColor: '#0F58F9'
           }}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
@@ -327,7 +319,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
         {/* Right column */}
         <div style={{
-          width: '71%',
+          width: '55%',
           height: '370px',
           display: 'flex',
           flexDirection: 'column',
@@ -354,7 +346,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 <div style={{
                   width: '24px',
                   height: '24px',
-                  backgroundColor: '#3B8BE9',
+                  backgroundColor: '#0F58F9',
                   color: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
@@ -362,7 +354,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   fontSize: '14px',
                   fontWeight: 'bold',
                   flexShrink: 0,
-                  borderRadius: '4px'
+                  borderRadius: '2px'
                 }}>
                   {practice.number}
                 </div>
@@ -388,7 +380,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         className="practice-title-editor"
                         style={{
                           fontSize: '16px',
-                          color: '#333333',
+                          color: '#09090B',
                           lineHeight: '1.3',
                           fontWeight: '600',
                           fontFamily: 'Inter, sans-serif',
@@ -454,7 +446,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           {/* Team image at bottom */}
           <div style={{
             width: '100%',
-            height: '90%',
+            height: '46%',
+            borderRadius: '6px',
           }}>
             <ClickableImagePlaceholder
               imagePath={teamImagePath}
@@ -466,7 +459,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               style={{
                 width: '100%',
                 height: '100%',
-                borderRadius: '0px',
+                borderRadius: '6px',
               }}
             />
           </div>
