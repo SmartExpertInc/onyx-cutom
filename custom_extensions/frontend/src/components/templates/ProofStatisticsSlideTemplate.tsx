@@ -224,7 +224,9 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
+              userSelect: 'none',
+              // Force Lora on the element that renders text to override global Inter rule
+              fontFamily: "'Lora', serif"
             }}
           >
             {currentTitle}
@@ -237,7 +239,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         position: 'absolute',
         top: '155px',
         left: '60px',
-        fontSize: '13px',
+        fontSize: '20px',
         color: 'rgba(9, 9, 11, 0.8)',
         lineHeight: '1.4',
         maxWidth: '454px',
@@ -250,7 +252,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             className="proof-description-editor"
             multiline={true}
             style={{
-              fontSize: '16px',
+              fontSize: '20px',
               color: 'rgba(9, 9, 11, 0.8)',
               lineHeight: '1.4',
               width: '100%',
@@ -371,7 +373,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       }}>
         {/* Conclusion Text */}
         <div style={{
-          fontSize: '14px',
+          fontSize: '20px',
           color: 'rgba(9, 9, 11, 0.8)',
           lineHeight: '1.4',
           marginBottom: '20px',
@@ -384,7 +386,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               className="conclusion-text-editor"
               multiline={true}
               style={{
-                fontSize: '14px',
+                fontSize: '20px',
                 color: 'rgba(9, 9, 11, 0.8)',
                 lineHeight: '1.4',
                 width: '100%',
@@ -427,7 +429,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                 </svg>
               </div>
               <div style={{
-                fontSize: '16px',
+                fontSize: '20px',
                 color: 'rgba(9, 9, 11, 0.8)',
                 lineHeight: '1.4',
                 flex: 1,
@@ -439,7 +441,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                     onCancel={() => setEditingBulletPoints(null)}
                     className="bullet-point-editor"
                     style={{
-                      fontSize: '16px',
+                      fontSize: '20px',
                       color: 'rgba(9, 9, 11, 0.8)',
                       lineHeight: '1.4',
                       width: '100%',
@@ -471,7 +473,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         width: '120px',
         height: '120px',
         borderRadius: '50%',
-        backgroundColor: '#F9F9F9',
+        backgroundColor: '#0F58F9',
         overflow: 'hidden',
       }}>
         <ClickableImagePlaceholder
