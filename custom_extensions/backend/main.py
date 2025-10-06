@@ -27910,8 +27910,8 @@ async def list_all_user_credits(
                     uc.total_credits_used,
                     uc.credits_purchased,
                     uc.last_purchase_date,
-                    -- prefer real plan from billing, fallback to existing column
-                    COALESCE(ub.current_plan, uc.subscription_tier) AS subscription_tier,
+                    -- prefer real plan from billing; default to 'starter' when missing
+                    COALESCE(ub.current_plan, 'starter') AS subscription_tier,
                     uc.created_at,
                     uc.updated_at
                 FROM user_credits uc
