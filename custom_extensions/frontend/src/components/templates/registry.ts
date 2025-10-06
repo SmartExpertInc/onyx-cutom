@@ -1599,7 +1599,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       profileImageAlt: 'Profile image',
       website: 'www.company.com',
       date: 'Date Goes Here',
-      pageNumber: 'Page Number'
+      pageNumber: '23'
     },
     propSchema: {
       subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 100 },

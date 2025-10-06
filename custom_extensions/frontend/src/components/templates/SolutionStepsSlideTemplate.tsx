@@ -111,7 +111,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
     }
   };
 
-  const positions: string[] = ['15%', '43%', '71%'];
+  const positions: string[] = ['17%', '43%', '71%'];
 
   return (
     <div className="solution-steps-slide-template inter-theme" style={slideStyles}>
@@ -314,13 +314,13 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             <div key={index} style={{
               display: 'flex',
               flexDirection: 'column',
-              paddingLeft: index === 0 ? '14%' : '0',
+              paddingLeft: index === 0 ? '16px' : '0',
               marginTop: '-10px',
-              width: index === 0 ? '33.33%' : index === 1 ? '16.33%' : index === 2 ? '28%' : '0',
+              width: index === 0 ? 'calc(33.33% - 2px)' : index === 1 ? 'calc(16.33% + 7px)' : index === 2 ? 'calc(28% + 7px)' : '0',
             }}>
               {/* Step Title */}
               <div style={{
-                fontSize: '24px',
+                fontSize: '28px',
                 fontWeight: 'semibold',
                 color: '#09090B',
                 marginBottom: '15px',
@@ -332,7 +332,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     onCancel={() => setEditingSteps(null)}
                     className="step-title-editor"
                     style={{
-                      fontSize: '24px',
+                      fontSize: '28px',
                       fontWeight: 'semibold',
                       color: '#09090B',
                       width: '100%',
@@ -354,7 +354,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
 
               {/* Step Description */}
               <div style={{
-                fontSize: '16px',
+                fontSize: '20px',
                 color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.3',
                 maxWidth: '160px',
@@ -366,7 +366,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     onCancel={() => setEditingSteps(null)}
                     className="step-description-editor"
                     style={{
-                      fontSize: '16px',
+                      fontSize: '20px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       width: '100%',
                       height: 'auto',
