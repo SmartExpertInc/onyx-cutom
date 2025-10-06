@@ -410,11 +410,13 @@ export interface BenefitsListSlideProps extends BaseTemplateProps {
   totalSteps?: number;
   companyName?: string;
   benefitsListIcon?: string;
+  logoNew?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
   voiceoverText?: string;
+  pageNumber?: string;
 }
 
 export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
