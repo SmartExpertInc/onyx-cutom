@@ -38,7 +38,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#4D4828',
+    backgroundColor: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -47,15 +47,15 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
     left: '56px',
-    bottom: '33px',
+    top: '100px',
     fontSize: '53px',
     fontWeight: 800,
-    color: '#D7D1B0',
+    color: '#FFFFFF',
   };
 
   const listContainerStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '152px',
+    top: '200px',
     left: '56px',
     right: '56px',
     display: 'flex',
@@ -63,9 +63,11 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     gap: '36px',
   };
 
+
+
   const itemStyles: React.CSSProperties = {
-    backgroundColor: '#58552E',
-    color: '#D6D2AC',
+    backgroundColor: '#FFFFFF',
+    color: '#09090B',
     borderRadius: '2px',
     padding: '15px 15px',
     fontSize: '28px',
@@ -74,8 +76,17 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
 
   return (
     <div className="resources-list-slide inter-theme" style={slideStyles}>
+      <style>{`
+        .resources-list-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .resources-list-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
       {/* Logo */}
-      <div style={{ position: 'absolute', top: '40px', left: '48px' }}>
+      <div style={{ position: 'absolute', top: '30px', left: '30px' }}>
         {logoPath ? (
           <ClickableImagePlaceholder
             imagePath={logoPath}
@@ -84,42 +95,83 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
             position="CENTER"
             description="Your Logo"
             isEditable={isEditable}
-            style={{ height: '32px', width: '120px', objectFit: 'contain' }}
+            style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
           />
         ) : (
           <div
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default' }}
             onClick={() => isEditable && setShowLogoUpload(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
           >
             <div style={{
               width: '30px',
               height: '30px',
-              border: '2px solid #B9B48D',
+              border: '2px solid #ffffff',
               borderRadius: '50%',
               position: 'relative',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <div style={{ width: '12px', height: '2px', backgroundColor: '#B9B48D', position: 'absolute' }} />
-              <div style={{ width: '2px', height: '12px', backgroundColor: '#B9B48D', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#ffffff', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#ffffff', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-            <div style={{ color: '#B9B48D', fontSize: '18px' }}>Your Logo</div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#ffffff', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
           </div>
         )}
       </div>
 
-      {/* Profile circle bottom-right */}
-      <div style={{ position: 'absolute', right: '48px', bottom: '11px', width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#9E9E58' }}>
+      {/* Profile Image */}
+      <div style={{
+        position: 'absolute',
+        top: '40px',
+        right: '60px',
+        width: '170px',
+        height: '170px',
+        borderRadius: '50%',
+        backgroundColor: '#FFFFFF',
+        overflow: 'hidden',
+      }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
           onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
           size="LARGE"
           position="CENTER"
-          description="Profile"
+          description="Profile photo"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          style={{
+            width: '110%',
+            height: '110%',
+            borderRadius: '50%',
+            position: 'relative',
+            bottom: '-10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            objectFit: 'cover'
+          }}
         />
+      </div>
+
+      {/* Title */}
+      <div style={titleStyles}>
+        {isEditable && editingTitle ? (
+          <ImprovedInlineEditor
+            initialValue={title}
+            onSave={(v) => {
+              setEditingTitle(false);
+              onUpdate && onUpdate({ title: v });
+            }}
+            onCancel={() => setEditingTitle(false)}
+            className="resources-title-editor title-element"
+            style={{ ...titleStyles, position: 'relative', left: 0, top: 0 }}
+          />
+        ) : (
+          <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+        )}
       </div>
 
       {/* Items */}
@@ -147,24 +199,6 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
             )}
           </div>
         ))}
-      </div>
-
-      {/* Title */}
-      <div style={titleStyles}>
-        {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
-            initialValue={title}
-            onSave={(v) => {
-              setEditingTitle(false);
-              onUpdate && onUpdate({ title: v });
-            }}
-            onCancel={() => setEditingTitle(false)}
-            className="resources-title-editor"
-            style={{ ...titleStyles, position: 'relative', left: 0, bottom: 0 }}
-          />
-        ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
-        )}
       </div>
 
       {showLogoUpload && (
