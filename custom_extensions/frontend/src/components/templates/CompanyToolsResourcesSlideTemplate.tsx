@@ -121,8 +121,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         left: '0',
         right: '0',
         top: '0',
-        height: '30%',
-        background: 'linear-gradient(to bottom, #0F58F9, #1023A1)',
+        height: '40%',
+        background: 'white',
         border: 'none'
       }} />
 
@@ -196,14 +196,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       <div style={{
         position: 'absolute',
         left: '60px',
-        top: '50%',
+        top: '17%',
         transform: 'translateY(-50%)',
-        fontSize: '48px',
+        fontSize: '52px',
         fontWeight: '600',
         color: '#FFFFFF',
         fontFamily: 'Lora, serif',
         zIndex: 5,
-        maxWidth: '60%'
+        maxWidth: '70%'
       }}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
@@ -269,14 +269,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         position: 'absolute',
         left: '0',
         right: '0',
-        top: '30%',
+        top: '35%',
         bottom: '0',
         background: '#F0F2F7',
-        padding: '60px',
+        padding: '0px',
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gridTemplateRows: '1fr 1fr',
-        gap: '20px'
+        gap: '0px'
       }}>
         {currentSections.map((section, index) => (
           <div key={index} style={{
@@ -285,8 +285,6 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
           }}>
             {/* Section Title */}
             <div style={{

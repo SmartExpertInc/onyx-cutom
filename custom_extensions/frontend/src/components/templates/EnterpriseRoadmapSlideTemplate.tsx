@@ -141,8 +141,18 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'220px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#0F58F9', color:'#FFFFFF', padding:'13px 10px', borderRadius:'4px', fontWeight:400, fontSize:'17px', position:'relative' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'13px 10px', background: i%2===0 ? '#FFFFFF' : '#F3F5FF', fontSize:'17px', color:'#6B6B6D', borderRadius:'2px', marginTop:'0px', position:'relative' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#0F58F9', color:'#FFFFFF', padding:'10px 15px', borderTopLeftRadius:'2px', borderTopRightRadius:'2px', fontWeight:400, fontSize:'17px', position:'relative' };
+  const rowStyle = (i:number, totalRows:number): React.CSSProperties => ({ 
+    display:'grid', 
+    gridTemplateColumns: gridTemplate, 
+    padding:'10px 15px', 
+    background: i%2===0 ? '#FFFFFF' : '#F3F5FF', 
+    fontSize:'17px', 
+    color:'#6B6B6D', 
+    marginTop:'0px', 
+    position:'relative',
+    borderRadius: i === totalRows - 1 ? '0 0 2px 2px' : '0'
+  });
 
   // Inline editor base styles to prevent layout shift
   const inlineEditorHeaderStyle: React.CSSProperties = {
@@ -251,7 +261,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
           ))}
         </div>
         {rows.map((r, i)=> (
-          <div key={i} style={rowStyle(i)} onMouseEnter={()=> setHoverRowIdx(i)} onMouseLeave={()=> setHoverRowIdx(null)}>
+          <div key={i} style={rowStyle(i, rows.length)} onMouseEnter={()=> setHoverRowIdx(i)} onMouseLeave={()=> setHoverRowIdx(null)}>
             {cols.map((h, cidx)=> (
               <div key={cidx} style={{ position:'relative' }}>
                 {isEditable && editingCell && editingCell.row===i && editingCell.col===cidx ? (
