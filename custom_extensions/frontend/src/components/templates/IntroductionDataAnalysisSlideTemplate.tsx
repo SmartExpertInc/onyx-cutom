@@ -130,7 +130,16 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   };
 
   return (
-    <div style={slide}>
+    <div className="introduction-data-analysis-slide-template" style={slide}>
+      <style>{`
+        .introduction-data-analysis-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .introduction-data-analysis-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
       {/* Logo in top-left corner */}
       <div style={{
         position: 'absolute',
@@ -193,7 +202,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
 
       {/* Right side - Title */}
       <div style={titleContainer}>
-        <div style={titleStyle} onClick={() => isEditable && setEditKey('title')}>
+        <div className="title-element" style={titleStyle} onClick={() => isEditable && setEditKey('title')}>
           {isEditable && editKey === 'title' ? (
             <ImprovedInlineEditor 
               initialValue={title} 
@@ -203,6 +212,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
                 setEditKey(null); 
               }} 
               onCancel={() => setEditKey(null)} 
+              className="title-element"
               style={inline(titleStyle)} 
             />
           ) : (

@@ -128,6 +128,15 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
 
   return (
     <div className="proof-statistics-slide-template inter-theme" style={slideStyles}>
+      <style>{`
+        .proof-statistics-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .proof-statistics-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
       {/* Tag */}
       <div style={{
         position: 'absolute',
@@ -208,7 +217,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
-            className="proof-title-editor"
+            className="proof-title-editor title-element"
             style={{
               fontSize: '50px',
               fontWeight: 'bold',
@@ -221,6 +230,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
           />
         ) : (
           <div
+            className="title-element"
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               cursor: isEditable ? 'pointer' : 'default',
@@ -295,7 +305,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             flexDirection: 'column',
           }}>
             {/* Statistic Value */}
-            <div style={{
+            <div className="title-element" style={{
               fontSize: '32px',
               fontWeight: 'semibold',
               color: '#09090B',
@@ -307,7 +317,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   initialValue={stat.value}
                   onSave={(value) => handleStatisticSave(index, 'value', value)}
                   onCancel={() => setEditingStatistics(null)}
-                  className="statistic-value-editor"
+                  className="statistic-value-editor title-element"
                   style={{
                     fontSize: '32px',
                     fontWeight: 'semibold',
@@ -319,6 +329,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                 />
               ) : (
                 <div
+                  className="title-element"
                   onClick={() => isEditable && setEditingStatistics({ index, field: 'value' })}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
