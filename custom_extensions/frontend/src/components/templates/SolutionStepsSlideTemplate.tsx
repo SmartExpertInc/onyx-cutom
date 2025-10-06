@@ -112,6 +112,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   };
 
   const positions: string[] = ['17%', '43%', '71%'];
+  const textPositions: string[] = ['26%', '52%', '80%'];
 
   return (
     <div className="solution-steps-slide-template inter-theme" style={slideStyles}>
@@ -313,13 +314,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           {currentSteps.map((step, index) => (
             <div key={index} style={{
               position: 'absolute',
-              left: positions[index],
+              left: textPositions[index],
               top: '0',
               transform: 'translateX(-50%)',
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
               width: '220px',
             }}>
               {/* Step Title */}
