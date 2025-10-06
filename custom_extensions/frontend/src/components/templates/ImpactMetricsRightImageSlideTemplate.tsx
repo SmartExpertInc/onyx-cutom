@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/ImpactMetricsRightImageSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
@@ -55,6 +55,11 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
 
+  // Sync logo state with prop changes
+  useEffect(() => {
+    setCurrentCompanyLogoPath(companyLogoPath);
+  }, [companyLogoPath]);
+
   const slide: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -83,8 +88,8 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   };
 
   const bullet: React.CSSProperties = {
-    width: '34px',
-    height: '34px',
+    width: '30px',
+    height: '30px',
     borderRadius: '50%',
     backgroundColor: '#0F58F9',
     display: 'inline-flex',
@@ -97,8 +102,12 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     fontSize: '40px',
     fontWeight: 700,
     lineHeight: 1.1,
-    color: '#333333',
+    color: 'black',
     maxWidth: '880px'
+  };
+
+  const inlineMetricPosition: React.CSSProperties = {
+    marginTop: '-10px'
   };
 
   const titleStyle: React.CSSProperties = {
@@ -110,11 +119,11 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
 
   const rightWrap: React.CSSProperties = {
     position: 'absolute',
-    width: '470px',
-    height: '86%',
+    width: '430px',
+    height: '75%',
     top: '50%',
     transform: 'translateY(-50%)',
-    right: '42px',
+    right: '60px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -124,7 +133,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const panel: React.CSSProperties = {
     position: 'absolute',
     inset: '0 0 0 0',
-    borderRadius: '30px',
+    borderRadius: '10px',
     background: 'linear-gradient(to bottom, #0F58F9, #1023A1)'
   };
 
@@ -132,7 +141,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     position: 'absolute',
     bottom: '-26px',
     width: '70',
-    height: '90%',
+    height: '95%',
     objectFit: 'contain'
   };
 
@@ -147,7 +156,14 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   };
 
   return (
-    <div className="impact-metrics-right-image inter-theme" style={slide}>
+    <>
+      <style>{`
+        .impact-metrics-right-image .metric-text {
+          font-family: "Lora", serif !important;
+          font-weight: 700 !important;
+        }
+      `}</style>
+      <div className="impact-metrics-right-image inter-theme" style={slide}>
       {/* Logo Placeholder */}
       <div style={{
         position: 'absolute',
@@ -233,11 +249,11 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
         {metrics.map((m, i) => (
           <div key={i} style={metricRow}>
             <div style={bullet}>
-              <svg width="8" height="7" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="12" height="13" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3.03763 0.538462C3.46535 -0.179487 4.53465 -0.179487 4.96237 0.538461L7.84946 5.38461C8.27718 6.10256 7.74253 7 6.8871 7L1.1129 7C0.257468 7 -0.277182 6.10256 0.150536 5.38462L3.03763 0.538462Z" fill="white"/>
               </svg>
             </div>
-            <div>
+            <div style={inlineMetricPosition}>
               {isEditable && editingMetricIndex === i ? (
                 <ImprovedInlineEditor
                   initialValue={m.text}
@@ -248,10 +264,11 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
                     setEditingMetricIndex(null);
                   }}
                   onCancel={() => setEditingMetricIndex(null)}
+                  className="metric-text"
                   style={inlineMetricStyle}
                 />
               ) : (
-                <div onClick={() => isEditable && setEditingMetricIndex(i)} style={{ ...metricText, cursor: isEditable ? 'pointer' : 'default' }}>{m.text}</div>
+                <div className="metric-text" onClick={() => isEditable && setEditingMetricIndex(i)} style={{ ...metricText, cursor: isEditable ? 'pointer' : 'default' }}>{m.text}</div>
               )}
             </div>
           </div>
@@ -283,7 +300,8 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
           title="Upload Company Logo"
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

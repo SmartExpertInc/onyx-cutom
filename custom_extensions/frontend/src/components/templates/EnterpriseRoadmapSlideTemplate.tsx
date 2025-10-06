@@ -265,7 +265,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={{ 
               position:'relative',
               borderRight: idx < cols.length - 1 ? '1px solid #EDEEF2' : 'none',
-              // padding: '0 0 0 15px'
+              padding: '0 0 0 15px'
             }}>
               {isEditable && editingHeaderIdx === idx ? (
                 <ImprovedInlineEditor
