@@ -27488,8 +27488,10 @@ async def get_billing_info(
         price_id = record.get("current_price_id")
         subscription_id = record.get("subscription_id")
 
-        # If we have Stripe configured and a subscription id, refresh live status
-        if STRIPE_SECRET_KEY and subscription_id:
+        # If explicitly requested (refresh=1), optionally refresh live status from Stripe
+        refresh = request.query_params.get("refresh")
+        should_refresh = str(refresh).lower() in ("1", "true", "yes")
+        if should_refresh and STRIPE_SECRET_KEY and subscription_id:
             try:
                 import stripe  # type: ignore
                 stripe.api_key = STRIPE_SECRET_KEY

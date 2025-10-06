@@ -34,6 +34,14 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [isProcessing, setIsProcessing] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [currentPlanId, setCurrentPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
+  const [lastLoadedPlanId, setLastLoadedPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
+  const mapPlan = (planRaw?: string): 'starter' | 'pro' | 'business' | 'enterprise' => {
+    const p = (planRaw || 'starter').toLowerCase();
+    if (p.includes('business')) return 'business';
+    if (p.includes('pro')) return 'pro';
+    if (p.includes('enterprise')) return 'enterprise';
+    return 'starter';
+  };
 
   useEffect(() => {
     const loadCurrentPlan = async () => {
@@ -41,15 +49,31 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         const res = await fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' });
         if (!res.ok) return;
         const data = await res.json();
-        const planRaw = (data?.plan || 'starter').toString().toLowerCase();
-        if (planRaw.includes('business')) setCurrentPlanId('business');
-        else if (planRaw.includes('pro')) setCurrentPlanId('pro');
-        else if (planRaw.includes('enterprise')) setCurrentPlanId('enterprise');
-        else setCurrentPlanId('starter');
+        const mapped = mapPlan(data?.plan);
+        setLastLoadedPlanId(mapped);
+        setCurrentPlanId(prev => (prev !== mapped ? mapped : prev));
       } catch {}
     };
     if (open) loadCurrentPlan();
   }, [open]);
+
+  // Utility after returning from Stripe to force-refresh once (no flicker elsewhere)
+  useEffect(() => {
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    if (params.has('session_id')) {
+      (async () => {
+        try {
+          const res = await fetch('/api/custom-projects-backend/billing/me?refresh=1', { credentials: 'same-origin' });
+          if (res.ok) {
+            const data = await res.json();
+            const mapped = mapPlan(data?.plan);
+            setLastLoadedPlanId(mapped);
+            setCurrentPlanId(mapped);
+          }
+        } catch {}
+      })();
+    }
+  }, []);
 
   const plans: Plan[] = [
     {
