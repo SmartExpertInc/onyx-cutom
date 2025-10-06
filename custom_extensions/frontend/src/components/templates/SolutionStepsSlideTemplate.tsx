@@ -20,7 +20,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
-  pageNumber = 'Page Number',
+  pageNumber = '23',
   logoNew = '',
   backgroundColor,
   titleColor,
@@ -187,11 +187,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         top: '120px',
         left: '60px',
         right: '60px',
-        fontSize: '56px',
+        fontSize: '58px',
         color: '#09090B',
         lineHeight: '1.1',
-        minHeight: '70px',
-        maxHeight: '70px',
+        minHeight: '75px',
+        maxHeight: '75px',
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
@@ -204,13 +204,13 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             onCancel={() => setEditingTitle(false)}
             className="solution-main-title-editor title-element"
             style={{
-              fontSize: '56px',
+              fontSize: '58px',
               color: '#09090B',
               lineHeight: '1.1',
               width: '100%',
               height: '100%',
-              minHeight: '70px',
-              maxHeight: '70px',
+              minHeight: '75px',
+              maxHeight: '75px',
               fontFamily: "'Lora', serif"
             }}
           />
@@ -271,7 +271,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
       {/* Timeline and Steps */}
       <div style={{
         position: 'absolute',
-        top: '50%',
+        top: '57%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
         width: '100%',
@@ -282,7 +282,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         {/* Timeline Line */}
         <div style={{
           width: '100%',
-          height: '2px',
+          height: '3px',
           backgroundColor: '#0F58F9',
           position: 'relative',
           marginBottom: '40px',
@@ -294,11 +294,11 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               top: '50%',
               left: positions[index],
               transform: 'translate(-50%, -50%)',
-              width: '25px',
-              height: '25px',
+              width: '27px',
+              height: '27px',
               borderRadius: '50%',
               backgroundColor: '#FFFFFF',
-              border: '4px solid #0F58F9',
+              border: '5px solid #0F58F9',
               zIndex: 1,
             }} />
           ))}
@@ -314,14 +314,14 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
             <div key={index} style={{
               display: 'flex',
               flexDirection: 'column',
-              paddingLeft: index === 0 ? '16%' : '0',
-              marginTop: '-30px',
+              paddingLeft: index === 0 ? '14%' : '0',
+              marginTop: '-10px',
               width: index === 0 ? '33.33%' : index === 1 ? '16.33%' : index === 2 ? '28%' : '0',
             }}>
               {/* Step Title */}
               <div style={{
                 fontSize: '24px',
-                fontWeight: 'bold',
+                fontWeight: 'semibold',
                 color: '#09090B',
                 marginBottom: '15px',
               }}>
@@ -333,7 +333,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     className="step-title-editor"
                     style={{
                       fontSize: '24px',
-                      fontWeight: 'bold',
+                      fontWeight: 'semibold',
                       color: '#09090B',
                       width: '100%',
                       height: 'auto',
