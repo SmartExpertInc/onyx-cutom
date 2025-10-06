@@ -32,6 +32,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   const plans: Plan[] = [
     {
@@ -198,128 +199,45 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 </div>
 
-                {/* Payment Form */}
+                {/* Stripe Portal CTA */}
                 <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-8">{t('tariffPlan.paymentInformation', 'Payment Information')}</h3>
-                  
-                  <div className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          {t('tariffPlan.firstName', 'First Name')}
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                          placeholder="John"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          {t('tariffPlan.lastName', 'Last Name')}
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                          placeholder="Doe"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        {t('tariffPlan.emailAddress', 'Email Address')}
-                      </label>
-                      <input
-                        type="email"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        {t('tariffPlan.cardNumber', 'Card Number')}
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                        placeholder="1234 5678 9012 3456"
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          {t('tariffPlan.expiryDate', 'Expiry Date')}
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                          placeholder="MM/YY"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          {t('tariffPlan.cvv', 'CVV')}
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                          placeholder="123"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Security Features */}
-                  <div className="bg-gray-50 rounded-xl p-4 mt-8 mb-8">
-                    <div className="grid md:grid-cols-3 gap-4 text-center">
-                      <div className="flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-700 font-medium">{t('tariffPlan.sslEncrypted', 'SSL Encrypted')}</span>
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <Clock className="w-5 h-5 text-blue-500 mr-2" />
-                        <span className="text-sm text-gray-700 font-medium">{t('tariffPlan.instantAccess', 'Instant Access')}</span>
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <Check className="w-5 h-5 text-green-500 mr-2" />
-                        <span className="text-sm text-gray-700 font-medium">{t('tariffPlan.cancelAnytime', 'Cancel Anytime')}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Subscribe Button */}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('tariffPlan.checkoutInStripe', 'Checkout in Stripe')}</h3>
+                  <p className="text-gray-600 mb-6">{t('tariffPlan.redirectToStripe', 'You will be redirected to Stripe to complete your purchase and manage billing.')}</p>
                   <button
-                    onClick={handlePayment}
-                    disabled={isProcessing || selectedPlan.name.includes('Enterprise')}
+                    disabled={portalLoading || selectedPlan.name.includes('Enterprise')}
+                    onClick={async () => {
+                      try {
+                        setPortalLoading(true);
+                        const res = await fetch('/api/custom/billing/portal', { method: 'POST', credentials: 'same-origin' });
+                        if (!res.ok) throw new Error('Failed to open Stripe portal');
+                        const data = await res.json();
+                        if (data?.url) window.location.href = data.url;
+                      } catch (e) {
+                        console.error(e);
+                      } finally {
+                        setPortalLoading(false);
+                      }
+                    }}
                     className={`w-full py-4 rounded-2xl font-bold text-lg text-white transition-all duration-300 transform hover:scale-105 flex items-center justify-center ${
-                      isProcessing
+                      portalLoading
                         ? 'bg-gray-400 cursor-not-allowed'
                         : selectedPlan.name.includes('Enterprise')
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-xl hover:shadow-2xl'
                     }`}
                   >
-                    {isProcessing ? (
+                    {portalLoading ? (
                       <>
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                        {t('tariffPlan.processingPayment', 'Processing Payment...')}
+                        {t('tariffPlan.openingStripe', 'Opening Stripe...')}
                       </>
-                    ) : selectedPlan.name.includes('Enterprise') ? (
-                      t('tariffPlan.contactSales', 'Contact Sales')
                     ) : (
                       <>
-                        {t('tariffPlan.subscribeTo', 'Subscribe to')} {selectedPlan.name}
+                        {t('tariffPlan.continueInStripe', 'Continue in Stripe')}
                         <ArrowRight className="w-6 h-6 ml-3" />
                       </>
                     )}
                   </button>
-
-                  <p className="text-xs text-gray-500 text-center mt-4">
-                    {t('tariffPlan.subscriptionActivation', 'Your subscription will be activated immediately after payment confirmation')}
-                  </p>
                 </div>
               </div>
             </div>
