@@ -27900,10 +27900,25 @@ async def list_all_user_credits(
     
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT * FROM user_credits 
-                ORDER BY updated_at DESC
-            """)
+            rows = await conn.fetch(
+                """
+                SELECT 
+                    uc.id,
+                    uc.onyx_user_id,
+                    uc.name,
+                    uc.credits_balance,
+                    uc.total_credits_used,
+                    uc.credits_purchased,
+                    uc.last_purchase_date,
+                    -- prefer real plan from billing, fallback to existing column
+                    COALESCE(ub.current_plan, uc.subscription_tier) AS subscription_tier,
+                    uc.created_at,
+                    uc.updated_at
+                FROM user_credits uc
+                LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                ORDER BY uc.updated_at DESC
+                """
+            )
             return [UserCredits(**dict(row)) for row in rows]
     except Exception as e:
         logger.error(f"Error listing user credits: {e}")
