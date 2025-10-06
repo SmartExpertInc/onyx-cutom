@@ -27534,7 +27534,7 @@ async def create_billing_portal_session(
     Requires STRIPE_SECRET_KEY and STRIPE_BILLING_RETURN_URL env vars.
     """
     try:
-        if not STRIPE_SECRET_KEY or not STRIPE_BILLING_RETURN_URL:
+        if not STRIPE_SECRET_KEY:
             raise HTTPException(status_code=500, detail="Stripe is not configured")
 
         onyx_user_id = await get_current_onyx_user_id(request)
@@ -27551,9 +27551,13 @@ async def create_billing_portal_session(
         import stripe  # type: ignore
         stripe.api_key = STRIPE_SECRET_KEY
 
+        # Determine return URL: use env if provided, else default to billing page
+        default_return = f"{(settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL', 'http://custom_frontend:3001')).rstrip('/')}/custom-projects-ui/payments"
+        return_url = STRIPE_BILLING_RETURN_URL or default_return
+
         session = stripe.billing_portal.Session.create(
             customer=record["stripe_customer_id"],
-            return_url=STRIPE_BILLING_RETURN_URL,
+            return_url=return_url,
         )
         return {"url": session.url}
     except HTTPException:
