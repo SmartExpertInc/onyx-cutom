@@ -15,11 +15,11 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   description = 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
   statistics = [
     { value: 'XX%', description: 'Percentage increase in productivity' },
-    { value: 'XX%', description: 'Decrease in customer complaints' },
-    { value: 'XX%', description: 'Percentage increase in revenue' },
-    { value: 'XM', description: 'Percentage increase in revenue' },
-    { value: 'XX%', description: 'Percentage increase in revenue' },
-    { value: 'XM', description: 'Percentage increase in revenue' }
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' }
   ],
   conclusionText = 'With these impressive results, it\'s clear that [Product Name] is the real deal, Don\'t miss out on the opportunity to take your business to the next level- try [Product Name] today.',
   bulletPoints = [
@@ -201,6 +201,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         color: '#09090B',
         lineHeight: '1.1',
         maxWidth: '600px',
+        fontFamily: currentTheme.fonts.titleFont,
       }}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
@@ -215,6 +216,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
+              fontFamily: currentTheme.fonts.titleFont,
             }}
           />
         ) : (
