@@ -1626,11 +1626,11 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       description: 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
       statistics: [
         { value: 'XX%', description: 'Percentage increase in productivity' },
-        { value: 'XX%', description: 'Decrease in customer complaints' },
-        { value: 'XX%', description: 'Percentage increase in revenue' },
-        { value: 'XX%', description: 'Percentage increase in revenue' },
-        { value: 'XX%', description: 'Percentage increase in revenue' },
-        { value: 'XX%', description: 'Percentage increase in revenue' }
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' },
+        { value: 'XX%', description: 'Percentage increase in productivity' }
       ],
       conclusionText: 'With these impressive results, it\'s clear that [Product Name] is the real deal, Don\'t miss out on the opportunity to take your business to the next level- try [Product Name] today.',
       bulletPoints: [
