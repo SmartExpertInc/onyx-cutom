@@ -35,52 +35,55 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F6F6F2', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F0F2F7', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
-  const header: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', height:'160px', background:'#6CDC78', border:'1px solid #102412', borderBottom:'none', borderTopLeftRadius:'24px', borderTopRightRadius:'24px', borderBottomLeftRadius:'0', borderBottomRightRadius:'0' };
-  const headerText: React.CSSProperties = { position:'absolute', left:'80px', top:'84px', fontSize:'42px', fontWeight:800, color:'#102412' };
+  const header: React.CSSProperties = { position:'absolute', left:'0', right:'0', top:'0', height:'30%', background:'linear-gradient(to bottom, #0F58F9, #1023A1)', border:'none' };
+  const headerText: React.CSSProperties = { position:'absolute', left:'60px', top:'50%', transform:'translateY(-50%)', fontSize:'48px', fontWeight:600, color:'#FFFFFF', fontFamily:'Lora, serif' };
   
-  // Content block wrapper with top radius
+  // Content block wrapper
   const contentBlock: React.CSSProperties = { 
     position:'absolute', 
-    left:'44px', 
-    right:'44px', 
-    top:'188px', 
-    bottom:'44px', 
-    background:'#FFFFFF', 
-    borderTopLeftRadius:'24px', 
-    borderTopRightRadius:'24px', 
-    borderBottomLeftRadius:'24px', 
-    borderBottomRightRadius:'24px', 
-    border:'1px solid #102412', 
-    borderTop:'none' 
+    left:'0', 
+    right:'0', 
+    top:'30%', 
+    bottom:'0', 
+    background:'#E0E7FF', 
+    border:'none'
   };
 
-  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'45px', fontSize:'40px', fontWeight:800, color:'#1E1E1C' };
-  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'115px', fontSize:'17px', color:'#454441', lineHeight:1.6, whiteSpace:'pre-line' };
+  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'60px', fontSize:'32px', fontWeight:600, color:'#333333', fontFamily:'Lora, serif' };
+  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'100px', fontSize:'16px', color:'#555555', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
 
-  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'200px', fontSize:'40px', fontWeight:800, color:'#1E1E1C' };
-  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', fontSize:'17px', color:'#595854', lineHeight:1.6, whiteSpace:'pre-line' };
+  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'200px', fontSize:'32px', fontWeight:600, color:'#333333', fontFamily:'Lora, serif' };
+  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'240px', fontSize:'16px', color:'#555555', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
 
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'72px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#C7D6FF', zIndex:2 };
-  const ring1: React.CSSProperties = { position:'absolute', right:'115px', top:'72px', width:'170px', height:'170px', borderRadius:'50%', border:'1px solid #111111', background:'transparent', zIndex:3 };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'60px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
   return (
-    <div className="dei-methods-slide inter-theme" style={slide}>
-      <div style={card} />
+    <>
+      <style>{`
+        .dei-methods-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .dei-methods-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
+      <div className="dei-methods-slide inter-theme" style={slide}>
+      {/* Header section */}
       <div style={header} />
-      <div style={ring1} />
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', marginTop:'4px', objectFit:'cover' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
       </div>
 
       <div style={headerText}>
         {isEditable && editKey==='headerTitle' ? (
-          <ImprovedInlineEditor initialValue={headerTitle} onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(headerText)} />
+          <ImprovedInlineEditor initialValue={headerTitle} onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} className="title-element" style={inline(headerText)} />
         ) : (
-          <div onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
+          <div className="title-element" onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
         )}
       </div>
 
@@ -88,9 +91,9 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       <div style={contentBlock}>
         <div style={section1TitleStyle}>
           {isEditable && editKey==='s1t' ? (
-            <ImprovedInlineEditor initialValue={section1Title} onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1TitleStyle)} />
+            <ImprovedInlineEditor initialValue={section1Title} onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} className="title-element" style={inline(section1TitleStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
+            <div className="title-element" onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
           )}
         </div>
         <div style={section1LinesStyle}>
@@ -103,9 +106,9 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
 
         <div style={section2TitleStyle}>
           {isEditable && editKey==='s2t' ? (
-            <ImprovedInlineEditor initialValue={section2Title} onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2TitleStyle)} />
+            <ImprovedInlineEditor initialValue={section2Title} onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} className="title-element" style={inline(section2TitleStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
+            <div className="title-element" onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
           )}
         </div>
         <div style={section2LinesStyle}>
@@ -116,7 +119,46 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
           )}
         </div>
       </div>
+
+      {/* Footer with page number and logo */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '60px',
+        fontSize: '14px',
+        color: '#A2A19D',
+        fontFamily: 'Inter, sans-serif'
+      }}>
+        16
+      </div>
+      
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        right: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontSize: '14px',
+        color: '#A2A19D',
+        fontFamily: 'Inter, sans-serif'
+      }}>
+        <div style={{
+          width: '20px',
+          height: '20px',
+          borderRadius: '50%',
+          border: '1px solid #A2A19D',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '12px'
+        }}>
+          +
+        </div>
+        Your Logo
+      </div>
     </div>
+    </>
   );
 };
 

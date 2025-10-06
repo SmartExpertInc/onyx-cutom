@@ -136,6 +136,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .hybrid-work-best-practices-slide-template .hybrid-title-editor,
+        .hybrid-work-best-practices-slide-template .hybrid-title-editor * {
+          text-transform: none !important;
+          font-weight: 600 !important;
+        }
       `}</style>
       <div className="hybrid-work-best-practices-slide-template inter-theme" style={slideStyles}>
       {/* Header with page number and logo */}
@@ -166,7 +171,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '14px'
+            fontSize: '15px',
+            fontWeight: '600'
           }}>
             +
           </div>
@@ -178,7 +184,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       <div style={{
         width: '100%',
         height: '100%',
-        backgroundColor: '#F0F2F7',
+        backgroundColor: '#E0E7FF',
         display: 'flex',
         padding: '40px 60px',
         paddingRight: '0px',
@@ -216,6 +222,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
+                marginTop: '8px',
                 backgroundColor: '#3B8BE9'
               }}></div>
                 {isEditable && editingTitle ? (
@@ -227,7 +234,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     style={{
                       fontSize: '16px',
                       color: '#333333',
-                      fontWeight: '400',
+                      fontWeight: '600',
                       width: '100%',
                       height: 'auto'
                     }}
@@ -237,7 +244,9 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     onClick={() => isEditable && setEditingTitle(true)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
-                      userSelect: 'none'
+                      userSelect: 'none',
+                      textTransform: 'none',
+                      fontWeight: '600'
                     }}
                   >
                     {currentTitle}
@@ -248,7 +257,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
             {/* Main statement */}
             <div style={{
-              fontSize: '48px',
+              fontSize: '35px',
               maxWidth: '400px',
               color: '#333333',
               lineHeight: '1.2',
