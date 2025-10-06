@@ -1,17 +1,18 @@
 // custom_extensions/frontend/src/components/templates/SolutionStepsSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SolutionStepsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
-  slideId,
-  title = 'The Solution',
-  buttonText = 'Step-by-step Guide',
+  slideId: _slideId,
+  subtitle = 'The Solution',
+  title = 'Step-by-step Guide',
   steps = [
     { title: 'Step 1', description: 'Know the Regulations' },
     { title: 'Step 2', description: 'Conduct Risk Assessments' },
@@ -19,9 +20,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
-  website = 'www.company.com',
-  date = 'Date Goes Here',
   pageNumber = 'Page Number',
+  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -29,30 +29,27 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText: _voiceoverText
 }) => {
+  const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
-  const [editingButtonText, setEditingButtonText] = useState(false);
   const [editingSteps, setEditingSteps] = useState<{ index: number; field: 'title' | 'description' } | null>(null);
-  const [editingWebsite, setEditingWebsite] = useState(false);
-  const [editingDate, setEditingDate] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
+  const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentTitle, setCurrentTitle] = useState(title);
-  const [currentButtonText, setCurrentButtonText] = useState(buttonText);
   const [currentSteps, setCurrentSteps] = useState(steps);
-  const [currentWebsite, setCurrentWebsite] = useState(website);
-  const [currentDate, setCurrentDate] = useState(date);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#15232E', // Dark blue-grey background as per screenshot
+    backgroundColor: '#E0E7FF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -61,19 +58,21 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
     padding: '40px 60px',
   };
 
-  const handleTitleSave = (newTitle: string) => {
-    setCurrentTitle(newTitle);
-    setEditingTitle(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, title: newTitle });
+  // save subtitle
+  const handleSubtitleSave = (newSubtitle: string) => {
+    setCurrentSubtitle(newSubtitle);
+    setEditingSubtitle(false);
+  if (onUpdate) {
+      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, subtitle: newSubtitle });
     }
   };
 
-  const handleButtonTextSave = (newButtonText: string) => {
-    setCurrentButtonText(newButtonText);
-    setEditingButtonText(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, buttonText: newButtonText });
+  // save main title
+  const handleTitleSave = (newMainTitle: string) => {
+    setCurrentTitle(newMainTitle);
+    setEditingTitle(false);
+  if (onUpdate) {
+      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, title: newMainTitle });
     }
   };
 
@@ -82,24 +81,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
     newSteps[index] = { ...newSteps[index], [field]: newValue };
     setCurrentSteps(newSteps);
     setEditingSteps(null);
-    if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, steps: newSteps });
-    }
-  };
-
-  const handleWebsiteSave = (newWebsite: string) => {
-    setCurrentWebsite(newWebsite);
-    setEditingWebsite(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, website: newWebsite });
-    }
-  };
-
-  const handleDateSave = (newDate: string) => {
-    setCurrentDate(newDate);
-    setEditingDate(false);
-    if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, date: newDate });
+  if (onUpdate) {
+      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, steps: newSteps });
     }
   };
 
@@ -107,13 +90,24 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
     setCurrentPageNumber(newPageNumber);
     setEditingPageNumber(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
     }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
   };
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, buttonText, steps, profileImagePath, profileImageAlt, website, date, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ subtitle, title, steps, profileImagePath, profileImageAlt, pageNumber, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
     }
   };
 
@@ -121,37 +115,121 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
 
   return (
     <div className="solution-steps-slide-template inter-theme" style={slideStyles}>
-      {/* Title */}
+      <style>{`
+        .solution-steps-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .solution-steps-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
+      {/* Subtitle chip (previous title) */}
       <div style={{
         position: 'absolute',
         top: '40px',
         left: '60px',
-        fontSize: '48px',
-        fontWeight: 'bold',
-        color: '#DEE2E2',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <div style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: '24px',
+          padding: '9px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          {/* Circle indicator */}
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#0F58F9'
+          }} />
+
+          {/* Subtitle text (editable) */}
+          {isEditable && editingSubtitle ? (
+            <ImprovedInlineEditor
+              initialValue={currentSubtitle}
+              onSave={handleSubtitleSave}
+              onCancel={() => setEditingSubtitle(false)}
+              className="solution-subtitle-editor"
+              style={{
+                fontSize: '20px',
+                color: '#09090BCC',
+                fontWeight: '400',
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingSubtitle(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none',
+                fontSize: '20px',
+                color: '#09090BCC',
+                fontWeight: '400'
+              }}
+            >
+              {currentSubtitle}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main title (from buttonText), 56px, no container/bg */}
+      <div style={{
+        position: 'absolute',
+        top: '120px',
+        left: '60px',
+        right: '60px',
+        fontSize: '56px',
+        color: '#09090B',
         lineHeight: '1.1',
+        minHeight: '70px',
+        maxHeight: '70px',
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        fontFamily: "'Lora', serif"
       }}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
-            className="solution-title-editor"
+            className="solution-main-title-editor title-element"
             style={{
-              fontSize: '48px',
-              fontWeight: 'bold',
-              color: '#FFFFFF',
+              fontSize: '56px',
+              color: '#09090B',
               lineHeight: '1.1',
               width: '100%',
-              height: 'auto',
+              height: '100%',
+              minHeight: '70px',
+              maxHeight: '70px',
+              fontFamily: "'Lora', serif"
             }}
           />
         ) : (
           <div
+            className="title-element"
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
+              userSelect: 'none',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              fontSize: '56px',
+              color: '#09090B',
+              lineHeight: '1.1',
+              overflow: 'hidden',
+              fontFamily: "'Lora', serif"
             }}
           >
             {currentTitle}
@@ -159,54 +237,16 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         )}
       </div>
 
-      {/* Orange Button */}
-      <div style={{
-        position: 'absolute',
-        top: '140px',
-        left: '60px',
-        backgroundColor: '#EC6140',
-        padding: '10px 24px',
-        cursor: isEditable ? 'pointer' : 'default',
-      }}>
-        {isEditable && editingButtonText ? (
-          <ImprovedInlineEditor
-            initialValue={currentButtonText}
-            onSave={handleButtonTextSave}
-            onCancel={() => setEditingButtonText(false)}
-            className="button-text-editor"
-            style={{
-              fontSize: '23px',
-              fontWeight: '500',
-              color: '#F4D4C8',
-              width: '100%',
-              height: 'auto',
-            }}
-          />
-        ) : (
-          <div
-            onClick={() => isEditable && setEditingButtonText(true)}
-            style={{
-              fontSize: '23px',
-              fontWeight: '500',
-              color: '#F4D4C8',
-              userSelect: 'none'
-            }}
-          >
-            {currentButtonText}
-          </div>
-        )}
-      </div>
-
       {/* Profile Image */}
       <div style={{
         position: 'absolute',
-        top: '30px',
-        right: '30px',
-        width: '120px',
-        height: '120px',
+        top: '40px',
+        right: '60px',
+        width: '170px',
+        height: '170px',
         borderRadius: '50%',
+        backgroundColor: '#0F58F9',
         overflow: 'hidden',
-        backgroundColor: '#F06C3E', // Orange background
       }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
@@ -216,11 +256,13 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           description="Profile photo"
           isEditable={isEditable}
           style={{
-            width: '100%',
-            height: '100%',
-            position: 'relative',
-            bottom: '-16px',
+            width: '110%',
+            height: '110%',
             borderRadius: '50%',
+            position: 'relative',
+            bottom: '-10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
             objectFit: 'cover'
           }}
         />
@@ -240,8 +282,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         {/* Timeline Line */}
         <div style={{
           width: '100%',
-          height: '1px',
-          backgroundColor: '#F1FEFF',
+          height: '2px',
+          backgroundColor: '#0F58F9',
           position: 'relative',
           marginBottom: '40px',
         }}>
@@ -255,7 +297,8 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               width: '25px',
               height: '25px',
               borderRadius: '50%',
-              backgroundColor: '#FAF36F', // Yellow circles
+              backgroundColor: '#FFFFFF',
+              border: '4px solid #0F58F9',
               zIndex: 1,
             }} />
           ))}
@@ -279,7 +322,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               <div style={{
                 fontSize: '24px',
                 fontWeight: 'bold',
-                color: '#D5DBDD',
+                color: '#09090B',
                 marginBottom: '15px',
               }}>
                 {isEditable && editingSteps?.index === index && editingSteps?.field === 'title' ? (
@@ -291,7 +334,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     style={{
                       fontSize: '24px',
                       fontWeight: 'bold',
-                      color: '#D5DBDD',
+                      color: '#09090B',
                       width: '100%',
                       height: 'auto',
                     }}
@@ -312,7 +355,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               {/* Step Description */}
               <div style={{
                 fontSize: '16px',
-                color: '#A0A9AF',
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.3',
                 maxWidth: '160px',
               }}>
@@ -324,7 +367,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     className="step-description-editor"
                     style={{
                       fontSize: '16px',
-                      color: '#A0A9AF',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       width: '100%',
                       height: 'auto',
                       lineHeight: '1.3',
@@ -347,105 +390,114 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Logo in bottom-right corner */}
       <div style={{
         position: 'absolute',
-        bottom: '40px',
-        left: '60px',
-        right: '60px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        bottom: '30px',
+        right: '30px'
       }}>
-        {/* Website */}
-        <div style={{
-          fontSize: '14px',
-          color: '#A2ACB1',
-        }}>
-          {isEditable && editingWebsite ? (
-            <ImprovedInlineEditor
-              initialValue={currentWebsite}
-              onSave={handleWebsiteSave}
-              onCancel={() => setEditingWebsite(false)}
-              className="website-editor"
-              style={{
-                fontSize: '14px',
-                color: '#A2ACB1',
-                width: '100%',
-                height: 'auto',
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingWebsite(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentWebsite}
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-          )}
-        </div>
-
-        {/* Date and Page Number */}
-        <div style={{
-          display: 'flex',
-          gap: '45px',
-          fontSize: '14px',
-          color: '#A2ACB1',
-        }}>
-          {isEditable && editingDate ? (
-            <ImprovedInlineEditor
-              initialValue={currentDate}
-              onSave={handleDateSave}
-              onCancel={() => setEditingDate(false)}
-              className="date-editor"
-              style={{
-                fontSize: '14px',
-                color: '#A2ACB1',
-                width: '100%',
-                height: 'auto',
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingDate(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentDate}
-            </div>
-          )}
-          
-          {isEditable && editingPageNumber ? (
-            <ImprovedInlineEditor
-              initialValue={currentPageNumber}
-              onSave={handlePageNumberSave}
-              onCancel={() => setEditingPageNumber(false)}
-              className="page-number-editor"
-              style={{
-                fontSize: '14px',
-                color: '#A2ACB1',
-                width: '100%',
-                height: 'auto',
-              }}
-            />
-          ) : (
-            <div
-              onClick={() => isEditable && setEditingPageNumber(true)}
-              style={{
-                cursor: isEditable ? 'pointer' : 'default',
-                userSelect: 'none'
-              }}
-            >
-              {currentPageNumber}
-            </div>
-          )}
-        </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
       </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };

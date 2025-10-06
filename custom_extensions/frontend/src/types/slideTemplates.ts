@@ -691,17 +691,16 @@ export interface TemplateEditor {
 // --- New Slide Interfaces ---
 
 export interface SolutionStepsSlideProps extends BaseTemplateProps {
+  subtitle: string;
   title: string;
-  buttonText: string;
   steps: Array<{
     title: string;
     description: string;
   }>;
   profileImagePath?: string;
   profileImageAlt?: string;
-  website?: string;
-  date?: string;
   pageNumber?: string;
+  logoNew?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

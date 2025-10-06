@@ -1,131 +1,17 @@
 // custom_extensions/frontend/src/components/templates/BenefitsListSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BenefitsListSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
+import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [value, multiline]);
-
-  useEffect(() => {
-    if (multiline && inputRef.current) {
-      const textarea = inputRef.current as HTMLTextAreaElement;
-      textarea.style.height = 'auto';
-      textarea.style.height = textarea.scrollHeight + 'px';
-    }
-  }, [multiline]);
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        className={`inline-editor-textarea ${className}`}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        style={{
-          ...style,
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none',
-          resize: 'none',
-          overflow: 'hidden',
-          width: '100%',
-          wordWrap: 'break-word',
-          whiteSpace: 'pre-wrap',
-          minHeight: '1.6em',
-          boxSizing: 'border-box',
-          display: 'block',
-        }}
-        rows={1}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      className={`inline-editor-input ${className}`}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      style={{
-        ...style,
-        background: 'transparent',
-        border: 'none',
-        outline: 'none',
-        boxShadow: 'none',
-        width: '100%',
-        boxSizing: 'border-box',
-        display: 'block',
-      }}
-    />
-  );
-}
 
 export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   theme?: SlideTheme | string;
 }> = ({
-  slideId,
+  slideId: _slideId,
   title = 'Benefits',
   subtitle = 'Employment',
   description = 'Here is a list of benefits that you can offer to your employees to maintain small business compliance:',
@@ -152,13 +38,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText: _voiceoverText
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
   const [editingBenefits, setEditingBenefits] = useState<number | null>(null);
-  const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [_editingCompanyName, _setEditingCompanyName] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
@@ -166,12 +52,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
-  const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [_currentCompanyName, _setCurrentCompanyName] = useState(companyName);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -237,17 +123,17 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setEditingDescription(false);
   };
 
-  const handleCompanyNameSave = (newCompanyName: string) => {
-    setCurrentCompanyName(newCompanyName);
-    setEditingCompanyName(false);
+  const _handleCompanyNameSave = (newCompanyName: string) => {
+    _setCurrentCompanyName(newCompanyName);
+    _setEditingCompanyName(false);
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, companyName: newCompanyName });
     }
   };
 
-  const handleCompanyNameCancel = () => {
-    setCurrentCompanyName(companyName);
-    setEditingCompanyName(false);
+  const _handleCompanyNameCancel = () => {
+    _setCurrentCompanyName(companyName);
+    _setEditingCompanyName(false);
   };
 
   const handlePageNumberSave = (newPageNumber: string) => {
@@ -329,7 +215,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               
               {/* Subtitle text */}
               {isEditable && editingSubtitle ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={currentSubtitle}
                   onSave={handleSubtitleSave}
                   onCancel={handleSubtitleCancel}
@@ -376,7 +262,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             overflow: 'hidden'
           }}>
             {isEditable && editingTitle ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={currentTitle}
                 onSave={handleTitleSave}
                 onCancel={handleTitleCancel}
@@ -428,7 +314,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             alignItems: 'flex-start'
           }}>
             {isEditable && editingDescription ? (
-              <InlineEditor
+              <ImprovedInlineEditor
                 initialValue={currentDescription}
                 onSave={handleDescriptionSave}
                 onCancel={handleDescriptionCancel}
@@ -559,7 +445,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
               </svg>
               {isEditable && editingBenefits === index ? (
-                <InlineEditor
+                <ImprovedInlineEditor
                   initialValue={benefit}
                   onSave={(value) => handleBenefitSave(index, value)}
                   onCancel={handleBenefitCancel}
@@ -659,7 +545,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         }} />
         {/* Page number */}
         {isEditable && editingPageNumber ? (
-          <InlineEditor
+          <ImprovedInlineEditor
             initialValue={currentPageNumber}
             onSave={handlePageNumberSave}
             onCancel={handlePageNumberCancel}

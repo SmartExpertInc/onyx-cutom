@@ -1588,8 +1588,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '📋',
     component: SolutionStepsSlideTemplate,
     defaultProps: {
-      title: 'The Solution',
-      buttonText: 'Step-by-step Guide',
+      subtitle: 'The Solution',
+      title: 'Step-by-step Guide',
       steps: [
         { title: 'Step 1', description: 'Know the Regulations' },
         { title: 'Step 2', description: 'Conduct Risk Assessments' },
@@ -1602,8 +1602,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       pageNumber: 'Page Number'
     },
     propSchema: {
-      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
-      buttonText: { type: 'text', label: 'Button Text', required: true, maxLength: 50 },
+      subtitle: { type: 'text', label: 'Subtitle', required: true, maxLength: 100 },
+      title: { type: 'text', label: 'Title', required: true, maxLength: 50 },
       steps: { type: 'array', label: 'Steps', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },

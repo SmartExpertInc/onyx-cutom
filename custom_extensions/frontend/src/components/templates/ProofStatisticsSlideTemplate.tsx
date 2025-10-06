@@ -529,7 +529,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             height: '110%',
             borderRadius: '50%',
             position: 'relative',
-            bottom: '-20px',
+            bottom: '-10px',
             left: '50%',
             transform: 'translateX(-50%)',
             objectFit: 'cover'
