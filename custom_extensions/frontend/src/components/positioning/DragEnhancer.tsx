@@ -113,12 +113,29 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return;
         }
 
+        // 🔧 CRITICAL FIX: Get slide canvas coordinates as percentages
+        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+        const canvasRect = slideCanvas.getBoundingClientRect();
+        
         isMouseDown = true;
         dragDistance = 0;
         startPageX = e.clientX;
         startPageY = e.clientY;
-        startOffsetX = e.clientX - currentX;
-        startOffsetY = e.clientY - currentY;
+        
+        // Calculate coordinates as percentages relative to canvas size
+        const canvasX = e.clientX - canvasRect.left;
+        const canvasY = e.clientY - canvasRect.top;
+        const percentX = (canvasX / canvasRect.width) * 100;
+        const percentY = (canvasY / canvasRect.height) * 100;
+        
+        startOffsetX = percentX - currentX;
+        startOffsetY = percentY - currentY;
+        
+        // Debug logging
+        console.log('🔍 [COORDINATE_DEBUG] Canvas rect:', canvasRect);
+        console.log('🔍 [COORDINATE_DEBUG] Mouse clientX:', e.clientX, 'clientY:', e.clientY);
+        console.log('🔍 [COORDINATE_DEBUG] Canvas X:', canvasX, 'Y:', canvasY);
+        console.log('🔍 [COORDINATE_DEBUG] Percent X:', percentX, 'Y:', percentY);
 
         // Delay starting drag to give inline editing a chance on quick clicks
         clearDragTimeout();
@@ -135,8 +152,16 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isMouseDown) return;
 
-        const newX = e.clientX - startOffsetX;
-        const newY = e.clientY - startOffsetY;
+        // 🔧 CRITICAL FIX: Calculate coordinates as percentages
+        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+        const canvasRect = slideCanvas.getBoundingClientRect();
+        const canvasX = e.clientX - canvasRect.left;
+        const canvasY = e.clientY - canvasRect.top;
+        const percentX = (canvasX / canvasRect.width) * 100;
+        const percentY = (canvasY / canvasRect.height) * 100;
+        
+        const newX = percentX - startOffsetX;
+        const newY = percentY - startOffsetY;
         const dx = Math.abs(e.clientX - startPageX);
         const dy = Math.abs(e.clientY - startPageY);
         dragDistance = Math.sqrt(dx * dx + dy * dy);
@@ -150,7 +175,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         if (isDragging) {
           currentX = newX;
           currentY = newY;
-          htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+          // Convert percentages back to pixels for visual feedback during drag
+          const pixelX = (currentX / 100) * canvasRect.width;
+          const pixelY = (currentY / 100) * canvasRect.height;
+          htmlElement.style.transform = `translate(${pixelX}px, ${pixelY}px)`;
           // Position is already set to relative when dragging started
           dragStateRef.current.set(elementId, { x: currentX, y: currentY });
           e.stopPropagation();

@@ -290,7 +290,7 @@ export const AvatarServiceSlideTemplate: React.FC<AvatarSlideProps & {
   };
 
   return (
-    <div style={slideStyles}>
+    <div style={slideStyles} data-slide-canvas="true">
       {/* Dark shape in top-left corner */}
       <div style={darkShapeStyles}></div>
       

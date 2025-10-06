@@ -840,38 +840,44 @@
                         <div class="left-content" style="background-color: transparent;">
                             <!-- Title with positioning support -->
                             {% if title %}
-                                <h1 class="slide-title positioned-element"
-                                    {% if metadata and metadata.elementPositions %}
-                                        {% set titleId = 'draggable-' + slideId + '-0' %}
-                                        {% if metadata.elementPositions[titleId] %}
-                                            style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);"
-                                        {% endif %}
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set titleId = 'draggable-' + slideId + '-0' %}
+                                    {% if metadata.elementPositions[titleId] %}
+                                        <h1 class="slide-title" style="position: absolute; left: {{ (metadata.elementPositions[titleId].x / 100) * 1920 }}px; top: {{ (metadata.elementPositions[titleId].y / 100) * 1080 }}px; z-index: 10;">{{ title }}</h1>
+                                    {% else %}
+                                        <h1 class="slide-title">{{ title }}</h1>
                                     {% endif %}
-                                >{{ title }}</h1>
+                                {% else %}
+                                    <h1 class="slide-title">{{ title }}</h1>
+                                {% endif %}
                             {% endif %}
 
                             <!-- Subtitle with positioning support -->
                             {% if subtitle %}
-                                <h2 class="slide-subtitle positioned-element"
-                                    {% if metadata and metadata.elementPositions %}
-                                        {% set subtitleId = 'draggable-' + slideId + '-1' %}
-                                        {% if metadata.elementPositions[subtitleId] %}
-                                            style="transform: translate({{ metadata.elementPositions[subtitleId].x }}px, {{ metadata.elementPositions[subtitleId].y }}px);"
-                                        {% endif %}
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set subtitleId = 'draggable-' + slideId + '-1' %}
+                                    {% if metadata.elementPositions[subtitleId] %}
+                                        <h2 class="slide-subtitle" style="position: absolute; left: {{ (metadata.elementPositions[subtitleId].x / 100) * 1920 }}px; top: {{ (metadata.elementPositions[subtitleId].y / 100) * 1080 }}px; z-index: 10;">{{ subtitle }}</h2>
+                                    {% else %}
+                                        <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                     {% endif %}
-                                >{{ subtitle }}</h2>
+                                {% else %}
+                                    <h2 class="slide-subtitle">{{ subtitle }}</h2>
+                                {% endif %}
                             {% endif %}
 
                             <!-- Content with positioning support -->
                             {% if content %}
-                                <p class="content-text positioned-element"
-                                    {% if metadata and metadata.elementPositions %}
-                                        {% set contentId = 'draggable-' + slideId + '-2' %}
-                                        {% if metadata.elementPositions[contentId] %}
-                                            style="transform: translate({{ metadata.elementPositions[contentId].x }}px, {{ metadata.elementPositions[contentId].y }}px);"
-                                        {% endif %}
+                                {% if metadata and metadata.elementPositions %}
+                                    {% set contentId = 'draggable-' + slideId + '-2' %}
+                                    {% if metadata.elementPositions[contentId] %}
+                                        <p class="content-text" style="position: absolute; left: {{ (metadata.elementPositions[contentId].x / 100) * 1920 }}px; top: {{ (metadata.elementPositions[contentId].y / 100) * 1080 }}px; z-index: 10;">{{ content }}</p>
+                                    {% else %}
+                                        <p class="content-text">{{ content }}</p>
                                     {% endif %}
-                                >{{ content }}</p>
+                                {% else %}
+                                    <p class="content-text">{{ content }}</p>
+                                {% endif %}
                             {% endif %}
                         </div>
 
