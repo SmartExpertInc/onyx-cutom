@@ -145,7 +145,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", sans-serif' };
 
-  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
+  const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'360px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'"Inter", sans-serif' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };

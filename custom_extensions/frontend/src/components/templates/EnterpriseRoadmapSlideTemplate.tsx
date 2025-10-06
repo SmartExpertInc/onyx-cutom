@@ -135,15 +135,14 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   };
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#FFFFFF', fontFamily: currentTheme.fonts.titleFont };
-  const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
-  const avatarArea: React.CSSProperties = { position:'absolute', left:'60px', top:'60px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#3B8BE9' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'80px', fontSize:'48px', color:'#000000', fontWeight:600, fontFamily:'Lora, serif' };
-  const descStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'140px', width:'600px', color:'#555555', fontSize:'16px', lineHeight:1.6, fontFamily:'Inter, sans-serif' };
+  const avatarArea: React.CSSProperties = { position:'absolute', left:'60px', top:'55px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'60px', fontSize:'35px', color:'#000000', fontWeight:600, fontFamily:'Lora, serif' };
+  const descStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'125px', width:'600px', color:'#555555', fontSize:'16px', lineHeight:1.4, fontFamily:'Inter, sans-serif' };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'220px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#3B8BE9', color:'#FFFFFF', padding:'16px 20px', borderRadius:'4px', fontWeight:600, fontSize:'16px', position:'relative' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'16px 20px', background: i%2===0 ? '#F8F8F8' : '#FFFFFF', fontSize:'15px', color:'#333333', borderRadius:'2px', marginTop:'0px', position:'relative' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#0F58F9', color:'#FFFFFF', padding:'13px 10px', borderRadius:'4px', fontWeight:400, fontSize:'17px', position:'relative' };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'13px 10px', background: i%2===0 ? '#FFFFFF' : '#F3F5FF', fontSize:'17px', color:'#6B6B6D', borderRadius:'2px', marginTop:'0px', position:'relative' });
 
   // Inline editor base styles to prevent layout shift
   const inlineEditorHeaderStyle: React.CSSProperties = {
@@ -186,8 +185,6 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         }
       `}</style>
       <div className="enterprise-roadmap-slide inter-theme" style={slide}>
-      <div style={topLine} />
-
       <div style={avatarArea}>
         <ClickableImagePlaceholder imagePath={profileImagePath} onImageUploaded={(p)=>onUpdate&&onUpdate({ profileImagePath:p })} size="LARGE" position="CENTER" description="Profile" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', marginTop:'3px' }} />
       </div>
@@ -235,16 +232,16 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                 <span onClick={()=> isEditable && setEditingHeaderIdx(idx)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{h}</span>
               )}
               {isEditable && hoverHeaderIdx === idx && (
-                <div style={{ position:'absolute', right:-12, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' }}>
+                <div style={{ position:'absolute', right: 15, top:'50%', transform:'translateY(-50%)', display:'flex', gap:'6px' }}>
                   <button
                     onClick={()=> addColumnAfter(idx)}
-                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #0A3CA8', background:'#0C45C2', color:'#FFFFFF', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
                   >
                     +
                   </button>
                   <button
                     onClick={()=> deleteColumnAt(idx)}
-                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #5a5a5a', background:'#384033', color:'#A0A49B', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
+                    style={{ width:18, height:18, borderRadius:3, border:'1px solid #0A3CA8', background:'#0C45C2', color:'#FFFFFF', cursor:'pointer', padding:0, display:'inline-flex', alignItems:'center', justifyContent:'center', lineHeight:1, fontSize:12 }}
                   >
                     ×
                   </button>
