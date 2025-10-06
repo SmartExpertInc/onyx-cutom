@@ -46,8 +46,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     left:'55px',
     top:'50%',
     transform:'translateY(-50%)',
-    width:'500px',
-    height:'486px',
+    width:'510px',
+    height:'515px',
     background:'#FFFFFF',
     borderRadius:'10px',
     display:'flex',
@@ -57,7 +57,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   };
 
   const avatarContainer: React.CSSProperties = {
-    width:'467px',
+    width:'507px',
     position:'absolute',
     bottom:'-24px',
     borderRadius:'16px',
@@ -67,13 +67,13 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
   // Right side - title
   const titleContainer: React.CSSProperties = {
     position:'absolute',
-    right:'115px',
+    right:'105px',
     top:'90px',
     width:'430px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize:'64px',
+    fontSize:'56px',
     color:'#FFFFFF',
     lineHeight:1.2,
     marginBottom:'40px',
@@ -86,8 +86,8 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
     position:'absolute',
     right:'55px',
     top:'280px',
-    width:'488px',
-    height:'290px',
+    width:'478px',
+    height:'305px',
     background:'#FFFFFF',
     borderRadius:'10px',
     display:'flex',
@@ -237,7 +237,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
       {/* Page number with line */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
+        bottom: '15px',
         left: '0px',
         display: 'flex',
         alignItems: 'center',
@@ -247,7 +247,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
         <div style={{
           width: '20px',
           height: '1px',
-          backgroundColor: 'rgba(255, 255, 255, 0.5)'
+          backgroundColor: 'rgba(255, 255, 255, 0.6)'
         }} />
         {/* Page number */}
         {isEditable && editingPageNumber ? (
@@ -257,7 +257,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
             onCancel={handlePageNumberCancel}
             className="page-number-editor"
             style={{
-              color: '#ffffff',
+              color: 'rgba(255, 255, 255, 0.6)',
               fontSize: '18px',
               fontWeight: '400',
               fontFamily: currentTheme.fonts.contentFont,
