@@ -193,7 +193,7 @@ export default function BillingPage() {
   useEffect(() => {
     const loadBilling = async () => {
       try {
-        const res = await fetch('/api/custom/billing/me', { credentials: 'same-origin' });
+        const res = await fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' });
         if (res.ok) {
           const data = await res.json();
           setBillingInfo(data);
@@ -435,7 +435,7 @@ export default function BillingPage() {
                   onClick={async () => {
                     try {
                       setPortalLoading(true);
-                      const res = await fetch('/api/custom/billing/portal', { method: 'POST', credentials: 'same-origin' });
+                      const res = await fetch('/api/custom-projects-backend/billing/portal', { method: 'POST', credentials: 'same-origin' });
                       if (!res.ok) throw new Error('Failed to create portal session');
                       const data = await res.json();
                       if (data?.url) window.location.href = data.url;
@@ -576,7 +576,7 @@ export default function BillingPage() {
                 if (itemToCancel?.type !== 'subscription') return;
                 try {
                   setCancelLoading(true);
-                  const res = await fetch('/api/custom/billing/cancel', {
+                  const res = await fetch('/api/custom-projects-backend/billing/cancel', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'same-origin',
@@ -586,7 +586,7 @@ export default function BillingPage() {
                   setIsCancelModalOpen(false);
                   setItemToCancel(null);
                   // Refresh billing info
-                  const refreshed = await fetch('/api/custom/billing/me', { credentials: 'same-origin' });
+                  const refreshed = await fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' });
                   if (refreshed.ok) setBillingInfo(await refreshed.json());
                 } catch (e) {
                   console.error(e);

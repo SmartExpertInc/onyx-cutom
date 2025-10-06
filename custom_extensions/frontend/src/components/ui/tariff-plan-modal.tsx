@@ -208,7 +208,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     onClick={async () => {
                       try {
                         setPortalLoading(true);
-                        const res = await fetch('/api/custom/billing/portal', { method: 'POST', credentials: 'same-origin' });
+                        const res = await fetch('/api/custom-projects-backend/billing/portal', { method: 'POST', credentials: 'same-origin' });
                         if (!res.ok) throw new Error('Failed to open Stripe portal');
                         const data = await res.json();
                         if (data?.url) window.location.href = data.url;
