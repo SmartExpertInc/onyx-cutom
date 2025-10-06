@@ -8800,11 +8800,11 @@ async def migrate_onyx_users_to_credits_table() -> int:
                             logger.info(f"User {user['onyx_user_id']} already has credits, skipping credit creation")
                         else:
                             # Insert user credits (original migration logic)
-                        await custom_conn.execute("""
+                            await custom_conn.execute("""
                             INSERT INTO user_credits (onyx_user_id, name, credits_balance)
                             VALUES ($1, $2, 100)
                             ON CONFLICT (onyx_user_id) DO NOTHING
-                        """, user['onyx_user_id'], user['name'])
+                            """, user['onyx_user_id'], user['name'])
                             logger.info(f"Created credits for user {user['onyx_user_id']}")
                         
                         # Check if user already has full SmartDrive provisioning
