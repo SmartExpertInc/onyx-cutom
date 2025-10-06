@@ -122,7 +122,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         right: '0',
         top: '0',
         height: '40%',
-        background: 'white',
+        background: '#0F58F9',
         border: 'none'
       }} />
 
@@ -280,8 +280,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       }}>
         {currentSections.map((section, index) => (
           <div key={index} style={{
-            backgroundColor: '#FFFFFF',
-            padding: '30px',
+            backgroundColor: index % 2 === 0 ? '#E0E7FF' : '#FFFFFF',
+            padding: '30px 110px 30px 50px;',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',

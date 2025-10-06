@@ -139,9 +139,22 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const titleStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'60px', fontSize:'35px', color:'#000000', fontWeight:600, fontFamily:'Lora, serif' };
   const descStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'125px', width:'600px', color:'#555555', fontSize:'16px', lineHeight:1.4, fontFamily:'Inter, sans-serif' };
 
-  const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'220px' };
+  const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'230px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#0F58F9', color:'#FFFFFF', padding:'10px 15px', borderTopLeftRadius:'2px', borderTopRightRadius:'2px', fontWeight:400, fontSize:'17px', position:'relative' };
+  const theadStyle: React.CSSProperties = { 
+    display:'grid', 
+    gridTemplateColumns: gridTemplate, 
+    background:'#0F58F9', 
+    color:'#FFFFFF', 
+    padding:'10px 15px', 
+    borderTopLeftRadius:'2px', 
+    borderTopRightRadius:'2px',
+    border: '1px solid #D0D0D0',
+    borderBottom: 'none',
+    fontWeight:400, 
+    fontSize:'17px', 
+    position:'relative' 
+  };
   const rowStyle = (i:number, totalRows:number): React.CSSProperties => ({ 
     display:'grid', 
     gridTemplateColumns: gridTemplate, 
@@ -151,6 +164,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     color:'#6B6B6D', 
     marginTop:'0px', 
     position:'relative',
+    border: '1px solid #D0D0D0',
+    borderTop: 'none',
     borderRadius: i === totalRows - 1 ? '0 0 2px 2px' : '0'
   });
 
@@ -230,7 +245,10 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       <div style={tableWrap}>
         <div style={theadStyle}>
           {cols.map((h, idx)=> (
-            <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={{ position:'relative' }}>
+            <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={{ 
+              position:'relative',
+              borderRight: idx < cols.length - 1 ? '1px solid #D0D0D0' : 'none'
+            }}>
               {isEditable && editingHeaderIdx === idx ? (
                 <ImprovedInlineEditor
                   initialValue={h}
@@ -263,7 +281,10 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         {rows.map((r, i)=> (
           <div key={i} style={rowStyle(i, rows.length)} onMouseEnter={()=> setHoverRowIdx(i)} onMouseLeave={()=> setHoverRowIdx(null)}>
             {cols.map((h, cidx)=> (
-              <div key={cidx} style={{ position:'relative' }}>
+              <div key={cidx} style={{ 
+                position:'relative',
+                borderRight: cidx < cols.length - 1 ? '1px solid #D0D0D0' : 'none'
+              }}>
                 {isEditable && editingCell && editingCell.row===i && editingCell.col===cidx ? (
                   <ImprovedInlineEditor
                     initialValue={r[h] || ''}
