@@ -62,7 +62,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F9F8F4',
+    backgroundColor: '#F0F2F7',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -127,16 +127,72 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   };
 
   return (
-    <div className="hybrid-work-best-practices-slide-template inter-theme" style={slideStyles}>
+    <>
+      <style>{`
+        .hybrid-work-best-practices-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .hybrid-work-best-practices-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
+      <div className="hybrid-work-best-practices-slide-template inter-theme" style={slideStyles}>
+      {/* Header with page number and logo */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        left: '60px',
+        right: '60px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        zIndex: 10
+      }}>
+        {/* Page number */}
+        <div style={{
+          fontSize: '14px',
+          color: '#A2A19D',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          801
+        </div>
+        
+        {/* Logo */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '14px',
+          color: '#A2A19D',
+          fontFamily: 'Inter, sans-serif'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '1px solid #A2A19D',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px'
+          }}>
+            +
+          </div>
+          Your Logo
+        </div>
+      </div>
+
       {/* Main content with two columns */}
       <div style={{
         width: '100%',
         height: '100%',
-        backgroundColor: '#F9F8F4',
+        backgroundColor: '#F0F2F7',
         display: 'flex',
         padding: '40px 60px',
         paddingRight: '0px',
-        paddingBottom: '0px'
+        paddingBottom: '0px',
+        paddingTop: '80px'
       }}>
         {/* Left column */}
         <div style={{
@@ -148,47 +204,65 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         }}>
           {/* Top content */}
           <div>
-            {/* Header */}
+            {/* Tag */}
             <div style={{
-              fontSize: '14px',
-              color: '#A2A19D',
-              marginBottom: '20px',
-              fontWeight: '300'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '30px'
             }}>
-              {isEditable && editingTitle ? (
-                <ImprovedInlineEditor
-                  initialValue={currentTitle}
-                  onSave={handleTitleSave}
-                  onCancel={handleTitleCancel}
-                  className="hybrid-title-editor"
-                  style={{
-                    fontSize: '14px',
-                    color: themeContent,
-                    fontWeight: '300',
-                    width: '100%',
-                    height: 'auto'
-                  }}
-                />
-              ) : (
-                <div
-                  onClick={() => isEditable && setEditingTitle(true)}
-                  style={{
-                    cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
-                  }}
-                >
-                  {currentTitle}
-                </div>
-              )}
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#3B8BE9'
+              }}></div>
+              <div style={{
+                padding: '8px 18px',
+                border: '2px solid #333333',
+                borderRadius: '20px',
+                fontSize: '16px',
+                color: '#333333',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: '400'
+              }}>
+                {isEditable && editingTitle ? (
+                  <ImprovedInlineEditor
+                    initialValue={currentTitle}
+                    onSave={handleTitleSave}
+                    onCancel={handleTitleCancel}
+                    className="hybrid-title-editor"
+                    style={{
+                      fontSize: '16px',
+                      color: '#333333',
+                      fontWeight: '400',
+                      width: '100%',
+                      height: 'auto'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={() => isEditable && setEditingTitle(true)}
+                    style={{
+                      cursor: isEditable ? 'pointer' : 'default',
+                      userSelect: 'none'
+                    }}
+                  >
+                    {currentTitle}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Main statement */}
             <div style={{
-              fontSize: '24px',
-              maxWidth: '335px',
-              color: '#5B5A57',
-              lineHeight: '1.3',
-              marginBottom: '40px'
+              fontSize: '48px',
+              maxWidth: '400px',
+              color: '#333333',
+              lineHeight: '1.2',
+              marginBottom: '40px',
+              fontFamily: 'Lora, serif',
+              fontWeight: '600'
             }}>
               {isEditable && editingMainStatement ? (
                 <ImprovedInlineEditor
@@ -196,18 +270,21 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   onSave={handleMainStatementSave}
                   onCancel={handleMainStatementCancel}
                   multiline={true}
-                  className="hybrid-main-statement-editor"
+                  className="title-element"
                   style={{
-                    fontSize: '24px',
-                    maxWidth: '335px',
-                    color: themeTitle,
-                    lineHeight: '1.3',
+                    fontSize: '48px',
+                    maxWidth: '400px',
+                    color: '#333333',
+                    lineHeight: '1.2',
                     width: '100%',
-                    height: 'auto'
+                    height: 'auto',
+                    fontFamily: 'Lora, serif',
+                    fontWeight: '600'
                   }}
                 />
               ) : (
                 <div
+                  className="title-element"
                   onClick={() => isEditable && setEditingMainStatement(true)}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
@@ -229,6 +306,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             alignSelf: 'flex-start',
             position: 'absolute',
             bottom: '25px',
+            backgroundColor: '#3B8BE9'
           }}>
             <ClickableImagePlaceholder
               imagePath={profileImagePath}
@@ -274,16 +352,17 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               >
                 {/* Number */}
                 <div style={{
-                  width: '20px',
-                  height: '20px',
-                  backgroundColor: '#2A2828',
-                  color: (index === 1 || index === 2) ? '#B7B7B7' : '#fff',
+                  width: '24px',
+                  height: '24px',
+                  backgroundColor: '#3B8BE9',
+                  color: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: 'bold',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  borderRadius: '4px'
                 }}>
                   {practice.number}
                 </div>
@@ -294,10 +373,12 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 }}>
                   {/* Title */}
                   <div style={{
-                    fontSize: '13px',
-                    color: '#6F6E6A',
+                    fontSize: '16px',
+                    color: '#333333',
                     marginBottom: '8px',
-                    lineHeight: '1.2'
+                    lineHeight: '1.3',
+                    fontWeight: '600',
+                    fontFamily: 'Inter, sans-serif'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
                       <ImprovedInlineEditor
@@ -306,9 +387,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         onCancel={handlePracticeCancel}
                         className="practice-title-editor"
                         style={{
-                          fontSize: '13px',
-                          color: '#6F6E6A',
-                          lineHeight: '1.2',
+                          fontSize: '16px',
+                          color: '#333333',
+                          lineHeight: '1.3',
+                          fontWeight: '600',
+                          fontFamily: 'Inter, sans-serif',
                           width: '100%',
                           height: 'auto'
                         }}
@@ -328,10 +411,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
 
                   {/* Description */}
                   <div style={{
-                    fontSize: '11px',
-                    color: '#AEADA9',
-                    maxWidth: '230px',
-                    lineHeight: '1.4'
+                    fontSize: '14px',
+                    color: '#555555',
+                    maxWidth: '280px',
+                    lineHeight: '1.4',
+                    fontFamily: 'Inter, sans-serif'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'description' ? (
                       <ImprovedInlineEditor
@@ -341,9 +425,10 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         multiline={true}
                         className="practice-description-editor"
                         style={{
-                          fontSize: '11px',
-                          color: '#AEADA9',
+                          fontSize: '14px',
+                          color: '#555555',
                           lineHeight: '1.4',
+                          fontFamily: 'Inter, sans-serif',
                           width: '100%',
                           height: 'auto',
                           minHeight: '40px'
@@ -387,7 +472,20 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           </div>
         </div>
       </div>
+
+      {/* Footer with page number */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '60px',
+        fontSize: '14px',
+        color: '#A2A19D',
+        fontFamily: 'Inter, sans-serif'
+      }}>
+        11
+      </div>
     </div>
+    </>
   );
 };
 

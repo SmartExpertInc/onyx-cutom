@@ -126,12 +126,23 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'480px', minHeight:'46px' };
 
-  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
-  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
+  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'8px', height:'calc(100% - 24px)', flexWrap:'wrap' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
-  const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', position:'relative', borderRadius:'1px 1px 1px 1px' };
+  const getBarBase = (seriesLength: number): React.CSSProperties => {
+    const maxWidth = 40;
+    const minWidth = 20;
+    const availableWidth = 200; // Approximate available width for bars
+    const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, availableWidth / seriesLength));
+    return { 
+      width: `${calculatedWidth}px`, 
+      background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', 
+      position:'relative', 
+      borderRadius:'1px 1px 1px 1px' 
+    };
+  };
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
@@ -163,7 +174,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           return (
             <div
               key={i}
-              style={{ ...barBase, height:`${hh}px` }}
+              style={{ ...getBarBase(series.length), height:`${hh}px` }}
               onMouseEnter={()=> setHoverBar({ panel: panelKey, idx:i })}
               onMouseLeave={()=> setHoverBar(null)}
               onMouseDown={(e)=>{
@@ -261,7 +272,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('left', leftSeries)}
           <div style={yearRow}>{leftSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:`${getBarBase(leftSeries.length).width}`, textAlign:'center' }}>
               {edit?.key===`left-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...leftSeries]; next[i]={ ...next[i], year:v }; setLeftSeries(next); pushState('left'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -277,7 +288,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('right', rightSeries)}
           <div style={yearRow}>{rightSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:'40px', textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width:`${getBarBase(rightSeries.length).width}`, textAlign:'center' }}>
               {edit?.key===`right-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...rightSeries]; next[i]={ ...next[i], year:v }; setRightSeries(next); pushState('right'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}

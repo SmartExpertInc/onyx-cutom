@@ -48,7 +48,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     position:'absolute',
     left:'44px',
     right:'44px',
-    top:'44px',
+    top:'30px',
     height:'400px',
     background:'#FFFFFF',
     borderRadius:'6px',
@@ -95,7 +95,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     ...circleBase,
     background:'#0F58F9', // Blue
     fontSize:'20px',
-    fontWeight:700,
+    fontWeight:600,
     border:'none',
     color:'#FFFFFF',
     borderRadius:'50%'
@@ -121,7 +121,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     position:'absolute',
     left:'44px',
     right:'44px',
-    bottom:'60px',
+    bottom:'75px',
     height:'135px',
     display:'grid',
     gridTemplateColumns:'1fr 1fr',
@@ -143,7 +143,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
   // Text styles for white cards
   const cardValueStyle: React.CSSProperties = {
-    fontSize:'47px',
+    fontSize:'53px',
     fontWeight:900,
     color:'#000000',
     marginBottom:'8px'
@@ -223,6 +223,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       <style>{`
         .percent-circles *:not(.title-element):not(.card-value-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
         }
         .percent-circles .title-element,
         .percent-circles .card-value-element {

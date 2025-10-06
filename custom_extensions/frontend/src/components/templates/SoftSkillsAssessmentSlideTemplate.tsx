@@ -220,7 +220,21 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   };
 
   return (
-    <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
+    <>
+      <style>{`
+        .soft-skills-assessment-slide-template *:not(.title-element):not(.card-text) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .soft-skills-assessment-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .soft-skills-assessment-slide-template .card-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
+      <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
       {/* Top section with title and profile image */}
       <div style={{
         display: 'flex',
@@ -233,7 +247,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           fontSize: '61px',
           color: '#000000',
           lineHeight: '1.2',
-          maxWidth: '76%',
+          maxWidth: '70%',
           fontWeight: 900,
           fontFamily: 'serif'
         }}>
@@ -243,7 +257,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               multiline={true}
-              className="soft-skills-title-editor"
+              className="title-element"
               style={{
                 fontSize: '61px',
                 color: '#000000',
@@ -254,6 +268,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             />
           ) : (
             <div
+              className="title-element"
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
@@ -267,8 +282,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
         {/* Profile image */}
         <div style={{
-          width: '145px',
-          height: '145px',
+          width: '160px',
+          height: '160px',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#0F58F9'
@@ -330,7 +345,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     onSave={(value) => handleTipSave(index, value)}
                     onCancel={handleTipCancel}
                     multiline={true}
-                    className="tip-editor"
+                    className="card-text"
                     style={{
                       fontSize: '32px',
                       maxWidth: '386px',
@@ -345,6 +360,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                   />
                 ) : (
                   <div
+                    className="card-text"
                     onClick={() => isEditable && setEditingTips(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
@@ -368,7 +384,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         left: '0',
         right: '0',
         height: '40px',
-        borderTop: '1px solid #E5E7EB',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -378,7 +393,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         {/* Page number */}
         <div style={{
           fontSize: '14px',
-          color: '#909090',
+          color: 'rgba(0, 0, 0, 0.6)',
           fontFamily: 'Inter, sans-serif'
         }}>
           27
@@ -390,18 +405,18 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           alignItems: 'center',
           gap: '8px',
           fontSize: '14px',
-          color: '#909090',
+          color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
           <div style={{
             width: '20px',
             height: '20px',
             borderRadius: '50%',
-            border: '1px solid #909090',
+            border: '1px solid black',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '12px'
+            fontSize: '14px'
           }}>
             +
           </div>
@@ -409,6 +424,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         </div>
       </div>
     </div>
+    </>
   );
 };
 
