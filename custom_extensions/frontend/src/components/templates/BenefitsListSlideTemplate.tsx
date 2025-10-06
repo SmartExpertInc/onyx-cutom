@@ -143,6 +143,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   totalSteps = 4,
   companyName = 'Company name',
   benefitsListIcon = '',
+  pageNumber = '15',
+  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -157,12 +159,15 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
   const [editingDescription, setEditingDescription] = useState(false);
   const [editingBenefits, setEditingBenefits] = useState<number | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSubtitle, setCurrentSubtitle] = useState(subtitle);
   const [currentDescription, setCurrentDescription] = useState(description);
   const [currentBenefits, setCurrentBenefits] = useState(benefits);
   const [currentCompanyName, setCurrentCompanyName] = useState(companyName);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -245,6 +250,25 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
     setEditingCompanyName(false);
   };
 
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
+    }
+  };
+
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, subtitle, description, benefits, profileImagePath, profileImageAlt, currentStep, totalSteps, companyName, benefitsListIcon, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
@@ -259,13 +283,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
   return (
     <div className="benefits-list-slide-template inter-theme" style={slideStyles}>
-      {/* Top section with green background */}
+      {/* Top section with blue gradient background */}
       <div style={{
         flex: '0 0 427px', // Фиксированная высота для верхней секции
-        backgroundColor: '#68AB7F',
+        background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', 
         position: 'relative',
         padding: '40px 60px',
-        paddingTop: '56px',
+        paddingTop: '48px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -274,64 +298,71 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         <div>
           {/* Subtitle */}
           <div style={{
-            fontSize: '12px',
-            color: '#3a6549',
             marginBottom: '25px',
-            fontWeight: '300',
-            minHeight: '20px',
-            maxHeight: '20px',
             display: 'flex',
-            alignItems: 'center',
-            overflow: 'hidden'
+            alignItems: 'center'
           }}>
-            {isEditable && editingSubtitle ? (
-              <InlineEditor
-                initialValue={currentSubtitle}
-                onSave={handleSubtitleSave}
-                onCancel={handleSubtitleCancel}
-                className="benefits-subtitle-editor"
-                style={{
-                  fontSize: '12px',
-                  color: '#3a6549',
-                  fontWeight: '300',
-                  width: '100%',
-                  height: '100%',
-                  minHeight: '20px',
-                  maxHeight: '20px'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingSubtitle(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none',
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '12px',
-                  color: '#3a6549',
-                  fontWeight: '300',
-                  minHeight: '20px',
-                  maxHeight: '20px',
-                  overflow: 'hidden'
-                }}
-              >
-                {currentSubtitle}
-              </div>
-            )}
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '24px',
+              padding: '8px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              {/* Circle indicator */}
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: '#0F58F9'
+              }} />
+              
+              {/* Subtitle text */}
+              {isEditable && editingSubtitle ? (
+                <InlineEditor
+                  initialValue={currentSubtitle}
+                  onSave={handleSubtitleSave}
+                  onCancel={handleSubtitleCancel}
+                  className="benefits-subtitle-editor"
+                  style={{
+                    fontSize: '20px',
+                    color: '#09090BCC',
+                    fontWeight: '400',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none'
+                  }}
+                />
+              ) : (
+                <div
+                  onClick={() => isEditable && setEditingSubtitle(true)}
+                  style={{
+                    cursor: isEditable ? 'pointer' : 'default',
+                    userSelect: 'none',
+                    fontSize: '20px',
+                    color: '#09090BCC',
+                    fontWeight: '400',
+                    fontFamily: currentTheme.fonts.contentFont
+                  }}
+                >
+                  {currentSubtitle}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Main title */}
           <div style={{
-            fontSize: '65px',
-            color: '#2A3E30',
-            marginBottom: '20px',
+            fontSize: '48px',
+            color: '#FFFFFF',
+            marginBottom: '10px',
             lineHeight: '1.1',
             minHeight: '65px',
             maxHeight: '65px',
             display: 'flex',
+            fontFamily: "'Lora', serif",
             alignItems: 'center',
             overflow: 'hidden'
           }}>
@@ -342,9 +373,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 onCancel={handleTitleCancel}
                 className="benefits-title-editor"
                 style={{
-                  fontSize: '65px',
-                  color: '#2A3E30',
+                  fontSize: '48px',
+                  color: '#FFFFFF',
                   lineHeight: '1.1',
+                  fontFamily: "'Lora', serif",
                   width: '100%',
                   height: '100%',
                   minHeight: '65px',
@@ -361,9 +393,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   height: '100%',
                   display: 'flex',
                   alignItems: 'center',
-                  fontSize: '65px',
-                  color: '#2A3E30',
+                  fontSize: '48px',
+                  color: '#FFFFFF',
                   lineHeight: '1.1',
+                  fontFamily: "'Lora', serif",
                   minHeight: '65px',
                   maxHeight: '65px',
                   overflow: 'hidden'
@@ -376,8 +409,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
 
           {/* Description */}
           <div style={{
-            fontSize: '26px',
-            color: '#2F553A',
+            fontSize: '28px',
+            color: 'rgba(255, 255, 255, 0.8)',
             lineHeight: '1.4',
             maxWidth: '643px',
             minHeight: '30px',
@@ -392,9 +425,12 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 multiline={true}
                 className="benefits-description-editor"
                 style={{
-                  fontSize: '26px',
-                  color: '#2F553A',
+                  fontSize: '28px',
+                  color: 'rgba(255, 255, 255, 0.8)',
                   lineHeight: '1.4',
+                  fontFamily: currentTheme.fonts.contentFont,
+                  fontWeight: '300',
+                  letterSpacing: '0.05rem',
                   width: '100%'
                 }}
               />
@@ -405,8 +441,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   cursor: isEditable ? 'pointer' : 'default',
                   userSelect: 'none',
                   fontSize: '28px',
-                  color: '#2F553A',
+                  color: 'rgba(255, 255, 255, 0.8)',
                   lineHeight: '1.4',
+                  fontFamily: currentTheme.fonts.contentFont,
+                  fontWeight: '300',
+                  letterSpacing: '0.05rem',
                   maxWidth: '643px',
                   minHeight: '30px',
                   width: '100%'
@@ -418,27 +457,27 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           </div>
         </div>
 
-        {/* Navigation circles */}
+        {/* Navigation squares */}
         <div style={{
           display: 'flex',
-          gap: '15px',
-          marginTop: '20px'
+          gap: '55px',
         }}>
           {Array.from({ length: totalSteps }, (_, i) => (
             <div
               key={i}
               style={{
-                width: '45px',
-                height: '45px',
-                borderRadius: '50%',
-                border: `2px solid ${i + 1 === currentStep ? '#fff' : themeBg}`,
-                backgroundColor: i + 1 === currentStep ? "#fff" : 'transparent',
+                width: '55px',
+                height: '55px',
+                borderRadius: '2px',
+                border: `2px solid #ffffff`,
+                backgroundColor: i + 1 === currentStep ? "#ffffff" : 'transparent',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#264A32',
-                fontSize: '25px',
-                fontWeight: ''
+                color: i + 1 === currentStep ? '#0F58F9' : '#ffffff',
+                fontSize: '32px',
+                fontWeight: '',
+                fontFamily: currentTheme.fonts.contentFont
               }}
             >
               {i + 1}
@@ -451,10 +490,11 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           position: 'absolute',
           top: '60px',
           right: '60px',
-          width: '190px',
-          height: '190px',
+          width: '170px',
+          height: '170px',
           borderRadius: '50%',
           overflow: 'hidden',
+          backgroundColor: '#ffffff',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
@@ -476,7 +516,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Bottom section with white background */}
       <div style={{
         flex: '1',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#E0E7FF',
         padding: '13px 60px',
         display: 'flex',
         flexDirection: 'column',
@@ -497,11 +537,13 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                fontSize: '20px',
+                fontSize: '24px',
                 color: '#5E5E5E'
               }}
             >
-              <span style={{ fontSize: '18px' }}>→</span>
+              <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+              </svg>
               {isEditable && editingBenefits === index ? (
                 <InlineEditor
                   initialValue={benefit}
@@ -509,8 +551,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                   onCancel={handleBenefitCancel}
                   className="benefit-editor"
                   style={{
-                    fontSize: '20px',
+                    fontSize: '24px',
                     color: '#5E5E5E',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    letterSpacing: '0.05rem',
                     flex: '1'
                   }}
                 />
@@ -521,8 +565,10 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                     cursor: isEditable ? 'pointer' : 'default',
                     userSelect: 'none',
                     flex: '1',
-                    fontSize: '20px',
-                    color: '#5E5E5E'
+                    fontSize: '24px',
+                    color: '#5E5E5E',
+                    fontFamily: currentTheme.fonts.contentFont,
+                    letterSpacing: '0.05rem'
                   }}
                 >
                   {benefit}
@@ -532,94 +578,102 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           ))}
         </div>
 
-        {/* Horizontal line separator */}
-        <hr style={{
-          border: 'none',
-          height: '1px',
-          backgroundColor: '#252525',
-          opacity: 0.3,
-          margin: '20px 0',
-          marginTop: '55px'
-        }} />
+      </div>
 
-        {/* Footer */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginTop: '-5px',
-          marginBottom: '20px'
-        }}>
-{benefitsListIcon ? (
-            // Show uploaded logo image
-            <ClickableImagePlaceholder
-              imagePath={benefitsListIcon}
-              onImageUploaded={handleBenefitsListIconUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Benefits List Icon"
-              isEditable={isEditable}
-              style={{
-                height: '24px',
-                width: '24px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            // Show default logo image
-            <div 
-              onClick={() => isEditable && setShowUploadModal(true)}
-              style={{
-                width: '24px',
-                height: '24px',
-                cursor: isEditable ? 'pointer' : 'default',
-                position: 'relative'
-              }}
-            >
-              <img
-                src="/custom-projects-ui/benefitsListIcon.png"
-                alt="Benefits List Icon"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  objectFit: 'contain'
-                }}
-              />
+      {/* Logo in bottom-right corner */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        right: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-          )}
-          <div style={{
-            fontSize: '12px',
-            color: themeContent,
-            fontWeight: '300'
-          }}>
-            {isEditable && editingCompanyName ? (
-              <InlineEditor
-                initialValue={currentCompanyName}
-                onSave={handleCompanyNameSave}
-                onCancel={handleCompanyNameCancel}
-                className="company-name-editor"
-                style={{
-                  fontSize: '12px',
-                  color: '#8c8c8c',
-                  fontWeight: '300'
-                }}
-              />
-            ) : (
-              <div
-                onClick={() => isEditable && setEditingCompanyName(true)}
-                style={{
-                  cursor: isEditable ? 'pointer' : 'default',
-                  userSelect: 'none',
-                  fontSize: '12px',
-                  color: '#8c8c8c',
-                  fontWeight: '300'
-                }}
-              >
-                {currentCompanyName}
-              </div>
-            )}
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <InlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {/* Logo Upload Modal */}
@@ -632,6 +686,19 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             setShowUploadModal(false);
           }}
           title="Upload Benefits List Icon"
+        />
+      )}
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
         />
       )}
     </div>

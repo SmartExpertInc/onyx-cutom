@@ -10,16 +10,16 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   theme?: SlideTheme | string;
 }> = ({
   slideId,
-  tagText = 'By the Numbers',
+  tagText = 'Presentation',
   title = 'The Proof Is in the Pudding',
   description = 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
   statistics = [
     { value: 'XX%', description: 'Percentage increase in productivity' },
-    { value: 'XX%', description: 'Decrease in customer complaints' },
-    { value: 'XX%', description: 'Percentage increase in revenue' },
-    { value: 'XM', description: 'Percentage increase in revenue' },
-    { value: 'XX%', description: 'Percentage increase in revenue' },
-    { value: 'XM', description: 'Percentage increase in revenue' }
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' },
+    { value: 'XX%', description: 'Percentage increase in productivity' }
   ],
   conclusionText = 'With these impressive results, it\'s clear that [Product Name] is the real deal, Don\'t miss out on the opportunity to take your business to the next level- try [Product Name] today.',
   bulletPoints = [
@@ -59,7 +59,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#1A1A1A', // Dark background as per screenshot
+    backgroundColor: '#FFFFFF', // White background
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -133,35 +133,62 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         position: 'absolute',
         top: '40px',
         left: '60px',
-        backgroundColor: '#282828', // Slightly lighter dark gray
-        padding: '8px 16px',
-        fontSize: '14px',
-        color: '#A1A1A1',
+        marginBottom: '25px',
+        display: 'flex',
+        alignItems: 'center'
       }}>
-        {isEditable && editingTagText ? (
-          <ImprovedInlineEditor
-            initialValue={currentTagText}
-            onSave={handleTagTextSave}
-            onCancel={() => setEditingTagText(false)}
-            className="tag-text-editor"
-            style={{
-              fontSize: '14px',
-              color: '#FFFFFF',
-              width: '100%',
-              height: 'auto',
-            }}
-          />
-        ) : (
-          <div
-            onClick={() => isEditable && setEditingTagText(true)}
-            style={{
-              cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
-            }}
-          >
-            {currentTagText}
-          </div>
-        )}
+        <div style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '24px',
+          padding: '8px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          border: '1px solid #09090B'
+        }}>
+          {/* Circle indicator */}
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            backgroundColor: '#0F58F9'
+          }} />
+          
+          {/* Tag text */}
+          {isEditable && editingTagText ? (
+            <ImprovedInlineEditor
+              initialValue={currentTagText}
+              onSave={handleTagTextSave}
+              onCancel={() => setEditingTagText(false)}
+              className="tag-text-editor"
+              style={{
+                fontSize: '18px',
+                color: '#09090BCC',
+                fontWeight: '400',
+                fontFamily: currentTheme.fonts.contentFont,
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                width: '100%',
+                height: 'auto',
+              }}
+            />
+          ) : (
+            <div
+              onClick={() => isEditable && setEditingTagText(true)}
+              style={{
+                cursor: isEditable ? 'pointer' : 'default',
+                userSelect: 'none',
+                fontSize: '18px',
+                color: '#09090BCC',
+                fontWeight: '400',
+                fontFamily: currentTheme.fonts.contentFont
+              }}
+            >
+              {currentTagText}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Title */}
@@ -169,11 +196,12 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         position: 'absolute',
         top: '95px',
         left: '60px',
-        fontSize: '38px',
+        fontSize: '50px',
         fontWeight: 'bold',
-        color: '#DFDFDF',
+        color: '#09090B',
         lineHeight: '1.1',
         maxWidth: '600px',
+        fontFamily: "'Lora', serif",
       }}>
         {isEditable && editingTitle ? (
           <ImprovedInlineEditor
@@ -182,12 +210,13 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             onCancel={() => setEditingTitle(false)}
             className="proof-title-editor"
             style={{
-              fontSize: '38px',
+              fontSize: '50px',
               fontWeight: 'bold',
-              color: '#DFDFDF',
+              color: '#09090B',
               lineHeight: '1.1',
               width: '100%',
               height: 'auto',
+              fontFamily: "'Lora', serif",
             }}
           />
         ) : (
@@ -195,7 +224,9 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               cursor: isEditable ? 'pointer' : 'default',
-              userSelect: 'none'
+              userSelect: 'none',
+              // Force Lora on the element that renders text to override global Inter rule
+              fontFamily: "'Lora', serif"
             }}
           >
             {currentTitle}
@@ -208,8 +239,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         position: 'absolute',
         top: '155px',
         left: '60px',
-        fontSize: '13px',
-        color: '#929292',
+        fontSize: '16px',
+        color: 'rgba(9, 9, 11, 0.8)',
         lineHeight: '1.4',
         maxWidth: '454px',
       }}>
@@ -222,7 +253,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             multiline={true}
             style={{
               fontSize: '16px',
-              color: '#FFFFFF',
+              color: 'rgba(9, 9, 11, 0.8)',
               lineHeight: '1.4',
               width: '100%',
               height: 'auto',
@@ -251,9 +282,10 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         gridTemplateRows: 'repeat(3, 1fr)',
         gap: '30px',
         width: '600px',
-        backgroundColor: '#292929',
+        backgroundColor: '#F3F5FF',
         padding: '44px',
-        borderRadius: '2px',
+        borderRadius: '6px',
+        boxShadow: '0px 13.92px 13.92px -4.64px #2A334608',
         paddingTop: '25px',
         paddingBottom: '35px',
       }}>
@@ -265,9 +297,10 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             {/* Statistic Value */}
             <div style={{
               fontSize: '32px',
-              fontWeight: 'bold',
-              color: '#E1E1E1',
+              fontWeight: 'semibold',
+              color: '#09090B',
               marginBottom: '12px',
+              fontFamily: "'Lora', serif",
             }}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'value' ? (
                 <ImprovedInlineEditor
@@ -277,10 +310,11 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   className="statistic-value-editor"
                   style={{
                     fontSize: '32px',
-                    fontWeight: 'bold',
-                    color: '#E1E1E1',
+                    fontWeight: 'semibold',
+                    color: '#09090B',
                     width: '100%',
                     height: 'auto',
+                    fontFamily: "'Lora', serif",
                   }}
                 />
               ) : (
@@ -288,7 +322,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   onClick={() => isEditable && setEditingStatistics({ index, field: 'value' })}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    fontFamily: "'Lora', serif"
                   }}
                 >
                   {stat.value}
@@ -299,7 +334,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             {/* Statistic Description */}
             <div style={{
               fontSize: '14px',
-              color: '#989898',
+              color: 'rgba(9, 9, 11, 0.8)',
               lineHeight: '1.3',
             }}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'description' ? (
@@ -310,7 +345,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   className="statistic-description-editor"
                   style={{
                     fontSize: '14px',
-                    color: '#989898',
+                    color: 'rgba(9, 9, 11, 0.8)',
                     lineHeight: '1.3',
                     width: '100%',
                     height: 'auto',
@@ -341,8 +376,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
       }}>
         {/* Conclusion Text */}
         <div style={{
-          fontSize: '14px',
-          color: '#939393',
+          fontSize: '16px',
+          color: 'rgba(9, 9, 11, 0.8)',
           lineHeight: '1.4',
           marginBottom: '20px',
         }}>
@@ -354,8 +389,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               className="conclusion-text-editor"
               multiline={true}
               style={{
-                fontSize: '14px',
-                color: '#939393',
+                fontSize: '16px',
+                color: 'rgba(9, 9, 11, 0.8)',
                 lineHeight: '1.4',
                 width: '100%',
                 height: 'auto',
@@ -387,16 +422,18 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               gap: '8px',
             }}>
               <div style={{
-                width: '19px',
-                height: '18px',
-                borderRadius: '50%',
-                backgroundColor: '#8C51F6', // Purple circle
-                marginTop: '6px',
+                width: '6px',
+                height: '6px',
+                marginTop: '8px',
                 flexShrink: 0,
-              }} />
+              }}>
+                <svg width="6" height="6" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5.53846 2.27823C6.15385 2.59901 6.15385 3.40099 5.53846 3.72177L1.38462 5.8871C0.769231 6.20789 -3.10607e-08 5.8069 0 5.16532L2.09658e-07 0.834678C2.40719e-07 0.193101 0.769231 -0.207887 1.38462 0.112902L5.53846 2.27823Z" fill="#0F58F9"/>
+                </svg>
+              </div>
               <div style={{
                 fontSize: '16px',
-                color: '#8E8E8E',
+                color: 'rgba(9, 9, 11, 0.8)',
                 lineHeight: '1.4',
                 flex: 1,
               }}>
@@ -408,7 +445,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                     className="bullet-point-editor"
                     style={{
                       fontSize: '16px',
-                      color: '#8E8E8E',
+                      color: 'rgba(9, 9, 11, 0.8)',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto',
@@ -436,10 +473,10 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         position: 'absolute',
         top: '40px',
         right: '60px',
-        width: '120px',
-        height: '120px',
+        width: '170px',
+        height: '170px',
         borderRadius: '50%',
-        backgroundColor: '#292929',
+        backgroundColor: '#0F58F9',
         overflow: 'hidden',
       }}>
         <ClickableImagePlaceholder
@@ -454,7 +491,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             height: '100%',
             borderRadius: '50%',
             position: 'relative',
-            bottom: '-15px',
+            bottom: '-20px',
             objectFit: 'cover'
           }}
         />
