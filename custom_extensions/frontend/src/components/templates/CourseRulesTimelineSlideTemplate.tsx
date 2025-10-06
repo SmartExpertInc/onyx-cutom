@@ -22,8 +22,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     theme,
   } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; companyLogoPath?: string; companyLogoAlt?: string; };
   const steps = stepsProp ?? [
-    { number: '01', text: 'Rules of the course' },
-    { number: '02', text: 'Prerequisite courses' },
+    { number: '1', text: 'Rules of the course' },
+    { number: '2', text: 'Prerequisite courses' },
+    { number: '3', text: 'Prerequisite courses' },
   ];
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -48,28 +49,27 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const actorStyles: React.CSSProperties = {
     position: 'absolute',
-    left: '140px',
+    left: '0px',
     bottom: '0px',
-    height: '600px',
-    width: '400px',
+    height: '100%',
+    width: '50%',
     background: 'linear-gradient(to bottom, #0F58F9, #1023A1)',
-    borderRadius: '20px',
   };
 
   const lineStyles: React.CSSProperties = {
     position: 'absolute',
     left: '50%',
-    top: '193px',
+    top: '175px',
     bottom: '80px',
     width: '3px',
     height: '100%',
-    backgroundColor: '#232428',
+    backgroundColor: '#0F58F9',
   };
 
   const stepNumStyles: React.CSSProperties = {
-    width: '80px',
-    height: '80px',
-    borderRadius: '50%',
+    width: '55px',
+    height: '55px',
+    borderRadius: '2px',
     backgroundColor: '#0F58F9',
     color: '#FFFFFF',
     fontWeight: 700,
@@ -82,7 +82,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const stepTextStyles: React.CSSProperties = {
     color: 'black',
     fontSize: '46px',
-    fontWeight: 700,
+    fontWeight: 600,
     lineHeight: '1.05',
   };
 
@@ -97,8 +97,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const circlePositionStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
-    left: 'calc(50% - 38px)', // center the 110px circle on the vertical line
-    top: index === 0 ? '120px' : '450px',
+    left: 'calc(50% - 28px)', // center the 110px circle on the vertical line
+    top: index === 0 ? '135px' : index === 1 ? '300px' : '465px',
   });
 
   const starStyles: React.CSSProperties = {
@@ -111,8 +111,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const pageNumberStyles: React.CSSProperties = {
     position: 'absolute',
     bottom: '24px',
-    left: '22px',
-    color: '#E6E6F3',
+    right: '32px',
+    color: '#5F616D',
     fontSize: '13px',
     fontWeight: 400
   };
@@ -129,7 +129,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       <style>{`
         .course-rules-timeline-slide .step-text {
           font-family: "Lora", serif !important;
-          font-weight: 700 !important;
+          font-weight: 600 !important;
           color: black !important;
         }
       `}</style>
@@ -241,7 +241,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       ))}
 
       {/* Step texts on the right */}
-      {currentSteps.slice(0, 2).map((s: { number: string; text: string }, i: number) => (
+      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => (
         <div key={`text-${i}`} style={stepContainerStyles(i)}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
             <ImprovedInlineEditor
