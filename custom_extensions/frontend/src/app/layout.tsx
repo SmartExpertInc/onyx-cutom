@@ -22,6 +22,8 @@ export default function RootLayout({
         {/* ONLY INTER FONT - No external fonts */}
         {/* Preload Inter font for better performance */}
         <link rel="preload" href="/fonts/Inter_18pt-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        {/* Preload Lora font for slide titles */}
+        <link rel="preload" href="/fonts/Lora-VariableFont_wght.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
       </head>
       <body className="h-full bg-app-gradient">
         <MontFontLoader />

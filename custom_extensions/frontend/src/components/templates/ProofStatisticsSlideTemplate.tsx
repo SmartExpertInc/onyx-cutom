@@ -297,7 +297,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             {/* Statistic Value */}
             <div style={{
               fontSize: '32px',
-              fontWeight: 'bold',
+              fontWeight: 'semibold',
               color: '#09090B',
               marginBottom: '12px',
               fontFamily: "'Lora', serif",
@@ -310,7 +310,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   className="statistic-value-editor"
                   style={{
                     fontSize: '32px',
-                    fontWeight: 'bold',
+                    fontWeight: 'semibold',
                     color: '#09090B',
                     width: '100%',
                     height: 'auto',
