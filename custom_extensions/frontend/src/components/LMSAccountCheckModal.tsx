@@ -58,9 +58,7 @@ const LMSAccountCheckModal: React.FC<LMSAccountCheckModalProps> = ({
       const data = await resp.json();
       if (resp.ok && data?.success) {
         persistChoice('no-success');
-        if (data?.redirectUrl) {
-          try { window.open(data.redirectUrl, '_blank'); } catch {}
-        }
+        // Do not redirect to LMS after creating workspace
         const email = data?.email || '';
         const toast = document.createElement('div');
         toast.textContent = t('interface.lmsAccountCreated', `SmartExpert account for the ${email} is created successfully! Password is sent to the email`);

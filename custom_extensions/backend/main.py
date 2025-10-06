@@ -34865,9 +34865,10 @@ async def export_to_lms(
             "success": True,
             "message": "Export completed",
             "results": results,
+            "lmsBaseUrl": smartexpert_base_url,
             "status": status
         }
-        user_msg = f"Your courses have been exported. You can find them in your SmartExpert account linked to {user_email}."
+        user_msg = f"Your courses have been exported to {smartexpert_base_url}. You can find them in your SmartExpert account linked to {user_email}."
         yield (json.dumps({"type": "done", "payload": final_payload, "userMessage": user_msg}) + "\n").encode()
         return
 

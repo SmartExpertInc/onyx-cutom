@@ -169,12 +169,14 @@ const LMSExportButton: React.FC<LMSExportButtonProps> = ({
       setExportStatus('success');
         console.log('✅ Export completed:', exportData.results);
         
-        // Update toast to success
+        // Update toast to success (include LMS link)
         const successDisplayNames = getDisplayCourseNames(70);
+        const lmsBaseUrl = exportData?.lmsBaseUrl;
+        const lmsSuffix = lmsBaseUrl ? ` (LMS: ${lmsBaseUrl})` : '';
         updateToast(toastId, {
           type: 'success',
           title: 'Export Successful!',
-          description: userMessage || `Successfully exported: ${successDisplayNames}`,
+          description: userMessage || `Successfully exported: ${successDisplayNames}${lmsSuffix}`,
           duration: 7000,
         });
 
