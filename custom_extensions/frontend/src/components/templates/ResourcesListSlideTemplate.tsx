@@ -38,7 +38,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
