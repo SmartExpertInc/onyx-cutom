@@ -256,186 +256,237 @@ class ProfessionalPresentationService:
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(run_blocking_processing)
     
-    async def _process_presentation(self, job_id: str, request: PresentationRequest):
+    async def _wait_for_avatar_video(self, video_id: str, max_wait_time: int = 600) -> str:
         """
-        Process presentation generation in background.
+        Wait for avatar video to be ready and return the video URL.
         
         Args:
-            job_id: Job ID
-            request: Presentation request
+            video_id: Elai video ID
+            max_wait_time: Maximum wait time in seconds
+            
+        Returns:
+            Video URL when ready
         """
+        import time
+        start_time = time.time()
+        
+        while time.time() - start_time < max_wait_time:
+            try:
+                # Check video status using Elai API
+                response = await video_generation_service.client.get(
+                    f"{video_generation_service.api_base}/videos/{video_id}",
+                    headers=video_generation_service.headers
+                )
+                
+                if response.is_success:
+                    video_data = response.json()
+                    status = video_data.get('status')
+                    
+                    if status == 'ready':
+                        video_url = video_data.get('url')
+                        if video_url:
+                            logger.info(f"Avatar video ready: {video_url}")
+                            return video_url
+                    elif status == 'failed':
+                        raise Exception(f"Avatar video generation failed: {video_data.get('error', 'Unknown error')}")
+                
+                # Wait before next check
+                await asyncio.sleep(10)
+                
+            except Exception as e:
+                logger.error(f"Error checking avatar video status: {e}")
+                await asyncio.sleep(10)
+        
+        raise Exception(f"Avatar video not ready after {max_wait_time} seconds")
+    
+    async def _process_presentation(self, request: PresentationRequest, job_id: str):
+        """
+        Process presentation generation using Remotion rendering pipeline.
+        
+        Args:
+            request: Presentation request
+            job_id: Job ID
+        """
+        import subprocess
+        import json
+        import os
+        from pathlib import Path
+        
         job = self.jobs[job_id]
         
         try:
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Starting presentation processing for job: {job_id}")
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Request details:")
-            logger.info(f"  - Slide URL: {request.slide_url}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Starting Remotion-based presentation processing for job: {job_id}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Request details:")
             logger.info(f"  - Theme: {request.theme}")
             logger.info(f"  - Duration: {request.duration}s")
-            logger.info(f"  - Quality: {request.quality}")
-            logger.info(f"  - Layout: {request.layout}")
-            logger.info(f"  - Resolution: {request.resolution}")
             logger.info(f"  - Avatar Code: {request.avatar_code}")
             logger.info(f"  - Voiceover Texts Count: {len(request.voiceover_texts)}")
             logger.info(f"  - Slides Data Provided: {bool(request.slides_data)}")
-            
-            if request.slides_data:
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Slides data analysis:")
-                for i, slide in enumerate(request.slides_data):
-                    logger.info(f"  Slide {i+1}:")
-                    logger.info(f"    - Template ID: {slide.get('templateId', 'N/A')}")
-                    logger.info(f"    - Slide ID: {slide.get('slideId', 'N/A')}")
-                    logger.info(f"    - Props Keys: {list(slide.get('props', {}).keys())}")
-                    logger.info(f"    - Title: {slide.get('props', {}).get('title', 'N/A')}")
-                    logger.info(f"    - Subtitle: {slide.get('props', {}).get('subtitle', 'N/A')}")
-                    logger.info(f"    - Content: {slide.get('props', {}).get('content', 'N/A')[:100]}...")
-            
-            if request.voiceover_texts:
-                logger.info(f"🎬 [PRESENTATION_PROCESSING] Voiceover texts:")
-                for i, text in enumerate(request.voiceover_texts):
-                    logger.info(f"  Text {i+1}: {text[:100]}...")
             
             # Start processing with heartbeat
             self._update_job_status(job_id, status="processing", progress=5.0)
             await self._start_heartbeat(job_id)
             
-            # Step 1: Generate clean slide video
-            logger.info(f"🎬 [PRESENTATION_PROCESSING] Step 1: Generating clean slide video for job {job_id}")
+            # Step 1: Prepare slide data
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 1: Preparing slide data for job {job_id}")
             self._update_job_status(job_id, progress=10.0)
             
-            # Use ONLY the new clean HTML → PNG → Video pipeline (no screenshot fallback)
-            try:
-                # Use actual slide data if provided, otherwise extract from URL as fallback
-                if request.slides_data and len(request.slides_data) > 0:
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Using provided slide data with {len(request.slides_data)} slides")
-                    slides_data = request.slides_data
-                    
-                    # Detailed logging of slide data structure
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Detailed slide data analysis:")
-                    for i, slide in enumerate(slides_data):
-                        logger.info(f"  📄 Slide {i+1} Details:")
-                        logger.info(f"    - Template ID: {slide.get('templateId', 'N/A')}")
-                        logger.info(f"    - Slide ID: {slide.get('slideId', 'N/A')}")
-                        logger.info(f"    - Props Type: {type(slide.get('props', {}))}")
-                        logger.info(f"    - Props Keys: {list(slide.get('props', {}).keys())}")
-                        
-                        props = slide.get('props', {})
-                        logger.info(f"    - Title: '{props.get('title', 'N/A')}'")
-                        logger.info(f"    - Subtitle: '{props.get('subtitle', 'N/A')}'")
-                        logger.info(f"    - Content: '{props.get('content', 'N/A')[:200]}...'")
-                        logger.info(f"    - Voiceover Text: '{props.get('voiceoverText', 'N/A')[:200]}...'")
-                        
-                        # Log any additional properties
-                        for key, value in props.items():
-                            if key not in ['title', 'subtitle', 'content', 'voiceoverText']:
-                                if isinstance(value, str) and len(value) > 100:
-                                    logger.info(f"    - {key}: '{value[:100]}...'")
-                                else:
-                                    logger.info(f"    - {key}: {value}")
-                else:
-                    logger.warning("🎬 [PRESENTATION_PROCESSING] No slide data provided, trying to extract from URL as fallback")
-                    # Try to extract slide props from URL or use fallback
-                    slide_props = await self._extract_slide_props_from_url(request.slide_url)
-                    slides_data = [slide_props]  # Convert single slide to list
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] Extracted slide props: {slide_props}")
-                
-                # Import the clean video generation service
-                from .clean_video_generation_service import clean_video_generation_service
-                
-                # Check if this is a multi-slide presentation
-                if len(slides_data) > 1:
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] MULTI-SLIDE MODE: Processing {len(slides_data)} slides")
-                    final_video_path = await self._process_multi_slide_presentation(
-                        job_id, slides_data, request, job
-                    )
-                else:
-                    logger.info(f"🎬 [PRESENTATION_PROCESSING] SINGLE-SLIDE MODE: Processing 1 slide")
-                    final_video_path = await self._process_single_slide_presentation(
-                        job_id, slides_data[0], request, job
-                    )
-                
-                # Step 4: Create thumbnail
-                logger.info(f"Step 4: Creating thumbnail for job {job_id}")
-                thumbnail_filename = f"thumbnail_{job_id}.jpg"
-                thumbnail_path = self.output_dir / thumbnail_filename
-                
-                # Critical fix: Add explicit error handling around thumbnail creation
-                try:
-                    logger.info(f"🎬 [THUMBNAIL_CREATION] Starting thumbnail creation for job {job_id}")
-                    await video_composer_service.create_thumbnail(
-                        final_video_path,
-                        str(thumbnail_path)
-                    )
-                    logger.info(f"🎬 [THUMBNAIL_CREATION] Thumbnail creation completed successfully for job {job_id}")
-                except Exception as e:
-                    logger.error(f"🎬 [THUMBNAIL_CREATION] Thumbnail creation failed for job {job_id}: {e}")
-                    logger.warning(f"🎬 [THUMBNAIL_CREATION] Continuing with final completion despite thumbnail error")
-                
-                # CRITICAL FIX: Ensure final completion ALWAYS runs after thumbnail
-                logger.info(f"🎬 [FINAL_COMPLETION] Starting final completion for job {job_id}")
-                
-                # Final completion update with detailed logging
-                logger.info(f"🎬 [FINAL_COMPLETION] Presentation {job_id} processing completed successfully")
-                logger.info(f"🎬 [FINAL_COMPLETION] Final video path: {final_video_path}")
-                logger.info(f"🎬 [FINAL_COMPLETION] Thumbnail path: {str(thumbnail_path)}")
-                
-                # ROOT CAUSE DIAGNOSTIC: Add timing analysis
-                current_time = datetime.now()
-                if job_id in self.jobs:
-                    job_start_time = self.jobs[job_id].created_at
-                    total_processing_time = (current_time - job_start_time).total_seconds()
-                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Job {job_id} total processing time: {total_processing_time:.1f} seconds")
-                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Job start time: {job_start_time}")
-                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Job completion time: {current_time}")
-                    
-                    if total_processing_time > 60:
-                        logger.warning(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] LONG PROCESSING TIME DETECTED: {total_processing_time:.1f}s")
-                        logger.warning(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] This may cause frontend polling timeout!")
-                        logger.warning(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] Frontend likely stopped polling before backend completion")
-                
-                # CRITICAL FIX: Update job status with all completion details - this MUST run
-                try:
-                    logger.info(f"🎬 [FINAL_COMPLETION] Updating job status to completed for job {job_id}")
-                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] About to send FINAL 100% status to frontend...")
-                    
-                    self._update_job_status(
-                        job_id,
-                        status="completed",
-                        progress=100.0,
-                        completed_at=datetime.now(),
-                        video_url=f"/presentations/{job_id}/video",
-                        thumbnail_url=f"/presentations/{job_id}/thumbnail"
-                    )
-                    logger.info(f"🎬 [FINAL_COMPLETION] Job status update completed successfully for job {job_id}")
-                    logger.info(f"🔍 [ROOT_CAUSE_DIAGNOSTIC] ✅ FINAL 100% STATUS SENT TO FRONTEND!")
-                    
-                except Exception as e:
-                    logger.error(f"🎬 [FINAL_COMPLETION] CRITICAL ERROR: Failed to update job status for {job_id}: {e}")
-                    raise  # Re-raise this as it's critical
-                
-                # Stop heartbeat for completed job
-                try:
-                    logger.info(f"🎬 [FINAL_COMPLETION] Stopping heartbeat for job {job_id}")
-                    await self._stop_heartbeat(job_id)
-                    logger.info(f"🎬 [FINAL_COMPLETION] Heartbeat stopped successfully for job {job_id}")
-                except Exception as e:
-                    logger.error(f"🎬 [FINAL_COMPLETION] Failed to stop heartbeat for job {job_id}: {e}")
-                    # Don't raise here as job is already completed
-                
-                logger.info(f"🎬 [FINAL_COMPLETION] Job {job_id} marked as completed with all URLs set")
-                logger.info(f"🎬 [FINAL_COMPLETION] Frontend should now receive completion status and trigger download")
-                logger.info(f"🎬 [FINAL_COMPLETION] *** COMPLETION PROCESS FINISHED FOR JOB {job_id} ***")
-                
-                # CRITICAL FIX: Schedule job cleanup after completion to prevent resource buildup
-                # Clean up completed job from memory after a delay to allow frontend to download
-                asyncio.create_task(self._schedule_job_cleanup(job_id, delay_minutes=30))
-                
-            except Exception as e:
-                logger.error(f"Presentation processing failed: {e}")
-                raise
+            if not request.slides_data or len(request.slides_data) == 0:
+                raise Exception("No slide data provided for Remotion rendering")
+            
+            slides_data = request.slides_data
+            logger.info(f"🎬 [REACTION_PROCESSING] Processing {len(slides_data)} slides with Remotion")
+            
+            # Step 2: Generate avatar video using Elai API
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 2: Generating avatar video for job {job_id}")
+            self._update_job_status(job_id, progress=20.0)
+            
+            # Create avatar video using Elai API
+            avatar_result = await video_generation_service.create_video_from_texts(
+                project_name=f"Avatar Video - {job_id}",
+                voiceover_texts=request.voiceover_texts,
+                avatar_code=request.avatar_code
+            )
+            
+            if not avatar_result["success"]:
+                raise Exception(f"Avatar video generation failed: {avatar_result['error']}")
+            
+            avatar_video_id = avatar_result["videoId"]
+            logger.info(f"🎬 [REACTION_PROCESSING] Avatar video created with ID: {avatar_video_id}")
+            
+            # Step 3: Wait for avatar video to be ready
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 3: Waiting for avatar video to be ready")
+            self._update_job_status(job_id, progress=40.0)
+            
+            avatar_video_url = await self._wait_for_avatar_video(avatar_video_id)
+            logger.info(f"🎬 [REACTION_PROCESSING] Avatar video ready: {avatar_video_url}")
+            
+            # Step 4: Render slide video using Remotion
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 4: Rendering slide video with Remotion")
+            self._update_job_status(job_id, progress=60.0)
+            
+            # Prepare Remotion input data
+            remotion_data = {
+                "slides": []
+            }
+            
+            for i, slide in enumerate(slides_data):
+                slide_data = {
+                    "id": f"slide-{i}",
+                    "title": slide.get("props", {}).get("title", ""),
+                    "subtitle": slide.get("props", {}).get("subtitle", ""),
+                    "content": slide.get("props", {}).get("content", ""),
+                    "theme": request.theme or "dark-purple",
+                    "elementPositions": slide.get("metadata", {}).get("elementPositions", {}),
+                    "slideId": slide.get("slideId", f"slide-{i}"),
+                    "avatarImageUrl": avatar_video_url,
+                    "duration": request.duration
+                }
+                remotion_data["slides"].append(slide_data)
+            
+            # Write Remotion input file
+            remotion_input_path = self.output_dir / f"remotion_input_{job_id}.json"
+            with open(remotion_input_path, 'w') as f:
+                json.dump(remotion_data, f, indent=2)
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Remotion input data written to: {remotion_input_path}")
+            
+            # Step 5: Execute Remotion render
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 5: Executing Remotion render")
+            self._update_job_status(job_id, progress=80.0)
+            
+            # Set up Remotion render command
+            remotion_dir = Path(__file__).parent.parent / "video_compositions"
+            output_video_path = self.output_dir / f"presentation_{job_id}.mp4"
+            
+            # Prepare Remotion render command
+            render_cmd = [
+                "npx", "remotion", "render",
+                "AvatarServiceSlide",
+                str(output_video_path),
+                "--props", str(remotion_input_path),
+                "--fps", "30",
+                "--width", "1920",
+                "--height", "1080"
+            ]
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Executing Remotion render command: {' '.join(render_cmd)}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Working directory: {remotion_dir}")
+            
+            # Execute Remotion render
+            process = await asyncio.create_subprocess_exec(
+                *render_cmd,
+                cwd=remotion_dir,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode != 0:
+                logger.error(f"🎬 [REACTION_PROCESSING] Remotion render failed with return code {process.returncode}")
+                logger.error(f"🎬 [REACTION_PROCESSING] stdout: {stdout.decode()}")
+                logger.error(f"🎬 [REACTION_PROCESSING] stderr: {stderr.decode()}")
+                raise Exception(f"Remotion render failed: {stderr.decode()}")
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Remotion render completed successfully")
+            logger.info(f"🎬 [REACTION_PROCESSING] Output video: {output_video_path}")
+            
+            # Step 6: Create thumbnail
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 6: Creating thumbnail")
+            self._update_job_status(job_id, progress=90.0)
+            
+            thumbnail_filename = f"thumbnail_{job_id}.jpg"
+            thumbnail_path = self.output_dir / thumbnail_filename
+            
+            # Create thumbnail using FFmpeg
+            thumbnail_cmd = [
+                "ffmpeg", "-y",
+                "-i", str(output_video_path),
+                "-ss", "00:00:01",
+                "-vframes", "1",
+                "-q:v", "2",
+                str(thumbnail_path)
+            ]
+            
+            thumbnail_process = await asyncio.create_subprocess_exec(
+                *thumbnail_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            await thumbnail_process.communicate()
+            
+            if thumbnail_process.returncode != 0:
+                logger.warning(f"🎬 [REACTION_PROCESSING] Thumbnail creation failed, continuing without thumbnail")
+            else:
+                logger.info(f"🎬 [REACTION_PROCESSING] Thumbnail created: {thumbnail_path}")
+            
+            # Step 7: Final completion
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 7: Final completion")
+            self._update_job_status(job_id, progress=100.0)
+            
+            # Update job status with completion details
+            self._update_job_status(
+                job_id,
+                status="completed",
+                progress=100.0,
+                completed_at=datetime.now(),
+                video_url=f"/presentations/{job_id}/video",
+                thumbnail_url=f"/presentations/{job_id}/thumbnail"
+            )
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Job {job_id} completed successfully")
+            logger.info(f"🎬 [REACTION_PROCESSING] Final video: {output_video_path}")
+            
+            # Stop heartbeat for completed job
+            await self._stop_heartbeat(job_id)
+            
+            # Schedule job cleanup
+            asyncio.create_task(self._schedule_job_cleanup(job_id, delay_minutes=30))
             
         except Exception as e:
-            logger.error(f"🎬 [PRESENTATION_FAILED] Presentation {job_id} failed: {e}")
+            logger.error(f"🎬 [REACTION_PROCESSING] Presentation {job_id} failed: {e}")
             
             # Update job status with failure details
             self._update_job_status(
@@ -448,7 +499,7 @@ class ProfessionalPresentationService:
             # Stop heartbeat for failed job
             await self._stop_heartbeat(job_id)
             
-            logger.error(f"🎬 [PRESENTATION_FAILED] Job {job_id} marked as failed, heartbeat stopped")
+            logger.error(f"🎬 [REACTION_PROCESSING] Job {job_id} marked as failed")
 
     async def _process_single_slide_presentation(self, job_id: str, slide_data: Dict[str, Any], request: PresentationRequest, job: PresentationJob) -> str:
         """
