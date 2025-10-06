@@ -290,7 +290,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
         gridTemplateRows: 'repeat(3, 1fr)',
-        gap: '20px',
+        gap: '35px',
         width: '600px',
         backgroundColor: '#F3F5FF',
         padding: '44px',
