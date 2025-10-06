@@ -134,16 +134,16 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     pushUpdate(cols, nextRows);
   };
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#F9F8F6', fontFamily: currentTheme.fonts.titleFont };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#FFFFFF', fontFamily: currentTheme.fonts.titleFont };
   const topLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'36px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
-  const avatarArea: React.CSSProperties = { position:'absolute', left:'56px', top:'96px', width:'140px', height:'140px', borderRadius:'50%', overflow:'hidden', background:'#253020' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'430px', top:'104px', fontSize:'30px', color:'#6C6D68', fontWeight:600 };
-  const descStyle: React.CSSProperties = { position:'absolute', left:'430px', top:'152px', width:'520px', color:'#9D9C98', fontSize:'16px', lineHeight:1.6 };
+  const avatarArea: React.CSSProperties = { position:'absolute', left:'60px', top:'60px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#3B8BE9' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'80px', fontSize:'48px', color:'#000000', fontWeight:600, fontFamily:'Lora, serif' };
+  const descStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'140px', width:'600px', color:'#555555', fontSize:'16px', lineHeight:1.6, fontFamily:'Inter, sans-serif' };
 
-  const tableWrap: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', top:'286px' };
+  const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'220px' };
   const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
-  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#2B3127', color:'#A0A49B', padding:'12px 20px', borderRadius:'2px', fontWeight:600, letterSpacing:0.2, position:'relative' };
-  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'12px 20px', background: i%2===0 ? '#F9F8F6' : '#E5E4E0', fontSize:'15px', color:'#7F7F7A', borderRadius:'2px', marginTop:'0px', position:'relative' });
+  const theadStyle: React.CSSProperties = { display:'grid', gridTemplateColumns: gridTemplate, background:'#3B8BE9', color:'#FFFFFF', padding:'16px 20px', borderRadius:'4px', fontWeight:600, fontSize:'16px', position:'relative' };
+  const rowStyle = (i:number): React.CSSProperties => ({ display:'grid', gridTemplateColumns: gridTemplate, padding:'16px 20px', background: i%2===0 ? '#F8F8F8' : '#FFFFFF', fontSize:'15px', color:'#333333', borderRadius:'2px', marginTop:'0px', position:'relative' });
 
   // Inline editor base styles to prevent layout shift
   const inlineEditorHeaderStyle: React.CSSProperties = {
@@ -172,11 +172,20 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const inlineEditorDescStyle: React.CSSProperties = { ...descStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
   // No handlers: static slide (no editing UI)
 
-  const bottomLine: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'56px', height:'6px', background:'#E6E5E3', borderRadius:'999px' };
-  const footerStyle: React.CSSProperties = { position:'absolute', left:'40px', right:'40px', bottom:'18px', display:'flex', justifyContent:'space-between', color:'#A9A8A6', fontSize:'13px' };
+  const footerStyle: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', bottom:'20px', display:'flex', justifyContent:'space-between', color:'#A2A19D', fontSize:'14px', fontFamily:'Inter, sans-serif' };
 
   return (
-    <div className="enterprise-roadmap-slide inter-theme" style={slide}>
+    <>
+      <style>{`
+        .enterprise-roadmap-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .enterprise-roadmap-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
+      <div className="enterprise-roadmap-slide inter-theme" style={slide}>
       <div style={topLine} />
 
       <div style={avatarArea}>
@@ -189,10 +198,11 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             initialValue={title}
             onSave={(v)=>{ onUpdate&&onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={()=>setEditingTitle(false)}
+            className="title-element"
             style={inlineEditorTitleStyle}
           />
         ) : (
-          <div onClick={()=> isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div className="title-element" onClick={()=> isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
         )}
       </div>
 
@@ -279,13 +289,35 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         ))}
       </div>
 
-      <div style={bottomLine} />
       <div style={footerStyle}>
-        <div>{companyName}</div>
-        <div>{reportType}</div>
-        <div>{date}</div>
+        <div>17</div>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '14px',
+          color: 'black',
+          fontFamily: 'Inter, sans-serif',
+          fontWeight: '400'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            borderRadius: '50%',
+            border: '1px solid black',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            color: 'black'
+          }}>
+            +
+          </div>
+          Your Logo
+        </div>
       </div>
     </div>
+    </>
   );
 };
 

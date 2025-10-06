@@ -37,27 +37,27 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F0F2F7', color:'#0F172A', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const card: React.CSSProperties = { position:'absolute', left:'44px', right:'44px', top:'44px', bottom:'44px', background:'#FFFFFF', borderRadius:'24px', border:'1px solid #102412' };
-  const header: React.CSSProperties = { position:'absolute', left:'0', right:'0', top:'0', height:'30%', background:'linear-gradient(to bottom, #0F58F9, #1023A1)', border:'none' };
-  const headerText: React.CSSProperties = { position:'absolute', left:'60px', top:'50%', transform:'translateY(-50%)', fontSize:'48px', fontWeight:600, color:'#FFFFFF', fontFamily:'Lora, serif' };
+  const header: React.CSSProperties = { position:'absolute', left:'0', right:'0', top:'0', height:'40%', background:'linear-gradient(to bottom, #0F58F9, #1023A1)', border:'none' };
+  const headerText: React.CSSProperties = { position:'absolute', left:'60px', top:'50%', transform:'translateY(-50%)', fontSize:'48px', fontWeight:600, color:'#FFFFFF', fontFamily:'Lora, serif', zIndex:5, maxWidth:'60%' };
   
   // Content block wrapper
   const contentBlock: React.CSSProperties = { 
     position:'absolute', 
     left:'0', 
     right:'0', 
-    top:'30%', 
+    top:'38%', 
     bottom:'0', 
     background:'#E0E7FF', 
     border:'none'
   };
 
-  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'60px', fontSize:'32px', fontWeight:600, color:'#333333', fontFamily:'Lora, serif' };
-  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'100px', fontSize:'16px', color:'#555555', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
+  const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'40px', fontSize:'32px', fontWeight:600, color:'black', fontFamily:'Lora, serif' };
+  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'100px', fontSize:'16px', color:'#34353C', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
 
-  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'200px', fontSize:'32px', fontWeight:600, color:'#333333', fontFamily:'Lora, serif' };
-  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'240px', fontSize:'16px', color:'#555555', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
+  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'180px', fontSize:'32px', fontWeight:600, color:'black', fontFamily:'Lora, serif' };
+  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'240px', fontSize:'16px', color:'#34353C', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
 
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'60px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'40px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#FFFFFF', zIndex:10 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -126,7 +126,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         bottom: '20px',
         left: '60px',
         fontSize: '14px',
-        color: '#A2A19D',
+        color: '#333333',
         fontFamily: 'Inter, sans-serif'
       }}>
         16
@@ -140,18 +140,20 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         alignItems: 'center',
         gap: '8px',
         fontSize: '14px',
-        color: '#A2A19D',
-        fontFamily: 'Inter, sans-serif'
+        color: 'black',
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: '400'
       }}>
         <div style={{
           width: '20px',
           height: '20px',
           borderRadius: '50%',
-          border: '1px solid #A2A19D',
+          border: '1px solid black',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '12px'
+          fontSize: '12px',
+          color: 'black'
         }}>
           +
         </div>

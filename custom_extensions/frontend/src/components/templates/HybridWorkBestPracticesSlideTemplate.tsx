@@ -211,7 +211,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 padding: '8px 18px',
                 display: 'flex',
                 gap: '8px',
-                border: '2px solid #333333',
+                border: '2px solid black',
                 borderRadius: '20px',
                 fontSize: '16px',
                 color: '#333333',
@@ -233,7 +233,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     className="hybrid-title-editor"
                     style={{
                       fontSize: '16px',
-                      color: '#333333',
+                      color: '#34353C',
                       fontWeight: '600',
                       width: '100%',
                       height: 'auto'
@@ -275,7 +275,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   style={{
                     fontSize: '35px',
                     maxWidth: '400px',
-                    color: '#333333',
+                    color: 'black',
                     lineHeight: '1.2',
                     width: '100%',
                     height: 'auto',
@@ -375,7 +375,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   {/* Title */}
                   <div style={{
                     fontSize: '16px',
-                    color: '#333333',
+                    color: 'black',
                     marginBottom: '8px',
                     lineHeight: '1.3',
                     fontWeight: '600',
