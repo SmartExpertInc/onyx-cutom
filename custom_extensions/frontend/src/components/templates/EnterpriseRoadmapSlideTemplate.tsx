@@ -1,6 +1,6 @@
 // custom_extensions/frontend/src/components/templates/EnterpriseRoadmapSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { EnterpriseRoadmapSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
@@ -22,6 +22,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile',
+  companyLogoPath = '',
   companyName = 'Company name',
   reportType = 'KPI Report',
   date = 'February 2023',
@@ -41,6 +42,14 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [editingDescription, setEditingDescription] = useState(false);
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+
+  // Sync logo state with prop changes - this ensures logo persists on reload
+  useEffect(() => {
+    // This will be triggered when companyLogoPath prop changes
+    if (companyLogoPath && companyLogoPath !== currentCompanyLogoPath) {
+      setCurrentCompanyLogoPath(companyLogoPath);
+    }
+  }, [companyLogoPath, currentCompanyLogoPath]);
 
   const normalizeRows = (input: any[], colHeaders: string[]): Record<string, string>[] => {
     return (input || []).map((r: any) => {

@@ -100,7 +100,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
 
   const metricText: React.CSSProperties = {
     fontSize: '40px',
-    fontWeight: 700,
+    fontWeight: 600,
     lineHeight: 1.1,
     color: 'black',
     maxWidth: '880px'
@@ -160,7 +160,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
       <style>{`
         .impact-metrics-right-image .metric-text {
           font-family: "Lora", serif !important;
-          font-weight: 700 !important;
+          font-weight: 600 !important;
         }
       `}</style>
       <div className="impact-metrics-right-image inter-theme" style={slide}>

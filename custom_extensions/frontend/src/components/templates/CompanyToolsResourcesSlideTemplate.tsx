@@ -40,6 +40,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  companyLogoPath = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -56,6 +57,14 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSections, setCurrentSections] = useState(sections);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+
+  // Sync logo state with prop changes - this ensures logo persists on reload
+  useEffect(() => {
+    // This will be triggered when companyLogoPath prop changes
+    if (companyLogoPath && companyLogoPath !== currentCompanyLogoPath) {
+      setCurrentCompanyLogoPath(companyLogoPath);
+    }
+  }, [companyLogoPath, currentCompanyLogoPath]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));

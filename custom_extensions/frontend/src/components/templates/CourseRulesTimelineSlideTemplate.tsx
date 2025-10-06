@@ -217,8 +217,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       {/* Vertical line */}
       <div style={lineStyles} />
 
-      {/* Circles centered on the line */}
-      {currentSteps.slice(0, 2).map((s: { number: string; text: string }, i: number) => (
+      {/* Squares centered on the line */}
+      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => (
         <div key={`circle-${i}`} style={circlePositionStyles(i)}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
             <ImprovedInlineEditor
@@ -232,7 +232,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
               }}
               onCancel={() => setEditingStep(null)}
               className="timeline-step-number-editor"
-              style={{ ...stepNumStyles, width: stepNumStyles.width, height: stepNumStyles.height, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ ...stepNumStyles, width: stepNumStyles.width, height: stepNumStyles.height, borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             />
           ) : (
             <div style={stepNumStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'number' })}>{s.number}</div>
