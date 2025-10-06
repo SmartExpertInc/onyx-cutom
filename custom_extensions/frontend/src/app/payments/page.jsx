@@ -350,6 +350,29 @@ export default function BillingPage() {
     if (billingInfo.interval === 'year') return 'Manage plan';
     return 'Switch to annual and save 20%';
   })();
+  const handleUpgradeToYearly = async () => {
+    try {
+      // Map current plan to yearly price id
+      const yearlyPriceIdMap = {
+        pro: 'price_1SEBUCH2U2KQUmUhkym5Q9TS',
+        business: 'price_1SEBUoH2U2KQUmUhMktbhCsm'
+      };
+      const planKey = currentPlan.name.toLowerCase();
+      const priceId = planKey.includes('business') ? yearlyPriceIdMap.business : yearlyPriceIdMap.pro;
+      const res = await fetch('/api/custom-projects-backend/billing/checkout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, planName: `${currentPlan.name} (Yearly)`, upgradeFromSubscriptionId: billingInfo.subscriptionId })
+      });
+      if (!res.ok) throw new Error('Failed to create upgrade session');
+      const data = await res.json();
+      if (data?.url) window.location.href = data.url;
+    } catch (e) {
+      console.error(e);
+      alert('Failed to start upgrade. Please try again.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 w-full">
@@ -377,12 +400,21 @@ export default function BillingPage() {
                 <h2 className="text-5xl font-bold mb-2">{currentPlan.name}</h2>
                 <p className="text-2xl text-blue-100 mb-8">{displayType}</p>
 
-                <button 
-                  onClick={() => setIsTariffPlanModalOpen(true)}
-                  className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold py-4 rounded-lg transition-colors mb-8"
-                >
-                  {headerCtaLabel}
-                </button>
+                {billingInfo.interval === 'month' ? (
+                  <button 
+                    onClick={handleUpgradeToYearly}
+                    className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold py-4 rounded-lg transition-colors mb-8"
+                  >
+                    {headerCtaLabel}
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setIsTariffPlanModalOpen(true)}
+                    className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold py-4 rounded-lg transition-colors mb-8"
+                  >
+                    {headerCtaLabel}
+                  </button>
+                )}
 
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-blue-200 mb-4">

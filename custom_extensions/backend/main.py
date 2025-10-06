@@ -27593,6 +27593,7 @@ async def create_billing_portal_session(
 class CreateCheckoutRequest(BaseModel):
     priceId: str
     planName: Optional[str] = None
+    upgradeFromSubscriptionId: Optional[str] = None
 
 
 @app.post("/api/custom/billing/checkout")
@@ -27657,7 +27658,8 @@ async def create_checkout_session(
             cancel_url=cancel_url,
             metadata={
                 'onyx_user_id': onyx_user_id,
-                'plan_name': payload.planName or 'Unknown Plan'
+                'plan_name': payload.planName or 'Unknown Plan',
+                'upgrade_from_subscription_id': payload.upgradeFromSubscriptionId or ''
             }
         )
         
@@ -27758,6 +27760,14 @@ async def stripe_webhook(
                         onyx_user_id, customer_id, subscription.status,
                         subscription_id, price_id, plan, interval
                     )
+
+                # If this was an upgrade, cancel the previous subscription
+                try:
+                    prev_sub_id = session.get('metadata', {}).get('upgrade_from_subscription_id')
+                    if prev_sub_id:
+                        stripe.Subscription.delete(prev_sub_id)
+                except Exception as cancel_err:
+                    logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
                 
                 logger.info(f"Updated billing for user {onyx_user_id}: {plan} ({interval})")
 
