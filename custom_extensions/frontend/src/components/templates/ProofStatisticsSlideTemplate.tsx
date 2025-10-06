@@ -134,7 +134,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         }
         .proof-statistics-slide-template .title-element {
           font-family: "Lora", serif !important;
-          font-weight: 600 !important;
+          font-weight: 500 !important;
         }
       `}</style>
       {/* Tag */}
@@ -438,7 +438,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                 marginTop: '8px',
                 flexShrink: 0,
               }}>
-                <svg width="6" height="6" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="10" height="12" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M5.53846 2.27823C6.15385 2.59901 6.15385 3.40099 5.53846 3.72177L1.38462 5.8871C0.769231 6.20789 -3.10607e-08 5.8069 0 5.16532L2.09658e-07 0.834678C2.40719e-07 0.193101 0.769231 -0.207887 1.38462 0.112902L5.53846 2.27823Z" fill="#0F58F9"/>
                 </svg>
               </div>

@@ -137,7 +137,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
         }
         .introduction-data-analysis-slide-template .title-element {
           font-family: "Lora", serif !important;
-          font-weight: 600 !important;
+          font-weight: 500 !important;
         }
       `}</style>
       {/* Logo in top-left corner */}
@@ -269,7 +269,7 @@ export const IntroductionDataAnalysisSlideTemplate: React.FC<IntroductionDataAna
           <div
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
-              color: '#ffffff',
+              color: 'rgba(255, 255, 255, 0.6)',
               fontSize: '18px',
               fontWeight: '400',
               fontFamily: currentTheme.fonts.contentFont,

@@ -289,7 +289,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         }
         .benefits-list-slide-template .title-element {
           font-family: "Lora", serif !important;
-          font-weight: 600 !important;
+          font-weight: 500 !important;
         }
       `}</style>
       {/* Top section with blue gradient background */}
@@ -298,7 +298,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
         background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', 
         position: 'relative',
         padding: '40px 60px',
-        paddingTop: '48px',
+        paddingTop: '44px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between'
@@ -314,7 +314,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
             <div style={{
               backgroundColor: '#ffffff',
               borderRadius: '24px',
-              padding: '8px 18px',
+              padding: '9px 18px',
               display: 'flex',
               alignItems: 'center',
               gap: '12px'
@@ -517,6 +517,8 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
               width: '100%',
               height: '100%',
               borderRadius: '50%',
+              position: 'relative',
+              bottom: '-20px',
               objectFit: 'cover'
             }}
           />
@@ -551,7 +553,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
                 color: '#5E5E5E'
               }}
             >
-              <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
               </svg>
               {isEditable && editingBenefits === index ? (
