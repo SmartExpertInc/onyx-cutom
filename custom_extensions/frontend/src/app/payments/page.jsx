@@ -340,6 +340,16 @@ export default function BillingPage() {
     if (key.includes('enterprise')) return planConfig.enterprise;
     return planConfig.starter;
   })();
+  const displayType = (() => {
+    if (billingInfo.interval === 'year') return 'Yearly';
+    if (billingInfo.interval === 'month') return 'Monthly';
+    return currentPlan.type;
+  })();
+  const headerCtaLabel = (() => {
+    if (currentPlan.name === 'Starter' || currentPlan.type === 'Free') return 'Upgrade Plan';
+    if (billingInfo.interval === 'year') return 'Manage plan';
+    return 'Switch to annual and save 20%';
+  })();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 w-full">
@@ -365,13 +375,13 @@ export default function BillingPage() {
                 </div>
 
                 <h2 className="text-5xl font-bold mb-2">{currentPlan.name}</h2>
-                <p className="text-2xl text-blue-100 mb-8">{currentPlan.type}</p>
+                <p className="text-2xl text-blue-100 mb-8">{displayType}</p>
 
                 <button 
                   onClick={() => setIsTariffPlanModalOpen(true)}
                   className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold py-4 rounded-lg transition-colors mb-8"
                 >
-                  {currentPlan.type === 'Free' ? 'Upgrade Plan' : 'Switch to annual and save 20%'}
+                  {headerCtaLabel}
                 </button>
 
                 <div>
