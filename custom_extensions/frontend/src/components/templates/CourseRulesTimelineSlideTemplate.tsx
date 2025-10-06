@@ -1,10 +1,11 @@
 // custom_extensions/frontend/src/components/templates/CourseRulesTimelineSlideTemplate.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CourseRulesTimelineSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }> = (props: CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; }) => {
   const {
@@ -12,12 +13,14 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     steps: stepsProp,
     profileImagePath = '',
     profileImageAlt = 'Profile image',
+    companyLogoPath = '',
+    companyLogoAlt = 'Company logo',
     backgroundColor,
     textColor,
     isEditable = false,
     onUpdate,
     theme,
-  } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; };
+  } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; companyLogoPath?: string; companyLogoAlt?: string; };
   const steps = stepsProp ?? [
     { number: '01', text: 'Rules of the course' },
     { number: '02', text: 'Prerequisite courses' },
@@ -26,11 +29,18 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const [editingStep, setEditingStep] = useState<{ index: number; field: 'number' | 'text' } | null>(null);
   const [currentSteps, setCurrentSteps] = useState(steps);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
+
+  // Sync logo state with prop changes
+  useEffect(() => {
+    setCurrentCompanyLogoPath(companyLogoPath);
+  }, [companyLogoPath]);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#473CA4',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -41,6 +51,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     left: '140px',
     bottom: '0px',
     height: '600px',
+    width: '400px',
+    background: 'linear-gradient(to bottom, #0F58F9, #1023A1)',
+    borderRadius: '20px',
   };
 
   const lineStyles: React.CSSProperties = {
@@ -57,8 +70,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     width: '80px',
     height: '80px',
     borderRadius: '50%',
-    backgroundColor: '#232428',
-    color: '#D3D4D8',
+    backgroundColor: '#0F58F9',
+    color: '#FFFFFF',
     fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
@@ -67,7 +80,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   };
 
   const stepTextStyles: React.CSSProperties = {
-    color: '#E0DFEC',
+    color: 'black',
     fontSize: '46px',
     fontWeight: 700,
     lineHeight: '1.05',
@@ -88,15 +101,6 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     top: index === 0 ? '120px' : '450px',
   });
 
-  const leftAccentLine: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: '60px',
-    width: '2px',
-    backgroundColor: 'rgba(255,255,255,0.25)'
-  };
-
   const starStyles: React.CSSProperties = {
     position: 'absolute',
     top: '34px',
@@ -113,17 +117,88 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     fontWeight: 400
   };
 
-  return (
-    <div className="course-rules-timeline-slide inter-theme" style={slideStyles}>
-      {/* Left accent line */}
-      <div style={leftAccentLine} />
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ companyLogoPath: newLogoPath });
+    }
+  };
 
-      {/* Small star icon top-left */}
-      <img
-        alt="star"
-        style={starStyles}
-        src={"data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FFFFFF" d="M12 2l1.8 4.6L18 8.4l-4.2 1.8L12 15l-1.8-4.8L6 8.4l4.2-1.8L12 2z"/></svg>')}
-      />
+  return (
+    <>
+      <style>{`
+        .course-rules-timeline-slide .step-text {
+          font-family: "Lora", serif !important;
+          font-weight: 700 !important;
+          color: black !important;
+        }
+      `}</style>
+      <div className="course-rules-timeline-slide inter-theme" style={slideStyles}>
+      {/* Logo Placeholder */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '25px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        zIndex: 10
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width: '20px',
+              height: '20px',
+              border: '1px solid #333333',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: '8px',
+                height: '2px',
+                backgroundColor: '#333333',
+                position: 'absolute'
+              }} />
+              <div style={{
+                width: '2px',
+                height: '8px',
+                backgroundColor: '#333333',
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+              }} />
+            </div>
+            <div style={{ fontSize: '14px', fontWeight: '400', color: '#333333', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+          </div>
+        )}
+      </div>
 
       {/* Actor */}
       <div style={actorStyles}>
@@ -179,18 +254,32 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
                 onUpdate && onUpdate({ steps: updated });
               }}
               onCancel={() => setEditingStep(null)}
-              className="timeline-step-text-editor"
+              className="timeline-step-text-editor step-text"
               style={{ ...stepTextStyles }}
             />
           ) : (
-            <div style={stepTextStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'text' })}>{s.text}</div>
+            <div className="step-text" style={stepTextStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'text' })}>{s.text}</div>
           )}
         </div>
       ))}
 
       {/* Bottom-left page number */}
-      <div style={pageNumberStyles}>07</div>
-    </div>
+      <div style={pageNumberStyles}>34</div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
+      </div>
+    </>
   );
 };
 
