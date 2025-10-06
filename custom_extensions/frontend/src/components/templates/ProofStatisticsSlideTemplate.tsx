@@ -1,15 +1,18 @@
 // custom_extensions/frontend/src/components/templates/ProofStatisticsSlideTemplate.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ProofStatisticsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & {
   theme?: SlideTheme | string;
+  pageNumber?: string;
+  logoNew?: string;
 }> = ({
-  slideId,
+  slideId: _slideId,
   tagText = 'Presentation',
   title = 'The Proof Is in the Pudding',
   description = 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:',
@@ -29,6 +32,8 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  pageNumber = '03',
+  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -36,7 +41,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText: _voiceoverText
 }) => {
   const [editingTagText, setEditingTagText] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
@@ -51,10 +56,13 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   const [currentStatistics, setCurrentStatistics] = useState(statistics);
   const [currentConclusionText, setCurrentConclusionText] = useState(conclusionText);
   const [currentBulletPoints, setCurrentBulletPoints] = useState(bulletPoints);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
-  const { backgroundColor: themeBg, titleColor: themeTitle, contentColor: themeContent, accentColor: themeAccent } = currentTheme.colors;
+  const { backgroundColor: _themeBg, titleColor: _themeTitle, contentColor: _themeContent, accentColor: _themeAccent } = currentTheme.colors;
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -123,6 +131,25 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ tagText, title, description, statistics, conclusionText, bulletPoints, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ tagText, title, description, statistics, conclusionText, bulletPoints, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ tagText, title, description, statistics, conclusionText, bulletPoints, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
     }
   };
 
@@ -250,7 +277,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         top: '172px',
         left: '60px',
         fontSize: '16px',
-        color: 'rgba(9, 9, 11, 0.8)',
+        color: 'rgba(9, 9, 11, 0.7)',
         lineHeight: '1.4',
         maxWidth: '480px',
       }}>
@@ -263,7 +290,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             multiline={true}
             style={{
               fontSize: '16px',
-              color: 'rgba(9, 9, 11, 0.8)',
+              color: 'rgba(9, 9, 11, 0.7)',
               lineHeight: '1.4',
               width: '100%',
               height: 'auto',
@@ -345,7 +372,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             {/* Statistic Description */}
             <div style={{
               fontSize: '14px',
-              color: 'rgba(9, 9, 11, 0.8)',
+              color: 'rgba(9, 9, 11, 0.7)',
               lineHeight: '1.3',
             }}>
               {isEditable && editingStatistics?.index === index && editingStatistics?.field === 'description' ? (
@@ -356,7 +383,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                   className="statistic-description-editor"
                   style={{
                     fontSize: '14px',
-                    color: 'rgba(9, 9, 11, 0.8)',
+                    color: 'rgba(9, 9, 11, 0.7)',
                     lineHeight: '1.3',
                     width: '100%',
                     height: 'auto',
@@ -388,7 +415,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
         {/* Conclusion Text */}
         <div style={{
           fontSize: '18px',
-          color: 'rgba(9, 9, 11, 0.8)',
+          color: 'rgba(9, 9, 11, 0.7)',
           lineHeight: '1.4',
           marginBottom: '40px',
         }}>
@@ -401,7 +428,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               multiline={true}
               style={{
                 fontSize: '18px',
-                color: 'rgba(9, 9, 11, 0.8)',
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
                 width: '100%',
                 height: 'auto',
@@ -444,7 +471,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
               </div>
               <div style={{
                 fontSize: '18px',
-                color: 'rgba(9, 9, 11, 0.8)',
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
                 flex: 1,
               }}>
@@ -456,7 +483,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
                     className="bullet-point-editor"
                     style={{
                       fontSize: '18px',
-                      color: 'rgba(9, 9, 11, 0.8)',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto',
@@ -509,6 +536,115 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
           }}
         />
       </div>
+
+      {/* Logo in bottom-right corner */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        right: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
