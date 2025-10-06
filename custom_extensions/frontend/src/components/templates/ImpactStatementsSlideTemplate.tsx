@@ -5,9 +5,12 @@ import { ImpactStatementsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps & {
   theme?: SlideTheme | string;
+  pageNumber?: string;
+  logoNew?: string;
 }> = ({
   slideId,
   title = 'Here are some impact value statements backed by numbers:',
@@ -18,6 +21,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  pageNumber = '18',
+  logoNew = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -32,6 +37,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const [editingNumbers, setEditingNumbers] = useState<number | null>(null);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentStatements, setCurrentStatements] = useState(statements);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -40,7 +48,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#252525',
+    backgroundColor: '#E0E7FF',
     display: 'flex',
     position: 'relative',
     overflow: 'hidden',
@@ -94,12 +102,40 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, pageNumber, logoNew, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+    }
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, pageNumber, logoNew, backgroundColor, titleColor, contentColor, accentColor }, pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
+
+  const handleLogoNewUploaded = (newLogoPath: string) => {
+    if (onUpdate) {
+      onUpdate({ ...{ title, statements, profileImagePath, profileImageAlt, pageNumber, logoNew, backgroundColor, titleColor, contentColor, accentColor }, logoNew: newLogoPath });
     }
   };
 
   return (
     <div className="impact-statements-slide-template inter-theme" style={slideStyles}>
+      <style>{`
+        .impact-statements-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .impact-statements-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
       {/* Left section with title and profile image */}
       <div style={{
         width: '75%',
@@ -112,7 +148,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         <div style={{
           maxWidth: '537px',
           fontSize: '45px',
-          color: themeTitle,
+          color: '#09090B',
           lineHeight: '1.2',
           marginBottom: '40px',
           minHeight: '50px',
@@ -125,11 +161,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               onSave={handleTitleSave}
               onCancel={handleTitleCancel}
               multiline={true}
-              className="impact-title-editor"
+              className="impact-title-editor title-element"
               style={{
                 maxWidth: '480px',
                 fontSize: '48px',
-                color: themeTitle,
+                color: '#09090B',
                 lineHeight: '1.2',
                 width: '100%',
                 height: 'auto',
@@ -138,6 +174,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             />
           ) : (
             <div
+              className="title-element"
               onClick={() => isEditable && setEditingTitle(true)}
               style={{
                 cursor: isEditable ? 'pointer' : 'default',
@@ -147,7 +184,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 display: 'flex',
                 alignItems: 'flex-start',
                 fontSize: '48px',
-                color: themeTitle,
+                color: '#09090B',
                 lineHeight: '1.2',
                 minHeight: '50px'
               }}
@@ -157,11 +194,11 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           )}
         </div>
 
-        {/* Profile image in orange container */}
+        {/* Profile image in gradient container */}
         <div style={{
           width: '440px',
           height: '255px',
-          backgroundColor: '#E09254',
+          background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
           borderRadius: '24px',
           overflow: 'hidden',
           display: 'flex',
@@ -186,6 +223,114 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         </div>
       </div>
 
+      {/* Logo in bottom-right corner */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        right: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '30px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleLogoNewUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
       {/* Right section with impact statements */}
       <div style={{
         display: 'flex',
@@ -204,7 +349,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             <div
               key={index}
               style={{
-                backgroundColor: '#71B7F1',
+                backgroundColor: '#FFFFFF',
                 borderRadius: '20px',
                 padding: '30px',
                 display: 'flex',
@@ -214,7 +359,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               }}
             >
               {/* Number */}
-              <div style={{
+              <div className="title-element" style={{
                 fontSize: '48px',
                 color: '#263644',
                 minHeight: '60px',
@@ -228,7 +373,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     initialValue={statement.number}
                     onSave={(value) => handleNumberSave(index, value)}
                     onCancel={handleNumberCancel}
-                    className="statement-number-editor"
+                    className="statement-number-editor title-element"
                     style={{
                       fontSize: '48px',
                       color: '#263644',
@@ -240,6 +385,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   />
                 ) : (
                   <div
+                    className="title-element"
                     onClick={() => isEditable && setEditingNumbers(index)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
@@ -313,7 +459,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           {currentStatements[2] && (
             <div
               style={{
-                backgroundColor: '#71B7F1',
+                backgroundColor: '#FFFFFF',
                 borderRadius: '20px',
                 padding: '30px',
                 paddingTop: '22px',
@@ -323,7 +469,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 height: '566px'
               }}
             >
-              <div style={{
+              <div className="title-element" style={{
                 fontSize: '48px',
                 color: '#263644',
               }}>
@@ -332,7 +478,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     initialValue={currentStatements[2].number}
                     onSave={(value) => handleNumberSave(2, value)}
                     onCancel={handleNumberCancel}
-                    className="statement-number-editor"
+                    className="statement-number-editor title-element"
                     style={{
                       fontSize: '48px',
                       color: '#263644',
@@ -342,6 +488,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                   />
                 ) : (
                   <div
+                    className="title-element"
                     onClick={() => isEditable && setEditingNumbers(2)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',

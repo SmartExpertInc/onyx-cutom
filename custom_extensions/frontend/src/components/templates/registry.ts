@@ -1492,14 +1492,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       ],
       profileImagePath: '',
       profileImageAlt: 'Profile image',
-
+      pageNumber: '18',
+      logoNew: ''
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
       statements: { type: 'array', label: 'Statements', required: true },
       profileImagePath: { type: 'image', label: 'Profile Image' },
       profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 },
+      logoNew: { type: 'image', label: 'Company Logo' }
     }
   },
 
