@@ -126,16 +126,16 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'480px', minHeight:'46px' };
 
-  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', width:'725px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'10px', height:'calc(100% - 24px)' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'16px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const barBase: React.CSSProperties = { width:'40px', background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', position:'relative', borderRadius:'1px 1px 1px 1px' };
   const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'385px', display:'grid', rowGap:'15px' };
-  const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:700, color:'#000000', fontFamily:'serif' };
+  const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
   const metricCaption: React.CSSProperties = { marginTop:'6px', width:'270px', color:'#34353C', fontSize:'15px', lineHeight:'1.4', fontFamily:'"Inter", sans-serif' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
@@ -182,7 +182,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
                 window.addEventListener('mouseup', onUp);
               }}
             >
-              <div style={{ position:'absolute', top:'10px', left:'50%', transform:'translateX(-50%)', color:'#FFFFFF', fontSize:'12px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default', fontWeight:'bold' }}
+              <div style={{ position:'absolute', top:'6px', left:'50%', transform:'translateX(-50%)', color:'#FFFFFF', fontSize:'12px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default', fontWeight:'bold' }}
                 onClick={()=> isEditable && setEdit({ key: `${panelKey}-val-${i}` })}
               >
                 {edit?.key===`${panelKey}-val-${i}` ? (
@@ -210,8 +210,8 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         }
         .data-driven-insights .title-element,
         .data-driven-insights .metric-value {
-          font-family: serif !important;
-          font-weight: 700 !important;
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
         }
       `}</style>
       <div 

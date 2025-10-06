@@ -219,7 +219,22 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   };
 
   return (
-    <div className="percent-circles inter-theme" style={slide}>
+    <>
+      <style>{`
+        .percent-circles *:not(.title-element):not(.card-value-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .percent-circles .title-element,
+        .percent-circles .card-value-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .percent-circles .percent-text,
+        .percent-circles .card-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+      `}</style>
+      <div className="percent-circles inter-theme" style={slide}>
       {/* Top section */}
       <div style={topSection}>
         {/* Title */}
@@ -230,10 +245,11 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
               multiline={true} 
               onSave={(v)=>{ onUpdate && onUpdate({ title:v }); setEdit(null); }} 
               onCancel={()=> setEdit(null)} 
+              className="title-element"
               style={inline(titleStyle)} 
             />
           ) : (
-            <div onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+            <div className="title-element" onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
               {title}
             </div>
           )}
@@ -242,20 +258,21 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
         {/* Circles row */}
         <div style={circlesContainer}>
           {/* First circle - filled with percentage */}
-          <div style={circleFilled}>
-            {isEditable && edit?.k==='percent' ? (
-              <ImprovedInlineEditor 
-                initialValue={percent} 
-                onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
-                onCancel={()=> setEdit(null)} 
-                style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
-              />
-            ) : (
-              <div onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
-                {percent}
-              </div>
-            )}
-          </div>
+           <div style={circleFilled}>
+             {isEditable && edit?.k==='percent' ? (
+               <ImprovedInlineEditor 
+                 initialValue={percent} 
+                 onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
+                 onCancel={()=> setEdit(null)} 
+                 className="percent-text"
+                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
+               />
+             ) : (
+               <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
+                 {percent}
+               </div>
+             )}
+           </div>
           
           {/* Remaining 9 empty circles */}
           {[...Array(9)].map((_, i) => (
@@ -285,26 +302,29 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       <div style={bottomSection}>
         {bottomCards.map((card, i) => (
           <div key={i} style={whiteCard}>
-            {/* Value - only for first card */}
-            {i === 0 && (
-              <div style={cardValueStyle} onClick={()=> isEditable && setEdit({ k:`bv${i}` })}>
-                {isEditable && edit?.k===`bv${i}` ? (
-                  <ImprovedInlineEditor 
-                    initialValue={card.value} 
-                    onSave={(v)=>{ 
-                      const next = [...bottomCards]; 
-                      next[i] = { ...next[i], value:v }; 
-                      onUpdate && onUpdate({ bottomCards: next }); 
-                      setEdit(null); 
-                    }} 
-                    onCancel={()=> setEdit(null)} 
-                    style={inline(cardValueStyle)} 
-                  />
-                ) : (
-                  card.value
-                )}
-              </div>
-            )}
+             {/* Value - only for first card */}
+             {i === 0 && (
+               <div style={cardValueStyle} onClick={()=> isEditable && setEdit({ k:`bv${i}` })}>
+                 {isEditable && edit?.k===`bv${i}` ? (
+                   <ImprovedInlineEditor 
+                     initialValue={card.value} 
+                     onSave={(v)=>{ 
+                       const next = [...bottomCards]; 
+                       next[i] = { ...next[i], value:v }; 
+                       onUpdate && onUpdate({ bottomCards: next }); 
+                       setEdit(null); 
+                     }} 
+                     onCancel={()=> setEdit(null)} 
+                     className="card-value-element"
+                     style={inline(cardValueStyle)} 
+                   />
+                 ) : (
+                   <div className="card-value-element">
+                     {card.value}
+                   </div>
+                 )}
+               </div>
+             )}
 
             {/* Text */}
             <div style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
@@ -319,10 +339,13 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                     setEdit(null); 
                   }} 
                   onCancel={()=> setEdit(null)} 
+                  className="card-text"
                   style={inline(i === 0 ? cardTextStyleFirst : cardTextStyleSecond)} 
                 />
               ) : (
-                card.text
+                <div className="card-text">
+                  {card.text}
+                </div>
               )}
             </div>
 
@@ -337,6 +360,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       </div>
 
     </div>
+    </>
   );
 };
 
