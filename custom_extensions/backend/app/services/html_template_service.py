@@ -251,6 +251,22 @@ class HTMLTemplateService:
             # Validate and normalize props
             validated_props = self.validate_avatar_slide_props(template_id, props)
             
+            # 🔧 CRITICAL FIX: Extract slideId from metadata if not provided
+            if slide_id is None and metadata and 'slideId' in metadata:
+                slide_id = metadata.get('slideId')
+                logger.info(f"🔧 [SLIDE_ID_FIX] Extracted slideId from metadata: {slide_id}")
+            elif slide_id is None and metadata and 'elementPositions' in metadata:
+                # Extract slideId from elementPositions keys as fallback
+                element_positions = metadata.get('elementPositions', {})
+                if element_positions:
+                    first_key = list(element_positions.keys())[0]
+                    # Extract slideId from pattern: "draggable-slide-1759497683333-6zsx5x14n-0"
+                    if 'draggable-' in first_key:
+                        parts = first_key.split('-')
+                        if len(parts) >= 3:
+                            slide_id = '-'.join(parts[1:-1])  # Get "slide-1759497683333-6zsx5x14n"
+                            logger.info(f"🔧 [SLIDE_ID_FIX] Extracted slideId from elementPositions: {slide_id}")
+            
             # Generate HTML with metadata AND slideId
             html_content = self.generate_avatar_slide_html(
                 template_id, validated_props, theme, metadata=metadata, slide_id=slide_id
