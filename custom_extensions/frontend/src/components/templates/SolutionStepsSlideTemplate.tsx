@@ -306,17 +306,21 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
 
         {/* Step Titles and Descriptions */}
         <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
+          position: 'relative',
           width: '100%',
+          height: '150px',
         }}>
           {currentSteps.map((step, index) => (
             <div key={index} style={{
+              position: 'absolute',
+              left: positions[index],
+              top: '0',
+              transform: 'translateX(-50%)',
               display: 'flex',
               flexDirection: 'column',
-              paddingLeft: index === 0 ? '16px' : '0',
-              marginTop: '-10px',
-              width: index === 0 ? 'calc(33.33% - 2px)' : index === 1 ? 'calc(16.33% + 7px)' : index === 2 ? 'calc(28% + 7px)' : '0',
+              alignItems: 'center',
+              textAlign: 'center',
+              width: '220px',
             }}>
               {/* Step Title */}
               <div style={{
