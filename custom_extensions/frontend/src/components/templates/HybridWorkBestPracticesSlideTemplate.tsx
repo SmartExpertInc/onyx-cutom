@@ -141,7 +141,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       <style>{`
         .hybrid-work-best-practices-slide-template *:not(.title-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 600 !important;
         }
         .hybrid-work-best-practices-slide-template .title-element {
           font-family: "Lora", serif !important;

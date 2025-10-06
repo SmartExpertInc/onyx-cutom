@@ -284,9 +284,10 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         {currentSections.map((section, index) => (
           <div key={index} style={{
             backgroundColor: (index === 0 || index === 3) ? '#E0E7FF' : '#FFFFFF',
-            padding: '30px 110px 30px 50px;',
+            padding: '30px 120px 30px 50px',
             display: 'flex',
             flexDirection: 'column',
+            fontWeight: '600',
             gap: '16px',
           }}>
             {/* Section Title */}
@@ -318,7 +319,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   onClick={() => isEditable && setEditingSections({ index, field: 'title' })}
                   style={{
                     cursor: isEditable ? 'pointer' : 'default',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    fontWeight: '600',
                   }}
                 >
                   {section.title}

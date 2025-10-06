@@ -152,9 +152,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     padding:'10px 15px', 
     borderTopLeftRadius:'3px', 
     borderTopRightRadius:'3px',
-    borderLeft: '1px solid #CACACA',
-    borderRight: '1px solid #CACACA',
-    borderTop: '1px solid #CACACA',
+    borderLeft: '1px solid #EDEEF2',
+    borderRight: '1px solid #EDEEF2',
+    borderTop: '1px solid #EDEEF2',
     borderBottom: 'none',
     fontWeight:400, 
     fontSize:'17px', 
@@ -169,11 +169,11 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     color:'#6B6B6D', 
     marginTop:'0px', 
     position:'relative',
-    borderLeft: '1px solid #CACACA',
-    borderRight: '1px solid #CACACA',
+    borderLeft: '1px solid #EDEEF2',
+    borderRight: '1px solid #EDEEF2',
     borderTop: 'none',
     borderRadius: i === totalRows - 1 ? '0 0 3px 3px' : '0',
-    borderBottom: i === totalRows - 1 ? '1px solid #CACACA' : 'none'
+    borderBottom: i === totalRows - 1 ? '1px solid #EDEEF2' : 'none'
   });
 
   // Inline editor base styles to prevent layout shift
@@ -217,7 +217,6 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       <style>{`
         .enterprise-roadmap-slide *:not(.title-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 600 !important;
         }
         .enterprise-roadmap-slide .title-element {
           font-family: "Lora", serif !important;
@@ -265,7 +264,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
           {cols.map((h, idx)=> (
             <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={{ 
               position:'relative',
-              borderRight: idx < cols.length - 1 ? '1px solid #CACACA' : 'none',
+              borderRight: idx < cols.length - 1 ? '1px solid #EDEEF2' : 'none',
               // padding: '0 0 0 15px'
             }}>
               {isEditable && editingHeaderIdx === idx ? (
@@ -302,7 +301,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             {cols.map((h, cidx)=> (
               <div key={cidx} style={{ 
                 position:'relative',
-                borderRight: cidx < cols.length - 1 ? '1px solid #CACACA' : 'none',
+                borderRight: cidx < cols.length - 1 ? '1px solid #EDEEF2' : 'none',
                 padding: '0 0 0 15px',
               }}>
                 {isEditable && editingCell && editingCell.row===i && editingCell.col===cidx ? (

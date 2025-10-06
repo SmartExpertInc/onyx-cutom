@@ -127,7 +127,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   };
   // wrappers to prevent layout shift on edit
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
-  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'480px', minHeight:'46px' };
+  const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'420px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
@@ -228,7 +228,6 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <style>{`
         .data-driven-insights *:not(.title-element):not(.metric-value) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 600 !important;
         }
         .data-driven-insights .title-element,
         .data-driven-insights .metric-value {
@@ -237,6 +236,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         }
         .data-driven-insights .logo-text {
           font-weight: 600 !important;
+        }
+        .desc-element {
+          font-weight: 400 !important;
         }
       `}</style>
       <div 
@@ -269,7 +271,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         )}
       </div>
 
-      <div style={descWrap}>
+      <div className="desc-element" style={descWrap}>
         {isEditable && edit?.key==='desc' ? (
           <ImprovedInlineEditor initialValue={description} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ description:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ ...descStyle }} />
         ) : (

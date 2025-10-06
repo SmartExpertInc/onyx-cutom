@@ -233,7 +233,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       <style>{`
         .percent-circles *:not(.title-element):not(.card-value-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 600 !important;
         }
         .percent-circles .title-element,
         .percent-circles .card-value-element {

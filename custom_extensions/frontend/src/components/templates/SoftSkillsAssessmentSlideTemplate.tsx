@@ -234,7 +234,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       <style>{`
         .soft-skills-assessment-slide-template *:not(.title-element):not(.card-text) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 600 !important;
         }
         .soft-skills-assessment-slide-template .title-element {
           font-family: "Lora", serif !important;
