@@ -34927,6 +34927,8 @@ async def create_workspace_owner(http_request: Request):
     """Create SmartExpert Workspace Owner using user's email and provided or default token."""
     try:
         user_uuid, user_email = await get_user_identifiers_for_workspace(http_request)
+        # Use the same user id resolution as the browser feature-check endpoint
+        onyx_user_id = await get_current_onyx_user_id(http_request)
         if not user_email:
             raise HTTPException(status_code=400, detail="Unable to resolve user email from session")
         name_part = user_email.split("@")[0]
@@ -34950,9 +34952,9 @@ async def create_workspace_owner(http_request: Request):
                     """
                     SELECT feature_name, is_enabled 
                     FROM user_features 
-                    WHERE user_id = ANY($1::text[]) AND feature_name IN ('is_us_lms','is_dev_lms')
+                    WHERE user_id = $1 AND feature_name IN ('is_us_lms','is_dev_lms')
                     """,
-                    [user_uuid, user_email],
+                    onyx_user_id,
                 )
                 flags = {r['feature_name']: bool(r['is_enabled']) for r in rows}
                 is_dev = flags.get('is_dev_lms', True)
