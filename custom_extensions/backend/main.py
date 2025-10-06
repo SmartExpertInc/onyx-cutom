@@ -34816,7 +34816,15 @@ async def export_to_lms(
             try:
                 start_ts = asyncio.get_event_loop().time()
                 yield (json.dumps({"type": "progress", "message": f"Exporting course {product_id}...", "productId": product_id}) + "\n").encode()
-                export_task = asyncio.create_task(export_course_outline_to_lms_format(product_id, onyx_user_id, user_email, request.token))
+                export_task = asyncio.create_task(
+                    export_course_outline_to_lms_format(
+                        product_id,
+                        onyx_user_id,
+                        user_email,
+                        request.token,
+                        smartexpert_base_url,
+                    )
+                )
                 while not export_task.done():
                     await asyncio.sleep(8)
                     elapsed = int(asyncio.get_event_loop().time() - start_ts)
@@ -34931,9 +34939,8 @@ async def create_workspace_owner(http_request: Request):
             from app.services.lms_exporter import DEFAULT_SMARTEXPERT_TOKEN
         except Exception:
             DEFAULT_SMARTEXPERT_TOKEN = None
-        if not token:
-            token = DEFAULT_SMARTEXPERT_TOKEN
-        params = {"name": name_part, "email": user_email, "token": token or ""}
+        # Resolve token by base URL choice later; don't set here
+        params = {"name": name_part, "email": user_email}
         # Resolve LMS base URL from user feature flags
         is_dev = True
         is_us = True
@@ -34954,8 +34961,15 @@ async def create_workspace_owner(http_request: Request):
             pass
         if is_dev:
             base_url = "https://dev.smartexpert.net"
+            resolved_token = token or DEFAULT_SMARTEXPERT_TOKEN
         else:
-            base_url = "https://app.smartexpert.io" if is_us else "https://app.smartexpert.net"
+            if is_us:
+                base_url = "https://app.smartexpert.io"
+                resolved_token = token or os.environ.get('LMS_IO_TOKEN') or DEFAULT_SMARTEXPERT_TOKEN
+            else:
+                base_url = "https://app.smartexpert.net"
+                resolved_token = token or os.environ.get('LMS_NET_TOKEN') or DEFAULT_SMARTEXPERT_TOKEN
+        params["token"] = resolved_token or ""
         target_url = f"{base_url}/store-workspace-owner"
         logger.info(f"[API:LMS] Workspace owner create start | email={user_email} name={name_part} base={base_url}")
         import httpx

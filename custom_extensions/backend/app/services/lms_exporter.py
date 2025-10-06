@@ -24,7 +24,19 @@ async def post_export_to_smartexpert(structure_json: bytes, user_email: str, tok
             api_url = f"{base_url.rstrip('/')}/api/v1/generate-product"
         else:
             api_url = os.environ.get('SMARTEXPERT_API_URL', 'https://dev.smartexpert.net/api/v1/generate-product')
-        api_token = token or DEFAULT_SMARTEXPERT_TOKEN
+        # Choose token based on base_url if not explicitly provided
+        api_token = token
+        if not api_token:
+            base = (base_url or '').lower()
+            if 'app.smartexpert.io' in base:
+                api_token = os.environ.get('LMS_IO_TOKEN')
+            elif base.endswith('app.smartexpert.net') or 'app.smartexpert.net' in base:
+                api_token = os.environ.get('LMS_NET_TOKEN')
+            elif 'dev.smartexpert.net' in base:
+                api_token = DEFAULT_SMARTEXPERT_TOKEN
+        # Final fallback
+        if not api_token:
+            api_token = DEFAULT_SMARTEXPERT_TOKEN
         if not api_token:
             logger.info("[SmartExpert] Token not provided; skipping external POST")
             return None
