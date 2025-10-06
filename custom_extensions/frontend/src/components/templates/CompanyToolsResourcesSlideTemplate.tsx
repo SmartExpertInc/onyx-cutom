@@ -113,6 +113,10 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .company-tools-resources-slide-template .section-title {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
       `}</style>
       <div className="company-tools-resources-slide-template inter-theme" style={slideStyles}>
       {/* Blue Header Section */}
@@ -130,7 +134,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       <div style={{
         position: 'absolute',
         top: '20px',
-        left: '60px',
+        left: '25px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -244,9 +248,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         height: '150px',
         borderRadius: '50%',
         overflow: 'hidden',
-        backgroundColor: '#3B8BE9',
+        backgroundColor: '#FFFFFF',
         zIndex: 10,
-        border: '3px solid #FFFFFF'
       }}>
         <ClickableImagePlaceholder
           imagePath={profileImagePath}
@@ -280,17 +283,17 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       }}>
         {currentSections.map((section, index) => (
           <div key={index} style={{
-            backgroundColor: index % 2 === 0 ? '#E0E7FF' : '#FFFFFF',
+            backgroundColor: (index === 0 || index === 3) ? '#E0E7FF' : '#FFFFFF',
             padding: '30px 110px 30px 50px;',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
           }}>
             {/* Section Title */}
-            <div style={{
+            <div className="section-title" style={{
               fontSize: '18px',
               fontWeight: '600',
-              color: '#333333',
+              color: 'black',
               lineHeight: '1.2',
               fontFamily: 'Lora, serif'
             }}>
@@ -299,7 +302,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   initialValue={section.title}
                   onSave={(value) => handleSectionSave(index, 'title', value)}
                   onCancel={() => setEditingSections(null)}
-                  className="section-title-editor"
+                  className="section-title-editor section-title"
                   style={{
                     fontSize: '18px',
                     fontWeight: '600',

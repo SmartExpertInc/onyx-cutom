@@ -5,6 +5,7 @@ import { EnterpriseRoadmapSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProps & { theme?: SlideTheme | string }> = ({
   slideId,
@@ -38,6 +39,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   const normalizeRows = (input: any[], colHeaders: string[]): Record<string, string>[] => {
     return (input || []).map((r: any) => {
@@ -147,9 +150,11 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     background:'#0F58F9', 
     color:'#FFFFFF', 
     padding:'10px 15px', 
-    borderTopLeftRadius:'2px', 
-    borderTopRightRadius:'2px',
-    border: '1px solid #D0D0D0',
+    borderTopLeftRadius:'3px', 
+    borderTopRightRadius:'3px',
+    borderLeft: '1px solid #CACACA',
+    borderRight: '1px solid #CACACA',
+    borderTop: '1px solid #CACACA',
     borderBottom: 'none',
     fontWeight:400, 
     fontSize:'17px', 
@@ -164,9 +169,11 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     color:'#6B6B6D', 
     marginTop:'0px', 
     position:'relative',
-    border: '1px solid #D0D0D0',
+    borderLeft: '1px solid #CACACA',
+    borderRight: '1px solid #CACACA',
     borderTop: 'none',
-    borderRadius: i === totalRows - 1 ? '0 0 2px 2px' : '0'
+    borderRadius: i === totalRows - 1 ? '0 0 3px 3px' : '0',
+    borderBottom: i === totalRows - 1 ? '1px solid #CACACA' : 'none'
   });
 
   // Inline editor base styles to prevent layout shift
@@ -196,6 +203,13 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const inlineEditorDescStyle: React.CSSProperties = { ...descStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
   // No handlers: static slide (no editing UI)
 
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ slideId, title, description, headers, tableData, profileImagePath, profileImageAlt, companyName, reportType, date }, companyLogoPath: newLogoPath });
+    }
+  };
+
   const footerStyle: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', bottom:'20px', display:'flex', justifyContent:'space-between', color:'#A2A19D', fontSize:'14px', fontFamily:'Inter, sans-serif' };
 
   return (
@@ -203,9 +217,13 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       <style>{`
         .enterprise-roadmap-slide *:not(.title-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
         }
         .enterprise-roadmap-slide .title-element {
           font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .enterprise-roadmap-slide .logo-text {
           font-weight: 600 !important;
         }
       `}</style>
@@ -247,7 +265,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
           {cols.map((h, idx)=> (
             <div key={idx} onMouseEnter={()=> setHoverHeaderIdx(idx)} onMouseLeave={()=> setHoverHeaderIdx(null)} style={{ 
               position:'relative',
-              borderRight: idx < cols.length - 1 ? '1px solid #D0D0D0' : 'none'
+              borderRight: idx < cols.length - 1 ? '1px solid #CACACA' : 'none',
+              // padding: '0 0 0 15px'
             }}>
               {isEditable && editingHeaderIdx === idx ? (
                 <ImprovedInlineEditor
@@ -283,7 +302,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             {cols.map((h, cidx)=> (
               <div key={cidx} style={{ 
                 position:'relative',
-                borderRight: cidx < cols.length - 1 ? '1px solid #D0D0D0' : 'none'
+                borderRight: cidx < cols.length - 1 ? '1px solid #CACACA' : 'none',
+                padding: '0 0 0 15px',
               }}>
                 {isEditable && editingCell && editingCell.row===i && editingCell.col===cidx ? (
                   <ImprovedInlineEditor
@@ -328,22 +348,62 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
           fontFamily: 'Inter, sans-serif',
           fontWeight: '400'
         }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '1px solid black',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '12px',
-            color: 'black'
-          }}>
-            +
-          </div>
-          Your Logo
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '20px',
+                maxWidth: '80px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                border: '1px solid black',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: 'black'
+              }}>
+                +
+              </div>
+              <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
     </>
   );

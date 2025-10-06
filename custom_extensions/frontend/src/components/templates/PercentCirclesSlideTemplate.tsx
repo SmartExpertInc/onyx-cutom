@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 import { ChevronRight } from 'lucide-react';
 
 export interface PercentCirclesProps extends BaseTemplateProps {
@@ -32,6 +33,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -218,6 +221,13 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     cursor: isEditable ? 'pointer' : 'default'
   };
 
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, percent, bottomCards, avatarPath, logoPath, slideIndex }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
     <>
       <style>{`
@@ -233,6 +243,10 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
         .percent-circles .percent-text,
         .percent-circles .card-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
+        }
+        .percent-circles .logo-text {
+          font-weight: 600 !important;
         }
       `}</style>
       <div className="percent-circles inter-theme" style={slide}>
@@ -359,6 +373,54 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
           </div>
         ))}
       </div>
+
+      {/* Logo section */}
+      <div style={logoSection}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '20px',
+              maxWidth: '80px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={logoIcon}>
+              +
+            </div>
+            <div className="logo-text" style={{ fontSize: '14px', color: '#909090', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
 
     </div>
     </>

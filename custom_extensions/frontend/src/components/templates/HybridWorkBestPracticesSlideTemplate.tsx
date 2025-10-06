@@ -5,6 +5,7 @@ import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
@@ -54,6 +55,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentMainStatement, setCurrentMainStatement] = useState(mainStatement);
   const [currentPractices, setCurrentPractices] = useState(practices);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -126,11 +129,19 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     }
   };
 
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ title, subtitle, mainStatement, practices, profileImagePath, profileImageAlt, teamImagePath, teamImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
+    }
+  };
+
   return (
     <>
       <style>{`
         .hybrid-work-best-practices-slide-template *:not(.title-element) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
         }
         .hybrid-work-best-practices-slide-template .title-element {
           font-family: "Lora", serif !important;
@@ -139,6 +150,9 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         .hybrid-work-best-practices-slide-template .hybrid-title-editor,
         .hybrid-work-best-practices-slide-template .hybrid-title-editor * {
           text-transform: none !important;
+          font-weight: 600 !important;
+        }
+        .hybrid-work-best-practices-slide-template .logo-text {
           font-weight: 600 !important;
         }
       `}</style>
@@ -163,20 +177,47 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '1px solid black',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '15px',
-            fontWeight: '600'
-          }}>
-            +
-          </div>
-          Your Logo
+          {currentCompanyLogoPath ? (
+            // Show uploaded logo image
+            <ClickableImagePlaceholder
+              imagePath={currentCompanyLogoPath}
+              onImageUploaded={handleCompanyLogoUploaded}
+              size="SMALL"
+              position="CENTER"
+              description="Company logo"
+              isEditable={isEditable}
+              style={{
+                height: '20px',
+                maxWidth: '80px',
+                objectFit: 'contain'
+              }}
+            />
+          ) : (
+            // Show default logo design with clickable area
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            >
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                border: '1px solid black',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '15px',
+                fontWeight: '600'
+              }}>
+                +
+              </div>
+              <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -486,6 +527,19 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       }}>
         11
       </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
     </>
   );

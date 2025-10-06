@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export interface DataDrivenInsightsProps extends BaseTemplateProps {
   tag: string;
@@ -50,6 +51,8 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ key: string } | null>(null);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   type SeriesBar = { year: string; value: string; height: number };
   const toSeries = (heights: number[], values: string[], years: string[]): SeriesBar[] => {
@@ -152,6 +155,13 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
+  const handleCompanyLogoUploaded = (newLogoPath: string) => {
+    setCurrentCompanyLogoPath(newLogoPath);
+    if (onUpdate) {
+      onUpdate({ ...{ tag, title, description, leftChartTitle, rightChartTitle, leftBars, rightBars, barLabels, leftValues, rightValues, yTicks, metrics, avatarPath, logoPath, slideIndex }, companyLogoPath: newLogoPath });
+    }
+  };
+
   const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (
     <div style={chartArea}>
       <div style={yAxis}>
@@ -218,10 +228,14 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <style>{`
         .data-driven-insights *:not(.title-element):not(.metric-value) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
         }
         .data-driven-insights .title-element,
         .data-driven-insights .metric-value {
           font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .data-driven-insights .logo-text {
           font-weight: 600 !important;
         }
       `}</style>
@@ -321,6 +335,74 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={avatar}>
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
       </div>
+
+      {/* Logo section */}
+      <div style={{
+        position:'absolute',
+        bottom:'20px',
+        right:'20px',
+        display:'flex',
+        alignItems:'center',
+        gap:'8px',
+        fontSize:'14px',
+        color:'#909090',
+        fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        {currentCompanyLogoPath ? (
+          // Show uploaded logo image
+          <ClickableImagePlaceholder
+            imagePath={currentCompanyLogoPath}
+            onImageUploaded={handleCompanyLogoUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '20px',
+              maxWidth: '80px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          // Show default logo design with clickable area
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: isEditable ? 'pointer' : 'default'
+          }}
+          onClick={() => isEditable && setShowLogoUploadModal(true)}
+          >
+            <div style={{
+              width:'20px',
+              height:'20px',
+              borderRadius:'50%',
+              border:'1px solid #909090',
+              display:'flex',
+              alignItems:'center',
+              justifyContent:'center',
+              fontSize:'12px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}>
+              +
+            </div>
+            <div className="logo-text" style={{ fontSize: '14px', color: '#909090', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+          </div>
+        )}
+      </div>
+
+      {/* Logo Upload Modal */}
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(newLogoPath: string) => {
+            handleCompanyLogoUploaded(newLogoPath);
+            setShowLogoUploadModal(false);
+          }}
+          title="Upload Company Logo"
+        />
+      )}
 
     </div>
     </>
