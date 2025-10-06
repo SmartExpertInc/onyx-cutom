@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, ArrowRight, Star, Users, Database, Zap, Shield, Clock, CreditCard, ArrowLeft, Coins, X, Server, ShieldUser, MessagesSquare, Workflow } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -33,6 +33,23 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   const [showPayment, setShowPayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [currentPlanId, setCurrentPlanId] = useState<'starter' | 'pro' | 'business' | 'enterprise'>('starter');
+
+  useEffect(() => {
+    const loadCurrentPlan = async () => {
+      try {
+        const res = await fetch('/api/custom-projects-backend/billing/me', { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const planRaw = (data?.plan || 'starter').toString().toLowerCase();
+        if (planRaw.includes('business')) setCurrentPlanId('business');
+        else if (planRaw.includes('pro')) setCurrentPlanId('pro');
+        else if (planRaw.includes('enterprise')) setCurrentPlanId('enterprise');
+        else setCurrentPlanId('starter');
+      } catch {}
+    };
+    if (open) loadCurrentPlan();
+  }, [open]);
 
   const plans: Plan[] = [
     {
@@ -390,9 +407,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                       </div>
 
                       <button
-                        onClick={() => plan.id !== 'starter' && handlePurchasePlan(plan)}
+                        onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
                         className={`w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
-                          plan.id === 'starter'
+                          plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : plan.popular
                             ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-xl hover:shadow-2xl'
@@ -400,11 +417,11 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                             ? 'bg-gradient-to-r from-indigo-100 to-indigo-200 text-indigo-700 hover:from-indigo-200 hover:to-indigo-300'
                             : 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 hover:from-blue-200 hover:to-blue-300'
                         }`}
-                        disabled={plan.id === 'starter'}
+                        disabled={plan.id === currentPlanId}
                       >
-                        {plan.id === 'starter' 
+                        {plan.id === currentPlanId
                           ? t('tariffPlan.current', 'Current')
-                          : plan.name.includes('Enterprise') 
+                          : plan.name.includes('Enterprise')
                           ? t('tariffPlan.contactSales', 'Contact Sales')
                           : t('tariffPlan.purchasePlan', 'Purchase Plan')}
                       </button>
