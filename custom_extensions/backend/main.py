@@ -105,6 +105,10 @@ LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/comple
 # Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
+# Stripe configuration (custom extensions only)
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_BILLING_RETURN_URL = os.getenv("STRIPE_BILLING_RETURN_URL")
+
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
@@ -5959,6 +5963,24 @@ async def startup_event():
                                                 format='text'
                                             ))
         async with DB_POOL.acquire() as connection:
+            # --- Ensure user_billing table for Stripe linkage ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    stripe_customer_id TEXT,
+                    subscription_status TEXT,
+                    subscription_id TEXT,
+                    current_price_id TEXT,
+                    current_plan TEXT,
+                    current_interval TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_billing_customer ON user_billing(stripe_customer_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_billing_subscription ON user_billing(subscription_id);")
+
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS slide_creation_errors (
                     id SERIAL PRIMARY KEY,
@@ -27428,6 +27450,170 @@ async def get_my_credits(
     except Exception as e:
         logger.error(f"Error getting user credits: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve credits")
+
+# ============================
+# BILLING (Stripe) ENDPOINTS
+# ============================
+
+@app.get("/api/custom/billing/me")
+async def get_billing_info(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Return current subscription info for the logged-in user.
+    Reads from our user_billing table and, if needed, fetches live status from Stripe.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT * FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        if not record:
+            return {
+                "plan": "starter",
+                "status": "inactive",
+                "interval": None,
+                "priceId": None,
+                "subscriptionId": None,
+            }
+
+        # Start with DB values
+        plan = record.get("current_plan") or "starter"
+        status = record.get("subscription_status") or "inactive"
+        interval = record.get("current_interval")
+        price_id = record.get("current_price_id")
+        subscription_id = record.get("subscription_id")
+
+        # If we have Stripe configured and a subscription id, refresh live status
+        if STRIPE_SECRET_KEY and subscription_id:
+            try:
+                import stripe  # type: ignore
+                stripe.api_key = STRIPE_SECRET_KEY
+                sub = stripe.Subscription.retrieve(subscription_id, expand=["items.data.price.product"])
+                status = sub.status
+                if sub.items and len(sub.items.data) > 0:
+                    price = sub.items.data[0].price
+                    price_id = price.id
+                    interval = (price.recurring.interval if getattr(price, "recurring", None) else None)
+                    # Infer plan from product name if available
+                    product = getattr(price, "product", None)
+                    product_name = getattr(product, "name", "") if product else ""
+                    lowered = (product_name or "").lower()
+                    if "business" in lowered:
+                        plan = "business"
+                    elif "pro" in lowered:
+                        plan = "pro"
+                    # Yearly/Monthly kept via interval
+            except Exception as e:
+                logger.warning(f"Could not refresh subscription from Stripe: {e}")
+
+        return {
+            "plan": plan,
+            "status": status,
+            "interval": interval,
+            "priceId": price_id,
+            "subscriptionId": subscription_id,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting billing info: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to retrieve billing info")
+
+
+@app.post("/api/custom/billing/portal")
+async def create_billing_portal_session(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Billing Portal session for the current user.
+    Requires STRIPE_SECRET_KEY and STRIPE_BILLING_RETURN_URL env vars.
+    """
+    try:
+        if not STRIPE_SECRET_KEY or not STRIPE_BILLING_RETURN_URL:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+        if not record or not record.get("stripe_customer_id"):
+            raise HTTPException(status_code=404, detail="No Stripe customer for user")
+
+        # Lazy import to avoid hard dependency if not configured
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        session = stripe.billing_portal.Session.create(
+            customer=record["stripe_customer_id"],
+            return_url=STRIPE_BILLING_RETURN_URL,
+        )
+        return {"url": session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating billing portal session: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create billing portal session")
+
+
+class CancelSubscriptionRequest(BaseModel):
+    subscriptionId: Optional[str] = None
+
+
+@app.post("/api/custom/billing/cancel")
+async def cancel_subscription(
+    request: Request,
+    payload: CancelSubscriptionRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Cancel user's active subscription now in Stripe and update our user_billing table."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT subscription_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        subscription_id = payload.subscriptionId or (record and record.get("subscription_id"))
+        if not subscription_id:
+            raise HTTPException(status_code=404, detail="No active subscription found")
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Cancel immediately (or set cancel_at_period_end=True for end-of-term)
+        canceled = stripe.Subscription.delete(subscription_id)
+
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE user_billing
+                SET subscription_status = $2,
+                    updated_at = now()
+                WHERE onyx_user_id = $1
+                """,
+                onyx_user_id,
+                canceled.status,
+            )
+
+        return {"status": canceled.status}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error canceling subscription: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to cancel subscription")
 
 @app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
 async def list_all_user_credits(

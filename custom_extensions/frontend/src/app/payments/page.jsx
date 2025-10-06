@@ -181,11 +181,29 @@ export default function BillingPage() {
   const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [itemToCancel, setItemToCancel] = useState(null);
+  const [billingInfo, setBillingInfo] = useState({ plan: 'starter', status: 'inactive', interval: null, priceId: null, subscriptionId: null });
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
   const [folders, setFolders] = useState([]);
   const [folderProjects, setFolderProjects] = useState({});
   const { t } = useLanguage();
   const currentTab = 'payments';
+
+  useEffect(() => {
+    const loadBilling = async () => {
+      try {
+        const res = await fetch('/api/custom/billing/me', { credentials: 'same-origin' });
+        if (res.ok) {
+          const data = await res.json();
+          setBillingInfo(data);
+        }
+      } catch (e) {
+        console.error('Failed to load billing info', e);
+      }
+    };
+    loadBilling();
+  }, []);
 
   const purchasedItems = [
     {
@@ -315,7 +333,13 @@ export default function BillingPage() {
   };
 
   // Current plan (dynamically determined by isCurrent property)
-  const currentPlan = Object.values(planConfig).find(plan => plan.isCurrent) || planConfig.starter;
+  const currentPlan = (() => {
+    const key = (billingInfo.plan || 'starter').toLowerCase();
+    if (key.includes('business')) return planConfig.business;
+    if (key.includes('pro')) return planConfig.pro;
+    if (key.includes('enterprise')) return planConfig.enterprise;
+    return planConfig.starter;
+  })();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 w-full">
@@ -406,14 +430,30 @@ export default function BillingPage() {
                   You can get invoices, update your payment method, and adjust your subscription in Stripe
                 </p>
 
-                <button className="w-full bg-white border border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors mb-3 flex items-center justify-center gap-2">
-                  Manage subscription in Stripe
+                <button 
+                  disabled={!billingInfo.subscriptionId || portalLoading}
+                  onClick={async () => {
+                    try {
+                      setPortalLoading(true);
+                      const res = await fetch('/api/custom/billing/portal', { method: 'POST', credentials: 'same-origin' });
+                      if (!res.ok) throw new Error('Failed to create portal session');
+                      const data = await res.json();
+                      if (data?.url) window.location.href = data.url;
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setPortalLoading(false);
+                    }
+                  }}
+                  className={`w-full bg-white border ${billingInfo.subscriptionId ? 'border-gray-300 text-gray-700 hover:bg-gray-50' : 'border-gray-200 text-gray-400 cursor-not-allowed'} font-medium py-3 px-4 rounded-lg transition-colors mb-3 flex items-center justify-center gap-2`}
+                >
+                  {portalLoading ? 'Opening...' : 'Manage subscription in Stripe'}
                   <ExternalLink className="w-4 h-4" />
                 </button>
 
                 <button 
                   onClick={() => {
-                    setItemToCancel({ type: 'subscription', name: 'Current Plan', amount: 'Full subscription' });
+                    setItemToCancel({ type: 'subscription', name: currentPlan.name, amount: 'Full subscription' });
                     setIsCancelModalOpen(true);
                   }}
                   className="w-full bg-white border border-red-300 text-red-600 font-medium py-3 px-4 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
@@ -531,16 +571,32 @@ export default function BillingPage() {
             </Button>
             <Button
               variant="download"
-              onClick={() => {
-                // Handle actual cancellation logic here
-                console.log('Cancelling:', itemToCancel);
-                setIsCancelModalOpen(false);
-                setItemToCancel(null);
-                // Add your cancellation logic
+              disabled={cancelLoading}
+              onClick={async () => {
+                if (itemToCancel?.type !== 'subscription') return;
+                try {
+                  setCancelLoading(true);
+                  const res = await fetch('/api/custom/billing/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ subscriptionId: billingInfo.subscriptionId })
+                  });
+                  if (!res.ok) throw new Error('Cancel failed');
+                  setIsCancelModalOpen(false);
+                  setItemToCancel(null);
+                  // Refresh billing info
+                  const refreshed = await fetch('/api/custom/billing/me', { credentials: 'same-origin' });
+                  if (refreshed.ok) setBillingInfo(await refreshed.json());
+                } catch (e) {
+                  console.error(e);
+                } finally {
+                  setCancelLoading(false);
+                }
               }}
               className="flex-1 bg-red-500 text-white hover:bg-red-600 border-red-500"
             >
-              Yes, Cancel
+              {cancelLoading ? 'Cancelling...' : 'Yes, Cancel'}
             </Button>
           </DialogFooter>
         </DialogContent>
