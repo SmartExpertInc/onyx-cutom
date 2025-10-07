@@ -926,12 +926,12 @@ export default function EventPoster({
               style={{
                 color: '#E5E5E5',
                 fontWeight: '600',
-                fontSize: '36px',
+                fontSize: '40px',
                 textAlign: 'center',
-                lineHeight: '1.2',
+                lineHeight: '1.1',
                 background: 'transparent',
                 borderRadius: '30px',
-                padding: '10px 16px',
+                padding: '0 20px',
                 width: '100%',
                 height: '100%',
                 boxSizing: 'border-box',
@@ -939,13 +939,14 @@ export default function EventPoster({
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflow: 'hidden',
-                whiteSpace: 'normal', // Allow text wrapping
-                wordWrap: 'break-word', // Break long words if needed
+                whiteSpace: 'normal',
+                wordWrap: 'break-word',
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 right: 0,
                 bottom: 0,
+                textTransform: 'uppercase'
               }}
             />
           </div>

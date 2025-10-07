@@ -30595,6 +30595,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 font-size: 33px;
                 text-align: left;
                 line-height: 1.2;
+                text-transform: uppercase;
             }
 
             .event-name-colon {
@@ -30754,20 +30755,21 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .free-access {{
                 color: #E5E5E5;
                 font-weight: 600;
-                font-size: 44px; /* slightly bigger */
+                font-size: 40px;
                 text-align: center;
-                line-height: 1.2;
+                line-height: 1.1;
                 background-color: #5416af;
                 border-radius: 30px;
-                padding: 10px 16px;
+                padding: 0 20px;
                 box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
                 backdrop-filter: blur(5px);
-                width: 620px; /* match frontend pill width */
-                height: 100px;
+                text-transform: uppercase;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-left: 30px;
+                height: 100px;
+                width: 620px;
+                margin-left: 10px;
             }}
         </style>
     </head>
