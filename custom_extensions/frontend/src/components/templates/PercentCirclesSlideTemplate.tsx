@@ -15,6 +15,7 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   avatarPath?: string;
   logoPath?: string;
   logoText?: string;
+  pageNumber?: string;
   slideIndex?: number;
 }
 
@@ -28,6 +29,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   avatarPath = '',
   logoPath = '',
   logoText = 'Your Logo',
+  pageNumber = '1',
   slideIndex = 1,
   isEditable = true, // Set to true by default for testing
   onUpdate,
@@ -35,6 +37,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -378,6 +382,34 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
           color="#000000"
           text={logoText}
         />
+      </div>
+
+      {/* Page number */}
+      <div style={{
+        position:'absolute',
+        bottom:'24px',
+        left:'22px',
+        color:'#34353C',
+        fontSize:'15px',
+        fontWeight:400,
+        fontFamily:'Inter, sans-serif'
+      }}>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'15px', fontWeight:400, fontFamily:'Inter, sans-serif' }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
     </div>
