@@ -567,7 +567,7 @@ export default function EventPoster({
         className="absolute"
         style={{
           width: '519px',
-          height: '713px',
+          height: '690px', // ensure lower border ends before blue pill
           background: `url("${imageSrc}")`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center center',
@@ -646,24 +646,26 @@ export default function EventPoster({
           
           {/* First row: Event name and Logo */}
           <div style={{ display: 'flex', justifyContent: 'space-between'}}>
-            {/* Event name */}
-            <EditableText
-              value={eventName}
-              onChange={setEventName}
-              placeholder="Event Name"
-              onAutoSave={handleAutoSave}
-              style={{
-                color: 'rgba(235,235,235,1)',
-                fontFamily: 'Montserrat',
-                fontWeight: '400',
-                fontSize: '33px',
-                textAlign: 'left',
-                lineHeight: '1.2',
-                maxWidth: 'calc(100% - 180px)', // Reserve space for logo (141px + margin)
-                overflow: 'hidden',
-                wordWrap: 'break-word'
-              }}
-            />
+            {/* Event name with ":" suffix */}
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '6px', maxWidth: 'calc(100% - 180px)' }}>
+              <EditableText
+                value={eventName}
+                onChange={setEventName}
+                placeholder="Event Name"
+                onAutoSave={handleAutoSave}
+                style={{
+                  color: '#E5E5E5',
+                  fontFamily: 'Montserrat',
+                  fontWeight: '400',
+                  fontSize: '33px',
+                  textAlign: 'left',
+                  lineHeight: '1.2',
+                  overflow: 'hidden',
+                  wordWrap: 'break-word'
+                }}
+              />
+              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '33px', lineHeight: '1.2' }}>:</span>
+            </div>
 
             {/* Logo */}
             <div
@@ -688,7 +690,7 @@ export default function EventPoster({
                 placeholder="Main Speaker Name"
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: 'rgba(235,235,235,1)',
+                  color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
                   fontSize: '41px',
@@ -704,21 +706,21 @@ export default function EventPoster({
                 multiline
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: 'rgba(235,235,235,1)',
+                  color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '400',
-                  fontSize: '18px',
+                  fontSize: '20px',
                   textAlign: 'left',
                   lineHeight: '1.2'
                 }}
               />
             </div>
 
-            {/* Date with border */}
+            {/* Date with border - bring border closer to text */}
             <div 
               style={{ 
                 border: '3px solid #5416af',
-                padding: '15px 20px',
+                padding: '10px 14px',
                 display: 'inline-block',
                 textAlign: 'center',
                 width: '220px', // Fixed width
@@ -735,7 +737,7 @@ export default function EventPoster({
                 placeholder="DD.MM"
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: 'rgba(235,235,235,1)',
+                  color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
                   fontSize: '58px',
@@ -759,7 +761,7 @@ export default function EventPoster({
                 placeholder="YYYY"
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: 'rgba(235,235,235,1)',
+                  color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '300',
                   fontSize: '52px',
@@ -789,10 +791,10 @@ export default function EventPoster({
             isTitle={true}
             onAutoSave={handleAutoSave}
             style={{
-              color: 'rgba(235,235,235,1)',
+              color: '#E5E5E5',
               fontFamily: 'Montserrat',
               fontWeight: '600',
-              fontSize: '50px',
+              fontSize: '48px',
               textAlign: 'left',
               lineHeight: '1.2',
               maxWidth: '480px'
@@ -807,13 +809,14 @@ export default function EventPoster({
             multiline
             onAutoSave={handleAutoSave}
             style={{
-              color: 'rgba(235,235,235,1)',
+              color: '#E5E5E5',
               fontFamily: 'Montserrat',
               fontWeight: '400',
-              fontSize: '20px',
+              fontSize: '22px',
               textAlign: 'left',
               lineHeight: '1.2',
-              maxWidth: '460px'
+              maxWidth: '460px',
+              marginTop: '6px'
             }}
           />
         </div>
@@ -840,7 +843,7 @@ export default function EventPoster({
           >
             <div
               style={{
-                color: 'rgba(235,235,235,1)',
+                color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '600',
                 fontSize: '25px',
@@ -855,7 +858,7 @@ export default function EventPoster({
               placeholder="Type"
               onAutoSave={handleAutoSave}
               style={{
-                color: 'rgba(235,235,235,1)',
+                color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '600',
                 fontSize: '27px',
@@ -874,7 +877,7 @@ export default function EventPoster({
               placeholder="Price"
               onAutoSave={handleAutoSave}
               style={{
-                color: 'rgba(235,235,235,1)',
+                color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '900',
                 fontSize: '41px',
@@ -895,7 +898,7 @@ export default function EventPoster({
             style={{
               borderRadius: '30px',
               marginLeft: '10px',
-              width: '600px', // Fixed width - never changes
+              width: '620px', // Slightly wider to match spec
               height: '100px', // Fixed height - never changes
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
@@ -915,9 +918,9 @@ export default function EventPoster({
               multiline={true} // Enable multiline like topic section
               onAutoSave={handleAutoSave}
               style={{
-                color: 'rgba(235,235,235,1)',
+                color: '#E5E5E5',
                 fontWeight: '600',
-                fontSize: '34px',
+                fontSize: '36px',
                 textAlign: 'center',
                 lineHeight: '1.2',
                 background: 'transparent',

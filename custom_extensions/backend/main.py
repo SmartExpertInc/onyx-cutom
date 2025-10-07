@@ -30536,7 +30536,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .speaker-photo {{
                 position: absolute;
                 width: 519px;
-                height: 713px;
+                height: 690px; /* align with frontend so it ends above pill */
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-size: cover;
@@ -30580,14 +30580,30 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 justify-content: space-between;
             }}
             
-            .event-name {{
-                color: rgba(235,235,235,1);
+            .event-name-wrapper {
+                display: inline-flex;
+                align-items: flex-end;
+                gap: 6px;
+                margin-top: 6px;
+                max-width: calc(100% - 180px);
+            }
+
+            .event-name {
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 31px;
+                font-size: 33px;
                 text-align: left;
                 line-height: 1.2;
-            }}
+            }
+
+            .event-name-colon {
+                color: #E5E5E5;
+                font-family: 'Montserrat';
+                font-weight: 400;
+                font-size: 33px;
+                line-height: 1.2;
+            }
             
             .logo {{
                 width: 141px;
@@ -30613,43 +30629,43 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .main-speaker {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 39px;
+                font-size: 41px;
                 text-align: left;
                 line-height: 1.2;
             }}
             
             .speaker-description {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 18px;
+                font-size: 20px;
                 text-align: left;
                 line-height: 1.2;
             }}
             
             .date-section {{
-                border: 3px solid #5416af;
-                padding: 15px 20px;
+                border: 4px solid #5416af; /* thicker to match frontend */
+                padding: 10px 14px; /* closer to text */
                 display: inline-block;
             }}
             
             .day-month {{
-                color: rgba(255,255,255,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 55px;
+                font-size: 58px;
                 text-align: center;
                 line-height: 1;
             }}
             
             .year {{
-                color: rgba(255,255,255,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 300;
-                font-size: 49px;
+                font-size: 52px;
                 text-align: center;
                 line-height: 1;
                 margin-top: 5px;
@@ -30666,23 +30682,24 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .topic {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 54px;
+                font-size: 48px;
                 text-align: left;
                 line-height: 1.2;
                 max-width: 480px;
             }}
             
             .additional-speakers {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 19px;
+                font-size: 22px;
                 text-align: left;
                 line-height: 1.2;
                 max-width: 460px;
+                margin-top: 6px;
             }}
             
             /* Bottom section */
@@ -30707,7 +30724,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .ticket-label {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
                 font-size: 24px;
@@ -30715,7 +30732,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .ticket-type {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
                 font-size: 26px;
@@ -30724,7 +30741,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .ticket-price {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 900;
                 font-size: 39px;
@@ -30733,9 +30750,9 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .free-access {{
-                color: rgba(235,235,235,1);
+                color: #E5E5E5;
                 font-weight: 600;
-                font-size: 42px;
+                font-size: 44px; /* slightly bigger */
                 text-align: center;
                 line-height: 1.2;
                 background-color: #5416af;
@@ -30743,7 +30760,11 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 padding: 10px 16px;
                 box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
                 backdrop-filter: blur(5px);
-                max-width: 700px;
+                width: 620px; /* match frontend pill width */
+                height: 100px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 margin-left: 30px;
             }}
         </style>
@@ -30759,7 +30780,10 @@ def generate_poster_html_template(poster_data: dict) -> str:
             <div class="main-content">
                 <div class="header-section">
                     <div class="first-row">
-                        <div class="event-name">{event_name}</div>
+                        <div class="event-name-wrapper">
+                            <div class="event-name">{event_name}</div>
+                            <div class="event-name-colon">:</div>
+                        </div>
                         <div class="logo"></div>
                     </div>
                     
