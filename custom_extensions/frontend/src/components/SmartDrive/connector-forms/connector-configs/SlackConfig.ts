@@ -43,38 +43,18 @@ export const SlackConfig: ConnectorFormConfig = {
       }
     },
     {
-      name: 'include_public_channels',
-      label: 'Include Public Channels',
-      type: 'boolean',
-      defaultValue: true,
-      description: 'Whether to include public channels'
-    },
-    {
-      name: 'include_private_channels',
-      label: 'Include Private Channels',
+      name: 'channel_regex_enabled',
+      label: 'Enable Channel Regex',
       type: 'boolean',
       defaultValue: false,
-      description: 'Whether to include private channels you\'re a member of'
-    },
-    {
-      name: 'include_direct_messages',
-      label: 'Include Direct Messages',
-      type: 'boolean',
-      defaultValue: false,
-      description: 'Whether to include direct messages'
-    },
-    {
-      name: 'include_threads',
-      label: 'Include Threads',
-      type: 'boolean',
-      defaultValue: true,
-      description: 'Whether to include thread replies'
+      description: 'If enabled, we will treat the "channels" specified above as regular expressions. A channel\'s messages will be pulled in by the connector if the name of the channel fully matches any of the specified regular expressions. For example, specifying .*-support.* as a "channel" will cause the connector to include any channels with "-support" in the name.'
     },
     {
       name: "indexing_start",
       label: "Start Date",
-      type: "date",
-      description: `Only messages after this date will be indexed.`,
+      type: "text",
+      placeholder: "YYYY-MM-DD",
+      description: `Only messages after this date will be indexed. Format: YYYY-MM-DD`,
     },
   ],
   sections: [
@@ -86,12 +66,12 @@ export const SlackConfig: ConnectorFormConfig = {
     {
       title: 'Channel Selection',
       description: 'Configure which channels to include in the index',
-      fields: ['channels', 'include_public_channels', 'include_private_channels', 'include_direct_messages']
+      fields: ['channels', 'channel_regex_enabled']
     },
     {
       title: 'Content Options',
       description: 'Configure what content to include in the index',
-      fields: ['include_threads', 'start_date']
+      fields: ['indexing_start']
     }
   ]
 }; 

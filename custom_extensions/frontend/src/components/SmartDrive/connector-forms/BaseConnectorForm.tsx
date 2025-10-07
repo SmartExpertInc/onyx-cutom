@@ -54,6 +54,20 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
         fieldSchema = Yup.boolean();
       }
       
+      if (field.type === 'text' && field.name === 'indexing_start') {
+        fieldSchema = Yup.string().test(
+          'date-format',
+          'Date must be in YYYY-MM-DD format',
+          (value) => {
+            if (!value) return true; // Allow empty values
+            const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!dateRegex.test(value)) return false;
+            const date = new Date(value);
+            return !isNaN(date.getTime());
+          }
+        );
+      }
+      
       schema[field.name] = fieldSchema;
     });
     
@@ -76,7 +90,20 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
   const initialValues = buildInitialValues(config.fields);
 
   const convertStringToDateTime = (indexingStart: string | null) => {
-    return indexingStart ? new Date(indexingStart) : null;
+    if (!indexingStart) return null;
+    
+    // Validate date format (YYYY-MM-DD)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(indexingStart)) {
+      throw new Error('Date must be in YYYY-MM-DD format');
+    }
+    
+    const date = new Date(indexingStart);
+    if (isNaN(date.getTime())) {
+      throw new Error('Invalid date format');
+    }
+    
+    return date;
   };
 
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
