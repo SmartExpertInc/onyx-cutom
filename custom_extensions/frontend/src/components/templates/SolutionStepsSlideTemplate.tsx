@@ -324,7 +324,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               {/* Step Title */}
               <div style={{
                 fontSize: '28px',
-                fontWeight: 'semibold',
+                fontWeight: 600,
                 color: '#09090B',
                 marginBottom: '15px',
               }}>
@@ -336,7 +336,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     className="step-title-editor"
                     style={{
                       fontSize: '28px',
-                      fontWeight: 'semibold',
+                      fontWeight: 600,
                       color: '#09090B',
                       width: '100%',
                       height: 'auto',

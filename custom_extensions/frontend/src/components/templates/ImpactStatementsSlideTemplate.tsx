@@ -203,6 +203,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           height: '310px',
           background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
           borderRadius: '8px',
+          overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -217,7 +218,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             style={{
               width: '70%',
               height: '100%',
-              objectFit: 'cover',
+              objectFit: 'none',
               position: 'relative',
               bottom: '-55px',
             }}
