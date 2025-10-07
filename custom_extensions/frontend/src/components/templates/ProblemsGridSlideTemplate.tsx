@@ -42,15 +42,15 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'50px', fontWeight:800, color:'#09090B' };
 
   const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'220px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'15px' };
-  const card: React.CSSProperties = { background:'#FFFFFF', borderRadius:'6px', height:'195px', padding:'17px 28px', boxShadow:'0 0 0 1px rgba(0,0,0,0.2) inset' };
+  const card: React.CSSProperties = { background:'#FFFFFF', borderRadius:'6px', height:'195px', padding:'17px 28px' };
   const numBox: React.CSSProperties = { width:'28px', height:'28px', background:'#0F58F9', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, borderRadius:'2px' };
   const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#09090B' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#34353C', lineHeight:1.4, maxWidth:'740px' };
 
-  const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'420px', width:'266px', fontSize:'17px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
+  const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'430px', width:'266px', fontSize:'17px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'155px', height:'155px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'absolute', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line', top: base.top, left: base.left, right: base.right, bottom: base.bottom });
 
   return (
     <>
@@ -60,6 +60,10 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
           font-weight: 400 !important;
         }
         .problems-grid-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .problems-grid-slide .title-element * {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }

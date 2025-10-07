@@ -336,14 +336,12 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           >
             {/* Main tip block */}
             <div style={{
-              padding: '30px',
+              padding: '30px 90px 30px 32px',
               backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
               minHeight: '310px',
               display: 'flex',
-              paddingLeft: '32px',
-              paddingTop: '40px',
               zIndex: '2',
-              borderRadius: '12px',
+              borderRadius: '4px',
             }}>
               <div style={{
                 fontSize: '32px',

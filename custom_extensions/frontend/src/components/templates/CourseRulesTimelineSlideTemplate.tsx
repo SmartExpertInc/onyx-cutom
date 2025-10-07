@@ -43,7 +43,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'visible',
     fontFamily: currentTheme.fonts.titleFont,
   };
 
@@ -60,7 +60,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     position: 'absolute',
     left: '56%',
     top: '135px',
-    bottom: '20px',
+    bottom: '10px',
     width: '3px',
     backgroundColor: '#0F58F9',
   };

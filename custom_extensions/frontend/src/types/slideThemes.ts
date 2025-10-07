@@ -33,8 +33,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#f35657'
     },
     fonts: {
-      titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '45px',
       contentSize: '18px'
     }
@@ -51,8 +51,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#3b82f6'
     },
     fonts: {
-      titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '36px',
       contentSize: '16px'
     }
@@ -69,8 +69,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       accentColor: '#60a5fa'
     },
     fonts: {
-      titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -107,8 +107,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#3a3a3a'
     },
     fonts: {
-      titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -125,8 +125,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: '#00664f'
     },
     fonts: {
-      titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
@@ -143,8 +143,8 @@ export const SLIDE_THEMES: Record<string, SlideTheme> = {
       borderColor: 'rgb(238, 118, 35)'        
     },
     fonts: {
-      titleFont: 'Lora Variable, Lora, serif',
-      contentFont: 'Lora Variable, Lora, serif',
+      titleFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      contentFont: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       titleSize: '40px',
       contentSize: '16px'
     }
