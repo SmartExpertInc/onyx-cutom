@@ -124,6 +124,9 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .solution-steps-slide-template .step-title {
+          font-weight: 600 !important;
+        }
       `}</style>
       {/* Subtitle chip (previous title) */}
       <div style={{
@@ -322,7 +325,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
               width: '220px',
             }}>
               {/* Step Title */}
-              <div style={{
+              <div className="step-title" style={{
                 fontSize: '28px',
                 fontWeight: 600,
                 color: '#09090B',
@@ -333,7 +336,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     initialValue={step.title}
                     onSave={(value) => handleStepSave(index, 'title', value)}
                     onCancel={() => setEditingSteps(null)}
-                    className="step-title-editor"
+                    className="step-title-editor step-title"
                     style={{
                       fontSize: '28px',
                       fontWeight: 600,
@@ -344,6 +347,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                   />
                 ) : (
                   <div
+                    className="step-title"
                     onClick={() => isEditable && setEditingSteps({ index, field: 'title' })}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',

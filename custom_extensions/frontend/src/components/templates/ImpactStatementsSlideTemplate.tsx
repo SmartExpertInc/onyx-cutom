@@ -218,9 +218,9 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             fit="contain"
             style={{
               width: '80%',
-              height: '100%',
+              height: '110%',
               position: 'relative',
-              bottom: '-35px',
+              bottom: '-50px',
             }}
           />
         </div>
