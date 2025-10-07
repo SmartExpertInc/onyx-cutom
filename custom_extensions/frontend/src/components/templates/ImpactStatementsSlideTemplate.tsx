@@ -50,11 +50,14 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     display: 'flex',
+    gap: '20px',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px',
-    paddingBottom: '35px',
+    paddingTop: '40px',
+    paddingBottom: '65px',
+    paddingLeft: '50px',
+    paddingRight: '40px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -147,10 +150,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         {/* Title */}
         <div style={{
           maxWidth: '537px',
-          fontSize: '45px',
+          fontSize: '42px',
           color: '#09090B',
           lineHeight: '1.2',
-          marginBottom: '40px',
+          marginBottom: '70px',
           minHeight: '50px',
           display: 'flex',
           alignItems: 'flex-start'
@@ -196,10 +199,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
         {/* Profile image in gradient container */}
         <div style={{
-          width: '440px',
-          height: '255px',
+          width: '520px',
+          height: '310px',
           background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
-          borderRadius: '24px',
+          borderRadius: '8px',
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
@@ -214,10 +217,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             isEditable={isEditable}
             style={{
               width: '43%',
-              height: '92%',
+              height: '100%',
               objectFit: 'cover',
               position: 'relative',
-              bottom: '-22px',
+              bottom: '-55px',
             }}
           />
         </div>
@@ -334,7 +337,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       {/* Right section with impact statements */}
       <div style={{
         display: 'flex',
-        gap: '31px',
+        gap: '15px',
         width: '65%',
         height: '100%'
       }}>
@@ -343,14 +346,14 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '30px'
+          gap: '15px'
         }}>
           {currentStatements.slice(0, 2).map((statement, index) => (
             <div
               key={index}
               style={{
                 backgroundColor: '#FFFFFF',
-                borderRadius: '20px',
+                borderRadius: '8px',
                 padding: '30px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -460,7 +463,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             <div
               style={{
                 backgroundColor: '#FFFFFF',
-                borderRadius: '20px',
+                borderRadius: '8px',
                 padding: '30px',
                 paddingTop: '22px',
                 display: 'flex',
