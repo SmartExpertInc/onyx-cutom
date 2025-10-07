@@ -189,22 +189,22 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         position: 'absolute',
         top: '270px',
         left: '60px',
-        width: '430px',
+        width: '530px',
         display: 'grid',
-        gridTemplateColumns: '215px 215px',
+        gridTemplateColumns: '250px 250px',
         gridTemplateRows: 'repeat(3, 70px)',
-        gap: '40px',
+        gap: '30px',
       }}>
         {currentButtons.map((button, index) => (
           <div key={index} style={{
             backgroundColor: '#0F58F9', // Blue
             borderRadius: '4px',
-            padding: '15px',
+            padding: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: isEditable ? 'pointer' : 'default',
-            minHeight: '60px',
+            height: '50px',
           }}>
             {isEditable && editingButtons?.index === index ? (
               <ImprovedInlineEditor
@@ -251,12 +251,14 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         justifyContent: 'center',
         background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
         overflow: 'hidden',
+        borderRadius: '8px',
       }}>
         {/* Profile Image! */}
         <div style={{
           position: 'absolute',
           bottom: '-25px',
           zIndex: 2,
+          height: '100%',
         }}>
           <ClickableImagePlaceholder
             imagePath={profileImagePath}
