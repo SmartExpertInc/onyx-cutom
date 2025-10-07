@@ -118,8 +118,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     bottom: '56px',
     backgroundColor: '#FFFFFF',
     borderRadius: '24px',
-    overflow: 'hidden',
-    padding: '40px 80px'
+    overflow: 'hidden'
   };
 
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -256,12 +255,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             preserveAspectRatio="xMidYMid meet"
             style={{ 
               position: 'absolute', 
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              width: '100%',
-              height: '100%'
+              top: '40px',
+              left: '80px',
+              right: '80px',
+              bottom: '40px',
+              width: 'calc(100% - 160px)',
+              height: 'calc(100% - 80px)'
             }}
           >
             <defs>
