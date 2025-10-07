@@ -145,15 +145,15 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        gap: '20px'
       }}>
         {/* Title */}
         <div style={{
           maxWidth: '537px',
-          fontSize: '42px',
+          fontSize: '48px',
           color: '#09090B',
-          lineHeight: '1.2',
-          marginBottom: '70px',
+          lineHeight: '1.1',
+          flex: 1,
           minHeight: '50px',
           display: 'flex',
           alignItems: 'flex-start'
@@ -166,10 +166,10 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               multiline={true}
               className="impact-title-editor title-element"
               style={{
-                maxWidth: '480px',
+                maxWidth: '537px',
                 fontSize: '48px',
                 color: '#09090B',
-                lineHeight: '1.2',
+                lineHeight: '1.1',
                 width: '100%',
                 height: 'auto',
                 minHeight: '50px'
@@ -188,7 +188,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 alignItems: 'flex-start',
                 fontSize: '48px',
                 color: '#09090B',
-                lineHeight: '1.2',
+                lineHeight: '1.1',
                 minHeight: '50px'
               }}
             >
