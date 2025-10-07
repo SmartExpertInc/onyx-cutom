@@ -70,7 +70,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const rightSection: React.CSSProperties = {
     position:'absolute',
     right:0,
-    top:'120px',
+    top:'950px',
     width:'55%',
     background:'#E0E7FF',
     padding:'60px 80px',
@@ -83,12 +83,12 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const topicsBanner: React.CSSProperties = {
     width:'fit-content',
     borderRadius:'50px',
-    border: '1px solid #09090BC',
+    border: '1px solid #09090B',
     marginBottom:'50px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
-    padding: '15px 25px'
+    padding: '12px 40px'
   };
 
   const topicsTitleStyle: React.CSSProperties = {
@@ -156,7 +156,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
         }
         .topics-slide .title-element {
           font-family: "Lora", serif !important;
-          font-weight: 500 !important;
+          font-weight: 700 !important;
         }
       `}</style>
       {/* Left section - Avatar with dark green background */}
@@ -277,7 +277,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
       {/* Page number with line in bottom-right */}
       <div style={{
         position: 'absolute',
-        bottom: '15px',
+        bottom: '17px',
         right: '0px',
         display: 'flex',
         alignItems: 'center',
