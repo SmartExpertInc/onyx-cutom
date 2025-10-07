@@ -898,7 +898,10 @@ export interface TableOfContentsSlideProps extends BaseTemplateProps {
   }>;
   profileImagePath?: string;
   profileImageAlt?: string;
+  logoPath?: string;
+  logoAlt?: string;
   companyLogoPath?: string;
+  pageNumber?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

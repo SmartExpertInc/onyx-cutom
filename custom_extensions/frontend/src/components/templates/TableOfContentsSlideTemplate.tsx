@@ -22,6 +22,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile image',
+  logoPath = '',
+  logoAlt = 'Your Logo',
   backgroundColor,
   titleColor,
   contentColor,
@@ -29,15 +31,17 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   isEditable = false,
   onUpdate,
   theme,
-  voiceoverText
+  voiceoverText,
+  pageNumber = '30'
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingButtons, setEditingButtons] = useState<{ index: number } | null>(null);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [showLogoUpload, setShowLogoUpload] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentButtons, setCurrentButtons] = useState(buttons);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -74,15 +78,20 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
 
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
-      onUpdate({ ...{ title, buttons, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
+      onUpdate({ profileImagePath: newImagePath });
     }
   };
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
     if (onUpdate) {
-      onUpdate({ ...{ title, buttons, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
+      onUpdate({ pageNumber: newPageNumber });
     }
+  };
+
+  const handlePageNumberCancel = () => {
+    setEditingPageNumber(false);
   };
 
   return (
@@ -96,12 +105,52 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           font-weight: 500 !important;
         }
       `}</style>
+      {/* Logo */}
+      <div style={{ position: 'absolute', top: '20px', left: '30px' }}>
+        {logoPath ? (
+          <ClickableImagePlaceholder
+            imagePath={logoPath}
+            onImageUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+            size="SMALL"
+            position="CENTER"
+            description="Your Logo"
+            isEditable={isEditable}
+            style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setShowLogoUpload(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
       {/* Title */}
       <div style={{
         position: 'absolute',
-        top: '60px',
+        top: '160px',
         left: '60px',
-        fontSize: '48px',
+        fontSize: '58px',
         fontWeight: 'bold',
         color: '#1C1B1A', // Black text as per screenshot
         lineHeight: '1.1',
@@ -150,7 +199,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           <div key={index} style={{
             backgroundColor: '#0F58F9', // Blue
             borderRadius: '4px',
-            padding: '20px',
+            padding: '15px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -164,7 +213,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 onCancel={() => setEditingButtons(null)}
                 className="toc-button-editor"
                 style={{
-                  fontSize: '17px',
+                  fontSize: '25px',
                   fontWeight: '500',
                   color: '#FFFFFF',
                   width: '100%',
@@ -176,7 +225,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
               <div
                 onClick={() => isEditable && setEditingButtons({ index })}
                 style={{
-                  fontSize: '17px',
+                  fontSize: '25px',
                   fontWeight: '500',
                   color: '#FFFFFF', // White text as per screenshot
                   textAlign: 'center',
@@ -190,22 +239,23 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         ))}
       </div>
 
-      {/* Profile Image */}
+      {/* Profile Image Container */}
       <div style={{
         position: 'absolute',
-        top: '200px',
+        top: '90px',
         right: '60px',
-        width: '545px',
-        height: '400px',
+        width: '445px',
+        height: '500px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
+        overflow: 'hidden',
       }}>
         {/* Profile Image! */}
         <div style={{
           position: 'absolute',
-          bottom: '-24px',
+          bottom: '-25px',
           zIndex: 2,
         }}>
           <ClickableImagePlaceholder
@@ -215,24 +265,67 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
+            fit="contain"
             style={{
-              width: '536px',
-              height: '551px',
-              objectFit: 'cover',
+              height: '100%',
             }}
           />
         </div>
       </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: 'rgba(9, 9, 11, 0.6)',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: 'rgba(9, 9, 11, 0.6)',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
+
+      {showLogoUpload && (
         <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
+          isOpen={showLogoUpload}
+          onClose={() => setShowLogoUpload(false)}
+          onImageUploaded={(p: string) => { onUpdate && onUpdate({ logoPath: p }); setShowLogoUpload(false); }}
           title="Upload Company Logo"
         />
       )}
