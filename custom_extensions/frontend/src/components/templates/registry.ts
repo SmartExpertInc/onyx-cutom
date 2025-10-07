@@ -1947,7 +1947,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🟡',
     component: HighPerformingTeamsSlideTemplate,
     defaultProps: {
-      title: 'The Power of High-\nPerforming Teams',
+      title: 'The Power of High-Performing Teams',
       description: 'High-performing teams are the driving force behind exceptional results. They achieve more, innovate faster, and adapt to challenges with resilience.',
       panelColor: '#E9B84C',
       lineColor: '#5A4DF6',

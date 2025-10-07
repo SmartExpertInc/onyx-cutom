@@ -14,12 +14,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   panelColor: _panelColor = '#E9B84C',
   lineColor = '#0F58F9',
   points = [
-    { x: 0, y: 95 },   // left-bottom corner by default
-    { x: 20, y: 75 },
-    { x: 40, y: 55 },
-    { x: 60, y: 40 },
-    { x: 80, y: 25 },
-    { x: 100, y: 5 }   // top-right corner by default
+    { x: 15, y: 85 },   // left-bottom with visual padding
+    { x: 30, y: 70 },
+    { x: 50, y: 55 },
+    { x: 70, y: 40 },
+    { x: 85, y: 25 },
+    { x: 95, y: 15 }    // top-right with visual padding
   ],
   avatarPath = '',
   avatarAlt: _avatarAlt = 'Avatar',
@@ -248,49 +248,56 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
       {/* Bottom Part - 60% height with blue background */}
       <div style={bottomPart}>
         {/* White panel with editable line chart */}
-      <div style={panel}>
+        <div style={panel}>
           <svg 
             ref={svgRef} 
             viewBox="0 0 100 100" 
             preserveAspectRatio="xMidYMid meet"
             style={{ 
               position: 'absolute', 
-              top: '30px',
-              left: '75px',
-              right: '75px',
-              bottom: '30px',
-              width: 'calc(100% - 150px)',
-              height: 'calc(100% - 60px)'
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: '100%'
             }}
           >
-            <path 
-              d={pathD} 
-              fill="none" 
-              stroke={lineColor} 
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              vectorEffect="non-scaling-stroke"
-            />
-            {curvePoints.map((pt, i) => {
-              const isEdge = i === 0 || i === (curvePoints.length - 1);
-              if (isEdge) return null; // hide circles on the edges
-              return (
-                <circle
-                  key={i}
-                  cx={pt.x}
-                  cy={pt.y}
-                  r="2.5"
-                  fill="#FFFFFF"
-                  stroke={lineColor}
-                  strokeWidth="2"
-                  vectorEffect="non-scaling-stroke"
-                  onMouseDown={(e) => isEditable && startDrag(i, e)}
-                  style={{ cursor: isEditable ? 'pointer' : 'default' }}
-                />
-              );
-            })}
-        </svg>
+            <defs>
+              <clipPath id="chartClip">
+                <rect x="0" y="0" width="100" height="100" />
+              </clipPath>
+            </defs>
+            <g clipPath="url(#chartClip)">
+              <path 
+                d={pathD} 
+                fill="none" 
+                stroke={lineColor} 
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+              {curvePoints.map((pt, i) => {
+                const isEdge = i === 0 || i === (curvePoints.length - 1);
+                if (isEdge) return null; // hide circles on the edges
+                return (
+                  <circle
+                    key={i}
+                    cx={pt.x}
+                    cy={pt.y}
+                    r="2.5"
+                    fill="#FFFFFF"
+                    stroke={lineColor}
+                    strokeWidth="2"
+                    vectorEffect="non-scaling-stroke"
+                    onMouseDown={(e) => isEditable && startDrag(i, e)}
+                    style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                  />
+                );
+              })}
+            </g>
+          </svg>
         </div>
       </div>
 
