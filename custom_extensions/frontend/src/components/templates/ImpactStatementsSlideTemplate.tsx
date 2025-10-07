@@ -15,7 +15,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
   slideId,
   title = 'Here are some impact value statements backed by numbers:',
   statements = [
-    { number: '50%', description: 'decrease in turnover rates.' },
+    { number: '50%', description: 'decrease in turnover\nrates.' },
     { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
     { number: '40%', description: 'increase in employee morale and engagement' }
   ],
@@ -446,7 +446,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       fontSize: '18px',
                       color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
-                      width: '100%'
+                      width: '100%',
+                      whiteSpace: 'pre-line'
                     }}
                   >
                     {statement.description}
