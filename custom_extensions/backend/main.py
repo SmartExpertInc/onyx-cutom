@@ -30755,7 +30755,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .free-access {{
                 color: #E5E5E5;
                 font-weight: 600;
-                font-size: 40px;
+                font-size: 37px;
                 text-align: center;
                 line-height: 1.1;
                 background-color: #5416af;

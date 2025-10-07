@@ -926,7 +926,7 @@ export default function EventPoster({
               style={{
                 color: '#E5E5E5',
                 fontWeight: '600',
-                fontSize: '40px',
+                fontSize: '37px',
                 textAlign: 'center',
                 lineHeight: '1.1',
                 background: 'transparent',
