@@ -47,6 +47,8 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const [editMiddle, setEditMiddle] = useState(false);
   const [editRightTitle, setEditRightTitle] = useState(false);
   const [editRight, setEditRight] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState('40');
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'black', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
@@ -59,10 +61,21 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const mid: React.CSSProperties = { padding:'30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'black', background:'#FFFFFF' };
   const cardTitleStyle: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#FFFFFF' };
   const cardTitleStyleMid: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#000000' };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#FFFFFF', fontSize:'15px', fontWeight:400 };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'22px', color:'#FFFFFF', fontSize:'15px', fontWeight:400 };
 
-  // const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', fontSize:'14px', whiteSpace:'pre-wrap' });
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', fontSize:'14px', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
+    ...base, 
+    position:'relative', 
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0, 
+    whiteSpace:'pre-wrap',
+    boxSizing: 'border-box',
+    width: '100%',
+    minHeight: 'auto'
+  });
   return (
     <>
       <style>{`
@@ -137,7 +150,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
               )}
             </div>
             {isEditable && editLeft ? (
-              <ImprovedInlineEditor initialValue={leftText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftText:v }); setEditLeft(false); }} onCancel={()=>setEditLeft(false)} style={inline(col)} />
+              <ImprovedInlineEditor initialValue={leftText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ leftText:v }); setEditLeft(false); }} onCancel={()=>setEditLeft(false)} style={{ fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', width:'100%' }} />
             ) : (
               <div onClick={()=> isEditable && setEditLeft(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{leftText}</div>
             )}
@@ -151,7 +164,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
               )}
             </div>
             {isEditable && editMiddle ? (
-              <ImprovedInlineEditor initialValue={middleText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ middleText:v }); setEditMiddle(false); }} onCancel={()=>setEditMiddle(false)} style={inline(mid)} />
+              <ImprovedInlineEditor initialValue={middleText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ middleText:v }); setEditMiddle(false); }} onCancel={()=>setEditMiddle(false)} style={{ fontSize:'15px', lineHeight:1.6, color:'black', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', width:'100%' }} />
             ) : (
               <div onClick={()=> isEditable && setEditMiddle(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{middleText}</div>
             )}
@@ -165,7 +178,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
               )}
             </div>
             {isEditable && editRight ? (
-              <ImprovedInlineEditor initialValue={rightText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} onCancel={()=>setEditRight(false)} style={inline(col)} />
+              <ImprovedInlineEditor initialValue={rightText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} onCancel={()=>setEditRight(false)} style={{ fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', width:'100%' }} />
             ) : (
               <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{rightText}</div>
             )}
@@ -173,7 +186,24 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
         </div>
         
         {/* Page number */}
-        <div style={pageNumberStyle}>40</div>
+        <div style={pageNumberStyle}>
+          {isEditable && editingPageNumber ? (
+            <ImprovedInlineEditor
+              initialValue={currentPageNumber}
+              onSave={(v) => {
+                setCurrentPageNumber(v);
+                setEditingPageNumber(false);
+                onUpdate && onUpdate({ pageNumber: v });
+              }}
+              onCancel={() => setEditingPageNumber(false)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#FFFFFF', fontSize: '15px', fontWeight: 400 }}
+            />
+          ) : (
+            <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+              {currentPageNumber}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

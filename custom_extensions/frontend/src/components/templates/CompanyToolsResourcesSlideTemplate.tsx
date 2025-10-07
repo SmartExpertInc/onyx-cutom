@@ -55,9 +55,11 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSections, setEditingSections] = useState<{ index: number; field: 'title' | 'content' } | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSections, setCurrentSections] = useState(sections);
+  const [currentPageNumber, setCurrentPageNumber] = useState('18');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -110,11 +112,11 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           font-weight: 600 !important;
         }
         .company-tools-resources-slide-template .section-title {
-          font-family: "Lora", serif !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
         .company-tools-resources-slide-template .section-title * {
-          font-family: "Lora", serif !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
       `}</style>
@@ -321,13 +323,29 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       {/* Footer with page number */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '60px',
-        fontSize: '14px',
+        bottom: '24px',
+        left: '22px',
+        fontSize: '15px',
         color: '#A2A19D',
-        fontFamily: 'Inter, sans-serif'
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 400
       }}>
-        18
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#A2A19D', fontSize: '15px', fontWeight: 400 }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
     </div>

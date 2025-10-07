@@ -67,9 +67,9 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
             logoPath={logoPath}
             onLogoUploaded={(p)=> onUpdate && onUpdate({ logoPath: p })}
             isEditable={isEditable}
-            color="#1F2937"
+            color="#000000"
             text={logoText}
-            style={{ position:'absolute', top:'0px', left:'0px' }}
+            style={{ position:'absolute', top:'20px', left:'20px' }}
           />
           {isEditable && edit?.k==='title' ? (
             <ImprovedInlineEditor initialValue={title} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />

@@ -52,9 +52,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMainStatement, setEditingMainStatement] = useState(false);
   const [editingPractices, setEditingPractices] = useState<{ index: number; field: 'title' | 'description' } | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentMainStatement, setCurrentMainStatement] = useState(mainStatement);
   const [currentPractices, setCurrentPractices] = useState(practices);
+  const [currentPageNumber, setCurrentPageNumber] = useState('11');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
@@ -518,13 +520,29 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       {/* Footer with page number */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '60px',
-        fontSize: '14px',
+        bottom: '24px',
+        left: '22px',
+        fontSize: '15px',
         color: '#A2A19D',
-        fontFamily: 'Inter, sans-serif'
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 400
       }}>
-        11
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#A2A19D', fontSize: '15px', fontWeight: 400 }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {/* Logo Upload Modal */}

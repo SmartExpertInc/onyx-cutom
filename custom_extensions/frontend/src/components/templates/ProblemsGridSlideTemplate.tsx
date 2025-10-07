@@ -12,6 +12,7 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   cards: Array<{ number: string; title: string; body: string }>;
   rightText: string;
   avatarPath?: string;
+  pageNumber?: string;
 }
 
 export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { theme?: SlideTheme | string }> = ({
@@ -26,6 +27,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   ],
   rightText = "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and bigges\niatoerostornsuestroner\nproductivitytounhappycustomers.Butdon'tworry – we're here to help.",
   avatarPath = '',
+  pageNumber = '12',
   isEditable = false,
   onUpdate,
   theme
@@ -36,6 +38,8 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const [editTitle, setEditTitle] = useState(false);
   const [editCard, setEditCard] = useState<{ idx: number; field: 'title' | 'body' } | null>(null);
   const [editRight, setEditRight] = useState(false);
+  const [editPageNumber, setEditPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#09090B', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'7px 18px', fontSize:'16px', borderRadius:'50px', border:'1px solid black', display:'flex', gap:'10px' };
@@ -43,12 +47,13 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
 
   const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'190px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'15px' };
   const card: React.CSSProperties = { background:'#FFFFFF', borderRadius:'6px', height:'195px', padding:'17px 28px' };
-  const numBox: React.CSSProperties = { width:'28px', height:'28px', background:'#0F58F9', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, borderRadius:'2px' };
+  const numBox: React.CSSProperties = { width:'28px', height:'28px', background:'#0F58F9', color:'#FFFFFF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, borderRadius:'2px' };
   const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#09090B' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#34353C', lineHeight:1.4, maxWidth:'740px' };
 
   const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'400px', width:'266px', fontSize:'18px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'45px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'22px', color:'#5F616D', fontSize:'15px', fontWeight:400 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
 
@@ -133,6 +138,26 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
 
       <div style={avatar}>
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+      </div>
+
+      {/* Page number */}
+      <div style={pageNumberStyle}>
+        {isEditable && editPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditPageNumber(false)}
+            style={inline(pageNumberStyle)}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
       </div>
     </>

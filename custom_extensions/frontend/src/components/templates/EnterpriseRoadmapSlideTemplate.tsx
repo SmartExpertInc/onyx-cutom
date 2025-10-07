@@ -40,6 +40,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [editingCell, setEditingCell] = useState<{ row: number; col: number } | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDescription, setEditingDescription] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState('17');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
@@ -219,7 +221,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     }
   };
 
-  const footerStyle: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', bottom:'20px', display:'flex', justifyContent:'space-between', color:'#A2A19D', fontSize:'14px', fontFamily:'Inter, sans-serif' };
+  const footerStyle: React.CSSProperties = { position:'absolute', left:'22px', right:'60px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#A2A19D', fontSize:'15px', fontFamily:'Inter, sans-serif', fontWeight:400 };
 
   return (
     <>
@@ -346,7 +348,24 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       </div>
 
       <div style={footerStyle}>
-        <div>17</div>
+        <div>
+          {isEditable && editingPageNumber ? (
+            <ImprovedInlineEditor
+              initialValue={currentPageNumber}
+              onSave={(v) => {
+                setCurrentPageNumber(v);
+                setEditingPageNumber(false);
+                onUpdate && onUpdate({ pageNumber: v });
+              }}
+              onCancel={() => setEditingPageNumber(false)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#A2A19D', fontSize: '15px', fontWeight: 400 }}
+            />
+          ) : (
+            <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+              {currentPageNumber}
+            </div>
+          )}
+        </div>
         <div style={{
           display: 'flex',
           alignItems: 'center',

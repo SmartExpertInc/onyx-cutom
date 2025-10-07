@@ -145,12 +145,14 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingTips, setEditingTips] = useState<number | null>(null);
   const [editingAdditionalTips, setEditingAdditionalTips] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentTips, setCurrentTips] = useState(tips);
   const [currentAdditionalTips, setCurrentAdditionalTips] = useState([
     "Additional tip 1",
     "Additional tip 2"
   ]);
+  const [currentPageNumber, setCurrentPageNumber] = useState('27');
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
@@ -403,11 +405,30 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       }}>
         {/* Page number */}
         <div style={{
-          fontSize: '14px',
+          position: 'absolute',
+          bottom: '24px',
+          left: '22px',
+          fontSize: '15px',
           color: 'rgba(0, 0, 0, 0.6)',
-          fontFamily: 'Inter, sans-serif'
+          fontFamily: 'Inter, sans-serif',
+          fontWeight: 400
         }}>
-          27
+          {isEditable && editingPageNumber ? (
+            <InlineEditor
+              initialValue={currentPageNumber}
+              onSave={(v) => {
+                setCurrentPageNumber(v);
+                setEditingPageNumber(false);
+                onUpdate && onUpdate({ pageNumber: v });
+              }}
+              onCancel={() => setEditingPageNumber(false)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: 'rgba(0, 0, 0, 0.6)', fontSize: '15px', fontWeight: 400 }}
+            />
+          ) : (
+            <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+              {currentPageNumber}
+            </div>
+          )}
         </div>
         
         {/* Logo placeholder */}

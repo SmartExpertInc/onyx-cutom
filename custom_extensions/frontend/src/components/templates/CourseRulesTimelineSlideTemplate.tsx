@@ -33,6 +33,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const [editingStep, setEditingStep] = useState<{ index: number; field: 'number' | 'text' } | null>(null);
   const [currentSteps, setCurrentSteps] = useState(steps);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState('34');
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -99,9 +101,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const pageNumberStyles: React.CSSProperties = {
     position: 'absolute',
     bottom: '24px',
-    right: '32px',
+    right: '22px',
     color: '#5F616D',
-    fontSize: '13px',
+    fontSize: '15px',
     fontWeight: 400
   };
 
@@ -198,8 +200,25 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
         </div>
       ))}
 
-      {/* Bottom-left page number */}
-      <div style={pageNumberStyles}>34</div>
+      {/* Bottom-right page number */}
+      <div style={pageNumberStyles}>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ ...pageNumberStyles, position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
 
       </div>
     </>
