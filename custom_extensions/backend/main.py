@@ -27921,7 +27921,10 @@ async def list_all_user_credits(
                     uc.credits_purchased,
                     uc.last_purchase_date,
                     -- prefer real plan from billing; default to 'starter' when missing
-                    COALESCE(ub.current_plan, 'starter') AS subscription_tier,
+                    COALESCE(ub.current_plan, 'starter') ||
+                    CASE WHEN ub.current_interval IS NOT NULL THEN
+                        ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                    ELSE '' END AS subscription_tier,
                     uc.created_at,
                     uc.updated_at
                 FROM user_credits uc
