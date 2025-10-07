@@ -130,7 +130,22 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
 
       <div style={rightTextStyle}>
         {isEditable && editRight ? (
-          <ImprovedInlineEditor initialValue={rightText} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} onCancel={()=> setEditRight(false)} style={inline(rightTextStyle)} />
+          <ImprovedInlineEditor 
+            initialValue={rightText} 
+            multiline={true} 
+            onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} 
+            onCancel={()=> setEditRight(false)} 
+            style={{ 
+              ...rightTextStyle, 
+              position: 'absolute',
+              background:'transparent', 
+              border:'none', 
+              outline:'none', 
+              padding:0, 
+              margin:0, 
+              whiteSpace:'pre-line' 
+            }} 
+          />
         ) : (
           <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightText}</div>
         )}

@@ -27,7 +27,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const steps = stepsProp ?? [
     { number: '1', text: 'Rules of the course' },
     { number: '2', text: 'Prerequisite courses' },
-    { number: '3', text: 'Prerequisite courses' },
+    { number: '3', text: 'Course expectations' },
   ];
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
@@ -36,8 +36,6 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('34');
 
-  console.log('Current steps:', currentSteps);
-  console.log('Steps length:', currentSteps.length);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -159,9 +157,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
       {/* Squares centered on the line */}
       {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => {
-        console.log(`Rendering circle ${i}:`, s, 'position:', circlePositionStyles(i));
         return (
-        <div key={`circle-${i}`} style={{...circlePositionStyles(i), backgroundColor: i === 2 ? 'red' : 'transparent', zIndex: 999}}>
+        <div key={`circle-${i}`} style={circlePositionStyles(i)}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
             <ImprovedInlineEditor
               initialValue={s.number}
@@ -185,9 +182,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
       {/* Step texts on the right */}
       {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => {
-        console.log(`Rendering text ${i}:`, s, 'position:', stepContainerStyles(i));
         return (
-        <div key={`text-${i}`} style={{...stepContainerStyles(i), backgroundColor: i === 2 ? 'yellow' : 'transparent', zIndex: 999}}>
+        <div key={`text-${i}`} style={stepContainerStyles(i)}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
             <ImprovedInlineEditor
               initialValue={s.text}

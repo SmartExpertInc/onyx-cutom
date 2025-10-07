@@ -61,7 +61,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
 
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'40px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#FFFFFF', zIndex:10 };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
   return (
     <>
