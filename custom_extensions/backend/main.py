@@ -30584,7 +30584,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 display: inline-flex;
                 align-items: flex-end;
                 gap: 6px;
-                margin-top: 6px;
+                margin-top: 10px;
                 max-width: calc(100% - 180px);
             }
 
@@ -30653,21 +30653,23 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .day-month {{
-                color: #E5E5E5;
+                color: #ffffff;
                 font-family: 'Montserrat';
                 font-weight: 600;
                 font-size: 58px;
                 text-align: center;
                 line-height: 1;
+                letter-spacing: 1px;
             }}
             
             .year {{
-                color: #E5E5E5;
+                color: #ffffff;
                 font-family: 'Montserrat';
                 font-weight: 300;
                 font-size: 52px;
                 text-align: center;
                 line-height: 1;
+                letter-spacing: 1px;
                 margin-top: 5px;
             }}
             
@@ -30692,7 +30694,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .additional-speakers {{
-                color: #E5E5E5;
+                color: #ebebeb;
                 font-family: 'Montserrat';
                 font-weight: 400;
                 font-size: 22px;
@@ -30713,7 +30715,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .ticket-section {{
-                border: 2px solid #5416af;
+                border: 4px solid #5416af;
                 border-radius: 30px;
                 padding: 10px 14px;
                 min-width: 160px;

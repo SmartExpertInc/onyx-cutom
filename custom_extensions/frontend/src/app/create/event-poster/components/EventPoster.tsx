@@ -647,7 +647,7 @@ export default function EventPoster({
           {/* First row: Event name and Logo */}
           <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name with ":" suffix */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '6px', maxWidth: 'calc(100% - 180px)' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '3px', maxWidth: 'calc(100% - 180px)' }}>
               <EditableText
                 value={eventName}
                 onChange={setEventName}
@@ -716,7 +716,7 @@ export default function EventPoster({
               />
             </div>
 
-            {/* Date with border - bring border closer to text */}
+            {/* Date with border - bring border closer to text and set letter-spacing */}
             <div 
               style={{ 
                 border: '3px solid #5416af',
@@ -737,7 +737,7 @@ export default function EventPoster({
                 placeholder="DD.MM"
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: '#E5E5E5',
+                  color: '#ffffff',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
                   fontSize: '58px',
@@ -749,7 +749,8 @@ export default function EventPoster({
                   maxWidth: '100%',
                   boxSizing: 'border-box',
                   overflow: 'hidden',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '1px'
                 }}
               />
               <EditableText
@@ -761,7 +762,7 @@ export default function EventPoster({
                 placeholder="YYYY"
                 onAutoSave={handleAutoSave}
                 style={{
-                  color: '#E5E5E5',
+                  color: '#ffffff',
                   fontFamily: 'Montserrat',
                   fontWeight: '300',
                   fontSize: '52px',
@@ -773,7 +774,8 @@ export default function EventPoster({
                   maxWidth: '100%',
                   boxSizing: 'border-box',
                   overflow: 'hidden',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '1px'
                 }}
               />
             </div>
@@ -809,7 +811,7 @@ export default function EventPoster({
             multiline
             onAutoSave={handleAutoSave}
             style={{
-              color: '#E5E5E5',
+              color: '#ebebeb',
               fontFamily: 'Montserrat',
               fontWeight: '400',
               fontSize: '22px',
@@ -829,7 +831,7 @@ export default function EventPoster({
           {/* Ticket price section */}
           <div 
             style={{ 
-              border: '2px solid #5416af',
+              border: '4px solid #5416af',
               borderRadius: '30px',
               padding: '10px 14px',
               width: '200px', // Fixed width instead of minWidth
@@ -935,11 +937,6 @@ export default function EventPoster({
                 overflow: 'hidden',
                 whiteSpace: 'normal', // Allow text wrapping
                 wordWrap: 'break-word', // Break long words if needed
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
               }}
             />
           </div>
