@@ -30612,7 +30612,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png");
                 background-repeat: no-repeat;
                 background-position: center center;
-                background-size: cover;
+                background-size: contain; /* prevent "F" cutoff */
             }
 
             .logo-wrapper {
