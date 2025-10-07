@@ -50,7 +50,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     display: 'flex',
-    gap: '55px',
+    gap: '70px',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -152,7 +152,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           maxWidth: '490px',
           fontSize: '46px',
           color: '#09090B',
-          lineHeight: '1.1',
+          lineHeight: '1.2',
           flex: 1,
           minHeight: '50px',
           display: 'flex',
@@ -169,7 +169,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 maxWidth: '490px',
                 fontSize: '46px',
                 color: '#09090B',
-                lineHeight: '1.1',
+                lineHeight: '1.2',
                 width: '100%',
                 height: 'auto',
                 minHeight: '50px'
@@ -188,7 +188,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 alignItems: 'flex-start',
                 fontSize: '46px',
                 color: '#09090B',
-                lineHeight: '1.1',
+                lineHeight: '1.2',
                 minHeight: '50px'
               }}
             >
