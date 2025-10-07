@@ -647,7 +647,7 @@ export default function EventPoster({
           {/* First row: Event name and Logo */}
           <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name with ":" suffix */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '3px', maxWidth: 'calc(100% - 180px)' }}>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '3px', maxWidth: 'calc(100% - 180px)' }}>
             <EditableText
               value={eventName}
               onChange={setEventName}
@@ -657,14 +657,15 @@ export default function EventPoster({
                   color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '400',
-                fontSize: '33px',
+                fontSize: '35px',
                 textAlign: 'left',
                 lineHeight: '1.2',
                 overflow: 'hidden',
-                wordWrap: 'break-word'
+                wordWrap: 'break-word',
+                textTransform: 'uppercase'
               }}
             />
-              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '33px', lineHeight: '1.2' }}>:</span>
+              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '35px', lineHeight: '1.2' }}>:</span>
             </div>
 
             {/* Logo */}
@@ -675,7 +676,10 @@ export default function EventPoster({
                 background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png")',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center',
-                backgroundSize: 'cover'
+                backgroundSize: 'cover',
+                display: 'flex',
+                gap: '6px',
+                marginTop: '3px'
               }}
             />
           </div>
