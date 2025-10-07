@@ -117,6 +117,20 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
         const canvasRect = slideCanvas.getBoundingClientRect();
         
+        // 🐛 DEBUG LOGGING
+        console.log('🐛 [DRAG_DEBUG] MouseDown Event:', {
+          elementId,
+          viewport: { x: e.clientX, y: e.clientY },
+          canvasRect: { 
+            left: canvasRect.left, 
+            top: canvasRect.top, 
+            width: canvasRect.width, 
+            height: canvasRect.height 
+          },
+          hasSlideCanvas: !!container.closest('[data-slide-canvas="true"]'),
+          slideCanvasElement: slideCanvas.tagName
+        });
+        
         isMouseDown = true;
         dragDistance = 0;
         startPageX = e.clientX;
@@ -125,6 +139,15 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         // Calculate coordinates relative to slide canvas, not viewport
         const canvasX = e.clientX - canvasRect.left;
         const canvasY = e.clientY - canvasRect.top;
+        
+        console.log('🐛 [DRAG_DEBUG] Canvas Coordinates:', {
+          canvasX,
+          canvasY,
+          currentX,
+          currentY,
+          offsetWillBe: { x: canvasX - currentX, y: canvasY - currentY }
+        });
+        
         startOffsetX = canvasX - currentX;
         startOffsetY = canvasY - currentY;
 
@@ -151,6 +174,16 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         
         const newX = canvasX - startOffsetX;
         const newY = canvasY - startOffsetY;
+        
+        // 🐛 DEBUG LOGGING (only log every 10th move to avoid spam)
+        if (isDragging && Math.random() < 0.1) {
+          console.log('🐛 [DRAG_DEBUG] MouseMove:', {
+            viewport: { x: e.clientX, y: e.clientY },
+            canvas: { x: canvasX, y: canvasY },
+            offset: { x: startOffsetX, y: startOffsetY },
+            newPosition: { x: newX, y: newY }
+          });
+        }
         const dx = Math.abs(e.clientX - startPageX);
         const dy = Math.abs(e.clientY - startPageY);
         dragDistance = Math.sqrt(dx * dx + dy * dy);
@@ -208,6 +241,17 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           setTimeout(() => {
             document.removeEventListener('click', suppressNextClick, true);
           }, 450);
+
+          // 🐛 DEBUG LOGGING - Final position saved
+          const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+          const canvasRect = slideCanvas.getBoundingClientRect();
+          console.log('🐛 [DRAG_DEBUG] MouseUp - Saving Position:', {
+            elementId,
+            finalPosition: { x: currentX, y: currentY },
+            canvasSize: { width: canvasRect.width, height: canvasRect.height },
+            isNegative: currentX < 0 || currentY < 0,
+            warning: (currentX < 0 || currentY < 0) ? '⚠️ NEGATIVE COORDINATES DETECTED!' : '✅ Positive coordinates'
+          });
 
           if (onPositionChange) onPositionChange(elementId, { x: currentX, y: currentY });
           return;

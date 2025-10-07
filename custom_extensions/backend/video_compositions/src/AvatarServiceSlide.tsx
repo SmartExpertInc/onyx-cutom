@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentFrame, useVideoConfig } from 'remotion';
+import { useCurrentFrame, useVideoConfig, OffthreadVideo, staticFile } from 'remotion';
 
 interface ElementPosition {
   x: number;
@@ -13,7 +13,7 @@ interface AvatarServiceSlideProps {
   theme?: string;
   elementPositions?: Record<string, ElementPosition>;
   slideId?: string;
-  avatarImageUrl?: string;
+  avatarVideoPath?: string;  // Changed from avatarImageUrl to avatarVideoPath
   duration?: number;
 }
 
@@ -66,7 +66,7 @@ export const AvatarServiceSlide: React.FC<AvatarServiceSlideProps> = ({
   theme = 'dark-purple',
   elementPositions = {},
   slideId = 'default-slide',
-  avatarImageUrl = '',
+  avatarVideoPath = '',
   duration = 30
 }) => {
   const frame = useCurrentFrame();
@@ -238,22 +238,31 @@ export const AvatarServiceSlide: React.FC<AvatarServiceSlideProps> = ({
             backgroundColor: 'transparent'
           }}
         >
-          <div
-            style={{
-              width: '935px',
-              height: '843px',
-              margin: '0 auto',
-              position: 'absolute',
-              top: '-370px',
-              zIndex: 3,
-              backgroundColor: 'transparent',
-              border: 'none',
-              borderRadius: 0,
-              display: 'block'
-            }}
-          >
-            {/* Avatar placeholder - will be overlaid by video composition */}
-          </div>
+          {avatarVideoPath && (
+            <div
+              style={{
+                width: '935px',
+                height: '843px',
+                margin: '0 auto',
+                position: 'absolute',
+                top: '-370px',
+                zIndex: 3,
+                backgroundColor: 'transparent',
+                overflow: 'hidden'
+              }}
+            >
+              <OffthreadVideo
+                src={avatarVideoPath}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain'
+                }}
+                volume={1}
+                playbackRate={1}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

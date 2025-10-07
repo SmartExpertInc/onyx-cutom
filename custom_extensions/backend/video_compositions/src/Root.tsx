@@ -19,7 +19,7 @@ export const RemotionRoot: React.FC = () => {
           theme: 'dark-purple',
           elementPositions: {},
           slideId: 'default-slide',
-          avatarImageUrl: '',
+          avatarVideoPath: '',
           duration: 30
         }}
       />

@@ -269,34 +269,60 @@ class ProfessionalPresentationService:
         """
         import time
         start_time = time.time()
+        poll_count = 0
+        
+        logger.info(f"🎬 [AVATAR_WAIT] Starting to wait for avatar video: {video_id}")
+        logger.info(f"🎬 [AVATAR_WAIT] Max wait time: {max_wait_time}s")
         
         while time.time() - start_time < max_wait_time:
             try:
+                poll_count += 1
+                elapsed = time.time() - start_time
+                
                 # Check video status using Elai API
+                logger.info(f"🎬 [AVATAR_WAIT] Poll #{poll_count}: Checking video status (elapsed: {elapsed:.1f}s)")
                 response = await video_generation_service.client.get(
                     f"{video_generation_service.api_base}/videos/{video_id}",
                     headers=video_generation_service.headers
                 )
                 
+                logger.info(f"🎬 [AVATAR_WAIT] Response status code: {response.status_code}")
+                
                 if response.is_success:
                     video_data = response.json()
                     status = video_data.get('status')
+                    progress = video_data.get('progress', 'unknown')
+                    video_url = video_data.get('url')
+                    
+                    logger.info(f"🎬 [AVATAR_WAIT] Elai video status: {status}, progress: {progress}")
+                    logger.info(f"🎬 [AVATAR_WAIT] Video URL in response: {video_url[:100] if video_url else 'None'}...")
                     
                     if status == 'ready':
-                        video_url = video_data.get('url')
                         if video_url:
-                            logger.info(f"Avatar video ready: {video_url}")
+                            logger.info(f"🎬 [AVATAR_WAIT] ✅ Avatar video ready after {elapsed:.1f}s: {video_url}")
                             return video_url
+                        else:
+                            logger.warning(f"🎬 [AVATAR_WAIT] Status is 'ready' but no URL provided, continuing to poll...")
                     elif status == 'failed':
-                        raise Exception(f"Avatar video generation failed: {video_data.get('error', 'Unknown error')}")
+                        error_msg = video_data.get('error', 'Unknown error')
+                        logger.error(f"🎬 [AVATAR_WAIT] ❌ Avatar video generation failed: {error_msg}")
+                        raise Exception(f"Avatar video generation failed: {error_msg}")
+                    else:
+                        logger.info(f"🎬 [AVATAR_WAIT] Still processing (status: {status}), will check again in 10s...")
+                else:
+                    logger.error(f"🎬 [AVATAR_WAIT] API request failed: {response.status_code}")
+                    logger.error(f"🎬 [AVATAR_WAIT] Response text: {response.text[:500]}")
                 
                 # Wait before next check
+                logger.info(f"🎬 [AVATAR_WAIT] Sleeping for 10 seconds before next poll...")
                 await asyncio.sleep(10)
                 
             except Exception as e:
-                logger.error(f"Error checking avatar video status: {e}")
+                logger.error(f"🎬 [AVATAR_WAIT] Error checking avatar video status (poll #{poll_count}): {e}")
+                logger.error(f"🎬 [AVATAR_WAIT] Will retry in 10 seconds...")
                 await asyncio.sleep(10)
         
+        logger.error(f"🎬 [AVATAR_WAIT] ❌ Timeout: Avatar video not ready after {max_wait_time}s ({poll_count} polls)")
         raise Exception(f"Avatar video not ready after {max_wait_time} seconds")
     
     async def _process_presentation(self, request: PresentationRequest, job_id: str):
@@ -361,6 +387,52 @@ class ProfessionalPresentationService:
             avatar_video_url = await self._wait_for_avatar_video(avatar_video_id)
             logger.info(f"🎬 [REACTION_PROCESSING] Avatar video ready: {avatar_video_url}")
             
+            # Step 3.5: Download avatar video locally for Remotion
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 3.5: Downloading avatar video locally")
+            self._update_job_status(job_id, progress=50.0)
+            
+            import httpx
+            avatar_local_path = self.output_dir / f"avatar_{job_id}.mp4"
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Downloading from: {avatar_video_url}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Saving to: {avatar_local_path}")
+            
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await client.get(avatar_video_url)
+                if response.status_code != 200:
+                    raise Exception(f"Failed to download avatar video: {response.status_code}")
+                
+                with open(avatar_local_path, 'wb') as f:
+                    f.write(response.content)
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Avatar video downloaded: {os.path.getsize(avatar_local_path)} bytes")
+            
+            # Step 3.6: Get avatar video duration for accurate Remotion rendering
+            logger.info(f"🎬 [REACTION_PROCESSING] Step 3.6: Getting avatar video duration")
+            
+            # Use FFprobe to get video duration
+            ffprobe_cmd = [
+                "ffprobe", "-v", "error",
+                "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1",
+                str(avatar_local_path)
+            ]
+            
+            ffprobe_process = await asyncio.create_subprocess_exec(
+                *ffprobe_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, stderr = await ffprobe_process.communicate()
+            
+            try:
+                avatar_duration = float(stdout.decode().strip())
+                logger.info(f"🎬 [REACTION_PROCESSING] Avatar video duration: {avatar_duration}s")
+            except ValueError:
+                logger.warning(f"🎬 [REACTION_PROCESSING] Could not parse avatar duration, using default: {request.duration}s")
+                avatar_duration = request.duration
+            
             # Step 4: Render slide video using Remotion
             logger.info(f"🎬 [REACTION_PROCESSING] Step 4: Rendering slide video with Remotion")
             self._update_job_status(job_id, progress=60.0)
@@ -379,8 +451,8 @@ class ProfessionalPresentationService:
                     "theme": request.theme or "dark-purple",
                     "elementPositions": slide.get("metadata", {}).get("elementPositions", {}),
                     "slideId": slide.get("slideId", f"slide-{i}"),
-                    "avatarImageUrl": avatar_video_url,
-                    "duration": request.duration
+                    "avatarVideoPath": str(avatar_local_path),  # Local file path for Remotion
+                    "duration": avatar_duration  # Use actual avatar duration
                 }
                 remotion_data["slides"].append(slide_data)
             
@@ -401,6 +473,15 @@ class ProfessionalPresentationService:
             backend_dir = Path(__file__).parent.parent  # Run from backend/
             output_video_path = self.output_dir / f"presentation_{job_id}.mp4"
             
+            # Calculate duration in frames (match avatar video duration)
+            fps = 30
+            duration_in_frames = int(avatar_duration * fps)
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] Remotion render settings:")
+            logger.info(f"  - Duration: {avatar_duration}s ({duration_in_frames} frames)")
+            logger.info(f"  - FPS: {fps}")
+            logger.info(f"  - Resolution: 1920x1080")
+            
             # Prepare Remotion render command
             # CRITICAL FIX: Specify full path to Root.tsx from backend/
             render_cmd = [
@@ -409,9 +490,10 @@ class ProfessionalPresentationService:
                 "AvatarServiceSlide",
                 str(output_video_path),
                 "--props", str(remotion_input_path),
-                "--fps", "30",
+                "--fps", str(fps),
                 "--width", "1920",
-                "--height", "1080"
+                "--height", "1080",
+                "--duration-in-frames", str(duration_in_frames)
             ]
             
             logger.info(f"🎬 [REACTION_PROCESSING] Executing Remotion render command: {' '.join(render_cmd)}")
