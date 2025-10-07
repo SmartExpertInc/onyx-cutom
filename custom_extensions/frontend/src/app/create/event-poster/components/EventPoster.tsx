@@ -648,22 +648,22 @@ export default function EventPoster({
           <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name with ":" suffix */}
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '3px', maxWidth: 'calc(100% - 180px)' }}>
-              <EditableText
-                value={eventName}
-                onChange={setEventName}
-                placeholder="Event Name"
-                onAutoSave={handleAutoSave}
-                style={{
+            <EditableText
+              value={eventName}
+              onChange={setEventName}
+              placeholder="Event Name"
+              onAutoSave={handleAutoSave}
+              style={{
                   color: '#E5E5E5',
-                  fontFamily: 'Montserrat',
-                  fontWeight: '400',
-                  fontSize: '33px',
-                  textAlign: 'left',
-                  lineHeight: '1.2',
-                  overflow: 'hidden',
-                  wordWrap: 'break-word'
-                }}
-              />
+                fontFamily: 'Montserrat',
+                fontWeight: '400',
+                fontSize: '33px',
+                textAlign: 'left',
+                lineHeight: '1.2',
+                overflow: 'hidden',
+                wordWrap: 'break-word'
+              }}
+            />
               <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '33px', lineHeight: '1.2' }}>:</span>
             </div>
 
@@ -716,7 +716,7 @@ export default function EventPoster({
               />
             </div>
 
-            {/* Date with border - bring border closer to text and set letter-spacing */}
+            {/* Date with border - bring border closer to text */}
             <div 
               style={{ 
                 border: '3px solid #5416af',
@@ -937,6 +937,11 @@ export default function EventPoster({
                 overflow: 'hidden',
                 whiteSpace: 'normal', // Allow text wrapping
                 wordWrap: 'break-word', // Break long words if needed
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
               }}
             />
           </div>

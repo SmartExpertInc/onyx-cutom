@@ -30584,7 +30584,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 display: inline-flex;
                 align-items: flex-end;
                 gap: 6px;
-                margin-top: 10px;
+                margin-top: 10px; /* move PNG version a little lower */
                 max-width: calc(100% - 180px);
             }
 
@@ -30715,7 +30715,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             }}
             
             .ticket-section {{
-                border: 4px solid #5416af;
+                border: 2px solid #5416af;
                 border-radius: 30px;
                 padding: 10px 14px;
                 min-width: 160px;
@@ -30783,7 +30783,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 <div class="header-section">
                     <div class="first-row">
                         <div class="event-name-wrapper">
-                            <div class="event-name">{event_name}</div>
+                        <div class="event-name">{event_name}</div>
                             <div class="event-name-colon">:</div>
                         </div>
                         <div class="logo"></div>
