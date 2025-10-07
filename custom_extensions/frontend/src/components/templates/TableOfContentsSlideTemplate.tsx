@@ -192,19 +192,17 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
         width: '530px',
         display: 'grid',
         gridTemplateColumns: '250px 250px',
-        gridTemplateRows: 'repeat(3, 70px)',
         gap: '30px',
       }}>
         {currentButtons.map((button, index) => (
           <div key={index} style={{
             backgroundColor: '#0F58F9', // Blue
             borderRadius: '4px',
-            padding: '10px',
+            padding: '15px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: isEditable ? 'pointer' : 'default',
-            height: '50px',
           }}>
             {isEditable && editingButtons?.index === index ? (
               <ImprovedInlineEditor
