@@ -70,7 +70,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const rightSection: React.CSSProperties = {
     position:'absolute',
     right:0,
-    top:'950px',
+    top:'90px',
     width:'55%',
     background:'#E0E7FF',
     padding:'60px 80px',
@@ -159,7 +159,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
           font-weight: 700 !important;
         }
       `}</style>
-      {/* Left section - Avatar with dark green background */}
+      {/* Left section - Avatar with gradient blue background */}
       <div style={leftSection}>
         <div style={avatarContainer}>
           <ClickableImagePlaceholder
