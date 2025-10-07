@@ -31,7 +31,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#E0E7FF', 
+    backgroundColor:'#E0E7FF', 
     color:'#09090BCC', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
@@ -52,9 +52,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   };
 //save1
   const avatarContainer: React.CSSProperties = {
-    width:'410px',
+    width:'470px',
     position:'absolute',
-    bottom:'-30px',
+    bottom:'-25px',
     borderRadius:'16px',
     overflow:'hidden',
   };

@@ -834,6 +834,8 @@ export interface HighPerformingTeamsSlideProps extends BaseTemplateProps {
   points: Array<{ x: number; y: number }>;
   avatarPath?: string;
   avatarAlt?: string;
+  logoNew?: string;
+  pageNumber?: string;
 }
 
 // Pixel-perfect: Impact Value (yellow) – three metrics with images and captions
