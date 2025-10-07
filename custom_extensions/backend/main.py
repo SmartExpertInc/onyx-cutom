@@ -32310,8 +32310,7 @@ async def create_smartdrive_connector(
                 'include_code', 'include_releases', 'include_wikis'
             ],
             'confluence': [
-                'confluence_url', 'space_keys', 'include_attachments',
-                'include_archived', 'include_drafts'
+                'is_cloud', 'wiki_base', 'space', 'page_id', 'index_recursively', 'cql_query'
             ],
             'web': [
                 'base_url', 'web_connector_type', 'scroll_before_scraping',

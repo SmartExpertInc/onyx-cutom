@@ -169,7 +169,6 @@ export const NumberInput: FC<NumberInputProps> = ({
       </label>
       <Input
         type="number"
-        variant="shadow"
         name={name}
         value={values[name] || ""}
         onChange={(e) => setFieldValue(name, e.target.value)}
@@ -222,7 +221,7 @@ export const BooleanFormField: FC<BooleanFormFieldProps> = ({
           id={name}
           name={name}
           checked={values[name] || false}
-          onCheckedChange={(checked) => {
+          onCheckedChange={(checked: boolean) => {
             setFieldValue(name, checked);
           }}
           disabled={disabled}
@@ -353,16 +352,18 @@ interface TabsFieldProps {
   name: string;
   tabs: TabField[];
   description?: string;
+  defaultTab?: string;
 }
 
 export const TabsField: FC<TabsFieldProps> = ({
   label,
   name,
   tabs,
-  description
+  description,
+  defaultTab
 }) => {
   const { values, setFieldValue } = useFormikContext<any>();
-  const [activeTab, setActiveTab] = React.useState(tabs[0]?.value || "");
+  const [activeTab, setActiveTab] = React.useState(defaultTab || tabs[0]?.value || "");
 
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);

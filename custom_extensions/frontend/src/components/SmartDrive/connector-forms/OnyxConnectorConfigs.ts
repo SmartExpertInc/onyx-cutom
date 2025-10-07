@@ -1,7 +1,7 @@
 // Exact Onyx connector configurations copied from web/src/lib/connectors/connectors.tsx
 
 export interface ConnectorField {
-  type: "text" | "select" | "checkbox" | "number" | "list" | "file" | "tab" | "string_tab" | "date";
+  type: "text" | "select" | "checkbox" | "number" | "list" | "file" | "tab" | "string_tab";
   label: string;
   name: string;
   query?: string;
@@ -16,6 +16,7 @@ export interface ConnectorField {
     label: string;
     fields: ConnectorField[];
   }>;
+  defaultTab?: string;
 }
 
 export interface ConnectorConfig {
@@ -233,29 +234,93 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     description: "Configure Confluence connector",
     values: [
       {
-        type: "text",
-        query: "Enter the Confluence URL:",
-        label: "Confluence URL",
-        name: "confluence_url",
-        optional: false,
-        description: "The URL of your Confluence instance (e.g., https://your-domain.atlassian.net)",
-      },
-      {
-        type: "list",
-        query: "Enter space keys:",
-        label: "Space Keys",
-        name: "space_keys",
-        description: "Specify 0 or more space keys to index from. If none specified, will index all accessible spaces.",
-        optional: true,
-      },
-      {
         type: "checkbox",
-        query: "Include attachments?",
-        label: "Include Attachments",
-        name: "include_attachments",
-        description: "Index file attachments in addition to page content",
-        optional: true,
+        query: "Is this a Confluence Cloud instance?",
+        label: "Is Cloud",
+        name: "is_cloud",
+        optional: false,
         default: true,
+        description: "Check if this is a Confluence Cloud instance, uncheck for Confluence Server/Data Center",
+      },
+      {
+        type: "text",
+        query: "Enter the wiki base URL:",
+        label: "Wiki Base URL",
+        name: "wiki_base",
+        optional: false,
+        description: "The base URL of your Confluence instance (e.g., https://your-domain.atlassian.net/wiki)",
+      },
+      {
+        type: "tab",
+        name: "indexing_scope",
+        label: "How Should We Index Your Confluence?",
+        optional: true,
+        tabs: [
+          {
+            value: "everything",
+            label: "Everything",
+            fields: [
+              {
+                type: "string_tab",
+                label: "Everything",
+                name: "everything",
+                description: "This connector will index all pages the provided credentials have access to!",
+              },
+            ],
+          },
+          {
+            value: "space",
+            label: "Space",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the space:",
+                label: "Space Key",
+                name: "space",
+                default: "",
+                description: "The Confluence space key to index (e.g. `KB`).",
+              },
+            ],
+          },
+          {
+            value: "page",
+            label: "Page",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the page ID:",
+                label: "Page ID",
+                name: "page_id",
+                default: "",
+                description: "Specific page ID to index (e.g. `131368`)",
+              },
+              {
+                type: "checkbox",
+                query: "Should index pages recursively?",
+                label: "Index Recursively",
+                name: "index_recursively",
+                description: "If this is set, we will index the page indicated by the Page ID as well as all of its children.",
+                optional: false,
+                default: true,
+              },
+            ],
+          },
+          {
+            value: "cql",
+            label: "CQL Query",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the CQL query (optional):",
+                label: "CQL Query",
+                name: "cql_query",
+                default: "",
+                description: "IMPORTANT: We currently only support CQL queries that return objects of type 'page'. This means all CQL queries must contain 'type=page' as the only type filter. It is also important that no filters for 'lastModified' are used as it will cause issues with our connector polling logic. We will still get all attachments and comments for the pages returned by the CQL query. Any 'lastmodified' filters will be overwritten. See https://developer.atlassian.com/server/confluence/advanced-searching-using-cql/ for more details.",
+              },
+            ],
+          },
+        ],
+        defaultTab: "space",
       },
     ],
     advanced_values: [],
