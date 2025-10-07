@@ -30570,7 +30570,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 grid-column: span 2;
                 display: flex;
                 flex-direction: column;
-                gap: 40px;
+                gap: 50px;
                 margin-bottom: 40px;
             }}
             
@@ -30578,21 +30578,21 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .first-row {{
                 display: flex;
                 justify-content: space-between;
+                align-items: flex-start;
             }}
             
             .event-name-wrapper {
                 display: inline-flex;
-                align-items: flex-end;
-                gap: 6px;
-                margin-top: 10px; /* move PNG version a little lower */
-                max-width: calc(100% - 180px);
+                align-items: baseline;
+                gap: 4px;
+                max-width: calc(100% - 160px);
             }
 
             .event-name {
                 color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 33px;
+                font-size: 31px;
                 text-align: left;
                 line-height: 1.2;
                 text-transform: uppercase;
@@ -30602,7 +30602,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 33px;
+                font-size: 31px;
                 line-height: 1.2;
             }
             
@@ -30625,7 +30625,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .speaker-info {{
                 display: flex;
                 flex-direction: column;
-                gap: 20px;
+                gap: 16px;
                 max-width: 600px;
             }}
             
@@ -30633,7 +30633,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 41px;
+                font-size: 39px;
                 text-align: left;
                 line-height: 1.2;
             }}
@@ -30642,14 +30642,15 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 22px;
+                font-size: 18px;
                 text-align: left;
-                line-height: 1.2;
+                line-height: 1.3;
+                max-width: 550px;
             }}
             
             .date-section {{
-                border: 4px solid #5416af; /* thicker to match frontend */
-                padding: 10px 14px; /* closer to text */
+                border: 3px solid #5416af;
+                padding: 10px 14px;
                 display: inline-block;
             }}
             
@@ -30678,7 +30679,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .left-content {{
                 display: flex;
                 flex-direction: column;
-                gap: 40px;
+                gap: 50px;
                 padding-right: 50px;
                 justify-content: center;
                 height: 100%;
@@ -30688,9 +30689,9 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 48px;
+                font-size: 50px;
                 text-align: left;
-                line-height: 1.2;
+                line-height: 1.15;
                 max-width: 480px;
             }}
             
@@ -30698,11 +30699,10 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #ebebeb;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 24px;
+                font-size: 19px;
                 text-align: left;
-                line-height: 1.2;
+                line-height: 1.3;
                 max-width: 460px;
-                margin-top: 6px;
             }}
             
             /* Bottom section */
@@ -30712,18 +30712,20 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 align-items: center;
                 justify-content: space-between;
                 margin-top: auto;
-                padding-top: 50px;
+                padding-top: 30px;
             }}
             
             .ticket-section {{
                 border: 2px solid #5416af;
                 border-radius: 30px;
-                padding: 10px 14px;
-                min-width: 160px;
+                padding: 12px 16px;
+                min-width: 180px;
                 line-height: 1;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                box-sizing: border-box;
+                overflow: hidden;
             }}
             
             .ticket-label {{
@@ -30754,22 +30756,23 @@ def generate_poster_html_template(poster_data: dict) -> str:
             
             .free-access {{
                 color: #E5E5E5;
+                font-family: 'Montserrat';
                 font-weight: 600;
-                font-size: 37px;
+                font-size: 38px;
                 text-align: center;
-                line-height: 1.3;
+                line-height: 1.25;
                 background-color: #5416af;
                 border-radius: 30px;
-                padding: 0 20px;
+                padding: 0 24px;
                 box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
                 backdrop-filter: blur(5px);
                 text-transform: uppercase;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 100px;
-                width: 620px;
-                margin-left: 10px;
+                height: 105px;
+                width: 630px;
+                margin-left: 20px;
             }}
         </style>
     </head>
