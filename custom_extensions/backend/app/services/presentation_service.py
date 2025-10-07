@@ -229,7 +229,7 @@ class ProfessionalPresentationService:
                 asyncio.set_event_loop(loop)
                 
                 # Run the processing
-                loop.run_until_complete(self._process_presentation(job_id, request))
+                loop.run_until_complete(self._process_presentation(request, job_id))
                 
             except Exception as e:
                 logger.error(f"Thread processing failed for {job_id}: {e}")
