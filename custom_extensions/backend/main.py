@@ -30657,7 +30657,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             
             .date-section {
                 border: 4px solid #5416af; /* thicker to match frontend */
-                padding: 10px 14px; /* closer to text */
+                padding: 4px 8px; /* tighter around date */
                 display: inline-block;
                 width: 220px; /* fixed width to mirror frontend */
                 box-sizing: border-box;
@@ -30735,7 +30735,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                height: 120px;
+                height: 110px;
             }}
             
             .ticket-label {{
@@ -30779,7 +30779,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 120px;
+                height: 110px;
                 width: 620px;
                 margin-left: 10px;
             }

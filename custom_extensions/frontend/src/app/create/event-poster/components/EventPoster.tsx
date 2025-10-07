@@ -837,7 +837,7 @@ export default function EventPoster({
         {/* Bottom section - spanning both columns */}
         <div className="col-span-2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '20px' }}>
           {/* Ticket price section */}
-          <div 
+            <div 
             style={{ 
               borderTop: '2px solid #5416af',
               borderBottom: '2px solid #5416af',
@@ -847,7 +847,7 @@ export default function EventPoster({
               padding: '10px 14px',
               width: '200px', // Fixed width instead of minWidth
               lineHeight: '1',
-              height: '120px', // Match blue pill height
+              height: '110px', // Match blue pill height (reduced)
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -914,7 +914,7 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '10px',
               width: '620px', // Slightly wider to match spec
-              height: '120px', // Match ticket container height
+              height: '110px', // Match ticket container height (reduced)
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
