@@ -31,11 +31,10 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const slide: React.CSSProperties = { 
     width:'100%', 
     aspectRatio:'16/9', 
-    background:'#000000', 
-    color:'#FFFFFF', 
+    background:'#E0E7FF', 
+    color:'#09090BCC', 
     fontFamily: currentTheme.fonts.titleFont, 
     position:'relative',
-    borderRadius:'20px',
     overflow:'hidden'
   };
 
@@ -46,12 +45,10 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     top:0,
     width:'45%',
     height:'100%',
-    background:'#2C6657',
+    background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%)',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
-    borderTopRightRadius:'50px',
-    borderBottomRightRadius:'50px',
   };
 //save1
   const avatarContainer: React.CSSProperties = {
@@ -78,9 +75,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 
   // Topics header banner
   const topicsBanner: React.CSSProperties = {
-    background:'#F2E5B4',
     width:'200px',
     borderRadius:'27px',
+    border: '1px solid #09090BCC',
     marginBottom:'40px',
     display:'flex',
     alignItems:'center',
@@ -90,7 +87,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const topicsTitleStyle: React.CSSProperties = {
     fontSize:'42px',
     fontWeight:700,
-    color:'#443F33',
+    color:'#09090BCC',
     textAlign:'center'
   };
 
@@ -108,10 +105,8 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   };
 
   const bulletPoint: React.CSSProperties = {
-    width:'12px',
-    height:'12px',
-    borderRadius:'50%',
-    background:'#F5E6A3',
+    width:'7px',
+    height:'8px',
     flexShrink:0
   };
 
@@ -171,7 +166,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
         <div style={topicsList}>
           {topics.map((topic, index) => (
             <div key={index} style={topicItem}>
-              <div style={bulletPoint} />
+              <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={bulletPoint}>
+                <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
+              </svg>
               <div 
                 style={topicText} 
                 onClick={() => isEditable && setEditKey(`topic-${index}`)}

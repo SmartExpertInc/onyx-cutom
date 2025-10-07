@@ -87,6 +87,15 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
 
   return (
     <div className="table-of-contents-slide-template inter-theme" style={slideStyles}>
+      <style>{`
+        .table-of-contents-slide-template *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .table-of-contents-slide-template .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
       {/* Title */}
       <div style={{
         position: 'absolute',
@@ -102,7 +111,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             initialValue={currentTitle}
             onSave={handleTitleSave}
             onCancel={() => setEditingTitle(false)}
-            className="toc-title-editor"
+            className="toc-title-editor title-element"
             style={{
               fontSize: '48px',
               fontWeight: 'bold',
@@ -114,6 +123,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
           />
         ) : (
           <div
+            className="title-element"
             onClick={() => isEditable && setEditingTitle(true)}
             style={{
               cursor: isEditable ? 'pointer' : 'default',
@@ -183,27 +193,15 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
       {/* Profile Image */}
       <div style={{
         position: 'absolute',
-        top: '120px',
+        top: '200px',
         right: '60px',
         width: '545px',
-        height: '440px',
+        height: '400px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
       }}>
-        {/* Blue Background Rectangle */}
-        <div style={{
-          position: 'absolute',
-          bottom: '0',
-          left: '0',
-          right: '0',
-          height: '290px',
-          backgroundColor: '#A7B3DD', // Light blue background as per screenshot
-          borderRadius: '12px',
-          border: '1px solid #000000',
-          zIndex: 1,
-        }} />
-        
         {/* Profile Image! */}
         <div style={{
           position: 'absolute',

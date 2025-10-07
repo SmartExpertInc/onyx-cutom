@@ -63,7 +63,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     right: '56px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '36px',
+    gap: '28px',
   };
 
   const itemStyles: React.CSSProperties = {
