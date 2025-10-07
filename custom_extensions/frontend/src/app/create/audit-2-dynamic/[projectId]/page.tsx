@@ -222,6 +222,11 @@ interface LandingPageData {
   courseTemplates: CourseTemplate[]
   serviceTemplatesDescription: string
   language?: string
+  courseOutlineTableHeaders?: {
+    lessons: string
+    assessment: string
+    duration: string
+  }
 }
 
 // Localization helper function
@@ -411,6 +416,33 @@ export default function DynamicAuditLandingPage() {
       case 'serviceTemplatesDescription':
         currentValue = landingPageData.serviceTemplatesDescription || 'Ready-made course templates for onboarding and training your employees:';
         break
+      case 'tableHeaderLessons':
+        currentValue = landingPageData.courseOutlineTableHeaders?.lessons || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Lessons in module',
+            es: 'Lecciones en módulo',
+            ua: 'Уроки в модулі',
+            ru: 'Уроки в модуле'
+          });
+        break
+      case 'tableHeaderAssessment':
+        currentValue = landingPageData.courseOutlineTableHeaders?.assessment || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Knowledge check: test / practice with mentor',
+            es: 'Verificación de conocimientos: prueba / práctica con mentor',
+            ua: 'Перевірка знань: тест / практика з куратором',
+            ru: 'Проверка знаний: тест / практика с куратором'
+          });
+        break
+      case 'tableHeaderDuration':
+        currentValue = landingPageData.courseOutlineTableHeaders?.duration || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Training duration',
+            es: 'Duración del entrenamiento',
+            ua: 'Тривалість навчання',
+            ru: 'Длительность обучения'
+          });
+        break
       default:
         if (field.startsWith('jobPosition_')) {
           const index = parseInt(field.split('_')[1])
@@ -595,6 +627,27 @@ export default function DynamicAuditLandingPage() {
       case 'serviceTemplatesDescription':
         updatedData.serviceTemplatesDescription = newValue;
         console.log('✅ [TEXT SAVE] Successfully updated serviceTemplatesDescription');
+        break
+      case 'tableHeaderLessons':
+        if (!updatedData.courseOutlineTableHeaders) {
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        updatedData.courseOutlineTableHeaders.lessons = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header lessons');
+        break
+      case 'tableHeaderAssessment':
+        if (!updatedData.courseOutlineTableHeaders) {
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        updatedData.courseOutlineTableHeaders.assessment = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header assessment');
+        break
+      case 'tableHeaderDuration':
+        if (!updatedData.courseOutlineTableHeaders) {
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        updatedData.courseOutlineTableHeaders.duration = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header duration');
         break
       default:
         // Handle nested fields like job positions, course templates, and course modules
@@ -2869,28 +2922,91 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -3159,18 +3275,91 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Проверка знаний
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Время
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -3405,18 +3594,91 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Проверка знаний
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Время
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -3651,18 +3913,91 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Проверка знаний
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Время
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white"
+                                        style={{ fontSize: '12px', color: 'white' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
