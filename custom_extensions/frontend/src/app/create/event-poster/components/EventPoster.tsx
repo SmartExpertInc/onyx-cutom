@@ -642,12 +642,12 @@ export default function EventPoster({
       <div className="relative z-10 h-full" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gridTemplateRows: 'auto 1fr auto', padding: '53px' }}>
         
         {/* Header section - spanning both columns */}
-        <div className="col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '50px', marginBottom: '40px' }}>
+        <div className="col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginBottom: '40px', marginTop: '10px' }}>
           
           {/* First row: Event name and Logo */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name with ":" suffix */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', maxWidth: 'calc(100% - 160px)' }}>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '3px', maxWidth: 'calc(100% - 180px)' }}>
             <EditableText
               value={eventName}
               onChange={setEventName}
@@ -657,7 +657,7 @@ export default function EventPoster({
                   color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '400',
-                fontSize: '31px',
+                fontSize: '33px',
                 textAlign: 'left',
                 lineHeight: '1.2',
                 overflow: 'hidden',
@@ -665,26 +665,31 @@ export default function EventPoster({
                 textTransform: 'uppercase'
               }}
             />
-              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '31px', lineHeight: '1.2' }}>:</span>
+              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '33px', lineHeight: '1.2' }}>:</span>
             </div>
 
-            {/* Logo */}
-            <div
-              style={{
-                width: '141px',
-                height: '78px',
-                background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png")',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-                backgroundSize: 'cover'
-              }}
-            />
+            {/* Logo centered within a fixed-width wrapper to align with date box */}
+            <div style={{ width: '220px', display: 'flex', justifyContent: 'center' }}>
+              <div
+                style={{
+                  width: '141px',
+                  height: '78px',
+                  background: 'url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png")',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center center',
+                  backgroundSize: 'cover',
+                  display: 'flex',
+                  gap: '6px',
+                  marginTop: '3px'
+                }}
+              />
+            </div>
           </div>
 
           {/* Second row: Speaker info and Date */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             {/* Speaker name and description */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '600px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '600px' }}>
               <EditableText
                 value={mainSpeaker}
                 onChange={setMainSpeaker}
@@ -694,7 +699,8 @@ export default function EventPoster({
                   color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '600',
-                  fontSize: '39px',
+                  width: '100%',
+                  fontSize: '41px',
                   textAlign: 'left',
                   lineHeight: '1.2'
                 }}
@@ -710,10 +716,10 @@ export default function EventPoster({
                   color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '400',
-                  fontSize: '18px',
+                  fontSize: '20px',
+                  width: '640px',
                   textAlign: 'left',
-                  lineHeight: '1.3',
-                  maxWidth: '550px'
+                  lineHeight: '1.2'
                 }}
               />
             </div>
@@ -785,7 +791,7 @@ export default function EventPoster({
         </div>
 
         {/* Left content area */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '50px', paddingRight: '50px', justifyContent: 'center', height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', paddingRight: '50px', justifyContent: 'center', height: '100%' }}>
           {/* Topic */}
           <EditableText
             value={topic}
@@ -798,9 +804,9 @@ export default function EventPoster({
               color: '#E5E5E5',
               fontFamily: 'Montserrat',
               fontWeight: '600',
-              fontSize: '50px',
+              fontSize: '48px',
               textAlign: 'left',
-              lineHeight: '1.15',
+              lineHeight: '1.2',
               maxWidth: '480px'
             }}
           />
@@ -816,10 +822,11 @@ export default function EventPoster({
               color: '#ebebeb',
               fontFamily: 'Montserrat',
               fontWeight: '400',
-              fontSize: '19px',
+              fontSize: '20px',
               textAlign: 'left',
-              lineHeight: '1.3',
-              maxWidth: '460px'
+              lineHeight: '1.2',
+              maxWidth: '460px',
+              marginTop: '6px'
             }}
           />
         </div>
@@ -828,20 +835,23 @@ export default function EventPoster({
         <div></div>
 
         {/* Bottom section - spanning both columns */}
-        <div className="col-span-2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '30px' }}>
+        <div className="col-span-2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '20px' }}>
           {/* Ticket price section */}
           <div 
             style={{ 
-              border: '2px solid #5416af',
+              borderTop: '2px solid #5416af',
+              borderBottom: '2px solid #5416af',
+              borderLeft: '1px solid #5416af',
+              borderRight: '1px solid #5416af',
               borderRadius: '30px',
-              padding: '12px 16px',
-              minWidth: '180px',
+              padding: '10px 14px',
+              width: '200px', // Fixed width instead of minWidth
               lineHeight: '1',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              boxSizing: 'border-box',
-              overflow: 'hidden'
+              boxSizing: 'border-box', // Include padding in width calculation
+              overflow: 'hidden', // Prevent content from expanding the container
             }}
           >
             <div
@@ -849,7 +859,7 @@ export default function EventPoster({
                 color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '600',
-                fontSize: '24px',
+                fontSize: '25px',
                 textAlign: 'center'
               }}
             >
@@ -864,7 +874,7 @@ export default function EventPoster({
                 color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '600',
-                fontSize: '26px',
+                fontSize: '27px',
                 textAlign: 'center',
                 marginTop: '4px',
                 width: '100%',
@@ -883,7 +893,7 @@ export default function EventPoster({
                 color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '900',
-                fontSize: '39px',
+                fontSize: '41px',
                 textAlign: 'center',
                 marginTop: '2px',
                 width: '100%',
@@ -900,9 +910,9 @@ export default function EventPoster({
             className="group"
             style={{
               borderRadius: '30px',
-              marginLeft: '20px',
-              width: '630px',
-              height: '105px',
+              marginLeft: '10px',
+              width: '620px', // Slightly wider to match spec
+              height: '100px', // Fixed height - never changes
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
@@ -910,26 +920,25 @@ export default function EventPoster({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              overflow: 'hidden',
-              position: 'relative'
+              overflow: 'hidden', // Prevent any overflow
+              position: 'relative', // For absolute positioning of text
             }}
           >
             <EditableText
               value={freeAccessConditions}
               onChange={setFreeAccessConditions}
               placeholder="Free Access Conditions"
-              multiline={true}
+              multiline={true} // Enable multiline like topic section
               onAutoSave={handleAutoSave}
               style={{
                 color: '#E5E5E5',
-                fontFamily: 'Montserrat',
                 fontWeight: '600',
-                fontSize: '38px',
+                fontSize: '37px',
                 textAlign: 'center',
-                lineHeight: '1.25',
+                lineHeight: '1.3',
                 background: 'transparent',
                 borderRadius: '30px',
-                padding: '0 24px',
+                padding: '0 22px',
                 width: '100%',
                 height: '100%',
                 boxSizing: 'border-box',
