@@ -116,8 +116,8 @@ export default function SceneTimeline({
   })();
 
   return (
-    <div className="bg-white rounded-md overflow-visible p-4" style={{ height: 'calc(25% + 60px)' }}>
-      <div className="flex items-end gap-4 overflow-x-auto">
+    <div className="bg-white rounded-md p-4" style={{ height: 'calc(25% + 60px)', overflowY: 'visible', overflowX: 'visible' }}>
+      <div className="flex items-end gap-4" style={{ overflowX: 'auto', overflowY: 'visible' }}>
           {/* Play Button with Time */}
           <div className="flex flex-col items-center gap-2 flex-shrink-0">
             <div className="relative flex items-center justify-center h-16">

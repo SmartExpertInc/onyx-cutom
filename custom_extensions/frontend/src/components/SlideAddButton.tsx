@@ -34,10 +34,24 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
   containerStyle = {}
 }) => {
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ left: 90, bottom: 140 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   
   // Get available templates
   const availableTemplates = getAllTemplates();
+
+  // Calculate dropdown position when button is clicked
+  const handleButtonClick = () => {
+    if (buttonRef.current && !showTemplateDropdown) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        left: rect.right + 10,
+        bottom: window.innerHeight - rect.bottom
+      });
+    }
+    setShowTemplateDropdown(!showTemplateDropdown);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -107,7 +121,8 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
     >
       {/* Main Add Button */}
       <button
-        onClick={() => setShowTemplateDropdown(!showTemplateDropdown)}
+        ref={buttonRef}
+        onClick={handleButtonClick}
         style={{
           width: '60px',
           height: '60px',
@@ -145,9 +160,9 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
       {showTemplateDropdown && (
         <div
           style={{
-            position: 'absolute',
-            left: '70px',
-            top: '0',
+            position: 'fixed',
+            left: `${dropdownPosition.left}px`,
+            bottom: `${dropdownPosition.bottom}px`,
             backgroundColor: 'white',
             border: '1px solid #e5e7eb',
             borderRadius: '8px',
@@ -156,7 +171,8 @@ export const SlideAddButton: React.FC<SlideAddButtonProps> = ({
             minWidth: '280px',
             maxHeight: '400px',
             overflowY: 'auto',
-            zIndex: 1001
+            zIndex: 9999,
+            animation: 'slideInUp 0.2s ease-out'
           }}
         >
           {/* Header */}

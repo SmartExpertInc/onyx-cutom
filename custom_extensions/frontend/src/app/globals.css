@@ -302,3 +302,15 @@ body:has([aria-modal="true"]) [draggable="true"] {
     color-adjust: exact !important;
   }
 }
+
+/* Animation for slide template dropdown */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
