@@ -1,7 +1,7 @@
 // Exact Onyx connector configurations copied from web/src/lib/connectors/connectors.tsx
 
 export interface ConnectorField {
-  type: "text" | "select" | "checkbox" | "number" | "list" | "file" | "tab" | "string_tab";
+  type: "text" | "select" | "checkbox" | "number" | "list" | "file" | "tab" | "string_tab" | "date";
   label: string;
   name: string;
   query?: string;
@@ -203,10 +203,10 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     values: [
       {
         type: "list",
-        query: "Enter channel IDs:",
-        label: "Channel IDs",
-        name: "channel_ids",
-        description: "Specify 0 or more channel IDs to index from.",
+        query: "Enter channels to index:",
+        label: "Channels",
+        name: "channels",
+        description: "Specify 0 or more channels to index from.",
         optional: true,
       },
       {
@@ -248,13 +248,12 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     ],
     advanced_values: [
       {
-        type: "number",
-        query: "Message limit per channel:",
-        label: "Message Limit",
-        name: "message_limit",
-        description: "Maximum number of messages to index per channel",
+        type: "date",
+        query: "Enter the Start Date:",
+        label: "Start Date",
+        name: "indexing_start",
+        description: `Only messages after this date will be indexed.`,
         optional: true,
-        default: 1000,
       },
     ],
   },

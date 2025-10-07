@@ -1,7 +1,7 @@
 export interface ConnectorFormField {
   name: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'multiselect' | 'number' | 'boolean' | 'file' | 'password';
+  type: 'text' | 'textarea' | 'select' | 'multiselect' | 'number' | 'boolean' | 'file' | 'password' | 'date';
   required?: boolean;
   placeholder?: string;
   description?: string;

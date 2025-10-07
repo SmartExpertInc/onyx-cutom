@@ -75,11 +75,21 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
 
   const initialValues = buildInitialValues(config.fields);
 
+  const convertStringToDateTime = (indexingStart: string | null) => {
+    return indexingStart ? new Date(indexingStart) : null;
+  };
+
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     setIsSubmitting(true);
     setError(null);
     
     try {
+      // Convert indexing_start field if it exists
+      const processedValues = {
+        ...values,
+        indexing_start: values.indexing_start ? convertStringToDateTime(values.indexing_start) : null
+      };
+
       const response = await fetch(config.submitEndpoint, {
         method: 'POST',
         headers: {
@@ -87,7 +97,7 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
         },
         credentials: 'same-origin',
         body: JSON.stringify({
-          ...values,
+          ...processedValues,
           connector_id: config.connectorId,
           access_type: 'private',
           smart_drive: true

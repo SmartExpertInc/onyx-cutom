@@ -71,17 +71,11 @@ export const SlackConfig: ConnectorFormConfig = {
       description: 'Whether to include thread replies'
     },
     {
-      name: 'message_limit',
-      label: 'Message Limit',
-      type: 'number',
-      defaultValue: 1000,
-      description: 'Maximum number of messages to index per channel',
-      validation: {
-        min: 1,
-        max: 10000,
-        message: 'Message limit should be between 1 and 10,000'
-      }
-    }
+      name: "indexing_start",
+      label: "Start Date",
+      type: "date",
+      description: `Only messages after this date will be indexed.`,
+    },
   ],
   sections: [
     {
@@ -97,7 +91,7 @@ export const SlackConfig: ConnectorFormConfig = {
     {
       title: 'Content Options',
       description: 'Configure what content to include in the index',
-      fields: ['include_threads', 'message_limit']
+      fields: ['include_threads', 'start_date']
     }
   ]
 }; 
