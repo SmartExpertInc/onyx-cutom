@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 export interface ProblemsGridSlideProps extends BaseTemplateProps {
   tag: string;
@@ -13,6 +14,8 @@ export interface ProblemsGridSlideProps extends BaseTemplateProps {
   rightText: string;
   avatarPath?: string;
   pageNumber?: string;
+  logoPath?: string;
+  logoText?: string;
 }
 
 export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { theme?: SlideTheme | string }> = ({
@@ -28,6 +31,8 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   rightText = "In today's fast-paced market,businesses face a variety of challenges that can hinder growth and bigges\niatoerostornsuestroner\nproductivitytounhappycustomers.Butdon'tworry – we're here to help.",
   avatarPath = '',
   pageNumber = '12',
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme
@@ -153,6 +158,17 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
 
       <div style={avatar}>
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+      </div>
+
+      {/* Logo */}
+      <div style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#000000"
+          text={logoText}
+        />
       </div>
 
       {/* Page number */}

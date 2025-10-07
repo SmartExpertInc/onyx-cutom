@@ -434,6 +434,8 @@ export interface HybridWorkBestPracticesSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
   voiceoverText?: string;
 }
 
@@ -481,6 +483,8 @@ export interface SoftSkillsAssessmentSlideProps extends BaseTemplateProps {
   titleColor?: string;
   contentColor?: string;
   accentColor?: string;
+  logoPath?: string;
+  logoText?: string;
   voiceoverText?: string;
 }
 

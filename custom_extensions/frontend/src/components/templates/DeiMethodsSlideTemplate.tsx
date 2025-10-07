@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import YourLogo from '../YourLogo';
 
 export interface DeiMethodsProps extends BaseTemplateProps {
   headerTitle: string;
@@ -13,6 +14,8 @@ export interface DeiMethodsProps extends BaseTemplateProps {
   section2Title: string;
   section2Lines: string[]; // 2 lines
   avatarPath?: string;
+  logoPath?: string;
+  logoText?: string;
 }
 
 export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: SlideTheme | string }> = ({
@@ -28,6 +31,8 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
     'Create opportunities for growth & advancement.'
   ],
   avatarPath = '',
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme
@@ -220,32 +225,15 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         )}
       </div>
       
-      <div style={{
-        position: 'absolute',
-        bottom: '20px',
-        right: '60px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        fontSize: '14px',
-        color: 'black',
-        fontFamily: 'Inter, sans-serif',
-        fontWeight: '400'
-      }}>
-        <div style={{
-          width: '20px',
-          height: '20px',
-          borderRadius: '50%',
-          border: '1px solid black',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '12px',
-          color: 'black'
-        }}>
-          +
-        </div>
-        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Your Logo</span>
+      {/* Logo */}
+      <div style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#000000"
+          text={logoText}
+        />
       </div>
     </div>
     </>

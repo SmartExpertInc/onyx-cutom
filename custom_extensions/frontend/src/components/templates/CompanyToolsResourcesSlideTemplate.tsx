@@ -326,7 +326,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         bottom: '24px',
         left: '22px',
         fontSize: '15px',
-        color: '#A2A19D',
+        color: '#555555',
         fontFamily: 'Inter, sans-serif',
         fontWeight: 400
       }}>
@@ -339,7 +339,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#A2A19D', fontSize: '15px', fontWeight: 400 }}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#555555', fontSize: '15px', fontWeight: 400 }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

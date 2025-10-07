@@ -5,7 +5,7 @@ import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
-import PresentationImageUpload from '../PresentationImageUpload';
+import YourLogo from '../YourLogo';
 
 export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
@@ -44,6 +44,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   titleColor,
   contentColor,
   accentColor,
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme,
@@ -57,8 +59,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const [currentMainStatement, setCurrentMainStatement] = useState(mainStatement);
   const [currentPractices, setCurrentPractices] = useState(practices);
   const [currentPageNumber, setCurrentPageNumber] = useState('11');
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -131,13 +131,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
     }
   };
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
-    if (onUpdate) {
-      onUpdate({ ...{ title, subtitle, mainStatement, practices, profileImagePath, profileImageAlt, teamImagePath, teamImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
-    }
-  };
-
   return (
     <>
       <style>{`
@@ -182,47 +175,13 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
-          {currentCompanyLogoPath ? (
-            // Show uploaded logo image
-            <ClickableImagePlaceholder
-              imagePath={currentCompanyLogoPath}
-              onImageUploaded={handleCompanyLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                height: '20px',
-                maxWidth: '80px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            // Show default logo design with clickable area
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: isEditable ? 'pointer' : 'default'
-            }}
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-            >
-              <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                border: '1px solid black',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '15px',
-                fontWeight: '600'
-              }}>
-                +
-              </div>
-              <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Your Logo</div>
-            </div>
-          )}
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+            isEditable={isEditable}
+            color="#000000"
+            text={logoText}
+          />
         </div>
       </div>
 
@@ -258,8 +217,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 display: 'flex',
                 gap: '8px',
                 border: '2px solid black',
-                borderRadius: '20px',
-                fontSize: '16px',
+                borderRadius: '50px',
+                fontSize: '17px',
                 color: '#333333',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: '600'
@@ -385,7 +344,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            marginBottom: '10px'
+            marginBottom: '10px',
+            gap: '10px 30px',
           }}>
             {currentPractices.map((practice: { number: number; title: string; description: string }, index: number) => (
               <div
@@ -542,7 +502,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#A2A19D', fontSize: '15px', fontWeight: 400 }}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#555555', fontSize: '15px', fontWeight: 400 }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
@@ -551,18 +511,6 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
         )}
       </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
     </>
   );

@@ -54,14 +54,14 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const titleStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'88px', fontSize:'56px', fontWeight:800, color:'#242424' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
   const col: React.CSSProperties = { padding: '30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'#0F58F9' };
   const mid: React.CSSProperties = { padding:'30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'black', background:'#FFFFFF' };
   const cardTitleStyle: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#FFFFFF' };
   const cardTitleStyleMid: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#000000' };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'22px', color:'#FFFFFF', fontSize:'15px', fontWeight:400 };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'15px', left:'22px', color:'#9EBBFC', fontSize:'15px', fontWeight:400 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
     ...base, 
@@ -196,7 +196,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
                 onUpdate && onUpdate({ pageNumber: v });
               }}
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#FFFFFF', fontSize: '15px', fontWeight: 400 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#9EBBFC', fontSize: '15px', fontWeight: 400 }}
             />
           ) : (
             <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

@@ -5,7 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import PresentationImageUpload from '../PresentationImageUpload';
+import YourLogo from '../YourLogo';
 import { ChevronRight } from 'lucide-react';
 
 export interface PercentCirclesProps extends BaseTemplateProps {
@@ -14,6 +14,7 @@ export interface PercentCirclesProps extends BaseTemplateProps {
   bottomCards: Array<{ value: string; text: string; hasArrow?: boolean }>;
   avatarPath?: string;
   logoPath?: string;
+  logoText?: string;
   slideIndex?: number;
 }
 
@@ -26,6 +27,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   ],
   avatarPath = '',
   logoPath = '',
+  logoText = 'Your Logo',
   slideIndex = 1,
   isEditable = true, // Set to true by default for testing
   onUpdate,
@@ -33,8 +35,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number }|null>(null);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Main slide with light blue background
   const slide: React.CSSProperties = { 
@@ -221,13 +221,6 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     cursor: isEditable ? 'pointer' : 'default'
   };
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
-    if (onUpdate) {
-      onUpdate({ ...{ title, percent, bottomCards, avatarPath, logoPath, slideIndex }, companyLogoPath: newLogoPath });
-    }
-  };
-
   return (
     <>
       <style>{`
@@ -378,51 +371,14 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
 
       {/* Logo section */}
       <div style={logoSection}>
-        {currentCompanyLogoPath ? (
-          // Show uploaded logo image
-          <ClickableImagePlaceholder
-            imagePath={currentCompanyLogoPath}
-            onImageUploaded={handleCompanyLogoUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              height: '20px',
-              maxWidth: '80px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          // Show default logo design with clickable area
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: isEditable ? 'pointer' : 'default'
-          }}
-          onClick={() => isEditable && setShowLogoUploadModal(true)}
-          >
-            <div style={logoIcon}>
-              +
-            </div>
-            <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Your Logo</div>
-          </div>
-        )}
-      </div>
-
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#000000"
+          text={logoText}
         />
-      )}
+      </div>
 
     </div>
     </>

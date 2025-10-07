@@ -1,11 +1,11 @@
 // custom_extensions/frontend/src/components/templates/ImpactMetricsRightImageSlideTemplate.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import PresentationImageUpload from '../PresentationImageUpload';
+import YourLogo from '../YourLogo';
 
 export interface ImpactMetricItem {
   text: string;
@@ -22,8 +22,8 @@ export interface ImpactMetricsRightImageProps extends BaseTemplateProps {
   rightPanelColor?: string; // rounded rectangle color behind image
   rightImagePath?: string;
   rightImageAlt?: string;
-  companyLogoPath?: string;
-  companyLogoAlt?: string;
+  logoPath?: string;
+  logoText?: string;
 }
 
 export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightImageProps & { theme?: SlideTheme | string }> = ({
@@ -42,8 +42,8 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   rightPanelColor = '#EA6A20',
   rightImagePath = '',
   rightImageAlt = 'Right image',
-  companyLogoPath = '',
-  companyLogoAlt = 'Company logo',
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme
@@ -52,13 +52,6 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMetricIndex, setEditingMetricIndex] = useState<number | null>(null);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState(companyLogoPath);
-
-  // Sync logo state with prop changes
-  useEffect(() => {
-    setCurrentCompanyLogoPath(companyLogoPath);
-  }, [companyLogoPath]);
 
   const slide: React.CSSProperties = {
     width: '100%',
@@ -148,13 +141,6 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const inlineTitleStyle: React.CSSProperties = { ...titleStyle, position: 'relative', backgroundColor: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 };
   const inlineMetricStyle: React.CSSProperties = { ...metricText, position: 'relative', backgroundColor: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 };
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
-    if (onUpdate) {
-      onUpdate({ companyLogoPath: newLogoPath });
-    }
-  };
-
   return (
     <>
       <style>{`
@@ -174,60 +160,13 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
         gap: '8px',
         zIndex: 10
       }}>
-        {currentCompanyLogoPath ? (
-          // Show uploaded logo image
-          <ClickableImagePlaceholder
-            imagePath={currentCompanyLogoPath}
-            onImageUploaded={handleCompanyLogoUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              height: '30px',
-              maxWidth: '120px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          // Show default logo design with clickable area
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: isEditable ? 'pointer' : 'default'
-          }}
-          onClick={() => isEditable && setShowLogoUploadModal(true)}
-          >
-            <div style={{
-              width: '20px',
-              height: '20px',
-              border: '1px solid black',
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{
-                width: '8px',
-                height: '2px',
-                backgroundColor: 'black',
-                position: 'absolute'
-              }} />
-              <div style={{
-                width: '2px',
-                height: '8px',
-                backgroundColor: 'black',
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)'
-              }} />
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: '400', color: 'black', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
-          </div>
-        )}
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#000000"
+          text={logoText}
+        />
       </div>
 
       <div style={metricsCol}>
@@ -287,19 +226,6 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
           style={imageStyle}
         />
       </div>
-
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
       </div>
     </>
   );

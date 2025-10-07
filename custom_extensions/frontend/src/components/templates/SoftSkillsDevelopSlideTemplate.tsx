@@ -13,6 +13,7 @@ export interface SoftSkillsDevelopProps extends BaseTemplateProps {
   rightImagePath?: string;
   logoText?: string;
   logoPath?: string;
+  pageNumber?: string;
 }
 
 export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & { theme?: SlideTheme | string }> = ({
@@ -26,12 +27,15 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   rightImagePath = '',
   logoText = 'Your Logo',
   logoPath = '',
+  pageNumber = '35',
   isEditable = false,
   onUpdate,
   theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [edit, setEdit] = useState<{ k:string; i?:number; f?:'title'|'body' } | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };
   const left: React.CSSProperties = { padding: "72px 85px 72px 50px", position:'relative' };
@@ -39,7 +43,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 60px' };
   const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'black' };
   const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#3A3A3C', lineHeight:1.5 };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'72px', color:'#1F2937', fontSize:'13px', fontWeight:400 };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'32px', color:'#1F2937', fontSize:'13px', fontWeight:400, fontFamily:'Inter, sans-serif' };
 
   const right: React.CSSProperties = { position:'relative'};
   const imageArea: React.CSSProperties = { position:'absolute', left:'-18px', right:0, top:0, bottom:0, background: 'linear-gradient(to bottom, #0F58F9, #1023A1)', height:'100%' };
@@ -98,7 +102,24 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
           </div>
           
           {/* Page number */}
-          <div style={pageNumberStyle}>35</div>
+          <div style={pageNumberStyle}>
+            {isEditable && editingPageNumber ? (
+              <ImprovedInlineEditor
+                initialValue={currentPageNumber}
+                onSave={(v) => {
+                  setCurrentPageNumber(v);
+                  setEditingPageNumber(false);
+                  onUpdate && onUpdate({ pageNumber: v });
+                }}
+                onCancel={() => setEditingPageNumber(false)}
+                style={inline(pageNumberStyle)}
+              />
+            ) : (
+              <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+                {currentPageNumber}
+              </div>
+            )}
+          </div>
         </div>
         <div style={right}>
           <div style={imageArea}>

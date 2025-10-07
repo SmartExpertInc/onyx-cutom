@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SoftSkillsAssessmentSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
-import PresentationImageUpload from '../PresentationImageUpload';
+import YourLogo from '../YourLogo';
 
 interface InlineEditorProps {
   initialValue: string;
@@ -137,6 +137,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   titleColor,
   contentColor,
   accentColor,
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme,
@@ -153,8 +155,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     "Additional tip 2"
   ]);
   const [currentPageNumber, setCurrentPageNumber] = useState('27');
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -221,13 +221,6 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
   const handleProfileImageUploaded = (newImagePath: string) => {
     if (onUpdate) {
       onUpdate({ ...{ title, tips, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, profileImagePath: newImagePath });
-    }
-  };
-
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
-    if (onUpdate) {
-      onUpdate({ ...{ title, tips, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
     }
   };
 
@@ -440,61 +433,16 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
-          {currentCompanyLogoPath ? (
-            // Show uploaded logo image
-            <ClickableImagePlaceholder
-              imagePath={currentCompanyLogoPath}
-              onImageUploaded={handleCompanyLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                height: '20px',
-                maxWidth: '80px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            // Show default logo design with clickable area
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: isEditable ? 'pointer' : 'default'
-            }}
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-            >
-              <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                border: '1px solid black',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px'
-              }}>
-                +
-              </div>
-              <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Your Logo</div>
-            </div>
-          )}
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+            isEditable={isEditable}
+            color="#000000"
+            text={logoText}
+          />
         </div>
       </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
     </>
   );
