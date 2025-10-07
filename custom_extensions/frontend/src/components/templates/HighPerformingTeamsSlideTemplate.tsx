@@ -9,7 +9,7 @@ import PresentationImageUpload from '../PresentationImageUpload';
 
 export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string }> = ({
   slideId: _slideId,
-  title = 'The Power of High-\nPerforming Teams',
+  title = 'The Power of High-Performing Teams',
   description = 'High-performing teams are the driving force behind exceptional results. They achieve more, innovate faster, and adapt to challenges with resilience.',
   panelColor: _panelColor = '#E9B84C',
   lineColor = '#0F58F9',
@@ -47,13 +47,13 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     overflow: 'hidden'
   };
 
-  // Top part (40% height) with gradient background
+  // Top part (42% height) with gradient background
   const topPart: React.CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: '40%',
+    height: '38%',
     background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%)',
     overflow: 'hidden'
   };
@@ -61,7 +61,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // Bottom part (60% height) with blue background
   const bottomPart: React.CSSProperties = {
     position: 'absolute',
-    top: '40%',
+    top: '38%',
     left: 0,
     right: 0,
     bottom: 0,
@@ -85,10 +85,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // Title positioned to the right of avatar
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
-    left: '250px',
-    top: '50%',
+    left: '290px',
+    top: '90px',
     transform: 'translateY(-50%)',
-    fontSize: '32px',
+    fontSize: '46px',
     fontWeight: 800,
     color: '#FFFFFF',
     maxWidth: '900px'
@@ -97,12 +97,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // Description positioned below title
   const paragraph: React.CSSProperties = {
     position: 'absolute',
-    left: '250px',
-    top: '50%',
+    left: '290px',
+    top: '115px',
     transform: 'translateY(calc(-50% + 45px))',
-    maxWidth: '800px',
-    color: '#FFFFFF',
-    fontSize: '14px',
+    maxWidth: '660px',
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: '20px',
     lineHeight: 1.6,
     opacity: 0.9
   };
@@ -116,7 +116,6 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     bottom: '56px',
     backgroundColor: '#FFFFFF',
     borderRadius: '24px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     overflow: 'hidden'
   };
 
@@ -245,7 +244,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
           <svg 
             ref={svgRef} 
             viewBox="0 0 100 100" 
-            preserveAspectRatio="none"
+            preserveAspectRatio="xMidYMid meet"
             style={{ 
               position: 'absolute', 
               top: '32px',
@@ -260,9 +259,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               d={pathD} 
               fill="none" 
               stroke={lineColor} 
-              strokeWidth="3"
+              strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
             />
             {curvePoints.map((pt, i) => (
               <circle
@@ -270,9 +270,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
                 cx={pt.x}
                 cy={pt.y}
                 r="2.5"
-                fill={lineColor}
-                stroke="#FFFFFF"
+                fill="#FFFFFF"
+                stroke={lineColor}
                 strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
                 onMouseDown={(e) => isEditable && startDrag(i, e)}
                 style={{ cursor: isEditable ? 'pointer' : 'default' }}
               />
