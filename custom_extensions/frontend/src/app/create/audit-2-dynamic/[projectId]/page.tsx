@@ -778,10 +778,27 @@ export default function DynamicAuditLandingPage() {
     }
     
     // Update local state
-    setLandingPageData(updatedData)
+    console.log('🔄 [STATE UPDATE] ==========================================');
+    console.log('🔄 [STATE UPDATE] Updating local state with new data');
+    console.log('🔄 [STATE UPDATE] Field changed:', field);
+    console.log('🔄 [STATE UPDATE] New value:', newValue);
+    console.log('🔄 [STATE UPDATE] Updated data keys:', Object.keys(updatedData));
+    console.log('🔄 [STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in updatedData);
+    if ('courseOutlineTableHeaders' in updatedData) {
+      console.log('🔄 [STATE UPDATE] courseOutlineTableHeaders value:', updatedData.courseOutlineTableHeaders);
+    }
+    console.log('🔄 [STATE UPDATE] Calling setLandingPageData...');
+    setLandingPageData(updatedData);
+    console.log('🔄 [STATE UPDATE] setLandingPageData called successfully');
+    console.log('🔄 [STATE UPDATE] ==========================================');
     
     // Automatically save to database
+    console.log('💾 [AUTO SAVE] ==========================================');
     console.log('💾 [AUTO SAVE] Starting automatic save to database');
+    console.log('💾 [AUTO SAVE] Field to save:', field);
+    console.log('💾 [AUTO SAVE] New value to save:', newValue);
+    console.log('💾 [AUTO SAVE] Project ID:', projectId);
+    console.log('💾 [AUTO SAVE] ==========================================');
     
     // 🚨 CRITICAL DATA VALIDATION: Ensure we're not sending corrupted data
     if (!updatedData || typeof updatedData !== 'object') {
@@ -799,19 +816,38 @@ export default function DynamicAuditLandingPage() {
       console.error('❌ [CRITICAL ERROR] Attempting to recover from original landingPageData...');
       
       // Try to recover by refetching the data
+      console.log('🔄 [RECOVERY] ==========================================');
       console.log('🔄 [RECOVERY] Refetching landing page data to recover from corruption...');
+      console.log('🔄 [RECOVERY] Field being saved:', field);
+      console.log('🔄 [RECOVERY] New value:', newValue);
+      console.log('🔄 [RECOVERY] ==========================================');
       try {
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`, {
+        const recoveryUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`;
+        
+        console.log('📡 [RECOVERY API] GET request to:', recoveryUrl);
+        
+        const response = await fetch(recoveryUrl, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
         
+        console.log('📡 [RECOVERY API] Response status:', response.status);
+        console.log('📡 [RECOVERY API] Response ok:', response.ok);
+        
         if (response.ok) {
           const freshData = await response.json();
-          console.log('✅ [RECOVERY] Successfully recovered fresh data:', freshData);
+          console.log('✅ [RECOVERY] ==========================================');
+          console.log('✅ [RECOVERY] Successfully recovered fresh data');
+          console.log('✅ [RECOVERY] Fresh data keys:', Object.keys(freshData));
+          console.log('✅ [RECOVERY] Fresh data has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in freshData);
+          if ('courseOutlineTableHeaders' in freshData) {
+            console.log('✅ [RECOVERY] Fresh courseOutlineTableHeaders:', freshData.courseOutlineTableHeaders);
+          }
+          console.log('✅ [RECOVERY] Full fresh data:', freshData);
+          console.log('✅ [RECOVERY] ==========================================');
           
           // Update the recovered data with the user's change
           const recoveredData = { ...freshData };
@@ -929,25 +965,40 @@ export default function DynamicAuditLandingPage() {
               recoveredData.serviceTemplatesDescription = newValue;
               break;
             case 'tableHeaderLessons':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderLessons to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
               if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
                 recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
               }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting lessons to:', newValue);
               recoveredData.courseOutlineTableHeaders.lessons = newValue;
               console.log('✅ [RECOVERY] Updated table header lessons in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
               break;
             case 'tableHeaderAssessment':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderAssessment to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
               if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
                 recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
               }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting assessment to:', newValue);
               recoveredData.courseOutlineTableHeaders.assessment = newValue;
               console.log('✅ [RECOVERY] Updated table header assessment in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
               break;
             case 'tableHeaderDuration':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderDuration to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
               if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
                 recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
               }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting duration to:', newValue);
               recoveredData.courseOutlineTableHeaders.duration = newValue;
               console.log('✅ [RECOVERY] Updated table header duration in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
               break;
             default:
               if (field.startsWith('jobPosition_')) {
@@ -982,15 +1033,36 @@ export default function DynamicAuditLandingPage() {
           }
           
           // Update local state with recovered data
+          console.log('🔄 [RECOVERY STATE UPDATE] ==========================================');
+          console.log('🔄 [RECOVERY STATE UPDATE] Applying recovered data to local state');
+          console.log('🔄 [RECOVERY STATE UPDATE] Recovered data keys:', Object.keys(recoveredData));
+          console.log('🔄 [RECOVERY STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in recoveredData);
+          if ('courseOutlineTableHeaders' in recoveredData) {
+            console.log('🔄 [RECOVERY STATE UPDATE] courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+          }
+          console.log('🔄 [RECOVERY STATE UPDATE] Calling setLandingPageData with recovered data...');
           setLandingPageData(recoveredData);
           updatedData = recoveredData;
           console.log('✅ [RECOVERY] Updated local state with recovered data');
+          console.log('✅ [RECOVERY] updatedData now equals recoveredData');
+          console.log('✅ [RECOVERY] updatedData.courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+          console.log('🔄 [RECOVERY STATE UPDATE] ==========================================');
         } else {
-          console.error('❌ [RECOVERY FAILED] Could not fetch fresh data, aborting save');
+          console.error('❌ [RECOVERY FAILED] ==========================================');
+          console.error('❌ [RECOVERY FAILED] Could not fetch fresh data');
+          console.error('❌ [RECOVERY FAILED] Response status:', response.status);
+          console.error('❌ [RECOVERY FAILED] Aborting save to prevent data loss');
+          console.error('❌ [RECOVERY FAILED] ==========================================');
           return;
         }
       } catch (error) {
-        console.error('❌ [RECOVERY FAILED] Error during data recovery:', error);
+        console.error('❌ [RECOVERY FAILED] ==========================================');
+        console.error('❌ [RECOVERY FAILED] Exception during data recovery');
+        console.error('❌ [RECOVERY FAILED] Error:', error);
+        console.error('❌ [RECOVERY FAILED] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+        console.error('❌ [RECOVERY FAILED] Error message:', error instanceof Error ? error.message : String(error));
+        console.error('❌ [RECOVERY FAILED] Aborting save to prevent data loss');
+        console.error('❌ [RECOVERY FAILED] ==========================================');
         return;
       }
     }
@@ -1049,19 +1121,29 @@ export default function DynamicAuditLandingPage() {
         console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
       }
       
+      console.log('📤 [SENDING TO BACKEND] ==========================================');
+      console.log('📤 [SENDING TO BACKEND] About to send PUT request');
+      console.log('📤 [SENDING TO BACKEND] URL:', apiEndpoint);
+      console.log('📤 [SENDING TO BACKEND] Body size:', JSON.stringify(requestPayload).length, 'bytes');
+      console.log('📤 [SENDING TO BACKEND] Timestamp:', new Date().toISOString());
+      console.log('📤 [SENDING TO BACKEND] ==========================================');
+      
       const response = await fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestPayload),
-      })
+      });
       
       console.log('📡 [API RESPONSE] ===========================================');
+      console.log('📡 [API RESPONSE] Received response from backend');
       console.log('📡 [API RESPONSE] Status:', response.status);
       console.log('📡 [API RESPONSE] Status Text:', response.statusText);
+      console.log('📡 [API RESPONSE] OK:', response.ok);
       console.log('📡 [API RESPONSE] Headers:', Object.fromEntries(response.headers.entries()));
       console.log('📡 [API RESPONSE] Timestamp:', new Date().toISOString());
+      console.log('📡 [API RESPONSE] ===========================================');
       
       if (response.ok) {
         console.log('✅ [API SUCCESS] Request successful');
@@ -1099,7 +1181,21 @@ export default function DynamicAuditLandingPage() {
       setHasUnsavedChanges(true)
     }
     
+    console.log('🏁 [SAVE COMPLETE] ==========================================');
+    console.log('🏁 [SAVE COMPLETE] Save workflow finished');
+    console.log('🏁 [SAVE COMPLETE] Field:', field);
+    console.log('🏁 [SAVE COMPLETE] Final value:', newValue);
+    console.log('🏁 [SAVE COMPLETE] Calling stopEditing to exit edit mode...');
+    console.log('🏁 [SAVE COMPLETE] ==========================================');
+    
     stopEditing()
+    
+    console.log('🎬 [SAVE END] ==========================================');
+    console.log('🎬 [SAVE END] handleTextSave function completed');
+    console.log('🎬 [SAVE END] Edit mode should now be closed');
+    console.log('🎬 [SAVE END] Data should be persisted in database');
+    console.log('🎬 [SAVE END] Timestamp:', new Date().toISOString());
+    console.log('🎬 [SAVE END] ==========================================');
   }
 
 
@@ -1376,27 +1472,61 @@ export default function DynamicAuditLandingPage() {
           console.log('🔧 [INIT] Initialized serviceTemplatesDescription with default value');
         }
         
-        setLandingPageData(data)
-        console.log(`✅ [FRONTEND DATA FLOW] Landing page data set successfully`)
+        console.log('🔄 [FRONTEND STATE UPDATE] ==========================================');
+        console.log('🔄 [FRONTEND STATE UPDATE] Setting landing page data to state');
+        console.log('🔄 [FRONTEND STATE UPDATE] Data keys:', Object.keys(data));
+        console.log('🔄 [FRONTEND STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in data);
+        if ('courseOutlineTableHeaders' in data && data.courseOutlineTableHeaders) {
+          console.log('🔄 [FRONTEND STATE UPDATE] ✅ courseOutlineTableHeaders present in data!');
+          console.log('🔄 [FRONTEND STATE UPDATE] Table headers:', data.courseOutlineTableHeaders);
+          console.log('🔄 [FRONTEND STATE UPDATE] - Lessons:', data.courseOutlineTableHeaders.lessons || 'NOT SET');
+          console.log('🔄 [FRONTEND STATE UPDATE] - Assessment:', data.courseOutlineTableHeaders.assessment || 'NOT SET');
+          console.log('🔄 [FRONTEND STATE UPDATE] - Duration:', data.courseOutlineTableHeaders.duration || 'NOT SET');
+        } else {
+          console.log('🔄 [FRONTEND STATE UPDATE] ❌ courseOutlineTableHeaders NOT in data or is null/undefined');
+          console.log('🔄 [FRONTEND STATE UPDATE] Will use default localized values for table headers');
+        }
+        console.log('🔄 [FRONTEND STATE UPDATE] Calling setLandingPageData...');
+        setLandingPageData(data);
+        console.log('✅ [FRONTEND DATA FLOW] Landing page data set successfully');
+        console.log('🔄 [FRONTEND STATE UPDATE] ==========================================');
         
         // 📊 DETAILED LOGGING: Language parameter after setting state
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "${data.language}"`)
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering`)
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "${data.language}"`);
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering`);
         
       } catch (err) {
-        console.error(`❌ [FRONTEND DATA FLOW] Error occurred:`, err)
+        console.error('❌ [FRONTEND DATA FLOW] ==========================================');
+        console.error('❌ [FRONTEND DATA FLOW] Error occurred during data fetch');
+        console.error('❌ [FRONTEND DATA FLOW] Error:', err);
+        console.error('❌ [FRONTEND DATA FLOW] Error type:', err instanceof Error ? err.constructor.name : typeof err);
+        console.error('❌ [FRONTEND DATA FLOW] Error message:', err instanceof Error ? err.message : String(err));
+        console.error('❌ [FRONTEND DATA FLOW] ==========================================');
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
-        setLoading(false)
-        console.log(`🏁 [FRONTEND DATA FLOW] Data fetch process completed`)
+        setLoading(false);
+        console.log('🏁 [FRONTEND DATA FLOW] ==========================================');
+        console.log('🏁 [FRONTEND DATA FLOW] Data fetch process completed');
+        console.log('🏁 [FRONTEND DATA FLOW] Loading state set to false');
+        console.log('🏁 [FRONTEND DATA FLOW] Component ready to render');
+        console.log('🏁 [FRONTEND DATA FLOW] Timestamp:', new Date().toISOString());
+        console.log('🏁 [FRONTEND DATA FLOW] ==========================================');
       }
     }
 
     if (projectId) {
-      console.log(`🚀 [FRONTEND DATA FLOW] Project ID available, starting fetch: ${projectId}`)
+      console.log('🚀 [COMPONENT MOUNT] ==========================================');
+      console.log('🚀 [COMPONENT MOUNT] DynamicAuditLandingPage component mounting');
+      console.log('🚀 [COMPONENT MOUNT] Project ID available:', projectId);
+      console.log('🚀 [COMPONENT MOUNT] Starting data fetch...');
+      console.log('🚀 [COMPONENT MOUNT] Timestamp:', new Date().toISOString());
+      console.log('🚀 [COMPONENT MOUNT] ==========================================');
       fetchLandingPageData()
     } else {
-      console.error('❌ [FRONTEND DATA FLOW] Project ID not found')
+      console.error('❌ [COMPONENT MOUNT] ==========================================');
+      console.error('❌ [COMPONENT MOUNT] Project ID not found in URL params');
+      console.error('❌ [COMPONENT MOUNT] Cannot fetch landing page data');
+      console.error('❌ [COMPONENT MOUNT] ==========================================');
       setError('Project ID not found')
       setLoading(false)
     }
@@ -1456,6 +1586,44 @@ export default function DynamicAuditLandingPage() {
       console.log(`🎨 [FRONTEND DATA FLOW] - Position ${index + 1}: "${position.title}" with icon "${position.icon}"`)
     })
   }
+  
+  // 🎯 CRITICAL LOGGING: Table headers rendering values
+  console.log('🎨 [TABLE HEADER RENDER] ==========================================');
+  console.log('🎨 [TABLE HEADER RENDER] About to render table headers in UI');
+  console.log('🎨 [TABLE HEADER RENDER] landingPageData.courseOutlineTableHeaders:', landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in landingPageData);
+  
+  // Calculate what will actually be displayed
+  const displayedLessonsHeader = landingPageData.courseOutlineTableHeaders?.lessons || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Lessons in module',
+      es: 'Lecciones en módulo',
+      ua: 'Уроки в модулі',
+      ru: 'Уроки в модуле'
+    });
+  const displayedAssessmentHeader = landingPageData.courseOutlineTableHeaders?.assessment || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Knowledge check: test / practice with mentor',
+      es: 'Verificación de conocimientos: prueba / práctica con mentor',
+      ua: 'Перевірка знань: тест / практика з куратором',
+      ru: 'Проверка знаний: тест / практика с куратором'
+    });
+  const displayedDurationHeader = landingPageData.courseOutlineTableHeaders?.duration || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Training duration',
+      es: 'Duración del entrenamiento',
+      ua: 'Тривалість навчання',
+      ru: 'Длительность обучения'
+    });
+  
+  console.log('🎨 [TABLE HEADER RENDER] ACTUAL VALUES TO BE DISPLAYED:');
+  console.log('🎨 [TABLE HEADER RENDER] - Lessons column:', displayedLessonsHeader);
+  console.log('🎨 [TABLE HEADER RENDER] - Assessment column:', displayedAssessmentHeader);
+  console.log('🎨 [TABLE HEADER RENDER] - Duration column:', displayedDurationHeader);
+  console.log('🎨 [TABLE HEADER RENDER] Language:', landingPageData?.language);
+  console.log('🎨 [TABLE HEADER RENDER] Using custom values:', !!landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] Using default localized values:', !landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] ==========================================');
 
   return (
       <>

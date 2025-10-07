@@ -16618,6 +16618,28 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         content = row["microproduct_content"]
         project_name = row["microproduct_name"]
         
+        # 🎯 CRITICAL INSTRUMENTATION: Initial database read - what's actually in the DB
+        logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ==========================================")
+        logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Project {project_id} - Raw database content retrieved")
+        logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Content type: {type(content)}")
+        logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Content is dict: {isinstance(content, dict)}")
+        
+        if content and isinstance(content, dict):
+            logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] All keys in database: {list(content.keys())}")
+            logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content}")
+            
+            if 'courseOutlineTableHeaders' in content:
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ✅ courseOutlineTableHeaders EXISTS in database!")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Raw value: {content['courseOutlineTableHeaders']}")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Type: {type(content['courseOutlineTableHeaders'])}")
+            else:
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ courseOutlineTableHeaders NOT in database")
+                logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] Available keys: {list(content.keys())}")
+        else:
+            logger.error(f"🎯 [TABLE HEADER INITIAL DB READ] ❌ Content is not a dict or is None!")
+        
+        logger.info(f"🎯 [TABLE HEADER INITIAL DB READ] ==========================================")
+        
         # 📊 DETAILED LOGGING: Language preference in retrieved data
         language_from_db = content.get("language", "NOT_FOUND") if content else "NO_CONTENT"
         logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Retrieved from database - language: '{language_from_db}'")
@@ -16683,6 +16705,26 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         for i, template in enumerate(course_templates):
             logger.info(f"🎓 [AUDIT DATA FLOW] - Template {i+1}: {template.get('title', 'Unknown')}")
         
+        # 🎯 CRITICAL INSTRUMENTATION: Extract table headers from database
+        course_outline_table_headers = content.get("courseOutlineTableHeaders", None)
+        
+        logger.info(f"🎯 [TABLE HEADER DB READ] ==========================================")
+        logger.info(f"🎯 [TABLE HEADER DB READ] Project {project_id} - Reading table headers from database")
+        logger.info(f"🎯 [TABLE HEADER DB READ] Database content keys: {list(content.keys())}")
+        logger.info(f"🎯 [TABLE HEADER DB READ] Has courseOutlineTableHeaders in DB: {'courseOutlineTableHeaders' in content}")
+        
+        if course_outline_table_headers:
+            logger.info(f"🎯 [TABLE HEADER DB READ] ✅ courseOutlineTableHeaders FOUND in database!")
+            logger.info(f"🎯 [TABLE HEADER DB READ] Retrieved data: {json.dumps(course_outline_table_headers, indent=2)}")
+            logger.info(f"🎯 [TABLE HEADER DB READ] - Lessons: '{course_outline_table_headers.get('lessons', 'NOT SET')}'")
+            logger.info(f"🎯 [TABLE HEADER DB READ] - Assessment: '{course_outline_table_headers.get('assessment', 'NOT SET')}'")
+            logger.info(f"🎯 [TABLE HEADER DB READ] - Duration: '{course_outline_table_headers.get('duration', 'NOT SET')}'")
+            logger.info(f"🎯 [TABLE HEADER DB READ] This data WILL BE sent to frontend")
+        else:
+            logger.info(f"🎯 [TABLE HEADER DB READ] ❌ courseOutlineTableHeaders NOT FOUND in database")
+            logger.info(f"🎯 [TABLE HEADER DB READ] Frontend will use default localized values")
+        logger.info(f"🎯 [TABLE HEADER DB READ] ==========================================")
+        
         # 📊 LOG: Final response data structure
         response_data = {
             "projectId": project_id,
@@ -16693,7 +16735,8 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
             "workforceCrisis": workforce_crisis,
             "courseOutlineModules": course_outline_modules,
             "courseTemplates": course_templates,
-            "language": content.get("language", "ru")  # 🔧 FIX: Include language parameter in response
+            "language": content.get("language", "ru"),  # 🔧 FIX: Include language parameter in response
+            "courseOutlineTableHeaders": course_outline_table_headers  # 🔧 CRITICAL FIX: Include table headers in response
         }
         
         logger.info(f"📤 [AUDIT DATA FLOW] Final response data:")
@@ -16703,6 +16746,17 @@ async def get_ai_audit_landing_page_data(project_id: int, request: Request, pool
         logger.info(f"📤 [AUDIT DATA FLOW] - Company Description: '{response_data['companyDescription']}'")
         logger.info(f"📤 [AUDIT DATA FLOW] - Job Positions Count: {len(response_data['jobPositions'])}")
         logger.info(f"📤 [AUDIT DATA FLOW] - Workforce Crisis Data: {response_data['workforceCrisis']}")
+        
+        # 🎯 CRITICAL LOGGING: Confirm table headers in response
+        logger.info(f"🎯 [TABLE HEADER RESPONSE] ==========================================")
+        logger.info(f"🎯 [TABLE HEADER RESPONSE] Project {project_id} - Including courseOutlineTableHeaders in response")
+        logger.info(f"🎯 [TABLE HEADER RESPONSE] Response includes courseOutlineTableHeaders: {'courseOutlineTableHeaders' in response_data}")
+        if response_data.get('courseOutlineTableHeaders'):
+            logger.info(f"🎯 [TABLE HEADER RESPONSE] ✅ Sending table headers to frontend!")
+            logger.info(f"🎯 [TABLE HEADER RESPONSE] Data: {json.dumps(response_data['courseOutlineTableHeaders'], indent=2)}")
+        else:
+            logger.info(f"🎯 [TABLE HEADER RESPONSE] ❌ No table headers to send (using None)")
+        logger.info(f"🎯 [TABLE HEADER RESPONSE] ==========================================")
         
         # 📊 DETAILED LOGGING: Language parameter in response
         logger.info(f"🔍 [LANGUAGE FLOW DEBUG] Response data - language: '{response_data['language']}'")
@@ -16848,6 +16902,10 @@ async def get_public_audit(
         workforce_crisis = content.get("workforceCrisis", {})
         course_outline_modules = content.get("courseOutlineModules", [])
         course_templates = content.get("courseTemplates", [])
+        course_outline_table_headers = content.get("courseOutlineTableHeaders", None)  # 🔧 CRITICAL FIX: Extract table headers
+        
+        # 🎯 INSTRUMENTATION: Log table headers for public audits
+        logger.info(f"🎯 [PUBLIC AUDIT TABLE HEADERS] Project {audit['id']} - courseOutlineTableHeaders: {course_outline_table_headers}")
         
         # Return the same structure as the private endpoint but without sensitive info
         response_data = {
@@ -16860,6 +16918,7 @@ async def get_public_audit(
             "courseOutlineModules": course_outline_modules,
             "courseTemplates": course_templates,
             "language": content.get("language", "ru"),
+            "courseOutlineTableHeaders": course_outline_table_headers,  # 🔧 CRITICAL FIX: Include table headers in response
             "isPublicView": True,  # Flag to indicate this is a public view
             "sharedAt": audit["shared_at"].isoformat() if audit["shared_at"] else None
         }
@@ -24465,6 +24524,25 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
 
         content_to_store_for_db = project_update_data.microProductContent if project_update_data.microProductContent else None
         
+        # 🎯 CRITICAL INSTRUMENTATION: Table headers in received payload
+        if content_to_store_for_db and isinstance(content_to_store_for_db, dict):
+            logger.info(f"🎯 [TABLE HEADER BACKEND] ==========================================")
+            logger.info(f"🎯 [TABLE HEADER BACKEND] Project {project_id} - Checking for courseOutlineTableHeaders in payload")
+            logger.info(f"🎯 [TABLE HEADER BACKEND] Payload keys: {list(content_to_store_for_db.keys())}")
+            logger.info(f"🎯 [TABLE HEADER BACKEND] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in content_to_store_for_db}")
+            
+            if 'courseOutlineTableHeaders' in content_to_store_for_db:
+                logger.info(f"🎯 [TABLE HEADER BACKEND] ✅ courseOutlineTableHeaders FOUND in payload!")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] Full data: {json.dumps(content_to_store_for_db['courseOutlineTableHeaders'], indent=2)}")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] - Lessons: '{content_to_store_for_db['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] - Assessment: '{content_to_store_for_db['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] - Duration: '{content_to_store_for_db['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] This data WILL BE stored in database")
+            else:
+                logger.info(f"🎯 [TABLE HEADER BACKEND] ❌ courseOutlineTableHeaders NOT FOUND in payload")
+                logger.info(f"🎯 [TABLE HEADER BACKEND] Payload contains: {list(content_to_store_for_db.keys())}")
+            logger.info(f"🎯 [TABLE HEADER BACKEND] ==========================================")
+        
         # 🚨 CRITICAL: Validate that the data structure matches the component type
         if current_component_name == COMPONENT_NAME_TEXT_PRESENTATION and content_to_store_for_db:
             # Check if this is an AI audit landing page project
@@ -24635,6 +24713,27 @@ async def update_project_in_db(project_id: int, project_update_data: ProjectUpda
             logger.info(f"💾 [DATABASE TRANSACTION RESULT] Rows affected: {row is not None}")
             logger.info(f"💾 [DATABASE TRANSACTION RESULT] Returned data: {dict(row) if row else 'None'}")
             logger.info(f"💾 [DATABASE TRANSACTION RESULT] Timestamp: {datetime.now().isoformat()}")
+            
+            # 🎯 CRITICAL INSTRUMENTATION: Verify table headers were saved to database
+            if row and row['microproduct_content']:
+                saved_content = dict(row['microproduct_content'])
+                logger.info(f"🎯 [TABLE HEADER DB VERIFY] ==========================================")
+                logger.info(f"🎯 [TABLE HEADER DB VERIFY] Project {project_id} - Verifying saved content")
+                logger.info(f"🎯 [TABLE HEADER DB VERIFY] Saved content keys: {list(saved_content.keys())}")
+                logger.info(f"🎯 [TABLE HEADER DB VERIFY] Has courseOutlineTableHeaders: {'courseOutlineTableHeaders' in saved_content}")
+                
+                if 'courseOutlineTableHeaders' in saved_content:
+                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] ✅ courseOutlineTableHeaders CONFIRMED SAVED to database!")
+                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] Saved data: {json.dumps(saved_content['courseOutlineTableHeaders'], indent=2)}")
+                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Lessons: '{saved_content['courseOutlineTableHeaders'].get('lessons', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Assessment: '{saved_content['courseOutlineTableHeaders'].get('assessment', 'NOT SET')}'")
+                    logger.info(f"🎯 [TABLE HEADER DB VERIFY] - Duration: '{saved_content['courseOutlineTableHeaders'].get('duration', 'NOT SET')}'")
+                else:
+                    logger.warning(f"🎯 [TABLE HEADER DB VERIFY] ⚠️ courseOutlineTableHeaders NOT FOUND in saved database content!")
+                    logger.warning(f"🎯 [TABLE HEADER DB VERIFY] This means the data was NOT persisted to database")
+                    logger.warning(f"🎯 [TABLE HEADER DB VERIFY] Saved content contains: {list(saved_content.keys())}")
+                logger.info(f"🎯 [TABLE HEADER DB VERIFY] ==========================================")
+            
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found or update failed.")
 
