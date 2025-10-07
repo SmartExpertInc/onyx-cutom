@@ -10,6 +10,8 @@ export interface TopicsSlideProps extends BaseTemplateProps {
   title: string;
   topics: string[];
   avatarPath?: string;
+  logoNew?: string;
+  pageNumber?: string;
 }
 
 export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideTheme | string }> = ({
@@ -21,12 +23,17 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     'Learning from errors'
   ],
   avatarPath = '',
+  logoNew = '',
+  pageNumber = '32',
   isEditable = false,
   onUpdate,
   theme
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
+  const [_showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { 
     width:'100%', 
@@ -63,9 +70,8 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const rightSection: React.CSSProperties = {
     position:'absolute',
     right:0,
-    top:0,
+    top:'120px',
     width:'55%',
-    height:'100%',
     background:'#E0E7FF',
     padding:'60px 80px',
     display:'flex',
@@ -75,13 +81,14 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 
   // Topics header banner
   const topicsBanner: React.CSSProperties = {
-    width:'200px',
-    borderRadius:'27px',
-    border: '1px solid #09090BCC',
-    marginBottom:'40px',
+    width:'fit-content',
+    borderRadius:'50px',
+    border: '1px solid #09090BC',
+    marginBottom:'50px',
     display:'flex',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    padding: '15px 25px'
   };
 
   const topicsTitleStyle: React.CSSProperties = {
@@ -111,9 +118,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   };
 
   const topicText: React.CSSProperties = {
-    fontSize:'16px',
+    fontSize:'24px',
     fontWeight:400,
-    color:'#C1C1C1',
+    color:'rgba(9, 9, 11, 0.8)',
     lineHeight:1.4
   };
 
@@ -125,6 +132,21 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     padding:0,
     margin:0
   });
+
+  const handleLogoNewUploaded = (path: string) => {
+    onUpdate && onUpdate({ logoNew: path });
+    setShowLogoUploadModal(false);
+  };
+
+  const handlePageNumberSave = (value: string) => {
+    setCurrentPageNumber(value);
+    onUpdate && onUpdate({ pageNumber: value });
+    setEditingPageNumber(false);
+  };
+
+  const handlePageNumberCancel = () => {
+    setEditingPageNumber(false);
+  };
 
   return (
     <div className="topics-slide inter-theme" style={slide}>
@@ -202,6 +224,102 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Logo in top-right corner */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '30px'
+      }}>
+        {logoNew ? (
+          <ClickableImagePlaceholder
+            imagePath={logoNew}
+            onImageUploaded={handleLogoNewUploaded}
+            size="SMALL"
+            position="CENTER"
+            description="Company logo"
+            isEditable={isEditable}
+            style={{
+              height: '30px',
+              maxWidth: '120px',
+              objectFit: 'contain'
+            }}
+          />
+        ) : (
+          <div 
+            onClick={() => isEditable && setShowLogoUploadModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              cursor: isEditable ? 'pointer' : 'default'
+            }}
+          >
+            <div style={{
+              width: '30px',
+              height: '30px',
+              border: '2px solid #09090B',
+              borderRadius: '50%',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+              <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+            </div>
+            <span style={{ fontSize: '16px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Page number with line in bottom-right */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        right: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(9, 9, 11, 0.6)'
+        }} />
       </div>
     </div>
   );

@@ -14,12 +14,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   panelColor: _panelColor = '#E9B84C',
   lineColor = '#0F58F9',
   points = [
-    { x: 0, y: 100 },   // bottom-left corner (respecting padding)
-    { x: 20, y: 80 },
-    { x: 40, y: 60 },
-    { x: 60, y: 40 },
-    { x: 80, y: 20 },
-    { x: 100, y: 0 }    // top-right corner (respecting padding)
+    { x: 8, y: 92 },   // bottom-left with visual padding
+    { x: 25, y: 75 },
+    { x: 45, y: 55 },
+    { x: 65, y: 35 },
+    { x: 85, y: 15 },
+    { x: 95, y: 5 }    // top-right with visual padding
   ],
   avatarPath = '',
   avatarAlt: _avatarAlt = 'Avatar',
@@ -252,15 +252,15 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
           <svg 
             ref={svgRef} 
             viewBox="0 0 100 100" 
-            preserveAspectRatio="none"
+            preserveAspectRatio="xMidYMid meet"
             style={{ 
               position: 'absolute', 
-              top: '40px',
-              left: '80px',
-              right: '80px',
-              bottom: '40px',
-              width: 'calc(100% - 160px)',
-              height: 'calc(100% - 80px)'
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: '100%'
             }}
           >
             <path 

@@ -2414,12 +2414,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         'How to develop a growth mindset',
         'Learning from errors'
       ],
-      avatarPath: ''
+      avatarPath: '',
+      logoNew: '',
+      pageNumber: '32'
     },
     propSchema: {
       title: { type: 'text', label: 'Title', required: true },
       topics: { type: 'array', label: 'Topics', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      avatarPath: { type: 'image', label: 'Avatar' },
+      logoNew: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number' }
     }
   },
 
