@@ -704,25 +704,40 @@ export default function DynamicAuditLandingPage() {
         console.log('✅ [TEXT SAVE] Successfully updated serviceTemplatesDescription');
         break
       case 'tableHeaderLessons':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderLessons field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
         if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
           updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
         }
+        console.log('📝 [TABLE HEADER SAVE] Setting lessons to:', newValue);
         updatedData.courseOutlineTableHeaders.lessons = newValue;
         console.log('✅ [TEXT SAVE] Successfully updated table header lessons');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
         break
       case 'tableHeaderAssessment':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderAssessment field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
         if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
           updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
         }
+        console.log('📝 [TABLE HEADER SAVE] Setting assessment to:', newValue);
         updatedData.courseOutlineTableHeaders.assessment = newValue;
         console.log('✅ [TEXT SAVE] Successfully updated table header assessment');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
         break
       case 'tableHeaderDuration':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderDuration field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
         if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
           updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
         }
+        console.log('📝 [TABLE HEADER SAVE] Setting duration to:', newValue);
         updatedData.courseOutlineTableHeaders.duration = newValue;
         console.log('✅ [TEXT SAVE] Successfully updated table header duration');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
         break
       default:
         // Handle nested fields like job positions, course templates, and course modules
@@ -913,6 +928,27 @@ export default function DynamicAuditLandingPage() {
             case 'serviceTemplatesDescription':
               recoveredData.serviceTemplatesDescription = newValue;
               break;
+            case 'tableHeaderLessons':
+              if (!recoveredData.courseOutlineTableHeaders) {
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              recoveredData.courseOutlineTableHeaders.lessons = newValue;
+              console.log('✅ [RECOVERY] Updated table header lessons in recovered data');
+              break;
+            case 'tableHeaderAssessment':
+              if (!recoveredData.courseOutlineTableHeaders) {
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              recoveredData.courseOutlineTableHeaders.assessment = newValue;
+              console.log('✅ [RECOVERY] Updated table header assessment in recovered data');
+              break;
+            case 'tableHeaderDuration':
+              if (!recoveredData.courseOutlineTableHeaders) {
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              recoveredData.courseOutlineTableHeaders.duration = newValue;
+              console.log('✅ [RECOVERY] Updated table header duration in recovered data');
+              break;
             default:
               if (field.startsWith('jobPosition_')) {
                 const index = parseInt(field.split('_')[1]);
@@ -977,8 +1013,21 @@ export default function DynamicAuditLandingPage() {
       microProductContentKeys: Object.keys(updatedData || {}),
       hasCompanyName: 'companyName' in (updatedData || {}),
       hasJobPositions: 'jobPositions' in (updatedData || {}),
+      hasCourseOutlineTableHeaders: 'courseOutlineTableHeaders' in (updatedData || {}),
+      courseOutlineTableHeaders: updatedData.courseOutlineTableHeaders,
       dataStructureValid: isValidAuditData
     });
+    
+    // 🔍 CRITICAL LOGGING: Verify table headers are in the payload
+    if (field.startsWith('tableHeader')) {
+      console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Saving table header field:', field);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] New value:', newValue);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] courseOutlineTableHeaders in updatedData:', updatedData.courseOutlineTableHeaders);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Full courseOutlineTableHeaders:', JSON.stringify(updatedData.courseOutlineTableHeaders, null, 2));
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Will be included in API payload: YES');
+      console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
+    }
     
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
@@ -994,6 +1043,11 @@ export default function DynamicAuditLandingPage() {
       console.log('🌐 [API CALL START] Request payload:', JSON.stringify(requestPayload, null, 2));
       console.log('🌐 [API CALL START] Payload size:', JSON.stringify(requestPayload).length, 'bytes');
       console.log('🌐 [API CALL START] Timestamp:', new Date().toISOString());
+      
+      // 🔍 EXTRA LOGGING: Table headers in payload
+      if (field.startsWith('tableHeader')) {
+        console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
+      }
       
       const response = await fetch(apiEndpoint, {
         method: 'PUT',
@@ -1014,6 +1068,18 @@ export default function DynamicAuditLandingPage() {
         const responseData = await response.json();
         console.log('✅ [API SUCCESS] Response data:', JSON.stringify(responseData, null, 2));
         console.log('✅ [AUTO SAVE] Successfully saved to database');
+        
+        // 🎯 CRITICAL LOGGING: Confirm table headers were saved
+        if (field.startsWith('tableHeader')) {
+          console.log('🎯 [TABLE HEADER SAVED] ==========================================');
+          console.log('🎯 [TABLE HEADER SAVED] Field:', field);
+          console.log('🎯 [TABLE HEADER SAVED] New value:', newValue);
+          console.log('🎯 [TABLE HEADER SAVED] Database save confirmed: YES');
+          console.log('🎯 [TABLE HEADER SAVED] Updated courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+          console.log('🎯 [TABLE HEADER SAVED] On next page load, this value should be retrieved from DB');
+          console.log('🎯 [TABLE HEADER SAVED] ==========================================');
+        }
+        
         setHasUnsavedChanges(false)
       } else {
         console.error('❌ [API ERROR] Request failed');
@@ -1248,6 +1314,20 @@ export default function DynamicAuditLandingPage() {
         console.log(`📥 [FRONTEND DATA FLOW] - Company Name: "${data.companyName}"`)
         console.log(`📥 [FRONTEND DATA FLOW] - Company Description: "${data.companyDescription}"`)
         console.log(`📥 [FRONTEND DATA FLOW] - Job Positions Count: ${data.jobPositions?.length || 0}`)
+        
+        // 🎯 CRITICAL LOGGING: Table headers retrieval
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] ==========================================`)
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] courseOutlineTableHeaders in response:`, data.courseOutlineTableHeaders)
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] Has courseOutlineTableHeaders: ${'courseOutlineTableHeaders' in data}`)
+        if (data.courseOutlineTableHeaders) {
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Lessons: "${data.courseOutlineTableHeaders.lessons || 'NOT SET'}"`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Assessment: "${data.courseOutlineTableHeaders.assessment || 'NOT SET'}"`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Duration: "${data.courseOutlineTableHeaders.duration || 'NOT SET'}"`)
+        } else {
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] courseOutlineTableHeaders NOT FOUND in API response`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] Table headers will use default localized values`)
+        }
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] ==========================================`)
         
         if (data.jobPositions && data.jobPositions.length > 0) {
           console.log(`📥 [FRONTEND DATA FLOW] Job Positions:`)
