@@ -24,6 +24,7 @@ export interface ImpactMetricsRightImageProps extends BaseTemplateProps {
   rightImageAlt?: string;
   logoPath?: string;
   logoText?: string;
+  pageNumber?: string;
 }
 
 export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightImageProps & { theme?: SlideTheme | string }> = ({
@@ -44,6 +45,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   rightImageAlt = 'Right image',
   logoPath = '',
   logoText = 'Your Logo',
+  pageNumber = '1',
   isEditable = false,
   onUpdate,
   theme
@@ -52,6 +54,8 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMetricIndex, setEditingMetricIndex] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = {
     width: '100%',
@@ -225,6 +229,34 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
           isEditable={isEditable}
           style={imageStyle}
         />
+      </div>
+
+      {/* Page number */}
+      <div style={{
+        position:'absolute',
+        bottom:'24px',
+        right:'22px',
+        color:'#34353C',
+        fontSize:'15px',
+        fontWeight:400,
+        fontFamily:'Inter, sans-serif'
+      }}>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'15px', fontWeight:400, fontFamily:'Inter, sans-serif' }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
       </div>
     </>

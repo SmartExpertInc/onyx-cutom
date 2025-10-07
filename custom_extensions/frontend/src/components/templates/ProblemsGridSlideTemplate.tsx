@@ -164,17 +164,6 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
       </div>
 
-      {/* Logo */}
-      <div style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
-        <YourLogo
-          logoPath={logoPath}
-          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
-          isEditable={isEditable}
-          color="#000000"
-          text={logoText}
-        />
-      </div>
-
       {/* Page number */}
       <div style={pageNumberStyle}>
         {isEditable && editPageNumber ? (

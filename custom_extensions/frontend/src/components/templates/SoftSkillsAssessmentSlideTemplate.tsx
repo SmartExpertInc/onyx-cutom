@@ -426,6 +426,9 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         
         {/* Logo placeholder */}
         <div style={{
+          position: 'absolute',
+          bottom: '24px',
+          right: '22px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',

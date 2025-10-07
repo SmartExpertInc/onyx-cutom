@@ -154,7 +154,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         left: '60px',
         top: '17%',
         transform: 'translateY(-50%)',
-        fontSize: '52px',
+        fontSize: '55px',
         fontWeight: '600',
         color: '#FFFFFF',
         fontFamily: 'Lora, serif',
@@ -244,7 +244,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           }}>
             {/* Section Title */}
             <div className="section-title" style={{
-              fontSize: '18px',
+              fontSize: '19px',
               fontWeight: '600',
               color: 'black',
               lineHeight: '1.2',

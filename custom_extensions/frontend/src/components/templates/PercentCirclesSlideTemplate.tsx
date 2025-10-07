@@ -111,7 +111,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Avatar positioning - upper right, overlapping border
   const avatarWrap: React.CSSProperties = { 
     position:'absolute', 
-    right:'80px', 
+    right:'70px', 
     top:'90px', 
     width:'170px', 
     height:'170px', 
@@ -203,7 +203,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   // Logo section styling
   const logoSection: React.CSSProperties = {
     position:'absolute',
-    bottom:'44px',
+    bottom:'24px',
     right:'44px',
     display:'flex',
     alignItems:'center',
