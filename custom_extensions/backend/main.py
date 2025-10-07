@@ -30492,8 +30492,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Event Poster v2.1</title>
-        <!-- Template Version: 2025-01-07 Updated with date wrapper, 113px heights, 4px 6px padding -->
+        <title>Event Poster</title>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <style>
             * {{
@@ -30613,7 +30612,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png");
                 background-repeat: no-repeat;
                 background-position: center center;
-                background-size: contain; /* prevent "F" cutoff */
+                background-size: cover;
             }
 
             .logo-wrapper {
