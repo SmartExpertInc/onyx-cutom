@@ -2938,16 +2938,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderLessons', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderLessons');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
@@ -2970,16 +2975,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderAssessment');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
@@ -3002,16 +3012,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderDuration', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderDuration');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
@@ -3300,16 +3315,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderLessons', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderLessons');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
@@ -3332,16 +3352,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderAssessment');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
@@ -3364,16 +3389,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderDuration', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderDuration');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
@@ -3628,16 +3658,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderLessons', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderLessons');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
@@ -3660,16 +3695,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderAssessment');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
@@ -3692,16 +3732,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderDuration', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderDuration');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
@@ -3956,16 +4001,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderLessons', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderLessons');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
@@ -3988,16 +4038,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderAssessment');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
@@ -4020,16 +4075,21 @@ export default function DynamicAuditLandingPage() {
                                         })}
                                         onSave={(value) => handleTextSave('tableHeaderDuration', value)}
                                         onCancel={handleTextCancel}
-                                        className="font-medium text-white"
-                                        style={{ fontSize: '12px', color: 'white' }}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
                                       />
                                     ) : (
                                       <span 
+                                        onMouseDown={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                        }}
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          e.preventDefault();
                                           startEditing('tableHeaderDuration');
                                         }}
-                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
                                       >
                                         {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
