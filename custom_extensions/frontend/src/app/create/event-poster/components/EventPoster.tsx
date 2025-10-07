@@ -657,7 +657,7 @@ export default function EventPoster({
                   color: '#E5E5E5',
                 fontFamily: 'Montserrat',
                 fontWeight: '400',
-                fontSize: '35px',
+                fontSize: '33px',
                 textAlign: 'left',
                 lineHeight: '1.2',
                 overflow: 'hidden',
@@ -665,7 +665,7 @@ export default function EventPoster({
                 textTransform: 'uppercase'
               }}
             />
-              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '35px', lineHeight: '1.2' }}>:</span>
+              <span style={{ color: '#E5E5E5', fontFamily: 'Montserrat', fontWeight: 400, fontSize: '33px', lineHeight: '1.2' }}>:</span>
             </div>
 
             {/* Logo */}
