@@ -55,10 +55,10 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
-  const col: React.CSSProperties = { padding:'36px 42px', fontSize:'16px', lineHeight:1.6, color:'#FFFFFF', background:'#0F58F9' };
-  const mid: React.CSSProperties = { padding:'36px 42px', fontSize:'16px', lineHeight:1.6, color:'#000000', background:'#FFFFFF' };
-  const cardTitleStyle: React.CSSProperties = { fontSize:'24px', fontWeight:700, marginBottom:'16px', color:'#FFFFFF' };
-  const cardTitleStyleMid: React.CSSProperties = { fontSize:'24px', fontWeight:700, marginBottom:'16px', color:'#000000' };
+  const col: React.CSSProperties = { padding:'30px 28px', fontSize:'16px', lineHeight:1.6, color:'#FFFFFF', background:'#0F58F9' };
+  const mid: React.CSSProperties = { padding:'30px 35px', fontSize:'16px', lineHeight:1.6, color:'#000000', background:'#FFFFFF' };
+  const cardTitleStyle: React.CSSProperties = { fontSize:'20px', fontWeight:700, marginBottom:'16px', color:'#FFFFFF' };
+  const cardTitleStyleMid: React.CSSProperties = { fontSize:'24px', fontWeight:700, marginBottom:'16px', color:'#FFFFFF' };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#FFFFFF', fontSize:'13px', fontWeight:400 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });

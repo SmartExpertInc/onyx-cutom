@@ -38,11 +38,11 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const titleStyle: React.CSSProperties = { fontSize:'60px', fontWeight:800, color:'#222', lineHeight:0.95, whiteSpace:'pre-line', marginTop:'20px' };
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
   const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'#444444' };
-  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#626262', lineHeight:1.5 };
+  const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#3A3A3C', lineHeight:1.5 };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'72px', color:'#1F2937', fontSize:'13px', fontWeight:400 };
 
   const right: React.CSSProperties = { position:'relative'};
-  const imageArea: React.CSSProperties = { position:'absolute', left:'54px', right:0, top:0, bottom:0, background: '#0F58F9', height:'100%' };
+  const imageArea: React.CSSProperties = { position:'absolute', left:'10px', right:0, top:0, bottom:0, background: 'linear-gradient(to bottom, #0F58F9, #1023A1)', height:'100%' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -50,9 +50,11 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
     <>
       <style>{`
         .softskills-title {
-          font-weight: 900 !important;
+          font-weight: 800 !important;
+          font-family: "Lora", serif !important;
         }
         .softskills-item-title {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 800 !important;
         }
       `}</style>
@@ -97,7 +99,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
         </div>
         <div style={right}>
           <div style={imageArea}>
-            <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath:p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={{ width:'84%', height:'100%', objectFit:'cover' }} />
+            <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath:p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
           </div>
         </div>
       </div>

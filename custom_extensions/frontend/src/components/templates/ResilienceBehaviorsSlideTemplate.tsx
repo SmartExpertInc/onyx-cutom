@@ -51,24 +51,24 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     left: 0,
     right: 0,
     height: '40%',
-    backgroundColor: '#0F58F9',
+    background: 'linear-gradient(to bottom, #0F58F9, #1023A1)',
   };
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '88px',
+    top: '45px',
     left: '64px',
-    right: '420px',
+    right: '40px',
     fontSize: '37px',
     maxWidth: '720px',
-    fontWeight: 700,
+    fontWeight: 800,
     color: '#FFFFFF',
     lineHeight: 1.2,
   };
 
   const subtitleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '180px',
+    top: '155px',
     left: '64px',
     right: '420px',
     fontSize: '18px',
@@ -116,7 +116,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const bulletNumberStyles: React.CSSProperties = {
     width: '32px',
     height: '32px',
-    borderRadius: '50%',
+    borderRadius: '3px',
     backgroundColor: '#0F58F9',
     color: '#FFFFFF',
     display: 'flex',
@@ -126,6 +126,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     fontWeight: 700,
     marginRight: '16px',
     flexShrink: 0,
+    alignSelf: 'flex-start',
   };
 
   const pageNumberStyles: React.CSSProperties = {
@@ -147,7 +148,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     <>
       <style>{`
         .resilience-title {
-          font-weight: 800 !important;
+          font-weight: 900 !important;
         }
         .resilience-subtitle {
           font-weight: 400 !important;
@@ -156,6 +157,19 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
       <div className="resilience-behaviors-slide inter-theme" style={slideStyles}>
         {/* Top Section - Dark Blue */}
         <div style={topSectionStyles}>
+
+          {/* Avatar */}
+          <div style={avatarCircleStyles}>
+            <ClickableImagePlaceholder
+              imagePath={profileImagePath}
+              onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
+              size="LARGE"
+              position="CENTER"
+              description="Profile"
+              isEditable={isEditable}
+              style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+            />
+          </div>
           {/* Title */}
           <div style={titleStyles}>
             {isEditable && editingTitle ? (
@@ -185,19 +199,6 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
             ) : (
               <div className="resilience-subtitle" onClick={() => isEditable && setEditingSubtitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{subtitle}</div>
             )}
-          </div>
-
-          {/* Avatar */}
-          <div style={avatarCircleStyles}>
-            <ClickableImagePlaceholder
-              imagePath={profileImagePath}
-              onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
-              size="LARGE"
-              position="CENTER"
-              description="Profile"
-              isEditable={isEditable}
-              style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-            />
           </div>
         </div>
 
