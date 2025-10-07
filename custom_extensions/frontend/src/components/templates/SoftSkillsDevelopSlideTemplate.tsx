@@ -57,6 +57,9 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
+        .softskills-item-desk {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
       `}</style>
       <div className="softskills-develop inter-theme" style={slide}>
         <div style={left}>
@@ -83,7 +86,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
                     it.title
                   )}
                 </div>
-                <div onClick={()=> isEditable && setEdit({ k:'it', i, f:'body' })} style={itemBody}>
+                <div className="softskills-item-desk" onClick={()=> isEditable && setEdit({ k:'it', i, f:'body' })} style={itemBody}>
                   {isEditable && edit?.k==='it' && edit.i===i && edit.f==='body' ? (
                     <ImprovedInlineEditor initialValue={it.body} multiline={true} onSave={(v)=>{ const next=[...items]; next[i]={ ...next[i], body:v }; onUpdate&&onUpdate({ items: next }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(itemBody)} />
                   ) : (

@@ -114,11 +114,12 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     color: '#34353C',
     fontSize: '18px',
     lineHeight: 1.4,
+    paddingRight: '60px',
   };
 
   const bulletNumberStyles: React.CSSProperties = {
-    width: '32px',
-    height: '32px',
+    width: '28px',
+    height: '28px',
     borderRadius: '3px',
     backgroundColor: '#0F58F9',
     color: '#FFFFFF',
@@ -155,6 +156,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         }
         .resilience-subtitle {
           font-weight: 400 !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .resilience-bullet-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
