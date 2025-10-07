@@ -73,6 +73,10 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
             font-family: "Lora", serif !important;
             font-weight: 600 !important;
           }
+          .culture-values-three-columns .title-element * {
+            font-family: "Lora", serif !important;
+            font-weight: 600 !important;
+          }
           .culture-values-three-columns .section-title {
             font-family: "Lora", serif !important;
             font-weight: 600 !important;
@@ -87,7 +91,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
             color: #FFFFFF !important;
           }
       `}</style>
-      <div className="culture-values-three-columns inter-theme" style={slide}>
+      <div className="culture-values-three-columns" style={slide}>
         <div style={top} />
         <YourLogo
           logoPath={logoPath}

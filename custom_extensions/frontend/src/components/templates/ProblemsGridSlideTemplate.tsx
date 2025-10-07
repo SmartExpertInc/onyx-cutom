@@ -38,19 +38,19 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const [editRight, setEditRight] = useState(false);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#09090B', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'50px', border:'1px solid black', display:'flex', gap:'10px' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'50px', fontWeight:800, color:'#09090B' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'7px 18px', fontSize:'16px', borderRadius:'50px', border:'1px solid black', display:'flex', gap:'10px' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'35px', fontWeight:800, color:'#09090B' };
 
-  const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'220px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'15px' };
+  const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'190px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'15px' };
   const card: React.CSSProperties = { background:'#FFFFFF', borderRadius:'6px', height:'195px', padding:'17px 28px' };
   const numBox: React.CSSProperties = { width:'28px', height:'28px', background:'#0F58F9', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, borderRadius:'2px' };
   const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#09090B' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#34353C', lineHeight:1.4, maxWidth:'740px' };
 
-  const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'430px', width:'266px', fontSize:'17px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
-  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'72px', width:'155px', height:'155px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const rightTextStyle: React.CSSProperties = { position:'absolute', right:'120px', top:'400px', width:'266px', fontSize:'18px', color:'#34353C', lineHeight:1.5, whiteSpace:'pre-line' };
+  const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'45px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'absolute', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line', top: base.top, left: base.left, right: base.right, bottom: base.bottom });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
 
   return (
     <>
