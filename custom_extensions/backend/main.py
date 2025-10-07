@@ -30734,6 +30734,8 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
+                height: 120px;
             }}
             
             .ticket-label {{
@@ -30777,7 +30779,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 100px;
+                height: 120px;
                 width: 620px;
                 margin-left: 10px;
             }

@@ -847,9 +847,11 @@ export default function EventPoster({
               padding: '10px 14px',
               width: '200px', // Fixed width instead of minWidth
               lineHeight: '1',
+              height: '120px', // Match blue pill height
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              justifyContent: 'center',
               boxSizing: 'border-box', // Include padding in width calculation
               overflow: 'hidden', // Prevent content from expanding the container
             }}
@@ -912,7 +914,7 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '10px',
               width: '620px', // Slightly wider to match spec
-              height: '100px', // Fixed height - never changes
+              height: '120px', // Match ticket container height
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
