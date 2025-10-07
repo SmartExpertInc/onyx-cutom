@@ -14,12 +14,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   panelColor: _panelColor = '#E9B84C',
   lineColor = '#0F58F9',
   points = [
-    { x: 6, y: 72 },
-    { x: 22, y: 58 },
-    { x: 40, y: 64 },
-    { x: 58, y: 48 },
-    { x: 72, y: 42 },
-    { x: 84, y: 38 }
+    { x: 0, y: 95 },   // left-bottom corner by default
+    { x: 20, y: 75 },
+    { x: 40, y: 55 },
+    { x: 60, y: 40 },
+    { x: 80, y: 25 },
+    { x: 100, y: 5 }   // top-right corner by default
   ],
   avatarPath = '',
   avatarAlt: _avatarAlt = 'Avatar',
@@ -34,6 +34,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
   const [curvePoints, setCurvePoints] = useState(points);
+  // Preserve initial X positions to optionally lock specific points horizontally
+  const initialXsRef = useRef<number[]>(points.map(p => p.x));
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
@@ -136,8 +138,14 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     const svg = svgRef.current;
     const rect = svg.getBoundingClientRect();
     const onMove = (me: MouseEvent) => {
-      const rx = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
+      let rx = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
       const ry = Math.max(0, Math.min(100, ((me.clientY - rect.top) / rect.height) * 100));
+
+      // Lock the first and last points horizontally (left/right edges)
+      const isEdgePoint = idx === 0 || idx === (curvePoints.length - 1);
+      if (isEdgePoint) {
+        rx = initialXsRef.current[idx] ?? curvePoints[idx].x;
+      }
       const next = [...curvePoints];
       next[idx] = { x: rx, y: ry };
       setCurvePoints(next);
@@ -205,54 +213,54 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
           />
         </div>
 
-        {/* Title */}
-        <div style={titleStyle}>
-          {isEditable && editingTitle ? (
-            <ImprovedInlineEditor
-              initialValue={title}
-              multiline={true}
-              onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
-              onCancel={() => setEditingTitle(false)}
+      {/* Title */}
+      <div style={titleStyle}>
+        {isEditable && editingTitle ? (
+          <ImprovedInlineEditor
+            initialValue={title}
+            multiline={true}
+            onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
+            onCancel={() => setEditingTitle(false)}
               className="title-element"
               style={{ ...titleStyle, position: 'relative', left: 0, top: 0, transform: 'none' }}
-            />
-          ) : (
+          />
+        ) : (
             <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
-          )}
-        </div>
+        )}
+      </div>
 
         {/* Description */}
-        <div style={paragraph}>
-          {isEditable && editingDesc ? (
-            <ImprovedInlineEditor
-              initialValue={description}
-              multiline={true}
-              onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
-              onCancel={() => setEditingDesc(false)}
+      <div style={paragraph}>
+        {isEditable && editingDesc ? (
+          <ImprovedInlineEditor
+            initialValue={description}
+            multiline={true}
+            onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
+            onCancel={() => setEditingDesc(false)}
               style={{ ...paragraph, position: 'relative', left: 0, top: 0, transform: 'none', width: '100%' }}
-            />
-          ) : (
-            <div onClick={() => isEditable && setEditingDesc(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
-          )}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingDesc(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
+        )}
         </div>
       </div>
 
       {/* Bottom Part - 60% height with blue background */}
       <div style={bottomPart}>
         {/* White panel with editable line chart */}
-        <div style={panel}>
+      <div style={panel}>
           <svg 
             ref={svgRef} 
             viewBox="0 0 100 100" 
             preserveAspectRatio="xMidYMid meet"
             style={{ 
               position: 'absolute', 
-              top: '32px',
-              left: '32px',
-              right: '32px',
-              bottom: '32px',
-              width: 'calc(100% - 64px)',
-              height: 'calc(100% - 64px)'
+              top: '30px',
+              left: '75px',
+              right: '75px',
+              bottom: '30px',
+              width: 'calc(100% - 150px)',
+              height: 'calc(100% - 60px)'
             }}
           >
             <path 
@@ -264,21 +272,25 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               strokeLinejoin="round"
               vectorEffect="non-scaling-stroke"
             />
-            {curvePoints.map((pt, i) => (
-              <circle
-                key={i}
-                cx={pt.x}
-                cy={pt.y}
-                r="2.5"
-                fill="#FFFFFF"
-                stroke={lineColor}
-                strokeWidth="2"
-                vectorEffect="non-scaling-stroke"
-                onMouseDown={(e) => isEditable && startDrag(i, e)}
-                style={{ cursor: isEditable ? 'pointer' : 'default' }}
-              />
-            ))}
-          </svg>
+            {curvePoints.map((pt, i) => {
+              const isEdge = i === 0 || i === (curvePoints.length - 1);
+              if (isEdge) return null; // hide circles on the edges
+              return (
+                <circle
+                  key={i}
+                  cx={pt.x}
+                  cy={pt.y}
+                  r="2.5"
+                  fill="#FFFFFF"
+                  stroke={lineColor}
+                  strokeWidth="2"
+                  vectorEffect="non-scaling-stroke"
+                  onMouseDown={(e) => isEditable && startDrag(i, e)}
+                  style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                />
+              );
+            })}
+        </svg>
         </div>
       </div>
 
@@ -289,13 +301,13 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
         right: '30px'
       }}>
         {logoNew ? (
-          <ClickableImagePlaceholder
+        <ClickableImagePlaceholder
             imagePath={logoNew}
             onImageUploaded={handleLogoNewUploaded}
             size="SMALL"
-            position="CENTER"
+          position="CENTER"
             description="Company logo"
-            isEditable={isEditable}
+          isEditable={isEditable}
             style={{
               height: '30px',
               maxWidth: '120px',
