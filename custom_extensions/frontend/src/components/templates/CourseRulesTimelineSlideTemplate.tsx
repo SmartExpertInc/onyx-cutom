@@ -66,8 +66,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   };
 
   const stepNumStyles: React.CSSProperties = {
-    width: '55px',
-    height: '55px',
+    width: '50px',
+    height: '50px',
     borderRadius: '2px',
     backgroundColor: '#0F58F9',
     color: '#FFFFFF',

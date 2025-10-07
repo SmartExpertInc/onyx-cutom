@@ -66,20 +66,16 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   return (
     <>
       <style>{`
-          .card-value-text *:not(.culture-value-title) {
+          .culture-values-three-columns *:not(.title-element) {
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           }
-          .culture-value-title {
+          .culture-values-three-columns .title-element {
             font-family: "Lora", serif !important;
-            font-weight: 800 !important;
+            font-weight: 600 !important;
           }
-          .main-title {
-            font-weight: 800 !important;
+          .culture-values-three-columns .section-title {
             font-family: "Lora", serif !important;
-          }
-          .card-title {
-            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-            font-weight: 800 !important;
+            font-weight: 600 !important;
           }
           .card-title-left {
             color: #FFFFFF !important;
@@ -101,7 +97,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           text={logoText}
           style={{ position:'absolute', left:'48px', top:'48px' }}
         />
-        <div className="culture-value-title main-title" style={titleStyle}>
+        <div className="culture-value-title title-element" style={titleStyle}>
           {isEditable && editTitle ? (
             <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
           ) : (
