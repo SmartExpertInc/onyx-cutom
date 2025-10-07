@@ -396,12 +396,16 @@ class ProfessionalPresentationService:
             self._update_job_status(job_id, progress=80.0)
             
             # Set up Remotion render command
-            remotion_dir = Path(__file__).parent.parent / "video_compositions"
+            # CRITICAL FIX: Run from backend/ directory (parent of video_compositions)
+            compositions_dir = Path(__file__).parent.parent / "video_compositions"
+            backend_dir = Path(__file__).parent.parent  # Run from backend/
             output_video_path = self.output_dir / f"presentation_{job_id}.mp4"
             
             # Prepare Remotion render command
+            # CRITICAL FIX: Specify full path to Root.tsx from backend/
             render_cmd = [
                 "npx", "remotion", "render",
+                "video_compositions/src/Root.tsx",  # Full path from backend/
                 "AvatarServiceSlide",
                 str(output_video_path),
                 "--props", str(remotion_input_path),
@@ -411,12 +415,14 @@ class ProfessionalPresentationService:
             ]
             
             logger.info(f"🎬 [REACTION_PROCESSING] Executing Remotion render command: {' '.join(render_cmd)}")
-            logger.info(f"🎬 [REACTION_PROCESSING] Working directory: {remotion_dir}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Working directory: {backend_dir}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Compositions directory: {compositions_dir}")
             
             # Execute Remotion render
+            # CRITICAL FIX: Use backend_dir as cwd instead of compositions_dir
             process = await asyncio.create_subprocess_exec(
                 *render_cmd,
-                cwd=remotion_dir,
+                cwd=backend_dir,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
