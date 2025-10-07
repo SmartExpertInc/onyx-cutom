@@ -251,7 +251,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
             logoPath={logoPath}
             onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
             isEditable={isEditable}
-            color="#5D5D5D"
+            color="#09090B"
             text={logoText}
           />
         </div>

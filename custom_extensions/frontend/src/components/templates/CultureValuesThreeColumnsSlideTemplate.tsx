@@ -57,12 +57,12 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
   const col: React.CSSProperties = { padding: '30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'#FFFFFF', background:'#0F58F9' };
   const mid: React.CSSProperties = { padding:'30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'black', background:'#FFFFFF' };
-  const cardTitleStyle: React.CSSProperties = { fontSize:'20px', fontWeight:800, marginBottom:'16px', color:'#FFFFFF' };
-  const cardTitleStyleMid: React.CSSProperties = { fontSize:'20px', fontWeight:800, marginBottom:'16px', color:'#000000' };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#FFFFFF', fontSize:'13px', fontWeight:400 };
+  const cardTitleStyle: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#FFFFFF' };
+  const cardTitleStyleMid: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#000000' };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#FFFFFF', fontSize:'15px', fontWeight:400 };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
-
+  // const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', fontSize:'14px', whiteSpace:'pre-wrap' });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', fontSize:'14px', padding:0, margin:0, whiteSpace:'pre-wrap' });
   return (
     <>
       <style>{`
@@ -83,12 +83,27 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           }
           .card-title-left {
             color: #FFFFFF !important;
+            font-weight: 600 !important;
+          }
+          .card-title-left * {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
           }
           .card-title-middle {
             color: #000000 !important;
+            font-weight: 600 !important;
+          }
+          .card-title-middle * {
+            color: #000000 !important;
+            font-weight: 600 !important;
           }
           .card-title-right {
             color: #FFFFFF !important;
+            font-weight: 600 !important;
+          }
+          .card-title-right * {
+            color: #FFFFFF !important;
+            font-weight: 600 !important;
           }
       `}</style>
       <div className="culture-values-three-columns" style={slide}>
@@ -99,7 +114,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           isEditable={isEditable}
           color="black"
           text={logoText}
-          style={{ position:'absolute', left:'48px', top:'48px' }}
+          style={{ position:'absolute', left:'25px', top:'25px' }}
         />
         <div className="culture-value-title title-element" style={titleStyle}>
           {isEditable && editTitle ? (

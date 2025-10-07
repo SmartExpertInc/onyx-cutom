@@ -256,7 +256,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 fontSize: '16px',
                 color: '#333333',
                 fontFamily: 'Inter, sans-serif',
-                fontWeight: '400'
+                fontWeight: '600'
               }}>
                 <div style={{
                 width: '8px',
@@ -401,7 +401,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '14px',
-                  fontWeight: 'bold',
+                  fontWeight: '600',
                   flexShrink: 0,
                   borderRadius: '2px'
                 }}>

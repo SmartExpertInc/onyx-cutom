@@ -6,6 +6,7 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import YourLogo from '../YourLogo';
 
 export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesSlideProps & {
   theme?: SlideTheme | string;
@@ -41,6 +42,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
   profileImagePath = '',
   profileImageAlt = 'Profile image',
   companyLogoPath = '',
+  logoText = 'Your Logo',
+  logoPath = '',
   backgroundColor,
   titleColor,
   contentColor,
@@ -52,19 +55,9 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSections, setEditingSections] = useState<{ index: number; field: 'title' | 'content' } | null>(null);
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentSections, setCurrentSections] = useState(sections);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
-
-  // Sync logo state with prop changes - this ensures logo persists on reload
-  useEffect(() => {
-    // This will be triggered when companyLogoPath prop changes
-    if (companyLogoPath && companyLogoPath !== currentCompanyLogoPath) {
-      setCurrentCompanyLogoPath(companyLogoPath);
-    }
-  }, [companyLogoPath, currentCompanyLogoPath]);
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -105,12 +98,6 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
     }
   };
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
-    if (onUpdate) {
-      onUpdate({ ...{ title, sections, profileImagePath, profileImageAlt, backgroundColor, titleColor, contentColor, accentColor }, companyLogoPath: newLogoPath });
-    }
-  };
 
   return (
     <>
@@ -123,6 +110,10 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           font-weight: 600 !important;
         }
         .company-tools-resources-slide-template .section-title {
+          font-family: "Lora", serif !important;
+          font-weight: 600 !important;
+        }
+        .company-tools-resources-slide-template .section-title * {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
@@ -139,70 +130,20 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         border: 'none'
       }} />
 
-      {/* Logo Placeholder */}
+      {/* Logo */}
       <div style={{
         position: 'absolute',
         top: '20px',
         left: '25px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
         zIndex: 10
       }}>
-        {currentCompanyLogoPath ? (
-          // Show uploaded logo image
-          <ClickableImagePlaceholder
-            imagePath={currentCompanyLogoPath}
-            onImageUploaded={handleCompanyLogoUploaded}
-            size="SMALL"
-            position="CENTER"
-            description="Company logo"
-            isEditable={isEditable}
-            style={{
-              height: '30px',
-              maxWidth: '120px',
-              objectFit: 'contain'
-            }}
-          />
-        ) : (
-          // Show default logo design with clickable area
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: isEditable ? 'pointer' : 'default'
-          }}
-          onClick={() => isEditable && setShowLogoUploadModal(true)}
-          >
-            <div style={{
-              width: '20px',
-              height: '20px',
-              border: '1px solid #FFFFFF',
-              borderRadius: '50%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <div style={{
-                width: '8px',
-                height: '2px',
-                backgroundColor: '#FFFFFF',
-                position: 'absolute'
-              }} />
-              <div style={{
-                width: '2px',
-                height: '8px',
-                backgroundColor: '#FFFFFF',
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)'
-              }} />
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: '400', color: '#FFFFFF', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
-          </div>
-        )}
+        <YourLogo
+          logoPath={logoPath}
+          onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+          isEditable={isEditable}
+          color="#FFFFFF"
+          text={logoText}
+        />
       </div>
 
       {/* Title */}
@@ -389,18 +330,6 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         18
       </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
     </>
   );
