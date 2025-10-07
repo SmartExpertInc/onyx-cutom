@@ -30642,7 +30642,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #E5E5E5;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 20px;
+                font-size: 23px;
                 text-align: left;
                 line-height: 1.2;
             }}
@@ -30698,7 +30698,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 color: #ebebeb;
                 font-family: 'Montserrat';
                 font-weight: 400;
-                font-size: 22px;
+                font-size: 25px;
                 text-align: left;
                 line-height: 1.2;
                 max-width: 460px;
@@ -30757,7 +30757,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 font-weight: 600;
                 font-size: 37px;
                 text-align: center;
-                line-height: 1.1;
+                line-height: 1.3;
                 background-color: #5416af;
                 border-radius: 30px;
                 padding: 0 20px;
