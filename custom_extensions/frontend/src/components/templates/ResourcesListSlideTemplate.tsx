@@ -203,7 +203,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
                 onCancel={() => setEditingResourceIndex(null)}
                 className="resources-item-editor"
                 multiline={true}
-                style={{ fontSize: '28px', fontWeight: 600, color: '#D7D1B0' }}
+                style={{ fontSize: '30px', fontWeight: 600, color: '#09090B' }}
               />
             ) : (
               <div onClick={() => isEditable && setEditingResourceIndex(i)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

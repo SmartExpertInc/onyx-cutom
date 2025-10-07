@@ -47,21 +47,21 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     overflow: 'hidden'
   };
 
-  // Top part (30% height) with gradient background
+  // Top part (40% height) with gradient background
   const topPart: React.CSSProperties = {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: '30%',
+    height: '40%',
     background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%)',
     overflow: 'hidden'
   };
 
-  // Bottom part (70% height) with blue background
+  // Bottom part (60% height) with blue background
   const bottomPart: React.CSSProperties = {
     position: 'absolute',
-    top: '30%',
+    top: '40%',
     left: 0,
     right: 0,
     bottom: 0,
@@ -75,8 +75,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     top: '50%',
     left: '56px',
     transform: 'translateY(-50%)',
-    width: '100px',
-    height: '100px',
+    width: '170px',
+    height: '170px',
     borderRadius: '50%',
     backgroundColor: '#FFFFFF',
     overflow: 'hidden'
@@ -85,22 +85,22 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // Title positioned to the right of avatar
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
-    left: '180px',
+    left: '250px',
     top: '50%',
     transform: 'translateY(-50%)',
     fontSize: '32px',
     fontWeight: 800,
     color: '#FFFFFF',
-    maxWidth: '500px'
+    maxWidth: '900px'
   };
 
   // Description positioned below title
   const paragraph: React.CSSProperties = {
     position: 'absolute',
-    left: '180px',
+    left: '250px',
     top: '50%',
     transform: 'translateY(calc(-50% + 45px))',
-    maxWidth: '500px',
+    maxWidth: '800px',
     color: '#FFFFFF',
     fontSize: '14px',
     lineHeight: 1.6,
@@ -117,23 +117,17 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     backgroundColor: '#FFFFFF',
     borderRadius: '24px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-    overflow: 'hidden',
-    padding: '32px'
+    overflow: 'hidden'
   };
 
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   const pathD = useMemo(() => {
-    const toXY = (p: { x: number; y: number }) => {
-      // points are in percentages relative to panel rect
-      return p;
-    };
-    const pts = curvePoints.map(toXY);
-    if (pts.length === 0) return '';
+    if (curvePoints.length === 0) return '';
     const d: string[] = [];
-    d.push(`M ${pts[0].x}% ${pts[0].y}%`);
-    for (let i = 1; i < pts.length; i++) {
-      d.push(`L ${pts[i].x}% ${pts[i].y}%`);
+    d.push(`M ${curvePoints[0].x} ${curvePoints[0].y}`);
+    for (let i = 1; i < curvePoints.length; i++) {
+      d.push(`L ${curvePoints[i].x} ${curvePoints[i].y}`);
     }
     return d.join(' ');
   }, [curvePoints]);
@@ -179,7 +173,16 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
 
   return (
     <div className="high-performing-teams-slide inter-theme" style={slide}>
-      {/* Top Part - 30% height with gradient background */}
+      <style>{`
+        .high-performing-teams-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .high-performing-teams-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
+      {/* Top Part - 40% height with gradient background */}
       <div style={topPart}>
         {/* Avatar Container */}
         <div style={avatarContainer}>
@@ -211,10 +214,11 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               multiline={true}
               onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
               onCancel={() => setEditingTitle(false)}
+              className="title-element"
               style={{ ...titleStyle, position: 'relative', left: 0, top: 0, transform: 'none' }}
             />
           ) : (
-            <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+            <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
           )}
         </div>
 
@@ -234,38 +238,43 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
         </div>
       </div>
 
-      {/* Bottom Part - 70% height with blue background */}
+      {/* Bottom Part - 60% height with blue background */}
       <div style={bottomPart}>
         {/* White panel with editable line chart */}
         <div style={panel}>
           <svg 
             ref={svgRef} 
             viewBox="0 0 100 100" 
-            preserveAspectRatio="none" 
+            preserveAspectRatio="none"
             style={{ 
               position: 'absolute', 
-              inset: 0,
-              width: '100%',
-              height: '100%'
+              top: '32px',
+              left: '32px',
+              right: '32px',
+              bottom: '32px',
+              width: 'calc(100% - 64px)',
+              height: 'calc(100% - 64px)'
             }}
           >
             <path 
               d={pathD} 
               fill="none" 
               stroke={lineColor} 
-              strokeWidth="0.5"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {isEditable && curvePoints.map((pt, i) => (
+            {curvePoints.map((pt, i) => (
               <circle
                 key={i}
-                cx={`${pt.x}%`}
-                cy={`${pt.y}%`}
-                r="1.5"
+                cx={pt.x}
+                cy={pt.y}
+                r="2.5"
                 fill={lineColor}
-                onMouseDown={(e) => startDrag(i, e)}
-                style={{ cursor: 'pointer' }}
+                stroke="#FFFFFF"
+                strokeWidth="2"
+                onMouseDown={(e) => isEditable && startDrag(i, e)}
+                style={{ cursor: isEditable ? 'pointer' : 'default' }}
               />
             ))}
           </svg>

@@ -162,7 +162,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             onCancel={() => setEditingTitle(false)}
             className="toc-title-editor title-element"
             style={{
-              fontSize: '48px',
+              fontSize: '58px',
               fontWeight: 'bold',
               color: '#1C1B1A',
               lineHeight: '1.1',
