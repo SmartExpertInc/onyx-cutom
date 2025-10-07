@@ -931,7 +931,7 @@ export default function EventPoster({
                 fontWeight: '600',
                 fontSize: '37px',
                 textAlign: 'center',
-                lineHeight: '1.1',
+                lineHeight: '1.3',
                 background: 'transparent',
                 borderRadius: '30px',
                 padding: '0 20px',
