@@ -32302,7 +32302,7 @@ async def create_smartdrive_connector(
                 'retrieve_blocks', 'include_people', 'include_databases'
             ],
             'slack': [
-                'channel_ids', 'include_public_channels', 'include_private_channels',
+                'channels', 'include_public_channels', 'include_private_channels',
                 'include_direct_messages', 'include_thread_replies', 'message_limit'
             ],
             'github': [

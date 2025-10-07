@@ -32,14 +32,14 @@ export const SlackConfig: ConnectorFormConfig = {
       }
     },
     {
-      name: 'channel_ids',
-      label: 'Channel IDs',
+      name: 'channels',
+      label: 'Channels',
       type: 'textarea',
-      placeholder: 'Enter channel IDs, one per line',
-      description: 'Specific channel IDs to index (leave empty to index all accessible channels)',
+      placeholder: 'Enter channels, one per line',
+      description: 'Specific channels to index (leave empty to index all accessible channels)',
       validation: {
-        pattern: '^[A-Z0-9\\s\\n]*$',
-        message: 'Channel IDs should contain only uppercase letters and numbers'
+        pattern: '^[a-z0-9\\s\\n]*$',
+        message: 'Channels should contain only lowercase letters and numbers'
       }
     },
     {
@@ -92,7 +92,7 @@ export const SlackConfig: ConnectorFormConfig = {
     {
       title: 'Channel Selection',
       description: 'Configure which channels to include in the index',
-      fields: ['channel_ids', 'include_public_channels', 'include_private_channels', 'include_direct_messages']
+      fields: ['channels', 'include_public_channels', 'include_private_channels', 'include_direct_messages']
     },
     {
       title: 'Content Options',

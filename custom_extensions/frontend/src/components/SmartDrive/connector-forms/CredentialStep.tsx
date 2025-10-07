@@ -766,7 +766,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                   <Text className="font-semibold">{t('connectors.instructions.slab.title', 'Get Slab Bot Token')}</Text>
                                   <Steps items={[
                                     <>{t('connectors.instructions.slab.step1', 'Log into your Slab team as an admin.')}</>,
-                                    <>{t('connectors.instructions.slab.step2', 'Go to Settings → Integrations → API.')}</>,
+                                    <>{t('connectors.instructions.slab.step2', 'Go to Settings → Developer → API.')}</>,
                                     <>{t('connectors.instructions.slab.step3', 'Create a new API token with read permissions.')}</>,
                                     <>{t('connectors.instructions.slab.step4', 'Copy the generated bot token.')}</>,
                                     <>{t('connectors.instructions.slab.step5', 'Enter the bot token in the "Slab Bot Token" field.')}</>,
@@ -991,7 +991,7 @@ const CredentialStep: FC<CredentialStepProps> = ({
                                     <>{t('connectors.instructions.document360.step5', 'Enter both the Portal ID and API token here.')}</>,
                                   ]} />
                                   <Text className="mt-2">
-                                    <a href="https://apidocs.document360.com/apidocs/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                                    <a href="https://docs.document360.com/docs/api-tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
                                       {t('connectors.instructions.document360.link', 'Learn about Document360 API →')}
                                     </a>
                                   </Text>
