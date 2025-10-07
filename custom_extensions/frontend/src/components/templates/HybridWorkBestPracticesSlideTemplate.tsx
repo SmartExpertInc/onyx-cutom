@@ -153,6 +153,10 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           text-transform: none !important;
           font-weight: 600 !important;
         }
+        .practice-title-editor, .hybrid-title-editor {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
+        }
         .hybrid-work-best-practices-slide-template .logo-text {
           font-weight: 600 !important;
         }
@@ -283,6 +287,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   />
                 ) : (
                   <div
+                    className="hybrid-title-editor"
                     onClick={() => isEditable && setEditingTitle(true)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
@@ -441,6 +446,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                       />
                     ) : (
                       <div
+                        className="practice-title-editor"
                         onClick={() => isEditable && setEditingPractices({ index, field: 'title' })}
                         style={{
                           cursor: isEditable ? 'pointer' : 'default',

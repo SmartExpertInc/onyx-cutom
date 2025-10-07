@@ -86,7 +86,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
         {isEditable && editTitle ? (
           <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+          <div onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default', width: '100%', height: '100%' }}>{title}</div>
         )}
       </div>
 
@@ -147,7 +147,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
             }} 
           />
         ) : (
-          <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightText}</div>
+          <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default', width: '100%', height: '100%', lineHeight: 1.5 }}>{rightText}</div>
         )}
       </div>
 
