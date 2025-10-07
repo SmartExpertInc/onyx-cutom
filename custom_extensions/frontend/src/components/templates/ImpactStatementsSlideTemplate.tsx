@@ -203,7 +203,6 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
           height: '310px',
           background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
           borderRadius: '8px',
-          overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -216,7 +215,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             description="Profile photo"
             isEditable={isEditable}
             style={{
-              width: '43%',
+              width: '70%',
               height: '100%',
               objectFit: 'cover',
               position: 'relative',
