@@ -252,7 +252,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
           <svg 
             ref={svgRef} 
             viewBox="0 0 100 100" 
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="none"
             style={{ 
               position: 'absolute', 
               top: '40px',
@@ -263,40 +263,33 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               height: 'calc(100% - 80px)'
             }}
           >
-            <defs>
-              <clipPath id="chartClip">
-                <rect x="0" y="0" width="100" height="100" />
-              </clipPath>
-            </defs>
-            <g clipPath="url(#chartClip)">
-              <path 
-                d={pathD} 
-                fill="none" 
-                stroke={lineColor} 
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
-              {curvePoints.map((pt, i) => {
-                const isEdge = i === 0 || i === (curvePoints.length - 1);
-                if (isEdge) return null; // hide circles on the edges
-                return (
-                  <circle
-                    key={i}
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="2.5"
-                    fill="#FFFFFF"
-                    stroke={lineColor}
-                    strokeWidth="2"
-                    vectorEffect="non-scaling-stroke"
-                    onMouseDown={(e) => isEditable && startDrag(i, e)}
-                    style={{ cursor: isEditable ? 'pointer' : 'default' }}
-                  />
-                );
-              })}
-            </g>
+            <path 
+              d={pathD} 
+              fill="none" 
+              stroke={lineColor} 
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
+            {curvePoints.map((pt, i) => {
+              const isEdge = i === 0 || i === (curvePoints.length - 1);
+              if (isEdge) return null; // hide circles on the edges
+              return (
+                <circle
+                  key={i}
+                  cx={pt.x}
+                  cy={pt.y}
+                  r="2.5"
+                  fill="#FFFFFF"
+                  stroke={lineColor}
+                  strokeWidth="2"
+                  vectorEffect="non-scaling-stroke"
+                  onMouseDown={(e) => isEditable && startDrag(i, e)}
+                  style={{ cursor: isEditable ? 'pointer' : 'default' }}
+                />
+              );
+            })}
           </svg>
         </div>
       </div>

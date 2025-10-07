@@ -66,7 +66,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     top:0,
     width:'55%',
     height:'100%',
-    background:'#000000',
+    background:'#E0E7FF',
     padding:'60px 80px',
     display:'flex',
     flexDirection:'column',
@@ -127,7 +127,16 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   });
 
   return (
-    <div style={slide}>
+    <div className="topics-slide inter-theme" style={slide}>
+      <style>{`
+        .topics-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .topics-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
       {/* Left section - Avatar with dark green background */}
       <div style={leftSection}>
         <div style={avatarContainer}>
@@ -145,7 +154,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
       <div style={rightSection}>
         {/* Topics header banner */}
         <div style={topicsBanner}>
-          <div style={topicsTitleStyle} onClick={() => isEditable && setEditKey('title')}>
+          <div className="title-element" style={topicsTitleStyle} onClick={() => isEditable && setEditKey('title')}>
             {isEditable && editKey === 'title' ? (
               <ImprovedInlineEditor 
                 initialValue={title} 
@@ -154,6 +163,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
                   setEditKey(null); 
                 }} 
                 onCancel={() => setEditKey(null)} 
+                className="title-element"
                 style={inline(topicsTitleStyle)} 
               />
             ) : (
