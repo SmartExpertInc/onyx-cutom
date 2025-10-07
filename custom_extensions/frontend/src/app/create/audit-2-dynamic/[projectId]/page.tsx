@@ -60,20 +60,26 @@ function InlineEditor({
     console.log('🎯 [TEXT EDIT] Focus started - initial value:', initialValue);
   };
 
-  const handleBlur = () => {
-    // Ensure we save the current value from the input/textarea
-    const currentValue = inputRef.current?.value || value;
-    console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
-    console.log('🔍 [BLUR DETAILED] Element details:', {
-      elementType: inputRef.current?.tagName,
-      elementId: inputRef.current?.id,
-      elementClass: inputRef.current?.className,
-      initialValue: initialValue,
-      currentValue: currentValue,
-      valueChanged: initialValue !== currentValue,
-      timestamp: new Date().toISOString()
-    });
-    onSave(currentValue);
+  const handleBlur = (e: React.FocusEvent) => {
+    // Small delay to prevent immediate blur from click propagation
+    setTimeout(() => {
+      // Check if the element still doesn't have focus
+      if (document.activeElement !== inputRef.current) {
+        // Ensure we save the current value from the input/textarea
+        const currentValue = inputRef.current?.value || value;
+        console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
+        console.log('🔍 [BLUR DETAILED] Element details:', {
+          elementType: inputRef.current?.tagName,
+          elementId: inputRef.current?.id,
+          elementClass: inputRef.current?.className,
+          initialValue: initialValue,
+          currentValue: currentValue,
+          valueChanged: initialValue !== currentValue,
+          timestamp: new Date().toISOString()
+        });
+        onSave(currentValue);
+      }
+    }, 100);
   };
 
   // Auto-resize textarea to fit content
@@ -2937,7 +2943,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderLessons');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -2966,7 +2975,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderAssessment');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -2995,7 +3007,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderDuration');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3290,7 +3305,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderLessons');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3319,7 +3337,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderAssessment');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3348,7 +3369,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderDuration');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3609,7 +3633,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderLessons');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3638,7 +3665,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderAssessment');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3667,7 +3697,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderDuration');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3928,7 +3961,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderLessons')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderLessons');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3957,7 +3993,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderAssessment')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderAssessment');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
@@ -3986,7 +4025,10 @@ export default function DynamicAuditLandingPage() {
                                       />
                                     ) : (
                                       <span 
-                                        onClick={() => startEditing('tableHeaderDuration')}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          startEditing('tableHeaderDuration');
+                                        }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded"
                                         title="Click to edit header"
                                       >
