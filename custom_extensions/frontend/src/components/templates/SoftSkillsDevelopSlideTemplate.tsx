@@ -34,15 +34,15 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const [edit, setEdit] = useState<{ k:string; i?:number; f?:'title'|'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#1F2937', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'1fr 520px' };
-  const left: React.CSSProperties = { padding:'72px 72px', position:'relative' };
+  const left: React.CSSProperties = { padding: "72px 85px 72px 50px", position:'relative' };
   const titleStyle: React.CSSProperties = { fontSize:'60px', fontWeight:800, color:'#222', lineHeight:0.95, whiteSpace:'pre-line', marginTop:'20px' };
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 64px' };
-  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'#444444' };
+  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'black' };
   const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#3A3A3C', lineHeight:1.5 };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'72px', color:'#1F2937', fontSize:'13px', fontWeight:400 };
 
   const right: React.CSSProperties = { position:'relative'};
-  const imageArea: React.CSSProperties = { position:'absolute', left:'10px', right:0, top:0, bottom:0, background: 'linear-gradient(to bottom, #0F58F9, #1023A1)', height:'100%' };
+  const imageArea: React.CSSProperties = { position:'absolute', left:'-18px', right:0, top:0, bottom:0, background: 'linear-gradient(to bottom, #0F58F9, #1023A1)', height:'100%' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 

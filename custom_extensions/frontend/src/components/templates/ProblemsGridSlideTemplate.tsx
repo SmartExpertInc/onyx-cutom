@@ -38,12 +38,12 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const [editRight, setEditRight] = useState(false);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#09090B', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'10px 18px', fontSize:'16px', borderRadius:'50%', border:'1px solid black' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'50px', fontWeight:800, color:'#DFDFDF' };
+  const tagStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'40px', background:'none', color:'#34353C', padding:'8px 18px', fontSize:'16px', borderRadius:'50px', border:'1px solid black', display:'flex', gap:'10px' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', fontSize:'50px', fontWeight:800, color:'#09090B' };
 
   const grid: React.CSSProperties = { position:'absolute', left:'40px', top:'220px', width:'710px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' };
   const card: React.CSSProperties = { background:'#FFFFFF', borderRadius:'6px', height:'195px', padding:'17px 28px', boxShadow:'0 0 0 1px rgba(0,0,0,0.2) inset' };
-  const numBox: React.CSSProperties = { width:'28px', height:'28px', borderRadius:'0px', background:'#0F58F9', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700 };
+  const numBox: React.CSSProperties = { width:'28px', height:'28px', background:'#0F58F9', color:'#ECE7FF', display:'inline-flex', alignItems:'center', justifyContent:'center', fontWeight:700, borderRadius:'2px' };
   const cardTitle: React.CSSProperties = { marginTop:'12px', fontSize:'24px', fontWeight:700, color:'#09090B' };
   const cardBody: React.CSSProperties = { marginTop:'14px', fontSize:'14px', color:'#34353C', lineHeight:1.4, maxWidth:'740px' };
 
@@ -55,6 +55,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   return (
     <div className="problems-grid-slide inter-theme" style={slide}>
       <div style={tagStyle}>
+        <div style={{ background:'#0F58F9', width:'2px', height:'2px', borderRadius:'50%' }} />
         {isEditable && editTag ? (
           <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEditTag(false); }} onCancel={()=>setEditTag(false)} style={inline(tagStyle)} />
         ) : (

@@ -59,8 +59,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const lineStyles: React.CSSProperties = {
     position: 'absolute',
     left: '56%',
-    top: '175px',
-    bottom: '40px',
+    top: '135px',
+    bottom: '20px',
     width: '3px',
     backgroundColor: '#0F58F9',
   };
@@ -80,7 +80,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const stepTextStyles: React.CSSProperties = {
     color: 'black',
-    fontSize: '40px',
+    fontSize: '35px',
     fontWeight: 600,
     lineHeight: '1.05',
   };
@@ -88,7 +88,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const stepContainerStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     left: '61%',
-    top: index === 0 ? '137px' : index === 1 ? '302px' : '467px',
+    top: index === 0 ? '140px' : index === 1 ? '305px' : '425px',
     display: 'flex',
     alignItems: 'center',
     gap: '40px',
@@ -97,7 +97,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const circlePositionStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     left: 'calc(50% + 44px)', // center the 110px circle on the vertical line
-    top: index === 0 ? '135px' : index === 1 ? '300px' : '465px',
+    top: index === 0 ? '135px' : index === 1 ? '300px' : '418px',
   });
 
   const pageNumberStyles: React.CSSProperties = {
@@ -123,6 +123,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
           color: black !important;
+        }
+        .course-rules-timeline-slide .step-number {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
       <div className="course-rules-timeline-slide inter-theme" style={slideStyles}>
@@ -227,7 +230,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
               style={{ ...stepNumStyles, width: stepNumStyles.width, height: stepNumStyles.height, borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             />
           ) : (
-            <div style={stepNumStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'number' })}>{s.number}</div>
+            <div className="step-number" style={stepNumStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'number' })}>{s.number}</div>
           )}
         </div>
       ))}

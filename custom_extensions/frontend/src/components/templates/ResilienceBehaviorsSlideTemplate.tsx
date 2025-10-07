@@ -73,7 +73,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     left: '310px',
     right: '170px',
     fontSize: '18px',
-    color: '#FFFFFF',
+    color: '#CFDAF7',
     lineHeight: 1.6,
   };
 
@@ -112,9 +112,9 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     flexDirection: 'column',
     gap: '20px',
     color: '#34353C',
-    fontSize: '18px',
+    fontSize: '17px',
     lineHeight: 1.4,
-    paddingRight: '60px',
+    paddingRight: '80px',
   };
 
   const bulletNumberStyles: React.CSSProperties = {
