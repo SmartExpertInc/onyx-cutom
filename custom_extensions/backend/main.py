@@ -32233,6 +32233,7 @@ async def create_smartdrive_connector(
         connector_id = connector_data.get('connector_id')  # This is the source type (e.g., 'notion', 'slack')
         credential_id = connector_data.get('credential_id')  # ID of existing credential to use
         name = connector_data.get('name', f'Smart Drive {connector_id}')
+        indexing_start = connector_data.get('indexing_start', None)
         
         if not connector_id:
             raise HTTPException(status_code=400, detail="Connector ID is required")
@@ -32302,8 +32303,7 @@ async def create_smartdrive_connector(
                 'retrieve_blocks', 'include_people', 'include_databases'
             ],
             'slack': [
-                'channels', 'include_public_channels', 'include_private_channels',
-                'include_direct_messages', 'include_thread_replies', 'indexing_start'
+                'channels', 'channel_regex_enabled'
             ],
             'github': [
                 'repo_owner', 'repositories', 'include_prs', 'include_issues',
@@ -32361,7 +32361,7 @@ async def create_smartdrive_connector(
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
             "prune_freq": 86400,   # 1 day
-            "indexing_start": None
+            "indexing_start": indexing_start
         }
         
         # Helper function to ensure HTTPS for production domains
