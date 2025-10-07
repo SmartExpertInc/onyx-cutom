@@ -61,7 +61,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
 
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'40px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#FFFFFF', zIndex:10 };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
   return (
     <>
@@ -81,45 +81,115 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
       </div>
 
-      <div style={headerText}>
-        {isEditable && editKey==='headerTitle' ? (
-          <ImprovedInlineEditor initialValue={headerTitle} onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} className="title-element" style={inline(headerText)} />
-        ) : (
+      {isEditable && editKey==='headerTitle' ? (
+        <ImprovedInlineEditor 
+          initialValue={headerTitle} 
+          onSave={(v)=>{ onUpdate&&onUpdate({ headerTitle:v }); setEditKey(null); }} 
+          onCancel={()=> setEditKey(null)} 
+          className="title-element" 
+          style={{
+            ...headerText,
+            background:'transparent', 
+            border:'none', 
+            outline:'none', 
+            padding:0, 
+            margin:0, 
+            whiteSpace:'pre-wrap'
+          }} 
+        />
+      ) : (
+        <div style={headerText}>
           <div className="title-element" onClick={()=> isEditable && setEditKey('headerTitle')} style={{ cursor: isEditable ? 'pointer':'default' }}>{headerTitle}</div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Content block wrapper */}
       <div style={contentBlock}>
-        <div style={section1TitleStyle}>
-          {isEditable && editKey==='s1t' ? (
-            <ImprovedInlineEditor initialValue={section1Title} onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} className="title-element" style={inline(section1TitleStyle)} />
-          ) : (
+        {isEditable && editKey==='s1t' ? (
+          <ImprovedInlineEditor 
+            initialValue={section1Title} 
+            onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} 
+            onCancel={()=> setEditKey(null)} 
+            className="title-element" 
+            style={{
+              ...section1TitleStyle,
+              background:'transparent', 
+              border:'none', 
+              outline:'none', 
+              padding:0, 
+              margin:0, 
+              whiteSpace:'pre-wrap'
+            }} 
+          />
+        ) : (
+          <div style={section1TitleStyle}>
             <div className="title-element" onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
-          )}
-        </div>
-        <div style={section1LinesStyle}>
-          {isEditable && editKey==='s1l' ? (
-            <ImprovedInlineEditor initialValue={section1Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section1LinesStyle)} />
-          ) : (
+          </div>
+        )}
+        {isEditable && editKey==='s1l' ? (
+          <ImprovedInlineEditor 
+            initialValue={section1Lines.join('\n')} 
+            multiline={true} 
+            onSave={(v)=>{ onUpdate&&onUpdate({ section1Lines: v.split('\n') }); setEditKey(null); }} 
+            onCancel={()=> setEditKey(null)} 
+            style={{
+              ...section1LinesStyle,
+              background:'transparent', 
+              border:'none', 
+              outline:'none', 
+              padding:0, 
+              margin:0, 
+              whiteSpace:'pre-line'
+            }} 
+          />
+        ) : (
+          <div style={section1LinesStyle}>
             <div onClick={()=> isEditable && setEditKey('s1l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Lines.join('\n')}</div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div style={section2TitleStyle}>
-          {isEditable && editKey==='s2t' ? (
-            <ImprovedInlineEditor initialValue={section2Title} onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} onCancel={()=> setEditKey(null)} className="title-element" style={inline(section2TitleStyle)} />
-          ) : (
+        {isEditable && editKey==='s2t' ? (
+          <ImprovedInlineEditor 
+            initialValue={section2Title} 
+            onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} 
+            onCancel={()=> setEditKey(null)} 
+            className="title-element" 
+            style={{
+              ...section2TitleStyle,
+              background:'transparent', 
+              border:'none', 
+              outline:'none', 
+              padding:0, 
+              margin:0, 
+              whiteSpace:'pre-wrap'
+            }} 
+          />
+        ) : (
+          <div style={section2TitleStyle}>
             <div className="title-element" onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
-          )}
-        </div>
-        <div style={section2LinesStyle}>
-          {isEditable && editKey==='s2l' ? (
-            <ImprovedInlineEditor initialValue={section2Lines.join('\n')} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }} onCancel={()=> setEditKey(null)} style={inline(section2LinesStyle)} />
-          ) : (
+          </div>
+        )}
+        {isEditable && editKey==='s2l' ? (
+          <ImprovedInlineEditor 
+            initialValue={section2Lines.join('\n')} 
+            multiline={true} 
+            onSave={(v)=>{ onUpdate&&onUpdate({ section2Lines: v.split('\n') }); setEditKey(null); }} 
+            onCancel={()=> setEditKey(null)} 
+            style={{
+              ...section2LinesStyle,
+              background:'transparent', 
+              border:'none', 
+              outline:'none', 
+              padding:0, 
+              margin:0, 
+              whiteSpace:'pre-line'
+            }} 
+          />
+        ) : (
+          <div style={section2LinesStyle}>
             <div onClick={()=> isEditable && setEditKey('s2l')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Lines.join('\n')}</div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Footer with page number and logo */}
@@ -175,7 +245,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         }}>
           +
         </div>
-        Your Logo
+        <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Your Logo</span>
       </div>
     </div>
     </>

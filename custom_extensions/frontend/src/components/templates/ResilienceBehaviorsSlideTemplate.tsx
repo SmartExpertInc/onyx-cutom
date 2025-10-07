@@ -86,7 +86,6 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     borderRadius: '50%',
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    border: '3px solid #FFFFFF',
   };
 
   const bottomSectionStyles: React.CSSProperties = {
