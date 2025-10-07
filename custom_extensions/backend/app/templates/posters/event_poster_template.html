@@ -167,11 +167,12 @@
             line-height: 1.2;
         }
         
+        .date-wrapper { width: 220px; display: flex; justify-content: center; }
         .date-section {
             border: 3px solid var(--accent-color);
-            padding: 6px 10px;
+            padding: 4px 8px;
             display: inline-block;
-            width: 220px;
+            width: auto;
             box-sizing: border-box;
         }
         
@@ -315,10 +316,10 @@
                         <div class="speaker-description">{{ speakerDescription }}</div>
                     </div>
                     
-                    <div class="date-section">
+                    <div class="date-wrapper"><div class="date-section">
                         <div class="day-month">{{ dayMonth }}</div>
                         <div class="year">{{ year }}</div>
-                    </div>
+                    </div></div>
                 </div>
             </div>
             

@@ -30655,11 +30655,12 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 line-height: 1.2;
             }}
             
+            .date-wrapper { width: 220px; display: flex; justify-content: center; }
             .date-section {
                 border: 4px solid #5416af; /* thicker to match frontend */
                 padding: 4px 8px; /* tighter around date */
                 display: inline-block;
-                width: 220px; /* fixed width to mirror frontend */
+                width: auto;
                 box-sizing: border-box;
             }
             
@@ -30809,10 +30810,10 @@ def generate_poster_html_template(poster_data: dict) -> str:
                             <div class="speaker-description">{speaker_description}</div>
                         </div>
                         
-                        <div class="date-section">
+                        <div class="date-wrapper"><div class="date-section">
                             <div class="day-month">{day_month}</div>
                             <div class="year">{year}</div>
-                        </div>
+                        </div></div>
                     </div>
                 </div>
                 

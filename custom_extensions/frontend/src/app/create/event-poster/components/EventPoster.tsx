@@ -724,16 +724,17 @@ export default function EventPoster({
               />
             </div>
 
-            {/* Date with border - bring border closer to text */}
+            {/* Date aligned within fixed wrapper; inner box hugs text */}
+            <div style={{ width: '220px', display: 'flex', justifyContent: 'center' }}>
             <div 
               style={{ 
                 border: '3px solid #5416af',
-                padding: '10px 14px',
+                padding: '4px 8px',
                 display: 'inline-block',
                 textAlign: 'center',
-                width: '220px', // Fixed width
-                boxSizing: 'border-box', // Include padding in width
-                overflow: 'hidden', // Prevent content overflow
+                width: 'auto',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
               }}
             >
               <EditableText
@@ -786,6 +787,7 @@ export default function EventPoster({
                   letterSpacing: '1px'
                 }}
               />
+            </div>
             </div>
           </div>
         </div>
@@ -847,7 +849,7 @@ export default function EventPoster({
               padding: '10px 14px',
               width: '200px', // Fixed width instead of minWidth
               lineHeight: '1',
-              height: '110px', // Match blue pill height (reduced)
+              height: '113px', // Match blue pill height
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -914,7 +916,7 @@ export default function EventPoster({
               borderRadius: '30px',
               marginLeft: '10px',
               width: '620px', // Slightly wider to match spec
-              height: '110px', // Match ticket container height (reduced)
+              height: '113px', // Match ticket container height
               boxShadow: '0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5)',
               backdropFilter: 'blur(5px)',
               transition: 'background 0.2s',
