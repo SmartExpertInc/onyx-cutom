@@ -77,14 +77,18 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .tag-editor {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
+        }
       `}</style>
       <div className="problems-grid-slide inter-theme" style={slide}>
       <div style={tagStyle}>
         <div style={{ background:'#0F58F9', width:'7px', height:'7px', borderRadius:'50%', marginTop:'8px' }} />
         {isEditable && editTag ? (
-          <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEditTag(false); }} onCancel={()=>setEditTag(false)} style={inline(tagStyle)} />
+          <ImprovedInlineEditor className="tag-editor" initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEditTag(false); }} onCancel={()=>setEditTag(false)} style={inline(tagStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditTag(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
+          <div className="tag-editor" onClick={()=> isEditable && setEditTag(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
         )}
       </div>
       <div className="title-element" style={titleStyle}>
