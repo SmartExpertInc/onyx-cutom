@@ -113,9 +113,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return;
         }
 
-        // 🔧 CRITICAL FIX: Get slide canvas coordinates instead of viewport coordinates
-        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
-        const canvasRect = slideCanvas.getBoundingClientRect();
+        // 🔧 CRITICAL FIX: Search up from htmlElement to find slide canvas
+        const slideCanvas = htmlElement.closest('[data-slide-canvas="true"]') as HTMLElement;
+        const canvasRect = slideCanvas ? slideCanvas.getBoundingClientRect() : container.getBoundingClientRect();
         
         // 🐛 DEBUG LOGGING
         console.log('🐛 [DRAG_DEBUG] MouseDown Event:', {
@@ -127,8 +127,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             width: canvasRect.width, 
             height: canvasRect.height 
           },
-          hasSlideCanvas: !!container.closest('[data-slide-canvas="true"]'),
-          slideCanvasElement: slideCanvas.tagName
+          hasSlideCanvas: !!slideCanvas,
+          slideCanvasElement: slideCanvas ? slideCanvas.tagName : 'NOT_FOUND'
         });
         
         isMouseDown = true;
@@ -166,9 +166,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
       const handleMouseMove = (e: MouseEvent) => {
         if (!isMouseDown) return;
 
-        // 🔧 CRITICAL FIX: Calculate coordinates relative to slide canvas
-        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
-        const canvasRect = slideCanvas.getBoundingClientRect();
+        // 🔧 CRITICAL FIX: Search up from htmlElement to find slide canvas
+        const slideCanvas = htmlElement.closest('[data-slide-canvas="true"]') as HTMLElement;
+        const canvasRect = slideCanvas ? slideCanvas.getBoundingClientRect() : container.getBoundingClientRect();
         const canvasX = e.clientX - canvasRect.left;
         const canvasY = e.clientY - canvasRect.top;
         
@@ -181,7 +181,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             viewport: { x: e.clientX, y: e.clientY },
             canvas: { x: canvasX, y: canvasY },
             offset: { x: startOffsetX, y: startOffsetY },
-            newPosition: { x: newX, y: newY }
+            newPosition: { x: newX, y: newY },
+            hasSlideCanvas: !!slideCanvas
           });
         }
         const dx = Math.abs(e.clientX - startPageX);
@@ -243,12 +244,13 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           }, 450);
 
           // 🐛 DEBUG LOGGING - Final position saved
-          const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
-          const canvasRect = slideCanvas.getBoundingClientRect();
+          const slideCanvas = htmlElement.closest('[data-slide-canvas="true"]') as HTMLElement;
+          const canvasRect = slideCanvas ? slideCanvas.getBoundingClientRect() : container.getBoundingClientRect();
           console.log('🐛 [DRAG_DEBUG] MouseUp - Saving Position:', {
             elementId,
             finalPosition: { x: currentX, y: currentY },
             canvasSize: { width: canvasRect.width, height: canvasRect.height },
+            hasSlideCanvas: !!slideCanvas,
             isNegative: currentX < 0 || currentY < 0,
             warning: (currentX < 0 || currentY < 0) ? '⚠️ NEGATIVE COORDINATES DETECTED!' : '✅ Positive coordinates'
           });

@@ -17,10 +17,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 import json
 
-# from .slide_capture_service import slide_capture_service, SlideVideoConfig  # DISABLED - Using clean pipeline only
-from .video_composer_service import video_composer_service, CompositionConfig
 from .video_generation_service import video_generation_service
-from .avatar_mask_service import AvatarMaskService
+from .simple_video_composer import SimpleVideoComposer
 
 logger = logging.getLogger(__name__)
 
@@ -663,18 +661,18 @@ class ProfessionalPresentationService:
             output_filename = f"presentation_{job_id}.mp4"
             output_path = self.output_dir / output_filename
             
-            composition_config = CompositionConfig(
+            composer = SimpleVideoComposer()
+            success = await composer.compose_videos(
+                slide_video_path=slide_video_path,
+                avatar_video_path=avatar_video_path,
                 output_path=str(output_path),
-                resolution=request.resolution,
-                quality=request.quality,
-                layout=request.layout
+                progress_callback=lambda p: self._update_job_status(job_id, progress=60.0 + (p * 0.3))
             )
             
-            final_video_path = await video_composer_service.compose_presentation(
-                slide_video_path,
-                avatar_video_path,
-                composition_config
-            )
+            if not success:
+                raise Exception("Video composition failed")
+            
+            final_video_path = str(output_path)
             self._update_job_status(job_id, progress=90.0)
             
             logger.info(f"🎬 [SINGLE_SLIDE_PROCESSING] Final video composed: {final_video_path}")
@@ -780,18 +778,18 @@ class ProfessionalPresentationService:
                 self._update_job_status(job_id, progress=composition_start_progress)
                 logger.info(f"🎬 [MULTI_SLIDE_PROCESSING] Video composition started for slide {slide_index + 1} - Progress: {composition_start_progress}%")
                 
-                composition_config = CompositionConfig(
+                composer = SimpleVideoComposer()
+                success = await composer.compose_videos(
+                    slide_video_path=slide_video_path,
+                    avatar_video_path=avatar_video_path,
                     output_path=individual_output_path,
-                    resolution=request.resolution,
-                    quality=request.quality,
-                    layout=request.layout
+                    progress_callback=None
                 )
                 
-                individual_video_path = await video_composer_service.compose_presentation(
-                    slide_video_path,
-                    avatar_video_path,
-                    composition_config
-                )
+                if not success:
+                    raise Exception(f"Video composition failed for slide {slide_index + 1}")
+                
+                individual_video_path = individual_output_path
                 
                 # Update progress for composition complete
                 composition_end_progress = base_progress + 50
