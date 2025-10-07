@@ -831,11 +831,14 @@ export default function EventPoster({
         <div></div>
 
         {/* Bottom section - spanning both columns */}
-        <div className="col-span-2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '50px' }}>
+        <div className="col-span-2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '20px' }}>
           {/* Ticket price section */}
           <div 
             style={{ 
-              border: '4px solid #5416af',
+              borderTop: '2px solid #5416af',
+              borderBottom: '2px solid #5416af',
+              borderLeft: '1px solid #5416af',
+              borderRight: '1px solid #5416af',
               borderRadius: '30px',
               padding: '10px 14px',
               width: '200px', // Fixed width instead of minWidth
