@@ -714,7 +714,8 @@ export default function EventPoster({
                   color: '#E5E5E5',
                   fontFamily: 'Montserrat',
                   fontWeight: '400',
-                  fontSize: '22px',
+                  fontSize: '20px',
+                  width: '640px',
                   textAlign: 'left',
                   lineHeight: '1.2'
                 }}
@@ -819,7 +820,7 @@ export default function EventPoster({
               color: '#ebebeb',
               fontFamily: 'Montserrat',
               fontWeight: '400',
-              fontSize: '24px',
+              fontSize: '20px',
               textAlign: 'left',
               lineHeight: '1.2',
               maxWidth: '460px',
