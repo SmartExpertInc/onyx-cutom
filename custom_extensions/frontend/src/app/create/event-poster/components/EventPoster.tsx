@@ -647,7 +647,7 @@ export default function EventPoster({
           {/* First row: Event name and Logo */}
           <div style={{ display: 'flex', justifyContent: 'space-between'}}>
             {/* Event name with ":" suffix */}
-            <div style={{ display: 'flex', gap: '6px', marginTop: '3px', maxWidth: 'calc(100% - 180px)' }}>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '10px', maxWidth: 'calc(100% - 180px)' }}>
             <EditableText
               value={eventName}
               onChange={setEventName}
@@ -669,7 +669,7 @@ export default function EventPoster({
             </div>
 
             {/* Logo centered within a fixed-width wrapper to align with date box */}
-            <div style={{ width: '220px', display: 'flex', justifyContent: 'center', marginTop: '3px' }}>
+            <div style={{ width: '220px', display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
               <div
                 style={{
                   width: '141px',
