@@ -970,6 +970,8 @@ export interface ResilienceBehaviorsSlideProps extends BaseTemplateProps {
   bullets: string[];
   profileImagePath?: string;
   profileImageAlt?: string;
+  logoText?: string;
+  logoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;
