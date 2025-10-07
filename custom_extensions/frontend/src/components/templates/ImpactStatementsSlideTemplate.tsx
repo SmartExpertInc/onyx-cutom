@@ -215,12 +215,12 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
             position="CENTER"
             description="Profile photo"
             isEditable={isEditable}
+            fit="contain"
             style={{
-              width: '70%',
+              width: '80%',
               height: '100%',
-              objectFit: 'none',
               position: 'relative',
-              bottom: '-55px',
+              bottom: '-35px',
             }}
           />
         </div>
