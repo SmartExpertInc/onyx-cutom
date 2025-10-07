@@ -299,7 +299,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             <div style={{
               fontSize: '35px',
               maxWidth: '400px',
-              color: '#333333',
+              color: 'black',
               lineHeight: '1.2',
               marginBottom: '40px',
               fontFamily: 'Lora, serif',
@@ -429,7 +429,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         className="practice-title-editor"
                         style={{
                           fontSize: '16px',
-                          color: '#09090B',
+                          color: 'black',
                           lineHeight: '1.3',
                           fontWeight: '600',
                           fontFamily: 'Inter, sans-serif',

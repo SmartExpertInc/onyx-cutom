@@ -36,8 +36,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#626262', lineHeight:1.5 };
 
   const right: React.CSSProperties = { position:'relative'};
-  const purpleBar: React.CSSProperties = { position:'absolute', left:'3px', top:'72px', bottom:'0', width:'86%', background:'#906AF8' };
-  const imageArea: React.CSSProperties = { position:'absolute', left:'54px', right:0, top:0, bottom:0, background:'#212121', height:'93%' };
+  const imageArea: React.CSSProperties = { position:'absolute', left:'54px', right:0, top:0, bottom:0, background: 'linear-gradient(to bottom, #0F58F9, #1023A1)', height:'100%' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -71,7 +70,6 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
         </div>
       </div>
       <div style={right}>
-        <div style={purpleBar} />
         <div style={imageArea}>
           <ClickableImagePlaceholder imagePath={rightImagePath} onImageUploaded={(p)=> onUpdate&&onUpdate({ rightImagePath:p })} size="LARGE" position="CENTER" description="Right image" isEditable={isEditable} style={{ width:'84%', height:'100%', objectFit:'cover' }} />
         </div>
