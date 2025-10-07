@@ -36,6 +36,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('34');
 
+  console.log('Current steps:', currentSteps);
+  console.log('Steps length:', currentSteps.length);
+
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
@@ -58,7 +61,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     position: 'absolute',
     left: '56%',
     top: '135px',
-    bottom: '0px',
+    bottom: '-50px',
     width: '3px',
     backgroundColor: '#0F58F9',
   };
@@ -86,7 +89,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const stepContainerStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     left: '61%',
-    top: index === 0 ? '140px' : index === 1 ? '220px' : '300px',
+    top: index === 0 ? '140px' : index === 1 ? '240px' : '340px',
     display: 'flex',
     alignItems: 'center',
     gap: '40px',
@@ -95,7 +98,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const circlePositionStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     left: 'calc(50% + 44px)', // center the 110px circle on the vertical line
-    top: index === 0 ? '135px' : index === 1 ? '215px' : '295px',
+    top: index === 0 ? '135px' : index === 1 ? '235px' : '335px',
   });
 
   const pageNumberStyles: React.CSSProperties = {
@@ -155,7 +158,9 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       <div style={lineStyles} />
 
       {/* Squares centered on the line */}
-      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => (
+      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => {
+        console.log(`Rendering circle ${i}:`, s, 'position:', circlePositionStyles(i));
+        return (
         <div key={`circle-${i}`} style={{...circlePositionStyles(i), backgroundColor: i === 2 ? 'red' : 'transparent', zIndex: 999}}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
             <ImprovedInlineEditor
@@ -175,10 +180,13 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
             <div className="step-number" style={stepNumStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'number' })}>{s.number}</div>
           )}
         </div>
-      ))}
+        );
+      })}
 
       {/* Step texts on the right */}
-      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => (
+      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => {
+        console.log(`Rendering text ${i}:`, s, 'position:', stepContainerStyles(i));
+        return (
         <div key={`text-${i}`} style={{...stepContainerStyles(i), backgroundColor: i === 2 ? 'yellow' : 'transparent', zIndex: 999}}>
           {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
             <ImprovedInlineEditor
@@ -198,7 +206,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
             <div className="step-text" style={stepTextStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'text' })}>{s.text}</div>
           )}
         </div>
-      ))}
+        );
+      })}
 
       {/* Bottom-right page number */}
       <div style={pageNumberStyles}>

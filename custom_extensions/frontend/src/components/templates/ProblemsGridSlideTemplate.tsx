@@ -55,7 +55,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'45px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'22px', color:'#5F616D', fontSize:'15px', fontWeight:400 };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
+  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
 
   return (
     <>
