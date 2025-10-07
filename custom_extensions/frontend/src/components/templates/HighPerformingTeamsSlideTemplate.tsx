@@ -14,12 +14,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   panelColor: _panelColor = '#E9B84C',
   lineColor = '#0F58F9',
   points = [
-    { x: 15, y: 85 },   // left-bottom with visual padding
-    { x: 30, y: 70 },
-    { x: 50, y: 55 },
-    { x: 70, y: 40 },
-    { x: 85, y: 25 },
-    { x: 95, y: 15 }    // top-right with visual padding
+    { x: 0, y: 100 },   // bottom-left corner (respecting padding)
+    { x: 20, y: 80 },
+    { x: 40, y: 60 },
+    { x: 60, y: 40 },
+    { x: 80, y: 20 },
+    { x: 100, y: 0 }    // top-right corner (respecting padding)
   ],
   avatarPath = '',
   avatarAlt: _avatarAlt = 'Avatar',
@@ -112,13 +112,14 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // White panel with chart in bottom part
   const panel: React.CSSProperties = {
     position: 'absolute',
-    left: '56px',
-    right: '56px',
+    left: '66px',
+    right: '66px',
     top: '56px',
     bottom: '56px',
     backgroundColor: '#FFFFFF',
     borderRadius: '24px',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    padding: '40px 80px'
   };
 
   const svgRef = useRef<SVGSVGElement | null>(null);
