@@ -46,7 +46,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#FAF9F4', // Light off-white background as per screenshot
+    backgroundColor: '#FFFFFF',
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
@@ -138,9 +138,8 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
       }}>
         {currentButtons.map((button, index) => (
           <div key={index} style={{
-            backgroundColor: '#6CDC77', // Vibrant green color as per screenshot
-            borderRadius: '15px',
-            border: '1px solid gray',
+            backgroundColor: '#0F58F9', // Blue
+            borderRadius: '4px',
             padding: '20px',
             display: 'flex',
             alignItems: 'center',
@@ -157,7 +156,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 style={{
                   fontSize: '17px',
                   fontWeight: '500',
-                  color: '#245D27',
+                  color: '#FFFFFF',
                   width: '100%',
                   height: 'auto',
                   textAlign: 'center',
@@ -169,7 +168,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
                 style={{
                   fontSize: '17px',
                   fontWeight: '500',
-                  color: '#245D27', // White text as per screenshot
+                  color: '#FFFFFF', // White text as per screenshot
                   textAlign: 'center',
                   userSelect: 'none'
                 }}

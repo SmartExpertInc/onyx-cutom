@@ -951,6 +951,7 @@ export interface ResourcesListSlideProps extends BaseTemplateProps {
   barColor?: string;
   titleColor?: string;
   contentColor?: string;
+  pageNumber?: string;
 }
 
 export interface CourseRulesTimelineSlideProps extends BaseTemplateProps {

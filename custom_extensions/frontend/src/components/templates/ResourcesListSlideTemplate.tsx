@@ -28,17 +28,20 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   isEditable = false,
   onUpdate,
   theme,
+  pageNumber = '14',
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingResourceIndex, setEditingResourceIndex] = useState<number | null>(null);
   const [showLogoUpload, setShowLogoUpload] = useState(false);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)',
+    background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -47,15 +50,15 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
     left: '56px',
-    top: '100px',
-    fontSize: '53px',
+    top: '87px',
+    fontSize: '56px',
     fontWeight: 800,
     color: '#FFFFFF',
   };
 
   const listContainerStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '200px',
+    top: '253px',
     left: '56px',
     right: '56px',
     display: 'flex',
@@ -63,15 +66,25 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
     gap: '36px',
   };
 
-
-
   const itemStyles: React.CSSProperties = {
     backgroundColor: '#FFFFFF',
     color: '#09090B',
-    borderRadius: '2px',
-    padding: '15px 15px',
-    fontSize: '28px',
+    borderRadius: '6px',
+    padding: '20px 25px',
+    fontSize: '30px',
     fontWeight: 600,
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setEditingPageNumber(false);
   };
 
   return (
@@ -86,7 +99,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
         }
       `}</style>
       {/* Logo */}
-      <div style={{ position: 'absolute', top: '30px', left: '30px' }}>
+      <div style={{ position: 'absolute', top: '20px', left: '30px' }}>
         {logoPath ? (
           <ClickableImagePlaceholder
             imagePath={logoPath}
@@ -199,6 +212,54 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
             )}
           </div>
         ))}
+      </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(255, 255, 255, 0.6)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
 
       {showLogoUpload && (
