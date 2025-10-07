@@ -55,10 +55,10 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' };
-  const col: React.CSSProperties = { padding:'30px 28px', fontSize:'16px', lineHeight:1.6, color:'#FFFFFF', background:'#0F58F9' };
-  const mid: React.CSSProperties = { padding:'30px 35px', fontSize:'16px', lineHeight:1.6, color:'#000000', background:'#FFFFFF' };
+  const col: React.CSSProperties = { padding:'30px 28px', fontSize:'16px', lineHeight:1.6, color:'black', background:'#0F58F9' };
+  const mid: React.CSSProperties = { padding:'30px 35px', fontSize:'16px', lineHeight:1.6, color:'black', background:'#FFFFFF' };
   const cardTitleStyle: React.CSSProperties = { fontSize:'20px', fontWeight:700, marginBottom:'16px', color:'#FFFFFF' };
-  const cardTitleStyleMid: React.CSSProperties = { fontSize:'24px', fontWeight:700, marginBottom:'16px', color:'#FFFFFF' };
+  const cardTitleStyleMid: React.CSSProperties = { fontSize:'24px', fontWeight:700, marginBottom:'16px', color:'#000000' };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#FFFFFF', fontSize:'13px', fontWeight:400 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
@@ -72,13 +72,21 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           .culture-value-title {
             font-family: "Lora", serif !important;
             font-weight: 800 !important;
-            color: black !important;
           }
           .main-title {
             font-weight: 900 !important;
           }
           .card-title {
             font-weight: 800 !important;
+          }
+          .card-title-left {
+            color: #FFFFFF !important;
+          }
+          .card-title-middle {
+            color: #000000 !important;
+          }
+          .card-title-right {
+            color: #FFFFFF !important;
           }
       `}</style>
       <div className="culture-values-three-columns inter-theme" style={slide}>
@@ -104,7 +112,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
 
         <div className="card-value-text" style={grid}>
           <div style={col}>
-            <div className="culture-value-title card-title" style={cardTitleStyle}>
+            <div className="culture-value-title card-title card-title-left" style={cardTitleStyle}>
               {isEditable && editLeftTitle ? (
                 <ImprovedInlineEditor initialValue={leftTitle} onSave={(v)=>{ onUpdate&&onUpdate({ leftTitle:v }); setEditLeftTitle(false); }} onCancel={()=>setEditLeftTitle(false)} style={inline(cardTitleStyle)} />
               ) : (
@@ -118,7 +126,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
             )}
           </div>
           <div style={mid}>
-            <div className="culture-value-title card-title" style={cardTitleStyleMid}>
+            <div className="culture-value-title card-title card-title-middle" style={cardTitleStyleMid}>
               {isEditable && editMiddleTitle ? (
                 <ImprovedInlineEditor initialValue={middleTitle} onSave={(v)=>{ onUpdate&&onUpdate({ middleTitle:v }); setEditMiddleTitle(false); }} onCancel={()=>setEditMiddleTitle(false)} style={inline(cardTitleStyleMid)} />
               ) : (
@@ -132,7 +140,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
             )}
           </div>
           <div style={col}>
-            <div className="culture-value-title card-title" style={cardTitleStyle}>
+            <div className="culture-value-title card-title card-title-right" style={cardTitleStyle}>
               {isEditable && editRightTitle ? (
                 <ImprovedInlineEditor initialValue={rightTitle} onSave={(v)=>{ onUpdate&&onUpdate({ rightTitle:v }); setEditRightTitle(false); }} onCancel={()=>setEditRightTitle(false)} style={inline(cardTitleStyle)} />
               ) : (

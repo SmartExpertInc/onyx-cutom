@@ -50,12 +50,12 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
     <>
       <style>{`
         .softskills-title {
-          font-weight: 800 !important;
+          font-weight: 700 !important;
           font-family: "Lora", serif !important;
         }
         .softskills-item-title {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-          font-weight: 800 !important;
+          font-weight: 600 !important;
         }
       `}</style>
       <div className="softskills-develop inter-theme" style={slide}>

@@ -35,6 +35,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingBullet, setEditingBullet] = useState<number | null>(null);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -57,7 +58,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
     top: '45px',
-    left: '64px',
+    left: '310px',
     right: '40px',
     fontSize: '37px',
     maxWidth: '720px',
@@ -69,8 +70,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const subtitleStyles: React.CSSProperties = {
     position: 'absolute',
     top: '155px',
-    left: '64px',
-    right: '420px',
+    left: '310px',
+    right: '170px',
     fontSize: '18px',
     color: '#FFFFFF',
     lineHeight: 1.6,
@@ -78,8 +79,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
 
   const avatarCircleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '60px',
-    right: '72px',
+    top: '40px',
+    left: '70px',
     width: '180px',
     height: '180px',
     borderRadius: '50%',
@@ -108,7 +109,9 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const bulletItemStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'flex-start',
-    color: '#5D5D5D',
+    flexDirection: 'column',
+    gap: '20px',
+    color: '#34353C',
     fontSize: '18px',
     lineHeight: 1.4,
   };
@@ -152,6 +155,12 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         }
         .resilience-subtitle {
           font-weight: 400 !important;
+        }
+        .resilience-bullet-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .resilience-bullet-number {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
       <div className="resilience-behaviors-slide inter-theme" style={slideStyles}>
@@ -208,8 +217,24 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
           <div style={bulletsGridStyles}>
             {bullets.slice(0, 8).map((b, i) => (
               <div key={i} style={bulletItemStyles}>
-                <div style={bulletNumberStyles}>{i + 1}</div>
-                <div>{b}</div>
+                <div className="resilience-bullet-number" style={bulletNumberStyles}>{i + 1}</div>
+                {isEditable && editingBullet === i ? (
+                  <ImprovedInlineEditor
+                    initialValue={b}
+                    onSave={(v) => {
+                      const updatedBullets = [...bullets];
+                      updatedBullets[i] = v;
+                      onUpdate && onUpdate({ bullets: updatedBullets });
+                      setEditingBullet(null);
+                    }}
+                    onCancel={() => setEditingBullet(null)}
+                    multiline={true}
+                    className="resilience-bullet-text"
+                    style={{ ...bulletItemStyles, position: 'relative', top: 0, left: 0, right: 0 }}
+                  />
+                ) : (
+                  <div className="resilience-bullet-text" onClick={() => isEditable && setEditingBullet(i)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{b}</div>
+                )}
               </div>
             ))}
           </div>
