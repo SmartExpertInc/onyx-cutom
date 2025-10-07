@@ -50,7 +50,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     display: 'flex',
-    gap: '20px',
+    gap: '70px',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -357,16 +357,17 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: '8px',
-                padding: '30px',
+                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
+                boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
                 ...(idx === 1 ? { height: '310px' } : { flex: 1 })
               }}
             >
               {/* Number */}
               <div className="title-element" style={{
-                fontSize: '54px',
+                fontSize: '58px',
                 color: '#263644',
                 minHeight: '60px',
                 maxHeight: '60px',
@@ -381,7 +382,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleNumberCancel}
                     className="statement-number-editor title-element"
                     style={{
-                      fontSize: '54px',
+                      fontSize: '58px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto',
@@ -400,7 +401,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       height: '100%',
                       display: 'flex',
                       alignItems: 'center',
-                      fontSize: '54px',
+                      fontSize: '58px',
                       color: themeBg,
                       minHeight: '60px',
                       maxHeight: '60px',
@@ -415,7 +416,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               {/* Description */}
               <div style={{
                 fontSize: '18px',
-                color: '#336188',
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4',
                 minHeight: '25px',
                 display: 'flex',
@@ -430,7 +431,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     className="statement-description-editor"
                     style={{
                       fontSize: '18px',
-                      color: '#336188',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
@@ -443,7 +444,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '18px',
-                      color: '#336188',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%'
                     }}
@@ -469,16 +470,16 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               style={{
                 backgroundColor: '#FFFFFF',
                 borderRadius: '8px',
-                padding: '30px',
-                paddingTop: '22px',
+                padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '10px',
+                boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)',
                 flex: 1
               }}
             >
               <div className="title-element" style={{
-                fontSize: '54px',
+                fontSize: '58px',
                 color: '#263644',
               }}>
                 {isEditable && editingNumbers === 1 ? (
@@ -488,7 +489,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     onCancel={handleNumberCancel}
                     className="statement-number-editor title-element"
                     style={{
-                      fontSize: '54px',
+                      fontSize: '58px',
                       color: '#263644',
                       width: '100%',
                       height: 'auto'
@@ -501,7 +502,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
-                      fontSize: '54px',
+                      fontSize: '58px',
                       color: themeBg,
                       fontWeight: 'bold',
                       width: '100%'
@@ -513,7 +514,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               </div>
               <div style={{
                 fontSize: '18px',
-                color: themeBg,
+                color: 'rgba(9, 9, 11, 0.7)',
                 lineHeight: '1.4'
               }}>
                 {isEditable && editingStatements === 1 ? (
@@ -525,7 +526,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                     className="statement-description-editor"
                     style={{
                       fontSize: '18px',
-                      color: '#336188',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%',
                       height: 'auto'
@@ -538,7 +539,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                       cursor: isEditable ? 'pointer' : 'default',
                       userSelect: 'none',
                       fontSize: '18px',
-                      color: '#336188',
+                      color: 'rgba(9, 9, 11, 0.7)',
                       lineHeight: '1.4',
                       width: '100%'
                     }}
