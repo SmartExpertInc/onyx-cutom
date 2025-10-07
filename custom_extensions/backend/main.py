@@ -32361,7 +32361,7 @@ async def create_smartdrive_connector(
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
             "prune_freq": 86400,   # 1 day
-            "indexing_start": indexing_start
+            "indexing_start": indexing_start if indexing_start else None
         }
         
         # Helper function to ensure HTTPS for production domains
