@@ -86,12 +86,28 @@ function InlineEditor({
     console.log('💨 [TEXT EDIT BLUR] Current target:', e.currentTarget);
     console.log('💨 [TEXT EDIT BLUR] Active element at blur:', document.activeElement);
     
+    // 🔧 CRITICAL FIX: Check if blur is happening due to re-render (relatedTarget is another InlineEditor input)
+    const relatedTargetIsInput = e.relatedTarget && 
+                                  (e.relatedTarget as HTMLElement).classList?.contains('inline-editor-input');
+    
+    if (relatedTargetIsInput) {
+      console.log('🔄 [TEXT EDIT BLUR] Blur to another InlineEditor input - ignoring (React re-render)');
+      console.log('🔄 [TEXT EDIT BLUR] This is a React re-render, NOT a user action');
+      return; // Don't save, this is just React re-rendering
+    }
+    
     // Small delay to prevent immediate blur from click propagation
     setTimeout(() => {
       console.log('⏰ [TEXT EDIT BLUR] After 100ms delay');
       console.log('⏰ [TEXT EDIT BLUR] Active element now:', document.activeElement);
       console.log('⏰ [TEXT EDIT BLUR] Input ref:', inputRef.current);
       console.log('⏰ [TEXT EDIT BLUR] Still has focus?', document.activeElement === inputRef.current);
+      
+      // 🔧 CRITICAL FIX: Check if the input ref still exists (not unmounted)
+      if (!inputRef.current) {
+        console.log('❌ [TEXT EDIT BLUR] Input ref is null - component unmounted, aborting save');
+        return; // Component unmounted during re-render, don't try to save
+      }
       
       // Check if the element still doesn't have focus
       if (document.activeElement !== inputRef.current) {
