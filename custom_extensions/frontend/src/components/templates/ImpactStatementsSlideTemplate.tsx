@@ -50,7 +50,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
     aspectRatio: '16/9',
     backgroundColor: '#E0E7FF',
     display: 'flex',
-    gap: '70px',
+    gap: '55px',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -141,7 +141,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       `}</style>
       {/* Left section with title and profile image */}
       <div style={{
-        width: '50%',
+        width: '45%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -149,8 +149,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       }}>
         {/* Title */}
         <div style={{
-          maxWidth: '537px',
-          fontSize: '48px',
+          maxWidth: '490px',
+          fontSize: '46px',
           color: '#09090B',
           lineHeight: '1.1',
           flex: 1,
@@ -166,8 +166,8 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
               multiline={true}
               className="impact-title-editor title-element"
               style={{
-                maxWidth: '537px',
-                fontSize: '48px',
+                maxWidth: '490px',
+                fontSize: '46px',
                 color: '#09090B',
                 lineHeight: '1.1',
                 width: '100%',
@@ -186,7 +186,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
                 height: '100%',
                 display: 'flex',
                 alignItems: 'flex-start',
-                fontSize: '48px',
+                fontSize: '46px',
                 color: '#09090B',
                 lineHeight: '1.1',
                 minHeight: '50px'
@@ -199,7 +199,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
 
         {/* Profile image in gradient container */}
         <div style={{
-          width: '520px',
+          width: '490px',
           height: '310px',
           background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)',
           borderRadius: '8px',
@@ -338,7 +338,7 @@ export const ImpactStatementsSlideTemplate: React.FC<ImpactStatementsSlideProps 
       <div style={{
         display: 'flex',
         gap: '15px',
-        width: '50%',
+        width: '55%',
         height: '100%'
       }}>
         {/* Левая колонка (два блока) */}

@@ -181,7 +181,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
       {/* Top section with blue gradient background */}
       <div style={{
         flex: '0 0 427px', // Фиксированная высота для верхней секции
-        background: 'linear-gradient(90deg, #0F58F9 0%, #1023A1 100%)', 
+        background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', 
         position: 'relative',
         padding: '40px 60px',
         paddingTop: '44px',
