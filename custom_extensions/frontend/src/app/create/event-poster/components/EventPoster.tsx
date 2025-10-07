@@ -729,7 +729,7 @@ export default function EventPoster({
             <div 
               style={{ 
                 border: '3px solid #5416af',
-                padding: '4px 8px',
+                padding: '4px 6px',
                 display: 'inline-block',
                 textAlign: 'center',
                 width: 'auto',

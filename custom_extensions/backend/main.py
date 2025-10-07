@@ -30658,7 +30658,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
             .date-wrapper { width: 220px; display: flex; justify-content: center; }
             .date-section {
                 border: 4px solid #5416af; /* thicker to match frontend */
-                padding: 4px 8px; /* tighter around date */
+                padding: 4px 6px; /* tiny side spacing */
                 display: inline-block;
                 width: auto;
                 box-sizing: border-box;
