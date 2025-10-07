@@ -30,14 +30,31 @@ function InlineEditor({
 
   // Update local state when initialValue changes
   useEffect(() => {
+    console.log('🔄 [TEXT EDIT EFFECT] Initial value changed:', initialValue);
     setValue(initialValue);
   }, [initialValue]);
 
   useEffect(() => {
+    console.log('🚀 [TEXT EDIT MOUNT] InlineEditor mounted');
+    console.log('🚀 [TEXT EDIT MOUNT] Initial value:', initialValue);
+    console.log('🚀 [TEXT EDIT MOUNT] Placeholder:', placeholder);
+    console.log('🚀 [TEXT EDIT MOUNT] Multiline:', multiline);
+    
     if (inputRef.current) {
+      console.log('🎯 [TEXT EDIT MOUNT] Input ref exists, focusing...');
+      console.log('🎯 [TEXT EDIT MOUNT] Input element:', inputRef.current);
       inputRef.current.focus();
       inputRef.current.select();
+      console.log('✅ [TEXT EDIT MOUNT] Focus and select called');
+      console.log('✅ [TEXT EDIT MOUNT] Active element:', document.activeElement);
+      console.log('✅ [TEXT EDIT MOUNT] Is focused?', document.activeElement === inputRef.current);
+    } else {
+      console.error('❌ [TEXT EDIT MOUNT] Input ref is null!');
     }
+    
+    return () => {
+      console.log('💀 [TEXT EDIT UNMOUNT] InlineEditor unmounting');
+    };
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -58,11 +75,24 @@ function InlineEditor({
 
   const handleFocus = () => {
     console.log('🎯 [TEXT EDIT] Focus started - initial value:', initialValue);
+    console.log('🎯 [TEXT EDIT] Input element:', inputRef.current);
+    console.log('🎯 [TEXT EDIT] Active element:', document.activeElement);
+    console.log('🎯 [TEXT EDIT] Has focus:', document.activeElement === inputRef.current);
   };
 
   const handleBlur = (e: React.FocusEvent) => {
+    console.log('💨 [TEXT EDIT BLUR] Blur event triggered');
+    console.log('💨 [TEXT EDIT BLUR] Related target:', e.relatedTarget);
+    console.log('💨 [TEXT EDIT BLUR] Current target:', e.currentTarget);
+    console.log('💨 [TEXT EDIT BLUR] Active element at blur:', document.activeElement);
+    
     // Small delay to prevent immediate blur from click propagation
     setTimeout(() => {
+      console.log('⏰ [TEXT EDIT BLUR] After 100ms delay');
+      console.log('⏰ [TEXT EDIT BLUR] Active element now:', document.activeElement);
+      console.log('⏰ [TEXT EDIT BLUR] Input ref:', inputRef.current);
+      console.log('⏰ [TEXT EDIT BLUR] Still has focus?', document.activeElement === inputRef.current);
+      
       // Check if the element still doesn't have focus
       if (document.activeElement !== inputRef.current) {
         // Ensure we save the current value from the input/textarea
@@ -78,6 +108,8 @@ function InlineEditor({
           timestamp: new Date().toISOString()
         });
         onSave(currentValue);
+      } else {
+        console.log('✋ [TEXT EDIT BLUR] Input still has focus, NOT saving');
       }
     }, 100);
   };
@@ -278,13 +310,34 @@ export default function DynamicAuditLandingPage() {
 
   // Text editing handlers
   const startEditing = (field: string) => {
-    console.log('🚀 [TEXT EDIT] Starting edit for field:', field);
-    setEditingField(field)
+    console.log('🚀🚀🚀 [START EDITING] ========================================');
+    console.log('🚀 [START EDITING] Function called with field:', field);
+    console.log('🚀 [START EDITING] Current editingField state:', editingField);
+    console.log('🚀 [START EDITING] Active element before setState:', document.activeElement);
+    console.log('🚀 [START EDITING] Timestamp:', new Date().toISOString());
+    setEditingField(field);
+    console.log('🚀 [START EDITING] setEditingField called with:', field);
+    console.log('🚀 [START EDITING] Active element after setState:', document.activeElement);
+    
+    // Log state after React updates (next tick)
+    setTimeout(() => {
+      console.log('⏰ [START EDITING] After state update:');
+      console.log('⏰ [START EDITING] editingField should now be:', field);
+      console.log('⏰ [START EDITING] Active element:', document.activeElement);
+    }, 0);
+    console.log('🚀🚀🚀 [START EDITING] ========================================');
   }
 
   const stopEditing = () => {
-    console.log('🛑 [TEXT EDIT] Stopping edit for field:', editingField);
-    setEditingField(null)
+    console.log('🛑🛑🛑 [STOP EDITING] ========================================');
+    console.log('🛑 [STOP EDITING] Function called');
+    console.log('🛑 [STOP EDITING] Current editingField state:', editingField);
+    console.log('🛑 [STOP EDITING] Active element before setState:', document.activeElement);
+    console.log('🛑 [STOP EDITING] Timestamp:', new Date().toISOString());
+    setEditingField(null);
+    console.log('🛑 [STOP EDITING] setEditingField(null) called');
+    console.log('🛑 [STOP EDITING] Active element after setState:', document.activeElement);
+    console.log('🛑🛑🛑 [STOP EDITING] ========================================');
   }
 
   const handleTextSave = async (field: string, newValue: string) => {
@@ -2944,13 +2997,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
                                           startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -2981,13 +3050,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
                                           startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3018,13 +3103,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
                                           startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3321,13 +3422,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
                                           startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3358,13 +3475,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
                                           startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3395,13 +3528,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
                                           startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3664,13 +3813,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
                                           startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3701,13 +3866,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
                                           startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -3738,13 +3919,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
                                           startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -4007,13 +4204,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
                                           startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -4044,13 +4257,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
                                           startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
@@ -4081,13 +4310,29 @@ export default function DynamicAuditLandingPage() {
                                     ) : (
                                       <span 
                                         onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
                                         }}
                                         onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
                                           e.stopPropagation();
                                           e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
                                           startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
                                         }}
                                         className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
                                         title="Click to edit header"
