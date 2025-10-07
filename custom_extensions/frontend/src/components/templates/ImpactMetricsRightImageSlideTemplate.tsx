@@ -114,7 +114,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
     fontSize: '56px',
     fontWeight: 800,
     marginBottom: '30px',
-    color: '#333333'
+    color: 'black'
   };
 
   const rightWrap: React.CSSProperties = {
@@ -202,7 +202,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
             <div style={{
               width: '20px',
               height: '20px',
-              border: '1px solid #333333',
+              border: '1px solid black',
               borderRadius: '50%',
               position: 'relative',
               display: 'flex',
@@ -212,20 +212,20 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
               <div style={{
                 width: '8px',
                 height: '2px',
-                backgroundColor: '#333333',
+                backgroundColor: 'black',
                 position: 'absolute'
               }} />
               <div style={{
                 width: '2px',
                 height: '8px',
-                backgroundColor: '#333333',
+                backgroundColor: 'black',
                 position: 'absolute',
                 left: '50%',
                 top: '50%',
                 transform: 'translate(-50%, -50%)'
               }} />
             </div>
-            <div style={{ fontSize: '14px', fontWeight: '400', color: '#333333', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+            <div style={{ fontSize: '14px', fontWeight: '400', color: 'black', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
           </div>
         )}
       </div>

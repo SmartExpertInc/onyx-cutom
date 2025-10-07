@@ -60,9 +60,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     position: 'absolute',
     left: '56%',
     top: '175px',
-    bottom: '80px',
+    bottom: '40px',
     width: '3px',
-    height: '100%',
     backgroundColor: '#0F58F9',
   };
 
@@ -165,7 +164,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
             <div style={{
               width: '20px',
               height: '20px',
-              border: '1px solid #333333',
+              border: '1px solid black',
               borderRadius: '50%',
               position: 'relative',
               display: 'flex',
@@ -175,20 +174,20 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
               <div style={{
                 width: '8px',
                 height: '2px',
-                backgroundColor: '#333333',
+                backgroundColor: 'black',
                 position: 'absolute'
               }} />
               <div style={{
                 width: '2px',
                 height: '8px',
-                backgroundColor: '#333333',
+                backgroundColor: 'black',
                 position: 'absolute',
                 left: '50%',
                 top: '50%',
                 transform: 'translate(-50%, -50%)'
               }} />
             </div>
-            <div style={{ fontSize: '14px', fontWeight: '400', color: '#333333', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+            <div style={{ fontSize: '14px', fontWeight: '400', color: 'black', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
           </div>
         )}
       </div>

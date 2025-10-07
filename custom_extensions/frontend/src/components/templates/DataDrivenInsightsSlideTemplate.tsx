@@ -347,7 +347,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
         alignItems:'center',
         gap:'8px',
         fontSize:'14px',
-        color:'#909090',
+        color:'black',
         fontFamily:'"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         {currentCompanyLogoPath ? (
@@ -379,7 +379,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
               width:'20px',
               height:'20px',
               borderRadius:'50%',
-              border:'1px solid #909090',
+              border:'1px solid black',
               display:'flex',
               alignItems:'center',
               justifyContent:'center',
@@ -388,7 +388,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
             }}>
               +
             </div>
-            <div className="logo-text" style={{ fontSize: '14px', color: '#909090', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
+            <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif' }}>Your Logo</div>
           </div>
         )}
       </div>
