@@ -669,7 +669,7 @@ export default function EventPoster({
             </div>
 
             {/* Logo centered within a fixed-width wrapper to align with date box */}
-            <div style={{ width: '220px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '220px', display: 'flex', justifyContent: 'center', marginTop: '3px' }}>
               <div
                 style={{
                   width: '141px',
@@ -680,7 +680,7 @@ export default function EventPoster({
                   backgroundSize: 'cover',
                   display: 'flex',
                   gap: '6px',
-                  marginTop: '3px'
+                  marginTop: '0'
                 }}
               />
             </div>

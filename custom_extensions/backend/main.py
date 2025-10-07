@@ -30606,14 +30606,22 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 line-height: 1.2;
             }
             
-            .logo {{
+            .logo {
                 width: 141px;
                 height: 78px;
                 background: url("/custom-projects-ui/create/event-poster/figma-to-html/images/v1_6.png");
                 background-repeat: no-repeat;
                 background-position: center center;
                 background-size: cover;
-            }}
+            }
+
+            .logo-wrapper {
+                width: 220px; /* match date section width */
+                display: flex;
+                justify-content: center; /* center logo horizontally */
+                align-items: flex-start; /* align top edge with event title top */
+                margin-top: 10px; /* mirror header lowered spacing */
+            }
             
             /* Second row: Speaker info and Date */
             .second-row {{
@@ -30647,11 +30655,13 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 line-height: 1.2;
             }}
             
-            .date-section {{
+            .date-section {
                 border: 4px solid #5416af; /* thicker to match frontend */
                 padding: 10px 14px; /* closer to text */
                 display: inline-block;
-            }}
+                width: 220px; /* fixed width to mirror frontend */
+                box-sizing: border-box;
+            }
             
             .day-month {{
                 color: #ffffff;
@@ -30752,7 +30762,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 margin-top: 2px;
             }}
             
-            .free-access {{
+            .free-access {
                 color: #E5E5E5;
                 font-weight: 600;
                 font-size: 37px;
@@ -30760,7 +30770,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 line-height: 1.3;
                 background-color: #5416af;
                 border-radius: 30px;
-                padding: 0 20px;
+                padding: 0 22px; /* +10% horizontal padding */
                 box-shadow: 0 0 30px rgba(84,22,175,1), 0 0 60px rgba(84,22,175,0.5);
                 backdrop-filter: blur(5px);
                 text-transform: uppercase;
@@ -30770,7 +30780,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                 height: 100px;
                 width: 620px;
                 margin-left: 10px;
-            }}
+            }
         </style>
     </head>
     <body>
@@ -30788,7 +30798,7 @@ def generate_poster_html_template(poster_data: dict) -> str:
                         <div class="event-name">{event_name}</div>
                             <div class="event-name-colon">:</div>
                         </div>
-                        <div class="logo"></div>
+                        <div class="logo-wrapper"><div class="logo"></div></div>
                     </div>
                     
                     <div class="second-row">
