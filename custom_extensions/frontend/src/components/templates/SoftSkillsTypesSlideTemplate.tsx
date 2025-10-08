@@ -119,7 +119,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
             onCancel={() => setEditingTitle(false)}
             className="sst-title-editor title-element"
             multiline={true}
-            style={{ ...titleStyles, position: 'relative', top: 0, left: 0 }}
+            style={{ ...titleStyles, background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 }}
           />
         ) : (
           <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
