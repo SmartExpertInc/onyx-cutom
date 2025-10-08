@@ -111,20 +111,20 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
       />
 
       {/* Title */}
-      <div style={titleStyles}>
-        {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
-            initialValue={title}
-            onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
-            onCancel={() => setEditingTitle(false)}
-            className="sst-title-editor title-element"
-            multiline={true}
-            style={{ ...titleStyles, background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 }}
-          />
-        ) : (
+      {isEditable && editingTitle ? (
+        <ImprovedInlineEditor
+          initialValue={title}
+          onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
+          onCancel={() => setEditingTitle(false)}
+          className="sst-title-editor title-element"
+          multiline={true}
+          style={{ ...titleStyles, background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 }}
+        />
+      ) : (
+        <div style={titleStyles}>
           <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Avatar */}
       <div style={avatarCircleStyles}>
