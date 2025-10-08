@@ -99,23 +99,20 @@ RUN playwright install chromium
 RUN python -m playwright install chromium
 
 # ============================================
-# PART 4: Install Remotion BEFORE copying all code
+# PART 4: Copy Application Code First
 # ============================================
-# Copy ONLY the package.json first (for Docker layer caching)
-COPY video_compositions/package.json video_compositions/package-lock.json* /app/video_compositions/
+COPY . .
 
-# Install npm packages
+# ============================================
+# PART 5: Install Remotion AFTER copying code (to avoid overwrite)
+# ============================================
 WORKDIR /app/video_compositions
 RUN npm install && \
     chmod -R 755 node_modules && \
-    ls -la node_modules/.bin/remotion && \
-    echo "✅ Remotion installed successfully"
+    npx remotion --version && \
+    echo "✅ Remotion installed successfully in Docker container"
 
-# ============================================
-# PART 5: Copy Application Code
-# ============================================
 WORKDIR /app
-COPY . .
 
 # ============================================
 # PART 6: Create Directories
