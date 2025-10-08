@@ -429,10 +429,13 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('[ENTITLEMENTS] Fetched data:', data);
         setEntitlements(data);
+      } else {
+        console.error('[ENTITLEMENTS] Failed to fetch:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching entitlements:', error);
+      console.error('[ENTITLEMENTS] Error fetching entitlements:', error);
     }
   }, []);
 
@@ -441,10 +444,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     loadUserConnectors();
     fetchEntitlements();
     
-    // Set up periodic refresh to update connector statuses (including removing fully deleted ones)
+    // Set up periodic refresh to update connector statuses and entitlements
     const refreshInterval = setInterval(() => {
-      console.log('[POPUP_DEBUG] Periodic refresh of connectors...');
+      console.log('[POPUP_DEBUG] Periodic refresh of connectors and entitlements...');
       loadUserConnectors();
+      fetchEntitlements();
     }, 10000); // Refresh every 10 seconds
     
     return () => {
@@ -577,7 +581,15 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       {/* Usage Progress Bars */}
       {entitlements && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage & Limits</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
+            <button
+              onClick={() => fetchEntitlements()}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Refresh
+            </button>
+          </div>
           <div className="space-y-4">
             {/* Connectors Progress */}
             <div>
@@ -587,7 +599,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   {entitlements.connectors_used} / {entitlements.connectors_limit}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
                     entitlements.connectors_used >= entitlements.connectors_limit
@@ -614,7 +626,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${
                     entitlements.storage_used_gb >= entitlements.storage_gb

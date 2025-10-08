@@ -27673,6 +27673,8 @@ async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get
             ent["connectors_used"] = int(conn_count or 0)
             ent["storage_used_bytes"] = int(storage_row or 0)
             ent["storage_used_gb"] = round((storage_row or 0) / (1024 * 1024 * 1024), 2)
+            
+            logger.info(f"[ENTITLEMENTS] User {onyx_user_id}: connectors={conn_count}, storage_bytes={storage_row}, entitlements={ent}")
         
         return ent
     except Exception as e:
@@ -27695,7 +27697,7 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 """
                 SELECT uc.onyx_user_id,
                        uc.name AS user_name,
-                       COALESCE(ub_user.email, uc.onyx_user_id) AS email,
+                       uc.onyx_user_id AS email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -27707,7 +27709,6 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
-                LEFT JOIN user_email_cache ub_user ON ub_user.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.updated_at DESC
                 """
             )
@@ -31974,15 +31975,19 @@ async def smartdrive_upload(
                 safe_name = _sanitize_filename(f.filename or "upload.bin")
                 dest_url = f"{webdav_user_base}{_ensure_trailing_slash(user_root_prefix + norm_dir)}{safe_name}"
 
+                # Track file size during streaming
+                file_size = 0
                 async def aiter():
+                    nonlocal file_size
                     while True:
                         chunk = await f.read(1024 * 64)
                         if not chunk:
                             break
+                        file_size += len(chunk)
                         yield chunk
 
                 resp = await client.put(dest_url, auth=(username, password), content=aiter())
-                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code}
+                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code, "size": file_size}
                 if not entry["success"]:
                     entry["error"] = _dav_error(resp)
                     results.append(entry)
@@ -32014,6 +32019,24 @@ async def smartdrive_upload(
                                 )
                     except Exception as import_err:
                         logger.warning(f"Post-upload Onyx import failed for {safe_name}: {import_err}")
+                    
+                    # Update storage usage tracking
+                    try:
+                        async with pool.acquire() as conn2:
+                            await conn2.execute(
+                                """
+                                INSERT INTO user_storage_usage (onyx_user_id, used_bytes, updated_at)
+                                VALUES ($1, $2, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET used_bytes = user_storage_usage.used_bytes + EXCLUDED.used_bytes, updated_at = now()
+                                """,
+                                str(onyx_user_id),
+                                file_size,
+                            )
+                            logger.info(f"[STORAGE] Updated usage for {onyx_user_id}: +{file_size} bytes")
+                    except Exception as storage_err:
+                        logger.warning(f"Failed to update storage usage: {storage_err}")
+                    
                     results.append(entry)
                 await f.close()
 

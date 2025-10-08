@@ -63,6 +63,13 @@ const EntitlementsTab: React.FC = () => {
     const [stor, setStor] = useState<string>(row.overrides.storage_gb?.toString() ?? "");
     const [slides, setSlides] = useState<string>(row.overrides.slides_max?.toString() ?? "");
 
+    // Reset state when row data changes (after save)
+    React.useEffect(() => {
+      setConn(row.overrides.connectors_limit?.toString() ?? "");
+      setStor(row.overrides.storage_gb?.toString() ?? "");
+      setSlides(row.overrides.slides_max?.toString() ?? "");
+    }, [row.overrides.connectors_limit, row.overrides.storage_gb, row.overrides.slides_max]);
+
     const onSave = () => {
       const payload: any = {};
       // Empty string means use default (null), otherwise use the number
