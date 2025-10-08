@@ -66,6 +66,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const isLoadingRef = useRef(false);
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
+  const [entitlements, setEntitlements] = useState<any>(null);
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -419,9 +420,26 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
     }
   }, []); // useCallback dependency array
 
+  // Fetch entitlements
+  const fetchEntitlements = useCallback(async () => {
+    try {
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/entitlements/me`, {
+        credentials: 'same-origin',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setEntitlements(data);
+      }
+    } catch (error) {
+      console.error('Error fetching entitlements:', error);
+    }
+  }, []);
+
   useEffect(() => {
     console.log('[POPUP_DEBUG] useEffect triggered - loading connectors');
     loadUserConnectors();
+    fetchEntitlements();
     
     // Set up periodic refresh to update connector statuses (including removing fully deleted ones)
     const refreshInterval = setInterval(() => {
@@ -556,6 +574,68 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
+      {/* Usage Progress Bars */}
+      {entitlements && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage & Limits</h3>
+          <div className="space-y-4">
+            {/* Connectors Progress */}
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-700 font-medium">Connectors</span>
+                <span className="text-gray-600">
+                  {entitlements.connectors_used} / {entitlements.connectors_limit}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    entitlements.connectors_used >= entitlements.connectors_limit
+                      ? 'bg-red-500'
+                      : entitlements.connectors_used / entitlements.connectors_limit > 0.8
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  }`}
+                  style={{
+                    width: `${Math.min(
+                      (entitlements.connectors_used / entitlements.connectors_limit) * 100,
+                      100
+                    )}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Storage Progress */}
+            <div>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-700 font-medium">Storage</span>
+                <span className="text-gray-600">
+                  {entitlements.storage_used_gb} GB / {entitlements.storage_gb} GB
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    entitlements.storage_used_gb >= entitlements.storage_gb
+                      ? 'bg-red-500'
+                      : entitlements.storage_used_gb / entitlements.storage_gb > 0.8
+                      ? 'bg-yellow-500'
+                      : 'bg-blue-500'
+                  }`}
+                  style={{
+                    width: `${Math.min(
+                      (entitlements.storage_used_gb / entitlements.storage_gb) * 100,
+                      100
+                    )}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Smart Drive Browser Section */}
       <div className="mb-8">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
@@ -834,7 +914,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             ) : (
                               <Button
                                 variant="outline"
-                                onClick={(e) => {
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                                   e.stopPropagation();
                                   console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
                                   if (!showManagementPage && !isManagementOpening) {

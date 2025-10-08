@@ -27657,6 +27657,23 @@ async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get
     try:
         onyx_user_id = await get_current_onyx_user_id(request)
         ent = await _fetch_effective_entitlements(onyx_user_id, pool)
+        
+        # Add usage information
+        async with pool.acquire() as conn:
+            # Connector count
+            conn_count = await conn.fetchval(
+                "SELECT COUNT(*) FROM user_connectors WHERE onyx_user_id = $1 AND status = 'active'",
+                onyx_user_id
+            )
+            # Storage usage
+            storage_row = await conn.fetchval(
+                "SELECT used_bytes FROM user_storage_usage WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            ent["connectors_used"] = int(conn_count or 0)
+            ent["storage_used_bytes"] = int(storage_row or 0)
+            ent["storage_used_gb"] = round((storage_row or 0) / (1024 * 1024 * 1024), 2)
+        
         return ent
     except Exception as e:
         logger.error(f"Error getting entitlements: {e}")
@@ -27677,7 +27694,8 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
             rows = await conn.fetch(
                 """
                 SELECT uc.onyx_user_id,
-                       COALESCE(ub_user.email, '') AS email,
+                       uc.name AS user_name,
+                       COALESCE(ub_user.email, uc.onyx_user_id) AS email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -27689,15 +27707,7 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
-                LEFT JOIN (
-                    SELECT onyx_user_id, MAX(email) AS email
-                    FROM (
-                        SELECT onyx_user_id, email FROM user_email_cache
-                        UNION ALL
-                        SELECT onyx_user_id, '' AS email FROM user_credits
-                    ) t
-                    GROUP BY onyx_user_id
-                ) ub_user ON ub_user.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_email_cache ub_user ON ub_user.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.updated_at DESC
                 """
             )
@@ -27706,6 +27716,8 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
                 out.append({
                     "onyx_user_id": r["onyx_user_id"],
+                    "user_name": r["user_name"] or "Unknown",
+                    "user_email": r["email"],
                     "email": r["email"],
                     "plan": r["plan"],
                     "base": {

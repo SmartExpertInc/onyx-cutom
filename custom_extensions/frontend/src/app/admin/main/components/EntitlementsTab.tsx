@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 
 type EntitlementRow = {
   onyx_user_id: string;
+  user_email?: string;
+  user_name?: string;
   email?: string;
   plan: string;
   base: { connectors_limit: number; storage_gb: number; slides_max: number };
@@ -63,15 +65,16 @@ const EntitlementsTab: React.FC = () => {
 
     const onSave = () => {
       const payload: any = {};
-      payload.connectors_limit = conn === "" ? null : Number(conn);
-      payload.storage_gb = stor === "" ? null : Number(stor);
-      payload.slides_max = slides === "" ? null : Number(slides);
+      // Empty string means use default (null), otherwise use the number
+      payload.connectors_limit = conn.trim() === "" ? null : Number(conn);
+      payload.storage_gb = stor.trim() === "" ? null : Number(stor);
+      payload.slides_max = slides.trim() === "" ? null : Number(slides);
       saveOverride(row.onyx_user_id, payload);
     };
 
     return (
       <tr className="border-b">
-        <td className="px-4 py-2 text-sm text-gray-800">{row.email || row.onyx_user_id}</td>
+        <td className="px-4 py-2 text-sm text-gray-800">{row.user_email || row.email || row.onyx_user_id}</td>
         <td className="px-4 py-2 text-sm capitalize text-gray-800">{row.plan}</td>
         <td className="px-4 py-2">
           <input className="w-24 border rounded px-2 py-1 text-sm text-gray-800" placeholder="auto" value={conn} onChange={e => setConn(e.target.value)} />
