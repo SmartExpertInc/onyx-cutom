@@ -27660,11 +27660,25 @@ async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get
         
         # Add usage information
         async with pool.acquire() as conn:
-            # Connector count - Use user_connectors table
-            conn_count = await conn.fetchval(
-                "SELECT COUNT(*) FROM user_connectors WHERE onyx_user_id = $1 AND status = 'active'",
-                onyx_user_id
-            ) or 0
+            # Connector count - Call Onyx API to get real connector count
+            conn_count = 0
+            try:
+                # Get session cookie from request to authenticate with Onyx API
+                session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+                if session_cookie:
+                    connector_status_url = f"{ONYX_API_SERVER_URL}/manage/admin/connector/status"
+                    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(connector_status_url, cookies=cookies_to_forward)
+                        if response.status_code == 200:
+                            connectors_data = response.json()
+                            # Count only private connectors (same as frontend logic)
+                            conn_count = len([c for c in connectors_data if c.get('access_type') == 'private'])
+                            logger.info(f"[ENTITLEMENTS] Fetched {conn_count} private connectors from Onyx API for user {onyx_user_id}")
+                        else:
+                            logger.warning(f"[ENTITLEMENTS] Failed to fetch connectors from Onyx API: {response.status_code}")
+            except Exception as e:
+                logger.warning(f"[ENTITLEMENTS] Error fetching connectors from Onyx API: {e}")
             
             # Storage usage
             storage_row = await conn.fetchval(
@@ -27698,7 +27712,7 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 """
                 SELECT uc.onyx_user_id,
                        uc.name AS user_name,
-                       COALESCE(uc.email, ub.email, uc.onyx_user_id) AS email,
+                       uc.onyx_user_id AS email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
