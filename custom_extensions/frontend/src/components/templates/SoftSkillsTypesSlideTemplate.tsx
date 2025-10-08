@@ -8,7 +8,7 @@ import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
   slideId,
-  title = 'Types of\nSoft Skills',
+  title = 'Types of Soft Skills',
   cards = [
     { label: 'Time management' },
     { label: 'Team work' },
@@ -27,7 +27,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -41,28 +41,27 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     lineHeight: 1.1,
     fontWeight: 800,
     color: '#3C3C3C',
-    whiteSpace: 'pre-line',
   };
 
   const avatarCircleStyles: React.CSSProperties = {
     position: 'absolute',
     top: '40px',
     right: '56px',
-    width: '150px',
-    height: '150px',
+    width: '170px',
+    height: '170px',
     borderRadius: '50%',
     overflow: 'hidden',
-    backgroundColor: '#916AF7',
+    backgroundColor: '#0F58F9',
   };
 
   const cardsRowStyles: React.CSSProperties = {
     position: 'absolute',
-    left: '56px',
-    right: '56px',
-    bottom: '64px',
+    left: '20px',
+    right: '20px',
+    bottom: '20px',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
-    gap: '28px',
+    gap: '20px',
   };
 
   const cardStyles: React.CSSProperties = {
@@ -70,7 +69,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     backgroundColor: '#E5E5E5',
     borderRadius: '0px',
     overflow: 'hidden',
-    height: '340px',
+    height: '400px',
   };
 
   const cardLabelStyles: React.CSSProperties = {
@@ -87,6 +86,15 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
 
   return (
     <div className="soft-skills-types-slide inter-theme" style={slideStyles}>
+      <style>{`
+        .soft-skills-types-slide *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .soft-skills-types-slide .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
       {/* Title */}
       <div style={titleStyles}>
         {isEditable && editingTitle ? (
@@ -94,12 +102,12 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
             initialValue={title}
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
-            className="sst-title-editor"
+            className="sst-title-editor title-element"
             multiline={true}
             style={{ ...titleStyles, position: 'relative', top: 0, left: 0 }}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
         )}
       </div>
 

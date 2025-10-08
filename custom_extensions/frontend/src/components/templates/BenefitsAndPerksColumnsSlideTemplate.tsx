@@ -24,10 +24,10 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   heading = 'Benefits and Perks',
   avatarPath = '',
   columns = [
-    { title: 'HEALTH AND WELLNESS', body: 'Medical, dental, and vision insurance....' },
-    { title: 'FINANCIAL BENEFITS', body: '401(k) retirement savings plan; ...', accent: true },
-    { title: 'TIME OFF AND WORK-LIFE BALANCE', body: 'Paid time off (PTO) ...' },
-    { title: 'PROFESSIONAL DEVELOPMENT', body: 'Tuition reimbursement for continued education; ...', accent: true }
+    { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
+    { title: 'Financial Benefits', body: '401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.', accent: true },
+    { title: 'Time off and work-life balance', body: 'Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.' },
+    { title: 'Professional Development', body: 'Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.', accent: true }
   ],
   isEditable = false,
   onUpdate,
@@ -40,22 +40,22 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const [editCol, setEditCol] = useState<{ idx: number; field: 'title' | 'body' } | null>(null);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E7E7E7', borderBottom:'1px solid #d8d8d8' };
+  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontWeight:800, color:'#202020' };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'115px', height:'115px', borderRadius:'50%', overflow:'hidden', background:'#000000', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
-  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#CBCBCB', display:'grid', rowGap:'14px' };
-  const colAccent: React.CSSProperties = { ...colBase, background:'#4231EA', color:'#E2E5FF' };
+  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#0F58F9', display:'grid', rowGap:'14px' };
+  const colAccent: React.CSSProperties = { ...colBase, background:'#FFFFFF', color:'#E2E5FF' };
   const numberBadge = (n: number): React.CSSProperties => {
-    const isDark = n === 2 || n === 4;
+    const isAccent = n === 2 || n === 4;
     return {
       width:'32px',
       height:'32px',
-      borderRadius:'50%',
-      background: isDark ? '#000000' : '#FFFFFF',
-      color: isDark ? '#FFFFFF' : '#000000',
+      borderRadius:'4px',
+      background: isAccent ? '#0F58F9' : '#FFFFFF',
+      color: isAccent ? '#FFFFFF' : '#0F58F9',
       display:'inline-flex',
       alignItems:'center',
       justifyContent:'center',
@@ -77,6 +77,15 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
 
   return (
     <div className="benefits-perks-columns inter-theme" style={slide}>
+      <style>{`
+        .benefits-perks-columns *:not(.title-element) {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .benefits-perks-columns .title-element {
+          font-family: "Lora", serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
       <div style={top} />
       <YourLogo
         logoPath={logoPath}
@@ -88,9 +97,9 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       />
       <div style={headingStyle}>
         {isEditable && editHeading ? (
-          <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} style={inline(headingStyle)} />
+          <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inline(headingStyle)} />
         ) : (
-          <div onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{heading}</div>
+          <div className="title-element" onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{heading}</div>
         )}
       </div>
       <div style={avatarWrap}>

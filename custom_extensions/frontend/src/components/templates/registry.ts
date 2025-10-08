@@ -1799,7 +1799,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🧠',
     component: SoftSkillsTypesSlideTemplate,
     defaultProps: {
-      title: 'Types of\nSoft Skills',
+      title: 'Types of Soft Skills',
       cards: [
         { label: 'Time management' },
         { label: 'Team work' },
@@ -2177,7 +2177,13 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: BenefitsAndPerksColumnsSlideTemplate,
     defaultProps: {
       logoText: 'Logo',
-      heading: 'Benefits and Perks'
+      heading: 'Benefits and Perks',
+      columns: [
+        { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
+        { title: 'Financial Benefits', body: '401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.', accent: true },
+        { title: 'Time off and work-life balance', body: 'Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.' },
+        { title: 'Professional Development', body: 'Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.', accent: true }
+      ]
     },
     propSchema: {
       logoText: { type: 'text', label: 'Logo' },
