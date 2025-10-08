@@ -63,7 +63,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const lineStyles: React.CSSProperties = {
     position: 'absolute',
     left: '56%',
-    top: '135px',
+    top: '155px',
     bottom: '0px',
     width: '3px',
     backgroundColor: '#0F58F9',
@@ -92,7 +92,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const stepContainerStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
     left: '61%',
-    top: index === 0 ? '140px' : index === 1 ? '240px' : '340px',
+    top: index === 0 ? '160px' : index === 1 ? '300px' : '440px',
     display: 'flex',
     alignItems: 'center',
     gap: '40px',
@@ -100,8 +100,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const circlePositionStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
-    left: 'calc(50% - 20px)', // center the 110px circle on the vertical line
-    top: index === 0 ? '135px' : index === 1 ? '235px' : '335px',
+    left: 'calc(50% + 45px)', // center the 110px circle on the vertical line
+    top: index === 0 ? '155px' : index === 1 ? '295px' : '435px',
   });
 
   const pageNumberStyles: React.CSSProperties = {
@@ -125,7 +125,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
         .course-rules-timeline-slide .step-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .course-rules-timeline-slide-logo * {
+        .course-rules-timeline-slide-logo, course-rules-timeline-slide-page-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
@@ -143,7 +143,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
           isEditable={isEditable}
           color="black"
           text={logoText}
-          style={{ fontFamily: 'Inter, sans-serif !important' }}
+          style={{ fontFamily: 'Inter, sans-serif !important', fontSize: '15px' }}
         />
       </div>
 
@@ -207,12 +207,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
 
       {/* Bottom-right page number */}
-      <div style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
-        <div style={{
-          width: '15px',
-          height: '1px',
-          backgroundColor: '#5F616D'
-        }}></div>
+      <div className="course-rules-timeline-slide-page-number" style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
         {isEditable && editingPageNumber ? (
           <ImprovedInlineEditor
             initialValue={currentPageNumber}
@@ -229,6 +224,11 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
             {currentPageNumber}
           </div>
         )}
+        <div style={{
+          width: '15px',
+          height: '1px',
+          backgroundColor: '#5F616D'
+        }}></div>
       </div>
 
       </div>

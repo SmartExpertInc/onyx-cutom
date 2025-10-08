@@ -173,6 +173,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
           isEditable={isEditable}
           color="#000000"
           text={logoText}
+          style={{ fontFamily: 'Inter, sans-serif !important', fontSize: '15px' }}
         />
       </div>
 
@@ -238,7 +239,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
       <div style={{
         position:'absolute',
         bottom:'24px',
-        right:'22px',
+        left:'22px',
         color:'#34353C',
         fontSize:'15px',
         fontWeight:400,

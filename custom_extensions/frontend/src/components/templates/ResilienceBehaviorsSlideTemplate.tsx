@@ -163,7 +163,10 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         .resilience-bullet-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .resilience-bullet-number, .resilience-logo, .resilience-page-number * {
+        .resilience-bullet-number, .resilience-page-number * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .resilience-logo * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
@@ -261,10 +264,10 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
               }}
               className="resilience-page-number"
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '13px', fontWeight: 400 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '15px', fontWeight: 400 }}
             />
           ) : (
-            <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ fontSize: '15px', cursor: isEditable ? 'pointer' : 'default' }}>
               {currentPageNumber}
             </div>
           )}
@@ -278,7 +281,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
             isEditable={isEditable}
             color="#09090B"
             text={logoText}
-            style={{ fontFamily: 'Inter, sans-serif !important' }}
+            style={{ fontFamily: 'Inter, sans-serif !important', fontSize: '15px' }}
           />
         </div>
       </div>
