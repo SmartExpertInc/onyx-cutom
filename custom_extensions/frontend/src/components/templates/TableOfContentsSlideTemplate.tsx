@@ -297,7 +297,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             className="page-number-editor"
             style={{
               color: 'rgba(9, 9, 11, 0.6)',
-              fontSize: '17px',
+              fontSize: '19px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
@@ -309,7 +309,7 @@ export const TableOfContentsSlideTemplate: React.FC<TableOfContentsSlideProps & 
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
               color: 'rgba(9, 9, 11, 0.6)',
-              fontSize: '17px',
+              fontSize: '19px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',
