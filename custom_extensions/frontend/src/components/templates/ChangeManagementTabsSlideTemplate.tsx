@@ -48,14 +48,14 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 45px', fontSize:'20px', letterSpacing:0.5, fontFamily: currentTheme.fonts.contentFont });
 
   const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'220px', bottom:'120px' };
-  const avatar: React.CSSProperties = { position:'absolute', left:'-10px', top:0, width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'220px', right:'56px', top:'30px', fontSize:'45px', fontWeight:500, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif", whiteSpace: 'pre-wrap' };
+  const avatar: React.CSSProperties = { position:'absolute', left:'-10px', top:'10px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'220px', right:'56px', top:'40px', fontSize:'45px', fontWeight:500, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif", whiteSpace: 'pre-wrap' };
 
   const capsulesWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:'220px', height:'110px', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px' };
   const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#09090B', fontSize:'24px', height:'100%', background:'#FFFFFF', fontFamily: currentTheme.fonts.contentFont, position: 'relative', zIndex: 1, width:'500px' };
   const capsuleActive: React.CSSProperties = { ...capsule, height:'83%', background:'#0F58F9', color:'#FFFFFF', border:'16px solid #E0E7FF', zIndex: 10, width:'400px', marginLeft:'-60px', marginRight:'-60px' };
 
-  const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
+  const inlineHeading = { background:'transparent', border:'none', outline:'none', padding:0, margin:0, width: '100%', height: 'auto' } as React.CSSProperties;
   const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'20px', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
   const inlineCapsule = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'24px', textAlign:'center', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
 
@@ -124,9 +124,22 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
         </div>
         <div style={headingStyle}>
           {isEditable && editHeading ? (
-            <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} multiline={true} />
+            <ImprovedInlineEditor 
+              initialValue={heading} 
+              onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} 
+              onCancel={()=>setEditHeading(false)} 
+              className="title-element" 
+              style={inlineHeading} 
+              multiline={true} 
+            />
           ) : (
-            <div className="title-element" onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default', fontFamily: "'Lora', serif" }}>{heading}</div>
+            <div 
+              className="title-element" 
+              onClick={()=> isEditable && setEditHeading(true)} 
+              style={{ cursor: isEditable ? 'pointer':'default', userSelect: 'none' }}
+            >
+              {heading}
+            </div>
           )}
         </div>
 
