@@ -55,21 +55,21 @@ const EntitlementsTab: React.FC = () => {
     }
   };
 
-  const renderRow = (row: EntitlementRow) => {
-    const [conn, setConn] = useState<string>(row.overrides.connectors_limit?.toString() ?? '');
-    const [stor, setStor] = useState<string>(row.overrides.storage_gb?.toString() ?? '');
-    const [slides, setSlides] = useState<string>(row.overrides.slides_max?.toString() ?? '');
+  const EntRow: React.FC<{ row: EntitlementRow }> = ({ row }) => {
+    const [conn, setConn] = useState<string>(row.overrides.connectors_limit?.toString() ?? "");
+    const [stor, setStor] = useState<string>(row.overrides.storage_gb?.toString() ?? "");
+    const [slides, setSlides] = useState<string>(row.overrides.slides_max?.toString() ?? "");
 
     const onSave = () => {
       const payload: any = {};
-      payload.connectors_limit = conn === '' ? null : Number(conn);
-      payload.storage_gb = stor === '' ? null : Number(stor);
-      payload.slides_max = slides === '' ? null : Number(slides);
+      payload.connectors_limit = conn === "" ? null : Number(conn);
+      payload.storage_gb = stor === "" ? null : Number(stor);
+      payload.slides_max = slides === "" ? null : Number(slides);
       saveOverride(row.onyx_user_id, payload);
     };
 
     return (
-      <tr key={row.onyx_user_id} className="border-b">
+      <tr className="border-b">
         <td className="px-4 py-2 text-sm">{row.onyx_user_id}</td>
         <td className="px-4 py-2 text-sm capitalize">{row.plan}</td>
         <td className="px-4 py-2 text-sm">{row.base.connectors_limit}</td>
@@ -126,7 +126,7 @@ const EntitlementsTab: React.FC = () => {
               <tr><td colSpan={12} className="px-4 py-6 text-center text-sm text-gray-500">No data</td></tr>
             ) : (
               rows.map(r => (
-                <React.Fragment key={r.onyx_user_id}>{renderRow(r)}</React.Fragment>
+                <EntRow key={r.onyx_user_id} row={r} />
               ))
             )}
           </tbody>
