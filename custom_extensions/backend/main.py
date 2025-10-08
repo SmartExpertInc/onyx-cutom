@@ -7485,15 +7485,10 @@ async def openai_company_research(company_name: str, company_desc: str, company_
             "[SerpAPI General Info]\n...\n\n[Website Info]\n...\n\n[Open Positions]\n...\n"
         )
 
-        # Configure web search with medium context by default
+        # Configure web search tool (preview) – minimal config for widest SDK compatibility
         tools = [
-            {"type": "web_search"}
+            {"type": "web_search_preview"}
         ]
-        tool_config = {
-            "web_search": {
-                "search_context_size": "medium"
-            }
-        }
 
         # If we know the domain, we can bias results by allowed_domains (best-effort)
         try:
@@ -7503,7 +7498,7 @@ async def openai_company_research(company_name: str, company_desc: str, company_
                 if domain:
                     tools = [
                         {
-                            "type": "web_search",
+                            "type": "web_search_preview",
                             "filters": {
                                 "allowed_domains": [domain]
                             }
@@ -7515,7 +7510,6 @@ async def openai_company_research(company_name: str, company_desc: str, company_
         resp = await client.responses.create(
             model=model,
             tools=tools,
-            tool_config=tool_config,
             input=instruction
         )
 
