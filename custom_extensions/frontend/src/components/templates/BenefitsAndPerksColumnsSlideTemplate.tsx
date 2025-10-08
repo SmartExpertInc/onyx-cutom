@@ -48,7 +48,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const avatarWrap: React.CSSProperties = { position:'absolute', top:'36px', right:'48px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#0F58F9', overflow:'hidden' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
-  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#0F58F9', color:'#FFFFFF' };
+  const colBase: React.CSSProperties = { padding:'32px 32px', background:'#0F58F9', color:'#FFFFFF' };
   const colAccent: React.CSSProperties = { ...colBase, background:'#FFFFFF', color:'#0F58F9' };
   const numberBadge = (n: number): React.CSSProperties => {
     const isAccent = n === 2 || n === 4;
