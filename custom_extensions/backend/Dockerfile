@@ -7,7 +7,6 @@ WORKDIR /app
 # PART 1: Install System Dependencies
 # ============================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Existing dependencies
     ca-certificates \
     fonts-liberation \
     fonts-noto-color-emoji \
@@ -49,11 +48,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-inter \
     curl \
     gnupg2 \
-    # HTML-to-image system dependencies
     libffi-dev \
     libxml2-dev \
     libxslt-dev \
-    # FFmpeg and video processing dependencies
     ffmpeg \
     libx264-dev \
     libx265-dev \
@@ -65,7 +62,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libass-dev \
     libfreetype6-dev \
     libfontconfig1-dev \
-    # MoviePy and OpenCV dependencies
     libsm6 \
     libxrender1 \
     libgomp1 \
@@ -78,58 +74,51 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# PART 2: Install Node.js 18.x (for Remotion)
+# PART 2: Install Node.js 18.x
 # ============================================
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Verify Node.js installation
-RUN node --version && npm --version && npx --version
+# Verify Node.js
+RUN node --version && npm --version
 
 # ============================================
 # PART 3: Install Python Dependencies
 # ============================================
 COPY requirements.txt .
-
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir numpy==1.24.3 && \
     pip install --no-cache-dir opencv-python==4.8.0.76 && \
     pip install --no-cache-dir moviepy==1.0.3 && \
     pip install --no-cache-dir -r requirements.txt
 
-# Verify MoviePy installation
 RUN python -c "import moviepy.editor; print('MoviePy installed successfully')"
-
-# Install Playwright browsers
 RUN playwright install chromium
 RUN python -m playwright install chromium
 
 # ============================================
-# PART 4: Copy Application Code
+# PART 4: Install Remotion BEFORE copying all code
 # ============================================
+# Copy ONLY the package.json first (for Docker layer caching)
+COPY video_compositions/package.json video_compositions/package-lock.json* /app/video_compositions/
+
+# Install npm packages
+WORKDIR /app/video_compositions
+RUN npm install && \
+    chmod -R 755 node_modules && \
+    ls -la node_modules/.bin/remotion && \
+    echo "✅ Remotion installed successfully"
+
+# ============================================
+# PART 5: Copy Application Code
+# ============================================
+WORKDIR /app
 COPY . .
 
 # ============================================
-# PART 5: Install Remotion Dependencies
-# ============================================
-WORKDIR /app/video_compositions
-
-# Install Remotion and dependencies with verbose output
-RUN npm install --verbose && \
-    chmod -R 755 node_modules/.bin && \
-    ls -la node_modules/.bin/ && \
-    echo "✅ Remotion packages installed"
-
-# Verify Remotion installation (using Node directly)
-RUN node_modules/.bin/remotion --version || echo "⚠️ Remotion verification skipped (will work at runtime)"
-
-# Back to app root
-WORKDIR /app
-
-# ============================================
-# PART 6: Create Required Directories
+# PART 6: Create Directories
 # ============================================
 RUN mkdir -p /app/data /tmp/generated_pdfs /app/temp /app/output/presentations
 RUN chmod -R 777 /tmp/generated_pdfs /app/temp /app/output
