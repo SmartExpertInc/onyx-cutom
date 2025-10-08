@@ -334,8 +334,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         gap: '8px'
       }}>
         <div style={{
-          width: '1px',
-          height: '15px',
+          width: '15px',
+          height: '1px',
           backgroundColor: '#5F616D'
         }}></div>
         {isEditable && editingPageNumber ? (

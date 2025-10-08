@@ -64,7 +64,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     position: 'absolute',
     left: '56%',
     top: '135px',
-    bottom: '-50px',
+    bottom: '0px',
     width: '3px',
     backgroundColor: '#0F58F9',
   };
@@ -100,7 +100,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
   const circlePositionStyles = (index: number): React.CSSProperties => ({
     position: 'absolute',
-    left: 'calc(50% + 44px)', // center the 110px circle on the vertical line
+    left: 'calc(50% - 20px)', // center the 110px circle on the vertical line
     top: index === 0 ? '135px' : index === 1 ? '235px' : '335px',
   });
 
@@ -122,13 +122,16 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
           font-weight: 600 !important;
           color: black !important;
         }
-        .course-rules-timeline-slide .step-number {
+        .course-rules-timeline-slide .step-number * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .course-rules-timeline-slide-logo * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
       <div className="course-rules-timeline-slide inter-theme" style={slideStyles}>
       {/* Logo */}
-      <div style={{
+      <div className="course-rules-timeline-slide-logo" style={{
         position: 'absolute',
         top: '20px',
         right: '25px',
@@ -140,6 +143,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
           isEditable={isEditable}
           color="black"
           text={logoText}
+          style={{ fontFamily: 'Inter, sans-serif !important' }}
         />
       </div>
 
@@ -162,8 +166,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
 
       {/* Render the three steps */}
       {steps.map((step, i) => (
-        <div key={i} style={stepContainerStyles(i)}>
-          {/* Step number square */}
+        <div key={i}>
+          {/* Step number square - positioned directly on the vertical line */}
           <div style={circlePositionStyles(i)}>
             {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
               <ImprovedInlineEditor
@@ -181,8 +185,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
             )}
           </div>
 
-          {/* Step text */}
-          <div style={{ marginLeft: '40px' }}>
+          {/* Step text - positioned to the right of the line */}
+          <div style={stepContainerStyles(i)}>
             {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
               <ImprovedInlineEditor
                 initialValue={step.text}
@@ -205,8 +209,8 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       {/* Bottom-right page number */}
       <div style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
         <div style={{
-          width: '1px',
-          height: '15px',
+          width: '15px',
+          height: '1px',
           backgroundColor: '#5F616D'
         }}></div>
         {isEditable && editingPageNumber ? (

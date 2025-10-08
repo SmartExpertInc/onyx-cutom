@@ -163,7 +163,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         .resilience-bullet-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .resilience-bullet-number, .resilience-logo, .resilience-page-number {
+        .resilience-bullet-number, .resilience-logo, .resilience-page-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
@@ -247,8 +247,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         {/* Page Number */}
         <div className="resilience-page-number" style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
           <div style={{
-            width: '1px',
-            height: '15px',
+            width: '15px',
+            height: '1px',
             backgroundColor: '#5F616D'
           }}></div>
           {isEditable && editingPageNumber ? (

@@ -188,9 +188,9 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
         {/* Page number */}
         <div style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
           <div style={{
-            width: '1px',
-            height: '15px',
-            backgroundColor: '#5F616D'
+            width: '15px',
+            height: '1px',
+            backgroundColor: '#9EBBFC'
           }}></div>
           {isEditable && editingPageNumber ? (
             <ImprovedInlineEditor

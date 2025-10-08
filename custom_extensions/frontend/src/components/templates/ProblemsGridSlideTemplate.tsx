@@ -91,11 +91,11 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
           <div className="tag-editor" onClick={()=> isEditable && setEditTag(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
         )}
       </div>
-      <div className="title-element" style={titleStyle}>
+      <div style={titleStyle}>
         {isEditable && editTitle ? (
-          <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
+          <ImprovedInlineEditor className="title-element" initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={{ ...inline(titleStyle), position: 'relative' }} />
         ) : (
-          <div onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default', width: '100%', height: '100%' }}>{title}</div>
+          <div className="title-element" onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
         )}
       </div>
 
@@ -145,18 +145,12 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
             onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} 
             onCancel={()=> setEditRight(false)} 
             style={{ 
-              ...rightTextStyle, 
-              position: 'absolute',
-              background:'transparent', 
-              border:'none', 
-              outline:'none', 
-              padding:0, 
-              margin:0, 
-              whiteSpace:'pre-line' 
+              ...inline(rightTextStyle),
+              position: 'relative'
             }} 
           />
         ) : (
-          <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default', width: '100%', height: '100%', lineHeight: 1.5 }}>{rightText}</div>
+          <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightText}</div>
         )}
       </div>
 
@@ -167,8 +161,8 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
       {/* Page number */}
       <div style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
         <div style={{
-          width: '1px',
-          height: '15px',
+          width: '15px',
+          height: '1px',
           backgroundColor: '#5F616D'
         }}></div>
         {isEditable && editPageNumber ? (

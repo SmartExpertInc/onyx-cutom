@@ -6,8 +6,9 @@ import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThe
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import PresentationImageUpload from '../PresentationImageUpload';
+import YourLogo from '../YourLogo';
 
-export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProps & { theme?: SlideTheme | string }> = ({
+export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProps & { theme?: SlideTheme | string; logoPath?: string; logoText?: string }> = ({
   slideId,
   title = 'Enterprise Offerings: Roadmap',
   description = 'These KPIs typically measure performance in a shorter time frame, and are focused on organizational processes and efficiencies. Some examples include sales by region, average monthly transportation costs and cost per acquisition (CPA)',
@@ -26,6 +27,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   companyName = 'Company name',
   reportType = 'KPI Report',
   date = 'February 2023',
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme
@@ -42,16 +45,6 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [editingDescription, setEditingDescription] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('17');
-  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
-  const [currentCompanyLogoPath, setCurrentCompanyLogoPath] = useState('');
-
-  // Sync logo state with prop changes - this ensures logo persists on reload
-  useEffect(() => {
-    // This will be triggered when companyLogoPath prop changes
-    if (companyLogoPath && companyLogoPath !== currentCompanyLogoPath) {
-      setCurrentCompanyLogoPath(companyLogoPath);
-    }
-  }, [companyLogoPath, currentCompanyLogoPath]);
 
   const normalizeRows = (input: any[], colHeaders: string[]): Record<string, string>[] => {
     return (input || []).map((r: any) => {
@@ -214,13 +207,6 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const inlineEditorDescStyle: React.CSSProperties = { ...descStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
   // No handlers: static slide (no editing UI)
 
-  const handleCompanyLogoUploaded = (newLogoPath: string) => {
-    setCurrentCompanyLogoPath(newLogoPath);
-    if (onUpdate) {
-      onUpdate({ ...{ slideId, title, description, headers, tableData, profileImagePath, profileImageAlt, companyName, reportType, date }, companyLogoPath: newLogoPath });
-    }
-  };
-
   const footerStyle: React.CSSProperties = { position:'absolute', left:'22px', right:'60px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#A2A19D', fontSize:'15px', fontFamily:'Inter, sans-serif', fontWeight:400 };
 
   return (
@@ -235,6 +221,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         }
         .enterprise-roadmap-slide .logo-text {
           font-weight: 600 !important;
+        }
+        .enterprise-roadmap-slide-logo * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
       <div className="enterprise-roadmap-slide inter-theme" style={slide}>
@@ -348,7 +337,12 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       </div>
 
       <div style={footerStyle}>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '15px',
+            height: '1px',
+            backgroundColor: '#5F616D'
+          }}></div>
           {isEditable && editingPageNumber ? (
             <ImprovedInlineEditor
               initialValue={currentPageNumber}
@@ -366,71 +360,17 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             </div>
           )}
         </div>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          fontSize: '14px',
-          color: 'black',
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: '400'
-        }}>
-          {currentCompanyLogoPath ? (
-            // Show uploaded logo image
-            <ClickableImagePlaceholder
-              imagePath={currentCompanyLogoPath}
-              onImageUploaded={handleCompanyLogoUploaded}
-              size="SMALL"
-              position="CENTER"
-              description="Company logo"
-              isEditable={isEditable}
-              style={{
-                height: '20px',
-                maxWidth: '80px',
-                objectFit: 'contain'
-              }}
-            />
-          ) : (
-            // Show default logo design with clickable area
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              cursor: isEditable ? 'pointer' : 'default'
-            }}
-            onClick={() => isEditable && setShowLogoUploadModal(true)}
-            >
-              <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                border: '1px solid black',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                color: 'black'
-              }}>
-                +
-              </div>
-              <div className="logo-text" style={{ fontSize: '14px', color: 'black', fontFamily: 'Inter, sans-serif', fontWeight: 500 }}>Your Logo</div>
-            </div>
-          )}
+        <div className="enterprise-roadmap-slide-logo">
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={(p)=> onUpdate && onUpdate({ logoPath: p })}
+            isEditable={isEditable}
+            color="#000000"
+            text={logoText}
+          />
         </div>
       </div>
 
-      {/* Logo Upload Modal */}
-      {showLogoUploadModal && (
-        <PresentationImageUpload
-          isOpen={showLogoUploadModal}
-          onClose={() => setShowLogoUploadModal(false)}
-          onImageUploaded={(newLogoPath: string) => {
-            handleCompanyLogoUploaded(newLogoPath);
-            setShowLogoUploadModal(false);
-          }}
-          title="Upload Company Logo"
-        />
-      )}
     </div>
     </>
   );
