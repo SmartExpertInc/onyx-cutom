@@ -27736,16 +27736,15 @@ async def admin_update_entitlements(
     await verify_admin_user(request)
     try:
         async with pool.acquire() as conn:
-            # Upsert overrides, keeping unspecified fields unchanged
+            # Upsert overrides; if a field is explicitly null, clear it (use defaults)
             existing = await conn.fetchrow(
                 "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
                 target_user_id,
             )
-            new_vals = {
-                "connectors_limit": payload.connectors_limit if payload.connectors_limit is not None else (existing and existing["connectors_limit"]),
-                "storage_gb": payload.storage_gb if payload.storage_gb is not None else (existing and existing["storage_gb"]),
-                "slides_max": payload.slides_max if payload.slides_max is not None else (existing and existing["slides_max"]),
-            }
+            connectors_limit = payload.connectors_limit if ("connectors_limit" in payload.model_dump(exclude_unset=False)) else (existing and existing["connectors_limit"])
+            storage_gb = payload.storage_gb if ("storage_gb" in payload.model_dump(exclude_unset=False)) else (existing and existing["storage_gb"])
+            slides_max = payload.slides_max if ("slides_max" in payload.model_dump(exclude_unset=False)) else (existing and existing["slides_max"])
+
             await conn.execute(
                 """
                 INSERT INTO user_entitlement_overrides (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
@@ -27757,9 +27756,9 @@ async def admin_update_entitlements(
                               updated_at = now()
                 """,
                 target_user_id,
-                new_vals["connectors_limit"],
-                new_vals["storage_gb"],
-                new_vals["slides_max"],
+                connectors_limit,
+                storage_gb,
+                slides_max,
             )
         eff = await _fetch_effective_entitlements(target_user_id, pool)
         return {"updated": True, "effective": eff}
@@ -28224,6 +28223,47 @@ async def cancel_subscription(
     except Exception as e:
         logger.error(f"Error canceling subscription: {e}", exc_info=not IS_PRODUCTION)
         raise HTTPException(status_code=500, detail="Failed to cancel subscription")
+
+# ============================
+# SMARTDRIVE USAGE ENDPOINT
+# ============================
+
+@app.get("/api/custom/smartdrive/usage")
+async def get_smartdrive_usage(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Return per-user SmartDrive/Connectors usage and limits."""
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        ent = await _fetch_effective_entitlements(onyx_user_id, pool)
+        connectors_limit = int(ent.get("connectors_limit", 0))
+        storage_gb_limit = int(ent.get("storage_gb", 1))
+        storage_limit_bytes = storage_gb_limit * 1024 * 1024 * 1024
+
+        async with pool.acquire() as conn:
+            # Connectors used
+            c_row = await conn.fetchrow(
+                "SELECT COUNT(*) AS c FROM user_connectors WHERE onyx_user_id = $1 AND status = 'active'",
+                onyx_user_id,
+            )
+            connectors_used = int((c_row and c_row["c"]) or 0)
+
+            # Storage used
+            s_row = await conn.fetchrow(
+                "SELECT used_bytes FROM user_storage_usage WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+            storage_used_bytes = int((s_row and s_row.get("used_bytes")) or 0)
+
+        return {
+            "connectorsUsed": connectors_used,
+            "connectorsLimit": connectors_limit,
+            "storageUsedBytes": storage_used_bytes,
+            "storageLimitBytes": storage_limit_bytes,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching smartdrive usage: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch usage")
 
 @app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
 async def list_all_user_credits(

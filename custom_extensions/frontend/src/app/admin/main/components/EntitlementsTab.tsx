@@ -63,9 +63,9 @@ const EntitlementsTab: React.FC = () => {
 
     const onSave = () => {
       const payload: any = {};
-      payload.connectors_limit = conn === "" ? null : Number(conn);
-      payload.storage_gb = stor === "" ? null : Number(stor);
-      payload.slides_max = slides === "" ? null : Number(slides);
+      if (conn === "") payload.connectors_limit = null; else payload.connectors_limit = Number(conn);
+      if (stor === "") payload.storage_gb = null; else payload.storage_gb = Number(stor);
+      if (slides === "") payload.slides_max = null; else payload.slides_max = Number(slides);
       saveOverride(row.onyx_user_id, payload);
     };
 
