@@ -52,8 +52,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     width: '170px',
     height: '170px',
     borderRadius: '50%',
-    overflow: 'hidden',
     backgroundColor: '#0F58F9',
+    overflow: 'hidden',
   };
 
   const cardsRowStyles: React.CSSProperties = {
@@ -135,7 +135,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center calc(50% + 10px)' }}
+          style={{ width: '110%', height: '110%', borderRadius: '50%', position: 'relative', bottom: '-10px', left: '50%', transform: 'translateX(-50%)', objectFit: 'cover' }}
         />
       </div>
 
