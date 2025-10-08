@@ -219,7 +219,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     fontFamily: base.fontFamily
   });
 
-  const footerStyle: React.CSSProperties = { position:'absolute', left:'0px', right:'60px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#5F616D', fontSize:'15px', fontFamily:'Inter, sans-serif', fontWeight:400 };
+  const footerStyle: React.CSSProperties = { position:'absolute', left:'0px', right:'60px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#5F616D', fontSize:'15px', fontFamily:'Inter, sans-serif', fontWeight:600 };
 
   return (
     <>
@@ -365,7 +365,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                 onUpdate && onUpdate({ pageNumber: v });
               }}
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '15px', fontWeight: 400 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '15px', fontWeight: 600 }}
             />
           ) : (
             <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

@@ -61,7 +61,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const mid: React.CSSProperties = { padding:'30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'black', background:'#FFFFFF' };
   const cardTitleStyle: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#FFFFFF' };
   const cardTitleStyleMid: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#000000' };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'15px', left:'0px', color:'#9EBBFC', fontSize:'15px', fontWeight:400 };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'15px', left:'0px', color:'#9EBBFC', fontSize:'15px', fontWeight:600 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
     ...base, 
@@ -75,6 +75,22 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
     boxSizing: 'border-box',
     width: '100%',
     minHeight: 'auto'
+  });
+  
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-wrap',
+    width: '100%',
+    fontFamily: base.fontFamily
   });
   return (
     <>
@@ -129,11 +145,11 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           text={logoText}
           style={{ position:'absolute', left:'25px', top:'25px' }}
         />
-        <div className="culture-value-title title-element" style={titleStyle}>
+        <div style={titleStyle}>
           {isEditable && editTitle ? (
-            <ImprovedInlineEditor initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inline(titleStyle)} />
+            <ImprovedInlineEditor className="culture-value-title title-element" initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inlineEditor(titleStyle)} />
           ) : (
-            <div onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
+            <div className="culture-value-title title-element" onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
           )}
         </div>
         <div style={avatarWrap}>
@@ -201,7 +217,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
                 onUpdate && onUpdate({ pageNumber: v });
               }}
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#9EBBFC', fontSize: '15px', fontWeight: 400 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#9EBBFC', fontSize: '15px', fontWeight: 600 }}
             />
           ) : (
             <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

@@ -160,7 +160,8 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     fontSize:'18px',
     color:'#34353C',
     lineHeight:1.3,
-    fontFamily:'Inter, sans-serif'
+    fontFamily:'Inter, sans-serif',
+    fontWeight:400
   };
 
   const cardTextStyleFirst: React.CSSProperties = {
@@ -236,10 +237,13 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
-        .percent-circles .percent-text,
-        .percent-circles .card-text {
+        .percent-circles .percent-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
+        }
+        .percent-circles .card-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 400 !important;
         }
         .card-text * {
           font-weight: 400 !important;
@@ -411,7 +415,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'15px', fontWeight:400, fontFamily:'Inter, sans-serif' }}
+            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'15px', fontWeight:600, fontFamily:'Inter, sans-serif' }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

@@ -162,7 +162,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
       <div className="impact-metrics-right-image-logo" style={{
         position: 'absolute',
         top: '20px',
-        left: '0px',
+        left: '22px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -240,7 +240,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
       <div style={{
         position:'absolute',
         bottom:'24px',
-        left:'22px',
+        left:'0px',
         color:'#34353C',
         fontSize:'15px',
         fontWeight:400,
@@ -263,7 +263,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'15px', fontWeight:400, fontFamily:'Inter, sans-serif' }}
+            style={{ position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'#34353C', fontSize:'15px', fontWeight:600, fontFamily:'Inter, sans-serif' }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

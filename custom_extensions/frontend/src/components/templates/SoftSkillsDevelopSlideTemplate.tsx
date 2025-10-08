@@ -43,7 +43,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 60px' };
   const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'black' };
   const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#3A3A3C', lineHeight:1.5 };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'0px', color:'#1F2937', fontSize:'15px', fontWeight:400, fontFamily:'Inter, sans-serif' };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'0px', color:'#1F2937', fontSize:'15px', fontWeight:600, fontFamily:'Inter, sans-serif' };
 
   const right: React.CSSProperties = { position:'relative'};
   const imageArea: React.CSSProperties = { position:'absolute', left:'-18px', right:0, top:0, bottom:0, background: 'linear-gradient(to bottom, #0F58F9, #1023A1)', height:'100%' };

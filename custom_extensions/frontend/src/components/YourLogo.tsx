@@ -48,7 +48,7 @@ export const YourLogo: React.FC<YourLogoProps> = ({
           <div style={{ width: '12px', height: '2px', backgroundColor: color, position: 'absolute' }} />
           <div style={{ width: '2px', height: '12px', backgroundColor: color, position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
         </div>
-        <span style={{ fontSize: '14px', fontWeight: 500, fontFamily: 'Inter, sans-serif', color }}>{text}</span>
+        <span style={{ fontSize: '15px', fontWeight: 500, fontFamily: 'Inter, sans-serif', color }}>{text}</span>
       </div>
 
       <PresentationImageUpload

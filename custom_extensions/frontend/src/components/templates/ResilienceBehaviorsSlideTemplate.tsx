@@ -140,7 +140,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     left: '0px',
     color: '#5D5D5D',
     fontSize: '15px',
-    fontWeight: 400,
+    fontWeight: 600,
     display: 'flex',
   };
 
@@ -148,6 +148,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     position: 'absolute',
     bottom: '24px',
     right: '64px',
+    fontSize: '15px',
   };
 
   return (
@@ -164,9 +165,11 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .resilience-bullet-number, .resilience-page-number * {
+          font-weight: 600 !important;
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .resilience-logo * {
+          font-size: 15px !important;
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 500 !important;
         }
@@ -265,7 +268,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
               }}
               className="resilience-page-number"
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '15px', fontWeight: 400 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '15px', fontWeight: 600 }}
             />
           ) : (
             <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ fontSize: '15px', cursor: isEditable ? 'pointer' : 'default' }}>
