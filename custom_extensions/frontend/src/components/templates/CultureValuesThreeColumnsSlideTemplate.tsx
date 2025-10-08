@@ -142,7 +142,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
           onLogoUploaded={(p)=> onUpdate && onUpdate({ logoPath: p })}
           isEditable={isEditable}
           color="black"
-          text={logoText || 'Your Logo'}
+          text={'Your Logo'}
           style={{ position:'absolute', left:'25px', top:'25px' }}
         />
         <div style={titleStyle}>
