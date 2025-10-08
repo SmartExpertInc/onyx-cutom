@@ -17,15 +17,29 @@ const EntitlementsTab: React.FC = () => {
   const [rows, setRows] = useState<EntitlementRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userEmailById, setUserEmailById] = useState<Record<string, string>>({});
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${CUSTOM_BACKEND_URL}/admin/entitlements`, { credentials: 'include' });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
+      const [entRes, usersRes] = await Promise.all([
+        fetch(`${CUSTOM_BACKEND_URL}/admin/entitlements`, { credentials: 'include' }),
+        fetch(`${CUSTOM_BACKEND_URL}/admin/features/users`, { credentials: 'include' })
+      ]);
+      if (!entRes.ok) throw new Error(await entRes.text());
+      const data = await entRes.json();
       setRows(data || []);
+      if (usersRes.ok) {
+        const users = await usersRes.json();
+        const map: Record<string, string> = {};
+        for (const u of users || []) {
+          if (u?.user_id) {
+            map[u.user_id] = u.user_email || '';
+          }
+        }
+        setUserEmailById(map);
+      }
     } catch (e: any) {
       setError(e?.message || 'Failed to load entitlements');
     } finally {
@@ -71,7 +85,7 @@ const EntitlementsTab: React.FC = () => {
 
     return (
       <tr className="border-b">
-        <td className="px-4 py-2 text-sm text-gray-800">{row.email || row.onyx_user_id}</td>
+        <td className="px-4 py-2 text-sm text-gray-800">{userEmailById[row.onyx_user_id] || row.email || row.onyx_user_id}</td>
         <td className="px-4 py-2 text-sm capitalize text-gray-800">{row.plan}</td>
         <td className="px-4 py-2">
           <input className="w-24 border rounded px-2 py-1 text-sm text-gray-800" placeholder="auto" value={conn} onChange={e => setConn(e.target.value)} />
