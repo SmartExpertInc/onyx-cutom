@@ -358,7 +358,7 @@ class ProfessionalPresentationService:
             if not request.slides_data or len(request.slides_data) == 0:
                 raise Exception("No slide data provided for Remotion rendering")
             
-            slides_data = request.slides_data
+                    slides_data = request.slides_data
             logger.info(f"🎬 [REACTION_PROCESSING] Processing {len(slides_data)} slides with Remotion")
             
             # Step 2: Generate avatar video using Elai API
@@ -440,7 +440,7 @@ class ProfessionalPresentationService:
                 "slides": []
             }
             
-            for i, slide in enumerate(slides_data):
+                    for i, slide in enumerate(slides_data):
                 slide_data = {
                     "id": f"slide-{i}",
                     "title": slide.get("props", {}).get("title", ""),
@@ -550,9 +550,9 @@ class ProfessionalPresentationService:
             logger.info(f"🎬 [REACTION_PROCESSING] Step 6: Creating thumbnail")
             self._update_job_status(job_id, progress=90.0)
             
-            thumbnail_filename = f"thumbnail_{job_id}.jpg"
-            thumbnail_path = self.output_dir / thumbnail_filename
-            
+                thumbnail_filename = f"thumbnail_{job_id}.jpg"
+                thumbnail_path = self.output_dir / thumbnail_filename
+                
             # Create thumbnail using FFmpeg
             thumbnail_cmd = [
                 "ffmpeg", "-y",
@@ -560,7 +560,7 @@ class ProfessionalPresentationService:
                 "-ss", "00:00:01",
                 "-vframes", "1",
                 "-q:v", "2",
-                str(thumbnail_path)
+                        str(thumbnail_path)
             ]
             
             thumbnail_process = await asyncio.create_subprocess_exec(
@@ -581,25 +581,25 @@ class ProfessionalPresentationService:
             self._update_job_status(job_id, progress=100.0)
             
             # Update job status with completion details
-            self._update_job_status(
-                job_id,
-                status="completed",
-                progress=100.0,
-                completed_at=datetime.now(),
-                video_url=f"/presentations/{job_id}/video",
-                thumbnail_url=f"/presentations/{job_id}/thumbnail"
-            )
-            
+                    self._update_job_status(
+                        job_id,
+                        status="completed",
+                        progress=100.0,
+                        completed_at=datetime.now(),
+                        video_url=f"/presentations/{job_id}/video",
+                        thumbnail_url=f"/presentations/{job_id}/thumbnail"
+                    )
+                    
             logger.info(f"🎬 [REACTION_PROCESSING] Job {job_id} completed successfully")
             logger.info(f"🎬 [REACTION_PROCESSING] Final video: {output_video_path}")
-            
-            # Stop heartbeat for completed job
-            await self._stop_heartbeat(job_id)
+                
+                # Stop heartbeat for completed job
+                    await self._stop_heartbeat(job_id)
             
             # Schedule job cleanup
-            asyncio.create_task(self._schedule_job_cleanup(job_id, delay_minutes=30))
-            
-        except Exception as e:
+                asyncio.create_task(self._schedule_job_cleanup(job_id, delay_minutes=30))
+                
+            except Exception as e:
             logger.error(f"🎬 [REACTION_PROCESSING] Presentation {job_id} failed: {e}")
             
             # Update job status with failure details

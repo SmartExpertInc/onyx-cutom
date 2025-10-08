@@ -74,18 +74,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# PART 2: Install Node.js 18.x
+# PART 2: Install Docker CLI (for docker exec to frontend)
+# ============================================
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends docker.io && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# ============================================
+# PART 3: Install Node.js 18.x (keeping for compatibility)
 # ============================================
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Verify Node.js
-RUN node --version && npm --version
+# Verify installations
+RUN node --version && npm --version && docker --version
 
 # ============================================
-# PART 3: Install Python Dependencies
+# PART 4: Install Python Dependencies
 # ============================================
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
@@ -99,12 +107,12 @@ RUN playwright install chromium
 RUN python -m playwright install chromium
 
 # ============================================
-# PART 4: Copy Application Code First
+# PART 5: Copy Application Code First
 # ============================================
 COPY . .
 
 # ============================================
-# PART 5: Install Remotion AFTER copying code (to avoid overwrite)
+# PART 6: Install Remotion AFTER copying code (to avoid overwrite)
 # ============================================
 WORKDIR /app/video_compositions
 RUN npm install && \
@@ -115,13 +123,13 @@ RUN npm install && \
 WORKDIR /app
 
 # ============================================
-# PART 6: Create Directories
+# PART 7: Create Directories
 # ============================================
 RUN mkdir -p /app/data /tmp/generated_pdfs /app/temp /app/output/presentations
 RUN chmod -R 777 /tmp/generated_pdfs /app/temp /app/output
 
 # ============================================
-# PART 7: Start Application
+# PART 8: Start Application
 # ============================================
 EXPOSE 8001
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

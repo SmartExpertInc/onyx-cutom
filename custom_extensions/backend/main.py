@@ -29152,35 +29152,39 @@ async def debug_render_presentation(request: Request):
         
         logger.info(f"🐛 [DEBUG_RENDER] Props written to: {remotion_input_path}")
         
-        # Set up Remotion render command
-        # CRITICAL: __file__ is /app/main.py, so parent is /app/ (correct working directory)
-        backend_dir = Path(__file__).parent
+        # Set up Remotion render command to run in FRONTEND container
+        # Frontend container has working node_modules and Remotion installed
         output_video_path = output_dir / f"debug_render_{job_id}.mp4"
         
-        # Calculate duration in frames (30 fps)
-        duration_frames = int(duration * 30)
+        # Copy props file to a shared location that frontend can access
+        shared_props_path = Path(f"/tmp/remotion_props_{job_id}.json")
+        import shutil
+        shutil.copy(str(remotion_input_path), str(shared_props_path))
+        logger.info(f"🐛 [DEBUG_RENDER] Props copied to shared location: {shared_props_path}")
         
-        # CRITICAL: Use correct Remotion v4 command structure
+        # CRITICAL: Run Remotion in FRONTEND container via docker exec
+        # Frontend container path: /app/video_compositions/
+        # Backend output is mounted at: /app-backend-output/
         render_cmd = [
+            "docker", "exec", "onyx-stack-custom_frontend-1",
             "npx", "remotion", "render",
-            "video_compositions/src/Root.tsx",  # Path to entry file
+            "/app/video_compositions/src/Root.tsx",  # Path in frontend container
             "AvatarServiceSlide",  # Composition ID
-            str(output_video_path),  # Output file
-            "--props", str(remotion_input_path),  # Props JSON file
+            f"/app-backend-output/presentations/debug_render_{job_id}.mp4",  # Output in shared volume
+            "--props", str(shared_props_path),  # Props JSON file
         ]
         
-        logger.info(f"🐛 [DEBUG_RENDER] Remotion render configuration:")
-        logger.info(f"  - Entry file: video_compositions/src/Root.tsx")
+        logger.info(f"🐛 [DEBUG_RENDER] Remotion render configuration (via frontend container):")
+        logger.info(f"  - Container: onyx-stack-custom_frontend-1")
+        logger.info(f"  - Entry file: /app/video_compositions/src/Root.tsx")
         logger.info(f"  - Composition: AvatarServiceSlide")
-        logger.info(f"  - Output: {output_video_path}")
-        logger.info(f"  - Props file: {remotion_input_path}")
-        logger.info(f"  - Working directory: {backend_dir}")
+        logger.info(f"  - Output: /app-backend-output/presentations/debug_render_{job_id}.mp4")
+        logger.info(f"  - Props file: {shared_props_path}")
         logger.info(f"🐛 [DEBUG_RENDER] Executing command: {' '.join(render_cmd)}")
         
-        # Execute Remotion render
+        # Execute Remotion render in frontend container
         result = subprocess.run(
             render_cmd,
-            cwd=str(backend_dir),
             capture_output=True,
             text=True,
             timeout=120  # 2 minute timeout for debug
@@ -29196,12 +29200,13 @@ async def debug_render_presentation(request: Request):
         if result.stderr:
             logger.info(f"🐛 [DEBUG_RENDER] Stderr: {result.stderr[:1000]}")  # First 1000 chars
         
-        # Clean up temp file
+        # Clean up temp files
         try:
             remotion_input_path.unlink()
-            logger.info(f"🐛 [DEBUG_RENDER] Cleaned up temp props file")
+            shared_props_path.unlink()
+            logger.info(f"🐛 [DEBUG_RENDER] Cleaned up temp props files")
         except Exception as cleanup_error:
-            logger.warning(f"🐛 [DEBUG_RENDER] Failed to cleanup temp file: {cleanup_error}")
+            logger.warning(f"🐛 [DEBUG_RENDER] Failed to cleanup temp files: {cleanup_error}")
         
         # Check return code
         if result.returncode != 0:
@@ -29250,10 +29255,10 @@ async def debug_render_presentation(request: Request):
         
     except FileNotFoundError as e:
         logger.error(f"🐛 [DEBUG_RENDER] ❌ FileNotFoundError: {str(e)}")
-        logger.error(f"🐛 [DEBUG_RENDER] This usually means Node.js/npm/npx is not installed in the Docker container")
+        logger.error(f"🐛 [DEBUG_RENDER] This usually means Docker or the frontend container is not accessible")
         raise HTTPException(
             status_code=500,
-            detail="Node.js/npx not found. Remotion requires Node.js to be installed in the backend container."
+            detail="Docker/frontend container not accessible. Ensure docker command is available and frontend container is running."
         )
     except subprocess.TimeoutExpired:
         logger.error(f"🐛 [DEBUG_RENDER] ❌ Remotion render timed out after 120 seconds")

@@ -396,20 +396,20 @@ class ElaiVideoGenerationService:
                 
                 # Build canvas objects starting with avatar
                 canvas_objects = [{
-                    "type": "avatar",
-                    "left": 510,
-                    "top": 255,
-                    "fill": "#4868FF",
-                    "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
-                    "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
-                    "width": 1080,
-                    "height": 1080,
-                    "src": avatar_data.get("canvas_url"),
-                    "avatarType": "transparent",
-                    "animation": {
-                        "type": None,
-                        "exitType": None
-                    }
+                            "type": "avatar",
+                            "left": 510,
+                            "top": 255,
+                            "fill": "#4868FF",
+                            "scaleX": 0.2,   # Slightly larger than original 0.1 but still safe
+                            "scaleY": 0.2,   # Slightly larger than original 0.1 but still safe
+                            "width": 1080,
+                            "height": 1080,
+                            "src": avatar_data.get("canvas_url"),
+                            "avatarType": "transparent",
+                            "animation": {
+                                "type": None,
+                                "exitType": None
+                            }
                 }]
                 
                 # Add text elements with dynamic positioning

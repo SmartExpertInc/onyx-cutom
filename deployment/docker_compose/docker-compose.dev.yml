@@ -489,6 +489,9 @@ services:
     depends_on:
       custom_backend:
         condition: service_started
+    volumes:
+      # Share backend output directory for Remotion-rendered videos
+      - ../../custom_extensions/backend/output:/app-backend-output
     logging:
       driver: json-file
       options:
@@ -522,8 +525,8 @@ services:
         max-file: "3"
     volumes:
       - ../../custom_extensions/backend:/app
-      # CRITICAL: Prevent volume mount from overriding Docker-built node_modules
-      - /app/video_compositions/node_modules
+      # Allow backend to execute docker commands (for Remotion rendering in frontend)
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   db_volume:
