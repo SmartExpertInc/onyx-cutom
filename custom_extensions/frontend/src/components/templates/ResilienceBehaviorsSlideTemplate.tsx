@@ -137,7 +137,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const pageNumberStyles: React.CSSProperties = {
     position: 'absolute',
     bottom: '24px',
-    left: '64px',
+    left: '24px',
     color: '#5D5D5D',
     fontSize: '13px',
     fontWeight: 400,
@@ -163,7 +163,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         .resilience-bullet-text {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .resilience-bullet-number {
+        .resilience-bullet-number, .resilience-logo, .resilience-page-number {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
@@ -245,7 +245,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         </div>
 
         {/* Page Number */}
-        <div style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
+        <div className="resilience-page-number" style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
           <div style={{
             width: '1px',
             height: '15px',
@@ -259,24 +259,26 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
                 setEditingPageNumber(false);
                 onUpdate && onUpdate({ pageNumber: v });
               }}
+              className="resilience-page-number"
               onCancel={() => setEditingPageNumber(false)}
               style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '13px', fontWeight: 400 }}
             />
           ) : (
-            <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
               {currentPageNumber}
             </div>
           )}
         </div>
 
         {/* Logo */}
-        <div style={logoStyles}>
+        <div className="resilience-logo" style={logoStyles}>
           <YourLogo
             logoPath={logoPath}
             onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
             isEditable={isEditable}
             color="#09090B"
             text={logoText}
+            style={{ fontFamily: 'Inter, sans-serif !important' }}
           />
         </div>
       </div>

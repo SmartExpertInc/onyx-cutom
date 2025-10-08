@@ -152,10 +152,13 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
         }
+        .impact-metrics-right-image-logo * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
       `}</style>
       <div className="impact-metrics-right-image inter-theme" style={slide}>
       {/* Logo Placeholder */}
-      <div style={{
+      <div className="impact-metrics-right-image-logo" style={{
         position: 'absolute',
         top: '20px',
         left: '25px',
