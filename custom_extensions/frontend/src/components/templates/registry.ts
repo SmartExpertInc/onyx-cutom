@@ -2155,8 +2155,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
         'Building a change-ready culture',
         'Effective communication and engagement'
       ],
-      heading: 'Communication is the lifeblood of successful change initiatives.',
-      pills: ['Organizations', 'Communication', 'Stakeholders'],
+      heading: 'Communication is the lifeblood\nof successful change initiatives.',
+      pills: ['Organization', 'Communication', 'Stakeholders'],
       pageNumber: '39',
       logoNew: ''
     },

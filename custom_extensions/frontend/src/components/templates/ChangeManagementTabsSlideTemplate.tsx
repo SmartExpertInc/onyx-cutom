@@ -24,8 +24,8 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
     'Building a change-ready culture',
     'Effective communication and engagement'
   ],
-  heading = 'Communication is the lifeblood of successful change initiatives.',
-  pills = ['Organizations', 'Communication', 'Stakeholders'],
+  heading = 'Communication is the lifeblood\nof successful change initiatives.',
+  pills = ['Organization', 'Communication', 'Stakeholders'],
   avatarPath = '',
   pageNumber = '39',
   logoNew = '',
@@ -45,15 +45,15 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#111827', fontFamily: currentTheme.fonts.titleFont, position:'relative', paddingTop:'132px' };
 
   const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'180px', display:'grid', gridTemplateRows:'45px 45px 45px 45px' };
-  const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 24px', fontSize:'14px', letterSpacing:0.5, fontFamily: currentTheme.fonts.contentFont });
+  const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 45px', fontSize:'20px', letterSpacing:0.5, fontFamily: currentTheme.fonts.contentFont });
 
   const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'220px', bottom:'120px' };
-  const avatar: React.CSSProperties = { position:'absolute', left:'48px', top:'8px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'154px', right:'56px', top:0, fontSize:'42px', fontWeight:800, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif" };
+  const avatar: React.CSSProperties = { position:'absolute', left:'-10px', top:0, width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'154px', right:'56px', top:'30px', fontSize:'42px', fontWeight:800, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif" };
 
-  const capsulesWrap: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'150px', height:'82px', display:'grid', gridTemplateColumns:'1fr 164px 1fr', columnGap:'1px', alignItems:'center' };
-  const capsule: React.CSSProperties = { border:'2px solid #09090B', borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#09090B', fontSize:'12px', height:'100%', background:'#FFFFFF', fontFamily: currentTheme.fonts.contentFont };
-  const capsuleActive: React.CSSProperties = { ...capsule, height:'100%', background:'#0F58F9', color:'#FFFFFF', border:'8px solid #E0E7FF', zIndex: 10, position: 'relative' };
+  const capsulesWrap: React.CSSProperties = { position:'absolute', width: '100%', left:0, right:0, top:'220px', height:'110px', display:'grid', gridTemplateColumns:'1fr 164px 1fr', columnGap:'-20px', alignItems:'center' };
+  const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#09090B', fontSize:'12px', height:'100%', background:'#FFFFFF', fontFamily: currentTheme.fonts.contentFont, position: 'relative', zIndex: 1 };
+  const capsuleActive: React.CSSProperties = { ...capsule, height:'100%', background:'#0F58F9', color:'#FFFFFF', border:'8px solid #E0E7FF', zIndex: 10 };
 
   const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
   const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'14px', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
@@ -86,7 +86,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
         }
         .change-mgmt-tabs .title-element {
           font-family: "Lora", serif !important;
-          font-weight: 800 !important;
+          font-weight: 700 !important;
         }
       `}</style>
       <div style={topTabsWrap}>
