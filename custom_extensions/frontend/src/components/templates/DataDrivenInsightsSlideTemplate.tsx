@@ -140,7 +140,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
     const maxWidth = 40;
-    const minWidth = 25;
+    const minWidth = 28;
     const availableWidth = 210; // Approximate available width for bars
     const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, availableWidth / seriesLength));
     return { 

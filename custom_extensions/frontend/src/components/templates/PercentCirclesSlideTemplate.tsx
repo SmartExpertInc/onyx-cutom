@@ -101,7 +101,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const circleFilled: React.CSSProperties = {
     ...circleBase,
     background:'#0F58F9', // Blue
-    fontSize:'20px',
+    fontSize:'23px',
     fontWeight:600,
     border:'none',
     color:'#FFFFFF',
@@ -112,7 +112,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const avatarWrap: React.CSSProperties = { 
     position:'absolute', 
     right:'70px', 
-    top:'90px', 
+    top:'60px', 
     width:'170px', 
     height:'170px', 
     borderRadius:'50%', 
@@ -283,7 +283,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
                  onSave={(v)=>{ onUpdate && onUpdate({ percent:v }); setEdit(null); }} 
                  onCancel={()=> setEdit(null)} 
                  className="percent-text"
-                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'20px', fontWeight:700 }} 
+                 style={{ ...inline({}), color:'#FFFFFF', fontSize:'23px', fontWeight:700 }} 
                />
              ) : (
                <div className="percent-text" onClick={()=> isEditable && setEdit({ k:'percent' })} style={{ cursor: isEditable ? 'pointer':'default' }}>

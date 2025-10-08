@@ -46,29 +46,33 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('17');
 
-  const normalizeRows = (input: any[], colHeaders: string[]): Record<string, string>[] => {
+  const normalizeRows = (input: any[], colHeaders: string[]): string[][] => {
     return (input || []).map((r: any) => {
-      // If row already uses header labels as keys, keep as is
-      const hasHeaderKeys = colHeaders.every((h) => Object.prototype.hasOwnProperty.call(r, h));
-      if (hasHeaderKeys) return r as Record<string, string>;
-      // Map from camelCase props to visible header labels
-      const mapped: Record<string, string> = {};
-      const map: Record<string, string> = {
-        'Feature Name': r.featureName ?? r.feature ?? r.name ?? '',
-        'Status': r.status ?? '',
-        'Due Date': r.dueDate ?? r.date ?? '',
-        'Assignee': r.assignee ?? r.owner ?? ''
-      };
-      colHeaders.forEach((h) => {
-        mapped[h] = (map[h] ?? '') as string;
+      // If row is already an array, use it
+      if (Array.isArray(r)) return r.map(String);
+      // If row is an object, map to array based on column indices
+      const rowArray: string[] = [];
+      colHeaders.forEach((h, idx) => {
+        // Try to get value from object using header as key
+        if (typeof r === 'object' && r !== null) {
+          const map: Record<string, any> = {
+            'Feature Name': r.featureName ?? r.feature ?? r.name,
+            'Status': r.status,
+            'Due Date': r.dueDate ?? r.date,
+            'Assignee': r.assignee ?? r.owner
+          };
+          rowArray[idx] = String(map[h] ?? r[h] ?? '');
+        } else {
+          rowArray[idx] = '';
+        }
       });
-      return mapped;
+      return rowArray;
     });
   };
 
-  const [rows, setRows] = useState<Record<string,string>[]>(normalizeRows(tableData as any[], defaultHeaders));
+  const [rows, setRows] = useState<string[][]>(normalizeRows(tableData as any[], defaultHeaders));
 
-  const pushUpdate = (nextCols: string[] = cols, nextRows: Record<string, string>[] = rows) => {
+  const pushUpdate = (nextCols: string[] = cols, nextRows: string[][] = rows) => {
     if (onUpdate) {
       onUpdate({ headers: nextCols, tableData: nextRows });
     }
@@ -85,7 +89,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
       newName = `${nameBase} ${suffix}`;
     }
     const nextCols = [...cols.slice(0, idx + 1), newName, ...cols.slice(idx + 1)];
-    const nextRows = rows.map((r) => ({ ...r, [newName]: DEFAULT_CELL_PLACEHOLDER }));
+    const nextRows = rows.map((r) => [...r.slice(0, idx + 1), DEFAULT_CELL_PLACEHOLDER, ...r.slice(idx + 1)]);
     setCols(nextCols);
     setRows(nextRows);
     pushUpdate(nextCols, nextRows);
@@ -93,20 +97,15 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
   const deleteColumnAt = (idx: number) => {
     if (cols.length <= 1) return;
-    const key = cols[idx];
     const nextCols = cols.filter((_, i) => i !== idx);
-    const nextRows = rows.map((r) => {
-      const { [key]: _omit, ...rest } = r;
-      return rest;
-    });
+    const nextRows = rows.map((r) => r.filter((_, i) => i !== idx));
     setCols(nextCols);
     setRows(nextRows);
     pushUpdate(nextCols, nextRows);
   };
 
   const addRowAfter = (idx: number) => {
-    const newRow: Record<string, string> = {};
-    cols.forEach((h) => (newRow[h] = DEFAULT_CELL_PLACEHOLDER));
+    const newRow: string[] = cols.map(() => DEFAULT_CELL_PLACEHOLDER);
     const nextRows = [...rows.slice(0, idx + 1), newRow, ...rows.slice(idx + 1)];
     setRows(nextRows);
     pushUpdate(cols, nextRows);
@@ -120,22 +119,21 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   };
 
   const saveHeader = (idx: number, value: string) => {
-    const old = cols[idx];
     const nextCols = cols.map((c, i) => (i === idx ? value : c));
-    // remap row keys
-    const nextRows = rows.map((r) => {
-      const { [old]: oldVal, ...rest } = r;
-      return { ...rest, [value]: oldVal };
-    });
     setCols(nextCols);
-    setRows(nextRows);
     setEditingHeaderIdx(null);
-    pushUpdate(nextCols, nextRows);
+    pushUpdate(nextCols, rows);
   };
 
   const saveCell = (row: number, col: number, value: string) => {
-    const key = cols[col];
-    const nextRows = rows.map((r, i) => (i === row ? { ...r, [key]: value } : r));
+    const nextRows = rows.map((r, i) => {
+      if (i === row) {
+        const newRow = [...r];
+        newRow[col] = value;
+        return newRow;
+      }
+      return r;
+    });
     setRows(nextRows);
     setEditingCell(null);
     pushUpdate(cols, nextRows);
@@ -319,13 +317,13 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
               }}>
                 {isEditable && editingCell && editingCell.row===i && editingCell.col===cidx ? (
                   <ImprovedInlineEditor
-                    initialValue={r[h] || ''}
+                    initialValue={r[cidx] || ''}
                     onSave={(v)=> saveCell(i, cidx, v)}
                     onCancel={()=> setEditingCell(null)}
                     style={inlineEditorCellStyle}
                   />
                 ) : (
-                  <div onClick={()=> isEditable && setEditingCell({ row:i, col:cidx })} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{r[h] || ''}</div>
+                  <div onClick={()=> isEditable && setEditingCell({ row:i, col:cidx })} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{r[cidx] || ''}</div>
                 )}
               </div>
             ))}
