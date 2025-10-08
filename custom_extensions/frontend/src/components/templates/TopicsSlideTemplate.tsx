@@ -122,7 +122,9 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     fontSize:'24px',
     fontWeight:400,
     color:'rgba(9, 9, 11, 0.8)',
-    lineHeight:1.4
+    lineHeight:1.4,
+    flex: 1,
+    width: '100%'
   };
 
   const inline = (style: React.CSSProperties): React.CSSProperties => ({
@@ -216,6 +218,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
                       setEditKey(null); 
                     }} 
                     onCancel={() => setEditKey(null)} 
+                    multiline={true}
                     style={inline(topicText)} 
                   />
                 ) : (

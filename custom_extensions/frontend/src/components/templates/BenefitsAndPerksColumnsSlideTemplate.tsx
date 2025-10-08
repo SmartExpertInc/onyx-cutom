@@ -75,45 +75,6 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3, position:'absolute', top:'268px', left:'32px', right:'32px' };
   const bodyAccent: React.CSSProperties = { fontSize:'16px', color:'#09090B', opacity:0.7, lineHeight:1.3, position:'absolute', top:'268px', left:'32px', right:'32px' };
 
-  // Editor styles that maintain layout without absolute positioning
-  const titleEditor = (isAccent: boolean): React.CSSProperties => ({
-    fontSize: '26px',
-    fontWeight: 800,
-    letterSpacing: 0.5,
-    lineHeight: 1.3,
-    color: isAccent ? '#09090B' : 'inherit',
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-    padding: 0,
-    margin: 0,
-    width: '100%',
-    height: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
-    overflowWrap: 'break-word'
-  });
-
-  const bodyEditor = (isAccent: boolean): React.CSSProperties => ({
-    fontSize: '16px',
-    opacity: 0.7,
-    lineHeight: 1.3,
-    color: isAccent ? '#09090B' : 'inherit',
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-    padding: 0,
-    margin: 0,
-    height: 'auto',
-    whiteSpace: 'pre-wrap',
-    wordWrap: 'break-word',
-    overflowWrap: 'break-word',
-    position: 'absolute',
-    top: '268px',
-    left: '32px',
-    right: '32px'
-  });
-
   // Save handlers
   const handleHeadingSave = (newHeading: string) => {
     setCurrentHeading(newHeading);
@@ -213,39 +174,69 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
         {currentColumns.map((c, i) => (
           <div key={i} style={c.accent ? colAccent : colBase}>
             <div className="number-badge" style={numberBadge(i+1)}>{i+1}</div>
-            {isEditable && editingColumns && editingColumns.idx === i && editingColumns.field === 'title' ? (
-              <ImprovedInlineEditor 
-                initialValue={c.title} 
-                onSave={(v) => handleColumnSave(i, 'title', v)} 
-                onCancel={() => setEditingColumns(null)} 
-                className="title-element" 
-                style={titleEditor(!!c.accent)} 
-              />
-            ) : (
-              <div 
-                className="title-element" 
-                onClick={() => isEditable && setEditingColumns({ idx: i, field: 'title' })} 
-                style={{ ...(c.accent ? titleAccent : title), cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', margin: 0, padding: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}
-              >
-                {c.title}
-              </div>
-            )}
-            {isEditable && editingColumns && editingColumns.idx === i && editingColumns.field === 'body' ? (
-              <ImprovedInlineEditor 
-                initialValue={c.body} 
-                multiline={true} 
-                onSave={(v) => handleColumnSave(i, 'body', v)} 
-                onCancel={() => setEditingColumns(null)} 
-                style={bodyEditor(!!c.accent)} 
-              />
-            ) : (
-              <div 
-                onClick={() => isEditable && setEditingColumns({ idx: i, field: 'body' })} 
-                style={{ ...(c.accent ? bodyAccent : body), cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word', margin: 0, padding: 0 }}
-              >
-                {c.body}
-              </div>
-            )}
+            
+            {/* Title wrapper container */}
+            <div className="title-element" style={c.accent ? titleAccent : title}>
+              {isEditable && editingColumns && editingColumns.idx === i && editingColumns.field === 'title' ? (
+                <ImprovedInlineEditor 
+                  initialValue={c.title} 
+                  onSave={(v) => handleColumnSave(i, 'title', v)} 
+                  onCancel={() => setEditingColumns(null)} 
+                  className="title-element"
+                  multiline={true}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    padding: 0,
+                    margin: 0,
+                    width: '100%',
+                    height: 'auto',
+                    whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word'
+                  }} 
+                />
+              ) : (
+                <div 
+                  onClick={() => isEditable && setEditingColumns({ idx: i, field: 'title' })} 
+                  style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                >
+                  {c.title}
+                </div>
+              )}
+            </div>
+
+            {/* Body wrapper container */}
+            <div style={c.accent ? bodyAccent : body}>
+              {isEditable && editingColumns && editingColumns.idx === i && editingColumns.field === 'body' ? (
+                <ImprovedInlineEditor 
+                  initialValue={c.body} 
+                  multiline={true} 
+                  onSave={(v) => handleColumnSave(i, 'body', v)} 
+                  onCancel={() => setEditingColumns(null)} 
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    padding: 0,
+                    margin: 0,
+                    width: '100%',
+                    height: 'auto',
+                    whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word'
+                  }} 
+                />
+              ) : (
+                <div 
+                  onClick={() => isEditable && setEditingColumns({ idx: i, field: 'body' })} 
+                  style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                >
+                  {c.body}
+                </div>
+              )}
+            </div>
           </div>
         ))}
       </div>
