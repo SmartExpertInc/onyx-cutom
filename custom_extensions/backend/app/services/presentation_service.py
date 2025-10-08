@@ -481,42 +481,69 @@ class ProfessionalPresentationService:
             logger.info(f"  - Resolution: 1920x1080")
             
             # Prepare Remotion render command
-            # CRITICAL FIX: Specify full path to Root.tsx from backend/
+            # CRITICAL: Use correct Remotion v4 command structure (props file controls all settings)
             render_cmd = [
                 "npx", "remotion", "render",
-                "video_compositions/src/Root.tsx",  # Full path from backend/
-                "AvatarServiceSlide",
-                str(output_video_path),
-                "--props", str(remotion_input_path),
-                "--fps", str(fps),
-                "--width", "1920",
-                "--height", "1080",
-                "--duration-in-frames", str(duration_in_frames)
+                "video_compositions/src/Root.tsx",  # Entry file path from backend/
+                "AvatarServiceSlide",  # Composition ID
+                str(output_video_path),  # Output file path
+                "--props", str(remotion_input_path)  # Props JSON (includes duration via composition)
             ]
             
-            logger.info(f"🎬 [REACTION_PROCESSING] Executing Remotion render command: {' '.join(render_cmd)}")
-            logger.info(f"🎬 [REACTION_PROCESSING] Working directory: {backend_dir}")
-            logger.info(f"🎬 [REACTION_PROCESSING] Compositions directory: {compositions_dir}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Remotion render configuration:")
+            logger.info(f"  - Entry file: video_compositions/src/Root.tsx")
+            logger.info(f"  - Composition: AvatarServiceSlide")
+            logger.info(f"  - Output path: {output_video_path}")
+            logger.info(f"  - Props file: {remotion_input_path}")
+            logger.info(f"  - Working directory: {backend_dir}")
+            logger.info(f"  - Expected duration: {avatar_duration}s ({duration_in_frames} frames @ {fps}fps)")
+            logger.info(f"🎬 [REACTION_PROCESSING] Executing command: {' '.join(render_cmd)}")
             
-            # Execute Remotion render
-            # CRITICAL FIX: Use backend_dir as cwd instead of compositions_dir
+            # Execute Remotion render with proper async handling
             process = await asyncio.create_subprocess_exec(
                 *render_cmd,
-                cwd=backend_dir,
+                cwd=str(backend_dir),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
             
             stdout, stderr = await process.communicate()
             
-            if process.returncode != 0:
-                logger.error(f"🎬 [REACTION_PROCESSING] Remotion render failed with return code {process.returncode}")
-                logger.error(f"🎬 [REACTION_PROCESSING] stdout: {stdout.decode()}")
-                logger.error(f"🎬 [REACTION_PROCESSING] stderr: {stderr.decode()}")
-                raise Exception(f"Remotion render failed: {stderr.decode()}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Remotion process finished with return code: {process.returncode}")
+            logger.info(f"🎬 [REACTION_PROCESSING] Stdout length: {len(stdout)} bytes")
+            logger.info(f"🎬 [REACTION_PROCESSING] Stderr length: {len(stderr)} bytes")
             
-            logger.info(f"🎬 [REACTION_PROCESSING] Remotion render completed successfully")
-            logger.info(f"🎬 [REACTION_PROCESSING] Output video: {output_video_path}")
+            # Log output for debugging
+            if stdout:
+                stdout_text = stdout.decode('utf-8', errors='ignore')
+                logger.info(f"🎬 [REACTION_PROCESSING] Stdout: {stdout_text[:2000]}")  # First 2000 chars
+            if stderr:
+                stderr_text = stderr.decode('utf-8', errors='ignore')
+                logger.info(f"🎬 [REACTION_PROCESSING] Stderr: {stderr_text[:2000]}")  # First 2000 chars
+            
+            # Check return code
+            if process.returncode != 0:
+                logger.error(f"🎬 [REACTION_PROCESSING] ❌ Remotion render failed with code {process.returncode}")
+                raise Exception(f"Remotion render failed (code {process.returncode}): {stderr_text[:500] if stderr else 'No error output'}")
+            
+            # CRITICAL: Verify output file exists and has valid size
+            if not output_video_path.exists():
+                logger.error(f"🎬 [REACTION_PROCESSING] ❌ Output video file not created: {output_video_path}")
+                raise Exception("Remotion completed but output file was not created")
+            
+            file_size = os.path.getsize(output_video_path)
+            logger.info(f"🎬 [REACTION_PROCESSING] Output video file size: {file_size} bytes ({file_size / 1024 / 1024:.2f} MB)")
+            
+            # CRITICAL: Validate file integrity (minimum 100KB for valid video)
+            if file_size < 100000:
+                logger.error(f"🎬 [REACTION_PROCESSING] ❌ Video file corrupted or incomplete: {file_size} bytes")
+                logger.error(f"🎬 [REACTION_PROCESSING] Expected minimum: 100,000 bytes")
+                logger.error(f"🎬 [REACTION_PROCESSING] This indicates Remotion rendering failed silently")
+                raise Exception(f"Video file corrupted (only {file_size} bytes). Rendering failed.")
+            
+            logger.info(f"🎬 [REACTION_PROCESSING] ✅ Remotion render completed successfully")
+            logger.info(f"🎬 [REACTION_PROCESSING] ✅ Output video verified: {output_video_path}")
+            logger.info(f"🎬 [REACTION_PROCESSING] ✅ File size validated: {file_size / 1024 / 1024:.2f} MB")
             
             # Step 6: Create thumbnail
             logger.info(f"🎬 [REACTION_PROCESSING] Step 6: Creating thumbnail")

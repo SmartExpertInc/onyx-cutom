@@ -29158,18 +29158,22 @@ async def debug_render_presentation(request: Request):
         # Calculate duration in frames (30 fps)
         duration_frames = int(duration * 30)
         
+        # CRITICAL: Use correct Remotion v4 command structure
         render_cmd = [
             "npx", "remotion", "render",
-            "video_compositions/src/Root.tsx",
-            "AvatarServiceSlide",
-            str(output_video_path),
-            "--props", str(remotion_input_path),
-            "--frames", str(duration_frames),
-            "--codec", "h264"
+            "video_compositions/src/Root.tsx",  # Path to entry file
+            "AvatarServiceSlide",  # Composition ID
+            str(output_video_path),  # Output file
+            "--props", str(remotion_input_path),  # Props JSON file
         ]
         
-        logger.info(f"🐛 [DEBUG_RENDER] Executing Remotion command: {' '.join(render_cmd)}")
-        logger.info(f"🐛 [DEBUG_RENDER] Working directory: {backend_dir}")
+        logger.info(f"🐛 [DEBUG_RENDER] Remotion render configuration:")
+        logger.info(f"  - Entry file: video_compositions/src/Root.tsx")
+        logger.info(f"  - Composition: AvatarServiceSlide")
+        logger.info(f"  - Output: {output_video_path}")
+        logger.info(f"  - Props file: {remotion_input_path}")
+        logger.info(f"  - Working directory: {backend_dir}")
+        logger.info(f"🐛 [DEBUG_RENDER] Executing command: {' '.join(render_cmd)}")
         
         # Execute Remotion render
         result = subprocess.run(
@@ -29180,29 +29184,65 @@ async def debug_render_presentation(request: Request):
             timeout=120  # 2 minute timeout for debug
         )
         
+        logger.info(f"🐛 [DEBUG_RENDER] Remotion process completed with return code: {result.returncode}")
+        logger.info(f"🐛 [DEBUG_RENDER] Stdout length: {len(result.stdout)} chars")
+        logger.info(f"🐛 [DEBUG_RENDER] Stderr length: {len(result.stderr)} chars")
+        
+        # Log actual output for debugging
+        if result.stdout:
+            logger.info(f"🐛 [DEBUG_RENDER] Stdout: {result.stdout[:1000]}")  # First 1000 chars
+        if result.stderr:
+            logger.info(f"🐛 [DEBUG_RENDER] Stderr: {result.stderr[:1000]}")  # First 1000 chars
+        
         # Clean up temp file
         try:
             remotion_input_path.unlink()
-        except:
-            pass
+            logger.info(f"🐛 [DEBUG_RENDER] Cleaned up temp props file")
+        except Exception as cleanup_error:
+            logger.warning(f"🐛 [DEBUG_RENDER] Failed to cleanup temp file: {cleanup_error}")
         
+        # Check return code
         if result.returncode != 0:
-            logger.error(f"🐛 [DEBUG_RENDER] Remotion render failed with code {result.returncode}")
-            logger.error(f"🐛 [DEBUG_RENDER] Stdout: {result.stdout}")
-            logger.error(f"🐛 [DEBUG_RENDER] Stderr: {result.stderr}")
+            logger.error(f"🐛 [DEBUG_RENDER] ❌ Remotion render failed with code {result.returncode}")
+            logger.error(f"🐛 [DEBUG_RENDER] Full stdout: {result.stdout}")
+            logger.error(f"🐛 [DEBUG_RENDER] Full stderr: {result.stderr}")
             return {
                 "success": False,
-                "error": f"Remotion render failed: {result.stderr}"
+                "error": f"Remotion render failed (code {result.returncode}): {result.stderr[:500]}"
             }
         
-        logger.info(f"🐛 [DEBUG_RENDER] Remotion render completed successfully")
-        logger.info(f"🐛 [DEBUG_RENDER] Output video: {output_video_path}")
-        logger.info(f"🐛 [DEBUG_RENDER] Video size: {os.path.getsize(output_video_path)} bytes")
+        # CRITICAL: Verify output file exists and has valid size
+        if not output_video_path.exists():
+            logger.error(f"🐛 [DEBUG_RENDER] ❌ Output video file was not created: {output_video_path}")
+            return {
+                "success": False,
+                "error": "Remotion completed but output file was not created"
+            }
+        
+        file_size = os.path.getsize(output_video_path)
+        logger.info(f"🐛 [DEBUG_RENDER] Output video file size: {file_size} bytes ({file_size / 1024 / 1024:.2f} MB)")
+        
+        # CRITICAL: Check for corrupted/empty file (valid video should be > 100KB minimum)
+        if file_size < 100000:  # 100 KB threshold
+            logger.error(f"🐛 [DEBUG_RENDER] ❌ Output video file is suspiciously small: {file_size} bytes")
+            logger.error(f"🐛 [DEBUG_RENDER] This indicates a rendering failure or corruption")
+            logger.error(f"🐛 [DEBUG_RENDER] Full Remotion output:")
+            logger.error(f"🐛 [DEBUG_RENDER] STDOUT: {result.stdout}")
+            logger.error(f"🐛 [DEBUG_RENDER] STDERR: {result.stderr}")
+            return {
+                "success": False,
+                "error": f"Video file corrupted (only {file_size} bytes). Check Remotion logs."
+            }
+        
+        logger.info(f"🐛 [DEBUG_RENDER] ✅ Remotion render completed successfully")
+        logger.info(f"🐛 [DEBUG_RENDER] ✅ Output video: {output_video_path}")
+        logger.info(f"🐛 [DEBUG_RENDER] ✅ Video size verified: {file_size / 1024 / 1024:.2f} MB")
         
         return {
             "success": True,
             "jobId": job_id,
             "videoPath": str(output_video_path),
+            "videoSize": file_size,
             "message": "Debug render completed successfully (no avatar)"
         }
         
