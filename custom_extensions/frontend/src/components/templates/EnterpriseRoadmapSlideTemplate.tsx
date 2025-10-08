@@ -145,7 +145,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
   const descStyle: React.CSSProperties = { position:'absolute', left:'250px', top:'125px', width:'600px', color:'#555555', fontSize:'16px', lineHeight:1.4, fontFamily:'Inter, sans-serif' };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'230px' };
-  const gridTemplate = `${cols.map((_,i)=> i===0?'2fr':'1fr').join(' ')}`;
+  const gridTemplate = `${cols.map(()=> '1fr').join(' ')}`;
   const theadStyle: React.CSSProperties = { 
     display:'grid', 
     gridTemplateColumns: gridTemplate, 
