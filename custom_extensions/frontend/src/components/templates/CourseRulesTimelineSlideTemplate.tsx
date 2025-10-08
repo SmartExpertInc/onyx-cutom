@@ -24,17 +24,22 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
     onUpdate,
     theme,
   } = props as CourseRulesTimelineSlideProps & { theme?: SlideTheme | string; isEditable?: boolean; onUpdate?: (props: any) => void; companyLogoPath?: string; companyLogoAlt?: string; logoText?: string; logoPath?: string; };
-  const steps = stepsProp ?? [
-    { number: '1', text: 'Rules of the course' },
-    { number: '2', text: 'Prerequisite courses' },
-    { number: '3', text: 'Course expectations' },
-  ];
+  const stepOne = { number: '1', text: 'Rules of the course' };
+  const stepTwo = { number: '2', text: 'Prerequisite courses' };
+  const stepThree = { number: '3', text: 'Course expectations' };
+
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingStep, setEditingStep] = useState<{ index: number; field: 'number' | 'text' } | null>(null);
-  const [currentSteps, setCurrentSteps] = useState(steps);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState('34');
+  
+  // Define the three steps
+  const steps = [
+    { number: '1', text: 'Rules of the course' },
+    { number: '2', text: 'Prerequisite courses' },
+    { number: '3', text: 'Course expectations' }
+  ];
 
 
   const slideStyles: React.CSSProperties = {
@@ -155,58 +160,55 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
       {/* Vertical line */}
       <div style={lineStyles} />
 
-      {/* Squares centered on the line */}
-      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => {
-        return (
-        <div key={`circle-${i}`} style={circlePositionStyles(i)}>
-          {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
-            <ImprovedInlineEditor
-              initialValue={s.number}
-              onSave={(val) => {
-                const updated = [...currentSteps];
-                updated[i] = { ...updated[i], number: val };
-                setCurrentSteps(updated);
-                setEditingStep(null);
-                onUpdate && onUpdate({ steps: updated });
-              }}
-              onCancel={() => setEditingStep(null)}
-              className="timeline-step-number-editor"
-              style={{ ...stepNumStyles, width: stepNumStyles.width, height: stepNumStyles.height, borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            />
-          ) : (
-            <div className="step-number" style={stepNumStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'number' })}>{s.number}</div>
-          )}
-        </div>
-        );
-      })}
+      {/* Render the three steps */}
+      {steps.map((step, i) => (
+        <div key={i} style={stepContainerStyles(i)}>
+          {/* Step number square */}
+          <div style={circlePositionStyles(i)}>
+            {isEditable && editingStep && editingStep.index === i && editingStep.field === 'number' ? (
+              <ImprovedInlineEditor
+                initialValue={step.number}
+                onSave={(val) => {
+                  setEditingStep(null);
+                  onUpdate && onUpdate({ steps: steps.map((s, idx) => idx === i ? { ...s, number: val } : s) });
+                }}
+                onCancel={() => setEditingStep(null)}
+                className="timeline-step-number-editor"
+                style={{ ...stepNumStyles, width: stepNumStyles.width, height: stepNumStyles.height, borderRadius: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              />
+            ) : (
+              <div className="step-number" style={stepNumStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'number' })}>{step.number}</div>
+            )}
+          </div>
 
-      {/* Step texts on the right */}
-      {currentSteps.slice(0, 3).map((s: { number: string; text: string }, i: number) => {
-        return (
-        <div key={`text-${i}`} style={stepContainerStyles(i)}>
-          {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
-            <ImprovedInlineEditor
-              initialValue={s.text}
-              onSave={(val) => {
-                const updated = [...currentSteps];
-                updated[i] = { ...updated[i], text: val };
-                setCurrentSteps(updated);
-                setEditingStep(null);
-                onUpdate && onUpdate({ steps: updated });
-              }}
-              onCancel={() => setEditingStep(null)}
-              className="timeline-step-text-editor step-text"
-              style={{ ...stepTextStyles }}
-            />
-          ) : (
-            <div className="step-text" style={stepTextStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'text' })}>{s.text}</div>
-          )}
+          {/* Step text */}
+          <div style={{ marginLeft: '40px' }}>
+            {isEditable && editingStep && editingStep.index === i && editingStep.field === 'text' ? (
+              <ImprovedInlineEditor
+                initialValue={step.text}
+                onSave={(val) => {
+                  setEditingStep(null);
+                  onUpdate && onUpdate({ steps: steps.map((s, idx) => idx === i ? { ...s, text: val } : s) });
+                }}
+                onCancel={() => setEditingStep(null)}
+                className="timeline-step-text-editor step-text"
+                style={{ ...stepTextStyles }}
+              />
+            ) : (
+              <div className="step-text" style={stepTextStyles} onClick={() => isEditable && setEditingStep({ index: i, field: 'text' })}>{step.text}</div>
+            )}
+          </div>
         </div>
-        );
-      })}
+      ))}
+
 
       {/* Bottom-right page number */}
-      <div style={pageNumberStyles}>
+      <div style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
+        <div style={{
+          width: '1px',
+          height: '15px',
+          backgroundColor: '#5F616D'
+        }}></div>
         {isEditable && editingPageNumber ? (
           <ImprovedInlineEditor
             initialValue={currentPageNumber}
@@ -216,7 +218,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ ...pageNumberStyles, position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0 }}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '15px', fontWeight: 400 }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
