@@ -27660,38 +27660,11 @@ async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get
         
         # Add usage information
         async with pool.acquire() as conn:
-            # Connector count - Query Onyx's connector system directly
-            # Count private connectors for this user from cc_pair table
-            try:
-                # Get user's UUID from user_credits
-                user_row = await conn.fetchrow(
-                    "SELECT id FROM user_credits WHERE onyx_user_id = $1",
-                    onyx_user_id
-                )
-                if user_row:
-                    user_uuid = user_row["id"]
-                    # Count connectors from Onyx's cc_pair table where user is the creator
-                    conn_count_row = await conn.fetchrow(
-                        """
-                        SELECT COUNT(*) as count 
-                        FROM connector_credential_pair ccp
-                        JOIN connector c ON ccp.connector_id = c.id
-                        WHERE ccp.creator_id = $1 
-                        AND ccp.access_type = 'private'
-                        AND ccp.status != 'DELETING'
-                        """,
-                        user_uuid
-                    )
-                    conn_count = int(conn_count_row["count"] or 0) if conn_count_row else 0
-                else:
-                    conn_count = 0
-            except Exception as e:
-                logger.warning(f"Failed to count connectors from Onyx tables: {e}")
-                # Fallback to user_connectors table
-                conn_count = await conn.fetchval(
-                    "SELECT COUNT(*) FROM user_connectors WHERE onyx_user_id = $1 AND status = 'active'",
-                    onyx_user_id
-                ) or 0
+            # Connector count - Use user_connectors table
+            conn_count = await conn.fetchval(
+                "SELECT COUNT(*) FROM user_connectors WHERE onyx_user_id = $1 AND status = 'active'",
+                onyx_user_id
+            ) or 0
             
             # Storage usage
             storage_row = await conn.fetchval(
@@ -27725,7 +27698,7 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 """
                 SELECT uc.onyx_user_id,
                        uc.name AS user_name,
-                       COALESCE(u.email, uc.onyx_user_id) AS email,
+                       COALESCE(uc.email, ub.email, uc.onyx_user_id) AS email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -27734,7 +27707,6 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                        eo.storage_gb AS override_storage_gb,
                        eo.slides_max AS override_slides_max
                 FROM user_credits uc
-                LEFT JOIN "user" u ON u.id::text = uc.onyx_user_id
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
@@ -28185,7 +28157,7 @@ async def stripe_webhook(
                         )
                 except Exception as e:
                     logger.warning(f"Failed to persist base entitlements on update: {e}")
-
+                
                 logger.info(f"Updated subscription for user {onyx_user_id}: {subscription['status']}")
 
         elif event['type'] == 'customer.subscription.deleted':
@@ -29560,7 +29532,7 @@ async def create_presentation(request: Request):
                 return {"success": False, "error": f"Slide limit exceeded: {slides_count} > {max_slides}"}
         except Exception as _e:
             logger.warning(f"Entitlements check failed, proceeding with defaults: {_e}")
-
+        
         # Validate layout
         allowed_layouts = ["side_by_side", "picture_in_picture", "split_screen"]
         if layout not in allowed_layouts:
