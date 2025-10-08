@@ -70,7 +70,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const rightSection: React.CSSProperties = {
     position:'absolute',
     right:0,
-    top:'90px',
+    top:'97px',
     width:'55%',
     background:'#E0E7FF',
     padding:'60px 80px',
@@ -84,7 +84,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     width:'fit-content',
     borderRadius:'50px',
     border: '1px solid #09090B',
-    marginBottom:'50px',
+    marginBottom:'53px',
     display:'flex',
     alignItems:'center',
     justifyContent:'center',
@@ -186,7 +186,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
                 }} 
                 onCancel={() => setEditKey(null)} 
                 className="title-element"
-                style={inline(topicsTitleStyle)} 
+                style={{...inline(topicsTitleStyle), width: 'auto', minWidth: '100px', maxWidth: '100%'}} 
               />
             ) : (
               title
@@ -198,7 +198,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
         <div style={topicsList}>
           {topics.map((topic, index) => (
             <div key={index} style={topicItem}>
-              <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={bulletPoint}>
+              <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={bulletPoint}>
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
               </svg>
               <div 
@@ -292,7 +292,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
             className="page-number-editor"
             style={{
               color: '#09090B99',
-              fontSize: '17px',
+              fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               width: '30px',
@@ -304,7 +304,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
             onClick={() => isEditable && setEditingPageNumber(true)}
             style={{
               color: '#09090B99',
-              fontSize: '17px',
+              fontSize: '18px',
               fontWeight: '300',
               fontFamily: currentTheme.fonts.contentFont,
               cursor: isEditable ? 'pointer' : 'default',

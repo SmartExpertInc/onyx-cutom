@@ -1487,7 +1487,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       title: 'Here are some impact value statements backed by numbers:',
       statements: [
         { number: '50%', description: 'decrease in turnover\nrates.' },
-        { number: '$2.8B', description: 'the cost of harassment to businesses in the United States annually.' },
+        { number: '$2.8B', description: 'the cost of harassment\nto businesses in the United States annually.' },
         { number: '40%', description: 'increase in employee morale and engagement' }
       ],
       profileImagePath: '',
