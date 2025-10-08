@@ -5,6 +5,7 @@ import { SoftSkillsTypesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import YourLogo from '../YourLogo';
 
 export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
   slideId: _slideId,
@@ -24,7 +25,6 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
-  const [showLogoUpload, setShowLogoUpload] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -84,6 +84,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     fontWeight: 600,
     display: 'flex',
     alignItems: 'center',
+    gap: '5px',
   };
 
   return (
@@ -99,62 +100,15 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
       `}</style>
       
       {/* Logo */}
-      <div style={{ position: 'absolute', top: '20px', left: '30px' }}>
-        {logoPath ? (
-          <ClickableImagePlaceholder
-            imagePath={logoPath}
-            onImageUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
-            size="SMALL"
-            position="CENTER"
-            description="Your Logo"
-            isEditable={isEditable}
-            style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
-          />
-        ) : (
-          <>
-            <div
-              onClick={() => isEditable && setShowLogoUpload(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                cursor: isEditable ? 'pointer' : 'default'
-              }}
-            >
-              <div style={{
-                width: '30px',
-                height: '30px',
-                border: '2px solid #09090B',
-                borderRadius: '50%',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
-                <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
-              </div>
-              <span style={{ fontSize: '17px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
-            </div>
-            {showLogoUpload && (
-              <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}>
-                <ClickableImagePlaceholder
-                  imagePath=""
-                  onImageUploaded={(p: string) => {
-                    onUpdate && onUpdate({ logoPath: p });
-                    setShowLogoUpload(false);
-                  }}
-                  size="SMALL"
-                  position="CENTER"
-                  description="Your Logo"
-                  isEditable={true}
-                  style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
-                />
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+        isEditable={isEditable}
+        color="#09090B"
+        fontSize="17px"
+        text="Your Logo"
+        style={{ position: 'absolute', left: '20px', top: '20px' }}
+      />
 
       {/* Title */}
       <div style={titleStyles}>
@@ -181,7 +135,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center calc(50% + 10px)' }}
         />
       </div>
 
