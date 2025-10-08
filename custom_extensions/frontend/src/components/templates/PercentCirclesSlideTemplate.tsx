@@ -201,6 +201,22 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
     whiteSpace:'pre-wrap' 
   });
 
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-line',
+    width: '100%',
+    fontFamily: base.fontFamily
+  });
+
   // Logo section styling
   const logoSection: React.CSSProperties = {
     position:'absolute',
@@ -264,7 +280,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
               onSave={(v)=>{ onUpdate && onUpdate({ title:v }); setEdit(null); }} 
               onCancel={()=> setEdit(null)} 
               className="title-element"
-              style={inline(titleStyle)} 
+              style={inlineEditor(titleStyle)} 
             />
           ) : (
             <div className="title-element" onClick={()=> isEditable && setEdit({ k:'title' })} style={{ cursor: isEditable ? 'pointer':'default' }}>
