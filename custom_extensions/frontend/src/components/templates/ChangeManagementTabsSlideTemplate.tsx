@@ -44,20 +44,20 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#111827', fontFamily: currentTheme.fonts.titleFont, position:'relative', paddingTop:'132px' };
 
-  const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'180px', display:'grid', gridTemplateRows:'45px 45px 45px 45px' };
-  const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'1px 45px', fontSize:'20px', letterSpacing:0.5, fontFamily: currentTheme.fonts.contentFont });
+  const topTabsWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'188px', display:'grid', gridTemplateRows:'47px 47px 47px 47px' };
+  const tabRow = (bg: string, color: string): React.CSSProperties => ({ background:bg, color, display:'flex', alignItems:'center', padding:'0 45px', fontSize:'20px', letterSpacing:0.5, fontFamily: currentTheme.fonts.contentFont });
 
   const content: React.CSSProperties = { position:'absolute', left:'56px', right:'56px', top:'220px', bottom:'120px' };
   const avatar: React.CSSProperties = { position:'absolute', left:'-10px', top:0, width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'220px', right:'56px', top:'30px', fontSize:'42px', fontWeight:500, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif" };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'220px', right:'56px', top:'30px', fontSize:'45px', fontWeight:500, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif", whiteSpace: 'pre-wrap' };
 
-  const capsulesWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:'220px', height:'110px', display:'flex', alignItems:'center', justifyContent:'center', gap:'0px' };
+  const capsulesWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:'220px', height:'110px', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px' };
   const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#09090B', fontSize:'24px', height:'100%', background:'#FFFFFF', fontFamily: currentTheme.fonts.contentFont, position: 'relative', zIndex: 1, width:'500px' };
-  const capsuleActive: React.CSSProperties = { ...capsule, height:'100%', background:'#0F58F9', color:'#FFFFFF', border:'8px solid #E0E7FF', zIndex: 10, width:'400px', marginLeft:'-60px', marginRight:'-60px' };
+  const capsuleActive: React.CSSProperties = { ...capsule, height:'83%', background:'#0F58F9', color:'#FFFFFF', border:'16px solid #E0E7FF', zIndex: 10, width:'400px', marginLeft:'-60px', marginRight:'-60px' };
 
   const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-  const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'14px', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
-  const inlineCapsule = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'12px', textAlign:'center', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
+  const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'20px', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
+  const inlineCapsule = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'24px', textAlign:'center', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);
@@ -124,7 +124,7 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
         </div>
         <div style={headingStyle}>
           {isEditable && editHeading ? (
-            <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} />
+            <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} multiline={true} />
           ) : (
             <div className="title-element" onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default', fontFamily: "'Lora', serif" }}>{heading}</div>
           )}
