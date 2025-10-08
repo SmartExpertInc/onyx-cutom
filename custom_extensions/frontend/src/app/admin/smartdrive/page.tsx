@@ -16,12 +16,6 @@ export default function SmartDriveSettingsPage() {
   const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string>("");
   const [hasCredentials, setHasCredentials] = useState<boolean | null>(null);
-  const [usage, setUsage] = useState<{
-    connectorsUsed: number;
-    connectorsLimit: number;
-    storageUsedBytes: number;
-    storageLimitBytes: number;
-  } | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -30,12 +24,6 @@ export default function SmartDriveSettingsPage() {
         if (!resp.ok) throw new Error(`Bootstrap failed: ${resp.status}`);
         const data: BootstrapResponse = await resp.json();
         setHasCredentials(data.has_credentials);
-        // Fetch current usage
-        const usageResp = await fetch("/api/custom-projects-backend/smartdrive/usage");
-        if (usageResp.ok) {
-          const usageData = await usageResp.json();
-          setUsage(usageData);
-        }
       } catch (e: any) {
         console.error(e);
       }
@@ -83,37 +71,6 @@ export default function SmartDriveSettingsPage() {
       <p className="text-sm text-gray-600 mb-6">
         Configure your Nextcloud account. These credentials are used to upload LMS exports to your SmartDrive.
       </p>
-
-      {usage && (
-        <div className="mb-6 space-y-4">
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-700">Connectors</span>
-              <span className="text-gray-700">{usage.connectorsUsed} / {usage.connectorsLimit}</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded h-2 overflow-hidden">
-              <div
-                className="bg-blue-600 h-2"
-                style={{ width: `${Math.min(100, Math.round((usage.connectorsUsed / Math.max(usage.connectorsLimit || 1, 1)) * 100))}%` }}
-              />
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-700">Storage</span>
-              <span className="text-gray-700">
-                {Math.round(usage.storageUsedBytes / (1024 * 1024))} MB / {Math.round(usage.storageLimitBytes / (1024 * 1024 * 1024))} GB
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded h-2 overflow-hidden">
-              <div
-                className="bg-green-600 h-2"
-                style={{ width: `${Math.min(100, Math.round((usage.storageUsedBytes / Math.max(usage.storageLimitBytes || 1, 1)) * 100))}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {hasCredentials === false && (
         <div className="mb-4 p-3 rounded bg-yellow-50 text-yellow-800 text-sm">

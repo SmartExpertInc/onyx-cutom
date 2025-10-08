@@ -66,7 +66,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const isLoadingRef = useRef(false);
   const [isConnectorFailed, setIsConnectorFailed] = useState(false);
-  const [usage, setUsage] = useState<{ connectorsUsed: number; connectorsLimit: number; storageUsedBytes: number; storageLimitBytes: number } | null>(null);
   
   console.log('[POPUP_DEBUG] Component state - showManagementPage:', showManagementPage, 'selectedConnectorId:', selectedConnectorId, 'isManagementOpening:', isManagementOpening);
 
@@ -370,17 +369,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
       isLoadingRef.current = true;
       setLoading(true);
       
-      // Fetch usage first
-      try {
-        const usageResp = await fetch('/api/custom-projects-backend/smartdrive/usage', { credentials: 'same-origin' });
-        if (usageResp.ok) {
-          const usageData = await usageResp.json();
-          setUsage(usageData);
-        }
-      } catch (e) {
-        console.warn('Failed to load usage', e);
-      }
-
               const connectorsResponse = await fetch('/api/manage/admin/connector/status', { 
           credentials: 'same-origin' 
         });
@@ -527,35 +515,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   if (showFrame) {
     return (
-    <div className={`space-y-6 ${className}`}>
-      {usage && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white shadow rounded-lg p-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-700">Connectors</span>
-              <span className="text-gray-700">{usage.connectorsUsed} / {usage.connectorsLimit}</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded h-2 overflow-hidden">
-              <div
-                className="bg-blue-600 h-2"
-                style={{ width: `${Math.min(100, Math.round((usage.connectorsUsed / Math.max(usage.connectorsLimit || 1, 1)) * 100))}%` }}
-              />
-            </div>
-          </div>
-          <div className="bg-white shadow rounded-lg p-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-700">Storage</span>
-              <span className="text-gray-700">{Math.round(usage.storageUsedBytes / (1024 * 1024))} MB / {Math.round(usage.storageLimitBytes / (1024 * 1024 * 1024))} GB</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded h-2 overflow-hidden">
-              <div
-                className="bg-green-600 h-2"
-                style={{ width: `${Math.min(100, Math.round((usage.storageUsedBytes / Math.max(usage.storageLimitBytes || 1, 1)) * 100))}%` }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <div className={`space-y-6 ${className}`}>
         {/* Enhanced Header with Better UX */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -874,7 +834,7 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                             ) : (
                               <Button
                                 variant="outline"
-                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                onClick={(e) => {
                                   e.stopPropagation();
                                   console.log('Single manage button clicked for connector:', userConnectorsForSource[0].id);
                                   if (!showManagementPage && !isManagementOpening) {
