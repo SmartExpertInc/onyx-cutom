@@ -7485,27 +7485,17 @@ async def openai_company_research(company_name: str, company_desc: str, company_
             "[SerpAPI General Info]\n...\n\n[Website Info]\n...\n\n[Open Positions]\n...\n"
         )
 
-        # Configure web search tool (preview) – minimal config for widest SDK compatibility
+        # Configure web search tool (preview) – use simplest form per official docs
+        # Note: filters/allowed_domains not supported in current API
         tools = [
             {"type": "web_search_preview"}
         ]
 
-        # If we know the domain, we can bias results by allowed_domains (best-effort)
-        try:
-            from urllib.parse import urlparse
-            if company_website:
-                domain = urlparse(company_website).netloc.replace("www.", "")
-                if domain:
-                    tools = [
-                        {
-                            "type": "web_search_preview",
-                            "filters": {
-                                "allowed_domains": [domain]
-                            }
-                        }
-                    ]
-        except Exception:
-            pass
+        # Use gpt-4o or gpt-4o-mini (web_search_preview supported models)
+        # Override model if it's not compatible
+        if model not in ["gpt-4o", "gpt-4o-mini", "gpt-4.1"]:
+            model = "gpt-4o-mini"
+            logger.info(f"[OPENAI_WEB_SEARCH] Overriding model to {model} for web_search_preview compatibility")
 
         resp = await client.responses.create(
             model=model,
