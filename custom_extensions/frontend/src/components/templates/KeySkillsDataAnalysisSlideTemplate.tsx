@@ -56,7 +56,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
         .key-skills-data-analysis .title-element {
           font-family: "Lora", serif !important;
           font-weight: 500 !important;
-        }
+        } 
       `}</style>
       <div>
         {isEditable && editHeading ? (

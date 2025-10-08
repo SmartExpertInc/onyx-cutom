@@ -2150,19 +2150,23 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: ChangeManagementTabsSlideTemplate,
     defaultProps: {
       topTabs: [
-        'CHANGE MANAGEMENT FUNDAMENTALS',
-        'THE NEED FOR CHANGE',
-        'BUILDING A CHANGE-READY CULTURE',
-        'EFFECTIVE COMMUNICATION AND ENGAGEMENT'
+        'Change management fundamentals',
+        'The need for change',
+        'Building a change-ready culture',
+        'Effective communication and engagement'
       ],
       heading: 'Communication is the lifeblood of successful change initiatives.',
-      pills: ['ORGANIZATIONS', 'COMMUNICATION', 'STAKEHOLDERS']
+      pills: ['Organizations', 'Communication', 'Stakeholders'],
+      pageNumber: '39',
+      logoNew: ''
     },
     propSchema: {
       topTabs: { type: 'array', label: 'Top Tabs', required: true },
       heading: { type: 'text', label: 'Heading', required: true },
       pills: { type: 'array', label: 'Pills', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' },
+      logoNew: { type: 'image', label: 'Logo' }
     }
   }
   ,
