@@ -136,13 +136,13 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height: '320px', padding: '10px 10px 3px 15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 0 8px 0' };
-  const barsRow: React.CSSProperties = { position:'absolute', left:'30px', right:'0px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'2px', height:'calc(100% - 24px)', flexWrap:'nowrap' };
+  const barsRow: React.CSSProperties = { position:'absolute', left:'30px', right:'0px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'5px', height:'calc(100% - 24px)', flexWrap:'nowrap' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'40px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
-    const maxWidth = 45;
+    const maxWidth = 50;
     const minWidth = 40;
-    const availableWidth = 235; // Available width for bars with small gap (2px)
-    const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, (availableWidth - (seriesLength - 1) * 2) / seriesLength));
+    const availableWidth = 250; // Available width for bars with gap (5px)
+    const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, (availableWidth - (seriesLength - 1) * 5) / seriesLength));
     return { 
       width: `${calculatedWidth}px`, 
       background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', 
@@ -150,7 +150,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       borderRadius:'1px 1px 1px 1px' 
     };
   };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 0px 0 25px', color:'#3A3A3C', fontSize:'12px', gap:'5px', fontFamily:'"Inter", sans-serif' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 0px 0 30px', color:'#3A3A3C', fontSize:'12px', gap:'5px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'360px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
