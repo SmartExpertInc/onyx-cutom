@@ -466,9 +466,10 @@ class ProfessionalPresentationService:
             self._update_job_status(job_id, progress=80.0)
             
             # Set up Remotion render command
-            # CRITICAL FIX: Run from backend/ directory (parent of video_compositions)
-            compositions_dir = Path(__file__).parent.parent / "video_compositions"
-            backend_dir = Path(__file__).parent.parent  # Run from backend/
+            # CRITICAL: __file__ is /app/app/services/presentation_service.py
+            # parent = /app/app/services, parent.parent = /app/app, parent.parent.parent = /app
+            backend_dir = Path(__file__).parent.parent.parent  # /app/ directory
+            compositions_dir = backend_dir / "video_compositions"
             output_video_path = self.output_dir / f"presentation_{job_id}.mp4"
             
             # Calculate duration in frames (match avatar video duration)

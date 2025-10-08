@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal
 from pydantic import BaseModel, Field, RootModel
+from pathlib import Path
 import re
 import os
 import asyncpg
@@ -29152,7 +29153,8 @@ async def debug_render_presentation(request: Request):
         logger.info(f"🐛 [DEBUG_RENDER] Props written to: {remotion_input_path}")
         
         # Set up Remotion render command
-        backend_dir = Path(__file__).parent.parent
+        # CRITICAL: __file__ is /app/main.py, so parent is /app/ (correct working directory)
+        backend_dir = Path(__file__).parent
         output_video_path = output_dir / f"debug_render_{job_id}.mp4"
         
         # Calculate duration in frames (30 fps)
@@ -29206,18 +29208,18 @@ async def debug_render_presentation(request: Request):
             logger.error(f"🐛 [DEBUG_RENDER] ❌ Remotion render failed with code {result.returncode}")
             logger.error(f"🐛 [DEBUG_RENDER] Full stdout: {result.stdout}")
             logger.error(f"🐛 [DEBUG_RENDER] Full stderr: {result.stderr}")
-            return {
-                "success": False,
-                "error": f"Remotion render failed (code {result.returncode}): {result.stderr[:500]}"
-            }
+            raise HTTPException(
+                status_code=500,
+                detail=f"Remotion render failed (code {result.returncode}): {result.stderr[:500]}"
+            )
         
         # CRITICAL: Verify output file exists and has valid size
         if not output_video_path.exists():
             logger.error(f"🐛 [DEBUG_RENDER] ❌ Output video file was not created: {output_video_path}")
-            return {
-                "success": False,
-                "error": "Remotion completed but output file was not created"
-            }
+            raise HTTPException(
+                status_code=500,
+                detail="Remotion completed but output file was not created"
+            )
         
         file_size = os.path.getsize(output_video_path)
         logger.info(f"🐛 [DEBUG_RENDER] Output video file size: {file_size} bytes ({file_size / 1024 / 1024:.2f} MB)")
@@ -29229,10 +29231,10 @@ async def debug_render_presentation(request: Request):
             logger.error(f"🐛 [DEBUG_RENDER] Full Remotion output:")
             logger.error(f"🐛 [DEBUG_RENDER] STDOUT: {result.stdout}")
             logger.error(f"🐛 [DEBUG_RENDER] STDERR: {result.stderr}")
-            return {
-                "success": False,
-                "error": f"Video file corrupted (only {file_size} bytes). Check Remotion logs."
-            }
+            raise HTTPException(
+                status_code=500,
+                detail=f"Video file corrupted (only {file_size} bytes). Check Remotion logs."
+            )
         
         logger.info(f"🐛 [DEBUG_RENDER] ✅ Remotion render completed successfully")
         logger.info(f"🐛 [DEBUG_RENDER] ✅ Output video: {output_video_path}")
@@ -29246,14 +29248,27 @@ async def debug_render_presentation(request: Request):
             "message": "Debug render completed successfully (no avatar)"
         }
         
+    except FileNotFoundError as e:
+        logger.error(f"🐛 [DEBUG_RENDER] ❌ FileNotFoundError: {str(e)}")
+        logger.error(f"🐛 [DEBUG_RENDER] This usually means Node.js/npm/npx is not installed in the Docker container")
+        raise HTTPException(
+            status_code=500,
+            detail="Node.js/npx not found. Remotion requires Node.js to be installed in the backend container."
+        )
+    except subprocess.TimeoutExpired:
+        logger.error(f"🐛 [DEBUG_RENDER] ❌ Remotion render timed out after 120 seconds")
+        raise HTTPException(
+            status_code=504,
+            detail="Debug render timed out after 2 minutes. Try reducing slide complexity."
+        )
     except Exception as e:
-        logger.error(f"🐛 [DEBUG_RENDER] Error: {str(e)}")
+        logger.error(f"🐛 [DEBUG_RENDER] ❌ Unexpected error: {str(e)}")
         import traceback
         logger.error(f"🐛 [DEBUG_RENDER] Traceback: {traceback.format_exc()}")
-        return {
-            "success": False,
-            "error": f"Debug render failed: {str(e)}"
-        }
+        raise HTTPException(
+            status_code=500,
+            detail=f"Debug render failed: {str(e)}"
+        )
 
 @app.get("/api/custom/presentations/debug-render/{job_id}/video")
 async def download_debug_render_video(job_id: str):

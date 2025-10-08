@@ -168,12 +168,18 @@ export default function VideoEditorHeader({
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`Debug render failed: ${response.statusText}`);
+      const result = await response.json();
+      
+      // Check if backend returned an error
+      if (!result.success || !result.jobId || !result.videoPath) {
+        const errorMsg = result.error || 'Unknown error occurred';
+        console.error('🐛 [DEBUG_RENDER] Backend error:', errorMsg);
+        alert(`❌ Debug render failed: ${errorMsg}`);
+        return;
       }
 
-      const result = await response.json();
       console.log('🐛 [DEBUG_RENDER] Success! Video path:', result.videoPath);
+      console.log('🐛 [DEBUG_RENDER] Video size:', result.videoSize, 'bytes');
       
       // Download the video automatically
       const downloadUrl = `${CUSTOM_BACKEND_URL}/presentations/debug-render/${result.jobId}/video`;
@@ -184,7 +190,7 @@ export default function VideoEditorHeader({
       link.click();
       document.body.removeChild(link);
 
-      alert('✅ Debug render completed! Video downloaded.');
+      alert(`✅ Debug render completed! Video downloaded (${(result.videoSize / 1024 / 1024).toFixed(2)} MB).`);
     } catch (error: any) {
       console.error('🐛 [DEBUG_RENDER] Error:', error);
       alert(`❌ Debug render failed: ${error.message}`);
