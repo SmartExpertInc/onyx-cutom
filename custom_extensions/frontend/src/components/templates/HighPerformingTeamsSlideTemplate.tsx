@@ -221,11 +221,25 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             multiline={true}
             onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={() => setEditingTitle(false)}
-              className="title-element"
-              style={{ ...titleStyle, position: 'relative', left: 0, top: 0, transform: 'none' }}
+            className="title-element"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              padding: 0,
+              margin: 0,
+              width: '100%',
+              height: 'auto'
+            }}
           />
         ) : (
-            <div className="title-element" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+          <div 
+            className="title-element" 
+            onClick={() => isEditable && setEditingTitle(true)} 
+            style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+          >
+            {title}
+          </div>
         )}
       </div>
 
@@ -237,10 +251,23 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             multiline={true}
             onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
             onCancel={() => setEditingDesc(false)}
-              style={{ ...paragraph, position: 'relative', left: 0, top: 0, transform: 'none', width: '100%' }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              padding: 0,
+              margin: 0,
+              width: '100%',
+              height: 'auto'
+            }}
           />
         ) : (
-          <div onClick={() => isEditable && setEditingDesc(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
+          <div 
+            onClick={() => isEditable && setEditingDesc(true)} 
+            style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+          >
+            {description}
+          </div>
         )}
         </div>
       </div>
