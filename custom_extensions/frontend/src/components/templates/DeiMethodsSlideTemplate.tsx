@@ -205,8 +205,16 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         fontSize: '15px',
         color: '#333333',
         fontFamily: 'Inter, sans-serif',
-        fontWeight: 400
+        fontWeight: 400,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
+        <div style={{
+          width: '1px',
+          height: '15px',
+          backgroundColor: '#5F616D'
+        }}></div>
         {isEditable && editingPageNumber ? (
           <ImprovedInlineEditor
             initialValue={currentPageNumber}

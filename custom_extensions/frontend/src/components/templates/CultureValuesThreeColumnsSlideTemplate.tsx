@@ -186,7 +186,12 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
         </div>
         
         {/* Page number */}
-        <div style={pageNumberStyle}>
+        <div style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
+          <div style={{
+            width: '1px',
+            height: '15px',
+            backgroundColor: '#5F616D'
+          }}></div>
           {isEditable && editingPageNumber ? (
             <ImprovedInlineEditor
               initialValue={currentPageNumber}

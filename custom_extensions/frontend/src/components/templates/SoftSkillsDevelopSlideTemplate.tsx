@@ -61,20 +61,22 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
-        .softskills-item-desk {
+        .softskills-item-desk, .softskills-logo {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
       <div className="softskills-develop inter-theme" style={slide}>
         <div style={left}>
-          <YourLogo
-            logoPath={logoPath}
-            onLogoUploaded={(p)=> onUpdate && onUpdate({ logoPath: p })}
-            isEditable={isEditable}
-            color="#000000"
-            text={logoText}
-            style={{ position:'absolute', top:'20px', left:'20px' }}
-          />
+          <div className="softskills-logo">
+            <YourLogo
+              logoPath={logoPath}
+              onLogoUploaded={(p)=> onUpdate && onUpdate({ logoPath: p })}
+              isEditable={isEditable}
+              color="#000000"
+              text={logoText}
+              style={{ position:'absolute', top:'20px', left:'20px', fontFamily: 'Inter, sans-serif !important' }}
+            />
+          </div>
           {isEditable && edit?.k==='title' ? (
             <ImprovedInlineEditor initialValue={title} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inline(titleStyle)} />
           ) : (
@@ -102,7 +104,12 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
           </div>
           
           {/* Page number */}
-          <div style={pageNumberStyle}>
+          <div style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <div style={{
+              width: '1px',
+              height: '15px',
+              backgroundColor: '#5F616D'
+            }}></div>
             {isEditable && editingPageNumber ? (
               <ImprovedInlineEditor
                 initialValue={currentPageNumber}

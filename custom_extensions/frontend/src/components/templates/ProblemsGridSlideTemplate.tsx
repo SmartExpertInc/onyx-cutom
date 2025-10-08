@@ -165,7 +165,12 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
       </div>
 
       {/* Page number */}
-      <div style={pageNumberStyle}>
+      <div style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
+        <div style={{
+          width: '1px',
+          height: '15px',
+          backgroundColor: '#5F616D'
+        }}></div>
         {isEditable && editPageNumber ? (
           <ImprovedInlineEditor
             initialValue={currentPageNumber}

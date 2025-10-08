@@ -36,6 +36,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
   const [editingBullet, setEditingBullet] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState('38');
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -139,6 +141,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     color: '#5D5D5D',
     fontSize: '13px',
     fontWeight: 400,
+    display: 'flex',
   };
 
   const logoStyles: React.CSSProperties = {
@@ -242,7 +245,29 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         </div>
 
         {/* Page Number */}
-        <div style={pageNumberStyles}>38</div>
+        <div style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
+          <div style={{
+            width: '1px',
+            height: '15px',
+            backgroundColor: '#5F616D'
+          }}></div>
+          {isEditable && editingPageNumber ? (
+            <ImprovedInlineEditor
+              initialValue={currentPageNumber}
+              onSave={(v) => {
+                setCurrentPageNumber(v);
+                setEditingPageNumber(false);
+                onUpdate && onUpdate({ pageNumber: v });
+              }}
+              onCancel={() => setEditingPageNumber(false)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '13px', fontWeight: 400 }}
+            />
+          ) : (
+            <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+              {currentPageNumber}
+            </div>
+          )}
+        </div>
 
         {/* Logo */}
         <div style={logoStyles}>

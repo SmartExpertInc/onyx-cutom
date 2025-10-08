@@ -239,8 +239,16 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
         color:'#34353C',
         fontSize:'15px',
         fontWeight:400,
-        fontFamily:'Inter, sans-serif'
+        fontFamily:'Inter, sans-serif',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
+        <div style={{
+          width: '1px',
+          height: '15px',
+          backgroundColor: '#5F616D'
+        }}></div>
         {isEditable && editingPageNumber ? (
           <ImprovedInlineEditor
             initialValue={currentPageNumber}
