@@ -27707,12 +27707,34 @@ class EntitlementOverrideUpdate(BaseModel):
 async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     await verify_admin_user(request)
     try:
+        # Fetch user emails from Onyx API
+        user_emails_map = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Map user IDs to emails
+                        for user in users_data:
+                            user_id = str(user.get('id', ''))
+                            email = user.get('email', '')
+                            if user_id and email:
+                                user_emails_map[user_id] = email
+                        logger.info(f"[ENTITLEMENTS] Fetched {len(user_emails_map)} user emails from Onyx API")
+                    else:
+                        logger.warning(f"[ENTITLEMENTS] Failed to fetch users from Onyx API: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"[ENTITLEMENTS] Error fetching user emails from Onyx API: {e}")
+        
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 """
                 SELECT uc.onyx_user_id,
                        uc.name AS user_name,
-                       uc.onyx_user_id AS email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -27730,11 +27752,13 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
             out = []
             for r in rows:
                 eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
+                # Get email from map, fallback to onyx_user_id
+                user_email = user_emails_map.get(r["onyx_user_id"], r["onyx_user_id"])
                 out.append({
                     "onyx_user_id": r["onyx_user_id"],
                     "user_name": r["user_name"] or "Unknown",
-                    "user_email": r["email"],
-                    "email": r["email"],
+                    "user_email": user_email,
+                    "email": user_email,
                     "plan": r["plan"],
                     "base": {
                         "connectors_limit": int(r["base_connectors"] or 0),
@@ -28601,11 +28625,33 @@ async def get_users_with_features(
     await verify_admin_user(request)
     
     try:
+        # Fetch user emails from Onyx API
+        user_emails_map = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Map user IDs to emails
+                        for user in users_data:
+                            user_id = str(user.get('id', ''))
+                            email = user.get('email', '')
+                            if user_id and email:
+                                user_emails_map[user_id] = email
+                        logger.info(f"[FEATURES] Fetched {len(user_emails_map)} user emails from Onyx API")
+                    else:
+                        logger.warning(f"[FEATURES] Failed to fetch users from Onyx API: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"[FEATURES] Error fetching user emails from Onyx API: {e}")
+        
         async with pool.acquire() as conn:
             rows = await conn.fetch("""
                 SELECT 
                     uc.onyx_user_id AS user_id,
-                    uc.onyx_user_id AS user_display_id,
                     uc.name AS user_name,
                     uf.feature_name,
                     uf.is_enabled,
@@ -28625,9 +28671,11 @@ async def get_users_with_features(
             for row in rows:
                 user_id = row['user_id']
                 if user_id not in users_features:
+                    # Get email from map, fallback to user_id
+                    user_email = user_emails_map.get(user_id, user_id)
                     users_features[user_id] = {
                         'user_id': user_id,
-                        'user_email': row['user_display_id'] or user_id,
+                        'user_email': user_email,
                         'user_name': row['user_name'] or 'Unknown User',
                         'features': []
                     }

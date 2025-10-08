@@ -583,12 +583,6 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Usage & Limits</h3>
-            <button
-              onClick={() => fetchEntitlements()}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Refresh
-            </button>
           </div>
           <div className="space-y-4">
             {/* Connectors Progress */}
