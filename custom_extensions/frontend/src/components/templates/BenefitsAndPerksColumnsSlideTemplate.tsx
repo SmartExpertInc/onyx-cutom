@@ -176,13 +176,12 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
             <div className="number-badge" style={numberBadge(i+1)}>{i+1}</div>
             
             {/* Title wrapper container */}
-            <div className="title-element" style={c.accent ? titleAccent : title}>
+            <div style={c.accent ? titleAccent : title}>
               {isEditable && editingColumns && editingColumns.idx === i && editingColumns.field === 'title' ? (
                 <ImprovedInlineEditor 
                   initialValue={c.title} 
                   onSave={(v) => handleColumnSave(i, 'title', v)} 
                   onCancel={() => setEditingColumns(null)} 
-                  className="title-element"
                   multiline={true}
                   style={{
                     background: 'transparent',

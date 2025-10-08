@@ -96,7 +96,8 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
     fontSize:'42px',
     fontWeight:700,
     color:'#09090BCC',
-    textAlign:'center'
+    textAlign:'center',
+    display: 'inline-block'
   };
 
   // Topics list
@@ -179,22 +180,28 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
       <div style={rightSection}>
         {/* Topics header banner */}
         <div style={topicsBanner}>
-          <div className="title-element" style={topicsTitleStyle} onClick={() => isEditable && setEditKey('title')}>
-            {isEditable && editKey === 'title' ? (
-              <ImprovedInlineEditor 
-                initialValue={title} 
-                onSave={(value) => { 
-                  onUpdate && onUpdate({ title: value }); 
-                  setEditKey(null); 
-                }} 
-                onCancel={() => setEditKey(null)} 
-                className="title-element"
-                style={{...inline(topicsTitleStyle), width: 'auto'}}
-              />
-            ) : (
-              title
-            )}
-          </div>
+          {isEditable && editKey === 'title' ? (
+            <ImprovedInlineEditor 
+              initialValue={title} 
+              onSave={(value) => { 
+                onUpdate && onUpdate({ title: value }); 
+                setEditKey(null); 
+              }} 
+              onCancel={() => setEditKey(null)} 
+              className="title-element"
+              style={{
+                ...inline(topicsTitleStyle), 
+                display: 'inline-block',
+                minWidth: `${title.length}ch`,
+                width: 'auto',
+                maxWidth: '500px'
+              }}
+            />
+          ) : (
+            <div className="title-element" style={topicsTitleStyle} onClick={() => isEditable && setEditKey('title')}>
+              {title}
+            </div>
+          )}
         </div>
 
         {/* Topics list */}
