@@ -38,6 +38,13 @@ import google.generativeai as genai
 from uuid import uuid4
 from cryptography.fernet import Fernet
 
+# Load environment variables from a local .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 # NEW: PDF manipulation imports
 try:
     from PyPDF2 import PdfMerger
@@ -111,6 +118,7 @@ OPENAI_CLIENT = None
 
 # Feature flag to prefer OpenAI Web Search over SerpAPI
 USE_OPENAI_WEB_SEARCH = os.getenv("USE_OPENAI_WEB_SEARCH", "false").strip().lower() in {"1", "true", "yes", "on"}
+logger.info(f"[RESEARCH] USE_OPENAI_WEB_SEARCH={USE_OPENAI_WEB_SEARCH}")
 
 def get_openai_client():
     """Get or create the OpenAI client instance."""
