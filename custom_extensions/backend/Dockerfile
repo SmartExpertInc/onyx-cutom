@@ -109,7 +109,7 @@ COPY . .
 WORKDIR /app/video_compositions
 RUN npm install && \
     chmod -R 755 node_modules && \
-    npx remotion --version && \
+    npx remotion versions && \
     echo "✅ Remotion installed successfully in Docker container"
 
 WORKDIR /app
