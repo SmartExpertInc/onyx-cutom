@@ -341,7 +341,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
              )}
 
             {/* Text */}
-            <div style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
+            <div className="card-text" style={i === 0 ? cardTextStyleFirst : cardTextStyleSecond} onClick={()=> isEditable && setEdit({ k:`bt${i}` })}>
               {isEditable && edit?.k===`bt${i}` ? (
                 <ImprovedInlineEditor 
                   initialValue={card.text} 
@@ -388,7 +388,7 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
       <div style={{
         position:'absolute',
         bottom:'24px',
-        left:'22px',
+        left:'0px',
         color:'#34353C',
         fontSize:'15px',
         fontWeight:400,

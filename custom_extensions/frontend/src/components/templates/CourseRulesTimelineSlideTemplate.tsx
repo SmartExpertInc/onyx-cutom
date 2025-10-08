@@ -107,7 +107,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
   const pageNumberStyles: React.CSSProperties = {
     position: 'absolute',
     bottom: '24px',
-    right: '22px',
+    right: '0px',
     color: '#5F616D',
     fontSize: '15px',
     fontWeight: 400
@@ -127,6 +127,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
         }
         .course-rules-timeline-slide-logo, course-rules-timeline-slide-page-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
         }
       `}</style>
       <div className="course-rules-timeline-slide inter-theme" style={slideStyles}>

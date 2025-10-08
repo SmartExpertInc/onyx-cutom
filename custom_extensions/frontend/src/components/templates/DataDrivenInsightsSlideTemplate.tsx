@@ -134,9 +134,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'420px', minHeight:'46px' };
 
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'20px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
+  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
-  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'8px', height:'calc(100% - 24px)', flexWrap:'wrap' };
+  const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'3px', height:'calc(100% - 24px)', flexWrap:'wrap' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
     const maxWidth = 40;
@@ -232,6 +232,10 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           font-weight: 600 !important;
         }
         .data-driven-insights .logo-text {
+          font-weight: 600 !important;
+        }
+        .logo-text *{
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
         .desc-element {
@@ -354,7 +358,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={{
         position:'absolute',
         bottom:'24px',
-        left:'22px',
+        left:'0px',
         color:'#34353C',
         fontSize:'15px',
         fontWeight:400,

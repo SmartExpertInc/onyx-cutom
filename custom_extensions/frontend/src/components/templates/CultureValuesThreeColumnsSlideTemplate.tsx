@@ -61,7 +61,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
   const mid: React.CSSProperties = { padding:'30px 38px 25px 28px', fontSize:'15px', lineHeight:1.6, color:'black', background:'#FFFFFF' };
   const cardTitleStyle: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#FFFFFF' };
   const cardTitleStyleMid: React.CSSProperties = { fontSize:'18px', fontWeight:800, marginBottom:'16px', color:'#000000' };
-  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'15px', left:'22px', color:'#9EBBFC', fontSize:'15px', fontWeight:400 };
+  const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'15px', left:'0px', color:'#9EBBFC', fontSize:'15px', fontWeight:400 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ 
     ...base, 

@@ -154,6 +154,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
         }
         .impact-metrics-right-image-logo * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
         }
       `}</style>
       <div className="impact-metrics-right-image inter-theme" style={slide}>
@@ -161,7 +162,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
       <div className="impact-metrics-right-image-logo" style={{
         position: 'absolute',
         top: '20px',
-        left: '25px',
+        left: '0px',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',

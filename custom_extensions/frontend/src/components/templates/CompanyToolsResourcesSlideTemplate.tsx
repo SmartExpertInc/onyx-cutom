@@ -119,6 +119,10 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
+        .company-tools-resources-slide-template-logo * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
+        }
       `}</style>
       <div className="company-tools-resources-slide-template inter-theme" style={slideStyles}>
       {/* Blue Header Section */}
@@ -133,7 +137,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       }} />
 
       {/* Logo */}
-      <div style={{
+      <div className="company-tools-resources-slide-template-logo" style={{
         position: 'absolute',
         top: '20px',
         left: '25px',
@@ -324,7 +328,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       <div style={{
         position: 'absolute',
         bottom: '24px',
-        left: '22px',
+        left: '0px',
         fontSize: '15px',
         color: '#555555',
         fontFamily: 'Inter, sans-serif',

@@ -239,7 +239,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           font-weight: 600 !important;
         }
         .soft-skills-assessment-slide-template .logo-text {
-          font-weight: 600 !important;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
         }
       `}</style>
       <div className="soft-skills-assessment-slide-template inter-theme" style={slideStyles}>
@@ -400,7 +401,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
         <div style={{
           position: 'absolute',
           bottom: '24px',
-          left: '22px',
+          left: '0px',
           fontSize: '15px',
           color: 'rgba(0, 0, 0, 0.6)',
           fontFamily: 'Inter, sans-serif',

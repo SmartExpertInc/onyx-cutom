@@ -203,11 +203,23 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
     color:'#7F7F7A',
     lineHeight: 1.4,
   };
-  const inlineEditorTitleStyle: React.CSSProperties = { ...titleStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
-  const inlineEditorDescStyle: React.CSSProperties = { ...descStyle, position:'relative', backgroundColor:'transparent', border:'none', outline:'none', padding:0, margin:0 };
-  // No handlers: static slide (no editing UI)
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-line',
+    width: base.width || '100%',
+    fontFamily: base.fontFamily
+  });
 
-  const footerStyle: React.CSSProperties = { position:'absolute', left:'22px', right:'60px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#A2A19D', fontSize:'15px', fontFamily:'Inter, sans-serif', fontWeight:400 };
+  const footerStyle: React.CSSProperties = { position:'absolute', left:'0px', right:'60px', bottom:'24px', display:'flex', justifyContent:'space-between', color:'#5F616D', fontSize:'15px', fontFamily:'Inter, sans-serif', fontWeight:400 };
 
   return (
     <>
@@ -222,8 +234,9 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
         .enterprise-roadmap-slide .logo-text {
           font-weight: 600 !important;
         }
-        .enterprise-roadmap-slide-logo * {
+        .enterprise-roadmap-slide-logo, .logo-text * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
         }
       `}</style>
       <div className="enterprise-roadmap-slide inter-theme" style={slide}>
@@ -238,7 +251,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             onSave={(v)=>{ onUpdate&&onUpdate({ title: v }); setEditingTitle(false); }}
             onCancel={()=>setEditingTitle(false)}
             className="title-element"
-            style={inlineEditorTitleStyle}
+            style={inlineEditor(titleStyle)}
           />
         ) : (
           <div className="title-element" onClick={()=> isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
@@ -252,7 +265,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
             multiline={true}
             onSave={(v)=>{ onUpdate&&onUpdate({ description: v }); setEditingDescription(false); }}
             onCancel={()=>setEditingDescription(false)}
-            style={inlineEditorDescStyle}
+            style={inlineEditor(descStyle)}
           />
         ) : (
           <div onClick={()=> isEditable && setEditingDescription(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{description}</div>
@@ -352,7 +365,7 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
                 onUpdate && onUpdate({ pageNumber: v });
               }}
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#A2A19D', fontSize: '15px', fontWeight: 400 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '15px', fontWeight: 400 }}
             />
           ) : (
             <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

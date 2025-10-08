@@ -151,6 +151,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           font-weight: 500 !important;
         }
         .hybrid-work-best-practices-slide-template .logo-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
       `}</style>
@@ -487,7 +488,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       <div style={{
         position: 'absolute',
         bottom: '24px',
-        left: '22px',
+        left: '0px',
         fontSize: '15px',
         color: '#5F616D',
         fontFamily: 'Inter, sans-serif',

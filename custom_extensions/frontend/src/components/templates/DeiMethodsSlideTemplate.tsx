@@ -67,6 +67,21 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'40px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#FFFFFF', zIndex:10 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-line',
+    width: '100%'
+  });
 
   return (
     <>
@@ -77,6 +92,10 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         .dei-methods-slide .title-element {
           font-family: "Lora", serif !important;
           font-weight: 600 !important;
+        }
+        .dei-methods-slide-logo * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
         }
       `}</style>
       <div className="dei-methods-slide inter-theme" style={slide}>
@@ -110,27 +129,19 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
 
       {/* Content block wrapper */}
       <div style={contentBlock}>
-        {isEditable && editKey==='s1t' ? (
-          <ImprovedInlineEditor 
-            initialValue={section1Title} 
-            onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} 
-            onCancel={()=> setEditKey(null)} 
-            className="title-element" 
-            style={{
-              ...section1TitleStyle,
-              background:'transparent', 
-              border:'none', 
-              outline:'none', 
-              padding:0, 
-              margin:0, 
-              whiteSpace:'pre-wrap'
-            }} 
-          />
-        ) : (
-          <div style={section1TitleStyle}>
+        <div style={section1TitleStyle}>
+          {isEditable && editKey==='s1t' ? (
+            <ImprovedInlineEditor 
+              initialValue={section1Title} 
+              onSave={(v)=>{ onUpdate&&onUpdate({ section1Title:v }); setEditKey(null); }} 
+              onCancel={()=> setEditKey(null)} 
+              className="title-element" 
+              style={inlineEditor(section1TitleStyle)} 
+            />
+          ) : (
             <div className="title-element" onClick={()=> isEditable && setEditKey('s1t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section1Title}</div>
-          </div>
-        )}
+          )}
+        </div>
         {isEditable && editKey==='s1l' ? (
           <ImprovedInlineEditor 
             initialValue={section1Lines.join('\n')} 
@@ -153,27 +164,19 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
           </div>
         )}
 
-        {isEditable && editKey==='s2t' ? (
-          <ImprovedInlineEditor 
-            initialValue={section2Title} 
-            onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} 
-            onCancel={()=> setEditKey(null)} 
-            className="title-element" 
-            style={{
-              ...section2TitleStyle,
-              background:'transparent', 
-              border:'none', 
-              outline:'none', 
-              padding:0, 
-              margin:0, 
-              whiteSpace:'pre-wrap'
-            }} 
-          />
-        ) : (
-          <div style={section2TitleStyle}>
+        <div style={section2TitleStyle}>
+          {isEditable && editKey==='s2t' ? (
+            <ImprovedInlineEditor 
+              initialValue={section2Title} 
+              onSave={(v)=>{ onUpdate&&onUpdate({ section2Title:v }); setEditKey(null); }} 
+              onCancel={()=> setEditKey(null)} 
+              className="title-element" 
+              style={inlineEditor(section2TitleStyle)} 
+            />
+          ) : (
             <div className="title-element" onClick={()=> isEditable && setEditKey('s2t')} style={{ cursor: isEditable ? 'pointer':'default' }}>{section2Title}</div>
-          </div>
-        )}
+          )}
+        </div>
         {isEditable && editKey==='s2l' ? (
           <ImprovedInlineEditor 
             initialValue={section2Lines.join('\n')} 
@@ -201,7 +204,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       <div style={{
         position: 'absolute',
         bottom: '24px',
-        left: '22px',
+        left: '0px',
         fontSize: '15px',
         color: '#333333',
         fontFamily: 'Inter, sans-serif',
@@ -211,8 +214,8 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         gap: '8px'
       }}>
         <div style={{
-          width: '1px',
-          height: '15px',
+          width: '15px',
+          height: '1px',
           backgroundColor: '#5F616D'
         }}></div>
         {isEditable && editingPageNumber ? (
@@ -234,7 +237,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
       </div>
       
       {/* Logo */}
-      <div style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
+      <div className='dei-methods-slide-logo' style={{ position: 'absolute', bottom: '20px', right: '60px', zIndex: 10 }}>
         <YourLogo
           logoPath={logoPath}
           onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}

@@ -137,9 +137,9 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   const pageNumberStyles: React.CSSProperties = {
     position: 'absolute',
     bottom: '24px',
-    left: '24px',
+    left: '0px',
     color: '#5D5D5D',
-    fontSize: '13px',
+    fontSize: '15px',
     fontWeight: 400,
     display: 'flex',
   };
@@ -168,6 +168,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
         }
         .resilience-logo * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
         }
       `}</style>
       <div className="resilience-behaviors-slide inter-theme" style={slideStyles}>
