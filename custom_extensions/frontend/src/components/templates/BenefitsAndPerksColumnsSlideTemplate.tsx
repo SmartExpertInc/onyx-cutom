@@ -48,7 +48,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const _logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'58px', fontWeight:800, color:'#09090B' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'58px', fontWeight:800, color:'#09090B', lineHeight:1.2, maxWidth:'900px' };
   const avatarWrap: React.CSSProperties = { position:'absolute', top:'36px', right:'48px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#0F58F9', overflow:'hidden' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
@@ -75,7 +75,45 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3, position:'absolute', top:'268px', left:'32px', right:'32px' };
   const bodyAccent: React.CSSProperties = { fontSize:'16px', color:'#09090B', opacity:0.7, lineHeight:1.3, position:'absolute', top:'268px', left:'32px', right:'32px' };
 
-  const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap', wordWrap:'break-word', overflowWrap:'break-word' });
+  // Editor styles that maintain layout without absolute positioning
+  const titleEditor = (isAccent: boolean): React.CSSProperties => ({
+    fontSize: '26px',
+    fontWeight: 800,
+    letterSpacing: 0.5,
+    lineHeight: 1.3,
+    color: isAccent ? '#09090B' : 'inherit',
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0,
+    width: '100%',
+    height: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word'
+  });
+
+  const bodyEditor = (isAccent: boolean): React.CSSProperties => ({
+    fontSize: '16px',
+    opacity: 0.7,
+    lineHeight: 1.3,
+    color: isAccent ? '#09090B' : 'inherit',
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    padding: 0,
+    margin: 0,
+    width: '100%',
+    height: 'auto',
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
+    overflowWrap: 'break-word',
+    position: 'absolute',
+    top: '268px',
+    left: '32px',
+    right: '32px'
+  });
 
   // Save handlers
   const handleHeadingSave = (newHeading: string) => {
@@ -140,7 +178,15 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
             onSave={handleHeadingSave} 
             onCancel={() => setEditingHeading(false)} 
             className="title-element" 
-            style={inline(headingStyle)} 
+            style={{
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              padding: 0,
+              margin: 0,
+              width: '100%',
+              height: 'auto'
+            }} 
           />
         ) : (
           <div 
@@ -174,7 +220,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
                 onSave={(v) => handleColumnSave(i, 'title', v)} 
                 onCancel={() => setEditingColumns(null)} 
                 className="title-element" 
-                style={inline(c.accent ? titleAccent : title)} 
+                style={titleEditor(!!c.accent)} 
               />
             ) : (
               <div 
@@ -191,7 +237,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
                 multiline={true} 
                 onSave={(v) => handleColumnSave(i, 'body', v)} 
                 onCancel={() => setEditingColumns(null)} 
-                style={inline(c.accent ? bodyAccent : body)} 
+                style={bodyEditor(!!c.accent)} 
               />
             ) : (
               <div 
