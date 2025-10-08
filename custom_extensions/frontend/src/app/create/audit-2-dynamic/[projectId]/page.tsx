@@ -5787,6 +5787,7 @@ export default function DynamicAuditLandingPage() {
                     ></div>
                     <button 
                       className="text-white font-semibold text-[16px] w-fit mx-auto block bg-[#0F58F9] px-12 py-3.5 xl:px-[90px] xl:py-[17px] rounded-md relative z-10"
+                      onClick={() => window.open('https://calendly.com/k-torhonska-smartexpert/30min', '_blank')}
                     >
                       <span className="text-white font-semibold text-[16px] xl:text-[18px]">{getLocalizedText(landingPageData?.language, {
                         en: 'Book Now',
