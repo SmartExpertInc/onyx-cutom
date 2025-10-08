@@ -41,7 +41,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
   const left: React.CSSProperties = { padding: "72px 85px 72px 50px", position:'relative' };
   const titleStyle: React.CSSProperties = { fontSize:'60px', fontWeight:800, color:'#222', lineHeight:0.95, whiteSpace:'pre-line', marginTop:'20px' };
   const grid: React.CSSProperties = { marginTop:'70px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'46px 60px' };
-  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:700, color:'black' };
+  const itemTitle: React.CSSProperties = { fontSize:'22px', fontWeight:600, color:'black' };
   const itemBody: React.CSSProperties = { marginTop:'10px', fontSize:'14px', color:'#3A3A3C', lineHeight:1.5 };
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'0px', color:'#1F2937', fontSize:'16px', fontWeight:600, fontFamily:'Inter, sans-serif' };
 

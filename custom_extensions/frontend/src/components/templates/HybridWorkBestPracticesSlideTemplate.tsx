@@ -160,7 +160,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       <div style={{
         position: 'absolute',
         top: '20px',
-        left: '60px',
+        left: '35px',
         right: '60px',
         display: 'flex',
         justifyContent: 'space-between',
