@@ -48,7 +48,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const avatarWrap: React.CSSProperties = { position:'absolute', top:'36px', right:'48px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#0F58F9', overflow:'hidden' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
-  const colBase: React.CSSProperties = { padding:'32px 32px', background:'#0F58F9', color:'#FFFFFF' };
+  const colBase: React.CSSProperties = { padding:'32px 32px', background:'#0F58F9', color:'#FFFFFF', position:'relative' };
   const colAccent: React.CSSProperties = { ...colBase, background:'#FFFFFF', color:'#0F58F9' };
   const numberBadge = (n: number): React.CSSProperties => {
     const isAccent = n === 2 || n === 4;
@@ -66,10 +66,10 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       marginBottom:'25px'
     };
   };
-  const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5, lineHeight:1.3, marginBottom:'100px' };
+  const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5, lineHeight:1.3 };
   const titleAccent: React.CSSProperties = { ...title, color:'#09090B' };
-  const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3 };
-  const bodyAccent: React.CSSProperties = { fontSize:'16px', color:'#09090B', opacity:0.7 };
+  const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3, position:'absolute', top:'228px', left:'32px', right:'32px' };
+  const bodyAccent: React.CSSProperties = { fontSize:'16px', color:'#09090B', opacity:0.7, lineHeight:1.3, position:'absolute', top:'228px', left:'32px', right:'32px' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
