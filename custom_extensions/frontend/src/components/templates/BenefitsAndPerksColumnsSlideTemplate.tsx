@@ -68,7 +68,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   };
   const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5, lineHeight:1.3 };
   const titleAccent: React.CSSProperties = { ...title, color:'#09090B' };
-  const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3, position:'absolute', top:'228px', left:'32px', right:'32px' };
+  const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3, position:'absolute', top:'268px', left:'32px', right:'32px' };
   const bodyAccent: React.CSSProperties = { fontSize:'16px', color:'#09090B', opacity:0.7, lineHeight:1.3, position:'absolute', top:'228px', left:'32px', right:'32px' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
