@@ -44,7 +44,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const _logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontWeight:800, color:'#202020' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'58px', fontWeight:800, color:'#09090B' };
   const avatarWrap: React.CSSProperties = { position:'absolute', top:'36px', right:'48px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#0F58F9', overflow:'hidden' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
