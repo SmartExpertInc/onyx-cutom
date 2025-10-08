@@ -7,8 +7,9 @@ import CreditsTab from './components/CreditsTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import FeaturesTab from './components/FeaturesTab';
 import SlidesAnalyticsTab from './components/SlidesAnalyticsTab'
+import EntitlementsTab from './components/EntitlementsTab';
 
-type TabType = 'credits' | 'analytics' | 'features' | 'slides';
+type TabType = 'credits' | 'analytics' | 'features' | 'slides' | 'entitlements';
 
 const AdminMainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('credits');
@@ -38,6 +39,13 @@ const AdminMainPage: React.FC = () => {
       icon: FileChartPie,
       description: 'View slides creation analytics'
     }
+    ,
+    {
+      id: 'entitlements' as TabType,
+      name: 'Entitlements',
+      icon: Settings,
+      description: 'Override user limits (connectors, storage, slides)'
+    }
   ];
 
   const renderTabContent = () => {
@@ -50,6 +58,8 @@ const AdminMainPage: React.FC = () => {
         return <FeaturesTab />;
       case 'slides':
         return <SlidesAnalyticsTab />;  
+      case 'entitlements':
+        return <EntitlementsTab />;
       default:
         return <CreditsTab />;
     }

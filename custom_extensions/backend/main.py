@@ -6101,6 +6101,65 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
             logger.info("'user_credits' table ensured.")
 
+            # --- Ensure entitlement overrides table ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_entitlement_overrides (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    connectors_limit INTEGER,
+                    storage_gb INTEGER,
+                    slides_max INTEGER,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_user ON user_entitlement_overrides(onyx_user_id);")
+            logger.info("'user_entitlement_overrides' table ensured.")
+
+            # --- Ensure user_connectors table for quota tracking ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_connectors (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    onyx_connector_id INTEGER UNIQUE,
+                    status TEXT DEFAULT 'active',
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_user ON user_connectors(onyx_user_id);")
+            logger.info("'user_connectors' table ensured.")
+
+            # --- Ensure base entitlements table (derived from Stripe plan/features) ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_entitlement_base (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    connectors_limit INTEGER NOT NULL DEFAULT 0,
+                    storage_gb INTEGER NOT NULL DEFAULT 1,
+                    slides_max INTEGER NOT NULL DEFAULT 20,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_base_user ON user_entitlement_base(onyx_user_id);")
+            logger.info("'user_entitlement_base' table ensured.")
+
+            # --- Ensure user storage usage table ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_storage_usage (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    used_bytes BIGINT NOT NULL DEFAULT 0,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_storage_usage_user ON user_storage_usage(onyx_user_id);")
+            logger.info("'user_storage_usage' table ensured.")
+
             # NEW: Ensure credit transactions table for analytics/timeline
             await connection.execute(
                 """
@@ -27529,6 +27588,162 @@ async def get_billing_info(
         raise HTTPException(status_code=500, detail="Failed to retrieve billing info")
 
 
+# ============================
+# ENTITLEMENTS ENDPOINTS
+# ============================
+
+async def _fetch_effective_entitlements(onyx_user_id: str, pool: asyncpg.Pool) -> dict:
+    """Compute effective entitlements from base + overrides. Fallback to plan defaults."""
+    # Defaults for Starter
+    result = {"connectors_limit": 0, "storage_gb": 1, "slides_max": 20, "plan": "starter", "slides_options": [20]}
+    async with pool.acquire() as conn:
+        # Plan from billing
+        billing = await conn.fetchrow("SELECT current_plan FROM user_billing WHERE onyx_user_id = $1", onyx_user_id)
+        plan = (billing and (billing.get("current_plan") or "starter")) or "starter"
+        result["plan"] = plan
+        # Base (Stripe-derived)
+        base = await conn.fetchrow(
+            "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_base WHERE onyx_user_id = $1",
+            onyx_user_id,
+        )
+        if base:
+            result.update({
+                "connectors_limit": int(base["connectors_limit"] or 0),
+                "storage_gb": int(base["storage_gb"] or 1),
+                "slides_max": int(base["slides_max"] or 20),
+            })
+        else:
+            # Fallback to plan defaults if no base
+            if plan == "pro":
+                result.update({"connectors_limit": 2, "storage_gb": 5, "slides_max": 40})
+            elif plan == "business":
+                result.update({"connectors_limit": 5, "storage_gb": 10, "slides_max": 40})
+        # Overrides
+        overrides = await conn.fetchrow(
+            "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
+            onyx_user_id,
+        )
+        if overrides:
+            if overrides["connectors_limit"] is not None:
+                result["connectors_limit"] = int(overrides["connectors_limit"])  # type: ignore
+            if overrides["storage_gb"] is not None:
+                result["storage_gb"] = int(overrides["storage_gb"])  # type: ignore
+            if overrides["slides_max"] is not None:
+                result["slides_max"] = int(overrides["slides_max"])  # type: ignore
+
+        # Slides options for UI (Pro/Business can choose 25-40)
+        if result["slides_max"] > 20 or plan in ("pro", "business"):
+            result["slides_options"] = [25, 30, 35, 40]
+        else:
+            result["slides_options"] = [20]
+    return result
+
+
+@app.get("/api/custom/entitlements/me")
+async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        ent = await _fetch_effective_entitlements(onyx_user_id, pool)
+        return ent
+    except Exception as e:
+        logger.error(f"Error getting entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve entitlements")
+
+
+class EntitlementOverrideUpdate(BaseModel):
+    connectors_limit: Optional[int] = None
+    storage_gb: Optional[int] = None
+    slides_max: Optional[int] = None
+
+
+@app.get("/api/custom/admin/entitlements")
+async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT uc.onyx_user_id,
+                       COALESCE(ub.current_plan, 'starter') AS plan,
+                       eb.connectors_limit AS base_connectors,
+                       eb.storage_gb AS base_storage_gb,
+                       eb.slides_max AS base_slides_max,
+                       eo.connectors_limit AS override_connectors,
+                       eo.storage_gb AS override_storage_gb,
+                       eo.slides_max AS override_slides_max
+                FROM user_credits uc
+                LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
+                ORDER BY uc.updated_at DESC
+                """
+            )
+            out = []
+            for r in rows:
+                eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
+                out.append({
+                    "onyx_user_id": r["onyx_user_id"],
+                    "plan": r["plan"],
+                    "base": {
+                        "connectors_limit": int(r["base_connectors"] or 0),
+                        "storage_gb": int(r["base_storage_gb"] or 1),
+                        "slides_max": int(r["base_slides_max"] or 20),
+                    },
+                    "overrides": {
+                        "connectors_limit": r["override_connectors"],
+                        "storage_gb": r["override_storage_gb"],
+                        "slides_max": r["override_slides_max"],
+                    },
+                    "effective": eff,
+                })
+            return out
+    except Exception as e:
+        logger.error(f"Error listing entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list entitlements")
+
+
+@app.post("/api/custom/admin/entitlements/{target_user_id}")
+async def admin_update_entitlements(
+    target_user_id: str,
+    payload: EntitlementOverrideUpdate,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool),
+):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Upsert overrides, keeping unspecified fields unchanged
+            existing = await conn.fetchrow(
+                "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
+                target_user_id,
+            )
+            new_vals = {
+                "connectors_limit": payload.connectors_limit if payload.connectors_limit is not None else (existing and existing["connectors_limit"]),
+                "storage_gb": payload.storage_gb if payload.storage_gb is not None else (existing and existing["storage_gb"]),
+                "slides_max": payload.slides_max if payload.slides_max is not None else (existing and existing["slides_max"]),
+            }
+            await conn.execute(
+                """
+                INSERT INTO user_entitlement_overrides (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                VALUES ($1, $2, $3, $4, now())
+                ON CONFLICT (onyx_user_id)
+                DO UPDATE SET connectors_limit = EXCLUDED.connectors_limit,
+                              storage_gb = EXCLUDED.storage_gb,
+                              slides_max = EXCLUDED.slides_max,
+                              updated_at = now()
+                """,
+                target_user_id,
+                new_vals["connectors_limit"],
+                new_vals["storage_gb"],
+                new_vals["slides_max"],
+            )
+        eff = await _fetch_effective_entitlements(target_user_id, pool)
+        return {"updated": True, "effective": eff}
+    except Exception as e:
+        logger.error(f"Error updating entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update entitlements")
+
+
 @app.post("/api/custom/billing/portal")
 async def create_billing_portal_session(
     request: Request,
@@ -27704,6 +27919,40 @@ async def stripe_webhook(
             except stripe.SignatureVerificationError:
                 raise HTTPException(status_code=400, detail="Invalid signature")
 
+        # Helper: derive base entitlements from subscription items
+        def _derive_entitlements_from_subscription(sub_obj) -> dict:
+            base = {"connectors": 0, "storage_gb": 1, "slides_max": 20}
+            try:
+                items = sub_obj.get('items') if isinstance(sub_obj, dict) else getattr(sub_obj, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if not data_list:
+                    return base
+                # Walk items to find features
+                for it in data_list:
+                    price = it.get('price') if isinstance(it, dict) else getattr(it, 'price', None)
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    # Expand already requested above in retrieve where needed
+                    name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                    metadata = (product.get('metadata') if isinstance(product, dict) else getattr(product, 'metadata', {})) or {}
+                    lname = (name or '').lower()
+                    # Connectors
+                    if 'connectors_2' in lname:
+                        base['connectors'] = max(base['connectors'], int(metadata.get('amount', 2) or 2))
+                    if 'connectors_5' in lname:
+                        base['connectors'] = max(base['connectors'], int(metadata.get('amount', 5) or 5))
+                    # Storage
+                    if 'storage_5gb' in lname:
+                        base['storage_gb'] = max(base['storage_gb'], int(metadata.get('amount', 5) or 5))
+                    if 'storage_10gb' in lname:
+                        base['storage_gb'] = max(base['storage_gb'], int(metadata.get('amount', 10) or 10))
+                    # Slides feature (treat unlimited_slides as higher caps for Pro/Business handled via plan below)
+                    if 'unlimited_slides' in lname:
+                        # We'll not set unlimited; caps handled per plan later
+                        pass
+                return base
+            except Exception:
+                return base
+
         # Handle the event
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
@@ -27769,6 +28018,24 @@ async def stripe_webhook(
                 except Exception as cancel_err:
                     logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
                 
+                # Compute and persist entitlements (apply overrides later at read time)
+                try:
+                    base_ents = _derive_entitlements_from_subscription(subscription)
+                    # Slides cap by plan
+                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                            VALUES ($1, $2, $3, $4, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                            """,
+                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to persist base entitlements: {e}")
+                
                 logger.info(f"Updated billing for user {onyx_user_id}: {plan} ({interval})")
 
         elif event['type'] == 'customer.subscription.updated':
@@ -27819,6 +28086,23 @@ async def stripe_webhook(
                         onyx_user_id, subscription['status'], price_id, plan, interval
                     )
                 
+                # Also refresh base entitlements on subscription update
+                try:
+                    base_ents = _derive_entitlements_from_subscription(subscription)
+                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                            VALUES ($1, $2, $3, $4, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                            """,
+                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to persist base entitlements on update: {e}")
+
                 logger.info(f"Updated subscription for user {onyx_user_id}: {subscription['status']}")
 
         elif event['type'] == 'customer.subscription.deleted':
@@ -29180,6 +29464,20 @@ async def create_presentation(request: Request):
         if not voiceover_texts or len(voiceover_texts) == 0:
             return {"success": False, "error": "voiceoverTexts is required"}
         
+        # Enforce slides-per-presentation limit via entitlements
+        try:
+            onyx_user_id = await get_current_onyx_user_id(request)
+            ent = await _fetch_effective_entitlements(onyx_user_id, DB_POOL)
+            max_slides = int(ent.get("slides_max", 20))
+            slides_count = len(slides_data or []) if isinstance(slides_data, list) else 0
+            if slides_count == 0 and slide_url:
+                # Single slide fallback counts as 1
+                slides_count = 1
+            if slides_count > max_slides:
+                return {"success": False, "error": f"Slide limit exceeded: {slides_count} > {max_slides}"}
+        except Exception as _e:
+            logger.warning(f"Entitlements check failed, proceeding with defaults: {_e}")
+
         # Validate layout
         allowed_layouts = ["side_by_side", "picture_in_picture", "split_screen"]
         if layout not in allowed_layouts:
