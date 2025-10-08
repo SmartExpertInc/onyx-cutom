@@ -15,13 +15,14 @@ export interface BenefitsAndPerksColumnsProps extends BaseTemplateProps {
   heading: string;
   avatarPath?: string;
   columns: [BenefitColumn, BenefitColumn, BenefitColumn, BenefitColumn];
+  pageNumber?: string;
 }
 
 export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColumnsProps & { theme?: SlideTheme | string }> = ({
   slideId,
-  logoText = 'Logo',
+  logoText = 'Your Logo',
   logoPath = '',
-  heading = 'Benefits and Perks',
+  heading = 'Our culture and values',
   avatarPath = '',
   columns = [
     { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
@@ -29,6 +30,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
     { title: 'Time off and work-life balance', body: 'Paid time off (PTO) for vacation, sick days, and holidays; Flexible work arrangements (remote work, flexible schedules); Parental leave and family care leave.' },
     { title: 'Professional Development', body: 'Tuition reimbursement for continued education; Professional development funds for training and conferences; Mentorship and coaching programs.', accent: true }
   ],
+  pageNumber = '40',
   isEditable = false,
   onUpdate,
   theme
@@ -38,6 +40,8 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const [editLogo, setEditLogo] = useState(false);
   const [editHeading, setEditHeading] = useState(false);
   const [editCol, setEditCol] = useState<{ idx: number; field: 'title' | 'body' } | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
@@ -46,8 +50,8 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
-  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#0F58F9', display:'grid', rowGap:'14px' };
-  const colAccent: React.CSSProperties = { ...colBase, background:'#FFFFFF', color:'#E2E5FF' };
+  const colBase: React.CSSProperties = { padding:'32px 36px', background:'#0F58F9', color:'#FFFFFF', display:'grid', rowGap:'14px' };
+  const colAccent: React.CSSProperties = { ...colBase, background:'#FFFFFF', color:'#0F58F9' };
   const numberBadge = (n: number): React.CSSProperties => {
     const isAccent = n === 2 || n === 4;
     return {
@@ -64,7 +68,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
     };
   };
   const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5 };
-  const body: React.CSSProperties = { fontSize:'16px', lineHeight:1.6 };
+  const body: React.CSSProperties = { fontSize:'16px', lineHeight:1.6, opacity:0.7 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -73,6 +77,18 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
     next[idx] = { ...next[idx], [field]: value } as BenefitColumn;
     onUpdate && onUpdate({ columns: next });
     setEditCol(null);
+  };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    if (onUpdate) {
+      onUpdate({ pageNumber: newPageNumber });
+    }
+  };
+
+  const handlePageNumberCancel = () => {
+    setEditingPageNumber(false);
   };
 
   return (
@@ -114,9 +130,9 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
             </div>
             <div>
               {isEditable && editCol && editCol.idx===i && editCol.field==='title' ? (
-                <ImprovedInlineEditor initialValue={c.title} onSave={(v)=> saveCol(i,'title',v)} onCancel={()=> setEditCol(null)} style={inline(title)} />
+                <ImprovedInlineEditor initialValue={c.title} onSave={(v)=> saveCol(i,'title',v)} onCancel={()=> setEditCol(null)} className="title-element" style={inline(title)} />
               ) : (
-                <div onClick={()=> isEditable && setEditCol({ idx:i, field:'title' })} style={{ ...title, cursor: isEditable ? 'pointer':'default' }}>{c.title}</div>
+                <div className="title-element" onClick={()=> isEditable && setEditCol({ idx:i, field:'title' })} style={{ ...title, cursor: isEditable ? 'pointer':'default' }}>{c.title}</div>
               )}
             </div>
             <div>
@@ -128,6 +144,54 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Page number with line */}
+      <div style={{
+        position: 'absolute',
+        bottom: '15px',
+        left: '0px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Small line */}
+        <div style={{
+          width: '20px',
+          height: '1px',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)'
+        }} />
+        {/* Page number */}
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: '19px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: '19px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2176,8 +2176,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     icon: '🎁',
     component: BenefitsAndPerksColumnsSlideTemplate,
     defaultProps: {
-      logoText: 'Logo',
-      heading: 'Benefits and Perks',
+      logoText: 'Your Logo',
+      heading: 'Our culture and values',
       columns: [
         { title: 'Health and Wellness', body: 'Medical, dental, and vision insurance.Wellness programs and resources (gym memberships, fitness classes, mental health resources).' },
         { title: 'Financial Benefits', body: '401(k) retirement savings plan; Life insurance and disability coverage; Flexible spending accounts (FSA) for healthcare and dependent care expenses.', accent: true },
@@ -2189,7 +2189,8 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       logoText: { type: 'text', label: 'Logo' },
       heading: { type: 'text', label: 'Heading', required: true },
       columns: { type: 'array', label: 'Columns', required: true },
-      avatarPath: { type: 'image', label: 'Avatar' }
+      avatarPath: { type: 'image', label: 'Avatar' },
+      pageNumber: { type: 'text', label: 'Page Number' }
     }
   }
   ,

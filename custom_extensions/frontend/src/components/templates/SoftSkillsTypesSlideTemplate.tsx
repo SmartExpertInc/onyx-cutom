@@ -76,7 +76,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     position: 'absolute',
     top: '20px',
     left: '20px',
-    color: '#CAC7C6',
+    color: '#FFFFFF',
     padding: '6px 10px',
     fontSize: '25px',
     fontWeight: 600,
@@ -142,7 +142,9 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
             />
             <div style={cardLabelStyles}>
-              <span style={{ fontSize: '41px', color: '#FFFFFF', lineHeight: 1, display: 'inline-block', marginRight: '8px' }}>•</span>
+              <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px', flexShrink: 0 }}>
+                <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
+              </svg>
               <span style={{ fontSize: '18px', marginTop: '7px' }}>{c.label}</span>
             </div>
           </div>
