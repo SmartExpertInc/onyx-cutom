@@ -221,7 +221,7 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '15px', fontWeight: 600 }}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '16px', fontWeight: 600 }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

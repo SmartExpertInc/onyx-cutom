@@ -139,7 +139,7 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
     bottom: '24px',
     left: '0px',
     color: '#5D5D5D',
-    fontSize: '15px',
+    fontSize: '16px',
     fontWeight: 600,
     display: 'flex',
   };
@@ -268,10 +268,10 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
               }}
               className="resilience-page-number"
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '15px', fontWeight: 600 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '16px', fontWeight: 600 }}
             />
           ) : (
-            <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ fontSize: '15px', cursor: isEditable ? 'pointer' : 'default' }}>
+            <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ fontSize: '16px', cursor: isEditable ? 'pointer' : 'default' }}>
               {currentPageNumber}
             </div>
           )}

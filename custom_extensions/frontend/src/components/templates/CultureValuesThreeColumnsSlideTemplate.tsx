@@ -217,7 +217,7 @@ export const CultureValuesThreeColumnsSlideTemplate: React.FC<CultureValuesThree
                 onUpdate && onUpdate({ pageNumber: v });
               }}
               onCancel={() => setEditingPageNumber(false)}
-              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#9EBBFC', fontSize: '15px', fontWeight: 600 }}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#9EBBFC', fontSize: '16px', fontWeight: 600 }}
             />
           ) : (
             <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

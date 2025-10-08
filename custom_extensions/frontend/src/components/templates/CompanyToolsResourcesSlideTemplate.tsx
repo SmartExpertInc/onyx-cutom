@@ -286,7 +286,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
 
             {/* Section Content */}
             <div style={{
-              fontSize: '16px',
+              fontSize: '15px',
               color: '#555555',
               lineHeight: '1.4',
               flex: 1,
@@ -300,7 +300,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   className="section-content-editor"
                   multiline={true}
                   style={{
-                    fontSize: '16px',
+                    fontSize: '15px',
                     color: '#555555',
                     lineHeight: '1.4',
                     width: '100%',
@@ -329,7 +329,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         position: 'absolute',
         bottom: '24px',
         left: '0px',
-        fontSize: '15px',
+        fontSize: '16px',
         color: '#555555',
         fontFamily: 'Inter, sans-serif',
         fontWeight: 400,
@@ -351,7 +351,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#555555', fontSize: '15px', fontWeight: 600 }}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#555555', fontSize: '16px', fontWeight: 600 }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>

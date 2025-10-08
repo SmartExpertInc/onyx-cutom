@@ -205,7 +205,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
         position: 'absolute',
         bottom: '24px',
         left: '0px',
-        fontSize: '15px',
+        fontSize: '16px',
         color: '#333333',
         fontFamily: 'Inter, sans-serif',
         fontWeight: 400,
@@ -227,7 +227,7 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
               onUpdate && onUpdate({ pageNumber: v });
             }}
             onCancel={() => setEditingPageNumber(false)}
-            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#333333', fontSize: '15px', fontWeight: 600 }}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#333333', fontSize: '16px', fontWeight: 600 }}
           />
         ) : (
           <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
