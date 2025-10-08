@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 type EntitlementRow = {
   onyx_user_id: string;
+  email?: string;
   plan: string;
   base: { connectors_limit: number; storage_gb: number; slides_max: number };
   overrides: { connectors_limit?: number | null; storage_gb?: number | null; slides_max?: number | null };
@@ -70,23 +71,20 @@ const EntitlementsTab: React.FC = () => {
 
     return (
       <tr className="border-b">
-        <td className="px-4 py-2 text-sm">{row.onyx_user_id}</td>
-        <td className="px-4 py-2 text-sm capitalize">{row.plan}</td>
-        <td className="px-4 py-2 text-sm">{row.base.connectors_limit}</td>
-        <td className="px-4 py-2 text-sm">{row.base.storage_gb} GB</td>
-        <td className="px-4 py-2 text-sm">{row.base.slides_max}</td>
+        <td className="px-4 py-2 text-sm text-gray-800">{row.email || row.onyx_user_id}</td>
+        <td className="px-4 py-2 text-sm capitalize text-gray-800">{row.plan}</td>
         <td className="px-4 py-2">
-          <input className="w-20 border rounded px-2 py-1 text-sm" placeholder="auto" value={conn} onChange={e => setConn(e.target.value)} />
+          <input className="w-24 border rounded px-2 py-1 text-sm text-gray-800" placeholder="auto" value={conn} onChange={e => setConn(e.target.value)} />
         </td>
         <td className="px-4 py-2">
-          <input className="w-20 border rounded px-2 py-1 text-sm" placeholder="auto" value={stor} onChange={e => setStor(e.target.value)} />
+          <input className="w-24 border rounded px-2 py-1 text-sm text-gray-800" placeholder="auto" value={stor} onChange={e => setStor(e.target.value)} />
         </td>
         <td className="px-4 py-2">
-          <input className="w-20 border rounded px-2 py-1 text-sm" placeholder="auto" value={slides} onChange={e => setSlides(e.target.value)} />
+          <input className="w-24 border rounded px-2 py-1 text-sm text-gray-800" placeholder="auto" value={slides} onChange={e => setSlides(e.target.value)} />
         </td>
-        <td className="px-4 py-2 text-sm font-medium">{row.effective.connectors_limit}</td>
-        <td className="px-4 py-2 text-sm">{row.effective.storage_gb} GB</td>
-        <td className="px-4 py-2 text-sm">{row.effective.slides_max}</td>
+        <td className="px-4 py-2 text-sm font-medium text-gray-900">{row.effective.connectors_limit}</td>
+        <td className="px-4 py-2 text-sm text-gray-900">{row.effective.storage_gb} GB</td>
+        <td className="px-4 py-2 text-sm text-gray-900">{row.effective.slides_max}</td>
         <td className="px-4 py-2">
           <button onClick={onSave} className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
         </td>
@@ -105,25 +103,22 @@ const EntitlementsTab: React.FC = () => {
         <table className="min-w-full text-left">
           <thead>
             <tr className="border-b bg-gray-50">
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">User ID</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Plan</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Base Conn</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Base Storage</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Base Slides</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Override Conn</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Override Storage</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Override Slides</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Eff Conn</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Eff Storage</th>
-              <th className="px-4 py-2 text-xs font-medium text-gray-600">Eff Slides</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Email</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Plan</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Override Conn</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Override Storage</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Override Slides</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Eff Conn</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Eff Storage</th>
+              <th className="px-4 py-2 text-xs font-medium text-gray-700">Eff Slides</th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={12} className="px-4 py-6 text-center text-sm text-gray-500">Loading…</td></tr>
+              <tr><td colSpan={9} className="px-4 py-6 text-center text-sm text-gray-600">Loading…</td></tr>
             ) : rows.length === 0 ? (
-              <tr><td colSpan={12} className="px-4 py-6 text-center text-sm text-gray-500">No data</td></tr>
+              <tr><td colSpan={9} className="px-4 py-6 text-center text-sm text-gray-600">No data</td></tr>
             ) : (
               rows.map(r => (
                 <EntRow key={r.onyx_user_id} row={r} />
@@ -132,7 +127,7 @@ const EntitlementsTab: React.FC = () => {
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-xs text-gray-500">Leave override fields empty to use Stripe/Plan defaults.</p>
+      <p className="mt-3 text-xs text-gray-700">Leave override fields empty to use Stripe/Plan defaults.</p>
     </div>
   );
 };

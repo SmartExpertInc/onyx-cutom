@@ -6147,6 +6147,19 @@ async def startup_event():
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_base_user ON user_entitlement_base(onyx_user_id);")
             logger.info("'user_entitlement_base' table ensured.")
 
+            # --- Ensure user email cache (for admin listing) ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_email_cache (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    email TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_email_cache_user ON user_email_cache(onyx_user_id);")
+            logger.info("'user_email_cache' table ensured.")
+
             # --- Ensure user storage usage table ---
             await connection.execute(
                 """
@@ -27664,6 +27677,7 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
             rows = await conn.fetch(
                 """
                 SELECT uc.onyx_user_id,
+                       COALESCE(ub_user.email, '') AS email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -27675,6 +27689,15 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN (
+                    SELECT onyx_user_id, MAX(email) AS email
+                    FROM (
+                        SELECT onyx_user_id, email FROM user_email_cache
+                        UNION ALL
+                        SELECT onyx_user_id, '' AS email FROM user_credits
+                    ) t
+                    GROUP BY onyx_user_id
+                ) ub_user ON ub_user.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.updated_at DESC
                 """
             )
@@ -27683,6 +27706,7 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
                 out.append({
                     "onyx_user_id": r["onyx_user_id"],
+                    "email": r["email"],
                     "plan": r["plan"],
                     "base": {
                         "connectors_limit": int(r["base_connectors"] or 0),
@@ -28051,6 +28075,23 @@ async def stripe_webhook(
             
             if user_record:
                 onyx_user_id = user_record['onyx_user_id']
+                try:
+                    # Cache email if present in customer object
+                    cust = stripe.Customer.retrieve(customer_id)
+                    user_email = (cust.get('email') if isinstance(cust, dict) else getattr(cust, 'email', '')) or ''
+                    if user_email:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_email_cache (onyx_user_id, email, updated_at)
+                                VALUES ($1, $2, now())
+                                ON CONFLICT (onyx_user_id) DO UPDATE SET email = EXCLUDED.email, updated_at = now()
+                                """,
+                                onyx_user_id,
+                                user_email,
+                            )
+                except Exception as e:
+                    logger.warning(f"Failed to cache user email: {e}")
                 
                 # Extract updated plan info
                 plan = "starter"
