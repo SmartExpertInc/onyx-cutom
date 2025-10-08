@@ -29,14 +29,12 @@ ENV NEXT_PUBLIC_USERBACK_TOKEN=${NEXT_PUBLIC_USERBACK_TOKEN}
 
 RUN npm run build
 
-# Keep Remotion dependencies for video rendering (don't prune)
-# RUN npm prune --production
+RUN npm prune --production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Run as root to allow docker exec from backend container
-# USER nextjs
+USER nextjs
 
 EXPOSE 3001
 ENV PORT 3001

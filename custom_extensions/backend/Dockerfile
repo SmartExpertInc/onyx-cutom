@@ -74,26 +74,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================
-# PART 2: Install Docker CLI (for docker exec to frontend)
-# ============================================
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends docker.io && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# ============================================
-# PART 3: Install Node.js 18.x (keeping for compatibility)
+# PART 2: Install Node.js 18.x
 # ============================================
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Verify installations
-RUN node --version && npm --version && docker --version
+# Verify Node.js
+RUN node --version && npm --version
 
 # ============================================
-# PART 4: Install Python Dependencies
+# PART 3: Install Python Dependencies
 # ============================================
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
@@ -107,29 +99,33 @@ RUN playwright install chromium
 RUN python -m playwright install chromium
 
 # ============================================
-# PART 5: Copy Application Code First
+# PART 3.5: Install Docker CLI (for docker exec to frontend)
+# ============================================
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
+    echo "deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Verify Docker CLI installation
+RUN docker --version
+
+# ============================================
+# PART 4: Copy Application Code
 # ============================================
 COPY . .
 
-# ============================================
-# PART 6: Install Remotion AFTER copying code (to avoid overwrite)
-# ============================================
-WORKDIR /app/video_compositions
-RUN npm install && \
-    chmod -R 755 node_modules && \
-    npx remotion versions && \
-    echo "✅ Remotion installed successfully in Docker container"
-
-WORKDIR /app
+# Note: Remotion is now installed in the frontend container, not backend
 
 # ============================================
-# PART 7: Create Directories
+# PART 6: Create Directories
 # ============================================
 RUN mkdir -p /app/data /tmp/generated_pdfs /app/temp /app/output/presentations
 RUN chmod -R 777 /tmp/generated_pdfs /app/temp /app/output
 
 # ============================================
-# PART 8: Start Application
+# PART 7: Start Application
 # ============================================
 EXPOSE 8001
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

@@ -490,7 +490,7 @@ services:
       custom_backend:
         condition: service_started
     volumes:
-      # Share backend output directory for Remotion-rendered videos
+      # Share backend output directory for Remotion rendering
       - ../../custom_extensions/backend/output:/app-backend-output
     logging:
       driver: json-file
@@ -510,6 +510,7 @@ services:
       - CUSTOM_PROJECTS_DATABASE_URL=postgresql://${CUSTOM_PROJECTS_DB_USER:-custom_user}:${CUSTOM_PROJECTS_DB_PASSWORD:-custom_password}@custom_projects_db:5432/${CUSTOM_PROJECTS_DB_NAME:-custom_projects_db}
       - ONYX_DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@relational_db:5432/${POSTGRES_DB:-onyx_db}
       - CUSTOM_FRONTEND_URL=http://custom_frontend:3001
+      - FRONTEND_CONTAINER_NAME=onyx-stack-custom_frontend-1
     shm_size: '2gb'
     depends_on:
       relational_db:
@@ -525,8 +526,8 @@ services:
         max-file: "3"
     volumes:
       - ../../custom_extensions/backend:/app
-      # Allow backend to execute docker commands (for Remotion rendering in frontend)
-      - /var/run/docker.sock:/var/run/docker.sock
+      # Allow backend to execute docker commands (for Remotion in frontend)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 volumes:
   db_volume:

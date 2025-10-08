@@ -29152,43 +29152,57 @@ async def debug_render_presentation(request: Request):
         
         logger.info(f"🐛 [DEBUG_RENDER] Props written to: {remotion_input_path}")
         
-        # Set up Remotion render command to run in FRONTEND container
-        # Frontend container has working node_modules and Remotion installed
+        # Set up paths
         output_video_path = output_dir / f"debug_render_{job_id}.mp4"
         
-        # Copy props file to a shared location that frontend can access
-        shared_props_path = Path(f"/tmp/remotion_props_{job_id}.json")
-        import shutil
-        shutil.copy(str(remotion_input_path), str(shared_props_path))
-        logger.info(f"🐛 [DEBUG_RENDER] Props copied to shared location: {shared_props_path}")
+        # Get frontend container name from environment or use default
+        frontend_container = os.getenv('FRONTEND_CONTAINER_NAME', 'onyx-stack-custom_frontend-1')
         
-        # CRITICAL: Run Remotion in FRONTEND container via docker exec
-        # Frontend container path: /app/video_compositions/
-        # Backend output is mounted at: /app-backend-output/
+        # Prepare paths for frontend container
+        frontend_remotion_path = "/app/video_compositions/src/Root.tsx"
+        frontend_output_path = f"/app-backend-output/presentations/debug_render_{job_id}.mp4"
+        frontend_props_path = str(remotion_input_path)  # Temp file path
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Calling frontend container: {frontend_container}")
+        logger.info(f"🐛 [DEBUG_RENDER] Frontend Remotion configuration:")
+        logger.info(f"  - Entry file: {frontend_remotion_path}")
+        logger.info(f"  - Composition: AvatarServiceSlide")
+        logger.info(f"  - Frontend output path: {frontend_output_path}")
+        logger.info(f"  - Backend output path: {output_video_path}")
+        logger.info(f"  - Props file: {frontend_props_path}")
+        
+        # Execute Remotion in frontend container via docker exec
         render_cmd = [
-            "docker", "exec", "onyx-stack-custom_frontend-1",
+            "docker", "exec", frontend_container,
             "npx", "remotion", "render",
-            "/app/video_compositions/src/Root.tsx",  # Path in frontend container
-            "AvatarServiceSlide",  # Composition ID
-            f"/app-backend-output/presentations/debug_render_{job_id}.mp4",  # Output in shared volume
-            "--props", str(shared_props_path),  # Props JSON file
+            frontend_remotion_path,
+            "AvatarServiceSlide",
+            frontend_output_path,
+            "--props", frontend_props_path,
+            "--log", "info"
         ]
         
-        logger.info(f"🐛 [DEBUG_RENDER] Remotion render configuration (via frontend container):")
-        logger.info(f"  - Container: onyx-stack-custom_frontend-1")
-        logger.info(f"  - Entry file: /app/video_compositions/src/Root.tsx")
-        logger.info(f"  - Composition: AvatarServiceSlide")
-        logger.info(f"  - Output: /app-backend-output/presentations/debug_render_{job_id}.mp4")
-        logger.info(f"  - Props file: {shared_props_path}")
-        logger.info(f"🐛 [DEBUG_RENDER] Executing command: {' '.join(render_cmd)}")
+        logger.info(f"🐛 [DEBUG_RENDER] Executing docker command: {' '.join(render_cmd)}")
         
-        # Execute Remotion render in frontend container
-        result = subprocess.run(
-            render_cmd,
-            capture_output=True,
-            text=True,
-            timeout=120  # 2 minute timeout for debug
-        )
+        try:
+            result = subprocess.run(
+                render_cmd,
+                capture_output=True,
+                text=True,
+                timeout=120  # 2 minute timeout for debug
+            )
+        except subprocess.TimeoutExpired:
+            logger.error(f"🐛 [DEBUG_RENDER] Timeout after 120 seconds")
+            raise HTTPException(
+                status_code=500,
+                detail="Video rendering timed out after 120 seconds"
+            )
+        except Exception as docker_exec_error:
+            logger.error(f"🐛 [DEBUG_RENDER] Docker exec error: {str(docker_exec_error)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to execute render in frontend container: {str(docker_exec_error)}"
+            )
         
         logger.info(f"🐛 [DEBUG_RENDER] Remotion process completed with return code: {result.returncode}")
         logger.info(f"🐛 [DEBUG_RENDER] Stdout length: {len(result.stdout)} chars")
@@ -29200,13 +29214,12 @@ async def debug_render_presentation(request: Request):
         if result.stderr:
             logger.info(f"🐛 [DEBUG_RENDER] Stderr: {result.stderr[:1000]}")  # First 1000 chars
         
-        # Clean up temp files
+        # Clean up temp file
         try:
             remotion_input_path.unlink()
-            shared_props_path.unlink()
-            logger.info(f"🐛 [DEBUG_RENDER] Cleaned up temp props files")
+            logger.info(f"🐛 [DEBUG_RENDER] Cleaned up temp props file")
         except Exception as cleanup_error:
-            logger.warning(f"🐛 [DEBUG_RENDER] Failed to cleanup temp files: {cleanup_error}")
+            logger.warning(f"🐛 [DEBUG_RENDER] Failed to cleanup temp file: {cleanup_error}")
         
         # Check return code
         if result.returncode != 0:
@@ -29221,9 +29234,11 @@ async def debug_render_presentation(request: Request):
         # CRITICAL: Verify output file exists and has valid size
         if not output_video_path.exists():
             logger.error(f"🐛 [DEBUG_RENDER] ❌ Output video file was not created: {output_video_path}")
+            logger.error(f"🐛 [DEBUG_RENDER] Checked in backend at: {output_video_path}")
+            logger.error(f"🐛 [DEBUG_RENDER] This should map to frontend path: {frontend_output_path}")
             raise HTTPException(
                 status_code=500,
-                detail="Remotion completed but output file was not created"
+                detail="Remotion completed but output file was not created in shared volume"
             )
         
         file_size = os.path.getsize(output_video_path)
@@ -29255,16 +29270,10 @@ async def debug_render_presentation(request: Request):
         
     except FileNotFoundError as e:
         logger.error(f"🐛 [DEBUG_RENDER] ❌ FileNotFoundError: {str(e)}")
-        logger.error(f"🐛 [DEBUG_RENDER] This usually means Docker or the frontend container is not accessible")
+        logger.error(f"🐛 [DEBUG_RENDER] This usually means Docker CLI is not installed or frontend container is not running")
         raise HTTPException(
             status_code=500,
-            detail="Docker/frontend container not accessible. Ensure docker command is available and frontend container is running."
-        )
-    except subprocess.TimeoutExpired:
-        logger.error(f"🐛 [DEBUG_RENDER] ❌ Remotion render timed out after 120 seconds")
-        raise HTTPException(
-            status_code=504,
-            detail="Debug render timed out after 2 minutes. Try reducing slide complexity."
+            detail="Docker CLI not found or frontend container not running. Check container status."
         )
     except Exception as e:
         logger.error(f"🐛 [DEBUG_RENDER] ❌ Unexpected error: {str(e)}")

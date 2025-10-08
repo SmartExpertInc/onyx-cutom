@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/player": "^4.0.0",
+    "remotion": "^4.0.0",
     "@deckdeckgo/core": "^10.0.1",
     "@deckdeckgo/slide-content": "^2.5.0",
     "@deckdeckgo/slide-split": "^2.4.0",
@@ -20,9 +23,6 @@
     "@nivo/bar": "^0.99.0",
     "@nivo/line": "^0.99.0",
     "@nivo/pie": "^0.99.0",
-    "@remotion/cli": "^4.0.0",
-    "@remotion/player": "^4.0.0",
-    "remotion": "^4.0.0",
     "@userback/widget": "^0.3.11",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
