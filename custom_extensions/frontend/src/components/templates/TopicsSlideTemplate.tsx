@@ -5,6 +5,7 @@ import { BaseTemplateProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
+import PresentationImageUpload from '../PresentationImageUpload';
 
 export interface TopicsSlideProps extends BaseTemplateProps {
   title: string;
@@ -31,7 +32,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
 }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
   const [editKey, setEditKey] = useState<string | null>(null);
-  const [_showLogoUploadModal, setShowLogoUploadModal] = useState(false);
+  const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
@@ -186,7 +187,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
                 }} 
                 onCancel={() => setEditKey(null)} 
                 className="title-element"
-                style={{...inline(topicsTitleStyle), width: 'auto', minWidth: '100px', maxWidth: '100%'}} 
+                style={{...inline(topicsTitleStyle), width: 'auto'}}
               />
             ) : (
               title
@@ -198,7 +199,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
         <div style={topicsList}>
           {topics.map((topic, index) => (
             <div key={index} style={topicItem}>
-              <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={bulletPoint}>
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg" style={bulletPoint}>
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#0F58F9"/>
               </svg>
               <div 
@@ -321,6 +322,15 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
           backgroundColor: 'rgba(9, 9, 11, 0.6)'
         }} />
       </div>
+
+      {showLogoUploadModal && (
+        <PresentationImageUpload
+          isOpen={showLogoUploadModal}
+          onClose={() => setShowLogoUploadModal(false)}
+          onImageUploaded={(p: string) => { onUpdate && onUpdate({ logoNew: p }); setShowLogoUploadModal(false); }}
+          title="Upload Company Logo"
+        />
+      )}
     </div>
   );
 };
