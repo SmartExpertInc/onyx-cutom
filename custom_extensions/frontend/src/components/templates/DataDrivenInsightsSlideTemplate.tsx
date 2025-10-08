@@ -133,23 +133,24 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'420px', minHeight:'46px' };
 
-  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#FFFFFF', height: '320px', padding: '10px 10px 3px 15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', right:'400px', display:'flex', gap:'20px' };
+  const panel: React.CSSProperties = { background:'#FFFFFF', height: '320px', width: '300px', padding: '10px 10px 3px 15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', flexShrink: 0 };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 0 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'30px', right:'10px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'5px', height:'calc(100% - 24px)', flexWrap:'nowrap' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'40px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
-    // Fixed container width - this ensures the card never changes size
-    const containerWidth = 280; // Fixed width for the chart area
+    // Fixed panel width: 300px - padding (25px) = 275px available
+    const panelWidth = 300; // Fixed panel width
+    const panelPadding = 25; // Total horizontal padding (15px left + 10px right)
     const leftOffset = 30; // Space for Y-axis
     const rightPadding = 10; // Space at the end
     const gapSize = 5; // Gap between bars
-    const availableWidth = containerWidth - leftOffset - rightPadding;
+    const availableWidth = panelWidth - panelPadding - leftOffset - rightPadding; // 220px
     const totalGapSpace = (seriesLength - 1) * gapSize;
     const barWidth = (availableWidth - totalGapSpace) / seriesLength;
     
-    // Ensure bars are never too thin (minimum 30px) or too wide (maximum 60px)
-    const calculatedWidth = Math.max(30, Math.min(60, barWidth));
+    // Ensure bars are never too thin (minimum 25px) or too wide (maximum 50px)
+    const calculatedWidth = Math.max(25, Math.min(50, barWidth));
     return { 
       width: `${calculatedWidth}px`, 
       background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', 
