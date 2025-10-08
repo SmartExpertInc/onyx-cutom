@@ -156,9 +156,9 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
       <div style={{
         position: 'absolute',
         left: '60px',
-        top: '17%',
+        top: '18%',
         transform: 'translateY(-50%)',
-        fontSize: '55px',
+        fontSize: '57px',
         fontWeight: '600',
         color: '#FFFFFF',
         fontFamily: 'Lora, serif',
@@ -200,8 +200,8 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         position: 'absolute',
         top: '40px',
         right: '60px',
-        width: '150px',
-        height: '150px',
+        width: '170px',
+        height: '170px',
         borderRadius: '50%',
         overflow: 'hidden',
         backgroundColor: '#FFFFFF',
@@ -228,7 +228,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
         position: 'absolute',
         left: '0',
         right: '0',
-        top: '35%',
+        top: '38%',
         bottom: '0',
         background: '#F0F2F7',
         padding: '0px',
@@ -287,7 +287,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
             {/* Section Content */}
             <div style={{
               fontSize: '15px',
-              color: '#555555',
+              color: '#34353C',
               lineHeight: '1.4',
               flex: 1,
               fontFamily: 'Inter, sans-serif'
@@ -301,7 +301,7 @@ export const CompanyToolsResourcesSlideTemplate: React.FC<CompanyToolsResourcesS
                   multiline={true}
                   style={{
                     fontSize: '15px',
-                    color: '#555555',
+                    color: '#34353C',
                     lineHeight: '1.4',
                     width: '100%',
                     height: 'auto',

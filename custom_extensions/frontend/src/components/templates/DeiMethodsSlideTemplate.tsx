@@ -59,12 +59,12 @@ export const DeiMethodsSlideTemplate: React.FC<DeiMethodsProps & { theme?: Slide
   };
 
   const section1TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'40px', fontSize:'35px', fontWeight:600, color:'black', fontFamily:'Lora, serif' };
-  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'100px', fontSize:'17px', color:'#34353C', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
+  const section1LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'100px', fontSize:'19px', color:'#34353C', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
 
-  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'180px', fontSize:'35px', fontWeight:600, color:'black', fontFamily:'Lora, serif' };
-  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'240px', fontSize:'17px', color:'#34353C', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
+  const section2TitleStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'190px', fontSize:'35px', fontWeight:600, color:'black', fontFamily:'Lora, serif' };
+  const section2LinesStyle: React.CSSProperties = { position:'absolute', left:'60px', top:'250px', fontSize:'19px', color:'#34353C', lineHeight:1.6, whiteSpace:'pre-line', fontFamily:'Inter, sans-serif' };
 
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'40px', width:'160px', height:'160px', borderRadius:'50%', overflow:'hidden', background:'#FFFFFF', zIndex:10 };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'60px', top:'40px', width:'172px', height:'172px', borderRadius:'50%', overflow:'hidden', background:'#FFFFFF', zIndex:10 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
   

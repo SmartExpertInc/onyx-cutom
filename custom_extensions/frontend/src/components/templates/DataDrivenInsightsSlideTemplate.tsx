@@ -122,9 +122,9 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     fontFamily:'serif'
   };
   const descStyle: React.CSSProperties = { 
-    width:'525px', 
+    width:'670px', 
     color:'#34353C', 
-    fontSize:'15px', 
+    fontSize:'17px', 
     textAlign:'left', 
     lineHeight:'1.5', 
     fontFamily:'"Inter", sans-serif'
@@ -133,15 +133,15 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const titleWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'100px', right:'480px', width:'780px', minHeight:'50px' };
   const descWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'170px', right:'420px', minHeight:'46px' };
 
-  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'260px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
-  const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
+  const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', right:'400px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'20px' };
+  const panel: React.CSSProperties = { background:'#FFFFFF', height: '320px', padding: '10px 10px 3px 15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'5px', height:'calc(100% - 24px)', flexWrap:'wrap' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
-    const maxWidth = 40;
-    const minWidth = 33;
-    const availableWidth = 215; // Approximate available width for bars
+    const maxWidth = 50;
+    const minWidth = 43;
+    const availableWidth = 225; // Approximate available width for bars
     const calculatedWidth = Math.max(minWidth, Math.min(maxWidth, availableWidth / seriesLength));
     return { 
       width: `${calculatedWidth}px`, 

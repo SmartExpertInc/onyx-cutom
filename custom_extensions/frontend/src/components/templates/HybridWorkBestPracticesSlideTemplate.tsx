@@ -313,7 +313,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             overflow: 'hidden',
             alignSelf: 'flex-start',
             position: 'absolute',
-            bottom: '90px',
+            bottom: '60px',
             backgroundColor: '#0F58F9'
           }}>
             <ClickableImagePlaceholder

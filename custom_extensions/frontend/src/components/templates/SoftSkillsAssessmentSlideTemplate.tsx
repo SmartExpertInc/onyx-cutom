@@ -169,7 +169,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
-    padding: '60px 80px 40px 80px',
+    padding: '40px 60px 40px 60px',
   };
 
   const handleTitleSave = (newTitle: string) => {
@@ -291,8 +291,8 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
 
         {/* Profile image */}
         <div style={{
-          width: '160px',
-          height: '160px',
+          width: '170px',
+          height: '170px',
           borderRadius: '50%',
           overflow: 'hidden',
           backgroundColor: '#0F58F9'
@@ -318,7 +318,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       <div style={{
         display: 'flex',
         gap: '30px',
-        marginTop: '-20px'
+        marginTop: '-35px'
       }}>
         {currentTips.map((tip, index) => (
           <div
@@ -334,13 +334,13 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
             <div style={{
               padding: '20px 90px 30px 32px',
               backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
-              minHeight: '320px',
+              minHeight: '360px',
               display: 'flex',
               zIndex: '2',
               borderRadius: '4px',
             }}>
               <div style={{
-                fontSize: '33px',
+                fontSize: '36px',
                 fontWeight: '700',
                 color: index === 0 ? '#000000' : '#FFFFFF',
                 lineHeight: '1.4',

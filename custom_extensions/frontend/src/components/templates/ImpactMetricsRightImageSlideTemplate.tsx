@@ -96,7 +96,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   };
 
   const metricText: React.CSSProperties = {
-    fontSize: '40px',
+    fontSize: '45px',
     fontWeight: 600,
     lineHeight: 1.1,
     color: 'black',
@@ -130,7 +130,7 @@ export const ImpactMetricsRightImageSlideTemplate: React.FC<ImpactMetricsRightIm
   const panel: React.CSSProperties = {
     position: 'absolute',
     inset: '0 0 0 0',
-    borderRadius: '10px',
+    borderRadius: '11px',
     background: 'linear-gradient(to bottom, #0F58F9, #1023A1)'
   };
 
