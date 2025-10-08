@@ -105,7 +105,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
     background:'transparent', 
     color:'#34353C', 
     padding:'8px 18px', 
-    fontSize:'16px', 
+    fontSize:'17px', 
     borderRadius:'20px', 
     border:'2px solid #000000', 
     display:'flex', 
