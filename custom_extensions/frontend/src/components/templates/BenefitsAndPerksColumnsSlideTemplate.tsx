@@ -44,19 +44,19 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#EFEFEF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'225px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
+  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'250px', background:'#E0E7FF', borderBottom:'1px solid #d8d8d8' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#6b7280', fontSize:'22px' };
   const headingStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'90px', fontSize:'53px', fontWeight:800, color:'#202020' };
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'36px', width:'170px', height:'170px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'0 0 0 2px rgba(0,0,0,0.06) inset' };
 
-  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'225px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
+  const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'250px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
   const colBase: React.CSSProperties = { padding:'32px 36px', background:'#0F58F9', color:'#FFFFFF', display:'grid', rowGap:'14px' };
   const colAccent: React.CSSProperties = { ...colBase, background:'#FFFFFF', color:'#0F58F9' };
   const numberBadge = (n: number): React.CSSProperties => {
     const isAccent = n === 2 || n === 4;
     return {
-      width:'32px',
-      height:'32px',
+      width:'35px',
+      height:'35px',
       borderRadius:'4px',
       background: isAccent ? '#0F58F9' : '#FFFFFF',
       color: isAccent ? '#FFFFFF' : '#0F58F9',
@@ -64,7 +64,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       alignItems:'center',
       justifyContent:'center',
       fontWeight:700,
-      fontSize:'16px'
+      fontSize:'20px'
     };
   };
   const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5 };
@@ -94,12 +94,16 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   return (
     <div className="benefits-perks-columns inter-theme" style={slide}>
       <style>{`
-        .benefits-perks-columns *:not(.title-element) {
+        .benefits-perks-columns *:not(.title-element):not(.number-badge) {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .benefits-perks-columns .title-element {
           font-family: "Lora", serif !important;
           font-weight: 500 !important;
+        }
+        .benefits-perks-columns .number-badge {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 700 !important;
         }
       `}</style>
       <div style={top} />
@@ -107,9 +111,10 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
         logoPath={logoPath}
         onLogoUploaded={(p)=> onUpdate&&onUpdate({ logoPath:p })}
         isEditable={isEditable}
-        color="#6b7280"
+        color="#09090B"
+        fontSize="17px"
         text={logoText}
-        style={{ position:'absolute', left:'48px', top:'48px' }}
+        style={{ position:'absolute', left:'20px', top:'20px' }}
       />
       <div style={headingStyle}>
         {isEditable && editHeading ? (
@@ -125,9 +130,8 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       <div style={grid}>
         {columns.map((c, i)=> (
           <div key={i} style={c.accent ? colAccent : colBase}>
-            <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-              <div style={numberBadge(i+1)}>{i+1}</div>
-            </div>
+            <div className="number-badge" style={numberBadge(i+1)}>{i+1}</div>
+
             <div>
               {isEditable && editCol && editCol.idx===i && editCol.field==='title' ? (
                 <ImprovedInlineEditor initialValue={c.title} onSave={(v)=> saveCol(i,'title',v)} onCancel={()=> setEditCol(null)} className="title-element" style={inline(title)} />

@@ -990,6 +990,7 @@ export interface SoftSkillsTypesSlideProps extends BaseTemplateProps {
   }>;
   profileImagePath?: string;
   profileImageAlt?: string;
+  logoPath?: string;
   backgroundColor?: string;
   titleColor?: string;
   contentColor?: string;

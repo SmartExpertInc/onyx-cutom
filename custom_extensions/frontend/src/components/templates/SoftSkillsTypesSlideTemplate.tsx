@@ -7,7 +7,7 @@ import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
 
 export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
-  slideId,
+  slideId: _slideId,
   title = 'Types of Soft Skills',
   cards = [
     { label: 'Time management' },
@@ -15,7 +15,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
     { label: 'Work ethic' },
   ],
   profileImagePath = '',
-  profileImageAlt = 'Profile',
+  profileImageAlt: _profileImageAlt = 'Profile',
+  logoPath = '',
   isEditable = false,
   onUpdate,
   theme,
@@ -23,6 +24,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
+  const [showLogoUpload, setShowLogoUpload] = useState(false);
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
@@ -35,18 +37,18 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '33px',
+    top: '96px',
     left: '56px',
     fontSize: '60px',
     lineHeight: 1.1,
     fontWeight: 800,
-    color: '#3C3C3C',
+    color: '#09090B',
   };
 
   const avatarCircleStyles: React.CSSProperties = {
     position: 'absolute',
     top: '40px',
-    right: '56px',
+    right: '44px',
     width: '170px',
     height: '170px',
     borderRadius: '50%',
@@ -95,6 +97,65 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
           font-weight: 500 !important;
         }
       `}</style>
+      
+      {/* Logo */}
+      <div style={{ position: 'absolute', top: '20px', left: '30px' }}>
+        {logoPath ? (
+          <ClickableImagePlaceholder
+            imagePath={logoPath}
+            onImageUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+            size="SMALL"
+            position="CENTER"
+            description="Your Logo"
+            isEditable={isEditable}
+            style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
+          />
+        ) : (
+          <>
+            <div
+              onClick={() => isEditable && setShowLogoUpload(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                cursor: isEditable ? 'pointer' : 'default'
+              }}
+            >
+              <div style={{
+                width: '30px',
+                height: '30px',
+                border: '2px solid #09090B',
+                borderRadius: '50%',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <div style={{ width: '12px', height: '2px', backgroundColor: '#09090B', position: 'absolute' }} />
+                <div style={{ width: '2px', height: '12px', backgroundColor: '#09090B', position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+              </div>
+              <span style={{ fontSize: '17px', fontWeight: 400, color: '#09090B', fontFamily: currentTheme.fonts.contentFont }}>Your Logo</span>
+            </div>
+            {showLogoUpload && (
+              <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}>
+                <ClickableImagePlaceholder
+                  imagePath=""
+                  onImageUploaded={(p: string) => {
+                    onUpdate && onUpdate({ logoPath: p });
+                    setShowLogoUpload(false);
+                  }}
+                  size="SMALL"
+                  position="CENTER"
+                  description="Your Logo"
+                  isEditable={true}
+                  style={{ height: '30px', maxWidth: '120px', objectFit: 'contain' }}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
       {/* Title */}
       <div style={titleStyles}>
         {isEditable && editingTitle ? (
@@ -145,7 +206,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               <svg width="10" height="12" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '8px', flexShrink: 0 }}>
                 <path d="M6 2.73354C6.66667 3.11844 6.66667 4.08069 6 4.46559L1.5 7.06367C0.833334 7.44857 -3.3649e-08 6.96745 0 6.19765L2.2713e-07 1.00149C2.60779e-07 0.231693 0.833333 -0.249434 1.5 0.135466L6 2.73354Z" fill="#FFFFFF"/>
               </svg>
-              <span style={{ fontSize: '18px', marginTop: '7px' }}>{c.label}</span>
+              <span style={{ fontSize: '23px' }}>{c.label}</span>
             </div>
           </div>
         ))}
