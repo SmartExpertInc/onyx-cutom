@@ -98,7 +98,8 @@ LLM_API_KEY_FALLBACK = os.getenv("OPENAI_API_KEY_FALLBACK")
 # NEW: Google Gemini API configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-SERPAPI_KEY = "ef10e9f3a1c8f0c2cd5d9379e39c597b58b6d0628f465c3030cace4d70494df7"
+# SerpAPI configuration (env-based; avoid hardcoding secrets)
+SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
 # Endpoint for Chat Completions
 LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
@@ -107,6 +108,9 @@ LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
+
+# Feature flag to prefer OpenAI Web Search over SerpAPI
+USE_OPENAI_WEB_SEARCH = os.getenv("USE_OPENAI_WEB_SEARCH", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 def get_openai_client():
     """Get or create the OpenAI client instance."""
@@ -7448,6 +7452,107 @@ async def serpapi_company_research(company_name: str, company_desc: str, company
         f"[Open Positions]\n{jobs_info}"
     )
     return combined
+
+async def openai_company_research(company_name: str, company_desc: str, company_website: str, language: str = "en") -> str:
+    """
+    Uses OpenAI Responses API with the web search tool to gather:
+    - General company info (with citations)
+    - Website-specific info (site: queries)
+    - Open job listings (careers/jobs)
+    Returns a structured string matching existing format.
+    """
+    try:
+        client = get_openai_client()
+        model = LLM_DEFAULT_MODEL or "gpt-4o-mini"
+
+        # Build a concise instruction with consistent output formatting
+        instruction = (
+            f"Research company '{company_name}'. Language: {language}.\n"
+            f"Website: {company_website or 'N/A'}. Description: {company_desc or 'N/A'}.\n\n"
+            "Tasks:\n"
+            "1) General company info with 1-3 bullet highlights and citations.\n"
+            "2) From the official site, summarize 'about/contact' info (use site: queries), include URLs.\n"
+            "3) Find current open roles (careers/jobs) with titles + links (max 5).\n\n"
+            "Output EXACTLY these sections and nothing else:\n"
+            "[SerpAPI General Info]\n...\n\n[Website Info]\n...\n\n[Open Positions]\n...\n"
+        )
+
+        # Configure web search with medium context by default
+        tools = [
+            {"type": "web_search"}
+        ]
+        tool_config = {
+            "web_search": {
+                "search_context_size": "medium"
+            }
+        }
+
+        # If we know the domain, we can bias results by allowed_domains (best-effort)
+        try:
+            from urllib.parse import urlparse
+            if company_website:
+                domain = urlparse(company_website).netloc.replace("www.", "")
+                if domain:
+                    tools = [
+                        {
+                            "type": "web_search",
+                            "filters": {
+                                "allowed_domains": [domain]
+                            }
+                        }
+                    ]
+        except Exception:
+            pass
+
+        resp = await client.responses.create(
+            model=model,
+            tools=tools,
+            tool_config=tool_config,
+            input=instruction
+        )
+
+        # Prefer output_text convenience; fallback to manual extraction
+        text = getattr(resp, "output_text", None)
+        if not text:
+            try:
+                # SDK returns .output as a list of content parts
+                parts = []
+                for item in getattr(resp, "output", []) or []:
+                    if isinstance(item, dict):
+                        # text segments might be under item["content"][...]["text"]
+                        for c in item.get("content", []) or []:
+                            if isinstance(c, dict) and c.get("type") == "output_text":
+                                parts.append(c.get("text", ""))
+                    else:
+                        parts.append(str(item))
+                text = "\n".join(p for p in parts if p)
+            except Exception:
+                text = None
+
+        if text:
+            return text
+
+        # Fallback minimal message if response parsing failed
+        return "[SerpAPI General Info]\n(No data)\n\n[Website Info]\n(No data)\n\n[Open Positions]\n(No data)"
+    except Exception as e:
+        logger.error(f"❌ [OPENAI_WEB_SEARCH] Error: {e}")
+        # Re-raise to allow caller to fallback
+        raise
+
+async def company_research(company_name: str, company_desc: str, company_website: str, language: str = "en") -> str:
+    """
+    Abstraction over research providers. Uses OpenAI web search when enabled,
+    falls back to SerpAPI on error or when disabled.
+    """
+    if USE_OPENAI_WEB_SEARCH:
+        try:
+            logger.info("[RESEARCH] Using OpenAI web search path")
+            return await openai_company_research(company_name, company_desc, company_website, language)
+        except Exception as e:
+            logger.warning(f"[RESEARCH] OpenAI web search failed, falling back to SerpAPI: {e}")
+
+    logger.info("[RESEARCH] Using SerpAPI path")
+    return await serpapi_company_research(company_name, company_desc, company_website)
 
 async def duckduckgo_company_research(company_name: str, company_desc: str, company_website: str) -> str:
     # Step 1: General info
@@ -16126,13 +16231,13 @@ async def scrape_company_data_from_website(company_website: str, language: str =
     try:
         logger.info(f"🌐 [WEBSITE SCRAPING] Starting to scrape: {company_website}")
         
-        # Use the existing SERPAPI research function to get website content
+        # Use the research abstraction (OpenAI web search preferred, SerpAPI fallback)
         # For website-only scraping, we need to extract domain name for the search
         from urllib.parse import urlparse
         parsed_url = urlparse(company_website)
         domain_name = parsed_url.netloc.replace('www.', '')
         logger.info(f"🌐 [WEBSITE SCRAPING] Using domain name for search: {domain_name}")
-        website_content = await serpapi_company_research(domain_name, "", company_website)
+        website_content = await company_research(domain_name, "", company_website, language)
         logger.info(f"🌐 [WEBSITE SCRAPING] Received content length: {len(website_content)} characters")
         
         # Extract company name from website content
@@ -16943,8 +17048,8 @@ async def _run_audit_generation(payload, request, pool, job_id):
         
         set_progress(job_id, "Researching additional company info...")
         # Get additional research data using scraped company name and description
-        duckduckgo_summary = await serpapi_company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite)
-        logger.info(f"[AI-Audit] SERPAPI summary: {duckduckgo_summary[:300]}")
+        duckduckgo_summary = await company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite, payload.language)
+        logger.info(f"[AI-Audit] Research summary: {duckduckgo_summary[:300]}")
 
         set_progress(job_id, "Generating first one-pager...")
         # Create a combined payload with scraped data for the prompt
@@ -19342,8 +19447,8 @@ async def _run_landing_page_generation(payload, request, pool, job_id):
         
         set_progress(job_id, "Researching additional company info...")
         # Get additional research data using scraped company name and description
-        duckduckgo_summary = await serpapi_company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite)
-        logger.info(f"[AI-Audit Landing Page] SERPAPI summary: {duckduckgo_summary[:300]}")
+        duckduckgo_summary = await company_research(scraped_data.companyName, scraped_data.companyDesc, payload.companyWebsite, payload.language)
+        logger.info(f"[AI-Audit Landing Page] Research summary: {duckduckgo_summary[:300]}")
         
         # 📊 LOG: Scraped data received
         logger.info(f"🌐 [AUDIT DATA FLOW] Scraped data length: {len(duckduckgo_summary)} characters")
