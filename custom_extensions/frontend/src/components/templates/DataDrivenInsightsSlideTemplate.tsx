@@ -137,7 +137,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const panel: React.CSSProperties = { background:'#FFFFFF', height:'338px', padding:'15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 18px 8px 0' };
   const barsRow: React.CSSProperties = { position:'absolute', left:'54px', right:'18px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'3px', height:'calc(100% - 24px)', flexWrap:'wrap' };
-  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'10px', fontFamily:'"Inter", sans-serif' };
+  const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'54px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
     const maxWidth = 40;
     const minWidth = 25;
@@ -150,7 +150,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       borderRadius:'1px 1px 1px 1px' 
     };
   };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'10px', fontFamily:'"Inter", sans-serif' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 18px 0 54px', color:'#3A3A3C', fontSize:'12px', gap:'3px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'360px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
@@ -217,11 +217,11 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
                 window.addEventListener('mouseup', onUp);
               }}
             >
-              <div style={{ position:'absolute', top:'6px', left:'50%', transform:'translateX(-50%)', color:'#FFFFFF', fontSize:'12px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default', fontWeight:'bold' }}
+              <div style={{ position:'absolute', top:'6px', left:'50%', transform:'translateX(-50%)', color:'#FFFFFF', fontSize:'10px', whiteSpace:'nowrap', cursor: isEditable ? 'pointer':'default', fontWeight:'bold' }}
                 onClick={()=> isEditable && setEdit({ key: `${panelKey}-val-${i}` })}
               >
                 {edit?.key===`${panelKey}-val-${i}` ? (
-                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'"Inter", sans-serif', fontSize:'12px' }} />
+                  <ImprovedInlineEditor initialValue={b.value} onSave={(v)=>{ const next=[...series]; next[i] = { ...next[i], value:v }; if (panelKey==='left') setLeftSeries(next); else setRightSeries(next); pushState(panelKey); setEdit(null); }} onCancel={()=> setEdit(null)} style={{ background:'transparent', border:'none', outline:'none', color:'#9D9D9D', fontFamily:'"Inter", sans-serif', fontSize:'10px' }} />
                 ) : b.value }
               </div>
               {isEditable && hoverBar && hoverBar.panel===panelKey && hoverBar.idx===i && (
