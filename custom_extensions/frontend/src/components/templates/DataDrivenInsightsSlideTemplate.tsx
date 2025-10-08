@@ -158,6 +158,23 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const avatar: React.CSSProperties = { position:'absolute', right:'64px', top:'42px', width:'165px', height:'165px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
 
   const inlineStable = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
+  
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-wrap',
+    width: '100%',
+    fontFamily: base.fontFamily,
+    textAlign: base.textAlign
+  });
 
   const renderBars = (panelKey: 'left'|'right', series: SeriesBar[]) => (
     <div style={chartArea}>
@@ -252,7 +269,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       <div style={tagStyle}>
         <div style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#0F58F9' }}></div>
         {isEditable && edit?.key==='tag' ? (
-          <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable(tagStyle)} />
+          <ImprovedInlineEditor initialValue={tag} onSave={(v)=>{ onUpdate&&onUpdate({ tag:v }); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineEditor(tagStyle)} />
         ) : (
           <div onClick={()=> isEditable && setEdit({ key:'tag' })} style={{ cursor: isEditable ? 'pointer':'default' }}>{tag}</div>
         )}
