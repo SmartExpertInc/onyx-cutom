@@ -28617,7 +28617,7 @@ async def get_users_with_features(
             rows = await conn.fetch("""
                 SELECT 
                     uc.onyx_user_id AS user_id,
-                    uc.onyx_user_id AS user_display_id,
+                    COALESCE(uem.email, uc.onyx_user_id) AS user_email,
                     uc.name AS user_name,
                     uf.feature_name,
                     uf.is_enabled,
@@ -28630,6 +28630,7 @@ async def get_users_with_features(
                 LEFT JOIN user_features uf ON uc.onyx_user_id = uf.user_id
                 LEFT JOIN feature_definitions fd 
                     ON uf.feature_name = fd.feature_name AND fd.is_active = true
+                LEFT JOIN user_email_cache uem ON uem.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.onyx_user_id, fd.category, fd.display_name
             """)
             
@@ -28639,7 +28640,7 @@ async def get_users_with_features(
                 if user_id not in users_features:
                     users_features[user_id] = {
                         'user_id': user_id,
-                        'user_email': row['user_display_id'] or user_id,
+                        'user_email': row['user_email'] or user_id,
                         'user_name': row['user_name'] or 'Unknown User',
                         'features': []
                     }
