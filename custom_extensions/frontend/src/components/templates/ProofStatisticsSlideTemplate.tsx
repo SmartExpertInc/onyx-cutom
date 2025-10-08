@@ -459,7 +459,7 @@ export const ProofStatisticsSlideTemplate: React.FC<ProofStatisticsSlideProps & 
             <div key={index} style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '8px',
+              gap: '15px',
             }}>
               <div style={{
                 width: '6px',
