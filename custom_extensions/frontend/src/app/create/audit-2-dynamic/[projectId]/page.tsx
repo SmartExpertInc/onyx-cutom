@@ -30,14 +30,31 @@ function InlineEditor({
 
   // Update local state when initialValue changes
   useEffect(() => {
+    console.log('🔄 [TEXT EDIT EFFECT] Initial value changed:', initialValue);
     setValue(initialValue);
   }, [initialValue]);
 
   useEffect(() => {
+    console.log('🚀 [TEXT EDIT MOUNT] InlineEditor mounted');
+    console.log('🚀 [TEXT EDIT MOUNT] Initial value:', initialValue);
+    console.log('🚀 [TEXT EDIT MOUNT] Placeholder:', placeholder);
+    console.log('🚀 [TEXT EDIT MOUNT] Multiline:', multiline);
+    
     if (inputRef.current) {
+      console.log('🎯 [TEXT EDIT MOUNT] Input ref exists, focusing...');
+      console.log('🎯 [TEXT EDIT MOUNT] Input element:', inputRef.current);
       inputRef.current.focus();
       inputRef.current.select();
+      console.log('✅ [TEXT EDIT MOUNT] Focus and select called');
+      console.log('✅ [TEXT EDIT MOUNT] Active element:', document.activeElement);
+      console.log('✅ [TEXT EDIT MOUNT] Is focused?', document.activeElement === inputRef.current);
+    } else {
+      console.error('❌ [TEXT EDIT MOUNT] Input ref is null!');
     }
+    
+    return () => {
+      console.log('💀 [TEXT EDIT UNMOUNT] InlineEditor unmounting');
+    };
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -58,22 +75,59 @@ function InlineEditor({
 
   const handleFocus = () => {
     console.log('🎯 [TEXT EDIT] Focus started - initial value:', initialValue);
+    console.log('🎯 [TEXT EDIT] Input element:', inputRef.current);
+    console.log('🎯 [TEXT EDIT] Active element:', document.activeElement);
+    console.log('🎯 [TEXT EDIT] Has focus:', document.activeElement === inputRef.current);
   };
 
-  const handleBlur = () => {
-    // Ensure we save the current value from the input/textarea
-    const currentValue = inputRef.current?.value || value;
-    console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
-    console.log('🔍 [BLUR DETAILED] Element details:', {
-      elementType: inputRef.current?.tagName,
-      elementId: inputRef.current?.id,
-      elementClass: inputRef.current?.className,
-      initialValue: initialValue,
-      currentValue: currentValue,
-      valueChanged: initialValue !== currentValue,
-      timestamp: new Date().toISOString()
-    });
-    onSave(currentValue);
+  const handleBlur = (e: React.FocusEvent) => {
+    console.log('💨 [TEXT EDIT BLUR] Blur event triggered');
+    console.log('💨 [TEXT EDIT BLUR] Related target:', e.relatedTarget);
+    console.log('💨 [TEXT EDIT BLUR] Current target:', e.currentTarget);
+    console.log('💨 [TEXT EDIT BLUR] Active element at blur:', document.activeElement);
+    
+    // 🔧 CRITICAL FIX: Check if blur is happening due to re-render (relatedTarget is another InlineEditor input)
+    const relatedTargetIsInput = e.relatedTarget && 
+                                  (e.relatedTarget as HTMLElement).classList?.contains('inline-editor-input');
+    
+    if (relatedTargetIsInput) {
+      console.log('🔄 [TEXT EDIT BLUR] Blur to another InlineEditor input - ignoring (React re-render)');
+      console.log('🔄 [TEXT EDIT BLUR] This is a React re-render, NOT a user action');
+      return; // Don't save, this is just React re-rendering
+    }
+    
+    // Small delay to prevent immediate blur from click propagation
+    setTimeout(() => {
+      console.log('⏰ [TEXT EDIT BLUR] After 100ms delay');
+      console.log('⏰ [TEXT EDIT BLUR] Active element now:', document.activeElement);
+      console.log('⏰ [TEXT EDIT BLUR] Input ref:', inputRef.current);
+      console.log('⏰ [TEXT EDIT BLUR] Still has focus?', document.activeElement === inputRef.current);
+      
+      // 🔧 CRITICAL FIX: Check if the input ref still exists (not unmounted)
+      if (!inputRef.current) {
+        console.log('❌ [TEXT EDIT BLUR] Input ref is null - component unmounted, aborting save');
+        return; // Component unmounted during re-render, don't try to save
+      }
+      
+      // Check if the element still doesn't have focus
+      if (document.activeElement !== inputRef.current) {
+        // Ensure we save the current value from the input/textarea
+        const currentValue = inputRef.current?.value || value;
+        console.log('👋 [TEXT EDIT] Focus lost - saving final value:', currentValue);
+        console.log('🔍 [BLUR DETAILED] Element details:', {
+          elementType: inputRef.current?.tagName,
+          elementId: inputRef.current?.id,
+          elementClass: inputRef.current?.className,
+          initialValue: initialValue,
+          currentValue: currentValue,
+          valueChanged: initialValue !== currentValue,
+          timestamp: new Date().toISOString()
+        });
+        onSave(currentValue);
+      } else {
+        console.log('✋ [TEXT EDIT BLUR] Input still has focus, NOT saving');
+      }
+    }, 100);
   };
 
   // Auto-resize textarea to fit content
@@ -222,6 +276,11 @@ interface LandingPageData {
   courseTemplates: CourseTemplate[]
   serviceTemplatesDescription: string
   language?: string
+  courseOutlineTableHeaders?: {
+    lessons: string
+    assessment: string
+    duration: string
+  }
 }
 
 // Localization helper function
@@ -267,13 +326,34 @@ export default function DynamicAuditLandingPage() {
 
   // Text editing handlers
   const startEditing = (field: string) => {
-    console.log('🚀 [TEXT EDIT] Starting edit for field:', field);
-    setEditingField(field)
+    console.log('🚀🚀🚀 [START EDITING] ========================================');
+    console.log('🚀 [START EDITING] Function called with field:', field);
+    console.log('🚀 [START EDITING] Current editingField state:', editingField);
+    console.log('🚀 [START EDITING] Active element before setState:', document.activeElement);
+    console.log('🚀 [START EDITING] Timestamp:', new Date().toISOString());
+    setEditingField(field);
+    console.log('🚀 [START EDITING] setEditingField called with:', field);
+    console.log('🚀 [START EDITING] Active element after setState:', document.activeElement);
+    
+    // Log state after React updates (next tick)
+    setTimeout(() => {
+      console.log('⏰ [START EDITING] After state update:');
+      console.log('⏰ [START EDITING] editingField should now be:', field);
+      console.log('⏰ [START EDITING] Active element:', document.activeElement);
+    }, 0);
+    console.log('🚀🚀🚀 [START EDITING] ========================================');
   }
 
   const stopEditing = () => {
-    console.log('🛑 [TEXT EDIT] Stopping edit for field:', editingField);
-    setEditingField(null)
+    console.log('🛑🛑🛑 [STOP EDITING] ========================================');
+    console.log('🛑 [STOP EDITING] Function called');
+    console.log('🛑 [STOP EDITING] Current editingField state:', editingField);
+    console.log('🛑 [STOP EDITING] Active element before setState:', document.activeElement);
+    console.log('🛑 [STOP EDITING] Timestamp:', new Date().toISOString());
+    setEditingField(null);
+    console.log('🛑 [STOP EDITING] setEditingField(null) called');
+    console.log('🛑 [STOP EDITING] Active element after setState:', document.activeElement);
+    console.log('🛑🛑🛑 [STOP EDITING] ========================================');
   }
 
   const handleTextSave = async (field: string, newValue: string) => {
@@ -410,6 +490,33 @@ export default function DynamicAuditLandingPage() {
         break
       case 'serviceTemplatesDescription':
         currentValue = landingPageData.serviceTemplatesDescription || 'Ready-made course templates for onboarding and training your employees:';
+        break
+      case 'tableHeaderLessons':
+        currentValue = landingPageData.courseOutlineTableHeaders?.lessons || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Lessons in module',
+            es: 'Lecciones en módulo',
+            ua: 'Уроки в модулі',
+            ru: 'Уроки в модуле'
+          });
+        break
+      case 'tableHeaderAssessment':
+        currentValue = landingPageData.courseOutlineTableHeaders?.assessment || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Knowledge check: test / practice with mentor',
+            es: 'Verificación de conocimientos: prueba / práctica con mentor',
+            ua: 'Перевірка знань: тест / практика з куратором',
+            ru: 'Проверка знаний: тест / практика с куратором'
+          });
+        break
+      case 'tableHeaderDuration':
+        currentValue = landingPageData.courseOutlineTableHeaders?.duration || 
+          getLocalizedText(landingPageData?.language, {
+            en: 'Training duration',
+            es: 'Duración del entrenamiento',
+            ua: 'Тривалість навчання',
+            ru: 'Длительность обучения'
+          });
         break
       default:
         if (field.startsWith('jobPosition_')) {
@@ -596,6 +703,42 @@ export default function DynamicAuditLandingPage() {
         updatedData.serviceTemplatesDescription = newValue;
         console.log('✅ [TEXT SAVE] Successfully updated serviceTemplatesDescription');
         break
+      case 'tableHeaderLessons':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderLessons field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        console.log('📝 [TABLE HEADER SAVE] Setting lessons to:', newValue);
+        updatedData.courseOutlineTableHeaders.lessons = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header lessons');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        break
+      case 'tableHeaderAssessment':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderAssessment field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        console.log('📝 [TABLE HEADER SAVE] Setting assessment to:', newValue);
+        updatedData.courseOutlineTableHeaders.assessment = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header assessment');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        break
+      case 'tableHeaderDuration':
+        console.log('📝 [TABLE HEADER SAVE] Updating tableHeaderDuration field');
+        console.log('📝 [TABLE HEADER SAVE] Current courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        if (!updatedData.courseOutlineTableHeaders) {
+          console.log('📝 [TABLE HEADER SAVE] Creating new courseOutlineTableHeaders object');
+          updatedData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+        }
+        console.log('📝 [TABLE HEADER SAVE] Setting duration to:', newValue);
+        updatedData.courseOutlineTableHeaders.duration = newValue;
+        console.log('✅ [TEXT SAVE] Successfully updated table header duration');
+        console.log('✅ [TEXT SAVE] New courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+        break
       default:
         // Handle nested fields like job positions, course templates, and course modules
         if (field.startsWith('jobPosition_')) {
@@ -635,10 +778,27 @@ export default function DynamicAuditLandingPage() {
     }
     
     // Update local state
-    setLandingPageData(updatedData)
+    console.log('🔄 [STATE UPDATE] ==========================================');
+    console.log('🔄 [STATE UPDATE] Updating local state with new data');
+    console.log('🔄 [STATE UPDATE] Field changed:', field);
+    console.log('🔄 [STATE UPDATE] New value:', newValue);
+    console.log('🔄 [STATE UPDATE] Updated data keys:', Object.keys(updatedData));
+    console.log('🔄 [STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in updatedData);
+    if ('courseOutlineTableHeaders' in updatedData) {
+      console.log('🔄 [STATE UPDATE] courseOutlineTableHeaders value:', updatedData.courseOutlineTableHeaders);
+    }
+    console.log('🔄 [STATE UPDATE] Calling setLandingPageData...');
+    setLandingPageData(updatedData);
+    console.log('🔄 [STATE UPDATE] setLandingPageData called successfully');
+    console.log('🔄 [STATE UPDATE] ==========================================');
     
     // Automatically save to database
+    console.log('💾 [AUTO SAVE] ==========================================');
     console.log('💾 [AUTO SAVE] Starting automatic save to database');
+    console.log('💾 [AUTO SAVE] Field to save:', field);
+    console.log('💾 [AUTO SAVE] New value to save:', newValue);
+    console.log('💾 [AUTO SAVE] Project ID:', projectId);
+    console.log('💾 [AUTO SAVE] ==========================================');
     
     // 🚨 CRITICAL DATA VALIDATION: Ensure we're not sending corrupted data
     if (!updatedData || typeof updatedData !== 'object') {
@@ -656,19 +816,38 @@ export default function DynamicAuditLandingPage() {
       console.error('❌ [CRITICAL ERROR] Attempting to recover from original landingPageData...');
       
       // Try to recover by refetching the data
+      console.log('🔄 [RECOVERY] ==========================================');
       console.log('🔄 [RECOVERY] Refetching landing page data to recover from corruption...');
+      console.log('🔄 [RECOVERY] Field being saved:', field);
+      console.log('🔄 [RECOVERY] New value:', newValue);
+      console.log('🔄 [RECOVERY] ==========================================');
       try {
         const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-        const response = await fetch(`${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`, {
+        const recoveryUrl = `${CUSTOM_BACKEND_URL}/ai-audit/landing-page/${projectId}`;
+        
+        console.log('📡 [RECOVERY API] GET request to:', recoveryUrl);
+        
+        const response = await fetch(recoveryUrl, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
         
+        console.log('📡 [RECOVERY API] Response status:', response.status);
+        console.log('📡 [RECOVERY API] Response ok:', response.ok);
+        
         if (response.ok) {
           const freshData = await response.json();
-          console.log('✅ [RECOVERY] Successfully recovered fresh data:', freshData);
+          console.log('✅ [RECOVERY] ==========================================');
+          console.log('✅ [RECOVERY] Successfully recovered fresh data');
+          console.log('✅ [RECOVERY] Fresh data keys:', Object.keys(freshData));
+          console.log('✅ [RECOVERY] Fresh data has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in freshData);
+          if ('courseOutlineTableHeaders' in freshData) {
+            console.log('✅ [RECOVERY] Fresh courseOutlineTableHeaders:', freshData.courseOutlineTableHeaders);
+          }
+          console.log('✅ [RECOVERY] Full fresh data:', freshData);
+          console.log('✅ [RECOVERY] ==========================================');
           
           // Update the recovered data with the user's change
           const recoveredData = { ...freshData };
@@ -785,6 +964,42 @@ export default function DynamicAuditLandingPage() {
             case 'serviceTemplatesDescription':
               recoveredData.serviceTemplatesDescription = newValue;
               break;
+            case 'tableHeaderLessons':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderLessons to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting lessons to:', newValue);
+              recoveredData.courseOutlineTableHeaders.lessons = newValue;
+              console.log('✅ [RECOVERY] Updated table header lessons in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              break;
+            case 'tableHeaderAssessment':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderAssessment to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting assessment to:', newValue);
+              recoveredData.courseOutlineTableHeaders.assessment = newValue;
+              console.log('✅ [RECOVERY] Updated table header assessment in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              break;
+            case 'tableHeaderDuration':
+              console.log('🎯 [RECOVERY TABLE HEADER] Applying tableHeaderDuration to recovered data');
+              console.log('🎯 [RECOVERY TABLE HEADER] Current courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              if (!recoveredData.courseOutlineTableHeaders) {
+                console.log('🎯 [RECOVERY TABLE HEADER] Creating new courseOutlineTableHeaders object');
+                recoveredData.courseOutlineTableHeaders = { lessons: '', assessment: '', duration: '' };
+              }
+              console.log('🎯 [RECOVERY TABLE HEADER] Setting duration to:', newValue);
+              recoveredData.courseOutlineTableHeaders.duration = newValue;
+              console.log('✅ [RECOVERY] Updated table header duration in recovered data');
+              console.log('✅ [RECOVERY] New courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+              break;
             default:
               if (field.startsWith('jobPosition_')) {
                 const index = parseInt(field.split('_')[1]);
@@ -818,15 +1033,36 @@ export default function DynamicAuditLandingPage() {
           }
           
           // Update local state with recovered data
+          console.log('🔄 [RECOVERY STATE UPDATE] ==========================================');
+          console.log('🔄 [RECOVERY STATE UPDATE] Applying recovered data to local state');
+          console.log('🔄 [RECOVERY STATE UPDATE] Recovered data keys:', Object.keys(recoveredData));
+          console.log('🔄 [RECOVERY STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in recoveredData);
+          if ('courseOutlineTableHeaders' in recoveredData) {
+            console.log('🔄 [RECOVERY STATE UPDATE] courseOutlineTableHeaders:', recoveredData.courseOutlineTableHeaders);
+          }
+          console.log('🔄 [RECOVERY STATE UPDATE] Calling setLandingPageData with recovered data...');
           setLandingPageData(recoveredData);
           updatedData = recoveredData;
           console.log('✅ [RECOVERY] Updated local state with recovered data');
+          console.log('✅ [RECOVERY] updatedData now equals recoveredData');
+          console.log('✅ [RECOVERY] updatedData.courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+          console.log('🔄 [RECOVERY STATE UPDATE] ==========================================');
         } else {
-          console.error('❌ [RECOVERY FAILED] Could not fetch fresh data, aborting save');
+          console.error('❌ [RECOVERY FAILED] ==========================================');
+          console.error('❌ [RECOVERY FAILED] Could not fetch fresh data');
+          console.error('❌ [RECOVERY FAILED] Response status:', response.status);
+          console.error('❌ [RECOVERY FAILED] Aborting save to prevent data loss');
+          console.error('❌ [RECOVERY FAILED] ==========================================');
           return;
         }
       } catch (error) {
-        console.error('❌ [RECOVERY FAILED] Error during data recovery:', error);
+        console.error('❌ [RECOVERY FAILED] ==========================================');
+        console.error('❌ [RECOVERY FAILED] Exception during data recovery');
+        console.error('❌ [RECOVERY FAILED] Error:', error);
+        console.error('❌ [RECOVERY FAILED] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+        console.error('❌ [RECOVERY FAILED] Error message:', error instanceof Error ? error.message : String(error));
+        console.error('❌ [RECOVERY FAILED] Aborting save to prevent data loss');
+        console.error('❌ [RECOVERY FAILED] ==========================================');
         return;
       }
     }
@@ -849,8 +1085,21 @@ export default function DynamicAuditLandingPage() {
       microProductContentKeys: Object.keys(updatedData || {}),
       hasCompanyName: 'companyName' in (updatedData || {}),
       hasJobPositions: 'jobPositions' in (updatedData || {}),
+      hasCourseOutlineTableHeaders: 'courseOutlineTableHeaders' in (updatedData || {}),
+      courseOutlineTableHeaders: updatedData.courseOutlineTableHeaders,
       dataStructureValid: isValidAuditData
     });
+    
+    // 🔍 CRITICAL LOGGING: Verify table headers are in the payload
+    if (field.startsWith('tableHeader')) {
+      console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Saving table header field:', field);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] New value:', newValue);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] courseOutlineTableHeaders in updatedData:', updatedData.courseOutlineTableHeaders);
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Full courseOutlineTableHeaders:', JSON.stringify(updatedData.courseOutlineTableHeaders, null, 2));
+      console.log('🎯 [TABLE HEADER PERSISTENCE] Will be included in API payload: YES');
+      console.log('🎯 [TABLE HEADER PERSISTENCE] ==========================================');
+    }
     
     try {
       const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
@@ -867,25 +1116,52 @@ export default function DynamicAuditLandingPage() {
       console.log('🌐 [API CALL START] Payload size:', JSON.stringify(requestPayload).length, 'bytes');
       console.log('🌐 [API CALL START] Timestamp:', new Date().toISOString());
       
+      // 🔍 EXTRA LOGGING: Table headers in payload
+      if (field.startsWith('tableHeader')) {
+        console.log('🎯 [TABLE HEADER API] courseOutlineTableHeaders in payload:', requestPayload.microProductContent.courseOutlineTableHeaders);
+      }
+      
+      console.log('📤 [SENDING TO BACKEND] ==========================================');
+      console.log('📤 [SENDING TO BACKEND] About to send PUT request');
+      console.log('📤 [SENDING TO BACKEND] URL:', apiEndpoint);
+      console.log('📤 [SENDING TO BACKEND] Body size:', JSON.stringify(requestPayload).length, 'bytes');
+      console.log('📤 [SENDING TO BACKEND] Timestamp:', new Date().toISOString());
+      console.log('📤 [SENDING TO BACKEND] ==========================================');
+      
       const response = await fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestPayload),
-      })
+      });
       
       console.log('📡 [API RESPONSE] ===========================================');
+      console.log('📡 [API RESPONSE] Received response from backend');
       console.log('📡 [API RESPONSE] Status:', response.status);
       console.log('📡 [API RESPONSE] Status Text:', response.statusText);
+      console.log('📡 [API RESPONSE] OK:', response.ok);
       console.log('📡 [API RESPONSE] Headers:', Object.fromEntries(response.headers.entries()));
       console.log('📡 [API RESPONSE] Timestamp:', new Date().toISOString());
+      console.log('📡 [API RESPONSE] ===========================================');
       
       if (response.ok) {
         console.log('✅ [API SUCCESS] Request successful');
         const responseData = await response.json();
         console.log('✅ [API SUCCESS] Response data:', JSON.stringify(responseData, null, 2));
         console.log('✅ [AUTO SAVE] Successfully saved to database');
+        
+        // 🎯 CRITICAL LOGGING: Confirm table headers were saved
+        if (field.startsWith('tableHeader')) {
+          console.log('🎯 [TABLE HEADER SAVED] ==========================================');
+          console.log('🎯 [TABLE HEADER SAVED] Field:', field);
+          console.log('🎯 [TABLE HEADER SAVED] New value:', newValue);
+          console.log('🎯 [TABLE HEADER SAVED] Database save confirmed: YES');
+          console.log('🎯 [TABLE HEADER SAVED] Updated courseOutlineTableHeaders:', updatedData.courseOutlineTableHeaders);
+          console.log('🎯 [TABLE HEADER SAVED] On next page load, this value should be retrieved from DB');
+          console.log('🎯 [TABLE HEADER SAVED] ==========================================');
+        }
+        
         setHasUnsavedChanges(false)
       } else {
         console.error('❌ [API ERROR] Request failed');
@@ -905,7 +1181,21 @@ export default function DynamicAuditLandingPage() {
       setHasUnsavedChanges(true)
     }
     
+    console.log('🏁 [SAVE COMPLETE] ==========================================');
+    console.log('🏁 [SAVE COMPLETE] Save workflow finished');
+    console.log('🏁 [SAVE COMPLETE] Field:', field);
+    console.log('🏁 [SAVE COMPLETE] Final value:', newValue);
+    console.log('🏁 [SAVE COMPLETE] Calling stopEditing to exit edit mode...');
+    console.log('🏁 [SAVE COMPLETE] ==========================================');
+    
     stopEditing()
+    
+    console.log('🎬 [SAVE END] ==========================================');
+    console.log('🎬 [SAVE END] handleTextSave function completed');
+    console.log('🎬 [SAVE END] Edit mode should now be closed');
+    console.log('🎬 [SAVE END] Data should be persisted in database');
+    console.log('🎬 [SAVE END] Timestamp:', new Date().toISOString());
+    console.log('🎬 [SAVE END] ==========================================');
   }
 
 
@@ -1121,6 +1411,20 @@ export default function DynamicAuditLandingPage() {
         console.log(`📥 [FRONTEND DATA FLOW] - Company Description: "${data.companyDescription}"`)
         console.log(`📥 [FRONTEND DATA FLOW] - Job Positions Count: ${data.jobPositions?.length || 0}`)
         
+        // 🎯 CRITICAL LOGGING: Table headers retrieval
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] ==========================================`)
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] courseOutlineTableHeaders in response:`, data.courseOutlineTableHeaders)
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] Has courseOutlineTableHeaders: ${'courseOutlineTableHeaders' in data}`)
+        if (data.courseOutlineTableHeaders) {
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Lessons: "${data.courseOutlineTableHeaders.lessons || 'NOT SET'}"`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Assessment: "${data.courseOutlineTableHeaders.assessment || 'NOT SET'}"`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] - Duration: "${data.courseOutlineTableHeaders.duration || 'NOT SET'}"`)
+        } else {
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] courseOutlineTableHeaders NOT FOUND in API response`)
+          console.log(`🎯 [TABLE HEADER RETRIEVAL] Table headers will use default localized values`)
+        }
+        console.log(`🎯 [TABLE HEADER RETRIEVAL] ==========================================`)
+        
         if (data.jobPositions && data.jobPositions.length > 0) {
           console.log(`📥 [FRONTEND DATA FLOW] Job Positions:`)
           data.jobPositions.forEach((position: any, index: number) => {
@@ -1168,27 +1472,61 @@ export default function DynamicAuditLandingPage() {
           console.log('🔧 [INIT] Initialized serviceTemplatesDescription with default value');
         }
         
-        setLandingPageData(data)
-        console.log(`✅ [FRONTEND DATA FLOW] Landing page data set successfully`)
+        console.log('🔄 [FRONTEND STATE UPDATE] ==========================================');
+        console.log('🔄 [FRONTEND STATE UPDATE] Setting landing page data to state');
+        console.log('🔄 [FRONTEND STATE UPDATE] Data keys:', Object.keys(data));
+        console.log('🔄 [FRONTEND STATE UPDATE] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in data);
+        if ('courseOutlineTableHeaders' in data && data.courseOutlineTableHeaders) {
+          console.log('🔄 [FRONTEND STATE UPDATE] ✅ courseOutlineTableHeaders present in data!');
+          console.log('🔄 [FRONTEND STATE UPDATE] Table headers:', data.courseOutlineTableHeaders);
+          console.log('🔄 [FRONTEND STATE UPDATE] - Lessons:', data.courseOutlineTableHeaders.lessons || 'NOT SET');
+          console.log('🔄 [FRONTEND STATE UPDATE] - Assessment:', data.courseOutlineTableHeaders.assessment || 'NOT SET');
+          console.log('🔄 [FRONTEND STATE UPDATE] - Duration:', data.courseOutlineTableHeaders.duration || 'NOT SET');
+        } else {
+          console.log('🔄 [FRONTEND STATE UPDATE] ❌ courseOutlineTableHeaders NOT in data or is null/undefined');
+          console.log('🔄 [FRONTEND STATE UPDATE] Will use default localized values for table headers');
+        }
+        console.log('🔄 [FRONTEND STATE UPDATE] Calling setLandingPageData...');
+        setLandingPageData(data);
+        console.log('✅ [FRONTEND DATA FLOW] Landing page data set successfully');
+        console.log('🔄 [FRONTEND STATE UPDATE] ==========================================');
         
         // 📊 DETAILED LOGGING: Language parameter after setting state
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "${data.language}"`)
-        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering`)
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - language: "${data.language}"`);
+        console.log(`🔍 [LANGUAGE FLOW DEBUG] Landing page data set - will be used for conditional rendering`);
         
       } catch (err) {
-        console.error(`❌ [FRONTEND DATA FLOW] Error occurred:`, err)
+        console.error('❌ [FRONTEND DATA FLOW] ==========================================');
+        console.error('❌ [FRONTEND DATA FLOW] Error occurred during data fetch');
+        console.error('❌ [FRONTEND DATA FLOW] Error:', err);
+        console.error('❌ [FRONTEND DATA FLOW] Error type:', err instanceof Error ? err.constructor.name : typeof err);
+        console.error('❌ [FRONTEND DATA FLOW] Error message:', err instanceof Error ? err.message : String(err));
+        console.error('❌ [FRONTEND DATA FLOW] ==========================================');
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
-        setLoading(false)
-        console.log(`🏁 [FRONTEND DATA FLOW] Data fetch process completed`)
+        setLoading(false);
+        console.log('🏁 [FRONTEND DATA FLOW] ==========================================');
+        console.log('🏁 [FRONTEND DATA FLOW] Data fetch process completed');
+        console.log('🏁 [FRONTEND DATA FLOW] Loading state set to false');
+        console.log('🏁 [FRONTEND DATA FLOW] Component ready to render');
+        console.log('🏁 [FRONTEND DATA FLOW] Timestamp:', new Date().toISOString());
+        console.log('🏁 [FRONTEND DATA FLOW] ==========================================');
       }
     }
 
     if (projectId) {
-      console.log(`🚀 [FRONTEND DATA FLOW] Project ID available, starting fetch: ${projectId}`)
+      console.log('🚀 [COMPONENT MOUNT] ==========================================');
+      console.log('🚀 [COMPONENT MOUNT] DynamicAuditLandingPage component mounting');
+      console.log('🚀 [COMPONENT MOUNT] Project ID available:', projectId);
+      console.log('🚀 [COMPONENT MOUNT] Starting data fetch...');
+      console.log('🚀 [COMPONENT MOUNT] Timestamp:', new Date().toISOString());
+      console.log('🚀 [COMPONENT MOUNT] ==========================================');
       fetchLandingPageData()
     } else {
-      console.error('❌ [FRONTEND DATA FLOW] Project ID not found')
+      console.error('❌ [COMPONENT MOUNT] ==========================================');
+      console.error('❌ [COMPONENT MOUNT] Project ID not found in URL params');
+      console.error('❌ [COMPONENT MOUNT] Cannot fetch landing page data');
+      console.error('❌ [COMPONENT MOUNT] ==========================================');
       setError('Project ID not found')
       setLoading(false)
     }
@@ -1248,6 +1586,44 @@ export default function DynamicAuditLandingPage() {
       console.log(`🎨 [FRONTEND DATA FLOW] - Position ${index + 1}: "${position.title}" with icon "${position.icon}"`)
     })
   }
+  
+  // 🎯 CRITICAL LOGGING: Table headers rendering values
+  console.log('🎨 [TABLE HEADER RENDER] ==========================================');
+  console.log('🎨 [TABLE HEADER RENDER] About to render table headers in UI');
+  console.log('🎨 [TABLE HEADER RENDER] landingPageData.courseOutlineTableHeaders:', landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] Has courseOutlineTableHeaders:', 'courseOutlineTableHeaders' in landingPageData);
+  
+  // Calculate what will actually be displayed
+  const displayedLessonsHeader = landingPageData.courseOutlineTableHeaders?.lessons || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Lessons in module',
+      es: 'Lecciones en módulo',
+      ua: 'Уроки в модулі',
+      ru: 'Уроки в модуле'
+    });
+  const displayedAssessmentHeader = landingPageData.courseOutlineTableHeaders?.assessment || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Knowledge check: test / practice with mentor',
+      es: 'Verificación de conocimientos: prueba / práctica con mentor',
+      ua: 'Перевірка знань: тест / практика з куратором',
+      ru: 'Проверка знаний: тест / практика с куратором'
+    });
+  const displayedDurationHeader = landingPageData.courseOutlineTableHeaders?.duration || 
+    getLocalizedText(landingPageData?.language, {
+      en: 'Training duration',
+      es: 'Duración del entrenamiento',
+      ua: 'Тривалість навчання',
+      ru: 'Длительность обучения'
+    });
+  
+  console.log('🎨 [TABLE HEADER RENDER] ACTUAL VALUES TO BE DISPLAYED:');
+  console.log('🎨 [TABLE HEADER RENDER] - Lessons column:', displayedLessonsHeader);
+  console.log('🎨 [TABLE HEADER RENDER] - Assessment column:', displayedAssessmentHeader);
+  console.log('🎨 [TABLE HEADER RENDER] - Duration column:', displayedDurationHeader);
+  console.log('🎨 [TABLE HEADER RENDER] Language:', landingPageData?.language);
+  console.log('🎨 [TABLE HEADER RENDER] Using custom values:', !!landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] Using default localized values:', !landingPageData.courseOutlineTableHeaders);
+  console.log('🎨 [TABLE HEADER RENDER] ==========================================');
 
   return (
       <>
@@ -2869,28 +3245,163 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Knowledge check: test / practice with mentor',
-                                      es: 'Verificación de conocimientos: prueba / práctica con mentor',
-                                      ua: 'Перевірка знань: тест / практика з куратором',
-                                      ru: 'Проверка знаний: тест / практика с куратором'
-                                    })}
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%] border-l border-white/20 pl-[20px]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Training duration',
-                                      es: 'Duración del entrenamiento',
-                                      ua: 'Тривалість навчання',
-                                      ru: 'Длительность обучения'
-                                    })}
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -3159,18 +3670,163 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Проверка знаний
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Время
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -3405,18 +4061,163 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Проверка знаний
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Время
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -3651,18 +4452,163 @@ export default function DynamicAuditLandingPage() {
                               <div className="bg-[#0F58F9] px-[20px] py-[12px]">
                                 <div className="grid grid-cols-3 gap-[20px]">
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    {getLocalizedText(landingPageData?.language, {
-                                      en: 'Lessons in module',
-                                      es: 'Lecciones en módulo',
-                                      ua: 'Уроки в модулі',
-                                      ru: 'Уроки в модуле'
-                                    })}
+                                    {editingField === 'tableHeaderLessons' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderLessons', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderLessons');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderLessons")');
+                                          startEditing('tableHeaderLessons');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.lessons || getLocalizedText(landingPageData?.language, {
+                                          en: 'Lessons in module',
+                                          es: 'Lecciones en módulo',
+                                          ua: 'Уроки в модулі',
+                                          ru: 'Уроки в модуле'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Проверка знаний
+                                    {editingField === 'tableHeaderAssessment' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderAssessment', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '200px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderAssessment');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderAssessment")');
+                                          startEditing('tableHeaderAssessment');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.assessment || getLocalizedText(landingPageData?.language, {
+                                          en: 'Knowledge check: test / practice with mentor',
+                                          es: 'Verificación de conocimientos: prueba / práctica con mentor',
+                                          ua: 'Перевірка знань: тест / практика з куратором',
+                                          ru: 'Проверка знаний: тест / практика с куратором'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                   <div className="text-white font-medium text-[12px] leading-[100%]">
-                                    Время
+                                    {editingField === 'tableHeaderDuration' ? (
+                                      <InlineEditor
+                                        initialValue={landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                        onSave={(value) => handleTextSave('tableHeaderDuration', value)}
+                                        onCancel={handleTextCancel}
+                                        className="font-medium text-white inline-block"
+                                        style={{ fontSize: '12px', color: 'white', lineHeight: '1.5', minWidth: '120px' }}
+                                      />
+                                    ) : (
+                                      <span 
+                                        onMouseDown={(e) => {
+                                          console.log('🖱️ [TABLE HEADER] MouseDown on tableHeaderDuration');
+                                          console.log('🖱️ [TABLE HEADER] Event target:', e.target);
+                                          console.log('🖱️ [TABLE HEADER] Current target:', e.currentTarget);
+                                          console.log('🖱️ [TABLE HEADER] Active element before:', document.activeElement);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('🖱️ [TABLE HEADER] Event propagation stopped and default prevented');
+                                        }}
+                                        onClick={(e) => {
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK START ==========');
+                                          console.log('👆 [TABLE HEADER CLICK] Field: tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] Event:', e);
+                                          console.log('👆 [TABLE HEADER CLICK] Target:', e.target);
+                                          console.log('👆 [TABLE HEADER CLICK] Current target:', e.currentTarget);
+                                          console.log('👆 [TABLE HEADER CLICK] Active element before click:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] Current editing field:', editingField);
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          console.log('👆 [TABLE HEADER CLICK] Calling startEditing("tableHeaderDuration")');
+                                          startEditing('tableHeaderDuration');
+                                          console.log('👆 [TABLE HEADER CLICK] startEditing called');
+                                          console.log('👆 [TABLE HEADER CLICK] Active element after startEditing:', document.activeElement);
+                                          console.log('👆 [TABLE HEADER CLICK] ========== CLICK END ==========');
+                                        }}
+                                        className="cursor-pointer border border-transparent hover:border-white/50 px-1 rounded inline-block"
+                                        title="Click to edit header"
+                                      >
+                                        {landingPageData?.courseOutlineTableHeaders?.duration || getLocalizedText(landingPageData?.language, {
+                                          en: 'Training duration',
+                                          es: 'Duración del entrenamiento',
+                                          ua: 'Тривалість навчання',
+                                          ru: 'Длительность обучения'
+                                        })}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               </div>
