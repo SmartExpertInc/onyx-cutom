@@ -24,6 +24,7 @@ from onyx.db.enums import ConnectorCredentialPairStatus
 from onyx.db.models import Connector
 from onyx.db.models import ConnectorCredentialPair
 from onyx.db.models import Credential
+from onyx.db.models import DocumentSet__ConnectorCredentialPair
 from onyx.db.models import IndexAttempt
 from onyx.db.models import IndexingStatus
 from onyx.db.models import SearchSettings
@@ -417,6 +418,40 @@ def delete_connector_credential_pair__no_commit(
     connector_id: int,
     credential_id: int,
 ) -> None:
+    """Delete a connector credential pair and all its associated relationships.
+    
+    This function handles cleanup of all foreign key relationships before deleting
+    the connector credential pair itself to avoid foreign key violations.
+    """
+    # First, get the cc_pair to obtain its id for relationship cleanup
+    cc_pair = get_connector_credential_pair(
+        db_session=db_session,
+        connector_id=connector_id,
+        credential_id=credential_id,
+    )
+    
+    if cc_pair is None:
+        logger.warning(
+            f"Attempted to delete non-existent ConnectorCredentialPair with "
+            f"connector_id={connector_id}, credential_id={credential_id}"
+        )
+        return
+    
+    cc_pair_id = cc_pair.id
+    
+    # Delete user group associations
+    stmt = delete(UserGroup__ConnectorCredentialPair).where(
+        UserGroup__ConnectorCredentialPair.cc_pair_id == cc_pair_id
+    )
+    db_session.execute(stmt)
+    
+    # Delete document set associations
+    stmt = delete(DocumentSet__ConnectorCredentialPair).where(
+        DocumentSet__ConnectorCredentialPair.connector_credential_pair_id == cc_pair_id
+    )
+    db_session.execute(stmt)
+    
+    # Finally, delete the connector credential pair itself
     stmt = delete(ConnectorCredentialPair).where(
         ConnectorCredentialPair.connector_id == connector_id,
         ConnectorCredentialPair.credential_id == credential_id,
