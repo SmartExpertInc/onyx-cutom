@@ -35,6 +35,7 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
+  const [currentTitle, setCurrentTitle] = useState(title);
 
   const slide: React.CSSProperties = { 
     width:'100%', 
@@ -183,22 +184,30 @@ export const TopicsSlideTemplate: React.FC<TopicsSlideProps & { theme?: SlideThe
           {isEditable && editKey === 'title' ? (
             <ImprovedInlineEditor 
               initialValue={title} 
+              onChange={(value) => setCurrentTitle(value)}
               onSave={(value) => { 
                 onUpdate && onUpdate({ title: value }); 
                 setEditKey(null); 
               }} 
-              onCancel={() => setEditKey(null)} 
+              onCancel={() => { 
+                setEditKey(null);
+                setCurrentTitle(title);
+              }} 
               className="title-element"
               style={{
                 ...inline(topicsTitleStyle), 
                 display: 'inline-block',
-                minWidth: `${title.length}ch`,
-                width: 'auto',
+                width: `${Math.max(currentTitle.length * 0.55, 3)}em`,
                 maxWidth: '500px'
               }}
             />
           ) : (
-            <div className="title-element" style={topicsTitleStyle} onClick={() => isEditable && setEditKey('title')}>
+            <div className="title-element" style={topicsTitleStyle} onClick={() => { 
+              if (isEditable) {
+                setCurrentTitle(title);
+                setEditKey('title');
+              }
+            }}>
               {title}
             </div>
           )}

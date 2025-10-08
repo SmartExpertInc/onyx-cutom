@@ -6,6 +6,7 @@ interface ImprovedInlineEditorProps {
   initialValue: string;
   onSave: (value: string) => void;
   onCancel: () => void;
+  onChange?: (value: string) => void;
   multiline?: boolean;
   placeholder?: string;
   className?: string;
@@ -16,6 +17,7 @@ export function ImprovedInlineEditor({
   initialValue, 
   onSave, 
   onCancel, 
+  onChange,
   multiline = false, 
   placeholder = "",
   className = "",
@@ -23,6 +25,11 @@ export function ImprovedInlineEditor({
 }: ImprovedInlineEditorProps) {
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue);
+    onChange?.(newValue);
+  };
 
   useEffect(() => {
     if (inputRef.current) {
@@ -104,7 +111,7 @@ export function ImprovedInlineEditor({
         ref={inputRef as React.RefObject<HTMLTextAreaElement>}
         className={`improved-inline-editor-textarea ${className}`}
         value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleValueChange(e.target.value)}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder={placeholder}
@@ -126,7 +133,7 @@ export function ImprovedInlineEditor({
       className={`improved-inline-editor-input ${className}`}
       type="text"
       value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValueChange(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       placeholder={placeholder}
