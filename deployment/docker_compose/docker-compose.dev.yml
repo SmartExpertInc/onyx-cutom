@@ -522,6 +522,8 @@ services:
         max-file: "3"
     volumes:
       - ../../custom_extensions/backend:/app
+      # CRITICAL: Prevent volume mount from overriding Docker-built node_modules
+      - /app/video_compositions/node_modules
 
 volumes:
   db_volume:
