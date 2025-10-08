@@ -11,6 +11,8 @@ type EntitlementRow = {
 };
 
 const EntitlementsTab: React.FC = () => {
+  const CUSTOM_BACKEND_URL =
+    process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
   const [rows, setRows] = useState<EntitlementRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ const EntitlementsTab: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/custom/admin/entitlements`, { credentials: 'include' });
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/admin/entitlements`, { credentials: 'include' });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setRows(data || []);
@@ -38,7 +40,7 @@ const EntitlementsTab: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/custom/admin/entitlements/${userId}`, {
+      const res = await fetch(`${CUSTOM_BACKEND_URL}/admin/entitlements/${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
