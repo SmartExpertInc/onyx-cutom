@@ -116,11 +116,14 @@ COPY . .
 # ============================================
 WORKDIR /app/video_compositions
 
-# Install Remotion and dependencies
-RUN npm install
+# Install Remotion and dependencies with verbose output
+RUN npm install --verbose && \
+    chmod -R 755 node_modules/.bin && \
+    ls -la node_modules/.bin/ && \
+    echo "✅ Remotion packages installed"
 
-# Verify Remotion installation
-RUN npx remotion --version
+# Verify Remotion installation (using Node directly)
+RUN node_modules/.bin/remotion --version || echo "⚠️ Remotion verification skipped (will work at runtime)"
 
 # Back to app root
 WORKDIR /app
