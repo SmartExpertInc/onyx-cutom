@@ -125,7 +125,10 @@ export const CourseRulesTimelineSlideTemplate: React.FC<CourseRulesTimelineSlide
         .course-rules-timeline-slide .step-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
-        .course-rules-timeline-slide-logo, course-rules-timeline-slide-page-number * {
+        .course-rules-timeline-slide-logo,
+        .course-rules-timeline-slide-logo *,
+        .course-rules-timeline-slide-page-number,
+        .course-rules-timeline-slide-page-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 500 !important;
         }

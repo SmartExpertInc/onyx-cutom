@@ -216,10 +216,10 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               <div style={{
                 padding: '8px 18px',
                 display: 'flex',
-                gap: '8px',
+                gap: '10px',
                 border: '2px solid black',
                 borderRadius: '50px',
-                fontSize: '17px',
+                fontSize: '18px',
                 color: '#333333',
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: '600'
@@ -228,7 +228,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                marginTop: '8px',
+                marginTop: '10px',
                 backgroundColor: '#3B8BE9'
               }}></div>
                 {isEditable && editingTitle ? (
@@ -382,11 +382,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 }}>
                   {/* Title */}
                   <div style={{
-                    fontSize: '16px',
+                    fontSize: '15px',
                     color: 'black',
                     marginBottom: '8px',
                     lineHeight: '1.3',
-                    fontWeight: '600',
+                    fontWeight: '500',
                     fontFamily: 'Inter, sans-serif'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
@@ -396,10 +396,10 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         onCancel={handlePracticeCancel}
                         className="practice-title-editor"
                         style={{
-                          fontSize: '16px',
+                          fontSize: '15px',
                           color: 'black',
                           lineHeight: '1.3',
-                          fontWeight: '600',
+                          fontWeight: '500',
                           fontFamily: 'Inter, sans-serif',
                           width: '100%',
                           height: 'auto'

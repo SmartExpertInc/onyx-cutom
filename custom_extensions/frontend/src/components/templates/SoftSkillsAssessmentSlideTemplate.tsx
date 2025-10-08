@@ -318,7 +318,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
       <div style={{
         display: 'flex',
         gap: '30px',
-        marginTop: '-17px'
+        marginTop: '-20px'
       }}>
         {currentTips.map((tip, index) => (
           <div
@@ -332,15 +332,15 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
           >
             {/* Main tip block */}
             <div style={{
-              padding: '30px 90px 30px 32px',
+              padding: '20px 90px 30px 32px',
               backgroundColor: index === 0 ? '#E0E7FF' : index === 1 ? '#0F58F9' : 'transparent',
-              minHeight: '310px',
+              minHeight: '320px',
               display: 'flex',
               zIndex: '2',
               borderRadius: '4px',
             }}>
               <div style={{
-                fontSize: '32px',
+                fontSize: '33px',
                 fontWeight: '700',
                 color: index === 0 ? '#000000' : '#FFFFFF',
                 lineHeight: '1.4',
@@ -354,7 +354,7 @@ export const SoftSkillsAssessmentSlideTemplate: React.FC<SoftSkillsAssessmentSli
                     multiline={true}
                     className="card-text"
                     style={{
-                      fontSize: '32px',
+                      fontSize: '33px',
                       maxWidth: '386px',
                       fontWeight: '700',
                       color: index === 0 ? '#000000' : '#FFFFFF',

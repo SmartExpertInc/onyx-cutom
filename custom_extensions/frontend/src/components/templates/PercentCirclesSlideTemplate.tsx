@@ -66,9 +66,9 @@ export const PercentCirclesSlideTemplate: React.FC<PercentCirclesProps & { theme
   const titleStyle: React.CSSProperties = { 
     position:'absolute', 
     left:'50px', 
-    top:'60px', 
-    right:'500px', // Add right margin to prevent overlap with avatar
-    fontSize:'50px', 
+    top:'50px', 
+    right:'550px', // Add right margin to prevent overlap with avatar
+    fontSize:'47px', 
     fontWeight:1100, 
     color:'#000000',
     whiteSpace:'pre-line',
