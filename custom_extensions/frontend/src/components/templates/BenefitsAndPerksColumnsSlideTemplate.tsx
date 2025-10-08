@@ -66,8 +66,10 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       marginBottom:'25px'
     };
   };
-  const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5, lineHeight:1.1, marginBottom:'50px' };
-  const body: React.CSSProperties = { fontSize:'16px', opacity:0.7 };
+  const title: React.CSSProperties = { fontSize:'26px', fontWeight:800, letterSpacing:0.5, lineHeight:1.3, marginBottom:'100px' };
+  const titleAccent: React.CSSProperties = { ...title, color:'#09090B' };
+  const body: React.CSSProperties = { fontSize:'16px', opacity:0.7, lineHeight:1.3 };
+  const bodyAccent: React.CSSProperties = { fontSize:'16px', color:'#09090B', opacity:0.7 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
@@ -119,14 +121,14 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
           <div key={i} style={c.accent ? colAccent : colBase}>
             <div className="number-badge" style={numberBadge(i+1)}>{i+1}</div>
             {isEditable && editCol && editCol.idx===i && editCol.field==='title' ? (
-              <ImprovedInlineEditor initialValue={c.title} onSave={(v)=> saveCol(i,'title',v)} onCancel={()=> setEditCol(null)} className="title-element" style={inline(title)} />
+              <ImprovedInlineEditor initialValue={c.title} onSave={(v)=> saveCol(i,'title',v)} onCancel={()=> setEditCol(null)} className="title-element" style={inline(c.accent ? titleAccent : title)} />
             ) : (
-              <div className="title-element" onClick={()=> isEditable && setEditCol({ idx:i, field:'title' })} style={{ ...title, cursor: isEditable ? 'pointer':'default' }}>{c.title}</div>
+              <div className="title-element" onClick={()=> isEditable && setEditCol({ idx:i, field:'title' })} style={{ ...(c.accent ? titleAccent : title), cursor: isEditable ? 'pointer':'default' }}>{c.title}</div>
             )}
             {isEditable && editCol && editCol.idx===i && editCol.field==='body' ? (
-              <ImprovedInlineEditor initialValue={c.body} multiline={true} onSave={(v)=> saveCol(i,'body',v)} onCancel={()=> setEditCol(null)} style={inline(body)} />
+              <ImprovedInlineEditor initialValue={c.body} multiline={true} onSave={(v)=> saveCol(i,'body',v)} onCancel={()=> setEditCol(null)} style={inline(c.accent ? bodyAccent : body)} />
             ) : (
-              <div onClick={()=> isEditable && setEditCol({ idx:i, field:'body' })} style={{ ...body, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{c.body}</div>
+              <div onClick={()=> isEditable && setEditCol({ idx:i, field:'body' })} style={{ ...(c.accent ? bodyAccent : body), cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-wrap' }}>{c.body}</div>
             )}
           </div>
         ))}
