@@ -141,8 +141,8 @@ export const EnterpriseRoadmapSlideTemplate: React.FC<EnterpriseRoadmapSlideProp
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', position:'relative', background:'#FFFFFF', fontFamily: currentTheme.fonts.titleFont };
   const avatarArea: React.CSSProperties = { position:'absolute', left:'60px', top:'45px', width:'168px', height:'168px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9' };
-  const titleStyle: React.CSSProperties = { position:'absolute', left:'260px', top:'55px', fontSize:'35px', color:'#000000', fontWeight:600, fontFamily:'Lora, serif' };
-  const descStyle: React.CSSProperties = { position:'absolute', left:'260px', top:'120px', width:'630px', color:'#555555', fontSize:'17px', lineHeight:1.4, fontFamily:'Inter, sans-serif' };
+  const titleStyle: React.CSSProperties = { position:'absolute', left:'270px', top:'55px', fontSize:'35px', color:'#000000', fontWeight:600, fontFamily:'Lora, serif' };
+  const descStyle: React.CSSProperties = { position:'absolute', left:'270px', top:'120px', width:'630px', color:'#555555', fontSize:'17px', lineHeight:1.4, fontFamily:'Inter, sans-serif' };
 
   const tableWrap: React.CSSProperties = { position:'absolute', left:'60px', right:'60px', top:'240px' };
   const gridTemplate = `${cols.map(()=> '1fr').join(' ')}`;
