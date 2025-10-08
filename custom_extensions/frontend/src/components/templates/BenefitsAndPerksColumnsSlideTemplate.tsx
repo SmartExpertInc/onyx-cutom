@@ -104,7 +104,6 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
     outline: 'none',
     padding: 0,
     margin: 0,
-    width: '100%',
     height: 'auto',
     whiteSpace: 'pre-wrap',
     wordWrap: 'break-word',
@@ -226,7 +225,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
               <div 
                 className="title-element" 
                 onClick={() => isEditable && setEditingColumns({ idx: i, field: 'title' })} 
-                style={{ ...(c.accent ? titleAccent : title), cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+                style={{ ...(c.accent ? titleAccent : title), cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', margin: 0, padding: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}
               >
                 {c.title}
               </div>
@@ -242,7 +241,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
             ) : (
               <div 
                 onClick={() => isEditable && setEditingColumns({ idx: i, field: 'body' })} 
-                style={{ ...(c.accent ? bodyAccent : body), cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'pre-wrap' }}
+                style={{ ...(c.accent ? bodyAccent : body), cursor: isEditable ? 'pointer' : 'default', userSelect: 'none', whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word', margin: 0, padding: 0 }}
               >
                 {c.body}
               </div>
