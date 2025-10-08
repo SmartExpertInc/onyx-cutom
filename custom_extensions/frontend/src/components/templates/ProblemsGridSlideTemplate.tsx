@@ -61,6 +61,21 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
   const pageNumberStyle: React.CSSProperties = { position:'absolute', bottom:'24px', left:'22px', color:'#5F616D', fontSize:'15px', fontWeight:400 };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-line' });
+  
+  const inlineEditor = (base: React.CSSProperties): React.CSSProperties => ({ 
+    position: 'relative',
+    background:'transparent', 
+    border:'none', 
+    outline:'none', 
+    padding:0, 
+    margin:0,
+    fontSize: base.fontSize,
+    fontWeight: base.fontWeight,
+    color: base.color,
+    lineHeight: base.lineHeight,
+    whiteSpace: base.whiteSpace || 'pre-line',
+    width: '100%'
+  });
 
   return (
     <>
@@ -93,7 +108,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
       </div>
       <div style={titleStyle}>
         {isEditable && editTitle ? (
-          <ImprovedInlineEditor className="title-element" initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={{ ...inline(titleStyle), position: 'relative' }} />
+          <ImprovedInlineEditor className="title-element" initialValue={title} onSave={(v)=>{ onUpdate&&onUpdate({ title:v }); setEditTitle(false); }} onCancel={()=>setEditTitle(false)} style={inlineEditor(titleStyle)} />
         ) : (
           <div className="title-element" onClick={()=> isEditable && setEditTitle(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{title}</div>
         )}
@@ -144,10 +159,7 @@ export const ProblemsGridSlideTemplate: React.FC<ProblemsGridSlideProps & { them
             multiline={true} 
             onSave={(v)=>{ onUpdate&&onUpdate({ rightText:v }); setEditRight(false); }} 
             onCancel={()=> setEditRight(false)} 
-            style={{ 
-              ...inline(rightTextStyle),
-              position: 'relative'
-            }} 
+            style={inlineEditor(rightTextStyle)} 
           />
         ) : (
           <div onClick={()=> isEditable && setEditRight(true)} style={{ cursor: isEditable ? 'pointer':'default' }}>{rightText}</div>

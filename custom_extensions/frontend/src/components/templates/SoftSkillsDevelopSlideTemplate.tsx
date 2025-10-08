@@ -61,7 +61,10 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
-        .softskills-item-desk, .softskills-logo {
+        .softskills-item-desk, .softskills-logo * {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .softskills-page-number * {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
       `}</style>
@@ -104,7 +107,7 @@ export const SoftSkillsDevelopSlideTemplate: React.FC<SoftSkillsDevelopProps & {
           </div>
           
           {/* Page number */}
-          <div style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
+          <div className="softskills-page-number" style={{...pageNumberStyle, display: 'flex', alignItems: 'center', gap: '8px'}}>
             <div style={{
               width: '15px',
               height: '1px',
