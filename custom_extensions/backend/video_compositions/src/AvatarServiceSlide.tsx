@@ -238,7 +238,7 @@ export const AvatarServiceSlide: React.FC<AvatarServiceSlideProps> = ({
             backgroundColor: 'transparent'
           }}
         >
-          {avatarVideoPath && (
+          {avatarVideoPath && avatarVideoPath !== 'PLACEHOLDER' && (
             <div
               style={{
                 width: '935px',
@@ -261,6 +261,29 @@ export const AvatarServiceSlide: React.FC<AvatarServiceSlideProps> = ({
                 volume={1}
                 playbackRate={1}
               />
+            </div>
+          )}
+          {avatarVideoPath === 'PLACEHOLDER' && (
+            <div
+              style={{
+                width: '935px',
+                height: '843px',
+                margin: '0 auto',
+                position: 'absolute',
+                top: '-370px',
+                zIndex: 3,
+                backgroundColor: 'rgba(255, 165, 0, 0.1)',
+                border: '2px dashed rgba(255, 165, 0, 0.5)',
+                borderRadius: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                color: 'rgba(255, 165, 0, 0.7)',
+                fontWeight: 'bold'
+              }}
+            >
+              DEBUG MODE
             </div>
           )}
         </div>

@@ -139,6 +139,58 @@ export default function VideoEditorHeader({
     setIsGenerateModalOpen(true);
   };
 
+  const handleDebugRenderClick = async () => {
+    console.log('🐛 [DEBUG_RENDER] Starting debug render (no Elai API)...');
+    
+    try {
+      // Extract current slide data
+      const slideData = {
+        slides: componentBasedSlideDeck?.slides || videoLessonData?.slides || [],
+        theme: componentBasedSlideDeck?.theme || videoLessonData?.theme || 'dark-purple',
+        voiceoverTexts: componentBasedSlideDeck?.slides?.map((s: any) => s.props?.content || s.content || '') || []
+      };
+
+      console.log('🐛 [DEBUG_RENDER] Slide data prepared:', slideData);
+
+      // Call debug render endpoint (bypasses Elai API)
+      const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || 'http://localhost:8001/api/custom';
+      const response = await fetch(`${CUSTOM_BACKEND_URL}/presentations/debug-render`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          projectName: videoTitle || 'Debug Render Test',
+          slidesData: slideData.slides,
+          theme: slideData.theme,
+          duration: 5.0  // Short duration for quick testing
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Debug render failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('🐛 [DEBUG_RENDER] Success! Video path:', result.videoPath);
+      
+      // Download the video automatically
+      const downloadUrl = `${CUSTOM_BACKEND_URL}/presentations/debug-render/${result.jobId}/video`;
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `debug_render_${result.jobId}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      alert('✅ Debug render completed! Video downloaded.');
+    } catch (error: any) {
+      console.error('🐛 [DEBUG_RENDER] Error:', error);
+      alert(`❌ Debug render failed: ${error.message}`);
+    }
+  };
+
   const handleUpgradeClick = () => {
     setIsUpgradeModalOpen(true);
   };
@@ -1020,6 +1072,18 @@ export default function VideoEditorHeader({
                 </div>
               )}
             </div>
+
+            {/* Debug Render button - Quick testing without Elai API */}
+            <button
+              onClick={handleDebugRenderClick}
+              className="bg-orange-500 text-white hover:bg-orange-600 rounded-[7px] px-3 py-1.5 flex items-center gap-2 h-8 border border-orange-600 cursor-pointer"
+              title="Quick render test without avatar (bypasses Elai API)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+              <span className="text-sm font-normal">Debug</span>
+            </button>
 
             {/* Generate button */}
             <button

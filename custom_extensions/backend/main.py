@@ -29090,6 +29090,152 @@ async def test_quick_response():
         "backend_status": "active"
     }
 
+@app.post("/api/custom/presentations/debug-render")
+async def debug_render_presentation(request: Request):
+    """
+    Debug render endpoint - Quick Remotion rendering without Elai API.
+    Uses a placeholder avatar for fast testing of slide positioning and content.
+    """
+    try:
+        logger.info("🐛 [DEBUG_RENDER] Debug render endpoint called")
+        
+        # Parse request body
+        body = await request.json()
+        
+        # Extract parameters
+        project_name = body.get("projectName", "Debug Render Test")
+        slides_data = body.get("slidesData", [])
+        theme = body.get("theme", "dark-purple")
+        duration = body.get("duration", 5.0)
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Parameters: project={project_name}, slides={len(slides_data)}, theme={theme}, duration={duration}s")
+        
+        # Generate job ID
+        import uuid
+        job_id = str(uuid.uuid4())
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Job ID: {job_id}")
+        
+        # Prepare Remotion input data
+        remotion_data = {
+            "slides": []
+        }
+        
+        for i, slide in enumerate(slides_data):
+            slide_data = {
+                "id": f"slide-{i}",
+                "title": slide.get("props", {}).get("title", ""),
+                "subtitle": slide.get("props", {}).get("subtitle", ""),
+                "content": slide.get("props", {}).get("content", ""),
+                "theme": theme,
+                "elementPositions": slide.get("metadata", {}).get("elementPositions", {}),
+                "slideId": slide.get("slideId", f"slide-{i}"),
+                "avatarVideoPath": "PLACEHOLDER",  # No avatar for debug render
+                "duration": duration
+            }
+            remotion_data["slides"].append(slide_data)
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Remotion data prepared with {len(remotion_data['slides'])} slides")
+        
+        # Write props to temp file
+        import tempfile
+        import subprocess
+        from pathlib import Path
+        
+        output_dir = Path("output/presentations")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(remotion_data, f, indent=2)
+            remotion_input_path = Path(f.name)
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Props written to: {remotion_input_path}")
+        
+        # Set up Remotion render command
+        backend_dir = Path(__file__).parent.parent
+        output_video_path = output_dir / f"debug_render_{job_id}.mp4"
+        
+        # Calculate duration in frames (30 fps)
+        duration_frames = int(duration * 30)
+        
+        render_cmd = [
+            "npx", "remotion", "render",
+            "video_compositions/src/Root.tsx",
+            "AvatarServiceSlide",
+            str(output_video_path),
+            "--props", str(remotion_input_path),
+            "--frames", str(duration_frames),
+            "--codec", "h264"
+        ]
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Executing Remotion command: {' '.join(render_cmd)}")
+        logger.info(f"🐛 [DEBUG_RENDER] Working directory: {backend_dir}")
+        
+        # Execute Remotion render
+        result = subprocess.run(
+            render_cmd,
+            cwd=str(backend_dir),
+            capture_output=True,
+            text=True,
+            timeout=120  # 2 minute timeout for debug
+        )
+        
+        # Clean up temp file
+        try:
+            remotion_input_path.unlink()
+        except:
+            pass
+        
+        if result.returncode != 0:
+            logger.error(f"🐛 [DEBUG_RENDER] Remotion render failed with code {result.returncode}")
+            logger.error(f"🐛 [DEBUG_RENDER] Stdout: {result.stdout}")
+            logger.error(f"🐛 [DEBUG_RENDER] Stderr: {result.stderr}")
+            return {
+                "success": False,
+                "error": f"Remotion render failed: {result.stderr}"
+            }
+        
+        logger.info(f"🐛 [DEBUG_RENDER] Remotion render completed successfully")
+        logger.info(f"🐛 [DEBUG_RENDER] Output video: {output_video_path}")
+        logger.info(f"🐛 [DEBUG_RENDER] Video size: {os.path.getsize(output_video_path)} bytes")
+        
+        return {
+            "success": True,
+            "jobId": job_id,
+            "videoPath": str(output_video_path),
+            "message": "Debug render completed successfully (no avatar)"
+        }
+        
+    except Exception as e:
+        logger.error(f"🐛 [DEBUG_RENDER] Error: {str(e)}")
+        import traceback
+        logger.error(f"🐛 [DEBUG_RENDER] Traceback: {traceback.format_exc()}")
+        return {
+            "success": False,
+            "error": f"Debug render failed: {str(e)}"
+        }
+
+@app.get("/api/custom/presentations/debug-render/{job_id}/video")
+async def download_debug_render_video(job_id: str):
+    """Download the debug render video."""
+    try:
+        from fastapi.responses import FileResponse
+        output_dir = Path("output/presentations")
+        video_path = output_dir / f"debug_render_{job_id}.mp4"
+        
+        if not video_path.exists():
+            raise HTTPException(status_code=404, detail="Debug render video not found")
+        
+        return FileResponse(
+            path=str(video_path),
+            media_type="video/mp4",
+            filename=f"debug_render_{job_id}.mp4"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error downloading debug render video: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/custom/presentations/{job_id}")
 async def get_presentation_status(job_id: str):
     """Get presentation processing status."""
