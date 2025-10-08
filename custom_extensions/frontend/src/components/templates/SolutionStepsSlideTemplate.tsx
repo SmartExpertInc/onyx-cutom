@@ -371,6 +371,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
                     initialValue={step.description}
                     onSave={(value) => handleStepSave(index, 'description', value)}
                     onCancel={() => setEditingSteps(null)}
+                    multiline={true}
                     className="step-description-editor"
                     style={{
                       fontSize: '20px',
