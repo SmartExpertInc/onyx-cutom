@@ -170,7 +170,7 @@ export const NumberInput: FC<NumberInputProps> = ({
       <Input
         type="number"
         name={name}
-        value={values[name] || ""}
+        value={values[name] !== null && values[name] !== undefined ? values[name] : ""}
         onChange={(e) => {
           const value = e.target.value;
           // Convert to number if it's a valid number, otherwise keep as string for validation
