@@ -325,7 +325,7 @@ export default function DataSourceLanding() {
         <CreatePageHandler />
       </Suspense>
       <Suspense fallback={
-        <main className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
+        <main className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-white">
           <div className="w-full max-w-6xl flex flex-col gap-10 items-center">
             <HeadTextCustom
               text={t('interface.createWithAI', 'Create with AI')}
@@ -382,20 +382,35 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10"
+      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-white relative overflow-hidden"
     >
+      {/* Decorative gradient background */}
+      <div 
+        className="absolute pointer-events-none"
+        style={{
+          width: '1073.05px',
+          height: '2016.35px',
+          left: '-421px',
+          top: '-603.36px',
+          borderRadius: '999px',
+          background: 'linear-gradient(180deg, #90EDE5 0%, #5D72F4 56%, #D817FF 100%)',
+          transform: 'rotate(59.9deg)',
+          filter: 'blur(100px)',
+        }}
+      />
+      
       {/* Top-left home button */}
       <Link
         href="/projects"
         onClick={onHomeClick}
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md z-10"
       >
         <HomeIcon size={16} />
         {t('interface.home', 'Home')}
       </Link>
 
       {/* Main content */}
-      <div className="w-full max-w-6xl flex flex-col gap-10 items-center">
+      <div className="w-full max-w-6xl flex flex-col gap-10 items-center relative z-10">
         {/* Headings */}
         <HeadTextCustom
           text={title}
