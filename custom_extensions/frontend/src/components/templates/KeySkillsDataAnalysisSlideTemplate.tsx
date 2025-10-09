@@ -52,7 +52,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const avatarWrap: React.CSSProperties = { position:'absolute', bottom:'60px', left:'56px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#FFFFFF', overflow:'hidden', border: '2px solid #E5E7EB' };
   const avatarImage: React.CSSProperties = { width:'110%', height:'110%', borderRadius:'50%', position:'relative', bottom:'-10px', left:'50%', transform:'translateX(-50%)', objectFit:'cover' };
 
-  const inlineHeading = { ...headingStyle, background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
+  const inlineHeading = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, width:'calc(100% - 112px)', maxWidth:'calc(100% - 112px)', height:'auto', whiteSpace:'pre-wrap' as const } as React.CSSProperties;
   const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, fontFamily: "'Lora', serif", fontSize:'36px', opacity: 0.7 } as React.CSSProperties;
 
   const handlePageNumberSave = (newPageNumber: string) => {
@@ -81,7 +81,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
       {/* Left Section - Heading and Avatar */}
       <div style={leftSection}>
         {isEditable && editHeading ? (
-          <ImprovedInlineEditor initialValue={heading} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} />
+          <ImprovedInlineEditor initialValue={heading} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} />
         ) : (
           <div className="title-element" onClick={()=> isEditable && setEditHeading(true)} style={{ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>
         )}
