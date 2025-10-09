@@ -135,7 +135,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     width: panelWidth,
     height: panelHeight,
     backgroundColor: '#FFFFFF',
-    borderRadius: '24px',
+    borderRadius: '16px',
     overflow: 'hidden'
   };
 
