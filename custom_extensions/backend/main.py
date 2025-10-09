@@ -27750,10 +27750,28 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
             logger.warning(f"[ENTITLEMENTS] Error fetching user emails from Onyx API: {e}")
         
         async with pool.acquire() as conn:
+            # Persist any newly fetched emails into cache for future requests
+            try:
+                if user_emails_map:
+                    for _uid, _email in user_emails_map.items():
+                        await conn.execute(
+                            """
+                            INSERT INTO user_email_cache (onyx_user_id, email, updated_at)
+                            VALUES ($1, $2, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET email = EXCLUDED.email, updated_at = now()
+                            """,
+                            _uid,
+                            _email,
+                        )
+            except Exception as e:
+                logger.warning(f"[ENTITLEMENTS] Failed to upsert user_email_cache: {e}")
+
             rows = await conn.fetch(
                 """
                 SELECT uc.onyx_user_id,
                        uc.name AS user_name,
+                       uec.email AS cached_email,
                        COALESCE(ub.current_plan, 'starter') AS plan,
                        eb.connectors_limit AS base_connectors,
                        eb.storage_gb AS base_storage_gb,
@@ -27765,14 +27783,16 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                 LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
                 LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.updated_at DESC
                 """
             )
             out = []
             for r in rows:
                 eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
-                # Get email from map, fallback to onyx_user_id
-                user_email = user_emails_map.get(r["onyx_user_id"], r["onyx_user_id"])
+                # Get email from map, fallback to cached email, then onyx_user_id
+                cached_email = dict(r).get("cached_email")
+                user_email = user_emails_map.get(r["onyx_user_id"], cached_email or r["onyx_user_id"]) 
                 out.append({
                     "onyx_user_id": r["onyx_user_id"],
                     "user_name": r["user_name"] or "Unknown",
@@ -28690,6 +28710,7 @@ async def get_users_with_features(
                 SELECT 
                     uc.onyx_user_id AS user_id,
                     uc.name AS user_name,
+                    uec.email AS cached_email,
                     uf.feature_name,
                     uf.is_enabled,
                     uf.created_at,
@@ -28701,6 +28722,7 @@ async def get_users_with_features(
                 LEFT JOIN user_features uf ON uc.onyx_user_id = uf.user_id
                 LEFT JOIN feature_definitions fd 
                     ON uf.feature_name = fd.feature_name AND fd.is_active = true
+                LEFT JOIN user_email_cache uec ON uec.onyx_user_id = uc.onyx_user_id
                 ORDER BY uc.onyx_user_id, fd.category, fd.display_name
             """)
             
@@ -28708,8 +28730,9 @@ async def get_users_with_features(
             for row in rows:
                 user_id = row['user_id']
                 if user_id not in users_features:
-                    # Get email from map, fallback to user_id
-                    user_email = user_emails_map.get(user_id, user_id)
+                    # Get email from map, fallback to cache, then user_id
+                    cached_email = dict(row).get('cached_email')
+                    user_email = user_emails_map.get(user_id, cached_email or user_id)
                     users_features[user_id] = {
                         'user_id': user_id,
                         'user_email': user_email,

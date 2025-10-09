@@ -424,6 +424,28 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
+  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10]);
+  const [entitlements, setEntitlements] = useState<any | null>(null);
+  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+
+  // Fetch entitlements to decide on slides options
+  useEffect(() => {
+    const loadEntitlements = async () => {
+      try {
+        const res = await fetch(`${CUSTOM_BACKEND_URL}/entitlements/me`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setEntitlements(data);
+        // If user has extended slides options (25-40), expose them in presentation UI
+        const opts = Array.isArray(data?.slides_options) && data.slides_options.length > 0
+          ? data.slides_options
+          : (data?.slides_max > 20 ? [25, 30, 35, 40] : [20]);
+        // Keep existing small options for other products, store presentation options separately
+        setSlidesOptions(opts);
+      } catch {}
+    };
+    loadEntitlements();
+  }, []);
   const [useExistingOutline, setUseExistingOutline] = useState<boolean | null>(false);
 
   // --- Quiz specific state ---
@@ -1404,10 +1426,7 @@ function GenerateProductPicker() {
                         <CustomPillSelector
                           value={slidesCount.toString()}
                           onValueChange={(value) => setSlidesCount(Number(value))}
-                          options={Array.from({ length: 14 }, (_, i) => ({
-                            value: (i + 2).toString(),
-                            label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
-                          }))}
+                          options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
                           icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                           label="Slides"
                         />
