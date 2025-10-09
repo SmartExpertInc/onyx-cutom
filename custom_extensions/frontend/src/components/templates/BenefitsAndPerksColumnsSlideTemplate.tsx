@@ -43,7 +43,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'240px', background:'#E0E7FF' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000', fontSize:'16px', fontWeight:500 };
   const headingStyle: React.CSSProperties = { position:'absolute', left:'27%', top:'21%', transform:'translate(-50%, -50%)', fontSize:'56px', fontWeight:400, color:'#000000', fontFamily:'serif', textAlign:'center', margin:0, padding:0, lineHeight:1.1 };
-  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'80px', height:'80px', borderRadius:'50%', overflow:'hidden', background:'#2563EB', boxShadow:'none' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'150px', height:'150px', borderRadius:'50%', overflow:'hidden', background:'#0F58F9', boxShadow:'none' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'240px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
   const colBase: React.CSSProperties = { padding:'40px 32px', background:'#FFFFFF', display:'flex', flexDirection:'column', gap:'20px' };
@@ -98,7 +98,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
         )}
       </div>
       <div style={avatarWrap}>
-        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p: string)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%' }} />
+        <ClickableImagePlaceholder imagePath={avatarPath} onImageUploaded={(p: string)=> onUpdate&&onUpdate({ avatarPath:p })} size="LARGE" position="CENTER" description="Avatar" isEditable={isEditable} style={{height:'174%', marginTop:'8px', objectFit:'cover', borderRadius:'50%' }} />
       </div>
 
       <div style={grid}>
