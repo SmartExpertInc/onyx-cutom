@@ -28149,17 +28149,31 @@ def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
     if not sku:
         return None
     key = sku.lower()
-    env_key = None
-    if key == 'connectors_1': env_key = 'STRIPE_PRICE_CONNECTORS_1'
-    elif key == 'connectors_5': env_key = 'STRIPE_PRICE_CONNECTORS_5'
-    elif key == 'connectors_10': env_key = 'STRIPE_PRICE_CONNECTORS_10'
-    elif key == 'storage_1gb': env_key = 'STRIPE_PRICE_STORAGE_1GB'
-    elif key == 'storage_5gb': env_key = 'STRIPE_PRICE_STORAGE_5GB'
-    elif key == 'storage_10gb': env_key = 'STRIPE_PRICE_STORAGE_10GB'
-    elif key == 'credits_100': env_key = 'STRIPE_PRICE_CREDITS_100'
-    elif key == 'credits_300': env_key = 'STRIPE_PRICE_CREDITS_300'
-    elif key == 'credits_1000': env_key = 'STRIPE_PRICE_CREDITS_1000'
-    return os.getenv(env_key) if env_key else None
+    # Direct mapping to provided price IDs
+    sku_map = {
+        'credits_100': 'price_1SGHlMH2U2KQUmUhkXKhj4g3',
+        'credits_300': 'price_1SGHm0H2U2KQUmUhG5utzGFf',
+        'credits_500': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
+        'storage_1gb': 'price_1SGHjIH2U2KQUmUhpWRcRxxH',
+        'storage_5gb': 'price_1SGHk9H2U2KQUmUhLrwnk2tQ',
+        'storage_10gb': 'price_1SGHkgH2U2KQUmUh0hI2Mp07',
+        'connectors_1': 'price_1SGHegH2U2KQUmUh4guOuoV7',
+        'connectors_5': 'price_1SGHgFH2U2KQUmUhS0Blys9w',
+        'connectors_10': 'price_1SGHgZH2U2KQUmUhSuFJ6SOi',
+    }
+    # Fallback to env if present
+    env_overrides = {
+        'connectors_1': os.getenv('STRIPE_PRICE_CONNECTORS_1'),
+        'connectors_5': os.getenv('STRIPE_PRICE_CONNECTORS_5'),
+        'connectors_10': os.getenv('STRIPE_PRICE_CONNECTORS_10'),
+        'storage_1gb': os.getenv('STRIPE_PRICE_STORAGE_1GB'),
+        'storage_5gb': os.getenv('STRIPE_PRICE_STORAGE_5GB'),
+        'storage_10gb': os.getenv('STRIPE_PRICE_STORAGE_10GB'),
+        'credits_100': os.getenv('STRIPE_PRICE_CREDITS_100'),
+        'credits_300': os.getenv('STRIPE_PRICE_CREDITS_300'),
+        'credits_500': os.getenv('STRIPE_PRICE_CREDITS_500'),
+    }
+    return env_overrides.get(key) or sku_map.get(key)
 
 @app.post("/api/custom/billing/addons/checkout")
 async def addons_checkout(
@@ -28387,6 +28401,47 @@ async def credits_history(
     except Exception as e:
         logger.error(f"Error fetching credits history: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch credits history")
+
+@app.get("/api/custom/billing/catalog")
+async def get_billing_catalog():
+    """Return Stripe price info for our SKUs to show correct prices in UI."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        # List of SKUs we support
+        skus = [
+            'credits_100','credits_300','credits_500',
+            'storage_1gb','storage_5gb','storage_10gb',
+            'connectors_1','connectors_5','connectors_10',
+        ]
+        out = []
+        for sku in skus:
+            pid = _sku_to_price_id(sku)
+            if not pid:
+                continue
+            try:
+                price = stripe.Price.retrieve(pid)
+                unit_amount = getattr(price, 'unit_amount', None)
+                currency = getattr(price, 'currency', 'usd')
+                recurring = getattr(price, 'recurring', None)
+                interval = (recurring and recurring.get('interval')) or None
+                out.append({
+                    'sku': sku,
+                    'price_id': pid,
+                    'unit_amount': unit_amount,
+                    'currency': currency,
+                    'interval': interval,
+                })
+            except Exception as e:
+                logger.warning(f"Failed to retrieve price {pid} for sku {sku}: {e}")
+        return out
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error building billing catalog: {e}")
+        raise HTTPException(status_code=500, detail="Failed to load billing catalog")
 
 @app.post("/api/custom/billing/webhook")
 async def stripe_webhook(

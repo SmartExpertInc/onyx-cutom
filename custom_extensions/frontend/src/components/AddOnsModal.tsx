@@ -55,11 +55,21 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
                   </div>
         )}
         <div className="text-3xl font-bold text-gray-900">
-          {typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price}
-          {addOn.priceNote === 'per month' && (
-            <span className="text-lg font-normal text-gray-600">/month</span>
-          )}
-                  </div>
+          {(() => {
+            const idToSku: Record<string, string> = {
+              small: 'credits_100', medium: 'credits_300', large: 'credits_1000',
+              single: 'connectors_1', five: 'connectors_5', ten: 'connectors_10',
+              oneGb: 'storage_1gb', fiveGb: 'storage_5gb', tenGb: 'storage_10gb'
+            };
+            const sku = idToSku[(addOn as any).id];
+            const entry = (catalog as any)[sku];
+            if (entry && typeof entry.unit_amount === 'number') {
+              const amount = (entry.unit_amount / 100).toFixed(2);
+              return `$${amount}${entry.interval ? `/${entry.interval}` : ''}`;
+            }
+            return typeof addOn.price === 'number' ? `$${addOn.price}` : addOn.price;
+          })()}
+        </div>
         {!addOn.isEnterprise && (
           <div className="flex items-center gap-2">
             <Button
@@ -126,6 +136,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
   const BACKEND = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
   const [loading, setLoading] = useState(false);
   const [activeAddons, setActiveAddons] = useState<any[]>([]);
+  const [catalog, setCatalog] = useState<Record<string, { unit_amount: number; currency: string; interval?: string }>>({});
   const [error, setError] = useState<string | null>(null);
   
   const CREDITS_DATA_TRANSLATED: AddOn[] = [
@@ -301,7 +312,21 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
   };
 
   useEffect(() => {
-    if (isOpen) loadActiveAddons();
+    if (isOpen) {
+      loadActiveAddons();
+      // load catalog for dynamic prices
+      (async () => {
+        try {
+          const res = await fetch(`${BACKEND}/billing/catalog`, { credentials: 'same-origin' });
+          if (res.ok) {
+            const list = await res.json();
+            const map: Record<string, any> = {};
+            list.forEach((p: any) => { map[p.sku] = { unit_amount: p.unit_amount, currency: p.currency, interval: p.interval }; });
+            setCatalog(map);
+          }
+        } catch {}
+      })();
+    }
   }, [isOpen]);
 
   return (
