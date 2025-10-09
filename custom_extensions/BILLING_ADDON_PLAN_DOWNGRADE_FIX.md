@@ -169,12 +169,35 @@ Applied same pattern with enhanced logging to ensure consistency.
 - `price_1SGHk9H2U2KQUmUhLrwnk2tQ` → Storage 5GB
 - `price_1SGHkgH2U2KQUmUh0hI2Mp07` → Storage 10GB
 
+## Additional Fix: current_period_end AttributeError
+
+### Problem
+When successfully adding addon to existing subscription, syncing to database failed with:
+```
+AttributeError: current_period_end
+```
+
+### Solution
+Fixed safe access to `current_period_end` from Stripe subscription object (Lines 28289-28295):
+
+```python
+# Get current_period_end safely from subscription object
+current_period_end = (existing_sub.get('current_period_end') if isinstance(existing_sub, dict) 
+                    else getattr(existing_sub, 'current_period_end', None))
+if not current_period_end:
+    current_period_end = 0
+```
+
+Also added addon syncing for addon-only subscriptions in `checkout.session.completed` handler (Lines 28728-28756) to ensure addons from fallback subscriptions are properly stored in `user_billing_addons` table.
+
 ## Files Modified
 
 - `custom_extensions/backend/main.py`:
   - Lines 28225-28337: Addon checkout endpoint (enhanced logging)
-  - Lines 28599-28765: `checkout.session.completed` handler (main fix)
+  - Lines 28289-28319: Fixed `current_period_end` access and addon DB sync
+  - Lines 28599-28765: `checkout.session.completed` handler (main fix + addon sync)
   - Lines 28814-28962: `customer.subscription.updated` handler (enhanced logging)
+  - Lines 27761-27788: Enhanced entitlements calculation with detailed logging
 
 ## Verification Steps
 
@@ -185,7 +208,7 @@ Applied same pattern with enhanced logging to ensure consistency.
    ```
 3. **Verify plan preservation**:
    ```sql
-   SELECT onyx_user_id, current_plan, subscription_status, updated_at 
+   SELECT onyx_user_id, current_plan, subscription_status, subscription_id, updated_at 
    FROM user_billing 
    WHERE onyx_user_id = '<test_user_id>';
    ```
@@ -193,6 +216,54 @@ Applied same pattern with enhanced logging to ensure consistency.
    ```sql
    SELECT * FROM user_entitlement_base WHERE onyx_user_id = '<test_user_id>';
    SELECT * FROM user_billing_addons WHERE onyx_user_id = '<test_user_id>';
+   ```
+5. **Check entitlements endpoint with logging**:
+   ```bash
+   # Call the API and check logs for [ENTITLEMENTS] messages
+   curl -H "Cookie: your-session-cookie" http://your-domain/api/custom/entitlements/me
+   # Then check logs:
+   tail -f /path/to/logs | grep "\[ENTITLEMENTS\]"
+   ```
+
+## Cleanup for Users Affected by Pre-Fix Bug
+
+If a user has already purchased an addon before this fix and now has:
+- Two subscriptions (original + addon-only fallback)
+- Missing addon entitlements
+
+**Steps to fix:**
+
+1. **Identify duplicate subscriptions:**
+   ```sql
+   SELECT * FROM user_billing_addons WHERE onyx_user_id = '<affected_user_id>';
+   ```
+
+2. **Cancel the addon-only subscription in Stripe** (keep the main one with both tier + addon)
+   - Go to Stripe Dashboard → Subscriptions
+   - Find the subscription with only addon items
+   - Cancel it (or move addon items to main subscription)
+
+3. **Verify addon is synced to database:**
+   ```sql
+   SELECT addon_type, quantity, status, stripe_subscription_id 
+   FROM user_billing_addons 
+   WHERE onyx_user_id = '<affected_user_id>' AND status IN ('active', 'trialing');
+   ```
+
+4. **If addon missing from DB, manually sync it:**
+   ```sql
+   -- Get subscription item ID from Stripe, then insert:
+   INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, 
+       stripe_subscription_item_id, stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+   VALUES ('<sub_item_id>', '<user_id>', '<customer_id>', '<sub_id>', '<sub_item_id>', 
+       'price_1SGHegH2U2KQUmUh4guOuoV7', 'connectors', 1, 'active', to_timestamp(<period_end>), now(), now())
+   ON CONFLICT (id) DO UPDATE SET status='active', quantity=1, updated_at=now();
+   ```
+
+5. **Verify entitlements updated:**
+   ```bash
+   curl -H "Cookie: session" http://domain/api/custom/entitlements/me | jq '.connectors_limit'
+   # Should show base (2 for Pro, 5 for Business) + addon quantity
    ```
 
 ## Rollback Instructions

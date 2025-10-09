@@ -27762,26 +27762,30 @@ async def _fetch_effective_entitlements(onyx_user_id: str, pool: asyncpg.Pool) -
         try:
             rows = await conn.fetch(
                 """
-                SELECT addon_type, COALESCE(quantity,1) AS qty, stripe_price_id
+                SELECT addon_type, COALESCE(quantity,1) AS qty, stripe_price_id, status
                 FROM user_billing_addons
                 WHERE onyx_user_id = $1 AND status IN ('active','trialing')
                 """,
                 onyx_user_id
             )
+            logger.info(f"[ENTITLEMENTS] Found {len(rows)} active addon(s) for user {onyx_user_id}")
             add_connectors = 0
             add_storage = 0
             for r in rows:
                 addon = PRICE_TO_ADDON.get(r['stripe_price_id'] or '', None)
                 units = int(addon.get('units', 0)) if addon else 0
                 qty = int(r['qty'] or 1)
+                logger.info(f"[ENTITLEMENTS] Addon: type={r['addon_type']}, units={units}, qty={qty}, status={r['status']}, price_id={r['stripe_price_id']}")
                 if r['addon_type'] == 'connectors':
                     add_connectors += units * qty
                 elif r['addon_type'] == 'storage':
                     add_storage += units * qty
+            logger.info(f"[ENTITLEMENTS] Base limits: connectors={result['connectors_limit']}, storage={result['storage_gb']}GB")
             result['connectors_limit'] = int(result['connectors_limit']) + add_connectors
             result['storage_gb'] = int(result['storage_gb']) + add_storage
-        except Exception:
-            pass
+            logger.info(f"[ENTITLEMENTS] Final limits (with addons): connectors={result['connectors_limit']}, storage={result['storage_gb']}GB")
+        except Exception as e:
+            logger.error(f"[ENTITLEMENTS] Failed to aggregate addons: {e}", exc_info=True)
 
         # Slides options for UI (Pro/Business can choose 25-40)
         if result["slides_max"] > 20 or plan in ("pro", "business"):
@@ -28286,6 +28290,14 @@ async def addons_checkout(
                 logger.info(f"[BILLING] Existing subscription status: {existing_sub.status}, items count: {len(existing_sub.get('items', {}).get('data', []))}")
                 
                 if existing_sub.status in ['active', 'trialing']:
+                    # Get current_period_end safely from subscription object
+                    current_period_end = (existing_sub.get('current_period_end') if isinstance(existing_sub, dict) 
+                                        else getattr(existing_sub, 'current_period_end', None))
+                    if not current_period_end:
+                        current_period_end = 0
+                    
+                    logger.info(f"[BILLING] Subscription current_period_end: {current_period_end}")
+                    
                     # Add items directly to existing subscription and sync to DB immediately
                     async with pool.acquire() as conn:
                         for idx, item in enumerate(line_items):
@@ -28298,7 +28310,7 @@ async def addons_checkout(
                             # Immediately sync to user_billing_addons
                             addon = PRICE_TO_ADDON.get(item['price'], None)
                             if addon and addon.get('type') in ('connectors', 'storage'):
-                                logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={item['quantity']}")
+                                logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={item['quantity']}, period_end={current_period_end}")
                                 await conn.execute(
                                     """
                                     INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
@@ -28307,7 +28319,7 @@ async def addons_checkout(
                                     ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
                                     """,
                                     sub_item.id, onyx_user_id, stripe_customer_id, existing_subscription_id, sub_item.id, item['price'],
-                                    addon['type'], item['quantity'], existing_sub.status, int(existing_sub.current_period_end or 0)
+                                    addon['type'], item['quantity'], existing_sub.status, int(current_period_end)
                                 )
                     logger.info(f"[BILLING] Successfully added and synced {len(line_items)} add-on items to existing subscription {existing_subscription_id}")
                     return {"url": f"{base_url}/custom-projects-ui/payments?addon_added=true"}
@@ -28716,6 +28728,36 @@ async def stripe_webhook(
                             onyx_user_id, customer_id, subscription.status,
                             subscription_id, plan
                         )
+                        
+                        # Sync addon items to user_billing_addons for addon-only subscriptions
+                        try:
+                            logger.info(f"[BILLING] Syncing addon items from addon-only subscription to database")
+                            current_period_end = (subscription.get('current_period_end') if isinstance(subscription, dict) 
+                                                else getattr(subscription, 'current_period_end', 0)) or 0
+                            
+                            if data_list:
+                                for item_data in data_list:
+                                    price = item_data.get('price') if isinstance(item_data, dict) else getattr(item_data, 'price', None)
+                                    item_price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                                    item_id = item_data.get('id') if isinstance(item_data, dict) else getattr(item_data, 'id', None)
+                                    item_quantity = item_data.get('quantity') if isinstance(item_data, dict) else getattr(item_data, 'quantity', 1)
+                                    
+                                    addon = PRICE_TO_ADDON.get(item_price_id, None)
+                                    if addon and addon.get('type') in ('connectors', 'storage'):
+                                        logger.info(f"[BILLING] Syncing addon to DB: type={addon.get('type')}, quantity={item_quantity}, price_id={item_price_id}")
+                                        await conn.execute(
+                                            """
+                                            INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                                stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                            ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                            """,
+                                            item_id, onyx_user_id, customer_id, subscription_id, item_id, item_price_id,
+                                            addon['type'], item_quantity, subscription.status, int(current_period_end)
+                                        )
+                                logger.info(f"[BILLING] Successfully synced {len(data_list)} addon items to database")
+                        except Exception as addon_sync_err:
+                            logger.error(f"[BILLING] Failed to sync addon items from addon-only subscription: {addon_sync_err}", exc_info=True)
                     else:
                         # Normal plan purchase: update everything including plan
                         logger.info(f"[BILLING] Updating billing for plan purchase: plan={plan}, price_id={price_id}")
