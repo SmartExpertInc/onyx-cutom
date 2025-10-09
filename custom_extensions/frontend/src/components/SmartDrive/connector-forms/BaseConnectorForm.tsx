@@ -80,9 +80,15 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
   const buildInitialValues = (fields: ConnectorFormField[]) => {
     const values: any = {};
     fields.forEach(field => {
-      values[field.name] = initialData[field.name] || field.defaultValue || 
-        (field.type === 'boolean' ? false : 
-         field.type === 'multiselect' ? [] : '');
+      if (field.type === 'boolean') {
+        values[field.name] = initialData[field.name] ?? field.defaultValue ?? false;
+      } else if (field.type === 'multiselect') {
+        values[field.name] = initialData[field.name] ?? field.defaultValue ?? [];
+      } else if (field.type === 'number') {
+        values[field.name] = initialData[field.name] ?? field.defaultValue ?? null;
+      } else {
+        values[field.name] = initialData[field.name] ?? field.defaultValue ?? '';
+      }
     });
     return values;
   };
@@ -106,16 +112,31 @@ const BaseConnectorForm: React.FC<BaseConnectorFormProps> = ({
     return date;
   };
 
+  const convertToNumber = (value: any): number | null => {
+    if (value === null || value === undefined || value === '') return null;
+    const num = Number(value);
+    return isNaN(num) ? null : num;
+  };
+
   const handleSubmit = async (values: any, { setSubmitting }: any) => {
     setIsSubmitting(true);
     setError(null);
     
     try {
+      // Process all form values based on field types
+      const processedValues = { ...values };
+      
       // Convert indexing_start field if it exists
-      const processedValues = {
-        ...values,
-        indexing_start: values.indexing_start ? convertStringToDateTime(values.indexing_start) : null
-      };
+      if (values.indexing_start) {
+        processedValues.indexing_start = convertStringToDateTime(values.indexing_start);
+      }
+      
+      // Convert all number fields
+      config.fields.forEach(field => {
+        if (field.type === 'number' && values[field.name] !== undefined) {
+          processedValues[field.name] = convertToNumber(values[field.name]);
+        }
+      });
 
       const response = await fetch(config.submitEndpoint, {
         method: 'POST',
