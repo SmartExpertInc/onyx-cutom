@@ -475,7 +475,6 @@ services:
         max-file: "3"
 
   custom_frontend:
-    container_name: onyx-stack-custom_frontend-1
     build:
       context: ../../custom_extensions/frontend
       dockerfile: Dockerfile
