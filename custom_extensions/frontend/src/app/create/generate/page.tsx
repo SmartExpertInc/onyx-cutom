@@ -424,7 +424,7 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10,12,15]);
+  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10,12,15,20]);
   const [entitlements, setEntitlements] = useState<any | null>(null);
 
   // Fetch entitlements to decide on slides options
@@ -436,12 +436,13 @@ function GenerateProductPicker() {
         if (!res.ok) return;
         const data = await res.json();
         setEntitlements(data);
-        // If user has extended slides options (25-40), expose them in presentation UI
-        const opts = Array.isArray(data?.slides_options) && data.slides_options.length > 0
+        // Merge default options with entitlement-based extended options (additive)
+        const defaultOpts = [5,6,7,8,9,10,12,15,20];
+        const extended = Array.isArray(data?.slides_options) && data.slides_options.length > 0
           ? data.slides_options
-          : (data?.slides_max > 20 ? [25, 30, 35, 40] : [20]);
-        // Keep existing small options for other products, store presentation options separately
-        setSlidesOptions(opts);
+          : (data?.slides_max > 20 ? [25, 30, 35, 40] : []);
+        const merged = Array.from(new Set([...defaultOpts, ...extended])).sort((a,b)=>a-b);
+        setSlidesOptions(merged);
       } catch {}
     };
     loadEntitlements();
