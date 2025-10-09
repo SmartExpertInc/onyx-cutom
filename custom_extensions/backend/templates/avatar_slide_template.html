@@ -850,12 +850,29 @@
                 ═══════════════════════════════════════════════════════════════════════════
                 Template ID: {{ templateId }}
                 Slide ID: {{ slideId }}
-                Canvas Dimensions:
-                  - Editor: 1174×600px
-                  - Video:  1920×1080px
-                Scale Factors:
-                  - SCALE_X: {{ SCALE_X }} ({{ VIDEO_WIDTH }}/{{ EDITOR_WIDTH }})
-                  - SCALE_Y: {{ SCALE_Y }} ({{ VIDEO_HEIGHT }}/{{ EDITOR_HEIGHT }})
+                
+                📐 Canvas Dimensions Analysis:
+                  Editor Canvas (Frontend):
+                    - Width:  {{ EDITOR_WIDTH }}px
+                    - Height: {{ EDITOR_HEIGHT }}px
+                    - Aspect Ratio: {{ "%.6f"|format(EDITOR_WIDTH / EDITOR_HEIGHT) }} (1.957:1)
+                    - Total Pixels: {{ "{:,}".format(EDITOR_WIDTH * EDITOR_HEIGHT) }}
+                  
+                  Video Canvas (Backend):
+                    - Width:  {{ VIDEO_WIDTH }}px
+                    - Height: {{ VIDEO_HEIGHT }}px
+                    - Aspect Ratio: {{ "%.6f"|format(VIDEO_WIDTH / VIDEO_HEIGHT) }} (1.778:1 - 16:9)
+                    - Total Pixels: {{ "{:,}".format(VIDEO_WIDTH * VIDEO_HEIGHT) }}
+                  
+                  Dimension Comparison:
+                    - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ EDITOR_WIDTH }})
+                    - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ EDITOR_HEIGHT }})
+                    - Aspect Ratio Mismatch: {{ "%.6f"|format((EDITOR_WIDTH/EDITOR_HEIGHT) - (VIDEO_WIDTH/VIDEO_HEIGHT)|abs) }}
+                    - ⚠️ Non-uniform scaling required (Y is {{ "%.2f"|format(((SCALE_Y/SCALE_X - 1) * 100)) }}% larger)
+                
+                📏 Scale Factors:
+                  - SCALE_X: {{ "%.6f"|format(SCALE_X) }} ({{ VIDEO_WIDTH }}/{{ EDITOR_WIDTH }})
+                  - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }} ({{ VIDEO_HEIGHT }}/{{ EDITOR_HEIGHT }})
                 
                 Metadata Available: {{ 'YES' if metadata else 'NO' }}
                 Element Positions Available: {{ 'YES' if metadata and metadata.elementPositions else 'NO' }}

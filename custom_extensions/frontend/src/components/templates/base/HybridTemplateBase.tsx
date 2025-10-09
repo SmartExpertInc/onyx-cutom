@@ -179,15 +179,31 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
     const isAvatarService = slide?.templateId === 'avatar-service' || slide?.templateId === 'avatar-service-slide';
     if (isAvatarService) {
       console.log('  🎯 AVATAR-SERVICE SLIDE DETECTED!');
-      console.log('  📐 Editor Canvas:', '1174×600px');
-      console.log('  🎥 Video Canvas:', '1920×1080px');
+      
+      // 📐 CANVAS DIMENSION VERIFICATION
+      console.log('  📐 Canvas Dimensions:');
+      console.log('    Editor Canvas:');
+      console.log('      - Width: 1174px (defined)');
+      console.log('      - Height: 600px (defined)');
+      console.log('      - Aspect Ratio:', (1174 / 600).toFixed(3), '(1.957:1)');
+      console.log('    Video Canvas:');
+      console.log('      - Width: 1920px (defined)');
+      console.log('      - Height: 1080px (defined)');
+      console.log('      - Aspect Ratio:', (1920 / 1080).toFixed(3), '(1.778:1 - 16:9)');
+      
       console.log('  📏 Scale Factors:', {
-        scaleX: (1920 / 1174).toFixed(3),
-        scaleY: (1080 / 600).toFixed(3)
+        scaleX: (1920 / 1174).toFixed(6) + ' (1920/1174)',
+        scaleY: (1080 / 600).toFixed(6) + ' (1080/600)'
       });
       console.log('  🔢 Expected Scaled Position:', {
         scaledX: (position.x * (1920 / 1174)).toFixed(2),
         scaledY: (position.y * (1080 / 600)).toFixed(2)
+      });
+      console.log('  ⚠️ Aspect Ratio Difference:', {
+        editorAspect: (1174 / 600).toFixed(3),
+        videoAspect: (1920 / 1080).toFixed(3),
+        difference: Math.abs((1174 / 600) - (1920 / 1080)).toFixed(3),
+        note: 'Non-matching aspect ratios require independent X/Y scaling'
       });
     }
     

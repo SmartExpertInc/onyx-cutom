@@ -117,6 +117,20 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
         const canvasRect = slideCanvas.getBoundingClientRect();
         
+        // 📐 CANVAS DIMENSION LOGGING
+        console.log('📐 [CANVAS_DIMENSIONS] Drag started on canvas');
+        console.log('  🖼️ Canvas Element:', slideCanvas.tagName, slideCanvas.className);
+        console.log('  📏 Canvas Dimensions:', {
+          width: canvasRect.width,
+          height: canvasRect.height,
+          left: canvasRect.left,
+          top: canvasRect.top
+        });
+        console.log('  📍 Mouse Position (viewport):', {
+          clientX: e.clientX,
+          clientY: e.clientY
+        });
+        
         isMouseDown = true;
         dragDistance = 0;
         startPageX = e.clientX;
@@ -127,6 +141,11 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         const canvasY = e.clientY - canvasRect.top;
         startOffsetX = canvasX - currentX;
         startOffsetY = canvasY - currentY;
+        
+        console.log('  🎯 Canvas-Relative Position:', {
+          canvasX: canvasX.toFixed(2),
+          canvasY: canvasY.toFixed(2)
+        });
 
         // Delay starting drag to give inline editing a chance on quick clicks
         clearDragTimeout();
@@ -210,11 +229,19 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           }, 450);
 
           // 🔍 COMPREHENSIVE DRAG LOGGING
+          const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+          const finalCanvasRect = slideCanvas.getBoundingClientRect();
+          
           console.log('🎯 [DRAG_COMPLETE] Element drag finished');
           console.log('  📍 Element ID:', elementId);
           console.log('  📊 Final Position:', { x: currentX, y: currentY });
           console.log('  📏 Drag Distance:', dragDistance.toFixed(2), 'px');
           console.log('  🎨 Element:', htmlElement.tagName, htmlElement.className);
+          console.log('  📐 Canvas Dimensions at completion:', {
+            width: finalCanvasRect.width,
+            height: finalCanvasRect.height,
+            aspectRatio: (finalCanvasRect.width / finalCanvasRect.height).toFixed(3)
+          });
           console.log('  🔢 Position State:', {
             transform: htmlElement.style.transform,
             savedInState: dragStateRef.current.get(elementId)
