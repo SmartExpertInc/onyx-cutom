@@ -296,8 +296,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               preserveAspectRatio="xMidYMid meet"
               style={{ 
                 position: 'absolute', 
-                top: '13px',
-                left: '27px',
+                top: '-230px',
+                left: '170px',
                 height: 'calc(200% + 100px)'
               }}
             >

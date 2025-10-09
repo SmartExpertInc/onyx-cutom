@@ -39,21 +39,21 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'40% 60%', gap:'0px', padding:'0px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'35% 65%', gap:'0px', padding:'0px' };
   const leftSection: React.CSSProperties = { background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', padding:'56px', position:'relative' };
   const rightSection: React.CSSProperties = { background:'#E0E7FF', padding:'56px 32px' };
   const headingStyle: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, position:'absolute', top:'100px', left:'56px', maxWidth:'calc(100% - 112px)' };
-  const list: React.CSSProperties = { display:'grid', rowGap:'22px' };
-  const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', alignItems:'center', columnGap:'18px' };
-  const numSquare: React.CSSProperties = { width:'48px', height:'48px', backgroundColor:'#0F58F9', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center' };
-  const num: React.CSSProperties = { fontSize:'28px', color:'#FFFFFF', fontWeight:700, fontFamily: "'Lora', serif" };
-  const text: React.CSSProperties = { fontSize:'28px', color:'#09090B', fontFamily: "'Lora', serif" };
+  const list: React.CSSProperties = { display:'flex', flexDirection:'column', gap:'22px' };
+  const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'45px 1fr', alignItems:'center', columnGap:'18px' };
+  const numSquare: React.CSSProperties = { width:'43px', height:'43px', backgroundColor:'#0F58F9', borderRadius:'4px', display:'flex', alignItems:'center', justifyContent:'center' };
+  const num: React.CSSProperties = { fontSize:'28px', color:'#FFFFFF', fontWeight:700, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" };
+  const text: React.CSSProperties = { fontSize:'36px', color:'#09090B', fontFamily: "'Lora', serif", opacity: 0.8 };
 
   const avatarWrap: React.CSSProperties = { position:'absolute', bottom:'60px', left:'56px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#FFFFFF', overflow:'hidden', border: '2px solid #E5E7EB' };
   const avatarImage: React.CSSProperties = { width:'110%', height:'110%', borderRadius:'50%', position:'relative', bottom:'-10px', left:'50%', transform:'translateX(-50%)', objectFit:'cover' };
 
   const inlineHeading = { ...headingStyle, background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-  const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, fontFamily: "'Lora', serif" } as React.CSSProperties;
+  const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, fontFamily: "'Lora', serif", fontSize:'36px', opacity: 0.8 } as React.CSSProperties;
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);
@@ -102,7 +102,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
         {items.map((it, i)=> (
           <div key={i} style={row}>
             <div style={numSquare}>
-              <div className="title-element" style={num}>{String(i+1)}</div>
+              <div style={num}>{String(i+1)}</div>
             </div>
             <div>
               {isEditable && editItem === i ? (
