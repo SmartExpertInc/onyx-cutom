@@ -28,7 +28,28 @@ export interface ConnectorConfig {
   advancedValuesVisibleCondition?: (values: any, currentCredential: any) => boolean;
 }
 
-export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
+// Universal indexing start field that will be added to all connectors
+const UNIVERSAL_INDEXING_START_FIELD: ConnectorField = {
+  type: "text",
+  query: "Enter the Start Date:",
+  label: "Indexing Start Date",
+  name: "indexing_start",
+  description: `Only documents after this date will be indexed. Format: YYYY-MM-DD`,
+  optional: true,
+};
+
+// Function to add universal fields to connector configurations
+const addUniversalFields = (config: ConnectorConfig): ConnectorConfig => {
+  return {
+    ...config,
+    advanced_values: [
+      ...(config.advanced_values || []),
+      UNIVERSAL_INDEXING_START_FIELD
+    ]
+  };
+};
+
+const baseConnectorConfigs: Record<string, ConnectorConfig> = {
   web: {
     description: "Configure Web connector",
     values: [
@@ -219,16 +240,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         optional: true,
       },
     ],
-    advanced_values: [
-      {
-        type: "text",
-        query: "Enter the Start Date:",
-        label: "Indexing Start Date",
-        name: "indexing_start",
-        description: `Only messages after this date will be indexed. Format: YYYY-MM-DD`,
-        optional: true,
-      },
-    ],
+    advanced_values: [],
   },
   confluence: {
     description: "Configure Confluence connector",
@@ -505,16 +517,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
           "ID of a team to use for accessing team-visible tasks. This allows indexing of team-visible tasks in addition to public tasks. Leave empty if you don't want to use this feature.",
       },
     ],
-    advanced_values: [
-      {
-        type: "text",
-        query: "Enter the Start Date:",
-        label: "Indexing Start Date",
-        name: "indexing_start",
-        description: `Only documents after this date will be indexed. Format: YYYY-MM-DD`,
-        optional: true,
-      },
-    ],
+    advanced_values: [],
   },
   airtable: {
     description: "Configure Airtable connector",
@@ -1117,3 +1120,11 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
   },
   // Add more connectors as needed...
 }; 
+
+// Apply universal fields to all connector configurations
+const processedConfigs: Record<string, ConnectorConfig> = {};
+Object.keys(baseConnectorConfigs).forEach(key => {
+  processedConfigs[key] = addUniversalFields(baseConnectorConfigs[key]);
+});
+
+export { processedConfigs as onyxConnectorConfigs }; 
