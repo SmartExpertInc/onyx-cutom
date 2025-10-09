@@ -27,9 +27,10 @@ interface AddOnCardProps {
   quantity: number;
   onQuantityChange: (delta: number) => void;
   showAmount?: boolean;
+  catalog?: Record<string, { unit_amount: number; currency: string; interval?: string }>;
 }
 
-function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount = true }: AddOnCardProps) {
+function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount = true, catalog }: AddOnCardProps) {
   const { t } = useLanguage();
   const BACKEND = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
   const [busy, setBusy] = useState(false);
@@ -414,6 +415,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     icon={Coins}
                     quantity={quantities[credit.id]}
                     onQuantityChange={(delta) => handleQuantityChange(credit.id, delta)}
+                    catalog={catalog}
                   />
                 ))}
               </div>
@@ -429,6 +431,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     quantity={quantities[connector.id]}
                     onQuantityChange={(delta) => handleQuantityChange(connector.id, delta)}
                     showAmount={false}
+                    catalog={catalog}
                   />
                 ))}
               </div>
@@ -444,6 +447,7 @@ export default function ManageAddonsModal({ isOpen, onClose }: ManageAddonsModal
                     quantity={quantities[storage.id]}
                     onQuantityChange={(delta) => handleQuantityChange(storage.id, delta)}
                     showAmount={false}
+                    catalog={catalog}
                   />
                 ))}
               </div>
