@@ -40,6 +40,8 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const [editHeading, setEditHeading] = useState(false);
   const [editTabIdx, setEditTabIdx] = useState<number | null>(null);
   const [editPillIdx, setEditPillIdx] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#111827', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
 
@@ -54,8 +56,19 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#000000', fontSize:'16px', fontWeight:500, height:'100%', background:'#FFFFFF', border:'none', fontFamily:'sans-serif' };
   const capsuleActive: React.CSSProperties = { ...capsule, background:'#0F58F9', color:'#FFFFFF' };
 
-  const logoStyles: React.CSSProperties = { position:'absolute', bottom:'24px', right:'48px', color:'#9CA3AF', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
-  const pageNumberStyles: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#9CA3AF', fontSize:'14px', fontWeight:500, fontFamily:'sans-serif' };
+  const logoStyles: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000000', fontSize:'16px', fontWeight:500 };
+  const pageNumberStyles: React.CSSProperties = { position:'absolute', bottom:'24px', left:'48px', color:'#09090B99', fontSize:'17px', fontWeight:300, fontFamily: currentTheme.fonts.contentFont };
+
+  const handlePageNumberSave = (newPageNumber: string) => {
+    setCurrentPageNumber(newPageNumber);
+    setEditingPageNumber(false);
+    onUpdate && onUpdate({ pageNumber: newPageNumber });
+  };
+
+  const handlePageNumberCancel = () => {
+    setCurrentPageNumber(pageNumber);
+    setEditingPageNumber(false);
+  };
 
   const inlineHeading = { ...headingStyle, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
   const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'14px' } as React.CSSProperties;
@@ -63,6 +76,16 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
 
   return (
     <div className="change-mgmt-tabs inter-theme" style={slide}>
+      {/* Logo */}
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+        isEditable={isEditable}
+        color="#000000"
+        text={logoText}
+        style={logoStyles}
+      />
+
       {/* Top Navigation Tabs */}
       <div style={topTabsWrap}>
         {[
@@ -109,15 +132,38 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
       </div>
 
       {/* Footer */}
-      <div style={pageNumberStyles}>{pageNumber}</div>
-      <YourLogo
-        logoPath={logoPath}
-        onLogoUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
-        isEditable={isEditable}
-        color="#9CA3AF"
-        text={logoText}
-        style={logoStyles}
-      />
+      <div style={pageNumberStyles}>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={handlePageNumberSave}
+            onCancel={handlePageNumberCancel}
+            className="page-number-editor"
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              width: '30px',
+              height: 'auto'
+            }}
+          />
+        ) : (
+          <div
+            onClick={() => isEditable && setEditingPageNumber(true)}
+            style={{
+              color: '#09090B99',
+              fontSize: '17px',
+              fontWeight: '300',
+              fontFamily: currentTheme.fonts.contentFont,
+              cursor: isEditable ? 'pointer' : 'default',
+              userSelect: 'none'
+            }}
+          >
+            {currentPageNumber}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
