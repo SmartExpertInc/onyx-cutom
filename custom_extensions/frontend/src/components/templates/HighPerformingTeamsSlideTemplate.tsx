@@ -7,20 +7,25 @@ import ImprovedInlineEditor from '../ImprovedInlineEditor';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import PresentationImageUpload from '../PresentationImageUpload';
 
+// Background SVG constant - paste your SVG code here
+const BACKGROUND_SVG = `
+
+`;
+
 export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string }> = ({
   slideId: _slideId,
-  title = 'The Power of High-Performing Teams',
+  title = 'The Power of High-\nPerforming Teams',
   description = 'High-performing teams are the driving force behind exceptional results. They achieve more, innovate faster, and adapt to challenges with resilience.',
   panelColor: _panelColor = '#E9B84C',
-  lineColor = '#0F58F9',
-  points = [
-    { x: 16, y: 92 },   // bottom-left with visual padding (200x100 viewBox)
-    { x: 50, y: 75 },
-    { x: 90, y: 55 },
-    { x: 130, y: 35 },
-    { x: 170, y: 15 },
-    { x: 190, y: 5 }    // top-right with visual padding
-  ],
+  // lineColor = '#0F58F9',
+  // points = [
+  //   { x: 16, y: 92 },   // bottom-left with visual padding (200x100 viewBox)
+  //   { x: 50, y: 75 },
+  //   { x: 90, y: 55 },
+  //   { x: 130, y: 35 },
+  //   { x: 170, y: 15 },
+  //   { x: 190, y: 5 }    // top-right with visual padding
+  // ],
   avatarPath = '',
   avatarAlt: _avatarAlt = 'Avatar',
   logoNew = '',
@@ -55,7 +60,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     top: 0,
     left: 0,
     right: 0,
-    height: '38%',
+    height: '30%',
     background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%)',
     overflow: 'hidden'
   };
@@ -63,7 +68,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // Bottom part (60% height) with blue background
   const bottomPart: React.CSSProperties = {
     position: 'absolute',
-    top: '38%',
+    top: '30%',
     left: 0,
     right: 0,
     bottom: 0,
@@ -71,43 +76,42 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     overflow: 'hidden'
   };
 
-  // Avatar container (like in ResourcesListSlideTemplate)
+  // Avatar container above white panel
   const avatarContainer: React.CSSProperties = {
+    width: '470px',
     position: 'absolute',
-    top: '50%',
-    left: '56px',
-    transform: 'translateY(-50%)',
-    width: '170px',
-    height: '170px',
-    borderRadius: '50%',
-    backgroundColor: '#FFFFFF',
+    bottom: '-25px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    borderRadius: '16px',
     overflow: 'hidden'
   };
 
-  // Title positioned to the right of avatar
+  // Title positioned where avatar was
   const titleStyle: React.CSSProperties = {
     position: 'absolute',
-    left: '290px',
-    top: '90px',
+    left: '56px',
+    top: '50%',
     transform: 'translateY(-50%)',
     fontSize: '46px',
     fontWeight: 800,
     color: '#FFFFFF',
     maxWidth: '900px',
-    lineHeight: 1.2
+    lineHeight: 1.2,
+    whiteSpace: 'pre-line'
   };
 
-  // Description positioned below title
+  // Description positioned in the right corner
   const paragraph: React.CSSProperties = {
     position: 'absolute',
-    left: '290px',
-    top: '115px',
-    transform: 'translateY(calc(-50% + 45px))',
-    width: '660px',
-    maxWidth: '660px',
+    right: '56px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: '400px',
+    maxWidth: '400px',
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: '20px',
-    lineHeight: 1.6,
+    fontSize: '16px',
+    lineHeight: 1.5,
     opacity: 0.9
   };
 
@@ -199,28 +203,6 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
       `}</style>
       {/* Top Part - 40% height with gradient background */}
       <div style={topPart}>
-        {/* Avatar Container */}
-        <div style={avatarContainer}>
-          <ClickableImagePlaceholder
-            imagePath={avatarPath}
-            onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
-            size="LARGE"
-            position="CENTER"
-            description="Profile photo"
-            isEditable={isEditable}
-            style={{
-              width: '110%',
-              height: '110%',
-              borderRadius: '50%',
-              position: 'relative',
-              bottom: '-5px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              objectFit: 'cover'
-            }}
-          />
-        </div>
-
       {/* Title */}
       <div style={titleStyle}>
         {isEditable && editingTitle ? (
@@ -238,6 +220,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               width: '900px',
               maxWidth: '900px',
               height: 'auto',
+              whiteSpace: 'pre-line'
             }}
           />
         ) : (
@@ -263,12 +246,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
             onCancel={() => setEditingDesc(false)}
             style={{
-              fontSize: '20px',
-              lineHeight: 1.6,
+              fontSize: '16px',
+              lineHeight: 1.5,
               color: 'rgba(255, 255, 255, 0.7)',
               opacity: 0.9,
-              width: '660px',
-              maxWidth: '660px',
+              width: '400px',
+              maxWidth: '400px',
               height: 'auto',
             }}
           />
@@ -290,7 +273,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
       <div style={bottomPart}>
         {/* White panel with editable line chart */}
         <div style={panel}>
-            <svg 
+            {/* <svg 
               ref={svgRef} 
               viewBox="0 0 200 100" 
               preserveAspectRatio="xMidYMid meet"
@@ -298,7 +281,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
                 position: 'absolute', 
                 top: '-230px',
                 left: '170px',
-                height: 'calc(200% + 100px)'
+                height: 'calc(200% + 100px)',
+                display: 'none'
               }}
             >
             <path 
@@ -328,7 +312,30 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
                 />
               );
             })}
-          </svg>
+          </svg> */}
+        </div>
+        
+        {/* Background SVG behind avatar */}
+        <div 
+          style={{ 
+            position: 'absolute', 
+            left: '50%', 
+            transform: 'translateX(-50%)', 
+            bottom: '100px',
+            zIndex: 0
+          }}
+          dangerouslySetInnerHTML={{ __html: BACKGROUND_SVG }}
+        />
+        
+        {/* Avatar above white panel */}
+        <div style={{...avatarContainer, zIndex: 1}}>
+          <ClickableImagePlaceholder
+            imagePath={avatarPath}
+            onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
+            description="Avatar" 
+            isEditable={isEditable} 
+            style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+          />
         </div>
       </div>
 
