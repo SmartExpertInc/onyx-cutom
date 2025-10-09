@@ -304,8 +304,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             <path 
               d={pathD} 
               fill="none" 
-              stroke={lineColor} 
-              strokeWidth="2"
+              stroke="#0F58F9" 
+              strokeWidth="5"
               strokeLinecap="round"
               strokeLinejoin="round"
               vectorEffect="non-scaling-stroke"
@@ -318,10 +318,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
                   key={i}
                   cx={pt.x}
                   cy={pt.y}
-                  r="2.5"
+                  r="5"
                   fill="#FFFFFF"
-                  stroke={lineColor}
-                  strokeWidth="2"
+                  stroke="#0F58F9"
+                  strokeWidth="4"
                   vectorEffect="non-scaling-stroke"
                   onMouseDown={(e) => isEditable && startDrag(i, e)}
                   style={{ cursor: isEditable ? 'pointer' : 'default' }}
