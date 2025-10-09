@@ -696,6 +696,19 @@
     </style>
 </head>
 <body>
+    {# ====================================================================== #}
+    {# COORDINATE SCALING FOR VIDEO GENERATION                               #}
+    {# Editor canvas: 1174×600 px                                            #}
+    {# Video canvas:  1920×1080 px                                           #}
+    {# Positions must be scaled to maintain proportional placement           #}
+    {# ====================================================================== #}
+    {% set EDITOR_WIDTH = 1174 %}
+    {% set EDITOR_HEIGHT = 600 %}
+    {% set VIDEO_WIDTH = 1920 %}
+    {% set VIDEO_HEIGHT = 1080 %}
+    {% set SCALE_X = VIDEO_WIDTH / EDITOR_WIDTH %}  {# 1.635... #}
+    {% set SCALE_Y = VIDEO_HEIGHT / EDITOR_HEIGHT %} {# 1.8 #}
+    
     <div class="slide-page">
         <div class="slide-content theme-{{ theme or 'dark-purple' }}" style="background-color: var(--bg-color);">
             {% if templateId == 'avatar-checklist' %}
@@ -843,7 +856,9 @@
                                 {% if metadata and metadata.elementPositions %}
                                     {% set titleId = 'draggable-' + slideId + '-0' %}
                                     {% if metadata.elementPositions[titleId] %}
-                                        <h1 class="slide-title positioned-element" style="transform: translate({{ metadata.elementPositions[titleId].x }}px, {{ metadata.elementPositions[titleId].y }}px);">{{ title }}</h1>
+                                        {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
+                                        {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
+                                        <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title }}</h1>
                                     {% else %}
                                         <h1 class="slide-title">{{ title }}</h1>
                                     {% endif %}
@@ -857,7 +872,9 @@
                                 {% if metadata and metadata.elementPositions %}
                                     {% set subtitleId = 'draggable-' + slideId + '-1' %}
                                     {% if metadata.elementPositions[subtitleId] %}
-                                        <h2 class="slide-subtitle positioned-element" style="transform: translate({{ metadata.elementPositions[subtitleId].x }}px, {{ metadata.elementPositions[subtitleId].y }}px);">{{ subtitle }}</h2>
+                                        {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
+                                        {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
+                                        <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle }}</h2>
                                     {% else %}
                                         <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                     {% endif %}
@@ -871,7 +888,9 @@
                                 {% if metadata and metadata.elementPositions %}
                                     {% set contentId = 'draggable-' + slideId + '-2' %}
                                     {% if metadata.elementPositions[contentId] %}
-                                        <p class="content-text positioned-element" style="transform: translate({{ metadata.elementPositions[contentId].x }}px, {{ metadata.elementPositions[contentId].y }}px);">{{ content }}</p>
+                                        {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
+                                        {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
+                                        <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content }}</p>
                                     {% else %}
                                         <p class="content-text">{{ content }}</p>
                                     {% endif %}
