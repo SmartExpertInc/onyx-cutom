@@ -38,9 +38,9 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
-  const [curvePoints, setCurvePoints] = useState(points);
+  // const [curvePoints, setCurvePoints] = useState(points);
   // Preserve initial X positions to optionally lock specific points horizontally
-  const initialXsRef = useRef<number[]>(points.map(p => p.x));
+  // const initialXsRef = useRef<number[]>(points.map(p => p.x));
   const [showLogoUploadModal, setShowLogoUploadModal] = useState(false);
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
@@ -127,49 +127,49 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     overflow: 'hidden'
   };
 
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  // const svgRef = useRef<SVGSVGElement | null>(null);
 
-  const pathD = useMemo(() => {
-    if (curvePoints.length === 0) return '';
-    const d: string[] = [];
-    d.push(`M ${curvePoints[0].x} ${curvePoints[0].y}`);
-    for (let i = 1; i < curvePoints.length; i++) {
-      d.push(`L ${curvePoints[i].x} ${curvePoints[i].y}`);
-    }
-    return d.join(' ');
-  }, [curvePoints]);
+  // const pathD = useMemo(() => {
+  //   if (curvePoints.length === 0) return '';
+  //   const d: string[] = [];
+  //   d.push(`M ${curvePoints[0].x} ${curvePoints[0].y}`);
+  //   for (let i = 1; i < curvePoints.length; i++) {
+  //     d.push(`L ${curvePoints[i].x} ${curvePoints[i].y}`);
+  //   }
+  //   return d.join(' ');
+  // }, [curvePoints]);
 
-  const startDrag = (idx: number, _e: React.MouseEvent) => {
-    if (!isEditable || !svgRef.current) return;
-    const svg = svgRef.current;
-    const onMove = (me: MouseEvent) => {
-      // Create an SVG point and transform it to viewBox coordinates
-      const pt = svg.createSVGPoint();
-      pt.x = me.clientX;
-      pt.y = me.clientY;
-      const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+  // const startDrag = (idx: number, _e: React.MouseEvent) => {
+  //   if (!isEditable || !svgRef.current) return;
+  //   const svg = svgRef.current;
+  //   const onMove = (me: MouseEvent) => {
+  //     // Create an SVG point and transform it to viewBox coordinates
+  //     const pt = svg.createSVGPoint();
+  //     pt.x = me.clientX;
+  //     pt.y = me.clientY;
+  //     const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
       
-      // Map to viewBox coordinates (0-200 for x, 0-100 for y)
-      let rx = Math.max(0, Math.min(200, svgP.x));
-      const ry = Math.max(0, Math.min(100, svgP.y));
+  //     // Map to viewBox coordinates (0-200 for x, 0-100 for y)
+  //     let rx = Math.max(0, Math.min(200, svgP.x));
+  //     const ry = Math.max(0, Math.min(100, svgP.y));
 
-      // Lock the first and last points horizontally (left/right edges)
-      const isEdgePoint = idx === 0 || idx === (curvePoints.length - 1);
-      if (isEdgePoint) {
-        rx = initialXsRef.current[idx] ?? curvePoints[idx].x;
-      }
-      const next = [...curvePoints];
-      next[idx] = { x: rx, y: ry };
-      setCurvePoints(next);
-    };
-    const onUp = () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      onUpdate && onUpdate({ points: curvePoints });
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  };
+  //     // Lock the first and last points horizontally (left/right edges)
+  //     const isEdgePoint = idx === 0 || idx === (curvePoints.length - 1);
+  //     if (isEdgePoint) {
+  //       rx = initialXsRef.current[idx] ?? curvePoints[idx].x;
+  //     }
+  //     const next = [...curvePoints];
+  //     next[idx] = { x: rx, y: ry };
+  //     setCurvePoints(next);
+  //   };
+  //   const onUp = () => {
+  //     window.removeEventListener('mousemove', onMove);
+  //     window.removeEventListener('mouseup', onUp);
+  //     onUpdate && onUpdate({ points: curvePoints });
+  //   };
+  //   window.addEventListener('mousemove', onMove);
+  //   window.addEventListener('mouseup', onUp);
+  // };
 
   const handleLogoNewUploaded = (path: string) => {
     if (onUpdate) {
