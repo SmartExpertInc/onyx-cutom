@@ -258,12 +258,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
             onCancel={() => setEditingDesc(false)}
             style={{
-              fontSize: '16px',
+              fontSize: '20px',
               lineHeight: 1.5,
               color: 'rgba(255, 255, 255, 0.7)',
               opacity: 0.9,
-              width: '400px',
-              maxWidth: '400px',
+              width: '350px',
+              maxWidth: '350px',
               height: 'auto',
             }}
           />
