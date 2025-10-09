@@ -42,7 +42,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F5F5F5', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
   const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'240px', background:'#E5E5E5' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000', fontSize:'16px', fontWeight:500 };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'50%', top:'50%', transform:'translate(-50%, -50%)', fontSize:'48px', fontWeight:400, color:'#2D2D2D', fontFamily:'serif', textAlign:'center' };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'50%', top:'50%', transform:'translate(-50%, -50%)', fontSize:'48px', fontWeight:400, color:'#2D2D2D', fontFamily:'serif', textAlign:'center', margin:0, padding:0 };
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'80px', height:'80px', borderRadius:'50%', overflow:'hidden', background:'#2563EB', boxShadow:'none' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'240px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
@@ -86,7 +86,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
         logoPath={logoPath}
         onLogoUploaded={(p: string)=> onUpdate&&onUpdate({ logoPath:p })}
         isEditable={isEditable}
-        color="#6b7280"
+        color="#000000"
         text={logoText}
         style={{ position:'absolute', left:'48px', top:'48px' }}
       />
