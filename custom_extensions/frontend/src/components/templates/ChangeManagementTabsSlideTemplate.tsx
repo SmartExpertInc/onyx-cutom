@@ -52,8 +52,8 @@ export const ChangeManagementTabsSlideTemplate: React.FC<ChangeManagementTabsPro
   const headingStyle: React.CSSProperties = { position:'absolute', left:'220px', right:'56px', top:'40px', fontSize:'45px', fontWeight:500, color:'#2D2D2D', lineHeight:1.2, fontFamily: "'Lora', serif", whiteSpace: 'pre-wrap' };
 
   const capsulesWrap: React.CSSProperties = { position:'absolute', left:0, right:0, top:'220px', height:'110px', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px' };
-  const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#09090B', fontSize:'24px', height:'100%', background:'#FFFFFF', fontFamily: currentTheme.fonts.contentFont, position: 'relative', zIndex: 1, width:'500px' };
-  const capsuleActive: React.CSSProperties = { ...capsule, height:'83%', background:'#0F58F9', color:'#FFFFFF', border:'16px solid #E0E7FF', zIndex: 10, width:'400px', marginLeft:'-60px', marginRight:'-60px' };
+  const capsule: React.CSSProperties = { borderRadius:'999px', display:'flex', alignItems:'center', justifyContent:'center', color:'#09090B', fontSize:'24px', height:'100%', background:'#FFFFFF', fontFamily: currentTheme.fonts.contentFont, position: 'relative', zIndex: 1, width:'500px', boxShadow:'0 4px 6px rgba(0, 0, 0, 0.1)' };
+  const capsuleActive: React.CSSProperties = { ...capsule, height:'83%', background:'#0F58F9', color:'#FFFFFF', border:'16px solid #E0E7FF', zIndex: 10, width:'400px', marginLeft:'-60px', marginRight:'-60px', boxShadow:'none' };
 
   const inlineHeading = { background:'transparent', border:'none', outline:'none', padding:0, margin:0, width: '100%', height: 'auto' } as React.CSSProperties;
   const inlineTab = { position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, color:'inherit', fontSize:'20px', fontFamily: currentTheme.fonts.contentFont } as React.CSSProperties;

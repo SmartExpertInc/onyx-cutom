@@ -2118,24 +2118,27 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
   }
   ,
 
-  // New: Key skills list with numbered items and right image panel
+  // New: Key skills list with numbered items and avatar on left
   'key-skills-data-analysis': {
     id: 'key-skills-data-analysis',
     name: 'Key Skills (Data Analysis)',
-    description: 'Large heading with numbered list on the left and rounded right image panel',
+    description: 'Blue gradient left panel with heading and avatar, numbered list on light right panel',
     category: 'content',
     icon: '🧠',
     component: KeySkillsDataAnalysisSlideTemplate,
     defaultProps: {
       heading: 'Key skills\nfor data analysis:',
       items: [ 'Sorting and filtering data.', 'Formulas and functions.', 'Pivot tables.', 'Data validation.', 'Charts and graphs.' ],
-      rightPanelColor: '#20472F'
+      avatarImagePath: '',
+      logoPath: '',
+      pageNumber: '36'
     },
     propSchema: {
       heading: { type: 'text', label: 'Heading', required: true },
       items: { type: 'array', label: 'Items', required: true },
-      rightPanelColor: { type: 'color', label: 'Right Panel' },
-      rightImagePath: { type: 'image', label: 'Right Image' }
+      avatarImagePath: { type: 'image', label: 'Avatar Image' },
+      logoPath: { type: 'image', label: 'Logo' },
+      pageNumber: { type: 'text', label: 'Page Number', maxLength: 10 }
     }
   }
   ,
