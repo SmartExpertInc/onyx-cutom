@@ -58,7 +58,7 @@ function AddOnCard({ addOn, icon: Icon, quantity, onQuantityChange, showAmount =
         <div className="text-3xl font-bold text-gray-900">
           {(() => {
             const idToSku: Record<string, string> = {
-              small: 'credits_100', medium: 'credits_300', large: 'credits_1000',
+              small: 'credits_100', medium: 'credits_300', large: 'credits_500',
               single: 'connectors_1', five: 'connectors_5', ten: 'connectors_10',
               oneGb: 'storage_1gb', fiveGb: 'storage_5gb', tenGb: 'storage_10gb'
             };

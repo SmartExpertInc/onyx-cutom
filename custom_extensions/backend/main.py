@@ -154,7 +154,14 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
     for pid, (ptype, units) in provided_map.items():
         addon_map[pid] = {"type": ptype, "units": units}
 
-    price_to_tier: dict[str, str] = {}
+    # Hard-wired tier price IDs
+    price_to_tier: dict[str, str] = {
+        "price_1SEBM4H2U2KQUmUhkn6A7Hlm": "pro_monthly",      # Pro
+        "price_1SEBTeH2U2KQUmUhi02e1uC9": "business_monthly", # Business
+        "price_1SEBUCH2U2KQUmUhkym5Q9TS": "pro_yearly",       # Pro Yearly
+        "price_1SEBUoH2U2KQUmUhMktbhCsm": "business_yearly",  # Business Yearly
+    }
+    # Also support env vars as fallback
     def _tier(price_id: Optional[str], tier: str):
         if price_id:
             price_to_tier[price_id] = tier
@@ -28540,14 +28547,19 @@ async def stripe_webhook(
                     recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
                     interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
                     
-                    # Infer plan from product name
-                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
-                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
-                    lowered = product_name.lower()
-                    if 'business' in lowered:
-                        plan = 'business'
-                    elif 'pro' in lowered:
-                        plan = 'pro'
+                    # Use PRICE_TO_TIER mapping first, fallback to product name
+                    tier_key = PRICE_TO_TIER.get(price_id, '')
+                    if tier_key:
+                        plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                    else:
+                        # Fallback: infer plan from product name
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        if 'business' in lowered:
+                            plan = 'business'
+                        elif 'pro' in lowered:
+                            plan = 'pro'
                 
                 # Update user billing
                 async with pool.acquire() as conn:
@@ -28677,14 +28689,19 @@ async def stripe_webhook(
                     recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
                     interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
                     
-                    # Infer plan from product name
-                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
-                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
-                    lowered = product_name.lower()
-                    if 'business' in lowered:
-                        plan = 'business'
-                    elif 'pro' in lowered:
-                        plan = 'pro'
+                    # Use PRICE_TO_TIER mapping first, fallback to product name
+                    tier_key = PRICE_TO_TIER.get(price_id, '')
+                    if tier_key:
+                        plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                    else:
+                        # Fallback: infer plan from product name
+                        product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                        product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                        lowered = product_name.lower()
+                        if 'business' in lowered:
+                            plan = 'business'
+                        elif 'pro' in lowered:
+                            plan = 'pro'
                 
                 # Update user billing
                 async with pool.acquire() as conn:
