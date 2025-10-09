@@ -133,7 +133,7 @@ const Marketer: React.FC<{ className?: string, fill?: string }> = ({
   className,
   fill,
 }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="41" className={className} viewBox="0 0 40 41" fill="none">
+  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="41" className={className} viewBox="0 0 34 41" fill="none">
     <path fill-rule="evenodd" clip-rule="evenodd" d="M28 23.702L24.4914 27.2434C24.2078 27.5293 23.7422 27.5332 23.4539 27.252L21.7172 25.5598C21.4258 25.2754 21.4187 24.8074 21.7031 24.516C21.8398 24.3754 22.0242 24.2965 22.2195 24.2926H22.2258H22.232C22.425 24.2926 22.6086 24.3668 22.7461 24.502L23.7367 25.4676C23.8601 25.5879 24.0562 25.5855 24.1773 25.4637L26.9531 22.6621C27.0922 22.5223 27.2789 22.4441 27.4773 22.4441C27.6726 22.4441 27.8586 22.5207 27.9976 22.6582C28.2875 22.9457 28.2867 23.4129 28 23.702ZM24.8547 18.7691C21.4453 18.7691 18.6711 21.5434 18.6711 24.9527C18.6711 28.3621 21.4461 31.1355 24.8547 31.1355C28.264 31.1355 31.0383 28.3621 31.0383 24.9527C31.0383 21.5434 28.2648 18.7691 24.8547 18.7691ZM1.14138 19.8699C0.886697 18.9191 1.02263 17.9168 1.51482 17.0645C1.99685 16.2301 2.76795 15.6223 3.69451 15.3559L3.99998 15.2684L5.91795 22.4254L5.60935 22.502C4.6742 22.7348 3.70154 22.5941 2.86717 22.1121C2.01326 21.6191 1.39685 20.823 1.14138 19.8699ZM9.71014 24.148L12.7664 23.3293L14.8219 30.998C14.9094 31.3246 14.7133 31.666 14.3859 31.7535L12.5195 32.2535C12.1922 32.341 11.8523 32.1449 11.7648 31.8176L9.71014 24.148ZM11.2625 11.1434L14.2695 22.3668L16.9484 22.4855L17.0242 22.2645C18.0859 19.1809 20.8797 16.9887 24.1312 16.7059L24.5023 16.6738L21.3031 4.73242L11.2625 11.1434ZM27.9836 8.69414C28.0101 8.69336 28.0359 8.6918 28.0625 8.6918C30.2484 8.6918 32.0265 10.4699 32.0265 12.6559C32.0265 14.102 31.2437 15.4309 29.9781 16.1277L29.6289 16.3199L27.589 8.70586L27.9836 8.69414ZM32.5078 24.9527C32.5078 20.7324 29.075 17.2996 24.8547 17.2996C20.6344 17.2996 17.2015 20.7324 17.2015 24.9527C17.2015 29.1723 20.6351 32.6059 24.8547 32.6059C29.075 32.6059 32.5078 29.1723 32.5078 24.9527ZM34.7437 32.9043L38.5851 36.7457C39.1195 37.2801 39.1195 38.148 38.5851 38.6824C38.05 39.2168 37.182 39.2168 36.6476 38.6824L32.8078 34.8418L34.7437 32.9043Z" fill="#ABC4FD"/>
     <path fill-rule="evenodd" clip-rule="evenodd" d="M27.7773 22.8791C27.6968 22.7994 27.5906 22.7556 27.4773 22.7556C27.4765 22.7556 27.4765 22.7556 27.4757 22.7556C27.3625 22.7556 27.2554 22.8002 27.1749 22.8814L24.3992 25.683C24.1578 25.9275 23.7648 25.9306 23.5187 25.6908L22.5281 24.7252C22.4484 24.6478 22.3437 24.6049 22.232 24.6049C22.2304 24.6049 22.2281 24.6049 22.2257 24.6049C22.1124 24.6072 22.0062 24.6525 21.9265 24.7338C21.7632 24.9025 21.7671 25.172 21.9351 25.3361L23.6718 27.0283C23.8375 27.19 24.1062 27.1877 24.2695 27.0236L27.7781 23.4822C27.9453 23.315 27.9445 23.0447 27.7773 22.8791ZM28.6656 24.3627L25.1578 27.9041C24.8312 28.2322 24.4 28.3963 23.9679 28.3963C23.546 28.3963 23.1242 28.2392 22.8007 27.9244L21.064 26.2314C20.7437 25.9197 20.5632 25.5017 20.557 25.0541C20.5507 24.6064 20.7195 24.1838 21.0312 23.8627C21.3437 23.5416 21.7617 23.3619 22.2093 23.3556C22.6585 23.347 23.0804 23.5174 23.4007 23.8299L23.9484 24.3635L26.289 22.001C26.289 22.0002 26.289 22.0002 26.2898 21.9994C26.6054 21.6822 27.0257 21.5072 27.4734 21.5056H27.4781C27.9234 21.5056 28.3429 21.6783 28.6593 21.9931C29.314 22.6447 29.3164 23.708 28.6656 24.3627ZM30.1015 24.9525C30.1015 27.8447 27.7476 30.1978 24.8554 30.1978C21.9625 30.1978 19.6093 27.8447 19.6093 24.9525C19.6093 22.0595 21.9625 19.7064 24.8554 19.7064C27.7468 19.7064 30.1015 22.0595 30.1015 24.9525ZM31.3507 24.9525C31.3507 28.5338 28.4367 31.4478 24.8546 31.4478C21.2726 31.4478 18.3585 28.5338 18.3585 24.9525C18.3585 21.3705 21.2726 18.4564 24.8546 18.4564C28.4375 18.4564 31.3507 21.3705 31.3507 24.9525ZM38.3648 36.9666L34.7445 33.3463L33.25 34.8416L36.8687 38.4611C37.2812 38.8736 37.9523 38.8736 38.3648 38.4611C38.7773 38.0494 38.7773 37.3783 38.3648 36.9666ZM31.7171 33.3095L33.2117 31.815L33.8601 32.4627L32.3648 33.9572L31.7171 33.3095ZM30.6906 31.2494L31.35 31.9088L31.8109 31.4478L31.1515 30.7885C31.0046 30.9478 30.85 31.1017 30.6906 31.2494ZM24.8546 32.2931C20.807 32.2931 17.514 28.9994 17.514 24.9525C17.514 20.9049 20.807 17.6119 24.8546 17.6119C28.9023 17.6119 32.1953 20.9049 32.1953 24.9525C32.1953 28.9994 28.9023 32.2931 24.8546 32.2931ZM16.7289 22.1627C17.8117 19.0174 20.6726 16.6931 24.1046 16.3947L21.1117 5.22517L11.6234 11.283L14.5117 22.0642L16.7289 22.1627ZM12.5453 23.7119L10.0921 24.3689L12.0664 31.7369C12.1093 31.8986 12.2757 31.9947 12.4382 31.9517L14.3046 31.4517C14.4664 31.408 14.5625 31.2408 14.5195 31.0791L12.5453 23.7119ZM8.52417 23.4955C8.18979 23.5853 7.83901 23.5385 7.53667 23.3642C7.23511 23.19 7.0187 22.9095 6.92964 22.5752L4.79995 14.6322C4.71089 14.297 4.75698 13.947 4.93198 13.6447C5.1062 13.3424 5.38667 13.1267 5.72104 13.0377L10.4585 11.7681L13.2609 22.226L8.52417 23.4955ZM5.53354 22.1986L3.78042 15.6556C2.93589 15.8978 2.22886 16.451 1.78511 17.2197C1.3312 18.0056 1.20933 18.9181 1.44292 19.7885C1.67573 20.658 2.23745 21.3877 3.02339 21.8416C3.79292 22.2853 4.6812 22.4111 5.53354 22.1986ZM22.1374 4.22439C22.0289 3.81814 22.0859 3.39236 22.2984 3.02439C22.5109 2.65642 22.8515 2.39392 23.2578 2.28533C23.664 2.17674 24.0906 2.23299 24.4578 2.44549C24.8257 2.65799 25.0882 2.99861 25.1968 3.40486L28.9468 17.401C27.8789 16.8197 26.6742 16.4588 25.3945 16.3791L22.1374 4.22439ZM27.9921 9.00642L29.8265 15.8533C30.9765 15.2205 31.7132 14.0056 31.7132 12.6556C31.7132 10.6424 30.075 9.00408 28.0617 9.00408C28.0382 9.00408 28.0164 9.00564 27.9921 9.00642ZM39.2492 39.3455C38.8 39.7947 38.2062 40.0197 37.6171 40.0197C37.0273 40.0197 36.4343 39.7947 35.9851 39.3455L30.4937 33.8525C30.2031 33.5619 30.1953 33.0947 30.4687 32.7939L29.7109 32.0353C28.3289 32.9861 26.6562 33.5431 24.8562 33.5431C20.1195 33.5431 16.2656 29.6892 16.2656 24.9525C16.2656 24.422 16.314 23.9033 16.4062 23.3994L14.0968 23.2963L13.7546 23.3885L15.7281 30.7556C15.95 31.583 15.457 32.4369 14.6296 32.6588L12.764 33.1588C12.6296 33.1947 12.4945 33.2119 12.3617 33.2119C11.6757 33.2119 11.046 32.7533 10.8601 32.0603L8.88589 24.6931L8.84839 24.7025C8.62964 24.7611 8.40698 24.7908 8.18589 24.7908C7.7437 24.7908 7.30698 24.6744 6.91245 24.4463C6.47729 24.1955 6.13354 23.8306 5.91245 23.3931C5.51714 23.4986 5.11636 23.5502 4.71792 23.5502C3.91323 23.5502 3.1187 23.3385 2.39917 22.9244C1.32417 22.3033 0.555419 21.3041 0.235888 20.1119C-0.0836432 18.9197 0.0827631 17.6705 0.703076 16.5947C1.32339 15.5205 2.32026 14.7533 3.51011 14.4322C3.48354 13.9431 3.59839 13.4556 3.84995 13.0197C4.19136 12.4283 4.74136 12.0064 5.39839 11.8299L10.6468 10.4236L20.8359 3.91814C20.8164 3.39158 20.9453 2.86814 21.2156 2.39939C21.5953 1.74236 22.2054 1.27283 22.9343 1.07752C23.6632 0.882206 24.4257 0.983768 25.0828 1.36346C25.7398 1.74236 26.2093 2.35252 26.4046 3.08142L27.6609 7.77049C27.7937 7.76033 27.9273 7.75408 28.0617 7.75408C30.764 7.75408 32.9632 9.9533 32.9632 12.6556C32.9632 14.572 31.857 16.2869 30.1578 17.0885L30.5414 18.5189C32.321 20.0939 33.4453 22.3939 33.4453 24.9525C33.4453 26.7525 32.8882 28.4244 31.9382 29.8064L32.696 30.565C32.8375 30.4361 33.0187 30.365 33.2117 30.365C33.4171 30.365 33.6101 30.4447 33.7546 30.59L39.2484 36.0822C40.1476 36.9822 40.1476 38.4455 39.2492 39.3455ZM38.4898 14.672L35.7593 13.9408C35.4242 13.851 35.0812 14.0494 34.9929 14.3822C34.9046 14.7158 35.1031 15.0588 35.4351 15.1478L38.1656 15.8799C38.221 15.8939 38.2765 15.901 38.3281 15.901C38.6046 15.901 38.8585 15.7174 38.9328 15.4377C39.0203 15.1041 38.825 14.7619 38.4898 14.672ZM34.9929 10.7986C35.0664 11.0775 35.321 11.2619 35.5968 11.2619C35.6484 11.2619 35.7039 11.2549 35.7593 11.2408L38.4898 10.5088C38.825 10.4197 39.0203 10.0767 38.932 9.74314C38.8437 9.40955 38.5007 9.21189 38.1656 9.30096L35.4351 10.033C35.1039 10.1228 34.9046 10.465 34.9929 10.7986ZM33.2015 7.69471C33.3234 7.81736 33.4835 7.8783 33.6437 7.8783C33.8039 7.8783 33.9632 7.81736 34.0859 7.69471L36.0843 5.69549C36.3273 5.45174 36.3273 5.05564 36.0843 4.81189C35.8414 4.56736 35.4468 4.56736 35.2 4.81189L33.2015 6.81111C32.957 7.05564 32.957 7.45096 33.2015 7.69471Z" fill={fill || "#87ABFC"}/>
   </svg>
@@ -258,14 +258,14 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogOverlay className="bg-gradient-to-br from-blue-400 via-white to-purple-500" />
+      <DialogOverlay className="bg-gradient-to-br from-[#3817FF] via-white to-[#D817FF]" />
       <DialogContent 
-        className="sm:max-w-[90vw] rounded-4xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-2xl bg-transparent" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-4xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-2xl bg-transparent" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-[90vw] min-w-[830px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
+          <div className="relative z-10 w-[90vw] min-w-[830px] max-w-[1280px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
           {/* Header with Logo and Progress */}
           <div className="p-8 pb-6">
             {/* ContentBuilder Logo */}
@@ -283,7 +283,11 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             {/* Progress Bar */}
             <div className="w-4xl mx-auto bg-white rounded-full h-2 mb-6">
               <div 
-                className="bg-blue-500 h-2 rounded-l-full transition-all duration-300"
+                className={`bg-[#719AF5] h-2 transition-all duration-300 ${
+                  (surveyStep / (selectedCategory === 'work' ? 4 : 2)) * 100 === 100 
+                    ? 'rounded-full' 
+                    : 'rounded-l-full'
+                }`}
                 style={{ width: `${(surveyStep / (selectedCategory === 'work' ? 4 : 2)) * 100}%` }}
               ></div>
             </div>
@@ -380,7 +384,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     
                 <div className="flex flex-col items-center text-center">
                       <div className="w-16 h-16 mb-4 flex items-center justify-center">
-                        <PersonalIcon className={'w-10 h-10'} fill={selectedCategory === 'personal' ? '#EF8EFB' : '#EFB4FB'} fill2={selectedCategory === 'personal' ? '#F7B6FC' : '#F7E0FC'} />
+                        <PersonalIcon className={'w-12 h-12'} fill={selectedCategory === 'personal' ? '#EF8EFB' : '#EFB4FB'} fill2={selectedCategory === 'personal' ? '#F7B6FC' : '#F7E0FC'} />
                   </div>
                       <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 public-sans-font-bold">{t('survey.category.personal', 'Personal')}</h3>
                       <p className="text-[#71717A] text-xs leading-relaxed public-sans-font">{t('survey.category.personalDescription', 'Personal projects, learning, or creative endeavors')}</p>
@@ -409,7 +413,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     
                 <div className="flex flex-col items-center text-center">
                       <div className="w-16 h-16 mb-4 flex items-center justify-center">
-                        <WorklIcon className={'w-10 h-10'} fill={selectedCategory === 'work' ? '#0F58F9' : '#86ABFB'} />
+                        <WorklIcon className={'w-12 h-12'} fill={selectedCategory === 'work' ? '#0F58F9' : '#86ABFB'} />
                       </div>
                       <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 public-sans-font-bold">{t('survey.category.work', 'Work')}</h3>
                       <p className="text-[#71717A] text-xs leading-relaxed public-sans-font">{t('survey.category.workDescription', 'Professional use for business, marketing, or team collaboration')}</p>
@@ -421,7 +425,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {/* Step 2: Work Role */}
           {surveyStep === 2 && selectedCategory === 'work' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-8 gap-y-4 max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
                 {[
                   { value: 'marketer', label: t('survey.role.marketer', 'Marketer'), icon: <Marketer className="w-6 h-6" fill={surveyData.workRole === 'marketer' ? '#0F58F9' : '#87ABFC'} /> },
                   { value: 'hr-ld', label: t('survey.role.hrLd', 'HR / L&D'), icon: <HrLnD className="w-6 h-6" fill={surveyData.workRole === 'hr-ld' ? '#0F58F9' : '#87ABFC'} /> },
@@ -461,15 +465,12 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Other role input field - appears when "Other" is selected */}
               {surveyData.workRole === 'other' && (
                 <div className="mt-6 max-w-4xl mx-auto">
-                  <label className="block text-sm font-medium text-[var(--secondary-foreground)] mb-2 sora-font-medium">
-                    Describe your role
-                  </label>
                   <input
                     type="text"
                     placeholder="Describe your role"
                     value={surveyData.additionalInfo}
                     onChange={(e) => setSurveyData(prev => ({ ...prev, additionalInfo: e.target.value }))}
-                    className="w-full p-3 border border-[var(--border-light)] rounded-lg bg-white text-[#434343] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sora-font"
+                    className="w-full p-5 border border-[var(--border-light)] rounded-lg bg-white text-[#434343] placeholder:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sora-font"
                   />
                 </div>
               )}
@@ -479,7 +480,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 3: Company Size */}
               {surveyStep === 3 && selectedCategory === 'work' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-2 gap-x-8 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
                     {[
                       { value: '1-10', label: '1–10', icon: 1 },
                       { value: '11-50', label: '11–50', icon: 2 },
@@ -501,8 +502,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
-                        <div className="flex flex-col items-center">
-                          <Other className="w-8 h-8 mb-3" fill={surveyData.companySize === option.value ? '#0F58F9' : '#87ABFC'} />
+                        <div className="flex items-center">
+                          <Other className="w-8 h-8 mr-3" fill={surveyData.companySize === option.value ? '#0F58F9' : '#87ABFC'} />
                           <span className="font-medium text-lg public-sans-font">{option.label}</span>
                         </div>
                       </div>
@@ -514,7 +515,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 4: Industry */}
               {surveyStep === 4 && selectedCategory === 'work' && (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
                     {[
                       { value: 'video-production', label: t('survey.industry.videoProduction', 'Video Production'), icon: <Marketer fill={surveyData.industry === 'video-production' ? '#0F58F9' : '#87ABFC'} /> },
                       { value: 'digital-marketing', label: t('survey.industry.digitalMarketing', 'Digital Marketing'), icon: <HrLnD fill={surveyData.industry === 'digital-marketing' ? '#0F58F9' : '#87ABFC'} /> },
@@ -539,10 +540,8 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                           </div>
                         )}
                         <div className="flex items-center">
-                          <div className={`w-12 h-12 rounded-xl mr-4 flex items-center justify-center ${
-                            surveyData.industry === option.value ? 'bg-blue-500' : 'bg-gray-50'
-                          }`}>
-                            <span className={`text-xl ${surveyData.industry === option.value ? 'text-white' : 'text-gray-600'}`}>
+                          <div className='w-10 h-10 rounded-xl mr-4 flex items-center justify-center'>
+                            <span className='text-xl'>
                               {option.icon}
                             </span>
                           </div>
@@ -557,7 +556,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 2: Personal Use */}
               {surveyStep === 2 && selectedCategory === 'personal' && (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
                     {[
                       { value: 'personal-projects', label: t('survey.personalUse.personalProjects', 'Personal projects'), icon: <Other fill={surveyData.personalUse === 'personal-projects' ? '#0F58F9' : '#87ABFC'} /> },
                       { value: 'learning-skills', label: t('survey.personalUse.learningSkills', 'Learning new skills'), icon: <Business fill={surveyData.personalUse === 'learning-skills' ? '#0F58F9' : '#87ABFC'} /> },
@@ -604,7 +603,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 <Button
                   onClick={handleBack}
                   variant="outline"
-                  className="flex bg-transparent items-center justify-center px-6 py-3 border-gray-400 text-[#797979] rounded-md font-semibold hover:bg-gray-300/40 transition-all duration-200 public-sans-font"
+                  className="flex bg-transparent items-center justify-center px-6 py-3 border-gray-400 text-[#797979] rounded-md font-semibold hover:bg-gray-300/20 transition-all duration-200 public-sans-font"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
                   {t('survey.navigation.previous', 'Previous')}
