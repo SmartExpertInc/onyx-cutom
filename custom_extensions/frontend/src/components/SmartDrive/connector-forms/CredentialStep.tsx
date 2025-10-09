@@ -1161,16 +1161,28 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
     // Simple key/value template
     return [
       ...baseFields,
-      ...Object.keys(template).map((key) => ({
-        name: key,
-        label: credentialDisplayNames[key] || key,
-        type: key.toLowerCase().includes('json') || key.toLowerCase().includes('content')
-          ? 'file'
-          : (key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('secret')
-            ? 'password'
-            : 'text'),
-        required: true,
-      })),
+      ...Object.keys(template).map((key) => {
+        const value = (template as any)[key];
+        let fieldType = 'text';
+        
+        // Detect field type based on value and key name
+        if (typeof value === 'boolean') {
+          fieldType = 'checkbox';
+        } else if (key.toLowerCase().includes('json') || key.toLowerCase().includes('content')) {
+          fieldType = 'file';
+        } else if (key.toLowerCase().includes('password') || key.toLowerCase().includes('token') || key.toLowerCase().includes('secret')) {
+          fieldType = 'password';
+        } else if (key.toLowerCase().includes('email')) {
+          fieldType = 'email';
+        }
+        
+        return {
+          name: key,
+          label: credentialDisplayNames[key] || key,
+          type: fieldType,
+          required: fieldType !== 'checkbox',
+        };
+      }),
     ];
   };
 
@@ -1225,10 +1237,12 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {fields.map((field) => (
         <div key={field.name} className="space-y-2">
-          <label className="block text-sm font-semibold text-gray-900">
-            {field.label}
-            {field.required && <span className="text-red-500 ml-1">*</span>}
-          </label>
+          {field.type !== 'checkbox' && (
+            <label className="block text-sm font-semibold text-gray-900">
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+          )}
           {field.type === 'select' ? (
             <select
               name={field.name}
@@ -1282,6 +1296,19 @@ const CredentialCreationForm: FC<CredentialCreationFormProps> = ({
               className="w-full px-4 py-3 duration-200"
               placeholder="Enter email address"
             />
+          ) : field.type === 'checkbox' ? (
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name={field.name}
+                checked={formData[field.name] || false}
+                onChange={(e) => handleInputChange(field.name, e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label className="text-sm text-gray-700">
+                {field.label}
+              </label>
+            </div>
           ) : (
             <Input
               type="text"
