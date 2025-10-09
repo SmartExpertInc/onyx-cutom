@@ -113,6 +113,10 @@ LLM_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/comple
 # Default model to use – gpt-4o-mini provides strong JSON adherence
 LLM_DEFAULT_MODEL = os.getenv("OPENAI_DEFAULT_MODEL", "gpt-4o-mini")
 
+# Stripe configuration (custom extensions only)
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_BILLING_RETURN_URL = os.getenv("STRIPE_BILLING_RETURN_URL")
+
 # NEW: OpenAI client for direct streaming
 OPENAI_CLIENT = None
 
@@ -6007,6 +6011,24 @@ async def startup_event():
                                                 format='text'
                                             ))
         async with DB_POOL.acquire() as connection:
+            # --- Ensure user_billing table for Stripe linkage ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_billing (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    stripe_customer_id TEXT,
+                    subscription_status TEXT,
+                    subscription_id TEXT,
+                    current_price_id TEXT,
+                    current_plan TEXT,
+                    current_interval TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_billing_customer ON user_billing(stripe_customer_id);")
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_billing_subscription ON user_billing(subscription_id);")
+
             await connection.execute("""
                 CREATE TABLE IF NOT EXISTS initial_questionnaire (
                     id SERIAL PRIMARY KEY,
@@ -6134,6 +6156,78 @@ async def startup_event():
             """)
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_credits_onyx_user_id ON user_credits(onyx_user_id);")
             logger.info("'user_credits' table ensured.")
+
+            # --- Ensure entitlement overrides table ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_entitlement_overrides (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    connectors_limit INTEGER,
+                    storage_gb INTEGER,
+                    slides_max INTEGER,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_user ON user_entitlement_overrides(onyx_user_id);")
+            logger.info("'user_entitlement_overrides' table ensured.")
+
+            # --- Ensure user_connectors table for quota tracking ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_connectors (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL,
+                    onyx_connector_id INTEGER UNIQUE,
+                    status TEXT DEFAULT 'active',
+                    created_at TIMESTAMPTZ DEFAULT now(),
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_user ON user_connectors(onyx_user_id);")
+            logger.info("'user_connectors' table ensured.")
+
+            # --- Ensure base entitlements table (derived from Stripe plan/features) ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_entitlement_base (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    connectors_limit INTEGER NOT NULL DEFAULT 0,
+                    storage_gb INTEGER NOT NULL DEFAULT 1,
+                    slides_max INTEGER NOT NULL DEFAULT 20,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_entitlements_base_user ON user_entitlement_base(onyx_user_id);")
+            logger.info("'user_entitlement_base' table ensured.")
+
+            # --- Ensure user email cache (for admin listing) ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_email_cache (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    email TEXT,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_email_cache_user ON user_email_cache(onyx_user_id);")
+            logger.info("'user_email_cache' table ensured.")
+
+            # --- Ensure user storage usage table ---
+            await connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS user_storage_usage (
+                    onyx_user_id TEXT PRIMARY KEY,
+                    used_bytes BIGINT NOT NULL DEFAULT 0,
+                    updated_at TIMESTAMPTZ DEFAULT now()
+                );
+                """
+            )
+            await connection.execute("CREATE INDEX IF NOT EXISTS idx_storage_usage_user ON user_storage_usage(onyx_user_id);")
+            logger.info("'user_storage_usage' table ensured.")
 
             # NEW: Ensure credit transactions table for analytics/timeline
             await connection.execute(
@@ -28487,6 +28581,779 @@ async def get_my_credits(
         logger.error(f"Error getting user credits: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve credits")
 
+# ============================
+# BILLING (Stripe) ENDPOINTS
+# ============================
+
+@app.get("/api/custom/billing/me")
+async def get_billing_info(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Return current subscription info for the logged-in user.
+    Reads from our user_billing table and, if needed, fetches live status from Stripe.
+    """
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT * FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        if not record:
+            return {
+                "plan": "starter",
+                "status": "inactive",
+                "interval": None,
+                "priceId": None,
+                "subscriptionId": None,
+            }
+
+        # Start with DB values
+        plan = record.get("current_plan") or "starter"
+        status = record.get("subscription_status") or "inactive"
+        interval = record.get("current_interval")
+        price_id = record.get("current_price_id")
+        subscription_id = record.get("subscription_id")
+
+        # If explicitly requested (refresh=1), optionally refresh live status from Stripe
+        refresh = request.query_params.get("refresh")
+        should_refresh = str(refresh).lower() in ("1", "true", "yes")
+        if should_refresh and STRIPE_SECRET_KEY and subscription_id:
+            try:
+                import stripe  # type: ignore
+                stripe.api_key = STRIPE_SECRET_KEY
+                sub = stripe.Subscription.retrieve(subscription_id, expand=["items.data.price.product"])
+                status = sub.get("status") or getattr(sub, "status", None)
+                items = sub.get("items") or sub["items"] if isinstance(sub, dict) else sub["items"]
+                data_list = items.get("data") if isinstance(items, dict) else getattr(items, "data", None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]["price"]
+                    price_id = price.get("id") or getattr(price, "id", None)
+                    interval = (price.get("recurring", {}) or getattr(price, "recurring", None) or {}).get("interval")
+                    # Infer plan from product name if available
+                    product = price.get("product") if isinstance(price, dict) else getattr(price, "product", None)
+                    product_name = (product.get("name") if isinstance(product, dict) else getattr(product, "name", "")) if product else ""
+                    lowered = (product_name or "").lower()
+                    if "business" in lowered:
+                        plan = "business"
+                    elif "pro" in lowered:
+                        plan = "pro"
+                    # Yearly/Monthly kept via interval
+            except Exception as e:
+                logger.warning(f"Could not refresh subscription from Stripe: {e}")
+
+        return {
+            "plan": plan,
+            "status": status,
+            "interval": interval,
+            "priceId": price_id,
+            "subscriptionId": subscription_id,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting billing info: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to retrieve billing info")
+
+
+# ============================
+# ENTITLEMENTS ENDPOINTS
+# ============================
+
+async def _fetch_effective_entitlements(onyx_user_id: str, pool: asyncpg.Pool) -> dict:
+    """Compute effective entitlements from base + overrides. Fallback to plan defaults."""
+    # Defaults for Starter
+    result = {"connectors_limit": 0, "storage_gb": 1, "slides_max": 20, "plan": "starter", "slides_options": [20]}
+    async with pool.acquire() as conn:
+        # Plan from billing
+        billing = await conn.fetchrow("SELECT current_plan FROM user_billing WHERE onyx_user_id = $1", onyx_user_id)
+        plan = (billing and (billing.get("current_plan") or "starter")) or "starter"
+        result["plan"] = plan
+        # Base (Stripe-derived)
+        base = await conn.fetchrow(
+            "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_base WHERE onyx_user_id = $1",
+            onyx_user_id,
+        )
+        if base:
+            result.update({
+                "connectors_limit": int(base["connectors_limit"] or 0),
+                "storage_gb": int(base["storage_gb"] or 1),
+                "slides_max": int(base["slides_max"] or 20),
+            })
+        else:
+            # Fallback to plan defaults if no base
+            if plan == "pro":
+                result.update({"connectors_limit": 2, "storage_gb": 5, "slides_max": 40})
+            elif plan == "business":
+                result.update({"connectors_limit": 5, "storage_gb": 10, "slides_max": 40})
+        # Overrides
+        overrides = await conn.fetchrow(
+            "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
+            onyx_user_id,
+        )
+        if overrides:
+            if overrides["connectors_limit"] is not None:
+                result["connectors_limit"] = int(overrides["connectors_limit"])  # type: ignore
+            if overrides["storage_gb"] is not None:
+                result["storage_gb"] = int(overrides["storage_gb"])  # type: ignore
+            if overrides["slides_max"] is not None:
+                result["slides_max"] = int(overrides["slides_max"])  # type: ignore
+
+        # Slides options for UI (Pro/Business can choose 25-40)
+        if result["slides_max"] > 20 or plan in ("pro", "business"):
+            result["slides_options"] = [25, 30, 35, 40]
+        else:
+            result["slides_options"] = [20]
+    return result
+
+
+@app.get("/api/custom/entitlements/me")
+async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    try:
+        onyx_user_id = await get_current_onyx_user_id(request)
+        ent = await _fetch_effective_entitlements(onyx_user_id, pool)
+        
+        # Add usage information
+        async with pool.acquire() as conn:
+            # Connector count - Call Onyx API to get real connector count
+            conn_count = 0
+            try:
+                # Get session cookie from request to authenticate with Onyx API
+                session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+                if session_cookie:
+                    connector_status_url = f"{ONYX_API_SERVER_URL}/manage/admin/connector/status"
+                    cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        response = await client.get(connector_status_url, cookies=cookies_to_forward)
+                        if response.status_code == 200:
+                            connectors_data = response.json()
+                            # Count only private connectors (same as frontend logic)
+                            conn_count = len([c for c in connectors_data if c.get('access_type') == 'private'])
+                            logger.info(f"[ENTITLEMENTS] Fetched {conn_count} private connectors from Onyx API for user {onyx_user_id}")
+                        else:
+                            logger.warning(f"[ENTITLEMENTS] Failed to fetch connectors from Onyx API: {response.status_code}")
+            except Exception as e:
+                logger.warning(f"[ENTITLEMENTS] Error fetching connectors from Onyx API: {e}")
+            
+            # Storage usage
+            storage_row = await conn.fetchval(
+                "SELECT used_bytes FROM user_storage_usage WHERE onyx_user_id = $1",
+                onyx_user_id
+            )
+            ent["connectors_used"] = int(conn_count)
+            ent["storage_used_bytes"] = int(storage_row or 0)
+            ent["storage_used_gb"] = round((storage_row or 0) / (1024 * 1024 * 1024), 2)
+            
+            logger.info(f"[ENTITLEMENTS] User {onyx_user_id}: connectors={conn_count}, storage_bytes={storage_row}, entitlements={ent}")
+        
+        return ent
+    except Exception as e:
+        logger.error(f"Error getting entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve entitlements")
+
+
+class EntitlementOverrideUpdate(BaseModel):
+    connectors_limit: Optional[int] = None
+    storage_gb: Optional[int] = None
+    slides_max: Optional[int] = None
+
+
+@app.get("/api/custom/admin/entitlements")
+async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    await verify_admin_user(request)
+    try:
+        # Fetch user emails from Onyx API (robust mapping)
+        user_emails_map = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Handle both array and object shapes
+                        if isinstance(users_data, dict) and 'users' in users_data:
+                            users_iterable = users_data.get('users', [])
+                        else:
+                            users_iterable = users_data if isinstance(users_data, list) else []
+
+                        # Map user IDs to emails with multiple key fallbacks
+                        for user in users_iterable:
+                            try:
+                                # Try various id/email key names
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
+                        logger.info(f"[ENTITLEMENTS] Fetched {len(user_emails_map)} user emails from Onyx API")
+                    else:
+                        logger.warning(f"[ENTITLEMENTS] Failed to fetch users from Onyx API: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"[ENTITLEMENTS] Error fetching user emails from Onyx API: {e}")
+        
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT uc.onyx_user_id,
+                       uc.name AS user_name,
+                       COALESCE(ub.current_plan, 'starter') AS plan,
+                       eb.connectors_limit AS base_connectors,
+                       eb.storage_gb AS base_storage_gb,
+                       eb.slides_max AS base_slides_max,
+                       eo.connectors_limit AS override_connectors,
+                       eo.storage_gb AS override_storage_gb,
+                       eo.slides_max AS override_slides_max
+                FROM user_credits uc
+                LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_entitlement_base eb ON eb.onyx_user_id = uc.onyx_user_id
+                LEFT JOIN user_entitlement_overrides eo ON eo.onyx_user_id = uc.onyx_user_id
+                ORDER BY uc.updated_at DESC
+                """
+            )
+            out = []
+            for r in rows:
+                eff = await _fetch_effective_entitlements(r["onyx_user_id"], pool)
+                # Get email from map, fallback to onyx_user_id
+                user_email = user_emails_map.get(r["onyx_user_id"], r["onyx_user_id"])
+                out.append({
+                    "onyx_user_id": r["onyx_user_id"],
+                    "user_name": r["user_name"] or "Unknown",
+                    "user_email": user_email,
+                    "email": user_email,
+                    "plan": r["plan"],
+                    "base": {
+                        "connectors_limit": int(r["base_connectors"] or 0),
+                        "storage_gb": int(r["base_storage_gb"] or 1),
+                        "slides_max": int(r["base_slides_max"] or 20),
+                    },
+                    "overrides": {
+                        "connectors_limit": r["override_connectors"],
+                        "storage_gb": r["override_storage_gb"],
+                        "slides_max": r["override_slides_max"],
+                    },
+                    "effective": eff,
+                })
+            return out
+    except Exception as e:
+        logger.error(f"Error listing entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list entitlements")
+
+
+@app.post("/api/custom/admin/entitlements/{target_user_id}")
+async def admin_update_entitlements(
+    target_user_id: str,
+    payload: EntitlementOverrideUpdate,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool),
+):
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Upsert overrides, keeping unspecified fields unchanged
+            existing = await conn.fetchrow(
+                "SELECT connectors_limit, storage_gb, slides_max FROM user_entitlement_overrides WHERE onyx_user_id = $1",
+                target_user_id,
+            )
+            new_vals = {
+                "connectors_limit": payload.connectors_limit if payload.connectors_limit is not None else (existing and existing["connectors_limit"]),
+                "storage_gb": payload.storage_gb if payload.storage_gb is not None else (existing and existing["storage_gb"]),
+                "slides_max": payload.slides_max if payload.slides_max is not None else (existing and existing["slides_max"]),
+            }
+            await conn.execute(
+                """
+                INSERT INTO user_entitlement_overrides (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                VALUES ($1, $2, $3, $4, now())
+                ON CONFLICT (onyx_user_id)
+                DO UPDATE SET connectors_limit = EXCLUDED.connectors_limit,
+                              storage_gb = EXCLUDED.storage_gb,
+                              slides_max = EXCLUDED.slides_max,
+                              updated_at = now()
+                """,
+                target_user_id,
+                new_vals["connectors_limit"],
+                new_vals["storage_gb"],
+                new_vals["slides_max"],
+            )
+        eff = await _fetch_effective_entitlements(target_user_id, pool)
+        return {"updated": True, "effective": eff}
+    except Exception as e:
+        logger.error(f"Error updating entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update entitlements")
+
+
+@app.post("/api/custom/billing/portal")
+async def create_billing_portal_session(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Billing Portal session for the current user.
+    Requires STRIPE_SECRET_KEY and STRIPE_BILLING_RETURN_URL env vars.
+    """
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        # Lazy import to avoid hard dependency if not configured
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Auto-create a Stripe customer if missing
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user_email or None,
+                metadata={"onyx_user_id": onyx_user_id},
+            )
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        # Determine return URL: prefer WEB_DOMAIN, then CUSTOM_FRONTEND_URL, else default to docker hostname
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        default_return = f"{(preferred_domain or 'http://custom_frontend:3001').rstrip('/')}/custom-projects-ui/payments"
+        return_url = STRIPE_BILLING_RETURN_URL or default_return
+
+        session = stripe.billing_portal.Session.create(
+            customer=stripe_customer_id,
+            return_url=return_url,
+        )
+        return {"url": session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating billing portal session: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create billing portal session")
+
+
+class CreateCheckoutRequest(BaseModel):
+    priceId: str
+    planName: Optional[str] = None
+    upgradeFromSubscriptionId: Optional[str] = None
+
+
+@app.post("/api/custom/billing/checkout")
+async def create_checkout_session(
+    request: Request,
+    payload: CreateCheckoutRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Create a Stripe Checkout session for purchasing a new subscription."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id, user_email = await get_current_onyx_user_with_email(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        # Lazy import to avoid hard dependency if not configured
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Auto-create a Stripe customer if missing
+        stripe_customer_id = record.get("stripe_customer_id") if record else None
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user_email or None,
+                metadata={"onyx_user_id": onyx_user_id},
+            )
+            stripe_customer_id = customer.id
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    INSERT INTO user_billing (onyx_user_id, stripe_customer_id, subscription_status, current_plan, updated_at)
+                    VALUES ($1, $2, 'inactive', 'starter', now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET stripe_customer_id = EXCLUDED.stripe_customer_id, updated_at = now()
+                    """,
+                    onyx_user_id,
+                    stripe_customer_id,
+                )
+
+        # Determine return URLs
+        preferred_domain = os.environ.get('WEB_DOMAIN') or (settings.CUSTOM_FRONTEND_URL if hasattr(settings, 'CUSTOM_FRONTEND_URL') else os.environ.get('CUSTOM_FRONTEND_URL'))
+        base_url = (preferred_domain or 'http://custom_frontend:3001').rstrip('/')
+        success_url = f"{base_url}/custom-projects-ui/payments?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{base_url}/custom-projects-ui/payments"
+
+        # Create checkout session
+        checkout_session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            payment_method_types=['card'],
+            line_items=[{
+                'price': payload.priceId,
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                'onyx_user_id': onyx_user_id,
+                'plan_name': payload.planName or 'Unknown Plan',
+                'upgrade_from_subscription_id': payload.upgradeFromSubscriptionId or ''
+            }
+        )
+        
+        return {"url": checkout_session.url}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating checkout session: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to create checkout session")
+
+
+@app.post("/api/custom/billing/webhook")
+async def stripe_webhook(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Handle Stripe webhooks to update subscription status."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        # Get the raw body and signature
+        body = await request.body()
+        signature = request.headers.get('stripe-signature')
+        
+        if not signature:
+            raise HTTPException(status_code=400, detail="Missing Stripe signature")
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+        
+        # You'll need to set STRIPE_WEBHOOK_SECRET in your environment
+        webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+        if not webhook_secret:
+            logger.warning("STRIPE_WEBHOOK_SECRET not set, skipping signature verification")
+            event = stripe.Event.construct_from(json.loads(body), stripe.api_key)
+        else:
+            try:
+                event = stripe.Webhook.construct_event(body, signature, webhook_secret)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid payload")
+            except stripe.SignatureVerificationError:
+                raise HTTPException(status_code=400, detail="Invalid signature")
+
+        # Helper: derive base entitlements from subscription items
+        def _derive_entitlements_from_subscription(sub_obj) -> dict:
+            base = {"connectors": 0, "storage_gb": 1, "slides_max": 20}
+            try:
+                items = sub_obj.get('items') if isinstance(sub_obj, dict) else getattr(sub_obj, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if not data_list:
+                    return base
+                # Walk items to find features
+                for it in data_list:
+                    price = it.get('price') if isinstance(it, dict) else getattr(it, 'price', None)
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    # Expand already requested above in retrieve where needed
+                    name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                    metadata = (product.get('metadata') if isinstance(product, dict) else getattr(product, 'metadata', {})) or {}
+                    lname = (name or '').lower()
+                    # Connectors
+                    if 'connectors_2' in lname:
+                        base['connectors'] = max(base['connectors'], int(metadata.get('amount', 2) or 2))
+                    if 'connectors_5' in lname:
+                        base['connectors'] = max(base['connectors'], int(metadata.get('amount', 5) or 5))
+                    # Storage
+                    if 'storage_5gb' in lname:
+                        base['storage_gb'] = max(base['storage_gb'], int(metadata.get('amount', 5) or 5))
+                    if 'storage_10gb' in lname:
+                        base['storage_gb'] = max(base['storage_gb'], int(metadata.get('amount', 10) or 10))
+                    # Slides feature (treat unlimited_slides as higher caps for Pro/Business handled via plan below)
+                    if 'unlimited_slides' in lname:
+                        # We'll not set unlimited; caps handled per plan later
+                        pass
+                return base
+            except Exception:
+                return base
+
+        # Handle the event
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            onyx_user_id = session.get('metadata', {}).get('onyx_user_id')
+            
+            if onyx_user_id and session.get('mode') == 'subscription':
+                subscription_id = session.get('subscription')
+                customer_id = session.get('customer')
+                
+                # Get subscription details
+                subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
+                
+                # Extract plan info
+                plan = "starter"
+                interval = None
+                price_id = None
+                
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]['price'] if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                    price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                    recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                    interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                    
+                    # Infer plan from product name
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                    lowered = product_name.lower()
+                    if 'business' in lowered:
+                        plan = 'business'
+                    elif 'pro' in lowered:
+                        plan = 'pro'
+                
+                # Update user billing
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        INSERT INTO user_billing (
+                            onyx_user_id, stripe_customer_id, subscription_status, 
+                            subscription_id, current_price_id, current_plan, 
+                            current_interval, updated_at
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+                        ON CONFLICT (onyx_user_id)
+                        DO UPDATE SET 
+                            subscription_status = EXCLUDED.subscription_status,
+                            subscription_id = EXCLUDED.subscription_id,
+                            current_price_id = EXCLUDED.current_price_id,
+                            current_plan = EXCLUDED.current_plan,
+                            current_interval = EXCLUDED.current_interval,
+                            updated_at = now()
+                        """,
+                        onyx_user_id, customer_id, subscription.status,
+                        subscription_id, price_id, plan, interval
+                    )
+
+                # If this was an upgrade, cancel the previous subscription
+                try:
+                    prev_sub_id = session.get('metadata', {}).get('upgrade_from_subscription_id')
+                    if prev_sub_id:
+                        stripe.Subscription.delete(prev_sub_id)
+                except Exception as cancel_err:
+                    logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
+                
+                # Compute and persist entitlements (apply overrides later at read time)
+                try:
+                    base_ents = _derive_entitlements_from_subscription(subscription)
+                    # Slides cap by plan
+                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                            VALUES ($1, $2, $3, $4, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                            """,
+                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to persist base entitlements: {e}")
+                
+                logger.info(f"Updated billing for user {onyx_user_id}: {plan} ({interval})")
+
+        elif event['type'] == 'customer.subscription.updated':
+            subscription = event['data']['object']
+            customer_id = subscription.get('customer') if isinstance(subscription, dict) else getattr(subscription, 'customer', None)
+            
+            # Find user by customer ID
+            async with pool.acquire() as conn:
+                user_record = await conn.fetchrow(
+                    "SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1",
+                    customer_id
+                )
+            
+            if user_record:
+                onyx_user_id = user_record['onyx_user_id']
+                try:
+                    # Cache email if present in customer object
+                    cust = stripe.Customer.retrieve(customer_id)
+                    user_email = (cust.get('email') if isinstance(cust, dict) else getattr(cust, 'email', '')) or ''
+                    if user_email:
+                        async with pool.acquire() as conn:
+                            await conn.execute(
+                                """
+                                INSERT INTO user_email_cache (onyx_user_id, email, updated_at)
+                                VALUES ($1, $2, now())
+                                ON CONFLICT (onyx_user_id) DO UPDATE SET email = EXCLUDED.email, updated_at = now()
+                                """,
+                                onyx_user_id,
+                                user_email,
+                            )
+                except Exception as e:
+                    logger.warning(f"Failed to cache user email: {e}")
+                
+                # Extract updated plan info
+                plan = "starter"
+                interval = None
+                price_id = None
+                
+                items = subscription.get('items') if isinstance(subscription, dict) else getattr(subscription, 'items', None)
+                data_list = items.get('data') if isinstance(items, dict) else getattr(items, 'data', None)
+                if data_list and len(data_list) > 0:
+                    price = data_list[0]['price'] if isinstance(data_list[0], dict) else getattr(data_list[0], 'price', None)
+                    price_id = price.get('id') if isinstance(price, dict) else getattr(price, 'id', None)
+                    recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
+                    interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
+                    
+                    # Infer plan from product name
+                    product = price.get('product') if isinstance(price, dict) else getattr(price, 'product', None)
+                    product_name = (product.get('name') if isinstance(product, dict) else getattr(product, 'name', '')) if product else ''
+                    lowered = product_name.lower()
+                    if 'business' in lowered:
+                        plan = 'business'
+                    elif 'pro' in lowered:
+                        plan = 'pro'
+                
+                # Update user billing
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        UPDATE user_billing 
+                        SET subscription_status = $2, current_price_id = $3, 
+                            current_plan = $4, current_interval = $5, updated_at = now()
+                        WHERE onyx_user_id = $1
+                        """,
+                        onyx_user_id, subscription['status'], price_id, plan, interval
+                    )
+                
+                # Also refresh base entitlements on subscription update
+                try:
+                    base_ents = _derive_entitlements_from_subscription(subscription)
+                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                            VALUES ($1, $2, $3, $4, now())
+                            ON CONFLICT (onyx_user_id)
+                            DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                            """,
+                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to persist base entitlements on update: {e}")
+                
+                logger.info(f"Updated subscription for user {onyx_user_id}: {subscription['status']}")
+
+        elif event['type'] == 'customer.subscription.deleted':
+            subscription = event['data']['object']
+            customer_id = subscription.get('customer')
+            
+            # Find user by customer ID and mark as cancelled
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    """
+                    UPDATE user_billing 
+                    SET subscription_status = 'canceled', current_plan = 'starter',
+                        current_price_id = NULL, current_interval = NULL, updated_at = now()
+                    WHERE stripe_customer_id = $1
+                    """,
+                    customer_id
+                )
+            
+            logger.info(f"Cancelled subscription for customer {customer_id}")
+
+        return {"status": "success"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Webhook processing failed")
+
+
+class CancelSubscriptionRequest(BaseModel):
+    subscriptionId: Optional[str] = None
+
+
+@app.post("/api/custom/billing/cancel")
+async def cancel_subscription(
+    request: Request,
+    payload: CancelSubscriptionRequest,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Cancel user's active subscription now in Stripe and update our user_billing table."""
+    try:
+        if not STRIPE_SECRET_KEY:
+            raise HTTPException(status_code=500, detail="Stripe is not configured")
+
+        onyx_user_id = await get_current_onyx_user_id(request)
+
+        async with pool.acquire() as conn:
+            record = await conn.fetchrow(
+                "SELECT subscription_id FROM user_billing WHERE onyx_user_id = $1",
+                onyx_user_id,
+            )
+
+        subscription_id = payload.subscriptionId or (record and record.get("subscription_id"))
+        if not subscription_id:
+            raise HTTPException(status_code=404, detail="No active subscription found")
+
+        import stripe  # type: ignore
+        stripe.api_key = STRIPE_SECRET_KEY
+
+        # Cancel immediately (or set cancel_at_period_end=True for end-of-term)
+        canceled = stripe.Subscription.delete(subscription_id)
+
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                UPDATE user_billing
+                SET subscription_status = $2,
+                    updated_at = now()
+                WHERE onyx_user_id = $1
+                """,
+                onyx_user_id,
+                canceled.status,
+            )
+
+        return {"status": canceled.status}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error canceling subscription: {e}", exc_info=not IS_PRODUCTION)
+        raise HTTPException(status_code=500, detail="Failed to cancel subscription")
+
 @app.get("/api/custom/admin/credits/users", response_model=List[UserCredits])
 async def list_all_user_credits(
     request: Request,
@@ -28497,10 +29364,28 @@ async def list_all_user_credits(
     
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT * FROM user_credits 
-                ORDER BY updated_at DESC
-            """)
+            rows = await conn.fetch(
+                """
+                SELECT 
+                    uc.id,
+                    uc.onyx_user_id,
+                    uc.name,
+                    uc.credits_balance,
+                    uc.total_credits_used,
+                    uc.credits_purchased,
+                    uc.last_purchase_date,
+                    -- prefer real plan from billing; default to 'starter' when missing
+                    COALESCE(ub.current_plan, 'starter') ||
+                    CASE WHEN ub.current_interval IS NOT NULL THEN
+                        ' (' || CASE WHEN ub.current_interval = 'year' THEN 'Yearly' WHEN ub.current_interval = 'month' THEN 'Monthly' ELSE ub.current_interval END || ')'
+                    ELSE '' END AS subscription_tier,
+                    uc.created_at,
+                    uc.updated_at
+                FROM user_credits uc
+                LEFT JOIN user_billing ub ON ub.onyx_user_id = uc.onyx_user_id
+                ORDER BY uc.updated_at DESC
+                """
+            )
             return [UserCredits(**dict(row)) for row in rows]
     except Exception as e:
         logger.error(f"Error listing user credits: {e}")
@@ -28938,11 +29823,51 @@ async def get_users_with_features(
     await verify_admin_user(request)
     
     try:
+        # Fetch user emails from Onyx API (robust mapping)
+        user_emails_map = {}
+        try:
+            session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+            if session_cookie:
+                users_url = f"{ONYX_API_SERVER_URL}/manage/users"
+                cookies_to_forward = {ONYX_SESSION_COOKIE_NAME: session_cookie}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    response = await client.get(users_url, cookies=cookies_to_forward)
+                    if response.status_code == 200:
+                        users_data = response.json()
+                        # Handle both array and object shapes
+                        if isinstance(users_data, dict) and 'users' in users_data:
+                            users_iterable = users_data.get('users', [])
+                        else:
+                            users_iterable = users_data if isinstance(users_data, list) else []
+
+                        # Map user IDs to emails with multiple key fallbacks
+                        for user in users_iterable:
+                            try:
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
+                        logger.info(f"[FEATURES] Fetched {len(user_emails_map)} user emails from Onyx API")
+                    else:
+                        logger.warning(f"[FEATURES] Failed to fetch users from Onyx API: {response.status_code}")
+        except Exception as e:
+            logger.warning(f"[FEATURES] Error fetching user emails from Onyx API: {e}")
+        
         async with pool.acquire() as conn:
             rows = await conn.fetch("""
                 SELECT 
                     uc.onyx_user_id AS user_id,
-                    uc.onyx_user_id AS user_display_id,
                     uc.name AS user_name,
                     uf.feature_name,
                     uf.is_enabled,
@@ -28962,9 +29887,11 @@ async def get_users_with_features(
             for row in rows:
                 user_id = row['user_id']
                 if user_id not in users_features:
+                    # Get email from map, fallback to user_id
+                    user_email = user_emails_map.get(user_id, user_id)
                     users_features[user_id] = {
                         'user_id': user_id,
-                        'user_email': row['user_display_id'] or user_id,
+                        'user_email': user_email,
                         'user_name': row['user_name'] or 'Unknown User',
                         'features': []
                     }
@@ -29870,6 +30797,20 @@ async def create_presentation(request: Request):
         
         if not voiceover_texts or len(voiceover_texts) == 0:
             return {"success": False, "error": "voiceoverTexts is required"}
+        
+        # Enforce slides-per-presentation limit via entitlements
+        try:
+            onyx_user_id = await get_current_onyx_user_id(request)
+            ent = await _fetch_effective_entitlements(onyx_user_id, DB_POOL)
+            max_slides = int(ent.get("slides_max", 20))
+            slides_count = len(slides_data or []) if isinstance(slides_data, list) else 0
+            if slides_count == 0 and slide_url:
+                # Single slide fallback counts as 1
+                slides_count = 1
+            if slides_count > max_slides:
+                return {"success": False, "error": f"Slide limit exceeded: {slides_count} > {max_slides}"}
+        except Exception as _e:
+            logger.warning(f"Entitlements check failed, proceeding with defaults: {_e}")
         
         # Validate layout
         allowed_layouts = ["side_by_side", "picture_in_picture", "split_screen"]
@@ -32346,15 +33287,19 @@ async def smartdrive_upload(
                 safe_name = _sanitize_filename(f.filename or "upload.bin")
                 dest_url = f"{webdav_user_base}{_ensure_trailing_slash(user_root_prefix + norm_dir)}{safe_name}"
 
+                # Track file size during streaming
+                file_size = 0
                 async def aiter():
+                    nonlocal file_size
                     while True:
                         chunk = await f.read(1024 * 64)
                         if not chunk:
                             break
+                        file_size += len(chunk)
                         yield chunk
 
                 resp = await client.put(dest_url, auth=(username, password), content=aiter())
-                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code}
+                entry: Dict[str, Any] = {"file": safe_name, "success": resp.status_code in (200, 201, 204), "status": resp.status_code, "size": file_size}
                 if not entry["success"]:
                     entry["error"] = _dav_error(resp)
                     results.append(entry)
@@ -32386,6 +33331,24 @@ async def smartdrive_upload(
                                 )
                     except Exception as import_err:
                         logger.warning(f"Post-upload Onyx import failed for {safe_name}: {import_err}")
+                    
+                    # Update storage usage tracking
+                    try:
+                        async with pool.acquire() as conn2:
+                            await conn2.execute(
+                                """
+                                INSERT INTO user_storage_usage (onyx_user_id, used_bytes, updated_at)
+                                VALUES ($1, $2, now())
+                                ON CONFLICT (onyx_user_id)
+                                DO UPDATE SET used_bytes = user_storage_usage.used_bytes + EXCLUDED.used_bytes, updated_at = now()
+                                """,
+                                str(onyx_user_id),
+                                file_size,
+                            )
+                            logger.info(f"[STORAGE] Updated usage for {onyx_user_id}: +{file_size} bytes")
+                    except Exception as storage_err:
+                        logger.warning(f"Failed to update storage usage: {storage_err}")
+                    
                     results.append(entry)
                 await f.close()
 

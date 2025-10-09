@@ -42,6 +42,7 @@ const CreditsTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tierFilter, setTierFilter] = useState<string>('all');
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserCredits | null>(null);
   const [transaction, setTransaction] = useState<CreditTransaction>({
@@ -99,10 +100,13 @@ const CreditsTab: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.onyx_user_id.toLowerCase().includes(searchTerm.toLowerCase());
+    const tier = (user.subscription_tier || 'starter').toLowerCase();
+    const matchesTier = tierFilter === 'all' ? true : tier.includes(tierFilter);
+    return matchesSearch && matchesTier;
+  });
 
   const openTransactionModal = (user: UserCredits, action: 'add' | 'remove') => {
     setSelectedUser(user);
@@ -279,6 +283,17 @@ const CreditsTab: React.FC = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </button>
+            <select
+              value={tierFilter}
+              onChange={(e) => setTierFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white"
+            >
+              <option value="all">All tiers</option>
+              <option value="starter">Starter</option>
+              <option value="pro">Pro</option>
+              <option value="business">Business</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
             <button
               onClick={handleMigrateUsers}
               disabled={migrating}
