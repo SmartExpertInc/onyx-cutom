@@ -53,27 +53,24 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group bg-linear-to-b from-white via-[#F2F9FC] to-[#F2F9FC] rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "group rounded-lg relative overflow-hidden transition-all duration-200 w-full h-full min-w-[380px]",
+          "bg-white border border-[#E0E0E0] shadow-md",
+          "hover:bg-[#F2F8FF] hover:border-[#0F58F9] hover:shadow-xl",
+          "active:bg-[#F2F8FF] active:border-[#0F58F9] active:shadow-xl",
           useCSSVariables 
-            ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))] shadow-lg hover:shadow-xl"
-            : "bg-white/95 border border-gray-100 shadow-sm hover:shadow-md shadow-lg hover:shadow-xl",
+            ? "bg-[hsl(var(--custom-card-bg))] border-[hsl(var(--custom-card-border))]"
+            : isSelected
+              ? "bg-[#F2F8FF] border-[#0F58F9] shadow-xl"
+              : "",
           disabled
-            ? "opacity-50 cursor-not-allowed shadow-lg hover:shadow-xl"
+            ? "opacity-50 cursor-not-allowed"
             : selectable 
-              ? `cursor-pointer ${
-                  isSelected 
-                    ? 'border-blue-300 shadow-xl bg-blue-50' 
-                    : 'border-gray-200 hover:shadow-2xl hover:border-blue-300'
-                }`
-              : "cursor-pointer shadow-lg hover:shadow-xl",
+              ? "cursor-pointer"
+              : "cursor-pointer",
           className
         )}
         {...props}
       >
-        {/* Subtle background circles */}
-        <div className="absolute -top-20 -left-24 w-110 h-110 bg-blue-50/50 rounded-full border-indigo-100/80" />
-        <div className="absolute -top-12 -left-14 w-80 h-80 bg-blue-100/30 rounded-full border-indigo-100/80" />
-        
         {/* Selection Indicator */}
         {selectable && (
           <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 z-10 ${
@@ -96,7 +93,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
                   "inline-flex items-center px-2 py-1 text-sm font-semibold",
                   useCSSVariables 
                     ? "bg-white rounded-md border-none text-blue-600 gap-1"
-                    : cn(labelColor, "bg-white rounded-md border-none text-blue-600 gap-1")
+                    : cn(labelColor, "bg-white rounded-md border-none gap-1")
                 )}
               >
                 <SparklesIcon size={10} />
@@ -108,16 +105,12 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           {/* Icon section */}
           {Icon && (
             <div className="flex items-start justify-start h-16 relative mb-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-300/10 rounded-lg blur-sm"></div>
-                <Icon 
-                  size={53} 
-                  className={cn(
-                    "relative z-10",
-                    useCSSVariables ? "text-[hsl(var(--custom-card-icon))]" : "text-blue-600"
-                  )} 
-                />
-              </div>
+              <Icon 
+                size={53} 
+                className={cn(
+                  useCSSVariables ? "text-[hsl(var(--custom-card-icon))]" : "text-blue-600"
+                )} 
+              />
             </div>
           )}
           
@@ -125,18 +118,24 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
           {(title || description) && (
             <div className="flex flex-col items-start gap-2 flex-1 justify-start">
               {title && (
-                <h3 className={cn(
-                  "text-2xl font-semibold text-left leading-tight tracking-tight",
-                  useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : "text-blue-600"
-                )}>
+                <h3 
+                  className={cn(
+                    "text-2xl font-semibold text-left leading-tight tracking-tight",
+                    useCSSVariables ? "text-[hsl(var(--custom-card-title))]" : ""
+                  )}
+                  style={!useCSSVariables ? { color: '#0D001B', opacity: 0.8 } : undefined}
+                >
                   {title}
                 </h3>
               )}
               {description && (
-                <p className={cn(
-                  "text-base text-left leading-relaxed text-gray-600 max-w-[64%]",
-                  useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : "text-gray-600"
-                )}>
+                <p 
+                  className={cn(
+                    "text-base text-left leading-relaxed max-w-[64%]",
+                    useCSSVariables ? "text-[hsl(var(--custom-card-description))]" : ""
+                  )}
+                  style={!useCSSVariables ? { color: '#71717A' } : undefined}
+                >
                   {description}
                 </p>
               )}
