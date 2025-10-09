@@ -87,7 +87,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-
+  --border-light: oklch(0.9067 0 0);
+  --secondary-foreground: oklch(0.5761 0 0);
   /* Gradient stops sampled from Figma screenshots */
   --gradient-start: #FFF9F5; /* light cream */
   --gradient-mid1: #ECECFF; /* soft lavender */
