@@ -158,7 +158,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
       fontFamily: '"Inter", sans-serif'
     };
   };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 0px 0 30px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 10px 0 25px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'360px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
