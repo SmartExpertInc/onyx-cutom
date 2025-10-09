@@ -384,7 +384,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     
                 <div className="flex flex-col items-center text-center">
                       <div className="w-16 h-16 mb-4 flex items-center justify-center">
-                        <PersonalIcon className={'w-12 h-12'} fill={selectedCategory === 'personal' ? '#EF8EFB' : '#EFB4FB'} fill2={selectedCategory === 'personal' ? '#F7B6FC' : '#F7E0FC'} />
+                        <PersonalIcon className={'w-13 h-13'} fill={selectedCategory === 'personal' ? '#EF8EFB' : '#EFB4FB'} fill2={selectedCategory === 'personal' ? '#F7B6FC' : '#F7E0FC'} />
                   </div>
                       <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 public-sans-font-bold">{t('survey.category.personal', 'Personal')}</h3>
                       <p className="text-[#71717A] text-xs leading-relaxed public-sans-font">{t('survey.category.personalDescription', 'Personal projects, learning, or creative endeavors')}</p>
@@ -413,7 +413,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     
                 <div className="flex flex-col items-center text-center">
                       <div className="w-16 h-16 mb-4 flex items-center justify-center">
-                        <WorklIcon className={'w-12 h-12'} fill={selectedCategory === 'work' ? '#0F58F9' : '#86ABFB'} />
+                        <WorklIcon className={'w-13 h-13'} fill={selectedCategory === 'work' ? '#0F58F9' : '#86ABFB'} />
                       </div>
                       <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 public-sans-font-bold">{t('survey.category.work', 'Work')}</h3>
                       <p className="text-[#71717A] text-xs leading-relaxed public-sans-font">{t('survey.category.workDescription', 'Professional use for business, marketing, or team collaboration')}</p>
@@ -425,7 +425,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
           {/* Step 2: Work Role */}
           {surveyStep === 2 && selectedCategory === 'work' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
                 {[
                   { value: 'marketer', label: t('survey.role.marketer', 'Marketer'), icon: <Marketer className="w-6 h-6" fill={surveyData.workRole === 'marketer' ? '#0F58F9' : '#87ABFC'} /> },
                   { value: 'hr-ld', label: t('survey.role.hrLd', 'HR / L&D'), icon: <HrLnD className="w-6 h-6" fill={surveyData.workRole === 'hr-ld' ? '#0F58F9' : '#87ABFC'} /> },
@@ -452,7 +452,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     
                     <div className="flex items-center">
                       <div className='w-12 h-12 rounded-xl mr-4 flex items-center justify-center'>
-                        <span>
+                        <span className="text-xl">
                           {option.icon}
                         </span>
                       </div>
@@ -470,7 +470,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     placeholder="Describe your role"
                     value={surveyData.additionalInfo}
                     onChange={(e) => setSurveyData(prev => ({ ...prev, additionalInfo: e.target.value }))}
-                    className="w-full p-5 border border-[var(--border-light)] rounded-lg bg-white text-[#434343] placeholder:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent sora-font"
+                    className="w-full p-6 text-xl border border-[var(--border-light)] rounded-lg bg-white text-[#434343] placeholder:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent public-sans-font"
                   />
                 </div>
               )}
@@ -480,7 +480,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 3: Company Size */}
               {surveyStep === 3 && selectedCategory === 'work' && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
                     {[
                       { value: '1-10', label: '1–10', icon: 1 },
                       { value: '11-50', label: '11–50', icon: 2 },
@@ -502,9 +502,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-6">
                           <Other className="w-8 h-8 mr-3" fill={surveyData.companySize === option.value ? '#0F58F9' : '#87ABFC'} />
-                          <span className="font-medium text-lg public-sans-font">{option.label}</span>
+                          <span className="font-medium text-lg text-[var(--secondary-foreground)] public-sans-font">{option.label}</span>
                         </div>
                       </div>
                     ))}
@@ -515,7 +515,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 4: Industry */}
               {surveyStep === 4 && selectedCategory === 'work' && (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
                     {[
                       { value: 'video-production', label: t('survey.industry.videoProduction', 'Video Production'), icon: <Marketer fill={surveyData.industry === 'video-production' ? '#0F58F9' : '#87ABFC'} /> },
                       { value: 'digital-marketing', label: t('survey.industry.digitalMarketing', 'Digital Marketing'), icon: <HrLnD fill={surveyData.industry === 'digital-marketing' ? '#0F58F9' : '#87ABFC'} /> },
@@ -556,7 +556,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
               {/* Step 2: Personal Use */}
               {surveyStep === 2 && selectedCategory === 'personal' && (
                 <div className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-x-10 gap-y-4 max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
                     {[
                       { value: 'personal-projects', label: t('survey.personalUse.personalProjects', 'Personal projects'), icon: <Other fill={surveyData.personalUse === 'personal-projects' ? '#0F58F9' : '#87ABFC'} /> },
                       { value: 'learning-skills', label: t('survey.personalUse.learningSkills', 'Learning new skills'), icon: <Business fill={surveyData.personalUse === 'learning-skills' ? '#0F58F9' : '#87ABFC'} /> },
@@ -597,7 +597,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         {/* Navigation Buttons */}
         <div className="px-8 py-6">
           <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 gap-10">
+            <div className="grid grid-cols-2 gap-14">
               {/* Previous Button */}
               {surveyStep > 1 ? (
                 <Button
