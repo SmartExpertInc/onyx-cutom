@@ -32275,6 +32275,9 @@ async def create_smartdrive_connector(
             'oci_storage': ['namespace', 'region', 'access_key_id', 'secret_access_key'],
             'teams': ['teams_client_id', 'teams_client_secret', 'teams_directory_id']
         }
+
+        # Connectors that support only load_state input type
+        load_connectors = ['airtable', 'google_sites', 'xenforo', 'web']
         
         # Separate credential fields from connector config fields
         connector_credential_fields = credential_fields.get(connector_id, [])
@@ -32356,7 +32359,7 @@ async def create_smartdrive_connector(
         connector_payload = {
             "name": name,
             "source": connector_id,
-            "input_type": "poll",
+            "input_type": "poll" if connector_id not in load_connectors else "load_state",
             "access_type": "private",  # Required field for Smart Drive connectors
             "connector_specific_config": connector_specific_config,
             "refresh_freq": 3600,  # 1 hour
