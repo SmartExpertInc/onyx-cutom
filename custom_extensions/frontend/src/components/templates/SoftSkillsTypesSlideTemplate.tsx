@@ -38,8 +38,8 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '50%',
-    left: '50%',
+    top: '22%',
+    left: '28%',
     transform: 'translate(-50%, -50%)',
     fontSize: '56px',
     lineHeight: 1.1,
@@ -84,7 +84,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const cardStyles: React.CSSProperties = {
     position: 'relative',
     backgroundColor: '#FFFFFF',
-    borderRadius: '12px',
+    borderRadius: '0px',
     overflow: 'hidden',
     height: '340px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
@@ -148,7 +148,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
           position="CENTER"
           description="Profile"
           isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+          style={{ height: '102%', borderRadius: '50%', objectFit: 'cover' }}
         />
       </div>
 
@@ -167,7 +167,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               position="CENTER"
               description="Card image"
               isEditable={isEditable}
-              style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'cover' }}
+              style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
             />
             <div style={cardLabelStyles}>
               <div style={playIconStyles}></div>
