@@ -223,7 +223,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
       {
         type: "text",
         query: "Enter the Start Date:",
-        label: "Start Date",
+        label: "Indexing Start Date",
         name: "indexing_start",
         description: `Only messages after this date will be indexed. Format: YYYY-MM-DD`,
         optional: true,
@@ -478,33 +478,43 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
     description: "Configure Asana connector",
     values: [
       {
-        type: "list",
-        query: "Enter project IDs:",
+        type: "text",
+        query: "Enter your Asana workspace ID:",
+        label: "Workspace ID",
+        name: "asana_workspace_id",
+        optional: false,
+        description:
+          "The ID of the Asana workspace to index. You can find this at https://app.asana.com/api/1.0/workspaces. It's a number that looks like 1234567890123456.",
+      },
+      {
+        type: "text",
+        query: "Enter project IDs to index (optional):",
         label: "Project IDs",
-        name: "project_ids",
-        description: "Specify 0 or more project IDs to index from. If none specified, will index all accessible projects.",
+        name: "asana_project_ids",
+        description:
+          "IDs of specific Asana projects to index, separated by commas. Leave empty to index all projects in the workspace. Example: 1234567890123456,2345678901234567",
         optional: true,
       },
       {
-        type: "checkbox",
-        query: "Include tasks?",
-        label: "Include Tasks",
-        name: "include_tasks",
-        description: "Index Asana tasks",
+        type: "text",
+        query: "Enter the Team ID (optional):",
+        label: "Team ID",
+        name: "asana_team_id",
         optional: true,
-        default: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include comments?",
-        label: "Include Comments",
-        name: "include_comments",
-        description: "Index task comments in addition to task content",
-        optional: true,
-        default: true,
+        description:
+          "ID of a team to use for accessing team-visible tasks. This allows indexing of team-visible tasks in addition to public tasks. Leave empty if you don't want to use this feature.",
       },
     ],
-    advanced_values: [],
+    advanced_values: [
+      {
+        type: "text",
+        query: "Enter the Start Date:",
+        label: "Indexing Start Date",
+        name: "indexing_start",
+        description: `Only documents after this date will be indexed. Format: YYYY-MM-DD`,
+        optional: true,
+      },
+    ],
   },
   airtable: {
     description: "Configure Airtable connector",
