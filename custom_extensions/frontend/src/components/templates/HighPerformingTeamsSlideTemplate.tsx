@@ -12,11 +12,13 @@ const BACKGROUND_SVG = `
 
 `;
 
-export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string }> = ({
+export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlideProps & { theme?: SlideTheme | string, panelWidth?: string, panelHeight?: string }> = ({
   slideId: _slideId,
   title = 'The Power of High-\nPerforming Teams',
   description = 'High-performing teams are the driving force behind exceptional results. They achieve more, innovate faster, and adapt to challenges with resilience.',
   panelColor: _panelColor = '#E9B84C',
+  panelWidth = '80%',
+  panelHeight = '60%',
   // lineColor = '#0F58F9',
   // points = [
   //   { x: 16, y: 92 },   // bottom-left with visual padding (200x100 viewBox)
@@ -76,15 +78,16 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     overflow: 'hidden'
   };
 
-  // Avatar container above white panel
+  // Avatar container overlapping top panel and white panel
   const avatarContainer: React.CSSProperties = {
     width: '470px',
     position: 'absolute',
-    bottom: '-25px',
+    top: '-100px',
     left: '50%',
     transform: 'translateX(-50%)',
     borderRadius: '16px',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    zIndex: 10
   };
 
   // Title positioned where avatar was
@@ -118,10 +121,11 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // White panel with chart in bottom part
   const panel: React.CSSProperties = {
     position: 'absolute',
-    left: '66px',
-    right: '66px',
-    top: '56px',
-    bottom: '56px',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: panelWidth,
+    height: panelHeight,
     backgroundColor: '#FFFFFF',
     borderRadius: '24px',
     overflow: 'hidden'
@@ -313,22 +317,22 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               );
             })}
           </svg> */}
+          
+          {/* Background SVG behind avatar */}
+          <div 
+            style={{ 
+              position: 'absolute', 
+              left: '50%', 
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 0
+            }}
+            dangerouslySetInnerHTML={{ __html: BACKGROUND_SVG }}
+          />
         </div>
         
-        {/* Background SVG behind avatar */}
-        <div 
-          style={{ 
-            position: 'absolute', 
-            left: '50%', 
-            transform: 'translateX(-50%)', 
-            bottom: '100px',
-            zIndex: 0
-          }}
-          dangerouslySetInnerHTML={{ __html: BACKGROUND_SVG }}
-        />
-        
         {/* Avatar above white panel */}
-        <div style={{...avatarContainer, zIndex: 1}}>
+        <div style={avatarContainer}>
           <ClickableImagePlaceholder
             imagePath={avatarPath}
             onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
