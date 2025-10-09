@@ -32323,7 +32323,8 @@ async def create_smartdrive_connector(
             'indexing_scope', 'everything', 'specific_folders',  # Tab structure parameters
             'tabs', 'fields', 'sections',  # Form structure parameters
             'file_types', 'folder_ids',  # Legacy/unsupported parameters
-            'submitEndpoint', 'oauthSupported', 'oauthConfig'  # Form config parameters
+            'submitEndpoint', 'oauthSupported', 'oauthConfig',  # Form config parameters
+            'indexing_start' # Universal indexing start field
         }
         
         # Remove frontend-only parameters
