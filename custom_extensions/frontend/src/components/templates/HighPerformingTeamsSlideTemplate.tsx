@@ -318,10 +318,10 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
                   key={i}
                   cx={pt.x}
                   cy={pt.y}
-                  r="3"
+                  r="1.3"
                   fill="#FFFFFF"
                   stroke="#0F58F9"
-                  strokeWidth="2.5"
+                  strokeWidth="5"
                   vectorEffect="non-scaling-stroke"
                   onMouseDown={(e) => isEditable && startDrag(i, e)}
                   style={{ cursor: isEditable ? 'pointer' : 'default' }}

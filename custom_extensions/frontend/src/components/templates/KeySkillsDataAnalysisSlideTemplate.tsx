@@ -39,7 +39,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'40% 60%', gap:'0px', padding:'0px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'39% 61%', gap:'0px', padding:'0px' };
   const leftSection: React.CSSProperties = { background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', padding:'56px', position:'relative' };
   const rightSection: React.CSSProperties = { background:'#E0E7FF', padding:'85px 55px' };
   const headingStyle: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, position:'absolute', top:'100px', left:'56px', maxWidth:'calc(100% - 112px)' };
