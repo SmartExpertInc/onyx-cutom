@@ -628,7 +628,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, onFolderSelect, selectedF
   );
 };
 
-const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void }) => {
+const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExportLMS, workspaceData, onTariffModalOpen, onAddOnsModalOpen, onSurveyModalOpen }: { isTrash: boolean; isSmartDrive: boolean; isOffers: boolean; isAudits: boolean; isWorkspace: boolean; isExportLMS: boolean; workspaceData?: any; onTariffModalOpen: () => void; onAddOnsModalOpen: () => void; onSurveyModalOpen: () => void }) => {
   const [userCredits, setUserCredits] = useState<number | null>(null);
   const { t } = useLanguage();
 
@@ -671,6 +671,10 @@ const Header = ({ isTrash, isSmartDrive, isOffers, isAudits, isWorkspace, isExpo
       <h1 className="text-3xl font-bold text-gray-900">{getHeaderTitle()}</h1>
       <div className="flex items-center gap-4">
         <Button variant="download" onClick={onTariffModalOpen}>Get Unlimited AI</Button>
+        <Button variant="outline" onClick={onSurveyModalOpen}>
+          <MessageSquare size={16} className="mr-2" />
+          Survey
+        </Button>
         <button 
           onClick={onAddOnsModalOpen}
           className="flex items-center gap-2 text-sm font-semibold text-gray-800 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer"
@@ -709,6 +713,7 @@ const ProjectsPageInner: React.FC = () => {
   const [workspaceData, setWorkspaceData] = useState<any>(null);
   const [tariffModalOpen, setTariffModalOpen] = useState(false);
   const [addOnsModalOpen, setAddOnsModalOpen] = useState(false);
+  const [surveyModalOpen, setSurveyModalOpen] = useState(false);
   
   // LMS Export states
   const [lmsAccountStatus, setLmsAccountStatus] = useState<LMSAccountStatus>('unknown');
@@ -1169,7 +1174,7 @@ const ProjectsPageInner: React.FC = () => {
     <div className="bg-[#F7F7F7] min-h-screen font-sans">
       <Sidebar currentTab={currentTab} onFolderSelect={setSelectedFolderId} selectedFolderId={selectedFolderId} folders={folders} folderProjects={folderProjects} />
       <div className="ml-64 flex flex-col h-screen">
-        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} />
+        <Header isTrash={isTrash} isSmartDrive={isSmartDrive} isOffers={isOffersAllowed} isAudits={isAudits} isWorkspace={isWorkspaceAllowed} isExportLMS={isExportLMSAllowed} workspaceData={workspaceData} onTariffModalOpen={() => setTariffModalOpen(true)} onAddOnsModalOpen={() => setAddOnsModalOpen(true)} onSurveyModalOpen={() => setSurveyModalOpen(true)} />
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-r from-[#00BBFF66]/40 to-[#00BBFF66]/10">
           {!isQuestionnaireCompleted ? (
             <RegistrationSurveyModal onComplete={handleSurveyComplete} />
@@ -1225,6 +1230,14 @@ const ProjectsPageInner: React.FC = () => {
         isOpen={addOnsModalOpen}
         onClose={() => setAddOnsModalOpen(false)}
       />
+      {surveyModalOpen && (
+        <RegistrationSurveyModal 
+          onComplete={(surveyData) => {
+            handleSurveyComplete(surveyData);
+            setSurveyModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };
