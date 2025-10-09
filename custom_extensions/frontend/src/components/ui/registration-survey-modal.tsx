@@ -340,7 +340,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             </div>
             
             {/* Main Question */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-5">
               <h2 className="text-2xl font-bold text-[#434343] mb-3 public-sans-font-bold">
                   {surveyStep === 1 && t('survey.step1.title', "What do you plan to use ContentBuilder for?")}
                   {surveyStep === 2 && selectedCategory === 'work' && t('survey.step2Work.title', "What best describes your role?")}
