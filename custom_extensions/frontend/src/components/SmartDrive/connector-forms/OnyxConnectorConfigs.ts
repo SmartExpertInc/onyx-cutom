@@ -1036,6 +1036,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         description:
           "When indexing categories that have sub-categories, this will determine how may levels to index. Specify 0 to only index the category itself (i.e. no recursion). Specify -1 for unlimited recursion depth. Note, that in some rare instances, a category might contain itself in its dependencies, which will cause an infinite loop. Only use -1 if you confident that this will not happen.",
         optional: false,
+        default: 0,
       },
     ],
     advanced_values: [],
@@ -1084,6 +1085,7 @@ export const onyxConnectorConfigs: Record<string, ConnectorConfig> = {
         description:
           "When indexing categories that have sub-categories, this will determine how may levels to index. Specify 0 to only index the category itself (i.e. no recursion). Specify -1 for unlimited recursion depth. Note, that in some rare instances, a category might contain itself in its dependencies, which will cause an infinite loop. Only use -1 if you confident that this will not happen.",
         optional: true,
+        default: 0,
       },
     ],
     advanced_values: [],

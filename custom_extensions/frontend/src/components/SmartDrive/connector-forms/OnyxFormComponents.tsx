@@ -171,7 +171,16 @@ export const NumberInput: FC<NumberInputProps> = ({
         type="number"
         name={name}
         value={values[name] || ""}
-        onChange={(e) => setFieldValue(name, e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          // Convert to number if it's a valid number, otherwise keep as string for validation
+          if (value === '') {
+            setFieldValue(name, null);
+          } else {
+            const numValue = Number(value);
+            setFieldValue(name, isNaN(numValue) ? value : numValue);
+          }
+        }}
         min={min}
         max={max}
         className={`w-full px-3 py-2 ${
