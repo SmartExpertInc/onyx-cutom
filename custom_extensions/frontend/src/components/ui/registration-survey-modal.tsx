@@ -194,14 +194,15 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[90vw] rounded-3xl p-0 max-h-[90vh] overflow-y-auto border-0 shadow-2xl bg-transparent [&>div]:bg-transparent" hideCloseIcon preventCloseOnOverlayClick>
-        {/* Custom Background - Soft gradient like in the images */}
-        <div className="fixed inset-0 z-0" style={{
-          background: 'linear-gradient(135deg, #E0F2F7 0%, #F0E0F7 100%)'
-        }}>
-        </div>
-        
-        <div className="relative z-10 w-[90vw] min-w-[830px] rounded-3xl p-0 bg-white shadow-2xl backdrop-blur-sm">
+      <DialogContent 
+        className="sm:max-w-[90vw] rounded-3xl p-0 max-h-[90vh] overflow-y-auto border-0 shadow-2xl bg-transparent [&>div]:bg-transparent" 
+        hideCloseIcon 
+        preventCloseOnOverlayClick
+        style={{
+          background: 'linear-gradient(135deg, #3B82F6 0%, #EC4899 100%)'
+        }}
+      >
+        <div className="relative z-10 w-[90vw] min-w-[830px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
           {/* Header with Logo and Progress */}
           <div className="p-8 pb-6">
             {/* ContentBuilder Logo */}
