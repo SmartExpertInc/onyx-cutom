@@ -121,7 +121,7 @@ TIER_TO_CREDITS: dict[str, int] = {
 def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
     """Load price id → addon mapping and tier mapping from env once."""
     addon_map: dict[str, dict] = {}
-    def _reg(price_id: str | None, addon_type: str, units: int):
+    def _reg(price_id: Optional[str], addon_type: str, units: int):
         if price_id:
             addon_map[price_id] = {"type": addon_type, "units": units}
 
@@ -155,7 +155,7 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
         addon_map[pid] = {"type": ptype, "units": units}
 
     price_to_tier: dict[str, str] = {}
-    def _tier(price_id: str | None, tier: str):
+    def _tier(price_id: Optional[str], tier: str):
         if price_id:
             price_to_tier[price_id] = tier
     _tier(os.getenv("STRIPE_PRICE_PRO_MONTHLY"), "pro_monthly")
@@ -7900,7 +7900,7 @@ def analyze_lesson_content_recommendations(lesson_title: str, quality_tier: Opti
     ranked = sorted(range(len(combos)), key=lambda i: (-norm_weights[i], i))
 
     # Choose the best combo that doesn’t fully collide with existing content
-    chosen: list[str] | None = None
+    chosen: Optional[List[str]] = None
     for idx in ranked:
         c = combos[idx]
         # If combo has two items and one exists, we still propose the remaining one; if all exist, skip.
