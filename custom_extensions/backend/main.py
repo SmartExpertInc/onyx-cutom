@@ -28725,18 +28725,23 @@ async def stripe_webhook(
                     logger.error(f"Failed to grant one-time credits: {ce}")
 
         elif event['type'] == 'customer.subscription.updated':
-            subscription = event['data']['object']
-            customer_id = subscription.get('customer') if isinstance(subscription, dict) else getattr(subscription, 'customer', None)
+            subscription_obj = event['data']['object']
+            subscription_id = subscription_obj.get('id') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'id', None)
+            customer_id = subscription_obj.get('customer') if isinstance(subscription_obj, dict) else getattr(subscription_obj, 'customer', None)
+            
+            # Re-fetch subscription with expanded product data to ensure we have all info
+            subscription = stripe.Subscription.retrieve(subscription_id, expand=['items.data.price.product'])
             
             # Find user by customer ID
             async with pool.acquire() as conn:
                 user_record = await conn.fetchrow(
-                    "SELECT onyx_user_id FROM user_billing WHERE stripe_customer_id = $1",
+                    "SELECT onyx_user_id, current_plan FROM user_billing WHERE stripe_customer_id = $1",
                     customer_id
                 )
             
             if user_record:
                 onyx_user_id = user_record['onyx_user_id']
+                existing_plan = user_record['current_plan']
                 try:
                     # Cache email if present in customer object
                     cust = stripe.Customer.retrieve(customer_id)
@@ -28804,8 +28809,24 @@ async def stripe_webhook(
                             """,
                             onyx_user_id, subscription['status'], price_id, plan, interval
                         )
+                    logger.info(f"Updated subscription for user {onyx_user_id}: plan={plan}, status={subscription['status']}")
+                else:
+                    # No base tier found - this is likely just add-ons being added
+                    # Only update status, preserve existing plan
+                    logger.info(f"Subscription updated for user {onyx_user_id}: no base tier found, preserving existing plan '{existing_plan}'")
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            """
+                            UPDATE user_billing 
+                            SET subscription_status = $2, updated_at = now()
+                            WHERE onyx_user_id = $1
+                            """,
+                            onyx_user_id, subscription['status']
+                        )
+                    plan = existing_plan  # Use existing plan for entitlements update below
                 
-                    # Also refresh base entitlements on subscription update
+                # Refresh base entitlements on subscription update (for both cases)
+                if plan:
                     try:
                         # Set base entitlements by plan
                         if plan == 'pro':
@@ -28827,8 +28848,6 @@ async def stripe_webhook(
                             )
                     except Exception as e:
                         logger.warning(f"Failed to persist base entitlements on update: {e}")
-                
-                logger.info(f"Updated subscription for user {onyx_user_id}: {subscription['status']}")
 
         elif event['type'] == 'invoice.paid':
             invoice = event['data']['object']
