@@ -70,7 +70,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     top: 0,
     left: 0,
     right: 0,
-    height: '31%',
+    height: '29%',
     background: 'linear-gradient(180deg, #0F58F9 0%, #1023A1 170.85%)',
     overflow: 'hidden'
   };
@@ -78,7 +78,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   // Bottom part (60% height) with blue background
   const bottomPart: React.CSSProperties = {
     position: 'absolute',
-    top: '31%',
+    top: '29%',
     left: 0,
     right: 0,
     bottom: 0,
@@ -116,12 +116,12 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const paragraph: React.CSSProperties = {
     position: 'absolute',
     right: '56px',
-    top: '50%',
+    top: '51%',
     transform: 'translateY(-50%)',
-    width: '400px',
-    maxWidth: '400px',
+    width: '350px',
+    maxWidth: '350px',
     color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: '16px',
+    fontSize: '20px',
     lineHeight: 1.5,
     opacity: 0.9
   };
@@ -130,7 +130,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const panel: React.CSSProperties = {
     position: 'absolute',
     left: '50%',
-    top: '50%',
+    top: '52%',
     transform: 'translate(-50%, -50%)',
     width: panelWidth,
     height: panelHeight,
@@ -333,8 +333,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               left: '50%', 
               top: '50%',
               transform: 'translate(-50%, -50%)',
-              width: '492px',
-              height: '210px',
+              height: '100%',
               zIndex: 0
             }}
             dangerouslySetInnerHTML={{ __html: BACKGROUND_SVG }}
