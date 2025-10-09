@@ -342,37 +342,57 @@ const baseConnectorConfigs: Record<string, ConnectorConfig> = {
     values: [
       {
         type: "text",
-        query: "Enter the Jira URL:",
-        label: "Jira URL",
-        name: "jira_url",
+        query: "Enter the Jira base URL:",
+        label: "Jira Base URL",
+        name: "jira_base_url",
         optional: false,
-        description: "The URL of your Jira instance (e.g., https://your-domain.atlassian.net)",
+        description:
+          "The base URL of your Jira instance (e.g., https://your-domain.atlassian.net)",
+      },
+      {
+        type: "tab",
+        name: "indexing_scope",
+        label: "How Should We Index Your Jira?",
+        optional: true,
+        tabs: [
+          {
+            value: "everything",
+            label: "Everything",
+            fields: [
+              {
+                type: "string_tab",
+                label: "Everything",
+                name: "everything",
+                description:
+                  "This connector will index all issues the provided credentials have access to!",
+              },
+            ],
+          },
+          {
+            value: "project",
+            label: "Project",
+            fields: [
+              {
+                type: "text",
+                query: "Enter the project key:",
+                label: "Project Key",
+                name: "project_key",
+                description:
+                  "The key of a specific project to index (e.g., 'PROJ').",
+              },
+            ],
+          },
+        ],
+        defaultTab: "everything",
       },
       {
         type: "list",
-        query: "Enter project keys:",
-        label: "Project Keys",
-        name: "project_keys",
-        description: "Specify 0 or more project keys to index from. If none specified, will index all accessible projects.",
+        query: "Enter email addresses to blacklist from comments:",
+        label: "Comment Email Blacklist",
+        name: "comment_email_blacklist",
+        description:
+          "This is generally useful to ignore certain bots. Add user emails which comments should NOT be indexed.",
         optional: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include issues?",
-        label: "Include Issues",
-        name: "include_issues",
-        description: "Index Jira issues",
-        optional: true,
-        default: true,
-      },
-      {
-        type: "checkbox",
-        query: "Include comments?",
-        label: "Include Comments",
-        name: "include_comments",
-        description: "Index issue comments in addition to issue content",
-        optional: true,
-        default: true,
       },
     ],
     advanced_values: [],
@@ -1119,7 +1139,7 @@ const baseConnectorConfigs: Record<string, ConnectorConfig> = {
     advanced_values: [],
   },
   // Add more connectors as needed...
-}; 
+};
 
 // Apply universal fields to all connector configurations
 const processedConfigs: Record<string, ConnectorConfig> = {};
