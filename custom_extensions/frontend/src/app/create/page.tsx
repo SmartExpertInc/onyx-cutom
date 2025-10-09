@@ -390,11 +390,11 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         style={{
           width: '1073.05px',
           height: '2016.35px',
-          left: '-421px',
-          top: '-603.36px',
+          left: '50%',
+          top: '50%',
           borderRadius: '999px',
-          background: 'linear-gradient(180deg, #90EDE5 0%, #5D72F4 56%, #D817FF 100%)',
-          transform: 'rotate(59.9deg)',
+          background: 'linear-gradient(90deg, #90EDE5 0%, #5D72F4 56%, #D817FF 100%)',
+          transform: 'translate(-50%, -50%) rotate(59.9deg)',
           filter: 'blur(100px)',
         }}
       />
@@ -454,6 +454,32 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         </div>
 
       </div>
+
+      {/* Feedback button */}
+      <button
+        className="fixed right-0 top-1/2 -translate-y-1/2 flex items-center justify-center bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-l-lg"
+        style={{
+          width: '38px',
+          height: '98px',
+        }}
+        onClick={() => {
+          // Add your feedback handler here
+          console.log('Feedback clicked');
+        }}
+      >
+        <span
+          className="font-medium"
+          style={{
+            fontSize: '14px',
+            color: '#0F58F9',
+            opacity: 0.5,
+            transform: 'rotate(-90deg)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Feedback
+        </span>
+      </button>
     </main>
   );
 } 
