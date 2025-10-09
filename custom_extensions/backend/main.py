@@ -27998,6 +27998,46 @@ async def admin_update_entitlements(
         raise HTTPException(status_code=500, detail="Failed to update entitlements")
 
 
+@app.post("/api/custom/admin/entitlements/refresh-all")
+async def admin_refresh_all_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
+    """Refresh base entitlements for all users based on their current plan."""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            # Get all users with billing records
+            users = await conn.fetch("SELECT onyx_user_id, current_plan FROM user_billing WHERE current_plan IS NOT NULL")
+            
+            updated_count = 0
+            for user in users:
+                onyx_user_id = user['onyx_user_id']
+                plan = user['current_plan'] or 'starter'
+                
+                # Set base entitlements by plan
+                if plan == 'pro':
+                    base_connectors, base_storage, base_slides = 2, 5, 40
+                elif plan == 'business':
+                    base_connectors, base_storage, base_slides = 5, 10, 40
+                else:
+                    base_connectors, base_storage, base_slides = 0, 1, 20
+                
+                await conn.execute(
+                    """
+                    INSERT INTO user_entitlement_base (onyx_user_id, connectors_limit, storage_gb, slides_max, updated_at)
+                    VALUES ($1, $2, $3, $4, now())
+                    ON CONFLICT (onyx_user_id)
+                    DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
+                    """,
+                    onyx_user_id, base_connectors, base_storage, base_slides
+                )
+                updated_count += 1
+            
+            logger.info(f"Refreshed entitlements for {updated_count} users")
+            return {"success": True, "updated_count": updated_count}
+    except Exception as e:
+        logger.error(f"Error refreshing entitlements: {e}")
+        raise HTTPException(status_code=500, detail="Failed to refresh entitlements")
+
+
 @app.post("/api/custom/billing/portal")
 async def create_billing_portal_session(
     request: Request,
@@ -28612,11 +28652,16 @@ async def stripe_webhook(
                 except Exception as cancel_err:
                     logger.warning(f"Upgrade cancel previous subscription failed: {cancel_err}")
                 
-                # Compute and persist entitlements (apply overrides later at read time)
+                # Compute and persist entitlements based on plan tier
                 try:
-                    base_ents = _derive_entitlements_from_subscription(subscription)
-                    # Slides cap by plan
-                    base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                    # Set base entitlements by plan
+                    if plan == 'pro':
+                        base_connectors, base_storage, base_slides = 2, 5, 40
+                    elif plan == 'business':
+                        base_connectors, base_storage, base_slides = 5, 10, 40
+                    else:
+                        base_connectors, base_storage, base_slides = 0, 1, 20
+                    
                     async with pool.acquire() as conn:
                         await conn.execute(
                             """
@@ -28625,7 +28670,7 @@ async def stripe_webhook(
                             ON CONFLICT (onyx_user_id)
                             DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
                             """,
-                            onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                            onyx_user_id, base_connectors, base_storage, base_slides
                         )
                 except Exception as e:
                     logger.warning(f"Failed to persist base entitlements: {e}")
@@ -28748,8 +28793,14 @@ async def stripe_webhook(
                 
                     # Also refresh base entitlements on subscription update
                     try:
-                        base_ents = _derive_entitlements_from_subscription(subscription)
-                        base_ents['slides_max'] = 40 if plan in ('pro','business') else 20
+                        # Set base entitlements by plan
+                        if plan == 'pro':
+                            base_connectors, base_storage, base_slides = 2, 5, 40
+                        elif plan == 'business':
+                            base_connectors, base_storage, base_slides = 5, 10, 40
+                        else:
+                            base_connectors, base_storage, base_slides = 0, 1, 20
+                        
                         async with pool.acquire() as conn:
                             await conn.execute(
                                 """
@@ -28758,7 +28809,7 @@ async def stripe_webhook(
                                 ON CONFLICT (onyx_user_id)
                                 DO UPDATE SET connectors_limit=EXCLUDED.connectors_limit, storage_gb=EXCLUDED.storage_gb, slides_max=EXCLUDED.slides_max, updated_at=now()
                                 """,
-                                onyx_user_id, base_ents['connectors'], base_ents['storage_gb'], base_ents['slides_max']
+                                onyx_user_id, base_connectors, base_storage, base_slides
                             )
                     except Exception as e:
                         logger.warning(f"Failed to persist base entitlements on update: {e}")
