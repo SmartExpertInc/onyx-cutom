@@ -349,7 +349,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
 
   return (
     <main
-      className="min-h-screen flex flex-col items-center pt-24 pb-20 px-6 bg-white relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center px-6 bg-white relative overflow-hidden"
     >
       {/* Decorative gradient background */}
       <div 
@@ -361,7 +361,7 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
           top: '60%',
           borderRadius: '999px',
           background: 'linear-gradient(360deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
-          transform: 'translate(-50%, -50%) rotate(150deg)',
+          transform: 'translate(-50%, -50%) rotate(120deg)',
           filter: 'blur(100px)',
         }}
       />
