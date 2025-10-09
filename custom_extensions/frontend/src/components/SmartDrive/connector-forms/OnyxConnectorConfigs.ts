@@ -754,8 +754,8 @@ const baseConnectorConfigs: Record<string, ConnectorConfig> = {
       {
         type: "file",
         query: "Enter the zip path:",
-        label: "File Locations",
-        name: "file_locations",
+        label: "Zip Path",
+        name: "zip_path",
         optional: false,
         description:
           "Upload a zip file containing the HTML of your Google Site",
