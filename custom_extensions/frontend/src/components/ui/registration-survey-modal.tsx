@@ -25,10 +25,12 @@ interface SurveyData {
 
 interface RegistrationSurveyModalProps {
   onComplete: (surveyData: SurveyData) => void;
+  children?: React.ReactNode;
 }
 
 const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
   onComplete,
+  children,
 }) => {
   const { t } = useLanguage();
   const [surveyStep, setSurveyStep] = useState(1);
