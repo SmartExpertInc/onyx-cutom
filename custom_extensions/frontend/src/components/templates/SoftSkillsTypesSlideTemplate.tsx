@@ -5,10 +5,11 @@ import { SoftSkillsTypesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import YourLogo from '../YourLogo';
 
 export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }> = ({
   slideId,
-  title = 'Types of\nSoft Skills',
+  title = 'Types of Soft Skills',
   cards = [
     { label: 'Time management' },
     { label: 'Team work' },
@@ -16,10 +17,12 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile',
+  logoText = 'Your Logo',
+  logoPath = '',
   isEditable = false,
   onUpdate,
   theme,
-}) => {
+}: SoftSkillsTypesSlideProps & { theme?: SlideTheme | string; }) => {
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
 
   const [editingTitle, setEditingTitle] = useState(false);
@@ -27,7 +30,7 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
@@ -35,24 +38,37 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
 
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '33px',
-    left: '56px',
-    fontSize: '60px',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    fontSize: '56px',
     lineHeight: 1.1,
-    fontWeight: 800,
-    color: '#3C3C3C',
-    whiteSpace: 'pre-line',
+    fontWeight: 400,
+    color: '#000000',
+    fontFamily: 'serif',
+    textAlign: 'center',
+    margin: 0,
+    padding: 0,
+  };
+
+  const logoStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: '48px',
+    left: '48px',
+    color: '#000000',
+    fontSize: '16px',
+    fontWeight: 500,
   };
 
   const avatarCircleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '40px',
-    right: '56px',
+    top: '48px',
+    right: '48px',
     width: '150px',
     height: '150px',
     borderRadius: '50%',
     overflow: 'hidden',
-    backgroundColor: '#916AF7',
+    backgroundColor: '#0F58F9',
   };
 
   const cardsRowStyles: React.CSSProperties = {
@@ -67,26 +83,46 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
 
   const cardStyles: React.CSSProperties = {
     position: 'relative',
-    backgroundColor: '#E5E5E5',
-    borderRadius: '0px',
+    backgroundColor: '#FFFFFF',
+    borderRadius: '12px',
     overflow: 'hidden',
     height: '340px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
   };
 
   const cardLabelStyles: React.CSSProperties = {
     position: 'absolute',
     top: '20px',
     left: '20px',
-    color: '#CAC7C6',
-    padding: '6px 10px',
-    fontSize: '25px',
+    color: '#FFFFFF',
+    fontSize: '18px',
     fontWeight: 600,
     display: 'flex',
     alignItems: 'center',
+    fontFamily: 'sans-serif',
+  };
+
+  const playIconStyles: React.CSSProperties = {
+    width: '0',
+    height: '0',
+    borderLeft: '8px solid #FFFFFF',
+    borderTop: '6px solid transparent',
+    borderBottom: '6px solid transparent',
+    marginRight: '8px',
   };
 
   return (
     <div className="soft-skills-types-slide inter-theme" style={slideStyles}>
+      {/* Logo */}
+      <YourLogo
+        logoPath={logoPath}
+        onLogoUploaded={(p: string) => onUpdate && onUpdate({ logoPath: p })}
+        isEditable={isEditable}
+        color="#000000"
+        text={logoText}
+        style={logoStyles}
+      />
+
       {/* Title */}
       <div style={titleStyles}>
         {isEditable && editingTitle ? (
@@ -131,11 +167,11 @@ export const SoftSkillsTypesSlideTemplate: React.FC<SoftSkillsTypesSlideProps & 
               position="CENTER"
               description="Card image"
               isEditable={isEditable}
-              style={{ width: '100%', height: '100%', borderRadius: '0px', objectFit: 'cover' }}
+              style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'cover' }}
             />
             <div style={cardLabelStyles}>
-              <span style={{ fontSize: '41px', color: '#FFFFFF', lineHeight: 1, display: 'inline-block', marginRight: '8px' }}>•</span>
-              <span style={{ fontSize: '18px', marginTop: '7px' }}>{c.label}</span>
+              <div style={playIconStyles}></div>
+              <span>{c.label}</span>
             </div>
           </div>
         ))}
