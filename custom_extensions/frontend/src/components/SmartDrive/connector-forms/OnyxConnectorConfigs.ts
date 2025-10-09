@@ -91,7 +91,7 @@ const baseConnectorConfigs: Record<string, ConnectorConfig> = {
       {
         type: "text",
         query: "Enter the GitHub username or organization:",
-        label: "Repository Owner",
+        label: "Repository Owner Username",
         name: "repo_owner",
         optional: false,
       },
