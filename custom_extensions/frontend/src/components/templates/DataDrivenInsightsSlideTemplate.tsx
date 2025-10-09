@@ -136,26 +136,29 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
   const chartsWrap: React.CSSProperties = { position:'absolute', left:'40px', top:'270px', right:'400px', display:'flex', gap:'20px' };
   const panel: React.CSSProperties = { background:'#FFFFFF', height: '320px', flex: 1, padding: '10px 10px 3px 15px', borderRadius:'4px', position:'relative', boxShadow:'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' };
   const chartArea: React.CSSProperties = { position:'relative', height:'220px', padding:'16px 0 8px 0' };
-  const barsRow: React.CSSProperties = { position:'absolute', left:'30px', right:'10px', bottom:'8px', display:'flex', alignItems:'flex-end', gap:'5px', height:'calc(100% - 24px)', flexWrap:'nowrap' };
+  const barsRow: React.CSSProperties = { position:'absolute', left:'30px', right:'10px', bottom:'8px', display:'flex', alignItems:'flex-end', height:'calc(100% - 24px)', flexWrap:'nowrap' };
   const yAxis: React.CSSProperties = { position:'absolute', left:0, top:'13px', bottom:'8px', width:'40px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
   const getBarBase = (seriesLength: number): React.CSSProperties => {
-    // Calculate bar width to fill available space
-    const gapSize = 5; // Gap between bars in px
-    
-    // Use CSS calc to dynamically distribute space based on number of bars
-    // The bars will fill the container (100% - left offset - right padding - total gaps) / number of bars
-    const totalGapSpace = (seriesLength - 1) * gapSize;
-    
+    // Calculate bar width to fill available space evenly
     return { 
-      width: `calc((100% - 40px - ${totalGapSpace}px) / ${seriesLength})`,
-      minWidth: '25px',
-      maxWidth: '60px',
+      flex: 1,
+      marginRight: '5px',
       background:'linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3)', 
       position:'relative', 
       borderRadius:'1px 1px 1px 1px' 
     };
   };
-  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 0px 0 30px', color:'#3A3A3C', fontSize:'12px', gap:'5px', fontFamily:'"Inter", sans-serif' };
+  const getYearLabelStyle = (seriesLength: number, isLast: boolean): React.CSSProperties => {
+    return {
+      flex: 1,
+      marginRight: isLast ? '0px' : '5px',
+      textAlign: 'center',
+      color: '#3A3A3C',
+      fontSize: '12px',
+      fontFamily: '"Inter", sans-serif'
+    };
+  };
+  const yearRow: React.CSSProperties = { display:'flex', justifyContent:'flex-start', padding:'0 0px 0 30px', color:'#3A3A3C', fontSize:'12px', fontFamily:'"Inter", sans-serif' };
 
   const rightMetrics: React.CSSProperties = { position:'absolute', right:'0', top:'280px', width:'360px', display:'grid', rowGap:'15px' };
   const metricValue: React.CSSProperties = { fontSize:'38px', fontWeight:600, color:'#000000', fontFamily:'serif' };
@@ -311,7 +314,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('left', leftSeries)}
           <div style={yearRow}>{leftSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width: getBarBase(leftSeries.length).width, textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`left-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', ...getYearLabelStyle(leftSeries.length, i === leftSeries.length - 1) }}>
               {edit?.key===`left-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...leftSeries]; next[i]={ ...next[i], year:v }; setLeftSeries(next); pushState('left'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
@@ -327,7 +330,7 @@ export const DataDrivenInsightsSlideTemplate: React.FC<DataDrivenInsightsProps &
           )}
           {renderBars('right', rightSeries)}
           <div style={yearRow}>{rightSeries.map((b,i)=>(
-            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', width: getBarBase(rightSeries.length).width, textAlign:'center' }}>
+            <span key={i} onClick={()=> isEditable && setEdit({ key:`right-year-${i}` })} style={{ cursor: isEditable ? 'pointer':'default', ...getYearLabelStyle(rightSeries.length, i === rightSeries.length - 1) }}>
               {edit?.key===`right-year-${i}` ? (
                 <ImprovedInlineEditor initialValue={b.year} onSave={(v)=>{ const next=[...rightSeries]; next[i]={ ...next[i], year:v }; setRightSeries(next); pushState('right'); setEdit(null); }} onCancel={()=> setEdit(null)} style={inlineStable({ color:'#AAA9A7', fontSize:'12px' })} />
               ) : b.year}
