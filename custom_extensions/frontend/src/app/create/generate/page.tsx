@@ -424,7 +424,7 @@ function GenerateProductPicker() {
   const [selectedLesson, setSelectedLesson] = useState<string>("");
   const [lengthOption, setLengthOption] = useState<"Short" | "Medium" | "Long">("Short");
   const [slidesCount, setSlidesCount] = useState<number>(5);
-  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10]);
+  const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10,12,15]);
   const [entitlements, setEntitlements] = useState<any | null>(null);
 
   // Fetch entitlements to decide on slides options
@@ -1453,10 +1453,7 @@ function GenerateProductPicker() {
                     <CustomPillSelector
                       value={slidesCount.toString()}
                       onValueChange={(value) => setSlidesCount(Number(value))}
-                      options={Array.from({ length: 14 }, (_, i) => ({
-                        value: (i + 2).toString(),
-                        label: `${i + 2} ${t('interface.generate.slides', 'slides')}`
-                      }))}
+                      options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
                       icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
                       label="Slides"
                     />
@@ -1811,10 +1808,7 @@ function GenerateProductPicker() {
             <CustomPillSelector
               value={slidesCount.toString()}
               onValueChange={(value) => setSlidesCount(Number(value))}
-              options={[3, 4, 5, 6, 7, 8, 9, 10, 12, 15].map((count) => ({
-                value: count.toString(),
-                label: `${count} ${t('interface.generate.slides', 'slides')}`
-              }))}
+              options={(slidesOptions || [20]).map((n) => ({ value: n.toString(), label: `${n} ${t('interface.generate.slides', 'slides')}` }))}
               icon={<PanelsLeftBottom className="w-4 h-4 text-gray-600" />}
               label="Slides"
             />
