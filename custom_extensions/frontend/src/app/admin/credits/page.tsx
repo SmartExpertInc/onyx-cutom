@@ -26,10 +26,20 @@ interface CreditTransaction {
   reason: string;
 }
 
+interface QuestionnaireAnswer {
+  question: string;
+  answer: string;
+}
+
+interface UserQuestionnaire {
+  onyx_user_id: string;
+  answers: QuestionnaireAnswer[];
+}
 
 
 const AdminCreditsPage: React.FC = () => {
   const [users, setUsers] = useState<UserCredits[]>([]);
+  const [questionnaires, setQuestionnaires] = useState<UserQuestionnaire[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,23 +59,38 @@ const AdminCreditsPage: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${CUSTOM_BACKEND_URL}/admin/credits/users`, {
-        credentials: 'same-origin',
-      });
+      const [usersResponse, questionnairesResponse] = await Promise.all([
+        fetch(`${CUSTOM_BACKEND_URL}/admin/credits/users`, {
+          credentials: 'same-origin',
+        }),
+        fetch(`${CUSTOM_BACKEND_URL}/admin/questionnaire/all`, {
+          credentials: 'same-origin',
+        })
+      ]);
 
-      if (!response.ok) {
-        if (response.status === 403) {
+      if (!usersResponse.ok) {
+        if (usersResponse.status === 403) {
           throw new Error('Access denied. You must be logged in as an admin in Onyx to access this page.');
         }
-        throw new Error(`Failed to fetch users: ${response.status}`);
+        throw new Error(`Failed to fetch users: ${usersResponse.status}`);
       }
 
-      const userData = await response.json();
+      const userData = await usersResponse.json();
       setUsers(userData);
+
+      // Fetch questionnaires (don't fail if this endpoint fails)
+      if (questionnairesResponse.ok) {
+        const questionnaireData = await questionnairesResponse.json();
+        setQuestionnaires(questionnaireData);
+      } else {
+        console.warn('Failed to fetch questionnaires:', questionnairesResponse.status);
+        setQuestionnaires([]);
+      }
+
       setError(null);
     } catch (err) {
-      console.error('Error fetching users:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch users');
+      console.error('Error fetching data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setLoading(false);
     }
@@ -307,6 +332,7 @@ const AdminCreditsPage: React.FC = () => {
         <div className="mt-8">
           <CreditsAdministrationTable 
             users={filteredUsers}
+            questionnaires={questionnaires}
             selectedUser={selectedUser}
             onUserSelect={(user: UserCredits | null) => setSelectedUser(user)}
             onAddCredits={(user: UserCredits) => openTransactionModal(user, 'add')}

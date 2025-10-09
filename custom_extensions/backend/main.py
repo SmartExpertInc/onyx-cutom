@@ -6008,6 +6008,14 @@ async def startup_event():
                                             ))
         async with DB_POOL.acquire() as connection:
             await connection.execute("""
+                CREATE TABLE IF NOT EXISTS initial_questionnaire (
+                    id SERIAL PRIMARY KEY,
+                    onyx_user_id TEXT NOT NULL UNIQUE,
+                    data JSONB NOT NULL
+                );
+            """)
+            
+            await connection.execute("""
                 CREATE TABLE IF NOT EXISTS slide_creation_errors (
                     id SERIAL PRIMARY KEY,
                     user_id TEXT NOT NULL,
@@ -6896,6 +6904,18 @@ class SlideGenerationError(BaseModel):
 
 class SlidesErrorsAnalyticsResponse(BaseModel):
     errors: List[SlideGenerationError]
+
+class QuestionnaireAnswer(BaseModel):
+    question: str
+    answer: str
+
+class UserQuestionnaire(BaseModel):
+    onyx_user_id: str
+    answers: List[QuestionnaireAnswer]
+
+class UserQuestionnaireInsertRequest(BaseModel):
+    onyx_user_id: str
+    answers: List[QuestionnaireAnswer]
 
 class TimelineActivity(BaseModel):
     id: str
@@ -28511,6 +28531,76 @@ async def get_usage_analytics(
     except Exception as e:
         logger.error(f"Error fetching usage analytics: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch usage analytics")
+
+# get Questionnaire answers for each user
+@app.get("/api/custom/admin/questionnaire/all", response_model=List[UserQuestionnaire])
+async def list_all_user_questionnaires(
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """Admin endpoint to list all users' initial questionnaire answers"""
+    await verify_admin_user(request)
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch("""
+                SELECT onyx_user_id, data
+                FROM initial_questionnaire
+            """)
+            result = []
+            for row in rows:
+                answers = []
+                if isinstance(row["data"], list):
+                    for item in row["data"]:
+                        q = item.get("question")
+                        a = item.get("answer")
+                        if isinstance(q, str) and isinstance(a, str):
+                            answers.append(QuestionnaireAnswer(question=q, answer=a))
+                result.append(UserQuestionnaire(onyx_user_id=row["onyx_user_id"], answers=answers))
+            return result
+    except Exception as e:
+        logger.error(f"Error listing user questionnaires: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve user questionnaires")
+
+@app.post("/api/custom/questionnaires/add")
+async def add_user_questionnaire(
+    questionnaire_request: UserQuestionnaireInsertRequest,
+    request: Request,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Admin endpoint to insert a user's initial questionnaire answers.
+    If user already has answers, this will overwrite them.
+    """
+    try:
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO initial_questionnaire (onyx_user_id, data)
+                VALUES ($1, $2)
+                ON CONFLICT (onyx_user_id) DO UPDATE SET data = EXCLUDED.data
+            """, questionnaire_request.onyx_user_id, [answer.dict() for answer in questionnaire_request.answers])
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Error inserting user questionnaire: {e}")
+        raise HTTPException(status_code=500, detail="Failed to insert user questionnaire")
+
+@app.get("/api/custom/questionnaires/{user_id}/completion")
+async def check_user_questionnaire_completion(
+    user_id: str,
+    pool: asyncpg.Pool = Depends(get_db_pool)
+):
+    """
+    Returns True if the user with the given id has completed the questionnaire, otherwise False.
+    """
+    try:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT 1 FROM initial_questionnaire WHERE onyx_user_id = $1",
+                user_id
+            )
+            return {"completed": bool(row)}
+    except Exception as e:
+        logger.error(f"Error checking questionnaire completion for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to check questionnaire completion")
 
 # Slide analytics across all users
 @app.get("/api/custom/admin/analytics/slides", response_model=SlidesAnalyticsResponse)

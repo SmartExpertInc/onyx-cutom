@@ -35,7 +35,7 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="text-center text-xl text-strong font-bold">
+            <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
               <LoginText />
             </h2>
             <SignInButton
@@ -47,7 +47,7 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="text-center text-xl text-strong font-bold">
+          <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
             <LoginText />
           </h2>
           <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
@@ -64,9 +64,9 @@ export default function LoginPage({
           {authUrl && authTypeMetadata && (
             <>
               <div className="flex items-center w-full my-4">
-                <div className="flex-grow border-t border-background-300"></div>
-                <span className="px-4 text-text-500">or</span>
-                <div className="flex-grow border-t border-background-300"></div>
+                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
+                <span className="px-4 text-gray-900">or</span>
+                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
               </div>
 
               <SignInButton
@@ -81,30 +81,12 @@ export default function LoginPage({
       {authTypeMetadata?.authType === "basic" && (
         <>
           <div className="flex">
-            <Title className="mb-2 mx-auto text-xl text-strong font-bold">
+            <Title size="xl" className="mb-2 text-center font-bold text-gray-900">
               <LoginText />
             </Title>
           </div>
           <EmailPasswordForm nextUrl={nextUrl} />
-          <div className="flex flex-col gap-y-2 items-center"></div>
         </>
-      )}
-      {!hidePageRedirect && (
-        <p className="text-center mt-4">
-          Don&apos;t have an account?{" "}
-          <span
-            onClick={() => {
-              if (typeof window !== "undefined" && window.top) {
-                window.top.location.href = "/auth/signup";
-              } else {
-                window.location.href = "/auth/signup";
-              }
-            }}
-            className="text-link font-medium cursor-pointer"
-          >
-            Create an account
-          </span>
-        </p>
       )}
     </div>
   );

@@ -398,7 +398,7 @@ def get_application(lifespan_override: Lifespan | None = None) -> FastAPI:
             prefix="/users",
         )
 
-    if AUTH_TYPE == AuthType.GOOGLE_OAUTH:
+    if AUTH_TYPE == AuthType.GOOGLE_OAUTH or AUTH_TYPE == AuthType.CLOUD:
         # For Google OAuth, refresh tokens are requested by:
         # 1. Adding the right scopes
         # 2. Properly configuring OAuth in Google Cloud Console to allow offline access
