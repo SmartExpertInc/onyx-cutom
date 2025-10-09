@@ -42,18 +42,18 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'40% 60%', gap:'0px', padding:'0px' };
   const leftSection: React.CSSProperties = { background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', padding:'56px', position:'relative' };
   const rightSection: React.CSSProperties = { background:'#E0E7FF', padding:'56px 32px' };
-  const headingStyle: React.CSSProperties = { fontSize:'53px', fontWeight:800, color:'#FFFFFF', lineHeight:1.05, position:'absolute', top:'56px', left:'56px', maxWidth:'calc(100% - 112px)' };
+  const headingStyle: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, position:'absolute', top:'100px', left:'56px', maxWidth:'calc(100% - 112px)' };
   const list: React.CSSProperties = { display:'grid', rowGap:'22px' };
   const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'48px 1fr', alignItems:'center', columnGap:'18px' };
   const numSquare: React.CSSProperties = { width:'48px', height:'48px', backgroundColor:'#0F58F9', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center' };
-  const num: React.CSSProperties = { fontSize:'28px', color:'#FFFFFF', fontWeight:700 };
-  const text: React.CSSProperties = { fontSize:'28px', color:'#09090B' };
+  const num: React.CSSProperties = { fontSize:'28px', color:'#FFFFFF', fontWeight:700, fontFamily: "'Lora', serif" };
+  const text: React.CSSProperties = { fontSize:'28px', color:'#09090B', fontFamily: "'Lora', serif" };
 
-  const avatarWrap: React.CSSProperties = { position:'absolute', bottom:'56px', left:'56px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#FFFFFF', overflow:'hidden', border: '2px solid #E5E7EB' };
+  const avatarWrap: React.CSSProperties = { position:'absolute', bottom:'60px', left:'56px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#FFFFFF', overflow:'hidden', border: '2px solid #E5E7EB' };
   const avatarImage: React.CSSProperties = { width:'110%', height:'110%', borderRadius:'50%', position:'relative', bottom:'-10px', left:'50%', transform:'translateX(-50%)', objectFit:'cover' };
 
   const inlineHeading = { ...headingStyle, background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
-  const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0 } as React.CSSProperties;
+  const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, fontFamily: "'Lora', serif" } as React.CSSProperties;
 
   const handlePageNumberSave = (newPageNumber: string) => {
     setCurrentPageNumber(newPageNumber);
@@ -102,21 +102,21 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
         {items.map((it, i)=> (
           <div key={i} style={row}>
             <div style={numSquare}>
-              <div style={num}>{String(i+1)}</div>
+              <div className="title-element" style={num}>{String(i+1)}</div>
             </div>
             <div>
               {isEditable && editItem === i ? (
-                <ImprovedInlineEditor initialValue={it} onSave={(v)=>{ const next=[...items]; next[i]=v; onUpdate&&onUpdate({ items: next }); setEditItem(null); }} onCancel={()=>setEditItem(null)} style={inlineText} />
+                <ImprovedInlineEditor initialValue={it} onSave={(v)=>{ const next=[...items]; next[i]=v; onUpdate&&onUpdate({ items: next }); setEditItem(null); }} onCancel={()=>setEditItem(null)} className="title-element" style={inlineText} />
               ) : (
-                <div onClick={()=> isEditable && setEditItem(i)} style={{ ...text, cursor: isEditable ? 'pointer':'default' }}>{it}</div>
+                <div className="title-element" onClick={()=> isEditable && setEditItem(i)} style={{ ...text, cursor: isEditable ? 'pointer':'default' }}>{it}</div>
               )}
             </div>
           </div>
-          ))}
+        ))}
       </div>
 
       {/* Logo */}
-      <div style={{ position: 'absolute', top: '20px', left: '30px' }}>
+      <div style={{ position: 'absolute', top: '20px', left: '20px' }}>
         {logoPath ? (
           <ClickableImagePlaceholder
             imagePath={logoPath}

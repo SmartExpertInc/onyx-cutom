@@ -93,7 +93,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     fontSize: '46px',
     fontWeight: 800,
     color: '#FFFFFF',
-    maxWidth: '900px'
+    maxWidth: '900px',
+    lineHeight: 1.2
   };
 
   // Description positioned below title
@@ -102,6 +103,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
     left: '290px',
     top: '115px',
     transform: 'translateY(calc(-50% + 45px))',
+    width: '660px',
     maxWidth: '660px',
     color: 'rgba(255, 255, 255, 0.7)',
     fontSize: '20px',
@@ -229,14 +231,24 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               padding: 0,
               margin: 0,
               width: '100%',
-              height: 'auto'
+              height: 'auto',
+              minHeight: 'auto',
+              fontSize: '46px',
+              fontWeight: 800,
+              color: '#FFFFFF',
+              lineHeight: 1.2,
+              boxSizing: 'border-box'
             }}
           />
         ) : (
           <div 
             className="title-element" 
             onClick={() => isEditable && setEditingTitle(true)} 
-            style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+            style={{ 
+              cursor: isEditable ? 'pointer' : 'default', 
+              userSelect: 'none',
+              lineHeight: 1.2
+            }}
           >
             {title}
           </div>
@@ -257,14 +269,25 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               outline: 'none',
               padding: 0,
               margin: 0,
-              width: '100%',
-              height: 'auto'
+              width: '660px',
+              maxWidth: '660px',
+              height: 'auto',
+              minHeight: 'auto',
+              fontSize: '20px',
+              lineHeight: 1.6,
+              color: 'rgba(255, 255, 255, 0.7)',
+              opacity: 0.9,
+              boxSizing: 'border-box'
             }}
           />
         ) : (
           <div 
             onClick={() => isEditable && setEditingDesc(true)} 
-            style={{ cursor: isEditable ? 'pointer' : 'default', userSelect: 'none' }}
+            style={{ 
+              cursor: isEditable ? 'pointer' : 'default', 
+              userSelect: 'none',
+              lineHeight: 1.6
+            }}
           >
             {description}
           </div>
@@ -282,9 +305,9 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               preserveAspectRatio="xMidYMid meet"
               style={{ 
                 position: 'absolute', 
-                top: '40px',
-                left: '80px',
-                height: 'calc(100% - 80px)'
+                top: '13px',
+                left: '27px',
+                height: 'calc(200% + 100px)'
               }}
             >
             <path 
