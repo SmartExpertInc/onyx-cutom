@@ -427,7 +427,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             <div className="space-y-6">
               <div className="grid grid-cols-2 md:grid-cols-2 gap-x-14 gap-y-4 max-w-4xl mx-auto">
                 {[
-                  { value: 'marketer', label: t('survey.role.marketer', 'Marketer'), icon: <Marketer className="w-6 h-6" fill={surveyData.workRole === 'marketer' ? '#0F58F9' : '#87ABFC'} /> },
+                  { value: 'marketer', label: t('survey.role.marketer', 'Marketer'), icon: <Marketer className="w-12 h-12" fill={surveyData.workRole === 'marketer' ? '#0F58F9' : '#87ABFC'} /> },
                   { value: 'hr-ld', label: t('survey.role.hrLd', 'HR / L&D'), icon: <HrLnD className="w-6 h-6" fill={surveyData.workRole === 'hr-ld' ? '#0F58F9' : '#87ABFC'} /> },
                   { value: 'business-owner', label: t('survey.role.businessOwner', 'Business Owner'), icon: <Business className="w-6 h-6" fill={surveyData.workRole === 'business-owner' ? '#0F58F9' : '#87ABFC'} /> },
                   { value: 'content-creator', label: t('survey.role.contentCreator', 'Content Creator'), icon: <ContentMaker className="w-6 h-6" fill={surveyData.workRole === 'content-creator' ? '#0F58F9' : '#87ABFC'} /> },
