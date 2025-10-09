@@ -209,6 +209,18 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             document.removeEventListener('click', suppressNextClick, true);
           }, 450);
 
+          // 🔍 COMPREHENSIVE DRAG LOGGING
+          console.log('🎯 [DRAG_COMPLETE] Element drag finished');
+          console.log('  📍 Element ID:', elementId);
+          console.log('  📊 Final Position:', { x: currentX, y: currentY });
+          console.log('  📏 Drag Distance:', dragDistance.toFixed(2), 'px');
+          console.log('  🎨 Element:', htmlElement.tagName, htmlElement.className);
+          console.log('  🔢 Position State:', {
+            transform: htmlElement.style.transform,
+            savedInState: dragStateRef.current.get(elementId)
+          });
+          console.log('  ➡️ Calling onPositionChange callback...');
+
           if (onPositionChange) onPositionChange(elementId, { x: currentX, y: currentY });
           return;
         }

@@ -168,20 +168,54 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
 
   // Handle position changes from drag enhancer
   const handlePositionChange = useCallback((elementId: string, position: { x: number; y: number }) => {
+    // 🔍 COMPREHENSIVE POSITION SAVE LOGGING
+    console.log('💾 [POSITION_SAVE] Saving position to slide metadata');
+    console.log('  📍 Element ID:', elementId);
+    console.log('  📊 Position:', position);
+    console.log('  🎬 Slide ID:', slide?.slideId || 'unknown');
+    console.log('  🎨 Template ID:', slide?.templateId);
+    
+    // Log if this is an avatar-service slide
+    const isAvatarService = slide?.templateId === 'avatar-service' || slide?.templateId === 'avatar-service-slide';
+    if (isAvatarService) {
+      console.log('  🎯 AVATAR-SERVICE SLIDE DETECTED!');
+      console.log('  📐 Editor Canvas:', '1174×600px');
+      console.log('  🎥 Video Canvas:', '1920×1080px');
+      console.log('  📏 Scale Factors:', {
+        scaleX: (1920 / 1174).toFixed(3),
+        scaleY: (1080 / 600).toFixed(3)
+      });
+      console.log('  🔢 Expected Scaled Position:', {
+        scaledX: (position.x * (1920 / 1174)).toFixed(2),
+        scaledY: (position.y * (1080 / 600)).toFixed(2)
+      });
+    }
+    
     // Save position changes to slide data if needed
     if (slide && onSlideUpdate) {
+      const previousPositions = slide.metadata?.elementPositions || {};
       const updatedSlide: ComponentBasedSlide = {
         ...slide,
         metadata: {
           ...slide.metadata,
           elementPositions: {
-            ...slide.metadata?.elementPositions,
+            ...previousPositions,
             [elementId]: position
           },
           updatedAt: new Date().toISOString()
         }
       };
+      
+      console.log('  📦 Updated Metadata:', {
+        previousPositions,
+        newPositions: updatedSlide.metadata?.elementPositions || {},
+        totalElementsPositioned: Object.keys(updatedSlide.metadata?.elementPositions || {}).length
+      });
+      console.log('  ✅ Position saved successfully');
+      
       onSlideUpdate(updatedSlide);
+    } else {
+      console.log('  ⚠️ Position NOT saved - missing slide or onSlideUpdate callback');
     }
   }, [slide, onSlideUpdate]);
 

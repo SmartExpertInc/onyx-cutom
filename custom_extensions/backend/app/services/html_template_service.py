@@ -123,6 +123,53 @@ class HTMLTemplateService:
             logger.info(f"  - Context metadata: {context_data.get('metadata', 'MISSING')}")
             logger.info(f"  - Context slideId: {context_data.get('slideId', 'MISSING')}")
             
+            # 🔍 AVATAR-SERVICE SPECIFIC LOGGING
+            if template_id in ['avatar-service', 'avatar-service-slide']:
+                logger.info(f"")
+                logger.info(f"═══════════════════════════════════════════════════════════════════════════")
+                logger.info(f"🎯 [AVATAR-SERVICE] COORDINATE SCALING ANALYSIS")
+                logger.info(f"═══════════════════════════════════════════════════════════════════════════")
+                logger.info(f"Template: {template_id}")
+                logger.info(f"Slide ID: {slide_id}")
+                logger.info(f"")
+                logger.info(f"📐 Canvas Dimensions:")
+                logger.info(f"  - Editor Canvas: 1174×600px")
+                logger.info(f"  - Video Canvas:  1920×1080px")
+                logger.info(f"")
+                logger.info(f"📏 Scale Factors:")
+                SCALE_X = 1920 / 1174
+                SCALE_Y = 1080 / 600
+                logger.info(f"  - SCALE_X: {SCALE_X:.6f} (1920/1174)")
+                logger.info(f"  - SCALE_Y: {SCALE_Y:.6f} (1080/600)")
+                logger.info(f"")
+                
+                if metadata and metadata.get('elementPositions'):
+                    element_positions = metadata['elementPositions']
+                    logger.info(f"📍 Element Positions to be Scaled:")
+                    logger.info(f"  Total elements: {len(element_positions)}")
+                    logger.info(f"")
+                    
+                    for element_id, position in element_positions.items():
+                        if isinstance(position, dict) and 'x' in position and 'y' in position:
+                            orig_x = position['x']
+                            orig_y = position['y']
+                            scaled_x = orig_x * SCALE_X
+                            scaled_y = orig_y * SCALE_Y
+                            
+                            logger.info(f"  Element: {element_id}")
+                            logger.info(f"    Original (Editor):  x={orig_x:.2f}px, y={orig_y:.2f}px")
+                            logger.info(f"    Scaled (Video):     x={scaled_x:.2f}px, y={scaled_y:.2f}px")
+                            logger.info(f"    Calculation:        x={orig_x:.2f}×{SCALE_X:.3f}={scaled_x:.2f}, y={orig_y:.2f}×{SCALE_Y:.3f}={scaled_y:.2f}")
+                            logger.info(f"    Final Transform:    translate({scaled_x:.2f}px, {scaled_y:.2f}px)")
+                            logger.info(f"")
+                else:
+                    logger.info(f"⚠️ No element positions found in metadata")
+                    logger.info(f"   Elements will use default layout positions")
+                    logger.info(f"")
+                
+                logger.info(f"═══════════════════════════════════════════════════════════════════════════")
+                logger.info(f"")
+            
             # Render the template
             logger.info(f"🔍 [TEXT_POSITIONING_DEBUG] === RENDERING TEMPLATE ===")
             html_content = template.render(**context_data)

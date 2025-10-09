@@ -844,6 +844,28 @@
                 </div>
                 
             {% elif templateId == 'avatar-service' or templateId == 'avatar-service-slide' %}
+                <!-- 
+                ═══════════════════════════════════════════════════════════════════════════
+                🔍 AVATAR-SERVICE POSITIONING DEBUG LOG
+                ═══════════════════════════════════════════════════════════════════════════
+                Template ID: {{ templateId }}
+                Slide ID: {{ slideId }}
+                Canvas Dimensions:
+                  - Editor: 1174×600px
+                  - Video:  1920×1080px
+                Scale Factors:
+                  - SCALE_X: {{ SCALE_X }} ({{ VIDEO_WIDTH }}/{{ EDITOR_WIDTH }})
+                  - SCALE_Y: {{ SCALE_Y }} ({{ VIDEO_HEIGHT }}/{{ EDITOR_HEIGHT }})
+                
+                Metadata Available: {{ 'YES' if metadata else 'NO' }}
+                Element Positions Available: {{ 'YES' if metadata and metadata.elementPositions else 'NO' }}
+                {% if metadata and metadata.elementPositions %}
+                Total Positioned Elements: {{ metadata.elementPositions|length }}
+                Position Keys: {{ metadata.elementPositions.keys()|list }}
+                {% endif %}
+                ═══════════════════════════════════════════════════════════════════════════
+                -->
+                
                 <div class="avatar-service" style="background-color: var(--bg-color); height: 100%; min-height: 1080px;">
                     <!-- Dark shape in top-left corner -->
                     <div class="dark-shape"></div>
@@ -858,11 +880,29 @@
                                     {% if metadata.elementPositions[titleId] %}
                                         {% set scaledX = metadata.elementPositions[titleId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[titleId].y * SCALE_Y %}
+                                        <!-- 
+                                        ───────────────────────────────────────────────────────────────
+                                        📍 TITLE POSITIONING
+                                        ───────────────────────────────────────────────────────────────
+                                        Element ID: {{ titleId }}
+                                        Original Position (Editor Canvas):
+                                          x: {{ metadata.elementPositions[titleId].x }}px
+                                          y: {{ metadata.elementPositions[titleId].y }}px
+                                        
+                                        Scaling Calculation:
+                                          scaledX = {{ metadata.elementPositions[titleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                          scaledY = {{ metadata.elementPositions[titleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        
+                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                        ───────────────────────────────────────────────────────────────
+                                        -->
                                         <h1 class="slide-title positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ title }}</h1>
                                     {% else %}
+                                        <!-- 📍 TITLE: No custom position found for {{ titleId }}, using default layout -->
                                         <h1 class="slide-title">{{ title }}</h1>
                                     {% endif %}
                                 {% else %}
+                                    <!-- 📍 TITLE: No metadata available, using default layout -->
                                     <h1 class="slide-title">{{ title }}</h1>
                                 {% endif %}
                             {% endif %}
@@ -874,11 +914,29 @@
                                     {% if metadata.elementPositions[subtitleId] %}
                                         {% set scaledX = metadata.elementPositions[subtitleId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[subtitleId].y * SCALE_Y %}
+                                        <!-- 
+                                        ───────────────────────────────────────────────────────────────
+                                        📍 SUBTITLE POSITIONING
+                                        ───────────────────────────────────────────────────────────────
+                                        Element ID: {{ subtitleId }}
+                                        Original Position (Editor Canvas):
+                                          x: {{ metadata.elementPositions[subtitleId].x }}px
+                                          y: {{ metadata.elementPositions[subtitleId].y }}px
+                                        
+                                        Scaling Calculation:
+                                          scaledX = {{ metadata.elementPositions[subtitleId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                          scaledY = {{ metadata.elementPositions[subtitleId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        
+                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                        ───────────────────────────────────────────────────────────────
+                                        -->
                                         <h2 class="slide-subtitle positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ subtitle }}</h2>
                                     {% else %}
+                                        <!-- 📍 SUBTITLE: No custom position found for {{ subtitleId }}, using default layout -->
                                         <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                     {% endif %}
                                 {% else %}
+                                    <!-- 📍 SUBTITLE: No metadata available, using default layout -->
                                     <h2 class="slide-subtitle">{{ subtitle }}</h2>
                                 {% endif %}
                             {% endif %}
@@ -890,11 +948,29 @@
                                     {% if metadata.elementPositions[contentId] %}
                                         {% set scaledX = metadata.elementPositions[contentId].x * SCALE_X %}
                                         {% set scaledY = metadata.elementPositions[contentId].y * SCALE_Y %}
+                                        <!-- 
+                                        ───────────────────────────────────────────────────────────────
+                                        📍 CONTENT POSITIONING
+                                        ───────────────────────────────────────────────────────────────
+                                        Element ID: {{ contentId }}
+                                        Original Position (Editor Canvas):
+                                          x: {{ metadata.elementPositions[contentId].x }}px
+                                          y: {{ metadata.elementPositions[contentId].y }}px
+                                        
+                                        Scaling Calculation:
+                                          scaledX = {{ metadata.elementPositions[contentId].x }} × {{ SCALE_X }} = {{ scaledX }}px
+                                          scaledY = {{ metadata.elementPositions[contentId].y }} × {{ SCALE_Y }} = {{ scaledY }}px
+                                        
+                                        Final Transform: translate({{ scaledX }}px, {{ scaledY }}px)
+                                        ───────────────────────────────────────────────────────────────
+                                        -->
                                         <p class="content-text positioned-element" style="transform: translate({{ scaledX }}px, {{ scaledY }}px);">{{ content }}</p>
                                     {% else %}
+                                        <!-- 📍 CONTENT: No custom position found for {{ contentId }}, using default layout -->
                                         <p class="content-text">{{ content }}</p>
                                     {% endif %}
                                 {% else %}
+                                    <!-- 📍 CONTENT: No metadata available, using default layout -->
                                     <p class="content-text">{{ content }}</p>
                                 {% endif %}
                             {% endif %}
@@ -908,6 +984,12 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- 
+                ═══════════════════════════════════════════════════════════════════════════
+                ✅ END AVATAR-SERVICE POSITIONING DEBUG LOG
+                ═══════════════════════════════════════════════════════════════════════════
+                -->
                 
             {% elif templateId == 'avatar-buttons' %}
                 <div class="avatar-buttons">
