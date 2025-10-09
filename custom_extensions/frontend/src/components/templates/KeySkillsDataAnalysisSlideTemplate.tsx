@@ -39,11 +39,11 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentPageNumber, setCurrentPageNumber] = useState(pageNumber);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'35% 65%', gap:'0px', padding:'0px' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#FFFFFF', color:'#26362C', fontFamily: currentTheme.fonts.titleFont, position:'relative', display:'grid', gridTemplateColumns:'40% 60%', gap:'0px', padding:'0px' };
   const leftSection: React.CSSProperties = { background:'linear-gradient(180deg, #0F58F9 0%, #1023A1 100%)', padding:'56px', position:'relative' };
   const rightSection: React.CSSProperties = { background:'#E0E7FF', padding:'85px 55px' };
   const headingStyle: React.CSSProperties = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, position:'absolute', top:'100px', left:'56px', maxWidth:'calc(100% - 112px)' };
-  const list: React.CSSProperties = { display:'flex', flexDirection:'column', gap:'40px' };
+  const list: React.CSSProperties = { display:'flex', flexDirection:'column', gap:'38px' };
   const row: React.CSSProperties = { display:'grid', gridTemplateColumns:'45px 1fr', alignItems:'center', columnGap:'35px' };
   const numSquare: React.CSSProperties = { width:'43px', height:'43px', backgroundColor:'#0F58F9', borderRadius:'4px', display:'flex', alignItems:'center', justifyContent:'center' };
   const num: React.CSSProperties = { fontSize:'26px', color:'#FFFFFF', fontWeight:600, fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" };
@@ -52,7 +52,7 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
   const avatarWrap: React.CSSProperties = { position:'absolute', bottom:'60px', left:'56px', width:'170px', height:'170px', borderRadius:'50%', backgroundColor:'#FFFFFF', overflow:'hidden', border: '2px solid #E5E7EB' };
   const avatarImage: React.CSSProperties = { width:'110%', height:'110%', borderRadius:'50%', position:'relative', bottom:'-10px', left:'50%', transform:'translateX(-50%)', objectFit:'cover' };
 
-  const inlineHeading = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, width:'calc(100% - 112px)', maxWidth:'calc(100% - 112px)', height:'auto', whiteSpace:'pre-wrap' as const } as React.CSSProperties;
+  const inlineHeading = { fontSize:'56px', fontWeight:800, color:'#FFFFFF', lineHeight:1.2, width:'100%', height:'auto', whiteSpace:'pre-wrap' as const } as React.CSSProperties;
   const inlineText = { ...text, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, fontFamily: "'Lora', serif", fontSize:'36px', opacity: 0.7 } as React.CSSProperties;
 
   const handlePageNumberSave = (newPageNumber: string) => {
@@ -80,11 +80,13 @@ export const KeySkillsDataAnalysisSlideTemplate: React.FC<KeySkillsDataAnalysisP
       `}</style>
       {/* Left Section - Heading and Avatar */}
       <div style={leftSection}>
-        {isEditable && editHeading ? (
-          <ImprovedInlineEditor initialValue={heading} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} />
-        ) : (
-          <div className="title-element" onClick={()=> isEditable && setEditHeading(true)} style={{ ...headingStyle, cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>
-        )}
+        <div style={headingStyle}>
+          {isEditable && editHeading ? (
+            <ImprovedInlineEditor initialValue={heading} multiline={true} onSave={(v)=>{ onUpdate&&onUpdate({ heading:v }); setEditHeading(false); }} onCancel={()=>setEditHeading(false)} className="title-element" style={inlineHeading} />
+          ) : (
+            <div className="title-element" onClick={()=> isEditable && setEditHeading(true)} style={{ cursor: isEditable ? 'pointer':'default', whiteSpace:'pre-line' }}>{heading}</div>
+          )}
+        </div>
         <div style={avatarWrap}>
           <ClickableImagePlaceholder 
             imagePath={avatarImagePath} 
