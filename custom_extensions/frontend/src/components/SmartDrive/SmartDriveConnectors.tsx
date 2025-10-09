@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ChevronDown, Upload, Settings, X, ArrowLeft } from 'lucide-react';
 import SmartDriveFrame from './SmartDriveFrame';
 import SmartDriveBrowser from './SmartDrive/SmartDriveBrowser';
+import ManageAddonsModal from '../AddOnsModal';
 import ConnectorFormFactory from './connector-forms/ConnectorFormFactory';
 import ConnectorManagementPage from './connector-management/ConnectorManagementPage';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -58,6 +59,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const [userConnectors, setUserConnectors] = useState<UserConnector[]>([]);
   const [loading, setLoading] = useState(true);
   const [showConnectorModal, setShowConnectorModal] = useState(false);
+  const [showQuotaModal, setShowQuotaModal] = useState<null | { type: 'connectors' | 'storage'; message: string }>(null);
+  const [showAddonsModal, setShowAddonsModal] = useState(false);
   const [selectedConnector, setSelectedConnector] = useState<{id: string, name: string} | null>(null);
   const [showManagementPage, setShowManagementPage] = useState(false);
   const [selectedConnectorId, setSelectedConnectorId] = useState<number | null>(null);
@@ -468,6 +471,16 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   const handleConnectClick = (connectorId: string, connectorName: string) => {
     setIsConnectorFailed(false);
     timeEvent("Connect Connector");
+    // Enforce connectors entitlement before opening modal
+    const connectorsUsed = entitlements?.connectors_used ?? 0;
+    const connectorsLimit = entitlements?.connectors_limit ?? 0;
+    if (connectorsLimit && connectorsUsed >= connectorsLimit) {
+      setShowQuotaModal({
+        type: 'connectors',
+        message: `You have reached your connector limit (${connectorsUsed}/${connectorsLimit}).`
+      });
+      return;
+    }
     setSelectedConnector({ id: connectorId, name: connectorName });
     setShowConnectorModal(true);
   };
@@ -480,6 +493,17 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
   };
 
   const handleConnectorSubmit = async (formData: any) => {
+    // Enforce connectors entitlement on submit as well (double-check)
+    const connectorsUsed = entitlements?.connectors_used ?? 0;
+    const connectorsLimit = entitlements?.connectors_limit ?? 0;
+    if (connectorsLimit && connectorsUsed >= connectorsLimit) {
+      setShowConnectorModal(false);
+      setShowQuotaModal({
+        type: 'connectors',
+        message: `You have reached your connector limit (${connectorsUsed}/${connectorsLimit}).`
+      });
+      return;
+    }
     const connector = Object.values(connectorCategories).flat().find(c => c.id === formData.connector_id);
     try {
       const response = await fetch("/api/custom-projects-backend/smartdrive/connectors/create", {
@@ -578,6 +602,19 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
 
   return (
     <div className={`space-y-8 ${className}`} onClick={() => setOpenDropdownId(null)}>
+      {/* Quota Exceeded Modal */}
+      {showQuotaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Quota Exceeded</h3>
+            <p className="text-sm text-gray-700 mb-6">{showQuotaModal.message}</p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowQuotaModal(null)}>Close</Button>
+              <Button onClick={() => { setShowQuotaModal(null); setShowAddonsModal(true); }}>Buy More</Button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Usage Progress Bars */}
       {entitlements && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
@@ -610,6 +647,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   }}
                 />
               </div>
+              {entitlements.connectors_used >= entitlements.connectors_limit && (
+                <div className="mt-2 text-right">
+                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                </div>
+              )}
             </div>
 
             {/* Storage Progress */}
@@ -637,6 +679,11 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
                   }}
                 />
               </div>
+              {entitlements.storage_used_gb >= entitlements.storage_gb && (
+                <div className="mt-2 text-right">
+                  <Button size="sm" onClick={() => setShowAddonsModal(true)}>Buy More</Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1029,6 +1076,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({ className =
           }}
         />
       )}
+      {/* Add-ons Modal */}
+      <ManageAddonsModal isOpen={showAddonsModal} onClose={() => setShowAddonsModal(false)} />
+
     </div>
   );
 };

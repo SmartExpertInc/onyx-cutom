@@ -27707,7 +27707,7 @@ class EntitlementOverrideUpdate(BaseModel):
 async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     await verify_admin_user(request)
     try:
-        # Fetch user emails from Onyx API
+        # Fetch user emails from Onyx API (robust mapping)
         user_emails_map = {}
         try:
             session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
@@ -27718,12 +27718,31 @@ async def admin_list_entitlements(request: Request, pool: asyncpg.Pool = Depends
                     response = await client.get(users_url, cookies=cookies_to_forward)
                     if response.status_code == 200:
                         users_data = response.json()
-                        # Map user IDs to emails
-                        for user in users_data:
-                            user_id = str(user.get('id', ''))
-                            email = user.get('email', '')
-                            if user_id and email:
-                                user_emails_map[user_id] = email
+                        # Handle both array and object shapes
+                        if isinstance(users_data, dict) and 'users' in users_data:
+                            users_iterable = users_data.get('users', [])
+                        else:
+                            users_iterable = users_data if isinstance(users_data, list) else []
+
+                        # Map user IDs to emails with multiple key fallbacks
+                        for user in users_iterable:
+                            try:
+                                # Try various id/email key names
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
                         logger.info(f"[ENTITLEMENTS] Fetched {len(user_emails_map)} user emails from Onyx API")
                     else:
                         logger.warning(f"[ENTITLEMENTS] Failed to fetch users from Onyx API: {response.status_code}")
@@ -28625,7 +28644,7 @@ async def get_users_with_features(
     await verify_admin_user(request)
     
     try:
-        # Fetch user emails from Onyx API
+        # Fetch user emails from Onyx API (robust mapping)
         user_emails_map = {}
         try:
             session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
@@ -28636,12 +28655,30 @@ async def get_users_with_features(
                     response = await client.get(users_url, cookies=cookies_to_forward)
                     if response.status_code == 200:
                         users_data = response.json()
-                        # Map user IDs to emails
-                        for user in users_data:
-                            user_id = str(user.get('id', ''))
-                            email = user.get('email', '')
-                            if user_id and email:
-                                user_emails_map[user_id] = email
+                        # Handle both array and object shapes
+                        if isinstance(users_data, dict) and 'users' in users_data:
+                            users_iterable = users_data.get('users', [])
+                        else:
+                            users_iterable = users_data if isinstance(users_data, list) else []
+
+                        # Map user IDs to emails with multiple key fallbacks
+                        for user in users_iterable:
+                            try:
+                                user_id_val = (
+                                    user.get('userId')
+                                    or user.get('id')
+                                    or user.get('uuid')
+                                    or user.get('user_id')
+                                )
+                                email_val = (
+                                    user.get('email')
+                                    or user.get('userEmail')
+                                    or user.get('primary_email')
+                                )
+                                if user_id_val and email_val:
+                                    user_emails_map[str(user_id_val)] = str(email_val)
+                            except Exception:
+                                continue
                         logger.info(f"[FEATURES] Fetched {len(user_emails_map)} user emails from Onyx API")
                     else:
                         logger.warning(f"[FEATURES] Failed to fetch users from Onyx API: {response.status_code}")
