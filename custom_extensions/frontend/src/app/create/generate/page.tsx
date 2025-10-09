@@ -426,13 +426,13 @@ function GenerateProductPicker() {
   const [slidesCount, setSlidesCount] = useState<number>(5);
   const [slidesOptions, setSlidesOptions] = useState<number[]>([5,6,7,8,9,10]);
   const [entitlements, setEntitlements] = useState<any | null>(null);
-  const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
   // Fetch entitlements to decide on slides options
   useEffect(() => {
     const loadEntitlements = async () => {
       try {
-        const res = await fetch(`${CUSTOM_BACKEND_URL}/entitlements/me`, { credentials: 'include' });
+        const backendUrl = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
+        const res = await fetch(`${backendUrl}/entitlements/me`, { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
         setEntitlements(data);
