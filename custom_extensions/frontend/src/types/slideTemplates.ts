@@ -65,6 +65,11 @@ export interface ComponentBasedSlide {
     hasCustomPositioning?: boolean; // Flag for custom positions
     originalTemplateId?: string; // Track original template if converted
     elementPositions?: Record<string, { x: number; y: number }>; // Element drag positions
+    canvasDimensions?: { // Actual canvas dimensions for accurate coordinate scaling
+      width: number;
+      height: number;
+      aspectRatio: number;
+    };
   };
 }
 

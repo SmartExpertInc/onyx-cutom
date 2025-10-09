@@ -168,6 +168,12 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
 
   // Handle position changes from drag enhancer
   const handlePositionChange = useCallback((elementId: string, position: { x: number; y: number }) => {
+    // 🔍 GET ACTUAL CANVAS DIMENSIONS
+    const slideCanvas = document.querySelector('[data-slide-canvas="true"]');
+    const canvasRect = slideCanvas?.getBoundingClientRect();
+    const actualWidth = canvasRect?.width || 1174;
+    const actualHeight = canvasRect?.height || 600;
+    
     // 🔍 COMPREHENSIVE POSITION SAVE LOGGING
     console.log('💾 [POSITION_SAVE] Saving position to slide metadata');
     console.log('  📍 Element ID:', elementId);
@@ -182,7 +188,11 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       
       // 📐 CANVAS DIMENSION VERIFICATION
       console.log('  📐 Canvas Dimensions:');
-      console.log('    Editor Canvas:');
+      console.log('    ACTUAL Editor Canvas (measured):');
+      console.log('      - Width:', actualWidth.toFixed(2) + 'px', actualWidth !== 1174 ? '⚠️ DIFFERENT FROM DESIGN' : '✅');
+      console.log('      - Height:', actualHeight.toFixed(2) + 'px', actualHeight !== 600 ? '⚠️ DIFFERENT FROM DESIGN' : '✅');
+      console.log('      - Aspect Ratio:', (actualWidth / actualHeight).toFixed(3), `(${actualWidth.toFixed(0)}:${actualHeight.toFixed(0)})`);
+      console.log('    Design Editor Canvas (hardcoded):');
       console.log('      - Width: 1174px (defined)');
       console.log('      - Height: 600px (defined)');
       console.log('      - Aspect Ratio:', (1174 / 600).toFixed(3), '(1.957:1)');
@@ -191,19 +201,24 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       console.log('      - Height: 1080px (defined)');
       console.log('      - Aspect Ratio:', (1920 / 1080).toFixed(3), '(1.778:1 - 16:9)');
       
-      console.log('  📏 Scale Factors:', {
+      console.log('  📏 Scale Factors (using ACTUAL canvas):');
+      console.log('    CORRECT Scale Factors:', {
+        scaleX: (1920 / actualWidth).toFixed(6) + ` (1920/${actualWidth.toFixed(0)})`,
+        scaleY: (1080 / actualHeight).toFixed(6) + ` (1080/${actualHeight.toFixed(0)})`
+      });
+      console.log('    ❌ OLD (WRONG) Scale Factors:', {
         scaleX: (1920 / 1174).toFixed(6) + ' (1920/1174)',
         scaleY: (1080 / 600).toFixed(6) + ' (1080/600)'
       });
-      console.log('  🔢 Expected Scaled Position:', {
-        scaledX: (position.x * (1920 / 1174)).toFixed(2),
-        scaledY: (position.y * (1080 / 600)).toFixed(2)
+      console.log('  🔢 Expected Scaled Position (using ACTUAL canvas):', {
+        scaledX: (position.x * (1920 / actualWidth)).toFixed(2),
+        scaledY: (position.y * (1080 / actualHeight)).toFixed(2)
       });
-      console.log('  ⚠️ Aspect Ratio Difference:', {
-        editorAspect: (1174 / 600).toFixed(3),
-        videoAspect: (1920 / 1080).toFixed(3),
-        difference: Math.abs((1174 / 600) - (1920 / 1080)).toFixed(3),
-        note: 'Non-matching aspect ratios require independent X/Y scaling'
+      console.log('  ⚠️ CRITICAL: Canvas size mismatch detected!', {
+        designWidth: 1174,
+        actualWidth: actualWidth.toFixed(2),
+        widthError: ((actualWidth / 1174 - 1) * 100).toFixed(2) + '%',
+        impactOnScaling: 'Scale factor will be ' + (((1920/actualWidth) / (1920/1174) - 1) * 100).toFixed(2) + '% off'
       });
     }
     
@@ -218,6 +233,12 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
             ...previousPositions,
             [elementId]: position
           },
+          // 🔧 CRITICAL FIX: Store actual canvas dimensions in metadata
+          canvasDimensions: {
+            width: actualWidth,
+            height: actualHeight,
+            aspectRatio: actualWidth / actualHeight
+          },
           updatedAt: new Date().toISOString()
         }
       };
@@ -225,9 +246,10 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       console.log('  📦 Updated Metadata:', {
         previousPositions,
         newPositions: updatedSlide.metadata?.elementPositions || {},
-        totalElementsPositioned: Object.keys(updatedSlide.metadata?.elementPositions || {}).length
+        totalElementsPositioned: Object.keys(updatedSlide.metadata?.elementPositions || {}).length,
+        canvasDimensions: updatedSlide.metadata?.canvasDimensions
       });
-      console.log('  ✅ Position saved successfully');
+      console.log('  ✅ Position saved successfully (with actual canvas dimensions)');
       
       onSlideUpdate(updatedSlide);
     } else {

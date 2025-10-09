@@ -698,16 +698,26 @@
 <body>
     {# ====================================================================== #}
     {# COORDINATE SCALING FOR VIDEO GENERATION                               #}
-    {# Editor canvas: 1174×600 px                                            #}
-    {# Video canvas:  1920×1080 px                                           #}
-    {# Positions must be scaled to maintain proportional placement           #}
+    {# CRITICAL FIX: Use ACTUAL canvas dimensions from metadata              #}
     {# ====================================================================== #}
-    {% set EDITOR_WIDTH = 1174 %}
-    {% set EDITOR_HEIGHT = 600 %}
+    
+    {# Get actual canvas dimensions from metadata if available #}
+    {% if metadata and metadata.canvasDimensions %}
+        {% set EDITOR_WIDTH = metadata.canvasDimensions.width %}
+        {% set EDITOR_HEIGHT = metadata.canvasDimensions.height %}
+    {% else %}
+        {# Fallback to design dimensions if no metadata #}
+        {% set EDITOR_WIDTH = 1174 %}
+        {% set EDITOR_HEIGHT = 600 %}
+    {% endif %}
+    
+    {# Video canvas dimensions (always 1920×1080) #}
     {% set VIDEO_WIDTH = 1920 %}
     {% set VIDEO_HEIGHT = 1080 %}
-    {% set SCALE_X = VIDEO_WIDTH / EDITOR_WIDTH %}  {# 1.635... #}
-    {% set SCALE_Y = VIDEO_HEIGHT / EDITOR_HEIGHT %} {# 1.8 #}
+    
+    {# Calculate scale factors using ACTUAL editor dimensions #}
+    {% set SCALE_X = VIDEO_WIDTH / EDITOR_WIDTH %}
+    {% set SCALE_Y = VIDEO_HEIGHT / EDITOR_HEIGHT %}
     
     <div class="slide-page">
         <div class="slide-content theme-{{ theme or 'dark-purple' }}" style="background-color: var(--bg-color);">
@@ -852,11 +862,23 @@
                 Slide ID: {{ slideId }}
                 
                 📐 Canvas Dimensions Analysis:
-                  Editor Canvas (Frontend):
-                    - Width:  {{ EDITOR_WIDTH }}px
-                    - Height: {{ EDITOR_HEIGHT }}px
-                    - Aspect Ratio: {{ "%.6f"|format(EDITOR_WIDTH / EDITOR_HEIGHT) }} (1.957:1)
-                    - Total Pixels: {{ "{:,}".format(EDITOR_WIDTH * EDITOR_HEIGHT) }}
+                  ACTUAL Editor Canvas (from metadata):
+                    - Width:  {{ "%.2f"|format(EDITOR_WIDTH) }}px
+                    - Height: {{ "%.2f"|format(EDITOR_HEIGHT) }}px
+                    - Aspect Ratio: {{ "%.6f"|format(EDITOR_WIDTH / EDITOR_HEIGHT) }}
+                    - Total Pixels: {{ "{:,}".format((EDITOR_WIDTH * EDITOR_HEIGHT)|int) }}
+                    - Source: {{ 'metadata.canvasDimensions' if metadata and metadata.canvasDimensions else 'fallback defaults' }}
+                    {% if not metadata or not metadata.canvasDimensions %}
+                    - ⚠️ Using fallback - may cause positioning errors!
+                    {% endif %}
+                  
+                  Design Editor Canvas (reference):
+                    - Width:  1174px
+                    - Height: 600px
+                    - Aspect Ratio: 1.956667 (1.957:1)
+                    {% if metadata and metadata.canvasDimensions and (EDITOR_WIDTH - 1174)|abs > 1 %}
+                    - ⚠️ MISMATCH: Actual canvas is {{ "%.2f"|format(((EDITOR_WIDTH/1174 - 1) * 100)) }}% different!
+                    {% endif %}
                   
                   Video Canvas (Backend):
                     - Width:  {{ VIDEO_WIDTH }}px
@@ -865,16 +887,18 @@
                     - Total Pixels: {{ "{:,}".format(VIDEO_WIDTH * VIDEO_HEIGHT) }}
                   
                   Dimension Comparison:
-                    - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ EDITOR_WIDTH }})
-                    - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ EDITOR_HEIGHT }})
+                    - Width Scaling:  {{ "%.6f"|format(SCALE_X) }}x ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
+                    - Height Scaling: {{ "%.6f"|format(SCALE_Y) }}x ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
                     - Aspect Ratio Mismatch: {{ "%.6f"|format((EDITOR_WIDTH/EDITOR_HEIGHT) - (VIDEO_WIDTH/VIDEO_HEIGHT)|abs) }}
-                    - ⚠️ Non-uniform scaling required (Y is {{ "%.2f"|format(((SCALE_Y/SCALE_X - 1) * 100)) }}% larger)
+                    - ⚠️ Non-uniform scaling required (different X/Y factors)
                 
-                📏 Scale Factors:
-                  - SCALE_X: {{ "%.6f"|format(SCALE_X) }} ({{ VIDEO_WIDTH }}/{{ EDITOR_WIDTH }})
-                  - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }} ({{ VIDEO_HEIGHT }}/{{ EDITOR_HEIGHT }})
+                📏 Scale Factors (using ACTUAL dimensions):
+                  - SCALE_X: {{ "%.6f"|format(SCALE_X) }} ({{ VIDEO_WIDTH }}/{{ "%.0f"|format(EDITOR_WIDTH) }})
+                  - SCALE_Y: {{ "%.6f"|format(SCALE_Y) }} ({{ VIDEO_HEIGHT }}/{{ "%.0f"|format(EDITOR_HEIGHT) }})
+                  - Scale Factor Ratio: {{ "%.6f"|format(SCALE_Y/SCALE_X) }} (Y is {{ "%.2f"|format(((SCALE_Y/SCALE_X - 1) * 100)) }}% {{ 'larger' if SCALE_Y > SCALE_X else 'smaller' }})
                 
                 Metadata Available: {{ 'YES' if metadata else 'NO' }}
+                Canvas Dimensions in Metadata: {{ 'YES' if metadata and metadata.canvasDimensions else 'NO' }}
                 Element Positions Available: {{ 'YES' if metadata and metadata.elementPositions else 'NO' }}
                 {% if metadata and metadata.elementPositions %}
                 Total Positioned Elements: {{ metadata.elementPositions|length }}

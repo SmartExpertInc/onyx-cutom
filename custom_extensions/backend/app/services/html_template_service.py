@@ -125,6 +125,24 @@ class HTMLTemplateService:
             
             # 🔍 AVATAR-SERVICE SPECIFIC LOGGING
             if template_id in ['avatar-service', 'avatar-service-slide']:
+                # 🔧 CRITICAL FIX: Use actual canvas dimensions from metadata if available
+                actual_canvas_dims = metadata.get('canvasDimensions') if metadata else None
+                
+                if actual_canvas_dims:
+                    editor_width = actual_canvas_dims.get('width', 1174)
+                    editor_height = actual_canvas_dims.get('height', 600)
+                    logger.info(f"")
+                    logger.info(f"✅ Using ACTUAL canvas dimensions from metadata!")
+                    logger.info(f"   Actual width: {editor_width:.2f}px")
+                    logger.info(f"   Actual height: {editor_height:.2f}px")
+                else:
+                    editor_width = 1174
+                    editor_height = 600
+                    logger.info(f"")
+                    logger.info(f"⚠️ No actual canvas dimensions in metadata, using design defaults")
+                    logger.info(f"   Fallback width: {editor_width}px")
+                    logger.info(f"   Fallback height: {editor_height}px")
+                
                 logger.info(f"")
                 logger.info(f"═══════════════════════════════════════════════════════════════════════════")
                 logger.info(f"🎯 [AVATAR-SERVICE] COORDINATE SCALING ANALYSIS")
@@ -133,27 +151,36 @@ class HTMLTemplateService:
                 logger.info(f"Slide ID: {slide_id}")
                 logger.info(f"")
                 logger.info(f"📐 Canvas Dimensions Analysis:")
-                logger.info(f"  Editor Canvas (Frontend):")
+                logger.info(f"  ACTUAL Editor Canvas (from metadata):")
+                logger.info(f"    - Width:  {editor_width:.2f}px")
+                logger.info(f"    - Height: {editor_height:.2f}px")
+                logger.info(f"    - Aspect Ratio: {(editor_width/editor_height):.6f} ({editor_width:.0f}:{editor_height:.0f})")
+                logger.info(f"    - Total Pixels: {int(editor_width*editor_height):,} ({(editor_width*editor_height)/1000000:.2f} megapixels)")
+                logger.info(f"    - Source: {'metadata.canvasDimensions' if actual_canvas_dims else 'fallback defaults'}")
+                if not actual_canvas_dims:
+                    logger.info(f"    - ⚠️ Using fallback - may cause positioning errors!")
+                logger.info(f"  Design Editor Canvas (reference):")
                 logger.info(f"    - Width:  1174px")
                 logger.info(f"    - Height: 600px")
                 logger.info(f"    - Aspect Ratio: {(1174/600):.6f} (1.957:1)")
-                logger.info(f"    - Total Pixels: {1174*600:,} ({(1174*600)/1000000:.2f} megapixels)")
+                if actual_canvas_dims and abs(editor_width - 1174) > 1:
+                    logger.info(f"    - ⚠️ MISMATCH: Actual canvas is {((editor_width/1174 - 1)*100):.2f}% different!")
                 logger.info(f"  Video Canvas (Backend):")
                 logger.info(f"    - Width:  1920px")
                 logger.info(f"    - Height: 1080px")
                 logger.info(f"    - Aspect Ratio: {(1920/1080):.6f} (1.778:1 - 16:9 standard)")
                 logger.info(f"    - Total Pixels: {1920*1080:,} ({(1920*1080)/1000000:.2f} megapixels)")
                 logger.info(f"  Dimension Comparison:")
-                logger.info(f"    - Width Ratio: {1920/1174:.6f}x larger")
-                logger.info(f"    - Height Ratio: {1080/600:.6f}x larger")
-                logger.info(f"    - Aspect Ratio Mismatch: {abs((1174/600) - (1920/1080)):.6f}")
+                logger.info(f"    - Width Ratio: {1920/editor_width:.6f}x larger")
+                logger.info(f"    - Height Ratio: {1080/editor_height:.6f}x larger")
+                logger.info(f"    - Aspect Ratio Mismatch: {abs((editor_width/editor_height) - (1920/1080)):.6f}")
                 logger.info(f"    - ⚠️ Non-uniform scaling required (different X/Y factors)")
                 logger.info(f"")
-                logger.info(f"📏 Scale Factors:")
-                SCALE_X = 1920 / 1174
-                SCALE_Y = 1080 / 600
-                logger.info(f"  - SCALE_X: {SCALE_X:.6f} (1920/1174)")
-                logger.info(f"  - SCALE_Y: {SCALE_Y:.6f} (1080/600)")
+                logger.info(f"📏 Scale Factors (using ACTUAL dimensions):")
+                SCALE_X = 1920 / editor_width
+                SCALE_Y = 1080 / editor_height
+                logger.info(f"  - SCALE_X: {SCALE_X:.6f} (1920/{editor_width:.0f})")
+                logger.info(f"  - SCALE_Y: {SCALE_Y:.6f} (1080/{editor_height:.0f})")
                 logger.info(f"  - Scale Factor Ratio: {SCALE_Y/SCALE_X:.6f} (Y is {((SCALE_Y/SCALE_X - 1) * 100):.2f}% larger)")
                 logger.info(f"")
                 
