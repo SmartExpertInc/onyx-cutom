@@ -9,7 +9,7 @@ import PresentationImageUpload from '../PresentationImageUpload';
 
 // Background SVG constant - paste your SVG code here
 const BACKGROUND_SVG = `
-  <svg width="492" height="210" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <svg width="682" height="400" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
   <defs>
   <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
@@ -25,8 +25,8 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   title = 'The Power of High-\nPerforming Teams',
   description = 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.',
   panelColor: _panelColor = '#E9B84C',
-  panelWidth = '80%',
-  panelHeight = '65%',
+  panelWidth = '90%',
+  panelHeight = '62%',
   // lineColor = '#0F58F9',
   // points = [
   //   { x: 16, y: 92 },   // bottom-left with visual padding (200x100 viewBox)
@@ -88,9 +88,9 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
 
   // Avatar container centered in white panel
   const avatarContainer: React.CSSProperties = {
-    width: '470px',
+    width: '360px',
     position: 'absolute',
-    top: '50%',
+    top: '38%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     borderRadius: '16px',
@@ -130,7 +130,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const panel: React.CSSProperties = {
     position: 'absolute',
     left: '50%',
-    top: '52%',
+    top: '53%',
     transform: 'translate(-50%, -50%)',
     width: panelWidth,
     height: panelHeight,
@@ -333,23 +333,24 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
               left: '50%', 
               top: '50%',
               transform: 'translate(-50%, -50%)',
-              height: '100%',
+              width: '682px',
+              height: '400px',
               zIndex: 0
             }}
             dangerouslySetInnerHTML={{ __html: BACKGROUND_SVG }}
           />
         </div>
-        
-        {/* Avatar above white panel */}
-        <div style={avatarContainer}>
-          <ClickableImagePlaceholder
-            imagePath={avatarPath}
-            onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
-            description="Avatar" 
-            isEditable={isEditable} 
-            style={{ width:'100%', height:'100%', objectFit:'cover' }} 
-          />
-        </div>
+      </div>
+      
+      {/* Avatar overlapping both panels */}
+      <div style={avatarContainer}>
+        <ClickableImagePlaceholder
+          imagePath={avatarPath}
+          onImageUploaded={(p: string) => onUpdate && onUpdate({ avatarPath: p })}
+          description="Avatar" 
+          isEditable={isEditable} 
+          style={{ width:'100%', height:'100%', objectFit:'cover' }} 
+        />
       </div>
 
       {/* Logo in bottom-right corner */}
