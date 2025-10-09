@@ -6648,7 +6648,7 @@ async def startup_event():
                     id SERIAL PRIMARY KEY,
                     onyx_user_id VARCHAR(255) NOT NULL,
                     name VARCHAR(255) NOT NULL,
-                    source VARCHAR(100) NOT NULL,
+                    source VARCHAR(100),
                     config JSONB DEFAULT '{}',
                     credentials_encrypted TEXT,
                     status VARCHAR(50) DEFAULT 'active',
@@ -6661,6 +6661,14 @@ async def startup_event():
                     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
             """)
+            
+            # Add new columns to existing tables (migration-safe)
+            try:
+                await connection.execute("ALTER TABLE user_connectors ADD COLUMN IF NOT EXISTS source VARCHAR(100);")
+            except Exception as e:
+                logger.info(f"Column 'source' may already exist in user_connectors: {e}")
+                pass
+            
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_onyx_user_id ON user_connectors(onyx_user_id);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_source ON user_connectors(source);")
             await connection.execute("CREATE INDEX IF NOT EXISTS idx_user_connectors_status ON user_connectors(status);")
