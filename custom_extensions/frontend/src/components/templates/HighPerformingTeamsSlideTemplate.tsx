@@ -138,10 +138,16 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const startDrag = (idx: number, _e: React.MouseEvent) => {
     if (!isEditable || !svgRef.current) return;
     const svg = svgRef.current;
-    const rect = svg.getBoundingClientRect();
     const onMove = (me: MouseEvent) => {
-      let rx = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
-      const ry = Math.max(0, Math.min(100, ((me.clientY - rect.top) / rect.height) * 100));
+      // Create an SVG point and transform it to viewBox coordinates
+      const pt = svg.createSVGPoint();
+      pt.x = me.clientX;
+      pt.y = me.clientY;
+      const svgP = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+      
+      // Map to viewBox coordinates (0-200 for x, 0-100 for y)
+      let rx = Math.max(0, Math.min(200, svgP.x));
+      const ry = Math.max(0, Math.min(100, svgP.y));
 
       // Lock the first and last points horizontally (left/right edges)
       const isEdgePoint = idx === 0 || idx === (curvePoints.length - 1);
@@ -225,19 +231,13 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             onCancel={() => setEditingTitle(false)}
             className="title-element"
             style={{
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              padding: 0,
-              margin: 0,
-              width: '100%',
-              height: 'auto',
-              minHeight: 'auto',
               fontSize: '46px',
               fontWeight: 800,
               color: '#FFFFFF',
               lineHeight: 1.2,
-              boxSizing: 'border-box'
+              width: '900px',
+              maxWidth: '900px',
+              height: 'auto',
             }}
           />
         ) : (
@@ -246,8 +246,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             onClick={() => isEditable && setEditingTitle(true)} 
             style={{ 
               cursor: isEditable ? 'pointer' : 'default', 
-              userSelect: 'none',
-              lineHeight: 1.2
+              userSelect: 'none'
             }}
           >
             {title}
@@ -264,20 +263,13 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             onSave={(v) => { onUpdate && onUpdate({ description: v }); setEditingDesc(false); }}
             onCancel={() => setEditingDesc(false)}
             style={{
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              padding: 0,
-              margin: 0,
-              width: '660px',
-              maxWidth: '660px',
-              height: 'auto',
-              minHeight: 'auto',
               fontSize: '20px',
               lineHeight: 1.6,
               color: 'rgba(255, 255, 255, 0.7)',
               opacity: 0.9,
-              boxSizing: 'border-box'
+              width: '660px',
+              maxWidth: '660px',
+              height: 'auto',
             }}
           />
         ) : (
@@ -285,8 +277,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
             onClick={() => isEditable && setEditingDesc(true)} 
             style={{ 
               cursor: isEditable ? 'pointer' : 'default', 
-              userSelect: 'none',
-              lineHeight: 1.6
+              userSelect: 'none'
             }}
           >
             {description}
