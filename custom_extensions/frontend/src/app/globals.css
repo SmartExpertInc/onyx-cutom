@@ -51,6 +51,39 @@
   font-display: swap;
 }
 
+/* Sora Font Family */
+@font-face {
+  font-family: 'Sora';
+  src: url('/fonts/Sora-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/fonts/Sora-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/fonts/Sora-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/fonts/Sora-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -266,6 +299,26 @@ body:has([aria-modal="true"]) [draggable="true"] {
 .theme-forta-2 span {
   font-family: 'Montserrat', system-ui, -apple-system, sans-serif !important;
   font-weight: 400 !important; /* Regular for content */
+}
+
+/* Sora Font Classes */
+.sora-font {
+  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+}
+
+.sora-font-bold {
+  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+}
+
+.sora-font-semibold {
+  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+}
+
+.sora-font-medium {
+  font-family: 'Sora', system-ui, -apple-system, sans-serif;
+  font-weight: 500;
 }
 
 /* Base styles for code blocks */
