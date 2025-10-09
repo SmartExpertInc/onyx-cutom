@@ -141,7 +141,7 @@ def _load_price_maps_once() -> tuple[dict[str, dict], dict[str, str]]:
         # credits
         "price_1SGHlMH2U2KQUmUhkXKhj4g3": ("credits", 100),
         "price_1SGHm0H2U2KQUmUhG5utzGFf": ("credits", 300),
-        "price_1SGHmYH2U2KQUmUh89PNgGAx": ("credits", 500),
+        "price_1SGHmYH2U2KQUmUh89PNgGAx": ("credits", 1000),
         # storage (monthly)
         "price_1SGHjIH2U2KQUmUhpWRcRxxH": ("storage", 1),
         "price_1SGHk9H2U2KQUmUhLrwnk2tQ": ("storage", 5),
@@ -28200,7 +28200,7 @@ def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
     sku_map = {
         'credits_100': 'price_1SGHlMH2U2KQUmUhkXKhj4g3',
         'credits_300': 'price_1SGHm0H2U2KQUmUhG5utzGFf',
-        'credits_500': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
+        'credits_1000': 'price_1SGHmYH2U2KQUmUh89PNgGAx',
         'storage_1gb': 'price_1SGHjIH2U2KQUmUhpWRcRxxH',
         'storage_5gb': 'price_1SGHk9H2U2KQUmUhLrwnk2tQ',
         'storage_10gb': 'price_1SGHkgH2U2KQUmUh0hI2Mp07',
@@ -28218,7 +28218,7 @@ def _sku_to_price_id(sku: Optional[str]) -> Optional[str]:
         'storage_10gb': os.getenv('STRIPE_PRICE_STORAGE_10GB'),
         'credits_100': os.getenv('STRIPE_PRICE_CREDITS_100'),
         'credits_300': os.getenv('STRIPE_PRICE_CREDITS_300'),
-        'credits_500': os.getenv('STRIPE_PRICE_CREDITS_500'),
+        'credits_1000': os.getenv('STRIPE_PRICE_CREDITS_1000'),
     }
     return env_overrides.get(key) or sku_map.get(key)
 
@@ -28279,14 +28279,28 @@ async def addons_checkout(
             try:
                 existing_sub = stripe.Subscription.retrieve(existing_subscription_id)
                 if existing_sub.status in ['active', 'trialing']:
-                    # Add items directly to existing subscription
-                    for item in line_items:
-                        stripe.SubscriptionItem.create(
-                            subscription=existing_subscription_id,
-                            price=item['price'],
-                            quantity=item['quantity'],
-                        )
-                    logger.info(f"Added {len(line_items)} add-on items to existing subscription {existing_subscription_id}")
+                    # Add items directly to existing subscription and sync to DB immediately
+                    async with pool.acquire() as conn:
+                        for item in line_items:
+                            sub_item = stripe.SubscriptionItem.create(
+                                subscription=existing_subscription_id,
+                                price=item['price'],
+                                quantity=item['quantity'],
+                            )
+                            # Immediately sync to user_billing_addons
+                            addon = PRICE_TO_ADDON.get(item['price'], None)
+                            if addon and addon.get('type') in ('connectors', 'storage'):
+                                await conn.execute(
+                                    """
+                                    INSERT INTO user_billing_addons (id, onyx_user_id, stripe_customer_id, stripe_subscription_id, stripe_subscription_item_id,
+                                        stripe_price_id, addon_type, quantity, status, current_period_end, created_at, updated_at)
+                                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, to_timestamp($10), now(), now())
+                                    ON CONFLICT (id) DO UPDATE SET quantity=EXCLUDED.quantity, status=EXCLUDED.status, current_period_end=EXCLUDED.current_period_end, updated_at=now()
+                                    """,
+                                    sub_item.id, onyx_user_id, stripe_customer_id, existing_subscription_id, sub_item.id, item['price'],
+                                    addon['type'], item['quantity'], existing_sub.status, int(existing_sub.current_period_end or 0)
+                                )
+                    logger.info(f"Added and synced {len(line_items)} add-on items to existing subscription {existing_subscription_id}")
                     return {"url": f"{base_url}/custom-projects-ui/payments?addon_added=true"}
             except Exception as e:
                 logger.warning(f"Failed to add to existing subscription: {e}, creating new checkout")
@@ -28479,7 +28493,7 @@ async def get_billing_catalog():
         stripe.api_key = STRIPE_SECRET_KEY
         # List of SKUs we support
         skus = [
-            'credits_100','credits_300','credits_500',
+            'credits_100','credits_300','credits_1000',
             'storage_1gb','storage_5gb','storage_10gb',
             'connectors_1','connectors_5','connectors_10',
         ]
