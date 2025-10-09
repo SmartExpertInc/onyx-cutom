@@ -366,14 +366,15 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
         }}
       />
       
-      {/* Top-left home button */}
+      {/* Top-left back button */}
       <Link
         href="/projects"
         onClick={onHomeClick}
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-white/80 rounded-full px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md z-10"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm hover:bg-white/80 rounded-lg px-4 py-2 border border-gray-200 bg-white/60 backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md z-10"
+        style={{ color: '#000000' }}
       >
-        <HomeIcon size={16} />
-        {t('interface.home', 'Home')}
+        <span>&lt;</span>
+        <span>Back</span>
       </Link>
 
       {/* Main content */}
