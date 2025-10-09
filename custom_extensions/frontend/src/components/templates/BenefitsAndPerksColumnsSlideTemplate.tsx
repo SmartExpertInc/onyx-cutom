@@ -39,10 +39,10 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   const [editHeading, setEditHeading] = useState(false);
   const [editCol, setEditCol] = useState<{ idx: number; field: 'title' | 'body' } | null>(null);
 
-  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#F5F5F5', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
-  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'240px', background:'#E5E5E5' };
+  const slide: React.CSSProperties = { width:'100%', aspectRatio:'16/9', background:'#E0E7FF', color:'#111', fontFamily: currentTheme.fonts.titleFont, position:'relative' };
+  const top: React.CSSProperties = { position:'absolute', left:0, right:0, top:0, height:'240px', background:'#E0E7FF' };
   const logoStyle: React.CSSProperties = { position:'absolute', left:'48px', top:'48px', color:'#000', fontSize:'16px', fontWeight:500 };
-  const headingStyle: React.CSSProperties = { position:'absolute', left:'50%', top:'50%', transform:'translate(-50%, -50%)', fontSize:'56px', fontWeight:400, color:'#000000', fontFamily:'serif', textAlign:'center', margin:0, padding:0, lineHeight:1.1 };
+  const headingStyle: React.CSSProperties = { position:'absolute', left:'27%', top:'21%', transform:'translate(-50%, -50%)', fontSize:'56px', fontWeight:400, color:'#000000', fontFamily:'serif', textAlign:'center', margin:0, padding:0, lineHeight:1.1 };
   const avatarWrap: React.CSSProperties = { position:'absolute', right:'48px', top:'48px', width:'80px', height:'80px', borderRadius:'50%', overflow:'hidden', background:'#2563EB', boxShadow:'none' };
 
   const grid: React.CSSProperties = { position:'absolute', left:0, right:0, bottom:0, top:'240px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr' };
@@ -55,9 +55,9 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
       width:'36px',
       height:'36px',
       borderRadius:'6px',
-      background: isBlueColumn ? '#FFFFFF' : '#2563EB',
-      color: isBlueColumn ? '#2563EB' : '#FFFFFF',
-      border: isBlueColumn ? '2px solid #2563EB' : '2px solid #FFFFFF',
+      background: isBlueColumn ? '#FFFFFF' : '#0F58F9',
+      color: isBlueColumn ? '#0F58F9' : '#FFFFFF',
+      border: isBlueColumn ? '2px solid #0F58F9' : '2px solid #FFFFFF',
       display:'inline-flex',
       alignItems:'center',
       justifyContent:'center',
@@ -68,7 +68,7 @@ export const BenefitsAndPerksColumnsSlideTemplate: React.FC<BenefitsAndPerksColu
   };
   
   const title: React.CSSProperties = { fontSize:'28px', fontWeight:600, letterSpacing:0, color:'inherit', fontFamily:'sans-serif' };
-  const body: React.CSSProperties = { fontSize:'16px', lineHeight:1.5, color:'inherit', fontFamily:'sans-serif' };
+  const body: React.CSSProperties = { fontSize:'14px', width:'200px', position:'absolute', bottom:'40px', opacity:0.8, lineHeight:1.5, color:'inherit', fontFamily:'sans-serif' };
 
   const inline = (base: React.CSSProperties): React.CSSProperties => ({ ...base, position:'relative', background:'transparent', border:'none', outline:'none', padding:0, margin:0, whiteSpace:'pre-wrap' });
 
