@@ -9,7 +9,7 @@ import PresentationImageUpload from '../PresentationImageUpload';
 
 // Background SVG constant - paste your SVG code here
 const BACKGROUND_SVG = `
-  <svg width="682" height="400" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <svg width="692" height="410" viewBox="0 0 492 210" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <rect width="492" height="210" fill="url(#pattern0_550_295)"/>
   <defs>
   <pattern id="pattern0_550_295" patternContentUnits="objectBoundingBox" width="1" height="1">
@@ -26,7 +26,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   description = 'High-performing teams are the driving\nforce behind exceptional results. They\nachieve more, innovate faster, and\nadapt to challenges with resilience.',
   panelColor: _panelColor = '#E9B84C',
   panelWidth = '90%',
-  panelHeight = '62%',
+  panelHeight = '63%',
   // lineColor = '#0F58F9',
   // points = [
   //   { x: 16, y: 92 },   // bottom-left with visual padding (200x100 viewBox)
@@ -90,7 +90,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const avatarContainer: React.CSSProperties = {
     width: '360px',
     position: 'absolute',
-    top: '38%',
+    top: '57%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
     borderRadius: '16px',
@@ -130,7 +130,7 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
   const panel: React.CSSProperties = {
     position: 'absolute',
     left: '50%',
-    top: '53%',
+    top: '53.5%',
     transform: 'translate(-50%, -50%)',
     width: panelWidth,
     height: panelHeight,
@@ -330,11 +330,11 @@ export const HighPerformingTeamsSlideTemplate: React.FC<HighPerformingTeamsSlide
           <div 
             style={{ 
               position: 'absolute', 
-              left: '50%', 
-              top: '50%',
+              left: '49.5%', 
+              top: '47%',
               transform: 'translate(-50%, -50%)',
-              width: '682px',
-              height: '400px',
+              width: '692px',
+              height: '410px',
               zIndex: 0
             }}
             dangerouslySetInnerHTML={{ __html: BACKGROUND_SVG }}
