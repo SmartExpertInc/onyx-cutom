@@ -450,7 +450,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                     </div>
                     
                 <div className="flex flex-col items-center text-center">
-                      <div className="w-16 h-16 mb-4 flex items-center justify-center">
+                      <div className="w-16 h-16 mb-6 flex items-center justify-center">
                         <PersonalIcon className={'w-14 h-14'} fill={selectedCategory === 'personal' ? '#EF8EFB' : '#EFB4FB'} fill2={selectedCategory === 'personal' ? '#F7B6FC' : '#F7E0FC'} />
                   </div>
                       <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 public-sans-font-bold">{t('survey.category.personal', 'Personal')}</h3>
