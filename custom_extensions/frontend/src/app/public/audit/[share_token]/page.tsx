@@ -100,7 +100,7 @@ export default function PublicAuditPage() {
   const [auditData, setAuditData] = useState<LandingPageData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({})
+  const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({ 'module-0': true })
   const [assessmentData, setAssessmentData] = useState<{ [key: string]: { type: string; duration: string }[] }>({})
 
   const toggleModule = (moduleId: string) => {

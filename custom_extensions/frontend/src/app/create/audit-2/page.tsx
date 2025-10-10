@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 
 export default function AuditPage() {
-  const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({});
+  const [expandedModules, setExpandedModules] = useState<{ [key: string]: boolean }>({ 'module-0': true });
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => ({
