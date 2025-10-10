@@ -314,15 +314,26 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
     <>
       <style jsx>{`
         [data-radix-scroll-area-scrollbar] {
-          background: rgba(175, 175, 175, 0.1);
-          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.8) !important;
+          border-radius: 50% !important;
+          width: 8px !important;
+          right: 2px !important;
+          top: 2px !important;
+          bottom: 2px !important;
+          border: 1px solid rgba(0, 0, 0, 0.1) !important;
         }
         [data-radix-scroll-area-thumb] {
-          background: #ebebeb !important;
-          border-radius: 4px;
+          background: #ffffff !important;
+          border-radius: 50% !important;
+          min-height: 20px !important;
+          border: 1px solid rgba(0, 0, 0, 0.2) !important;
         }
         [data-radix-scroll-area-thumb]:hover {
-          background: #d4d4d4 !important;
+          background: #f5f5f5 !important;
+        }
+        [data-radix-scroll-area-viewport] {
+          scrollbar-width: thin;
+          scrollbar-color: #ffffff rgba(255, 255, 255, 0.8);
         }
       `}</style>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -338,7 +349,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
         </button>
         
         <ScrollArea className="h-[90vh] max-h-[770px] w-full">
-          <div className="h-[90%] min-h-[700px] max-h-[770px]">
+          <div className="h-[90%] min-h-[700px] max-h-[820px]">
           <div className="container mx-auto px-10 py-7">
             <div className="max-w-7xl mx-auto">
               {/* Header */}

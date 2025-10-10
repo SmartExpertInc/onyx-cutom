@@ -297,17 +297,27 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
   return (
     <>
-      <style jsx>{`
+      <style jsx global>{`
         [data-radix-scroll-area-scrollbar] {
-          background: rgba(175, 175, 175, 0.1);
-          border-radius: 4px;
+          background: transparent !important;
+          border-radius: 50% !important;
+          width: 8px !important;
+          right: 2px !important;
+          top: 2px !important;
+          bottom: 2px !important;
         }
         [data-radix-scroll-area-thumb] {
-          background: #ebebeb !important;
-          border-radius: 4px;
+          background: #ffffff !important;
+          border-radius: 50% !important;
+          min-height: 20px !important;
+          border: 1px solid rgba(0, 0, 0, 0.2) !important;
         }
         [data-radix-scroll-area-thumb]:hover {
-          background: #d4d4d4 !important;
+          background: #f5f5f5 !important;
+        }
+        [data-radix-scroll-area-viewport] {
+          scrollbar-width: thin;
+          scrollbar-color: #ffffff transparent;
         }
       `}</style>
       <Dialog open={surveyModalOpen} onOpenChange={(open: boolean) => {
@@ -330,7 +340,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <ScrollArea className="w-full max-h-[90vh]">
+          <ScrollArea className="w-full h-[90vh]">
             <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
             {/* Header with Logo and Progress */}
             <div className="p-8 pb-4">
