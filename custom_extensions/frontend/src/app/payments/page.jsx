@@ -443,7 +443,7 @@ export default function BillingPage() {
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     Your Add-ons
                   </h2>
-                  <div className={`grid gap-4 ${purchasedItems.length >= 3 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                  <div className={`grid gap-4 ${purchasedItems.length >= 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                     {purchasedItems.map((item, index) => (
                       <div key={index} className="flex flex-col bg-blue-50 backdrop-blur-sm text-blue-700 rounded-lg border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
                         <div className="flex items-center gap-3 px-6 py-4">

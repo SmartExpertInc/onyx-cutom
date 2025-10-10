@@ -312,30 +312,6 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   return (
     <>
-      <style jsx>{`
-        [data-radix-scroll-area-scrollbar] {
-          background: rgba(255, 255, 255, 0.8) !important;
-          border-radius: 50% !important;
-          width: 8px !important;
-          right: 2px !important;
-          top: 2px !important;
-          bottom: 2px !important;
-          border: 1px solid rgba(0, 0, 0, 0.1) !important;
-        }
-        [data-radix-scroll-area-thumb] {
-          background: #ffffff !important;
-          border-radius: 50% !important;
-          min-height: 20px !important;
-          border: 1px solid rgba(0, 0, 0, 0.2) !important;
-        }
-        [data-radix-scroll-area-thumb]:hover {
-          background: #f5f5f5 !important;
-        }
-        [data-radix-scroll-area-viewport] {
-          scrollbar-width: thin;
-          scrollbar-color: #ffffff rgba(255, 255, 255, 0.8);
-        }
-      `}</style>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
       <DialogContent className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
