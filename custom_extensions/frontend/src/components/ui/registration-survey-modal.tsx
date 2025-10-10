@@ -507,7 +507,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                           {option.icon}
                         </span>
                       </div>
-                      <span className="font-medium text-2xl public-sans-font-medium text-[var(--secondary-foreground)]">{option.label}</span>
+                      <span className={`font-medium text-2xl public-sans-font-medium ${
+                        surveyData.workRole === option.value ? 'text-blue-600' : 'text-[var(--secondary-foreground)]'
+                      }`}>{option.label}</span>
                     </div>
                   </div>
                 ))}
@@ -555,7 +557,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                         )}
                         <div className="flex items-center gap-6">
                           <Other className="w-8 h-8 mr-3" fill={surveyData.companySize === option.value ? '#0F58F9' : '#87ABFC'} />
-                          <span className="font-medium text-lg text-[var(--secondary-foreground)] public-sans-font">{option.label}</span>
+                          <span className={`font-medium text-lg public-sans-font ${
+                            surveyData.companySize === option.value ? 'text-blue-600' : 'text-[var(--secondary-foreground)]'
+                          }`}>{option.label}</span>
                         </div>
                       </div>
                     ))}
@@ -596,7 +600,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                               {option.icon}
                             </span>
                           </div>
-                          <span className="font-semibold text-lg text-gray-900 public-sans-font">{option.label}</span>
+                          <span className={`font-semibold text-lg public-sans-font ${
+                            surveyData.industry === option.value ? 'text-blue-600' : 'text-gray-900'
+                          }`}>{option.label}</span>
                         </div>
                       </div>
                     ))}
@@ -648,7 +654,9 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                               {option.icon}
                             </span>
                           </div>
-                          <span className="font-semibold text-lg text-gray-900 public-sans-font">{option.label}</span>
+                          <span className={`font-semibold text-lg public-sans-font ${
+                            surveyData.personalUse === option.value ? 'text-blue-600' : 'text-gray-900'
+                          }`}>{option.label}</span>
                         </div>
                       </div>
                     ))}
@@ -667,7 +675,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 <Button
                   onClick={handleBack}
                   variant="outline"
-                  className="flex bg-transparent items-center justify-center px-6 py-3 border-gray-400 text-[#797979] rounded-md font-semibold hover:bg-gray-50/20 transition-all duration-200 public-sans-font"
+                  className="flex text-base bg-transparent items-center justify-center px-6 py-4 border-gray-400 text-[#797979] rounded-md font-semibold hover:bg-gray-50/20 transition-all duration-200 public-sans-font"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
                   {t('survey.navigation.previous', 'Previous')}
@@ -695,7 +703,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                   <Button
                     onClick={completeSurvey}
                     disabled={!surveyData.personalUse}
-                        className={`w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md font-semibold transition-all duration-200 shadow-lg hover:shadow-xl public-sans-font ${
+                        className={`w-full text-base flex items-center justify-center px-6 py-4 bg-blue-600 text-white rounded-md font-semibold transition-all duration-200 shadow-lg hover:shadow-xl public-sans-font ${
                       surveyData.personalUse 
                             ? 'hover:bg-blue-700' 
                         : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -714,7 +722,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       (surveyStep === 3 && !surveyData.companySize) ||
                       (surveyStep === 4 && (!surveyData.industry || (surveyData.industry === 'other' && !surveyData.additionalInfo.trim())))
                     }
-                        className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed public-sans-font"
+                        className="w-full text-base flex items-center justify-center px-6 py-4 bg-blue-600 text-white rounded-md font-semibold hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed public-sans-font"
                   >
                     {t('survey.navigation.continue', 'Continue')}
                         <ChevronRight className="w-5 h-5 ml-2" />
