@@ -5,6 +5,7 @@ import { HybridWorkBestPracticesSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import YourLogo from '../YourLogo';
 
 export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
@@ -43,6 +44,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   titleColor,
   contentColor,
   accentColor,
+  logoPath = '',
+  logoText = 'Your Logo',
   isEditable = false,
   onUpdate,
   theme,
@@ -51,9 +54,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMainStatement, setEditingMainStatement] = useState(false);
   const [editingPractices, setEditingPractices] = useState<{ index: number; field: 'title' | 'description' } | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
   const [currentMainStatement, setCurrentMainStatement] = useState(mainStatement);
   const [currentPractices, setCurrentPractices] = useState(practices);
+  const [currentPageNumber, setCurrentPageNumber] = useState('11');
 
   // Use theme colors instead of props
   const currentTheme = typeof theme === 'string' ? getSlideTheme(theme) : (theme || getSlideTheme(DEFAULT_SLIDE_THEME));
@@ -141,13 +146,21 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           text-transform: none !important;
           font-weight: 600 !important;
         }
+        .practice-title-editor, .hybrid-title-editor {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
+        }
+        .hybrid-work-best-practices-slide-template .logo-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 600 !important;
+        }
       `}</style>
       <div className="hybrid-work-best-practices-slide-template inter-theme" style={slideStyles}>
       {/* Header with page number and logo */}
       <div style={{
         position: 'absolute',
         top: '20px',
-        left: '60px',
+        left: '35px',
         right: '60px',
         display: 'flex',
         justifyContent: 'space-between',
@@ -163,20 +176,13 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           color: 'black',
           fontFamily: 'Inter, sans-serif'
         }}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            border: '1px solid black',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '15px',
-            fontWeight: '600'
-          }}>
-            +
-          </div>
-          Your Logo
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+            isEditable={isEditable}
+            color="#000000"
+            text={logoText}
+          />
         </div>
       </div>
 
@@ -210,19 +216,19 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
               <div style={{
                 padding: '8px 18px',
                 display: 'flex',
-                gap: '8px',
-                border: '2px solid #333333',
-                borderRadius: '20px',
-                fontSize: '16px',
+                gap: '10px',
+                border: '2px solid black',
+                borderRadius: '50px',
+                fontSize: '18px',
                 color: '#333333',
                 fontFamily: 'Inter, sans-serif',
-                fontWeight: '400'
+                fontWeight: '600'
               }}>
                 <div style={{
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
-                marginTop: '8px',
+                marginTop: '10px',
                 backgroundColor: '#3B8BE9'
               }}></div>
                 {isEditable && editingTitle ? (
@@ -233,7 +239,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                     className="hybrid-title-editor"
                     style={{
                       fontSize: '16px',
-                      color: '#333333',
+                      color: '#34353C',
                       fontWeight: '600',
                       width: '100%',
                       height: 'auto'
@@ -241,6 +247,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   />
                 ) : (
                   <div
+                    className="hybrid-title-editor"
                     onClick={() => isEditable && setEditingTitle(true)}
                     style={{
                       cursor: isEditable ? 'pointer' : 'default',
@@ -259,7 +266,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             <div style={{
               fontSize: '35px',
               maxWidth: '400px',
-              color: '#333333',
+              color: 'black',
               lineHeight: '1.2',
               marginBottom: '40px',
               fontFamily: 'Lora, serif',
@@ -275,7 +282,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   style={{
                     fontSize: '35px',
                     maxWidth: '400px',
-                    color: '#333333',
+                    color: 'black',
                     lineHeight: '1.2',
                     width: '100%',
                     height: 'auto',
@@ -306,7 +313,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
             overflow: 'hidden',
             alignSelf: 'flex-start',
             position: 'absolute',
-            bottom: '90px',
+            bottom: '60px',
             backgroundColor: '#0F58F9'
           }}>
             <ClickableImagePlaceholder
@@ -338,7 +345,8 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            marginBottom: '10px'
+            marginBottom: '10px',
+            gap: '10px 30px',
           }}>
             {currentPractices.map((practice: { number: number; title: string; description: string }, index: number) => (
               <div
@@ -361,7 +369,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '14px',
-                  fontWeight: 'bold',
+                  fontWeight: '600',
                   flexShrink: 0,
                   borderRadius: '2px'
                 }}>
@@ -374,11 +382,11 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                 }}>
                   {/* Title */}
                   <div style={{
-                    fontSize: '16px',
-                    color: '#333333',
+                    fontSize: '15px',
+                    color: 'black',
                     marginBottom: '8px',
                     lineHeight: '1.3',
-                    fontWeight: '600',
+                    fontWeight: '500',
                     fontFamily: 'Inter, sans-serif'
                   }}>
                     {isEditable && editingPractices?.index === index && editingPractices?.field === 'title' ? (
@@ -388,10 +396,10 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                         onCancel={handlePracticeCancel}
                         className="practice-title-editor"
                         style={{
-                          fontSize: '16px',
-                          color: '#09090B',
+                          fontSize: '15px',
+                          color: 'black',
                           lineHeight: '1.3',
-                          fontWeight: '600',
+                          fontWeight: '500',
                           fontFamily: 'Inter, sans-serif',
                           width: '100%',
                           height: 'auto'
@@ -399,6 +407,7 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
                       />
                     ) : (
                       <div
+                        className="practice-title-editor"
                         onClick={() => isEditable && setEditingPractices({ index, field: 'title' })}
                         style={{
                           cursor: isEditable ? 'pointer' : 'default',
@@ -478,14 +487,39 @@ export const HybridWorkBestPracticesSlideTemplate: React.FC<HybridWorkBestPracti
       {/* Footer with page number */}
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '60px',
-        fontSize: '14px',
-        color: '#A2A19D',
-        fontFamily: 'Inter, sans-serif'
+        bottom: '24px',
+        left: '0px',
+        fontSize: '16px',
+        color: '#5F616D',
+        fontFamily: 'Inter, sans-serif',
+        fontWeight: 400,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
-        11
+        <div style={{
+          width: '15px',
+          height: '1px',
+          backgroundColor: '#5F616D'
+        }}></div>
+        {isEditable && editingPageNumber ? (
+          <ImprovedInlineEditor
+            initialValue={currentPageNumber}
+            onSave={(v) => {
+              setCurrentPageNumber(v);
+              setEditingPageNumber(false);
+              onUpdate && onUpdate({ pageNumber: v });
+            }}
+            onCancel={() => setEditingPageNumber(false)}
+            style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5F616D', fontSize: '16px', fontWeight: 600 }}
+          />
+        ) : (
+          <div onClick={() => isEditable && setEditingPageNumber(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>
+            {currentPageNumber}
+          </div>
+        )}
       </div>
+
     </div>
     </>
   );

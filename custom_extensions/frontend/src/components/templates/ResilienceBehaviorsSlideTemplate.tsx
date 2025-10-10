@@ -5,6 +5,7 @@ import { ResilienceBehaviorsSlideProps } from '@/types/slideTemplates';
 import { SlideTheme, DEFAULT_SLIDE_THEME, getSlideTheme } from '@/types/slideThemes';
 import ClickableImagePlaceholder from '../ClickableImagePlaceholder';
 import ImprovedInlineEditor from '../ImprovedInlineEditor';
+import YourLogo from '../YourLogo';
 
 export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlideProps & {
   theme?: SlideTheme | string;
@@ -24,6 +25,8 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   ],
   profileImagePath = '',
   profileImageAlt = 'Profile',
+  logoText = 'Your Logo',
+  logoPath = '',
   isEditable = false,
   onUpdate,
   theme,
@@ -32,54 +35,72 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
 
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubtitle, setEditingSubtitle] = useState(false);
+  const [editingBullet, setEditingBullet] = useState<number | null>(null);
+  const [editingPageNumber, setEditingPageNumber] = useState(false);
+  const [currentPageNumber, setCurrentPageNumber] = useState('38');
 
   const slideStyles: React.CSSProperties = {
     width: '100%',
     aspectRatio: '16/9',
-    backgroundColor: '#B2B89C',
+    backgroundColor: '#E0E7FF',
     position: 'relative',
     overflow: 'hidden',
     fontFamily: currentTheme.fonts.titleFont,
   };
 
+  const topSectionStyles: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '40%',
+    background: 'linear-gradient(to bottom, #0F58F9, #1023A1)',
+  };
+
   const titleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '88px',
-    left: '64px',
-    right: '420px',
+    top: '45px',
+    left: '310px',
+    right: '40px',
     fontSize: '37px',
     maxWidth: '720px',
-    fontWeight: 700,
-    color: '#4E563B',
+    fontWeight: 800,
+    color: '#FFFFFF',
     lineHeight: 1.2,
   };
 
   const subtitleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '240px',
-    left: '64px',
-    right: '420px',
+    top: '155px',
+    left: '310px',
+    right: '170px',
     fontSize: '18px',
-    color: '#6B7155',
+    color: '#CFDAF7',
     lineHeight: 1.6,
   };
 
   const avatarCircleStyles: React.CSSProperties = {
     position: 'absolute',
-    top: '92px',
-    right: '72px',
-    width: '200px',
-    height: '200px',
+    top: '40px',
+    left: '70px',
+    width: '180px',
+    height: '180px',
     borderRadius: '50%',
     overflow: 'hidden',
-    backgroundColor: '#6E7A64',
+    backgroundColor: '#FFFFFF',
+  };
+
+  const bottomSectionStyles: React.CSSProperties = {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '60%',
+    backgroundColor: '#E0E7FF',
+    padding: '60px 64px 80px 64px',
   };
 
   const bulletsGridStyles: React.CSSProperties = {
-    position: 'absolute',
-    left: '64px',
-    right: '64px',
-    bottom: '68px',
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     rowGap: '36px',
@@ -87,72 +108,188 @@ export const ResilienceBehaviorsSlideTemplate: React.FC<ResilienceBehaviorsSlide
   };
 
   const bulletItemStyles: React.CSSProperties = {
-    color: '#63694D',
-    fontSize: '18px',
+    display: 'flex',
+    alignItems: 'flex-start',
+    flexDirection: 'column',
+    gap: '20px',
+    color: '#34353C',
+    fontSize: '17px',
+    lineHeight: 1.4,
+    paddingRight: '80px',
   };
 
-  const bulletIndexStyles: React.CSSProperties = {
-    color: '#63694D',
-    fontSize: '18px',
-    marginRight: '12px',
+  const bulletNumberStyles: React.CSSProperties = {
+    width: '28px',
+    height: '28px',
+    borderRadius: '3px',
+    backgroundColor: '#0F58F9',
+    color: '#FFFFFF',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '16px',
+    fontWeight: 700,
+    marginRight: '16px',
+    flexShrink: 0,
+    alignSelf: 'flex-start',
+  };
+
+  const pageNumberStyles: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    left: '0px',
+    color: '#5D5D5D',
+    fontSize: '16px',
+    fontWeight: 600,
+    display: 'flex',
+  };
+
+  const logoStyles: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '24px',
+    right: '64px',
+    fontSize: '15px',
   };
 
   return (
-    <div className="resilience-behaviors-slide inter-theme" style={slideStyles}>
-      {/* Title */}
-      <div style={titleStyles}>
-        {isEditable && editingTitle ? (
-          <ImprovedInlineEditor
-            initialValue={title}
-            onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
-            onCancel={() => setEditingTitle(false)}
-            className="resilience-title-editor"
-            style={{ ...titleStyles, position: 'relative', top: 0, left: 0, right: 0 }}
-          />
-        ) : (
-          <div onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
-        )}
-      </div>
+    <>
+      <style>{`
+        .resilience-title {
+          font-weight: 900 !important;
+        }
+        .resilience-subtitle {
+          font-weight: 400 !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .resilience-bullet-text {
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .resilience-bullet-number, .resilience-page-number * {
+          font-weight: 600 !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        }
+        .resilience-logo * {
+          font-size: 15px !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+          font-weight: 500 !important;
+        }
+      `}</style>
+      <div className="resilience-behaviors-slide inter-theme" style={slideStyles}>
+        {/* Top Section - Dark Blue */}
+        <div style={topSectionStyles}>
 
-      {/* Subtitle */}
-      <div style={subtitleStyles}>
-        {isEditable && editingSubtitle ? (
-          <ImprovedInlineEditor
-            initialValue={subtitle}
-            onSave={(v) => { onUpdate && onUpdate({ subtitle: v }); setEditingSubtitle(false); }}
-            onCancel={() => setEditingSubtitle(false)}
-            className="resilience-subtitle-editor"
-            multiline={true}
-            style={{ ...subtitleStyles, position: 'relative', top: 0, left: 0, right: 0 }}
-          />
-        ) : (
-          <div onClick={() => isEditable && setEditingSubtitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{subtitle}</div>
-        )}
-      </div>
-
-      {/* Avatar */}
-      <div style={avatarCircleStyles}>
-        <ClickableImagePlaceholder
-          imagePath={profileImagePath}
-          onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
-          size="LARGE"
-          position="CENTER"
-          description="Profile"
-          isEditable={isEditable}
-          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
-        />
-      </div>
-
-      {/* Bullets grid (8 items) */}
-      <div style={bulletsGridStyles}>
-        {bullets.slice(0, 8).map((b, i) => (
-          <div key={i} style={bulletItemStyles}>
-            <span style={bulletIndexStyles}>{String(i + 1).padStart(2, '0')}.</span>
-            {b}
+          {/* Avatar */}
+          <div style={avatarCircleStyles}>
+            <ClickableImagePlaceholder
+              imagePath={profileImagePath}
+              onImageUploaded={(p: string) => onUpdate && onUpdate({ profileImagePath: p })}
+              size="LARGE"
+              position="CENTER"
+              description="Profile"
+              isEditable={isEditable}
+              style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+            />
           </div>
-        ))}
+          {/* Title */}
+          <div style={titleStyles}>
+            {isEditable && editingTitle ? (
+              <ImprovedInlineEditor
+                initialValue={title}
+                onSave={(v) => { onUpdate && onUpdate({ title: v }); setEditingTitle(false); }}
+                onCancel={() => setEditingTitle(false)}
+                className="resilience-title-editor"
+                style={{ ...titleStyles, position: 'relative', top: 0, left: 0, right: 0 }}
+              />
+            ) : (
+              <div className="resilience-title" onClick={() => isEditable && setEditingTitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{title}</div>
+            )}
+          </div>
+
+          {/* Subtitle */}
+          <div style={subtitleStyles}>
+            {isEditable && editingSubtitle ? (
+              <ImprovedInlineEditor
+                initialValue={subtitle}
+                onSave={(v) => { onUpdate && onUpdate({ subtitle: v }); setEditingSubtitle(false); }}
+                onCancel={() => setEditingSubtitle(false)}
+                className="resilience-subtitle-editor"
+                multiline={true}
+                style={{ ...subtitleStyles, position: 'relative', top: 0, left: 0, right: 0 }}
+              />
+            ) : (
+              <div className="resilience-subtitle" onClick={() => isEditable && setEditingSubtitle(true)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{subtitle}</div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Section - Light Blue */}
+        <div style={bottomSectionStyles}>
+          {/* Bullets grid (8 items) */}
+          <div style={bulletsGridStyles}>
+            {bullets.slice(0, 8).map((b, i) => (
+              <div key={i} style={bulletItemStyles}>
+                <div className="resilience-bullet-number" style={bulletNumberStyles}>{i + 1}</div>
+                {isEditable && editingBullet === i ? (
+                  <ImprovedInlineEditor
+                    initialValue={b}
+                    onSave={(v) => {
+                      const updatedBullets = [...bullets];
+                      updatedBullets[i] = v;
+                      onUpdate && onUpdate({ bullets: updatedBullets });
+                      setEditingBullet(null);
+                    }}
+                    onCancel={() => setEditingBullet(null)}
+                    multiline={true}
+                    className="resilience-bullet-text"
+                    style={{ ...bulletItemStyles, position: 'relative', top: 0, left: 0, right: 0 }}
+                  />
+                ) : (
+                  <div className="resilience-bullet-text" onClick={() => isEditable && setEditingBullet(i)} style={{ cursor: isEditable ? 'pointer' : 'default' }}>{b}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Page Number */}
+        <div className="resilience-page-number" style={{...pageNumberStyles, display: 'flex', alignItems: 'center', gap: '8px'}}>
+          <div style={{
+            width: '15px',
+            height: '1px',
+            backgroundColor: '#5F616D'
+          }}></div>
+          {isEditable && editingPageNumber ? (
+            <ImprovedInlineEditor
+              initialValue={currentPageNumber}
+              onSave={(v) => {
+                setCurrentPageNumber(v);
+                setEditingPageNumber(false);
+                onUpdate && onUpdate({ pageNumber: v });
+              }}
+              className="resilience-page-number"
+              onCancel={() => setEditingPageNumber(false)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', outline: 'none', padding: 0, margin: 0, color: '#5D5D5D', fontSize: '16px', fontWeight: 600 }}
+            />
+          ) : (
+            <div className="resilience-page-number" onClick={() => isEditable && setEditingPageNumber(true)} style={{ fontSize: '16px', cursor: isEditable ? 'pointer' : 'default' }}>
+              {currentPageNumber}
+            </div>
+          )}
+        </div>
+
+        {/* Logo */}
+        <div className="resilience-logo" style={logoStyles}>
+          <YourLogo
+            logoPath={logoPath}
+            onLogoUploaded={(p) => onUpdate && onUpdate({ logoPath: p })}
+            isEditable={isEditable}
+            color="#09090B"
+            text={logoText}
+            style={{ fontFamily: 'Inter, sans-serif !important', fontSize: '15px' }}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
