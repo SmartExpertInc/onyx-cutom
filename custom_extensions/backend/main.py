@@ -32513,6 +32513,102 @@ async def smartdrive_indexing_status(
         return {"statuses": {p: None for p in paths}}
 
 
+def _estimate_tokens_from_file_info(file_path: str, file_size_bytes: int, mime_type: str) -> int:
+    """Estimate token count based on file type, size, and MIME type."""
+    file_path_lower = file_path.lower()
+    mime_type_lower = mime_type.lower()
+    
+    # Token estimation ratios (tokens per byte) based on file type
+    if file_path_lower.endswith('.pdf') or 'pdf' in mime_type_lower:
+        # PDFs: ~1 token per 2-3 bytes (2x faster processing)
+        # Larger PDFs tend to have more images/formatting, so lower ratio
+        if file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        elif file_size_bytes < 1_000_000:  # < 1MB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        else:  # >= 1MB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        return max(250, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.doc', '.docx')) or 'word' in mime_type_lower or 'document' in mime_type_lower:
+        # Word docs: ~1 token per 1.5-2 bytes (2x faster processing)
+        if file_size_bytes < 50_000:  # < 50KB
+            ratio = 1/1.5  # 1 token per 1.5 bytes (2x faster)
+        elif file_size_bytes < 500_000:  # < 500KB
+            ratio = 1/1.75  # 1 token per 1.75 bytes (2x faster)
+        else:  # >= 500KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        return max(150, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.txt', '.md', '.rtf')) or 'text' in mime_type_lower:
+        # Plain text: ~1 token per 1-1.5 bytes (2x faster processing)
+        if file_size_bytes < 10_000:  # < 10KB
+            ratio = 1/1  # 1 token per 1 byte (2x faster)
+        elif file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/1.25  # 1 token per 1.25 bytes (2x faster)
+        else:  # >= 100KB
+            ratio = 1/1.5  # 1 token per 1.5 bytes (2x faster)
+        return max(50, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.ppt', '.pptx')) or 'presentation' in mime_type_lower:
+        # PowerPoint: ~1 token per 2.5-3.5 bytes (2x faster processing)
+        if file_size_bytes < 100_000:  # < 100KB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        elif file_size_bytes < 1_000_000:  # < 1MB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        else:  # >= 1MB
+            ratio = 1/3.5  # 1 token per 3.5 bytes (2x faster)
+        return max(200, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.xls', '.xlsx')) or 'spreadsheet' in mime_type_lower or 'excel' in mime_type_lower:
+        # Excel: ~1 token per 2-3 bytes (2x faster processing)
+        if file_size_bytes < 50_000:  # < 50KB
+            ratio = 1/2  # 1 token per 2 bytes (2x faster)
+        elif file_size_bytes < 500_000:  # < 500KB
+            ratio = 1/2.5  # 1 token per 2.5 bytes (2x faster)
+        else:  # >= 500KB
+            ratio = 1/3  # 1 token per 3 bytes (2x faster)
+        return max(100, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.html', '.htm')) or 'html' in mime_type_lower:
+        # HTML: ~1 token per 1.75 bytes (2x faster processing)
+        ratio = 1/1.75
+        return max(100, int(file_size_bytes * ratio))
+    
+    elif file_path_lower.endswith(('.json', '.xml')) or 'json' in mime_type_lower or 'xml' in mime_type_lower:
+        # JSON/XML: ~1 token per 1.25 bytes (2x faster processing)
+        ratio = 1/1.25
+        return max(50, int(file_size_bytes * ratio))
+    
+    else:
+        # Unknown file type: conservative estimate
+        # Assume it's mostly binary with some text content
+        ratio = 1/4  # 1 token per 4 bytes (2x faster)
+        return max(100, int(file_size_bytes * ratio))
+
+
+def _estimate_tokens_from_file_type(file_path: str) -> int:
+    """Fallback token estimation based on file type only (when size is unknown)."""
+    file_path_lower = file_path.lower()
+    
+    if file_path_lower.endswith('.pdf'):
+        return 2500  # Average PDF (2x faster)
+    elif file_path_lower.endswith(('.doc', '.docx')):
+        return 1500  # Average Word doc (2x faster)
+    elif file_path_lower.endswith(('.txt', '.md')):
+        return 500   # Average text file (2x faster)
+    elif file_path_lower.endswith(('.ppt', '.pptx')):
+        return 2000  # Average PowerPoint (2x faster)
+    elif file_path_lower.endswith(('.xls', '.xlsx')):
+        return 1000  # Average Excel (2x faster)
+    elif file_path_lower.endswith(('.html', '.htm')):
+        return 750   # Average HTML (2x faster)
+    elif file_path_lower.endswith(('.json', '.xml')):
+        return 400   # Average JSON/XML (2x faster)
+    else:
+        return 1000  # Default for unknown types (2x faster)
+
+
 @app.get("/api/custom/smartdrive/indexing-progress")
 async def smartdrive_indexing_progress(
     request: Request,
@@ -32583,10 +32679,51 @@ async def smartdrive_indexing_progress(
                     path_to_tokens[path] = total_tokens
                     logger.info(f"[SmartDrive] IndexingProgress: path='{path}' tokens={total_tokens}")
                 else:
+                    logger.warning(f"[SmartDrive] IndexingProgress: token estimate request failed for path='{path}': {resp.status_code}")
                     path_to_tokens[path] = 0
             except Exception as e:
                 logger.warning(f"[SmartDrive] IndexingProgress: failed to get tokens for path='{path}': {e}")
                 path_to_tokens[path] = 0
+            
+            # If we still have 0 tokens, estimate based on file type and size
+            if path_to_tokens[path] == 0:
+                try:
+                    # Get file size from WebDAV HEAD request
+                    async with pool.acquire() as conn:
+                        username, password, base_url, user_root_prefix = await _get_nextcloud_credentials(conn, onyx_user_id)
+                    
+                    base = f"{base_url}/remote.php/dav/files/{username}"
+                    file_url = f"{base}{user_root_prefix}{path}"
+                    
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        head = await client.head(file_url, auth=(username, password))
+                    
+                    if head.is_success:
+                        content_length = head.headers.get("content-length")
+                        mime_type = head.headers.get("content-type", "")
+                        
+                        if content_length and content_length.isdigit():
+                            file_size_bytes = int(content_length)
+                            estimated_tokens = _estimate_tokens_from_file_info(path, file_size_bytes, mime_type)
+                            path_to_tokens[path] = estimated_tokens
+                            logger.info(f"[SmartDrive] IndexingProgress: estimated tokens for path='{path}' (size={file_size_bytes} bytes, type={mime_type}): {estimated_tokens}")
+                        else:
+                            # Fallback to file type only
+                            estimated_tokens = _estimate_tokens_from_file_type(path)
+                            path_to_tokens[path] = estimated_tokens
+                            logger.info(f"[SmartDrive] IndexingProgress: fallback token estimate for path='{path}': {estimated_tokens}")
+                    else:
+                        # Fallback to file type only
+                        estimated_tokens = _estimate_tokens_from_file_type(path)
+                        path_to_tokens[path] = estimated_tokens
+                        logger.info(f"[SmartDrive] IndexingProgress: fallback token estimate for path='{path}': {estimated_tokens}")
+                        
+                except Exception as e:
+                    logger.warning(f"[SmartDrive] IndexingProgress: failed to get file size for path='{path}': {e}")
+                    # Final fallback to file type only
+                    estimated_tokens = _estimate_tokens_from_file_type(path)
+                    path_to_tokens[path] = estimated_tokens
+                    logger.info(f"[SmartDrive] IndexingProgress: final fallback token estimate for path='{path}': {estimated_tokens}")
 
         # First, get the basic indexing status using the existing endpoint
         file_ids = list(path_to_file_id.values())

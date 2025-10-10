@@ -256,7 +256,7 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const INDEX_TOKENS_PER_SEC = 2500; // ~2500 tokens/s for duration estimation
 
 	// Calculate progress based on status and time interpolation
-	const calculateProgress = useCallback((status: string, timeStarted?: number, estimatedTokens?: number): number => {
+	const calculateProgress = useCallback((status: string, timeStarted?: number, estimatedTokens?: number, currentProgress?: number): number => {
 		if (status === 'not_started') {
 			return 5;
 		} else if (status === 'in_progress') {
@@ -267,8 +267,11 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				const ratio = Math.min(elapsed / estimatedDuration, 1);
 				return Math.min(95, 5 + (90 * ratio)); // 5% to 95%
 			} else {
-				// Fallback: show indeterminate progress for in_progress without time data
-				return 50; // Show halfway progress
+				// Fallback: gradually increase progress for in_progress without time data
+				const baseProgress = currentProgress || 5;
+				// Increment by 5-15% each time, but cap at 85%
+				const increment = Math.random() * 10 + 5; // 5-15%
+				return Math.min(85, baseProgress + increment);
 			}
 		} else if (status === 'success' || status === 'done') {
 			return 100;
@@ -365,11 +368,14 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		}
 	};
 
-	const pollIndexingProgress = async (paths: string[]) => {
+	const pollIndexingProgress = async (paths: string[], startTime?: number) => {
 		if (!paths || paths.length === 0) {
 			console.log('[SmartDrive] pollIndexingProgress: no paths provided');
 			return;
 		}
+		
+		const pollStartTime = startTime || Date.now();
+		const MAX_POLL_TIME = 5 * 60 * 1000; // 5 minutes max polling
 		
 		console.log('[SmartDrive] pollIndexingProgress: starting poll for paths:', paths);
 		
@@ -402,10 +408,22 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				console.log('[SmartDrive] pollIndexingProgress: current indexing state:', prev);
 				const out: IndexingState = { ...prev };
 				
+				// Track which paths we're actually polling for
+				const pathsBeingPolled = new Set(paths);
+				
 				for (const p of Object.keys(out)) {
+					// Only update paths that we're currently polling for
+					if (!pathsBeingPolled.has(p)) {
+						continue;
+					}
+					
 					const progress = progressData[p];
 					if (!progress) {
 						console.log(`[SmartDrive] pollIndexingProgress: no progress data for path '${p}'`);
+						// If we're polling for this path but have no data, keep it in pending state
+						if (!out[p] || out[p].status === 'pending' || out[p].status === 'not_started') {
+							nextRemaining += 1;
+						}
 						continue;
 					}
 					
@@ -415,11 +433,12 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 					const timeStarted = progress.time_started ? new Date(progress.time_started).getTime() : undefined;
 					const timeUpdated = progress.time_updated ? new Date(progress.time_updated).getTime() : undefined;
 					
-					// Calculate progress percentage
+					// Calculate progress percentage, using current progress for gradual increase
 					const etaPct = calculateProgress(
 						progress.status, 
 						timeStarted, 
-						progress.estimated_tokens
+						progress.estimated_tokens,
+						oldState.etaPct
 					);
 					
 					out[p] = { 
@@ -438,7 +457,10 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 						progressData: progress
 					});
 					
-					if (!progress.is_complete) nextRemaining += 1;
+					// Continue polling if not complete
+					if (!progress.is_complete) {
+						nextRemaining += 1;
+					}
 				}
 				
 				console.log('[SmartDrive] pollIndexingProgress: final indexing state:', out);
@@ -446,10 +468,25 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				return out;
 			});
 			
-			// Continue polling until all done
+			// Continue polling until all done or timeout
 			if (nextRemaining > 0) {
-				console.log('[SmartDrive] pollIndexingProgress: continuing polling in 1.5s, remaining:', nextRemaining);
-				setTimeout(() => pollIndexingProgress(paths), 1500);
+				const elapsed = Date.now() - pollStartTime;
+				if (elapsed < MAX_POLL_TIME) {
+					console.log('[SmartDrive] pollIndexingProgress: continuing polling in 1.5s, remaining:', nextRemaining, 'elapsed:', Math.round(elapsed/1000), 's');
+					setTimeout(() => pollIndexingProgress(paths, pollStartTime), 1500);
+				} else {
+					console.log('[SmartDrive] pollIndexingProgress: polling timeout reached, stopping');
+					// Mark remaining files as failed due to timeout
+					setIndexing(prev => {
+						const out: IndexingState = { ...prev };
+						for (const p of paths) {
+							if (out[p] && !out[p].status.includes('success') && !out[p].status.includes('done')) {
+								out[p] = { ...out[p], status: 'failed', etaPct: 0 };
+							}
+						}
+						return out;
+					});
+				}
 			} else {
 				console.log('[SmartDrive] pollIndexingProgress: all files indexed, stopping polling');
 			}
