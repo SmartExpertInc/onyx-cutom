@@ -120,7 +120,7 @@ const CustomCard = React.forwardRef<HTMLDivElement, CustomCardProps>(
               {title && (
                 <h3 
                   className={cn(
-                    "text-2xl font-semibold text-left leading-tight tracking-tight transition-all duration-200",
+                    "text-2xl font-semibold text-left leading-tight tracking-[0.01em] transition-all duration-200",
                     useCSSVariables 
                       ? "text-[hsl(var(--custom-card-title))]" 
                       : "opacity-80 group-hover:opacity-100 group-active:opacity-100 group-hover:!text-[#0F58F9] group-active:!text-[#0F58F9]"

@@ -368,16 +368,16 @@ function CreatePageContent({ onHomeClick }: CreatePageContentProps) {
       
       {/* Top-left back button */}
       <div 
-        className="absolute top-6 left-6 rounded-lg z-10 shadow-md hover:shadow-xl active:shadow-xl transition-shadow duration-200 cursor-pointer"
+        className="absolute top-6 left-6 rounded-lg z-10 shadow-md hover:shadow-xl active:shadow-xl transition-shadow duration-200 cursor-pointer border border-gray-300"
         style={{
           paddingBottom: '1px',
-          background: '#D3D3D3'
+          background: 'transparent'
         }}
       >
         <Link
           href="/projects"
           onClick={onHomeClick}
-          className="flex items-center gap-1 text-sm rounded-lg px-4 py-2 bg-white/50 backdrop-blur-sm transition-all duration-200 border border-white"
+          className="flex items-center gap-1 text-sm rounded-lg px-3 py-1 bg-white/50 backdrop-blur-sm transition-all duration-200 border border-white"
           style={{ color: '#000000' }}
         >
           <span>&lt;</span>

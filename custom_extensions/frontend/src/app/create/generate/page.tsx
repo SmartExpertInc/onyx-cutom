@@ -1157,7 +1157,7 @@ function GenerateProductPicker() {
           left: '60%',
           top: '60%',
           borderRadius: '999px',
-          background: 'linear-gradient(360deg, #D817FF 10%, #5D72F4 70%, #90EDE5 100%)',
+          background: 'linear-gradient(360deg, #90EDE5 10%, #5D72F4 70%, #D817FF 100%)',
           transform: 'translate(-50%, -50%) rotate(120deg)',
           filter: 'blur(100px)',
         }}
