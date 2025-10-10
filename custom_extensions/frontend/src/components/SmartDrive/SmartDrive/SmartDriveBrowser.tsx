@@ -468,28 +468,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				return out;
 			});
 			
-			// Continue polling until all done or timeout
-			if (nextRemaining > 0) {
-				const elapsed = Date.now() - pollStartTime;
-				if (elapsed < MAX_POLL_TIME) {
-					console.log('[SmartDrive] pollIndexingProgress: continuing polling in 1.5s, remaining:', nextRemaining, 'elapsed:', Math.round(elapsed/1000), 's');
-					setTimeout(() => pollIndexingProgress(paths, pollStartTime), 1500);
-				} else {
-					console.log('[SmartDrive] pollIndexingProgress: polling timeout reached, stopping');
-					// Mark remaining files as failed due to timeout
-					setIndexing(prev => {
-						const out: IndexingState = { ...prev };
-						for (const p of paths) {
-							if (out[p] && !out[p].status.includes('success') && !out[p].status.includes('done')) {
-								out[p] = { ...out[p], status: 'failed', etaPct: 0 };
-							}
-						}
-						return out;
-					});
-				}
-			} else {
-				console.log('[SmartDrive] pollIndexingProgress: all files indexed, stopping polling');
-			}
+			// No direct scheduling here; periodic polling is driven by a component-level interval
+			// which watches for any paths still in progress.
 		} catch (error) {
 			console.error('[SmartDrive] pollIndexingProgress: error:', error);
 			// Fallback to old endpoint
@@ -550,6 +530,21 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		if (!e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
 		await uploadFiles(Array.from(e.dataTransfer.files));
 	};
+
+	// Periodic polling driver: while there are any items not complete, poll every 1.5s
+	useEffect(() => {
+		const pathsNeedingPolling = Object.entries(indexing)
+			.filter(([_, st]) => st && st.status !== 'success' && st.status !== 'done' && st.status !== 'failed')
+			.map(([path]) => path);
+
+		if (pathsNeedingPolling.length === 0) return;
+
+		const interval = setInterval(() => {
+			pollIndexingProgress(pathsNeedingPolling);
+		}, 1500);
+
+		return () => clearInterval(interval);
+	}, [indexing]);
 
 	const onDragOver = (e: React.DragEvent) => {
 		e.preventDefault();
