@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
   Icon?: React.ElementType;
+  svg?: React.ReactNode;
   label: string;
   gradientTo?: string;
   active?: boolean;
@@ -11,40 +12,30 @@ interface GenerateCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
-  ({ className, Icon, label, active = false, gradientTo, onClick, ...props }, ref) => {
+  ({ className, Icon, svg, label, active = false, gradientTo, onClick, ...props }, ref) => {
     return (
       <Card
         ref={ref}
         className={cn(
           "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-24 h-24 xs:w-22 xs:h-22 sm:w-27 sm:h-27 md:w-29 md:h-29 lg:w-31 lg:h-31 xl:w-34 xl:h-34",
+          "w-24 h-20 xs:w-28 xs:h-22 sm:w-28 sm:h-27 md:w-28 md:h-29 lg:w-28 lg:h-31 xl:w-28 xl:h-34",
           "hover:scale-105",
           className
         )}
         style={{
-          backgroundColor: active ? 'white' : '#F2F9FC',
-          background: active 
-            ? `white`
-            : `#F2F9FC`,
-          boxShadow: active 
-            ? '0 10px 15px -5px rgba(0, 0, 0, 0.1), 0 6px 6px -5px rgba(0, 0, 0, 0.04)' 
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-        }}
-        onMouseEnter={(e) => {
-          if (!active) {
-            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!active) {
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-          }
+          backgroundColor: active ? '#F2F8FF' : '#E0E0E0',
+          border: active ? '2px solid #0F58F9' : '1px solid #D3D3D3',
+          boxShadow: 'none'
         }}
         onClick={onClick}
         {...props}
       >
         <CardContent className="flex flex-col items-center justify-center gap-3 h-full p-4">
-            {Icon && (
+            {svg ? (
+              <div className="flex items-center justify-center">
+                {svg}
+              </div>
+            ) : Icon && (
               <div 
                 className="w-15 h-15 xs:w-12 xs:h-12 sm:w-13 sm:h-13 md:w-15 md:h-15 lg:w-16 lg:h-16 xl:w-17 xl:h-17 flex items-center justify-center"
                 style={{
@@ -71,9 +62,9 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-xs xs:text-sm sm:text-sm leading-tight text-center px-1 font-medium"
+              className="text-base xs:text-lg sm:text-lg md:text-lg lg:text-xl leading-tight text-center px-1 font-semibold"
               style={{
-                color: active ? '#6B6B6D' : '#7C8082'
+                color: active ? '#0D001B' : '#797979'
               }}
             >
               {label}
