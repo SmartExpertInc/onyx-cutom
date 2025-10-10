@@ -259,11 +259,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 	const calculateProgress = useCallback((status: string, timeStarted?: number, estimatedTokens?: number): number => {
 		if (status === 'not_started') {
 			return 5;
-		} else if (status === 'in_progress' && timeStarted && estimatedTokens) {
-			const elapsed = Date.now() - timeStarted;
-			const estimatedDuration = (estimatedTokens / INDEX_TOKENS_PER_SEC) * 1000;
-			const ratio = Math.min(elapsed / estimatedDuration, 1);
-			return Math.min(95, 5 + (90 * ratio)); // 5% to 95%
+		} else if (status === 'in_progress') {
+			if (timeStarted && estimatedTokens) {
+				// Use time-based interpolation if we have start time
+				const elapsed = Date.now() - timeStarted;
+				const estimatedDuration = (estimatedTokens / INDEX_TOKENS_PER_SEC) * 1000;
+				const ratio = Math.min(elapsed / estimatedDuration, 1);
+				return Math.min(95, 5 + (90 * ratio)); // 5% to 95%
+			} else {
+				// Fallback: show indeterminate progress for in_progress without time data
+				return 50; // Show halfway progress
+			}
 		} else if (status === 'success' || status === 'done') {
 			return 100;
 		} else if (status === 'failed') {

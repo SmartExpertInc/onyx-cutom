@@ -32588,84 +32588,58 @@ async def smartdrive_indexing_progress(
                 logger.warning(f"[SmartDrive] IndexingProgress: failed to get tokens for path='{path}': {e}")
                 path_to_tokens[path] = 0
 
-        # Query Onyx for IndexAttempt data via UserFile -> cc_pair -> IndexAttempt
+        # First, get the basic indexing status using the existing endpoint
         file_ids = list(path_to_file_id.values())
         query_params = []
         for fid in file_ids:
             query_params.append(("file_ids", fid))
         
-        # Get UserFile data to find cc_pair_id
-        onyx_user_files_url = f"{ONYX_API_SERVER_URL}/user/file/list"
-        logger.info(f"[SmartDrive] IndexingProgress: querying Onyx for user files at {onyx_user_files_url}")
+        onyx_status_url = f"{ONYX_API_SERVER_URL}/user/file/indexing-status"
+        logger.info(f"[SmartDrive] IndexingProgress: querying Onyx indexing status at {onyx_status_url} with file_ids={file_ids}")
         
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(
-                onyx_user_files_url,
+                onyx_status_url,
+                params=query_params,
                 cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
             )
         
         if not resp.is_success:
-            logger.error(f"[SmartDrive] IndexingProgress: Onyx user files request failed: {resp.status_code}")
+            logger.error(f"[SmartDrive] IndexingProgress: Onyx indexing status request failed: {resp.status_code}")
             return {"progress": {p: None for p in norm_paths}}
         
-        user_files = resp.json()
-        file_id_to_cc_pair = {}
-        
-        # Map file_id to cc_pair_id
-        for file_data in user_files:
-            if str(file_data.get("id")) in file_ids:
-                file_id_to_cc_pair[str(file_data["id"])] = file_data.get("cc_pair_id")
-                logger.info(f"[SmartDrive] IndexingProgress: file_id={file_data['id']} -> cc_pair_id={file_data.get('cc_pair_id')}")
+        status_map = resp.json()  # {file_id: bool}
+        logger.info(f"[SmartDrive] IndexingProgress: Onyx indexing status response: {status_map}")
 
-        # Get IndexAttempt data for each cc_pair
+        # Build progress data based on indexing status
         progress_data = {}
         for path, file_id in path_to_file_id.items():
-            cc_pair_id = file_id_to_cc_pair.get(file_id)
-            if not cc_pair_id:
-                logger.warning(f"[SmartDrive] IndexingProgress: no cc_pair_id for file_id={file_id}")
-                progress_data[path] = None
-                continue
+            is_indexed = bool(status_map.get(str(file_id)))
+            estimated_tokens = path_to_tokens.get(path, 0)
             
-            try:
-                # Query IndexAttempt for this cc_pair
-                index_attempt_url = f"{ONYX_API_SERVER_URL}/connector/index-attempt"
-                async with httpx.AsyncClient(timeout=15.0) as client:
-                    resp = await client.get(
-                        index_attempt_url,
-                        params={"cc_pair_id": cc_pair_id},
-                        cookies={ONYX_SESSION_COOKIE_NAME: request.cookies.get(ONYX_SESSION_COOKIE_NAME)},
-                    )
-                
-                if resp.is_success:
-                    index_attempts = resp.json()
-                    if index_attempts and len(index_attempts) > 0:
-                        # Get the latest attempt
-                        latest_attempt = index_attempts[0]
-                        progress_data[path] = {
-                            "status": latest_attempt.get("status"),
-                            "time_started": latest_attempt.get("time_started"),
-                            "time_updated": latest_attempt.get("time_updated"),
-                            "total_docs_indexed": latest_attempt.get("total_docs_indexed", 0),
-                            "estimated_tokens": path_to_tokens.get(path, 0),
-                            "is_complete": latest_attempt.get("status") in ["success", "failed", "canceled"]
-                        }
-                        logger.info(f"[SmartDrive] IndexingProgress: path='{path}' status={latest_attempt.get('status')}")
-                    else:
-                        progress_data[path] = {
-                            "status": "not_started",
-                            "time_started": None,
-                            "time_updated": None,
-                            "total_docs_indexed": 0,
-                            "estimated_tokens": path_to_tokens.get(path, 0),
-                            "is_complete": False
-                        }
-                else:
-                    logger.warning(f"[SmartDrive] IndexingProgress: failed to get IndexAttempt for cc_pair_id={cc_pair_id}")
-                    progress_data[path] = None
-                    
-            except Exception as e:
-                logger.error(f"[SmartDrive] IndexingProgress: error getting IndexAttempt for path='{path}': {e}")
-                progress_data[path] = None
+            if is_indexed:
+                # File is fully indexed
+                progress_data[path] = {
+                    "status": "success",
+                    "time_started": None,
+                    "time_updated": None,
+                    "total_docs_indexed": 1,  # Single file = 1 document
+                    "estimated_tokens": estimated_tokens,
+                    "is_complete": True
+                }
+                logger.info(f"[SmartDrive] IndexingProgress: path='{path}' is fully indexed")
+            else:
+                # File is still being indexed - provide enhanced progress data
+                # For now, we'll use a simple status with token-based estimation
+                progress_data[path] = {
+                    "status": "in_progress",
+                    "time_started": None,  # We don't have this from the basic endpoint
+                    "time_updated": None,
+                    "total_docs_indexed": 0,
+                    "estimated_tokens": estimated_tokens,
+                    "is_complete": False
+                }
+                logger.info(f"[SmartDrive] IndexingProgress: path='{path}' is still being indexed")
 
         # Fill in missing paths
         for p in norm_paths:
