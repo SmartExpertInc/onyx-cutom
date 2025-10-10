@@ -210,3 +210,4 @@ This eliminates coordinate offset issues and ensures **pixel-perfect position ac
 
 **Expected Result**: Text elements in avatar-service videos will now appear at the **exact positions** where users drag them in the editor, with no offset errors.
 
+
