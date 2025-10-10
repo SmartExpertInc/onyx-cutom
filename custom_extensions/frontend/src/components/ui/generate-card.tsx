@@ -19,8 +19,8 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       <Card
         ref={ref}
         className={cn(
-          "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-24 h-20 xs:w-28 xs:h-24 sm:w-28 sm:h-24 md:w-28 md:h-24 lg:w-28 lg:h-24 xl:w-[120px] xl:h-[104px]",
+          "group relative rounded-sm overflow-hidden transition-all duration-200 cursor-pointer",
+          "w-24 h-20 xs:w-28 xs:h-24 sm:w-28 sm:h-24 md:w-28 md:h-24 lg:w-28 lg:h-24 xl:w-[130px] xl:h-[104px]",
           "hover:scale-105",
           className
         )}
@@ -73,7 +73,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
               </div>
             )}
             <span 
-              className="text-sm xs:text-base sm:text-base md:text-base lg:text-base leading-tight text-center px-1 font-semibold"
+              className="text-sm xs:text-base sm:text-base md:text-base lg:text-sm xl:text-sm leading-tight text-center px-1 font-semibold"
               style={{
                 color: active ? '#0D001B' : '#797979'
               }}
