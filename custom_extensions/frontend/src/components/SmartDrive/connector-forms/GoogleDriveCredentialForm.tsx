@@ -37,7 +37,6 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   const [clientId, setClientId] = useState<string>('');
   const [existingCredential, setExistingCredential] = useState<Credential | null>(null);
   const [isCheckingCredentials, setIsCheckingCredentials] = useState(true);
-  const [isRevoking, setIsRevoking] = useState(false);
 
   // Function to refresh credential check
   const refreshCredentialCheck = async () => {
@@ -247,12 +246,6 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   if (existingCredential) {
     return (
       <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Google Drive Authentication Status
-          </h3>
-        </div>
-
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start">
             <CheckIcon className="w-5 h-5 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
