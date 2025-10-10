@@ -1,13 +1,11 @@
 "use client";
 
 import React, { FC, useState, useEffect } from "react";
-import { useLanguage } from "../../../contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FiFile, FiCheck, FiLink, FiAlertTriangle } from "react-icons/fi";
+import { FileIcon, CheckIcon, AlertTriangleIcon } from "lucide-react";
 import { cn, truncateString } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 
 export interface Credential {
   id: number;
@@ -30,7 +28,6 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
   onCredentialCreated,
   onCancel,
 }) => {
-  const { t } = useLanguage();
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | undefined>();
@@ -206,18 +203,22 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
 
     try {
       // Create credential first
-      const credentialCreationResponse = await fetch("/api/manage/credential", {
-        method: "POST",
+      const credentialCreationResponse = await fetch('/api/custom-projects-backend/credentials', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          admin_public: true,
+          name: 'OAuth (uploaded)',
+          source: 'google_drive',
           credential_json: {},
-          source: "google_drive",
-          name: "OAuth (uploaded)",
+          admin_public: true,
+          curator_public: false,
+          groups: [],
         }),
       });
+
+      // TODO: Add onCredentialCreated() usage here
 
       if (!credentialCreationResponse.ok) {
         throw new Error(`Failed to create credential - ${credentialCreationResponse.status}`);
@@ -227,7 +228,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
 
       // Get authorization URL
       const authorizationUrlResponse = await fetch(
-        `/api/manage/connector/google-drive/authorize/${credential.id}`
+        `/api/custom-projects-backend/connector/google-drive/authorize/${credential.id}`
       );
       if (!authorizationUrlResponse.ok) {
         throw new Error(`Failed to get authorization URL - ${authorizationUrlResponse.status}`);
@@ -236,9 +237,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       const authorizationUrlJson = await authorizationUrlResponse.json();
 
       // Set cookie for callback
-      Cookies.set(GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME, "true", {
-        path: "/",
-      });
+      document.cookie = `${GOOGLE_DRIVE_AUTH_IS_ADMIN_COOKIE_NAME}=true; path=/`;
 
       // Redirect to OAuth
       router.push(authorizationUrlJson.auth_url);
@@ -304,23 +303,12 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
           To connect your Google Drive, create credentials (either OAuth App or Service Account), 
           download the JSON file, and upload it below.
         </p>
-        <div className="mb-4">
-          <a
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
-            target="_blank"
-            href="https://docs.onyx.app/connectors/google_drive#authorization"
-            rel="noreferrer"
-          >
-            <FiLink className="h-3 w-3" />
-            View detailed setup instructions
-          </a>
-        </div>
       </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
-            <FiAlertTriangle className="w-5 h-5 text-red-600" />
+            <AlertTriangleIcon className="w-5 h-5 text-red-600" />
             <p className="text-red-800 text-sm font-medium">{error}</p>
           </div>
         </div>
@@ -352,7 +340,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
                   {isUploading ? (
                     <div className="h-4 w-4 border-t-2 border-b-2 border-blue-600 rounded-full animate-spin"></div>
                   ) : (
-                    <FiFile className="h-4 w-4 text-gray-500" />
+                    <FileIcon className="h-4 w-4 text-gray-500" />
                   )}
                   <span className="text-sm text-gray-500">
                     {isUploading
@@ -391,7 +379,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       {(serviceAccountEmail || clientId) && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center gap-2">
-            <FiCheck className="w-5 h-5 text-green-600" />
+            <CheckIcon className="w-5 h-5 text-green-600" />
             <div>
               <p className="text-sm font-medium text-green-800">
                 Credentials uploaded successfully
