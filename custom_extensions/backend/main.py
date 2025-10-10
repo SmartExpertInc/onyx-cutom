@@ -32745,6 +32745,115 @@ async def google_drive_authorize(credential_id: str, request: Request):
         logger.error(f"Error getting Google Drive authorization URL: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error getting Google Drive authorization URL: {str(e)}")
 
+@app.get("/api/custom/connector/google-drive/authorize/{credential_id}")
+async def google_drive_authorize(credential_id: str, request: Request):
+    """
+    Proxy endpoint to get Google Drive authorization URL.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get authentication from cookies
+        session_cookie = request.cookies.get(ONYX_SESSION_COOKIE_NAME)
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive authorization endpoint
+            auth_url = ensure_https_url(f"/api/manage/connector/google-drive/authorize/{credential_id}")
+            
+            response = await client.get(
+                auth_url,
+                headers=auth_headers
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to get Google Drive authorization URL: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to get Google Drive authorization URL: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error getting Google Drive authorization URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting Google Drive authorization URL: {str(e)}")
+
+@app.put("/api/custom/connector/google-drive/app-credential")
+async def google_drive_app_credential(request: Request):
+    """
+    Proxy endpoint to save Google Drive app credentials.
+    Bypasses admin requirement by using user's session.
+    """
+    try:
+        # Get current host from request
+        host = request.headers.get("host", "localhost:8000")
+        protocol = "https" if "localhost" not in host else "http"
+        main_app_url = f"{protocol}://{host}"
+        
+        # Get request body
+        body = await request.body()
+        
+        auth_headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+        
+        # Forward all cookies to maintain session state
+        if request.cookies:
+            cookie_header = '; '.join([f'{name}={value}' for name, value in request.cookies.items()])
+            auth_headers['Cookie'] = cookie_header
+        
+        # Helper function to ensure HTTPS for production domains
+        def ensure_https_url(path: str) -> str:
+            url = f"{main_app_url}{path}"
+            if 'localhost' not in main_app_url and '127.0.0.1' not in main_app_url and url.startswith('http://'):
+                url = url.replace('http://', 'https://')
+            return url
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            # Call Onyx's Google Drive app credential endpoint
+            app_cred_url = ensure_https_url("/api/manage/admin/connector/google-drive/app-credential")
+            
+            response = await client.put(
+                app_cred_url,
+                headers=auth_headers,
+                content=body
+            )
+            
+            if response.is_success:
+                return response.json()
+            else:
+                logger.error(f"Failed to save Google Drive app credentials: {response.text}")
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Failed to save Google Drive app credentials: {response.text}"
+                )
+                
+    except Exception as e:
+        logger.error(f"Error saving Google Drive app credentials: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving Google Drive app credentials: {str(e)}")
+
 # --- Offers API Endpoints ---
 
 @app.get("/api/custom/offers", response_model=List[OfferResponse])

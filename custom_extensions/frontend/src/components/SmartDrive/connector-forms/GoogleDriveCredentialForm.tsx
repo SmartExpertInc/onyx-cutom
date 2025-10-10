@@ -107,7 +107,7 @@ const GoogleDriveCredentialForm: FC<GoogleDriveCredentialFormProps> = ({
       try {
         if (credentialFileType === "authorized_user") {
           const response = await fetch(
-            "/api/manage/admin/connector/google-drive/app-credential",
+            "/api/custom-projects-backend/connector/google-drive/app-credential",
             {
               method: "PUT",
               headers: {
