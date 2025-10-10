@@ -16,6 +16,8 @@ module.exports = {
     },
     fontFamily: {
       sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+      'sora': ['Sora', 'ui-sans-serif', 'system-ui'],
+      'public-sans': ['Public Sans', 'ui-sans-serif', 'system-ui'],
     },
   },
   plugins: [

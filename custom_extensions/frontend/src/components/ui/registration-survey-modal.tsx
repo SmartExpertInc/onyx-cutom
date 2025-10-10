@@ -320,14 +320,14 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         {children}
       </DialogTrigger>
       <DialogPortal>
-        <DialogOverlay className="bg-white" />
+        <DialogOverlay className="bg-white/80 backdrop-blur-sm" />
         <div className="fixed inset-0 z-50 pointer-events-none">
           <BgTopLeft className="absolute top-0 left-0 opacity-90" />
           <BgBottomRight className="absolute bottom-0 right-0 opacity-90" />
         </div>
       </DialogPortal>
       <DialogContent 
-        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-xl bg-transparent custom-scrollbar left-1/3 -translate-x-1/3 top-1/3 -translate-y-1/3" 
+        className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] overflow-y-auto overflow-x-hidden border-0 shadow-xl bg-transparent custom-scrollbar left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2" 
         hideCloseIcon 
         preventCloseOnOverlayClick
         hideDefaultOverlay
@@ -439,7 +439,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 }`}
               >
                     {/* Selection indicator */}
-                    <div className={`absolute top-4 right-4 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    <div className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                       selectedCategory === 'personal'
                         ? 'border-blue-500 bg-blue-500'
                         : 'border-[var(--border-light)]'
@@ -468,7 +468,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                 }`}
               >
                     {/* Selection indicator */}
-                    <div className={`absolute top-4 right-4 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                    <div className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                       selectedCategory === 'work'
                         ? 'border-blue-500 bg-blue-500'
                         : 'border-[var(--border-light)]'

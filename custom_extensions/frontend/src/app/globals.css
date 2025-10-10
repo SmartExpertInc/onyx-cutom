@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "../styles/positioning.css";
 
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap');
+
 /* Mont Font Family - Used in Chudo Themes */
 @font-face {
   font-family: 'Mont Regular';
@@ -51,71 +54,7 @@
   font-display: swap;
 }
 
-/* Sora Font Family */
-@font-face {
-  font-family: 'Sora';
-  src: url('/fonts/Sora-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 
-@font-face {
-  font-family: 'Sora';
-  src: url('/fonts/Sora-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Sora';
-  src: url('/fonts/Sora-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Sora';
-  src: url('/fonts/Sora-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Public Sans Font Family */
-@font-face {
-  font-family: 'Public Sans';
-  src: url('/fonts/PublicSans-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Public Sans';
-  src: url('/fonts/PublicSans-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Public Sans';
-  src: url('/fonts/PublicSans-SemiBold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Public Sans';
-  src: url('/fonts/PublicSans-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
 
 :root {
   --background: #ffffff;

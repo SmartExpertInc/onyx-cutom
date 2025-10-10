@@ -311,8 +311,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className="bg-black/10 backdrop-blur-sm" />
-      <DialogContent className="max-w-8xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md">
+      <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
+      <DialogContent className="max-w-8xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
         {/* Close Button */}
         <button
           onClick={() => onOpenChange(false)}
@@ -326,7 +326,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <div className="container mx-auto px-4 py-7">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
-              <div className="text-center mb-16">
+              <div className="text-center mb-14">
                 <div className="flex items-center justify-center mb-4">
                   <div className="flex items-center gap-1">
                     <div className="w-8 h-8 flex items-center justify-center">
@@ -338,12 +338,12 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold text-[#434343] mb-5 sora-font">{t('tariffPlan.chooseYourPlan', "Choose the plan that's right for you")}</h1>
-                <p className="text-blue-700 font-normal text-xs mb-2 public-sans-font"><span className="sora-font-semibold">Save 15%</span> on yearly plan!</p>
+                <p className="text-blue-700 font-normal text-xs mb-2 public-sans-font"><span className="sora-font-bold">Save 15%</span> on yearly plan!</p>
                 {/* Billing Toggle */}
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
                     onClick={() => setBillingCycle('monthly')}
-                    className={`px-4 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
+                    className={`px-5 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
                       billingCycle === 'monthly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -353,7 +353,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
-                    className={`px-4 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
+                    className={`px-5 py-2 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
                       billingCycle === 'yearly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
