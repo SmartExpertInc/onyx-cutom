@@ -20,7 +20,7 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
         ref={ref}
         className={cn(
           "group relative rounded-md overflow-hidden transition-all duration-200 cursor-pointer",
-          "w-24 h-20 xs:w-28 xs:h-22 sm:w-28 sm:h-27 md:w-28 md:h-29 lg:w-28 lg:h-31 xl:w-28 xl:h-34",
+          "w-24 h-20 xs:w-28 xs:h-24 sm:w-28 sm:h-24 md:w-28 md:h-24 lg:w-28 lg:h-24 xl:w-28 xl:h-24",
           "hover:scale-105",
           className
         )}
@@ -34,9 +34,9 @@ const GenerateCard = React.forwardRef<HTMLDivElement, GenerateCardProps>(
       >
         {/* Badge positioned at top right */}
         {pillLabel && (
-          <div className="absolute top-1.5 right-1.5 z-10">
-            <div className="inline-flex items-center px-2 py-0.5 text-xs font-normal rounded-md gap-1 bg-blue-600 text-white">
-              <Sparkles size={8} />
+          <div className="absolute top-1 right-1 z-10">
+            <div className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-normal rounded gap-0.5 bg-blue-600 text-white">
+              <Sparkles size={7} />
               {pillLabel}
             </div>
           </div>
