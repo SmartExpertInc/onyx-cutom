@@ -15088,7 +15088,7 @@ class OutlineWizardFinalize(BaseModel):
     folderId: Optional[str] = None  # single folder ID when coming from inside a folder
 
 
-@app.post("/api/custom-projects-backend/products/{project_id}/ensure-json")
+@app.post("/api/custom/products/{project_id}/ensure-json")
 async def ensure_product_json(project_id: int, request: Request, pool: asyncpg.Pool = Depends(get_db_pool)):
     """Ensure the product has a JSON uploaded to Onyx and return its document id.
     Uses the current user's Onyx session to perform the upload if needed.
