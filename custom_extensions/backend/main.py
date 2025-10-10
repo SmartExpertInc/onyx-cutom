@@ -15179,58 +15179,78 @@ _CONTENTBUILDER_PERSONA_CACHE: Optional[int] = None
 async def map_smartdrive_paths_to_onyx_files(smartdrive_paths: List[str], user_id: str) -> List[int]:
     """
     Map SmartDrive file paths to corresponding Onyx file IDs.
+    Also handles direct Onyx file IDs (numeric strings) from products-as-context feature.
     
     Args:
-        smartdrive_paths: List of SmartDrive file paths to map
+        smartdrive_paths: List of SmartDrive file paths OR Onyx file IDs (as strings) to map
         user_id: Onyx user ID for context filtering
     
     Returns:
-        List of Onyx file IDs that correspond to the SmartDrive paths
+        List of Onyx file IDs that correspond to the SmartDrive paths or direct IDs
     """
     if not smartdrive_paths:
         return []
     
-    try:
-        pool = await get_db_pool()
-        async with pool.acquire() as connection:
-            # Query the smartdrive_imports table to find matching Onyx file IDs
-            placeholders = ','.join(f'${i+2}' for i in range(len(smartdrive_paths)))
-            query = f"""
-                SELECT onyx_file_id, smartdrive_path 
-                FROM smartdrive_imports 
-                WHERE onyx_user_id = $1 
-                AND smartdrive_path IN ({placeholders})
-                AND onyx_file_id IS NOT NULL
-            """
-            
-            params = [user_id] + smartdrive_paths
-            rows = await connection.fetch(query, *params)
-            
-            onyx_file_ids = [row['onyx_file_id'] for row in rows]
-            mapped_paths = [row['smartdrive_path'] for row in rows]
-            
-            logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(onyx_file_ids)} file IDs from {len(smartdrive_paths)} paths for user {user_id}")
-            
-            # Enhanced debugging: Show what we found vs what we were looking for
-            logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {smartdrive_paths}")
-            logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
-            
-            # Log any unmapped paths for debugging
-            unmapped_paths = [path for path in smartdrive_paths if path not in mapped_paths]
-            if unmapped_paths:
-                logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+    # Separate direct Onyx IDs from SmartDrive paths
+    direct_onyx_ids = []
+    actual_paths = []
+    
+    for item in smartdrive_paths:
+        # Check if this is a numeric string (direct Onyx file ID from products-as-context)
+        if item.strip().isdigit():
+            direct_onyx_ids.append(int(item.strip()))
+            logger.info(f"[SMARTDRIVE_MAPPING] Detected direct Onyx file ID: {item}")
+        else:
+            actual_paths.append(item)
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Processing {len(direct_onyx_ids)} direct Onyx IDs and {len(actual_paths)} SmartDrive paths")
+    
+    # Start with direct Onyx IDs
+    onyx_file_ids = direct_onyx_ids.copy()
+    
+    # Map SmartDrive paths if any
+    if actual_paths:
+        try:
+            pool = await get_db_pool()
+            async with pool.acquire() as connection:
+                # Query the smartdrive_imports table to find matching Onyx file IDs
+                placeholders = ','.join(f'${i+2}' for i in range(len(actual_paths)))
+                query = f"""
+                    SELECT onyx_file_id, smartdrive_path 
+                    FROM smartdrive_imports 
+                    WHERE onyx_user_id = $1 
+                    AND smartdrive_path IN ({placeholders})
+                    AND onyx_file_id IS NOT NULL
+                """
                 
-                # Show what paths ARE available in the database for this user
-                debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
-                debug_rows = await connection.fetch(debug_query, user_id)
-                available_paths = [row['smartdrive_path'] for row in debug_rows]
-                logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
-            
-            return onyx_file_ids
-            
-    except Exception as e:
-        logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
-        return []
+                params = [user_id] + actual_paths
+                rows = await connection.fetch(query, *params)
+                
+                mapped_file_ids = [row['onyx_file_id'] for row in rows]
+                mapped_paths = [row['smartdrive_path'] for row in rows]
+                
+                onyx_file_ids.extend(mapped_file_ids)
+                
+                logger.info(f"[SMARTDRIVE_MAPPING] Mapped {len(mapped_file_ids)} file IDs from {len(actual_paths)} SmartDrive paths for user {user_id}")
+                logger.info(f"[SMARTDRIVE_MAPPING] Looking for paths: {actual_paths}")
+                logger.info(f"[SMARTDRIVE_MAPPING] Found mappings: {[(row['smartdrive_path'], row['onyx_file_id']) for row in rows]}")
+                
+                # Log any unmapped paths for debugging
+                unmapped_paths = [path for path in actual_paths if path not in mapped_paths]
+                if unmapped_paths:
+                    logger.warning(f"[SMARTDRIVE_MAPPING] Unmapped paths: {unmapped_paths}")
+                    
+                    # Show what paths ARE available in the database for this user
+                    debug_query = "SELECT smartdrive_path FROM smartdrive_imports WHERE onyx_user_id = $1 LIMIT 10"
+                    debug_rows = await connection.fetch(debug_query, user_id)
+                    available_paths = [row['smartdrive_path'] for row in debug_rows]
+                    logger.info(f"[SMARTDRIVE_MAPPING] Sample available paths for user {user_id}: {available_paths[:5]}")
+                
+        except Exception as e:
+            logger.error(f"[SMARTDRIVE_MAPPING] Error mapping SmartDrive paths to Onyx files: {e}", exc_info=True)
+    
+    logger.info(f"[SMARTDRIVE_MAPPING] Total Onyx file IDs: {len(onyx_file_ids)} (direct: {len(direct_onyx_ids)}, mapped: {len(onyx_file_ids) - len(direct_onyx_ids)})")
+    return onyx_file_ids
 
 async def get_contentbuilder_persona_id(cookies: Dict[str, str], use_search_persona: bool = False) -> int:
     """Return persona id of the default ContentBuilder assistant (cached).

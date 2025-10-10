@@ -115,6 +115,15 @@ class ProjectApiResponse(BaseModel):
 
 Updated the projects listing query to include the new column in SELECT statements.
 
+## Key Technical Detail: Direct Onyx IDs vs SmartDrive Paths
+
+The `map_smartdrive_paths_to_onyx_files` function was updated to handle two types of inputs:
+
+1. **SmartDrive paths** (e.g., `/folder/file.pdf`) - looked up in `smartdrive_imports` table
+2. **Direct Onyx file IDs** (e.g., `"9"`) - numeric strings passed through directly
+
+This allows products-as-context to work seamlessly alongside SmartDrive files. The function detects numeric strings using `.isdigit()` and treats them as direct Onyx file IDs, while non-numeric strings are treated as SmartDrive paths that need to be mapped.
+
 ## How It Works
 
 ### User Flow:
@@ -168,7 +177,8 @@ To debug, check:
   - Added DB migration (lines ~6093-6096)
   - Added `product_json_onyx_id` to `ProjectApiResponse` model
   - Updated projects listing queries to include new column
-  - Added `ensure_product_json` endpoint (lines ~15091-15171)
+  - Added `ensure_product_json` endpoint (lines ~15091-15175)
+  - Updated `map_smartdrive_paths_to_onyx_files` to handle direct Onyx IDs (lines ~15179-15253)
 
 ### Frontend:
 - `custom_extensions/frontend/src/app/create/from-files/specific/page.tsx`
