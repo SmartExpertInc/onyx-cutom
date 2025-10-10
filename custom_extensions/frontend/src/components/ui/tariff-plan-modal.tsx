@@ -312,8 +312,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-8xl w-[90vw] h-[90vh] overflow-y-auto p-0 rounded-xl bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md">
-        <div className="min-h-full">
-          <div className="container mx-auto px-4 py-12">
+        <div className="h-[90%] min-h-[700px]">
+          <div className="container mx-auto px-4 py-7">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-16">
@@ -333,7 +333,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                 <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mt-1">
                   <button
                     onClick={() => setBillingCycle('monthly')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    className={`px-4 py-1 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
                       billingCycle === 'monthly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -343,7 +343,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                   </button>
                   <button
                     onClick={() => setBillingCycle('yearly')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    className={`px-4 py-1 rounded-full text-sm public-sans-font font-semibold transition-all duration-300 ${
                       billingCycle === 'yearly'
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-[#A1A1AA] hover:text-blue-600'
@@ -357,9 +357,9 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
               {/* Pricing Cards */}
               <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-7">
                 {plans.map((plan) => (
-                    <div key={plan.id} className="relative">
+                    <div key={plan.id} className="relative flex flex-col">
                       <div
-                        className={`bg-white rounded-xl shadow-lg border transition-all duration-300 hover:shadow-xl ${
+                        className={`bg-white rounded-xl shadow-lg border transition-all duration-300 hover:shadow-xl flex flex-col h-full ${
                           plan.popular 
                           ? 'border-blue-600 border-2 bg-blue-50/30' 
                           : 'border-gray-200 border-2 hover:border-blue-300'
@@ -402,7 +402,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     </div>
 
                     {/* Card Body */}
-                    <div className="px-4 pb-5">
+                    <div className="px-4 pb-5 flex flex-col flex-grow">
                     <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
                         className={`w-full py-2 rounded-sm public-sans-font font-semibold text-base transition-all duration-300 ${
@@ -422,39 +422,39 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                           ? t('tariffPlan.contactSales', 'Contact Sales')
                           : t('tariffPlan.getStarted', 'Get started')}
                       </button>
-                      <h4 className="text-base font-semibold public-sans-font text-[#434343] pt-7 mb-4">
+                      <h4 className="text-base font-semibold public-sans-font text-[#434343] pt-9 mb-4">
                         {plan.id === 'starter' ? 'What you get:' : 
                          plan.id === 'pro' ? 'All free features, plus:' :
                          plan.id === 'business' ? 'All starter features, plus:' :
                          'All business features, plus:'}
                       </h4>
-                      <div className="space-y-4 mb-8 public-sans-font">
+                      <div className="space-y-4 mb-8 public-sans-font flex-grow">
                         <div className="flex items-center">
                           <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-semibold text-[var(--border-light)]">
-                            {t('tariffPlan.credits', 'Credits')}: <span className="font-medium">{plan.credits}</span>
+                          <span className="text-sm font-regular text-[#71717A]">
+                            <span className="font-semibold">{t('tariffPlan.credits', 'Credits')}</span>: {plan.credits}
                           </span>
                         </div>
 
                         <div className="flex items-center">
                           <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-semibold text-[var(--border-light)]">
-                            {t('tariffPlan.storage', 'Storage')}: <span className="font-medium">{plan.storage}</span>
+                          <span className="text-sm font-regular text-[#71717A]">
+                            <span className="font-semibold">{t('tariffPlan.storage', 'Storage')}</span>: {plan.storage}
                           </span>
                         </div>
 
                         <div className="flex items-center">
                           <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-semibold text-[var(--border-light)]">
-                            {t('tariffPlan.support', 'Support')}: <span className="font-medium">{plan.support}</span>
+                          <span className="text-sm font-regular text-[#71717A]">
+                             <span className="font-semibold">{t('tariffPlan.support', 'Support')}</span>:{plan.support}
                           </span>
                         </div>
 
                         {plan.connectors !== '-' && (
                           <div className="flex items-center">
                             <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                            <span className="text-sm font-semibold text-[var(--border-light)]">
-                              {t('tariffPlan.connectors', 'Connectors')}: <span className="font-medium">{plan.connectors}</span>
+                            <span className="text-sm font-regular text-[#71717A]">
+                              <span className="font-semibold">{t('tariffPlan.connectors', 'Connectors')}</span>: {plan.connectors}
                             </span>
                           </div>
                         )}
@@ -462,8 +462,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                         {plan.collaboration !== '-' && (
                           <div className="flex items-center">
                             <Check className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
-                            <span className="text-sm font-semibold text-[var(--border-light)]">
-                              {t('tariffPlan.collaboration', 'Collaboration')}: <span className="font-medium">{plan.collaboration}</span>
+                            <span className="text-sm font-regular text-[#71717A]">
+                              <span className="font-semibold">{t('tariffPlan.collaboration', 'Collaboration')}</span>: {plan.collaboration}
                             </span>
                           </div>
                         )}

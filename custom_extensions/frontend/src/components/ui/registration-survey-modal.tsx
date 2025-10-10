@@ -332,7 +332,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
         preventCloseOnOverlayClick
         hideDefaultOverlay
       >
-          <div className="relative z-10 w-full max-w-[1280px] rounded-3xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
+          <div className="relative z-10 w-full max-w-[1280px] rounded-2xl p-0 bg-white/40 backdrop-blur-md shadow-2xl border border-white/20 mx-auto my-auto">
           {/* Header with Logo and Progress */}
           <div className="p-8 pb-6">
             {/* ContentBuilder Logo */}
@@ -384,7 +384,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       <ChevronDown className="w-4 h-4 text-[#434343]" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-3xl text-sm public-sans-font">
+                  <DropdownMenuContent className="max-w-[830px] min-w-[400px] w-[70vw] text-sm public-sans-font">
                     <DropdownMenuItem onClick={() => setLanguage('en')} className="flex items-center">
                       <USFlag className="w-4 h-4 mr-2" />
                       {t('language.english', 'English')}
@@ -408,7 +408,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
             
             {/* Main Question */}
             <div className="text-center mb-5">
-              <h2 className="text-2xl font-bold text-[#434343] mb-3 public-sans-font-bold">
+              <h2 className="text-2xl font-bold text-[#434343] mb-3 sora-font-bold">
                   {surveyStep === 1 && t('survey.step1.title', "What do you plan to use ContentBuilder for?")}
                   {surveyStep === 2 && selectedCategory === 'work' && t('survey.step2Work.title', "What best describes your role?")}
                   {surveyStep === 3 && selectedCategory === 'work' && t('survey.step3.title', "What is the size of your company?")}
@@ -453,7 +453,7 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
                       <div className="w-16 h-16 mb-6 flex items-center justify-center">
                         <PersonalIcon className={'w-14 h-14'} fill={selectedCategory === 'personal' ? '#EF8EFB' : '#EFB4FB'} fill2={selectedCategory === 'personal' ? '#F7B6FC' : '#F7E0FC'} />
                   </div>
-                      <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 public-sans-font-bold">{t('survey.category.personal', 'Personal')}</h3>
+                      <h3 className="text-2xl font-bold text-[var(--secondary-foreground)] mb-3 pt-3 public-sans-font-bold">{t('survey.category.personal', 'Personal')}</h3>
                       <p className="text-[#71717A] text-xs leading-relaxed public-sans-font">{t('survey.category.personalDescription', 'Personal projects, learning, or creative endeavors')}</p>
                 </div>
               </div>
