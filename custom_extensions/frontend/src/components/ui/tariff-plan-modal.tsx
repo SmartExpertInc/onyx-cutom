@@ -311,8 +311,22 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
+    <>
+      <style jsx>{`
+        [data-radix-scroll-area-scrollbar] {
+          background: rgba(175, 175, 175, 0.1);
+          border-radius: 4px;
+        }
+        [data-radix-scroll-area-thumb] {
+          background: #ebebeb !important;
+          border-radius: 4px;
+        }
+        [data-radix-scroll-area-thumb]:hover {
+          background: #d4d4d4 !important;
+        }
+      `}</style>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogOverlay className="bg-black/20 backdrop-blur-sm" />
       <DialogContent className="sm:max-w-[1280px] w-[90vw] rounded-xl p-0 max-h-[90vh] min-w-[830px] bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-md" hideCloseIcon>
         {/* Close Button */}
         <button
@@ -323,8 +337,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           <X className="w-6 h-6 text-[#71717A]" />
         </button>
         
-        <ScrollArea className="h-[90vh] w-full">
-          <div className="h-[90%] min-h-[700px]">
+        <ScrollArea className="h-[90vh] max-h-[770px] w-full">
+          <div className="h-[90%] min-h-[700px] max-h-[770px]">
           <div className="container mx-auto px-10 py-7">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
@@ -417,7 +431,7 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
                     <div className="px-4 pb-3 pt-3 flex flex-col flex-grow">
                     <button
                         onClick={() => plan.id !== 'starter' && plan.id !== currentPlanId && handlePurchasePlan(plan)}
-                        className={`w-full py-2 rounded-sm font-public-sans font-semibold text-base transition-all duration-300 ${
+                        className={`w-full py-2 rounded-sm font-public-sans font-medium text-base transition-all duration-300 ${
                           plan.id === currentPlanId
                             ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             : plan.popular
@@ -490,7 +504,8 @@ const TariffPlanModal: React.FC<TariffPlanModalProps> = ({ open, onOpenChange })
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+    </>
   );
 };
 

@@ -297,6 +297,19 @@ const RegistrationSurveyModal: React.FC<RegistrationSurveyModalProps> = ({
 
   return (
     <>
+      <style jsx>{`
+        [data-radix-scroll-area-scrollbar] {
+          background: rgba(175, 175, 175, 0.1);
+          border-radius: 4px;
+        }
+        [data-radix-scroll-area-thumb] {
+          background: #ebebeb !important;
+          border-radius: 4px;
+        }
+        [data-radix-scroll-area-thumb]:hover {
+          background: #d4d4d4 !important;
+        }
+      `}</style>
       <Dialog open={surveyModalOpen} onOpenChange={(open: boolean) => {
         setSurveyModalOpen(open);
         if (open) resetSurvey();
