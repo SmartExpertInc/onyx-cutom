@@ -28726,9 +28726,9 @@ async def stripe_webhook(
                         
                         # Check if this is a base tier price
                         tier_key = PRICE_TO_TIER.get(item_price_id, '')
-                    if tier_key:
+                        if tier_key:
                             price_id = item_price_id
-                        plan = tier_key.replace('_monthly', '').replace('_yearly', '')
+                            plan = tier_key.replace('_monthly', '').replace('_yearly', '')
                             recurring = price.get('recurring') if isinstance(price, dict) else getattr(price, 'recurring', None)
                             interval = (recurring or {}).get('interval') if isinstance(recurring, dict) else getattr(recurring, 'interval', None)
                             logger.info(f"[BILLING] Found tier price: {item_price_id} -> plan={plan}, interval={interval}")
